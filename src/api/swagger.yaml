@@ -1,0 +1,88 @@
+swagger: "2.0"
+info:
+  description: Insights Remediations Service
+  version: "1"
+  title: Insights Remediations
+  contact:
+    email: jozef@redhat.com
+basePath: /v1
+schemes:
+- http
+- https
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /playbook:
+    post:
+      summary: Generate an Ansible Playbook
+      description: Generates an Ansible Playbook based on input parameters
+      operationId: generate
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: "#/definitions/PlaybookDefinition"
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: "#/definitions/PlaybookDefinition"
+        400:
+          $ref: '#/responses/InvalidRequest'
+
+responses:
+  InvalidRequest:
+    description: invalid request
+    schema:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+definitions:
+  IssueId:
+    type: string
+    pattern: ^(advisor|vulnerabilities):[\w\d-_|]+$
+    example: vulnerabilities:CVE_2017_5461_nss|CVE_2017_5461_NSS_2
+  SystemId:
+    type: string
+    example: a8799a02-8be9-11e8-9eb6-529269fb1459
+  ResolutionType:
+    type: string
+    example: fix
+    default: fix
+  PlaybookDefinition:
+    type: object
+    additionalProperties: false
+    required:
+      - issues
+    properties:
+      issues:
+        type: array
+        minItems: 1
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - id
+            - systems
+          properties:
+            id:
+              $ref: "#/definitions/IssueId"
+            systems:
+              type: array
+              minItems: 1
+              items:
+                $ref: "#/definitions/SystemId"
+            resolution:
+              $ref: "#/definitions/ResolutionType"
+  Playbook:
+    type: object
+    properties:
+      name:
+        type: integer
