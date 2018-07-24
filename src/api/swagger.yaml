@@ -6,9 +6,6 @@ info:
   contact:
     email: jozef@redhat.com
 basePath: /v1
-schemes:
-- http
-- https
 consumes:
 - application/json
 produces:
