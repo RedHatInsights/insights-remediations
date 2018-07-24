@@ -15,5 +15,7 @@ module.exports = async function (app) {
     require('./generator')(v1);
     app.use('/v1', v1);
 
+    app.get('/', (req, res) => res.redirect('/docs'));
+
     app.use(errors.handler);
 };
