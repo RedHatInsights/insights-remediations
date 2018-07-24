@@ -8,11 +8,11 @@ const config = require('../config');
 
 let server;
 
-before(async () => {
+beforeAll(async () => {
     server = await app.start();
 });
 
-after(async () => {
+afterAll(async () => {
     if (server) {
         await server.stop();
     }

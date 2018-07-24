@@ -19,6 +19,8 @@ paths:
       summary: Generate an Ansible Playbook
       description: Generates an Ansible Playbook based on input parameters
       operationId: generate
+      produces:
+      - text/vnd.yaml
       parameters:
       - name: body
         in: body
@@ -29,7 +31,7 @@ paths:
         200:
           description: success
           schema:
-            $ref: "#/definitions/PlaybookDefinition"
+            type: string
         400:
           $ref: '#/responses/InvalidRequest'
 
@@ -47,7 +49,7 @@ responses:
 definitions:
   IssueId:
     type: string
-    pattern: ^(advisor|vulnerabilities):[\w\d-_|]+$
+    pattern: ^(advisor|vulnerabilities|test):[\w\d-_|]+$
     example: vulnerabilities:CVE_2017_5461_nss|CVE_2017_5461_NSS_2
   SystemId:
     type: string
@@ -65,6 +67,16 @@ definitions:
       issues:
         type: array
         minItems: 1
+        example:
+          - id: vulnerabilities:CVE_2017_5461_nss|CVE_2017_5461_NSS_2
+            systems:
+              - a8799a02-8be9-11e8-9eb6-529269fb1459
+              - 736ef48c-8f05-11e8-9eb6-529269fb1459
+            resolution: workaround
+          - id: vulnerabilities:RHSA-2018:0512
+            systems:
+              - a8799a02-8be9-11e8-9eb6-529269fb1459
+              - 736ef48c-8f05-11e8-9eb6-529269fb1459
         items:
           type: object
           additionalProperties: false
@@ -81,8 +93,3 @@ definitions:
                 $ref: "#/definitions/SystemId"
             resolution:
               $ref: "#/definitions/ResolutionType"
-  Playbook:
-    type: object
-    properties:
-      name:
-        type: integer

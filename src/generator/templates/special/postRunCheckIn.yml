@@ -1,0 +1,8 @@
+- name: run insights
+  hosts: "@@HOSTS@@"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: redhat-access-insights
+      changed_when: false

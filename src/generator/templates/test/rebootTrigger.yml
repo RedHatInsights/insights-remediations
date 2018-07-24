@@ -1,0 +1,7 @@
+- name: Trigger reboot
+  hosts: "@@HOSTS@@"
+
+  tasks:
+    - name: Trigger reboot
+      set_fact:
+        insights_needs_reboot: True

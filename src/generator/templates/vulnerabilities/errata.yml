@@ -1,0 +1,16 @@
+---
+- name: fix RHSA-2017:2836
+  hosts: "@@HOSTS@@"
+  become: true
+  vars:
+    changed_keyword: "Complete!"
+  tasks:
+    - name: upgrade package
+      shell: yum update -d 2 -y --advisories=RHSA-2017:2836
+      register: yum_result
+      changed_when: changed_keyword in yum_result.stdout
+
+    - when: changed_keyword in yum_result.stdout
+      name: set reboot fact
+      set_fact:
+        insights_needs_reboot: True

@@ -10,7 +10,10 @@ const config = require('./config');
 
 const P = require('bluebird');
 
-process.on('unhandledRejection', e => { throw e; });
+process.on('unhandledRejection', e => {
+    log.fatal(e);
+    throw e;
+});
 
 async function healthCheck() {
     log.debug('health check');
@@ -41,7 +44,7 @@ async function start () {
 
     return {
         stop () {
-            server.close();
+            return server.closeAsync();
         }
     };
 }

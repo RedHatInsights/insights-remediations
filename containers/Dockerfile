@@ -13,5 +13,5 @@ COPY . /usr/src/app
 
 USER node:node
 EXPOSE 9002
-ENV NODE_ENV=prod
+ENV NODE_ENV=production
 CMD [ "node", "src/app.js" ]

@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generates a simple playbook 1`] = `
+"- name: ping
+  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+
+  tasks:
+    - ping
+
+- name: run insights
+  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: redhat-access-insights
+      changed_when: false"
+`;
+
+exports[`generates a simple playbook with reboot 1`] = `
+"- name: Trigger reboot
+  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com,d36ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
+
+  tasks:
+    - name: Trigger reboot
+      set_fact:
+        insights_needs_reboot: True
+
+# Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
+# The variable can be overridden to suppress this behavior.
+- name: Reboot system (if applicable)
+  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com,d36ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - when:
+        - insights_needs_reboot is defined
+        - insights_needs_reboot
+      block:
+        - name: Reboot system
+          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          async: 1
+          poll: 0
+          ignore_errors: true
+
+        - name: Wait for system to boot up
+          local_action:
+            module: wait_for
+            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
+            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            delay: 15
+            timeout: 300
+          become: false
+
+- name: run insights
+  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com,d36ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: redhat-access-insights
+      changed_when: false"
+`;
