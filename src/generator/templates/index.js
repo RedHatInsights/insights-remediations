@@ -16,6 +16,9 @@ const templates = {
     special: {
         postRunCheckIn: new Template(load('special/postRunCheckIn.yml')),
         reboot: new Template(load('special/reboot.yml'))
+    },
+    vulnerabilities: {
+        errata: new Template(load('vulnerabilities/errata.yml'), true)
     }
 };
 

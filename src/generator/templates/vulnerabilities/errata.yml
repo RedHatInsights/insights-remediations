@@ -1,12 +1,11 @@
----
-- name: fix RHSA-2017:2836
+- name: fix @@ERRATA@@
   hosts: "@@HOSTS@@"
   become: true
   vars:
     changed_keyword: "Complete!"
   tasks:
     - name: upgrade package
-      shell: yum update -d 2 -y --advisories=RHSA-2017:2836
+      shell: yum update -d 2 -y --advisories=@@ERRATA@@
       register: yum_result
       changed_when: changed_keyword in yum_result.stdout
 

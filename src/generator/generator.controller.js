@@ -7,12 +7,13 @@ const errors = require('../errors');
 const inventory = require('../external/inventory');
 const templates = require('./templates');
 const Play = require('./Play');
+const format = require('./format');
 
 const RESOLVERS = [
+    require('./resolvers/ErrataResolver'),
     require('./resolvers/TestResolver')
-];
+].reverse();
 
-// TODO I don't like how we pass mutable state - instead switch to functional composition of functions
 exports.generate = errors.async(async function (req, res) {
     const input = { ...req.swagger.params.body.value };
 
@@ -27,7 +28,8 @@ exports.generate = errors.async(async function (req, res) {
     addRebootPlay(plays);
     addPostRunCheckIn(plays);
 
-    const playbook = render(plays);
+    const playbook = format.render(plays);
+    format.validate(playbook);
     return send(res, playbook);
 });
 
@@ -75,14 +77,12 @@ function addPostRunCheckIn (plays) {
     plays.push(new Play('special:post-run-check-in', templates.special.postRunCheckIn, hosts));
 }
 
-function render (plays) {
-    return plays.map(play => play.render()).join('\n\n');
-}
-
 function send (res, playbook) {
     res.set({
-        'Content-type': 'text/vnd.yaml',
-        'Content-disposition': `attachment;filename="insights-playbook.yml"`
+        'Content-type': 'text/vnd.yaml'
+
+        // TODO make optional
+        //'Content-disposition': `attachment;filename="insights-playbook.yml"`
     });
 
     return res.send(playbook).end();

@@ -1,6 +1,6 @@
 'use strict';
 
-const { request } = require('../test');
+const { request, mockVmaas } = require('../test');
 
 test('generates a simple playbook', () => {
     const data = {
@@ -22,6 +22,23 @@ test('generates a simple playbook with reboot', () => {
         issues: [{
             id: 'test:reboot',
             systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459', 'd36ef48c-8f05-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200)
+    .then(res => expect(res.text).toMatchSnapshot());
+});
+
+test('generates a erratum-based playbook', () => {
+    mockVmaas();
+
+    const data = {
+        issues: [{
+            id: 'vulnerabilities:RHSA-2018:0502',
+            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
 
