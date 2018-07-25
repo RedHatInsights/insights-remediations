@@ -7,6 +7,7 @@ const terminus = require('@godaddy/terminus');
 const log = require('./util/log');
 const routes = require('./routes');
 const config = require('./config');
+const version = require('./util/version');
 
 const P = require('bluebird');
 
@@ -20,6 +21,7 @@ async function healthCheck() {
 }
 
 async function start () {
+    log.info(`${version.full} starting`);
     routes(app);
 
     const server = P.promisifyAll(http.createServer(app));
@@ -31,16 +33,16 @@ async function start () {
         },
 
         async onSignal () {
-            log.info('server shutting down');
+            log.info(`${version.full} shutting down`);
         },
 
         onShutdown () {
-            log.info('server shutdown complete');
+            log.info(`${version.full} shutdown complete`);
         }
     });
 
     await server.listenAsync(config.port);
-    log.info('server started');
+    log.info(`${version.full} started`);
 
     return {
         stop () {

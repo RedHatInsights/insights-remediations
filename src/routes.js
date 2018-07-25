@@ -13,6 +13,8 @@ module.exports = async function (app) {
 
     const v1 = express.Router();
     require('./generator')(v1);
+    require('./version')(v1);
+
     app.use('/v1', v1);
 
     app.get('/', (req, res) => res.redirect('/docs'));
