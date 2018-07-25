@@ -9,7 +9,7 @@ def notify(subject, body, color) {
     slackSend message: message, color: color, channel: '#insights-remediations'
 }
 
-def wrapped(Closure step) {
+def notifyOnFailure(Closure step) {
     try {
         step()
     } catch (e) {
@@ -19,36 +19,32 @@ def wrapped(Closure step) {
 }
 
 node {
-    env.NODEJS_HOME = "${tool 'node-10'}"
-    env.PATH="${env.NODEJS_HOME}/bin:${env.PATH}"
+    notifyOnFailure {
+        notify("[${env.JOB_NAME}] Build started", null, "#439FE0")
 
-    checkout scm
+        env.NODEJS_HOME = "${tool 'node-10'}"
+        env.PATH="${env.NODEJS_HOME}/bin:${env.PATH}"
 
-    sh 'git rev-parse HEAD'
+        checkout scm
 
-    wrapped({
+        sh 'git rev-parse HEAD'
+
         stage('build') {
             sh 'npm ci'
         }
-    })
 
-    wrapped({
         stage('verify') {
             sh 'npm run verify'
         }
-    })
 
-    wrapped({
         stage('build image') {
             openshiftBuild(buildConfig: "remediations", showBuildLogs: "true", namespace: NAMESPACE)
         }
-    })
 
-    wrapped({
         stage('deploy') {
             openshiftDeploy(deploymentConfig: "remediations", namespace: NAMESPACE)
             sh "oc rollout status --namespace=${NAMESPACE} dc/remediations"
             notify("[${env.JOB_NAME}] Deployment finished", null, "good")
         }
-    })
+    }
 }
