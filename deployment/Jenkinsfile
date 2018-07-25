@@ -1,0 +1,54 @@
+NAMESPACE = 'remediations-ci'
+
+def notify(subject, body, color) {
+    message = subject
+    if (body != null) {
+        message += " | ${body}"
+    }
+
+    slackSend message: message, color: color, channel: '#insights-remediations'
+}
+
+def wrapped(Closure step) {
+    try {
+        step()
+    } catch (e) {
+        notify("[${env.JOB_NAME}] Build failed", "See ${env.BUILD_URL}console", "danger")
+        throw e
+    }
+}
+
+node {
+    env.NODEJS_HOME = "${tool 'node-10'}"
+    env.PATH="${env.NODEJS_HOME}/bin:${env.PATH}"
+
+    checkout scm
+
+    sh 'git rev-parse HEAD'
+
+    wrapped({
+        stage('build') {
+            sh 'npm ci'
+        }
+    })
+
+    wrapped({
+        stage('verify') {
+            sh 'npm run verify'
+        }
+    })
+
+    wrapped({
+        stage('build image') {
+            openshiftBuild(buildConfig: "remediations", showBuildLogs: "true", namespace: NAMESPACE)
+        }
+    })
+
+    wrapped({
+        stage('deploy') {
+            openshiftDeploy(deploymentConfig: "remediations", namespace: NAMESPACE)
+            sh "oc rollout status --namespace=${NAMESPACE} dc/remediations"
+            notify("[${env.JOB_NAME}] Deployment finished", null, "good")
+        }
+    })
+}
