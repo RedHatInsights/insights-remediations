@@ -12,15 +12,15 @@ Insights Remediations supports the following types of remediations:
     Templates from [insights-playbooks repository](https://github.com/redhatinsights/insights-playbooks) are used.
     See [project wiki](https://github.com/redhatinsights/insights-playbooks/wiki) for more details.
 
-1. Erratum-based (Vulnerabilities)
+1. Erratum-based
 
     This remediation type is used by the Vulnerabilities application.
     A single [generic template](https://github.com/RedHatInsights/insights-remediations/blob/master/src/generator/templates/vulnerabilities/errata.yml), which remediates the given erratum by upgrading relevant packages, is used.
 
-1. SSG (Compliance)
+1. SCAP Security Guide (SSG)
 
     This remediation type will likely be used by the Vulnerabilities application.
-    Templates from [Scap Security Guide](https://github.com/OpenSCAP/scap-security-guide) are used.
+    Templates from [SCAP Security Guide](https://github.com/OpenSCAP/scap-security-guide) are used.
 
 
 ## Documentation
