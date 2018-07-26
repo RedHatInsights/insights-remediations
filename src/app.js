@@ -17,7 +17,7 @@ process.on('unhandledRejection', e => {
 });
 
 async function healthCheck() {
-    log.debug('health check');
+    // TODO: nothing to check yet
 }
 
 async function start () {
