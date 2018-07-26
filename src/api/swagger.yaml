@@ -10,6 +10,7 @@ consumes:
 - application/json
 produces:
 - application/json
+- text/html
 paths:
   /playbook:
     post:
@@ -46,7 +47,7 @@ responses:
 definitions:
   IssueId:
     type: string
-    pattern: ^(advisor|vulnerabilities|test):[\w\d-_|:]+$
+    pattern: ^(advisor|vulnerabilities|compliance|test):[\w\d-_|:]+$
     example: vulnerabilities:CVE_2017_5461_nss|CVE_2017_5461_NSS_2
   SystemId:
     type: string
@@ -73,7 +74,10 @@ definitions:
             systems:
               - a8799a02-8be9-11e8-9eb6-529269fb1459
               - 736ef48c-8f05-11e8-9eb6-529269fb1459
-            resolution: workaround
+          - id: compliance:sshd_disable_root_login
+            systems:
+              - a8799a02-8be9-11e8-9eb6-529269fb1459
+              - 736ef48c-8f05-11e8-9eb6-529269fb1459
         items:
           type: object
           additionalProperties: false

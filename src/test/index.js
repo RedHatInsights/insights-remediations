@@ -10,23 +10,28 @@ const config = require('../config');
 const vmaas = require('../external/vmaas');
 
 let server;
-let sandbox;
 
 beforeAll(async () => {
-    sandbox = sinon.createSandbox();
     server = await app.start();
+});
+
+beforeEach(() => {
+    exports.sandbox = sinon.createSandbox();
+});
+
+afterEach(() => {
+    exports.sandbox.restore();
+    delete exports.sandbox;
 });
 
 afterAll(async () => {
     if (server) {
         await server.stop();
     }
-
-    sandbox.restore();
 });
 
 exports.request = supertest.agent(`http://localhost:${config.port}`);
 
 exports.mockVmaas = function () {
-    sandbox.stub(vmaas, 'getErrata').callsFake((ids) => (_.keyBy(ids)));
+    exports.sandbox.stub(vmaas, 'getErrata').callsFake((ids) => (_.keyBy(ids)));
 };

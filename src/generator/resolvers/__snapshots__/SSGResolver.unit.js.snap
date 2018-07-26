@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`parses a simple template 1`] = `
+"- name: fix sshd_disable_root_login
+  hosts: '@@HOSTS@@'
+  become: true
+  tasks:
+    - name: Disable SSH Root Login
+      lineinfile:
+        create: 'yes'
+        dest: /etc/ssh/sshd_config
+        regexp: ^PermitRootLogin
+        line: PermitRootLogin no
+        insertafter: '(?i)^#?authentication'
+        validate: sshd -t -f %s"
+`;
+
+exports[`parses a template with reboot 1`] = `
+"- name: fix bootloader_audit_argument
+  hosts: '@@HOSTS@@'
+  become: true
+  tasks:
+    - name: Enable Auditing for Processes Which Start Prior to the Audit Daemon
+      shell: /sbin/grubby --update-kernel=ALL --args=\\"audit=1\\""
+`;

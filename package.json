@@ -18,6 +18,7 @@
   "dependencies": {
     "@godaddy/terminus": "^2.4.1",
     "bluebird": "^3.5.1",
+    "dedent-js": "^1.0.1",
     "express": "^4.16.3",
     "express-pino-logger": "^3.0.2",
     "js-yaml": "^3.12.0",

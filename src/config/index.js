@@ -17,5 +17,10 @@ module.exports = {
 
     vmaas: {
         host: process.env.VMAAS_HOST || 'http://webapp-vmaas-stable.1b13.insights.openshiftapps.com'
+    },
+
+    ssg: {
+        repository: process.env.SSG_REPO ||
+            'https://raw.githubusercontent.com/OpenSCAP/scap-security-guide/master/shared/fixes/ansible'
     }
 };

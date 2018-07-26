@@ -11,6 +11,7 @@ const format = require('./format');
 
 const RESOLVERS = [
     require('./resolvers/ErrataResolver'),
+    require('./resolvers/SSGResolver'),
     require('./resolvers/TestResolver')
 ].reverse();
 
