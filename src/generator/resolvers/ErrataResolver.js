@@ -5,7 +5,7 @@ const vmaas = require('../../external/vmaas');
 
 const TEMPLATE = require('../templates').vulnerabilities.errata;
 const PREFIX = 'vulnerabilities:';
-const MATCH = /^vulnerabilities:RHSA-20[\d]{2}:[\d]{4,5}$/;
+const MATCH = /^vulnerabilities:RH[SBE]A-20[\d]{2}:[\d]{4,5}$/;
 
 exports.resolveTemplates = async function (ids) {
     const filtered = ids.filter(id => MATCH.test(id));
