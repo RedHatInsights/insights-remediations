@@ -4,28 +4,28 @@ const _ = require('lodash');
 const vmaas = require('../../external/vmaas');
 
 const TEMPLATE = require('../templates').vulnerabilities.errata;
-const PREFIX = 'vulnerabilities:';
-const MATCH = /^vulnerabilities:RH[SBE]A-20[\d]{2}:[\d]{4,5}$/;
+const identifiers = require('../../util/identifiers');
+const APP = 'vulnerabilities';
+const MATCH = /^RH[SBE]A-20[\d]{2}:[\d]{4,5}$/;
 
 exports.resolveTemplates = async function (ids) {
-    const filtered = ids.filter(id => MATCH.test(id));
+    const filtered = ids.map(identifiers.parse).filter(id => id.app === APP && MATCH.test(id.issue));
 
     if (!filtered.length) {
         return {};
     }
 
-    const errata = await vmaas.getErrata(ids.map(toErratumId));
+    const errata = await vmaas.getErrata(filtered.map(id => id.issue));
 
-    return _(errata)
-    .mapValues((value, key) => ([TEMPLATE.apply({ERRATA: key})]))
-    .mapKeys((value, key) => fromErratumId(key))
+    return _(filtered)
+    .keyBy(id => id.full)
+    .mapValues(id => {
+        const erratum = errata[id.issue];
+
+        if (erratum) {
+            return [TEMPLATE.apply({ERRATA: id.issue})];
+        }
+    })
+    .pickBy()
     .value();
 };
-
-function toErratumId (id) {
-    return id.replace(PREFIX, '');
-}
-
-function fromErratumId (id) {
-    return `${PREFIX}${id}`;
-}

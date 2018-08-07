@@ -6,29 +6,39 @@ const yaml = require('js-yaml');
 const ssg = require('../../external/ssg');
 const keyValueParser = require('../../util/keyValueParser');
 const Template = require('../templates/Template');
+const identifiers = require('../../util/identifiers');
 
-const PREFIX = 'compliance:';
+const APP = 'compliance';
 
 exports.resolveTemplates = async function (ids) {
-    const filtered = ids.filter(id => id.startsWith(PREFIX));
+    const filtered = ids.map(identifiers.parse).filter(id => id.app === APP);
 
     if (!filtered.length) {
         return {};
     }
 
     const pending = _(filtered)
-    .keyBy()
-    .mapValues(toExternalId)
-    .mapValues(getTemplate)
+    .keyBy(id => id.full)
+    .mapValues(resolveTemplate)
     .value();
 
     const resolved = await P.props(pending);
-    return _(resolved).pickBy().mapValues(parseTemplate).mapValues(template => ([template])).value();
+    return _.pickBy(resolved);
 };
+
+async function resolveTemplate(id) {
+    const raw = await getTemplate(id);
+
+    if (!raw) {
+        return;
+    }
+
+    return [parseTemplate(raw, id)];
+}
 
 async function getTemplate (id) {
     try {
-        return await ssg.getTemplate(id);
+        return await ssg.getTemplate(id.issue);
     } catch (e) {
         if (e.name === 'StatusCodeError' && e.statusCode === 404) {
             return;
@@ -38,16 +48,12 @@ async function getTemplate (id) {
     }
 }
 
-function toExternalId (id) {
-    return id.replace(PREFIX, '');
-}
-
 function parseTemplate (template, id) {
     template = template.replace(/@ANSIBLE_TAGS@/g, '- 0');
     const parsed = yaml.safeLoad(template);
     parsed.forEach(item => delete item.tags);
 
-    const play = createBaseTemplate(toExternalId(id));
+    const play = createBaseTemplate(id.issue);
     play.tasks = parsed;
     // TODO: add reboot trigger if needed
 
