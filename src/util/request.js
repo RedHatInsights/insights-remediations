@@ -1,7 +1,6 @@
 'use strict';
 
 const config = require('../config');
-
 const base = require('request-promise').defaults({
     timeout: config.requestTimeout
 });

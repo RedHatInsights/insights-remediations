@@ -1,12 +1,18 @@
 'use strict';
 
-require('../test');
+const P = require('bluebird');
+const base = require('../test');
 const request = require('./request');
+const version = require('../version/version.controller');
+
+// stub getVersions for the request to take at least 50ms
+beforeEach(() => base.sandbox.stub(version, 'get').callsFake((req, res) => P.delay(50).then(() => res.end())));
 
 test('includes request options in the error object', async function () {
+
     const options = {
-        url: `http://localhost:9003/health`,
-        timeout: 1
+        url: `http://localhost:9003/v1/version`,
+        timeout: 20
     };
 
     try {
@@ -23,10 +29,10 @@ test('includes request options in the error object', async function () {
 
 test('includes request options in the error object of a request child', async function () {
     const options = {
-        url: `http://localhost:9003/health`
+        url: `http://localhost:9003/v1/version`
     };
 
-    const req = request.defaults({ timeout: 1 });
+    const req = request.defaults({ timeout: 20 });
 
     try {
         await req(options);
