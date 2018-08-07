@@ -27,7 +27,8 @@
     "pino": "^4.17.3",
     "request": "^2.87.0",
     "request-promise": "^4.2.2",
-    "swagger-tools": "^0.10.4"
+    "swagger-tools": "^0.10.4",
+    "urijs": "^1.19.1"
   },
   "devDependencies": {
     "eslint": "^5.1.0",

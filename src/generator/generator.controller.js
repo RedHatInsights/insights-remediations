@@ -10,6 +10,7 @@ const Play = require('./Play');
 const format = require('./format');
 
 const RESOLVERS = [
+    require('./resolvers/ContentServerResolver'),
     require('./resolvers/ErrataResolver'),
     require('./resolvers/SSGResolver'),
     require('./resolvers/TestResolver')

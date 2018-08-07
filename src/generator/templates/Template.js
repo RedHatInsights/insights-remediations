@@ -10,7 +10,7 @@ module.exports = class Template {
 
     constructor (template, needsReboot = false, needsPydata = false, parameters = {}) {
         if (!template.includes(HOSTS_PLACEHOLDER)) {
-            throw new Error (`Template does not include {HOSTS_PLACEHOLDER}: ${template}`);
+            throw new Error (`Template does not include ${HOSTS_PLACEHOLDER}: ${template}`);
         }
 
         this.template = template;
@@ -40,3 +40,5 @@ module.exports = class Template {
         });
     }
 };
+
+module.exports.HOSTS_PLACEHOLDER = HOSTS_PLACEHOLDER;

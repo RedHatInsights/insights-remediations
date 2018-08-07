@@ -66,10 +66,15 @@ definitions:
         type: array
         minItems: 1
         example:
-          - id: vulnerabilities:RHSA-2018:0502
+          - id: advisor:bond_config_issue|BOND_CONFIG_ISSUE
             systems:
               - a8799a02-8be9-11e8-9eb6-529269fb1459
               - 736ef48c-8f05-11e8-9eb6-529269fb1459
+          - id: vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+            systems:
+              - a8799a02-8be9-11e8-9eb6-529269fb1459
+              - 736ef48c-8f05-11e8-9eb6-529269fb1459
+            resolution: mitigate
           - id: vulnerabilities:RHBA-2007:0331
             systems:
               - a8799a02-8be9-11e8-9eb6-529269fb1459

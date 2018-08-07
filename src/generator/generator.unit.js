@@ -32,12 +32,46 @@ test('generates a simple playbook with reboot', () => {
     .then(res => expect(res.text).toMatchSnapshot());
 });
 
-test('generates a erratum-based playbook', () => {
+test('generates an erratum-based playbook', () => {
     mockVmaas();
 
     const data = {
         issues: [{
             id: 'vulnerabilities:RHSA-2018:0502',
+            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200)
+    .then(res => expect(res.text).toMatchSnapshot());
+});
+
+test('generates a rule-based playbook (advisor)', () => {
+    mockVmaas();
+
+    const data = {
+        issues: [{
+            id: 'advisor:bond_config_issue|BOND_CONFIG_ISSUE',
+            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200)
+    .then(res => expect(res.text).toMatchSnapshot());
+});
+
+test('generates a rule-based playbook (vulnerabilities)', () => {
+    mockVmaas();
+
+    const data = {
+        issues: [{
+            id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
             systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
