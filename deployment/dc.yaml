@@ -44,6 +44,14 @@ objects:
             initialDelaySeconds: 10
             periodSeconds: 10
             failureThreshold: 2
+          env:
+          - name: CONTENT_SERVER_HOST
+            value: http://insights-api.insights-qa.svc.cluster.local:9002
+          - name: CONTENT_SERVER_AUTH
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: content-server
           resources:
             requests:
               cpu: 100m
