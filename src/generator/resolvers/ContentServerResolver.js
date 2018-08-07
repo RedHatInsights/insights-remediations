@@ -46,5 +46,5 @@ async function getTemplates (id) {
 
 function parseTemplate (template) {
     const play = template.play.replace('{{HOSTS}}', Template.HOSTS_PLACEHOLDER);
-    return new Template(play, template.needs_reboot); // TODO: needs pydata?
+    return new Template(play, template.resolution_type, template.needs_reboot); // TODO: needs pydata?
 }

@@ -54,12 +54,42 @@ async function resolveTemplates (issues) {
 }
 
 function disambiguateTemplates (issues) {
-    issues.forEach(issue => issue.template = issue.templates[0]);
+    issues.forEach(issue => {
+        if (!issue.templates || !issue.templates.length) {
+            return;
+        }
+
+        if (issue.templates.length === 1) {
+            issue.template = issue.templates[0];
+            return;
+        }
+
+        issue.template = issue.templates[0];
+
+        if (issue.resolution) {
+            const found = _.find(issue.templates, {resolutionType: issue.resolution});
+
+            if (found) {
+                issue.template = found;
+                return;
+            }
+
+            throw new errors.BadRequest('UNKNOWN_RESOLUTION',
+                `Issue "${issue.id}" does not have Ansible resolution "${issue.resolution}"`);
+        }
+
+        const fix = _.find(issue.templates, {resolutionType: 'fix'});
+        if (fix) {
+            return [fix];
+        }
+
+        return [_.sortBy(issue.templates, 'resolutionType')[0]];
+    });
 }
 
 function validateTemplates (issues) {
     issues.forEach(issue => {
-        if (!issue.templates || !issue.templates.length) {
+        if (!issue.template) {
             throw new errors.BadRequest('UNSUPPORTED_ISSUE', `Issue "${issue.id}" does not have Ansible support`);
         }
     });

@@ -125,6 +125,98 @@ exports[`generates a rule-based playbook (vulnerabilities) 1`] = `
       changed_when: false"
 `;
 
+exports[`generates a rule-based playbook with resolution preference (vulnerabilities) 1`] = `
+"---
+- name: Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7
+  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: yes
+  vars:
+    pydata: \\"{{insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074']}}\\"
+
+  tasks:
+  - when: insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'] is defined
+    block:
+    - when: not pydata.selinux_can_help
+      fail:
+        msg: SELinux cannot mitigate the problem on this system.  Please try one of the other playbooks.
+
+    - name: Get selinux mode
+      command: getenforce
+      register: getenforce
+      check_mode: no
+
+    - name: Enable SELinux immediately
+      command: setenforce enforcing
+      # setenforce enforcing will fail if SElinux is disabled so just ignore that situation
+      failed_when: false
+
+    - name: remove selinux=0 and enforcing=0 from grub config file
+      command: /sbin/grubby --update-kernel=ALL --remove-args=\\"selinux enforcing\\"
+
+    - name: Set SELINUX=enforcing in /etc/selinux/config
+      lineinfile:
+        backup: true
+        dest: /etc/selinux/config
+        regexp: '(?i)^\\\\s*SELINUX *=.*'
+        line: SELINUX=enforcing
+        state: present
+
+    - when: ansible_distribution_major_version == '7' and
+            pydata.minimal_selinux_policy and pydata.active_policy and
+            pydata.minimal_selinux_policy | version_compare(pydata.active_policy, '>')
+      name: Update selinux-policy package to latest version
+      yum:
+        name: selinux-policy
+        state: latest
+
+    - when: \\"getenforce.stdout == 'Disabled'\\"
+      block:
+      - name: SELinux relabel to be done on reboot (note, a relabel may take a while to complete)
+        file:
+          path: /.autorelabel
+          state: touch
+
+      - name: set reboot fact
+        set_fact:
+          insights_needs_reboot: True
+
+
+# Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
+# The variable can be overridden to suppress this behavior.
+- name: Reboot system (if applicable)
+  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - when:
+        - insights_needs_reboot is defined
+        - insights_needs_reboot
+      block:
+        - name: Reboot system
+          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          async: 1
+          poll: 0
+          ignore_errors: true
+
+        - name: Wait for system to boot up
+          local_action:
+            module: wait_for
+            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
+            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            delay: 15
+            timeout: 300
+          become: false
+
+- name: run insights
+  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: redhat-access-insights
+      changed_when: false"
+`;
+
 exports[`generates a simple playbook 1`] = `
 "---
 - name: ping

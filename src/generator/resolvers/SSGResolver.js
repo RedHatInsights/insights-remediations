@@ -58,7 +58,7 @@ function parseTemplate (template, id) {
     // TODO: add reboot trigger if needed
 
     const metadata = parseMetadata(template);
-    return new Template(yaml.safeDump([play]).trim(), metadata.reboot);
+    return new Template(yaml.safeDump([play]).trim(), 'fix', metadata.reboot);
 }
 
 function parseMetadata (template) {

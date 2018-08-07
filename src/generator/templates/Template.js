@@ -8,12 +8,13 @@ mustache.tags = [TAG, TAG];
 
 module.exports = class Template {
 
-    constructor (template, needsReboot = false, needsPydata = false, parameters = {}) {
+    constructor (template, resolutionType = 'fix', needsReboot = false, needsPydata = false, parameters = {}) {
         if (!template.includes(HOSTS_PLACEHOLDER)) {
             throw new Error (`Template does not include ${HOSTS_PLACEHOLDER}: ${template}`);
         }
 
         this.template = template;
+        this.resolutionType = resolutionType;
         this.needsReboot = needsReboot;
         this.needsPydata = needsPydata;
         this.parameters = parameters;
@@ -34,7 +35,7 @@ module.exports = class Template {
      * Returns a new template object with the given parameters stored.
      */
     apply(parameters) {
-        return new Template(this.template, this.needsReboot, this.needsPydata, {
+        return new Template(this.template, this.resolutionType, this.needsReboot, this.needsPydata, {
             ...this.parameters,
             ...parameters
         });
