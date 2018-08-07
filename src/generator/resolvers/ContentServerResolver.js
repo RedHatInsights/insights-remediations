@@ -5,6 +5,9 @@ const P = require('bluebird');
 const contentServer = require('../../external/contentServer');
 const Template = require('../templates/Template');
 const identifiers = require('../../util/identifiers');
+const yaml = require('../../util/yaml');
+
+const INSIGHTS_DIAGNOSIS_VAR_NAME = 'insights_report';
 
 exports.resolveTemplates = async function (ids) {
     const filtered = ids
@@ -46,5 +49,6 @@ async function getTemplates (id) {
 
 function parseTemplate (template) {
     const play = template.play.replace('{{HOSTS}}', Template.HOSTS_PLACEHOLDER);
-    return new Template(play, template.resolution_type, template.needs_reboot); // TODO: needs pydata?
+    const needsDiagnosis = yaml.isVariableUsed(INSIGHTS_DIAGNOSIS_VAR_NAME, play);
+    return new Template(play, template.resolution_type, template.needs_reboot, needsDiagnosis);
 }

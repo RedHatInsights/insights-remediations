@@ -14,6 +14,7 @@ const templates = {
         reboot: new Template(load('test/rebootTrigger.yml'), 'fix', true, false)
     },
     special: {
+        diagnosis: new Template(load('special/diagnosis.yml')),
         postRunCheckIn: new Template(load('special/postRunCheckIn.yml')),
         reboot: new Template(load('special/reboot.yml'))
     },

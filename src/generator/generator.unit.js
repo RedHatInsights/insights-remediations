@@ -50,8 +50,6 @@ test('generates an erratum-based playbook', () => {
 });
 
 test('generates a rule-based playbook (advisor)', () => {
-    mockVmaas();
-
     const data = {
         issues: [{
             id: 'advisor:bond_config_issue|BOND_CONFIG_ISSUE',
@@ -67,8 +65,6 @@ test('generates a rule-based playbook (advisor)', () => {
 });
 
 test('generates a rule-based playbook (vulnerabilities)', () => {
-    mockVmaas();
-
     const data = {
         issues: [{
             id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
@@ -89,6 +85,30 @@ test('generates a rule-based playbook with resolution preference (vulnerabilitie
             id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
             systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459'],
             resolution: 'selinux_mitigate'
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200)
+    .then(res => expect(res.text).toMatchSnapshot());
+});
+
+test('adds diagnosis play', () => {
+    mockVmaas();
+
+    const data = {
+        issues: [{
+            id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459'],
+            resolution: 'selinux_mitigate'
+        }, {
+            id: 'advisor:bond_config_issue|BOND_CONFIG_ISSUE',
+            systems: ['4109fa1a-9a3f-11e8-9eb6-529269fb1459']
+        }, {
+            id: 'vulnerabilities:RHSA-2018:0502',
+            systems: ['11931d66-9a3f-11e8-9eb6-529269fb1459']
         }]
     };
 

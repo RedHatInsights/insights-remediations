@@ -1,7 +1,203 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`adds diagnosis play 1`] = `
+"---
+- name: run insights to obtain latest report info
+  hosts: \\"4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com,a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  tasks:
+    - name: determine insights version
+      shell: 'redhat-access-insights --version'
+      changed_when: false
+      register: insights_version
+
+    - when: insights_version.stdout[0:2] != '1.'
+      block:
+        - name: obtaining insights report
+          shell: 'redhat-access-insights --to-json --quiet'
+          register: insights_result
+          changed_when: false
+          check_mode: false
+        - name: register insights report as fact for use by other plays
+          set_fact: insights_report={{ insights_result.stdout }}
+
+    - when: insights_version.stdout[0:2] == '1.'
+      block:
+        - name: obtaining insights report (legacy client)
+          shell: 'redhat-access-insights --verbose | grep \\"Upload status: 201 Created\\" | grep -o \\"{.*}\\"'
+          register: insights_result_legacy
+          changed_when: false
+          check_mode: false
+        - name: register insights report as fact for use by other plays (legacy client)
+          set_fact: insights_report={{ insights_result_legacy.stdout }}
+
+- name: Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7
+  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: yes
+  vars:
+    pydata: \\"{{insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074']}}\\"
+
+  tasks:
+  - when: insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'] is defined
+    block:
+    - when: not pydata.selinux_can_help
+      fail:
+        msg: SELinux cannot mitigate the problem on this system.  Please try one of the other playbooks.
+
+    - name: Get selinux mode
+      command: getenforce
+      register: getenforce
+      check_mode: no
+
+    - name: Enable SELinux immediately
+      command: setenforce enforcing
+      # setenforce enforcing will fail if SElinux is disabled so just ignore that situation
+      failed_when: false
+
+    - name: remove selinux=0 and enforcing=0 from grub config file
+      command: /sbin/grubby --update-kernel=ALL --remove-args=\\"selinux enforcing\\"
+
+    - name: Set SELINUX=enforcing in /etc/selinux/config
+      lineinfile:
+        backup: true
+        dest: /etc/selinux/config
+        regexp: '(?i)^\\\\s*SELINUX *=.*'
+        line: SELINUX=enforcing
+        state: present
+
+    - when: ansible_distribution_major_version == '7' and
+            pydata.minimal_selinux_policy and pydata.active_policy and
+            pydata.minimal_selinux_policy | version_compare(pydata.active_policy, '>')
+      name: Update selinux-policy package to latest version
+      yum:
+        name: selinux-policy
+        state: latest
+
+    - when: \\"getenforce.stdout == 'Disabled'\\"
+      block:
+      - name: SELinux relabel to be done on reboot (note, a relabel may take a while to complete)
+        file:
+          path: /.autorelabel
+          state: touch
+
+      - name: set reboot fact
+        set_fact:
+          insights_needs_reboot: True
+
+
+- name: Correct Bonding Config Items
+  hosts: \\"4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  vars:
+    pydata: \\"{{ insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] }}\\"
+  tasks:
+
+    - when: 
+        - insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] is defined
+        - item.value == 2
+      name: Add quotes around bonding options
+      lineinfile:
+        dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
+        regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
+        backrefs: yes
+        line: '\\\\1\\"\\\\2\\"'
+      with_dict: \\"{{ pydata.interface_issue_dict }}\\"
+
+    - when:
+        - insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] is defined
+        - item.value == 1
+      name: lowercase yes in Slave option
+      lineinfile:
+        dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
+        regexp: '(^\\\\s*SLAVE=)(\\"*YES\\"*)'
+        backrefs: yes
+        line: '\\\\1yes'
+      with_dict: \\"{{ pydata.interface_issue_dict }}\\"
+
+
+- name: fix RHSA-2018:0502
+  hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  vars:
+    changed_keyword: \\"Complete!\\"
+  tasks:
+    - name: upgrade package
+      shell: yum update -d 2 -y --advisories=RHSA-2018:0502
+      register: yum_result
+      changed_when: changed_keyword in yum_result.stdout
+
+    - when: changed_keyword in yum_result.stdout
+      name: set reboot fact
+      set_fact:
+        insights_needs_reboot: True
+
+# Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
+# The variable can be overridden to suppress this behavior.
+- name: Reboot system (if applicable)
+  hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.example.com,a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - when:
+        - insights_needs_reboot is defined
+        - insights_needs_reboot
+      block:
+        - name: Reboot system
+          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          async: 1
+          poll: 0
+          ignore_errors: true
+
+        - name: Wait for system to boot up
+          local_action:
+            module: wait_for
+            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
+            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            delay: 15
+            timeout: 300
+          become: false
+
+- name: run insights
+  hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.example.com,4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com,a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: redhat-access-insights
+      changed_when: false"
+`;
+
 exports[`generates a rule-based playbook (advisor) 1`] = `
 "---
+- name: run insights to obtain latest report info
+  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  tasks:
+    - name: determine insights version
+      shell: 'redhat-access-insights --version'
+      changed_when: false
+      register: insights_version
+
+    - when: insights_version.stdout[0:2] != '1.'
+      block:
+        - name: obtaining insights report
+          shell: 'redhat-access-insights --to-json --quiet'
+          register: insights_result
+          changed_when: false
+          check_mode: false
+        - name: register insights report as fact for use by other plays
+          set_fact: insights_report={{ insights_result.stdout }}
+
+    - when: insights_version.stdout[0:2] == '1.'
+      block:
+        - name: obtaining insights report (legacy client)
+          shell: 'redhat-access-insights --verbose | grep \\"Upload status: 201 Created\\" | grep -o \\"{.*}\\"'
+          register: insights_result_legacy
+          changed_when: false
+          check_mode: false
+        - name: register insights report as fact for use by other plays (legacy client)
+          set_fact: insights_report={{ insights_result_legacy.stdout }}
+
 - name: Correct Bonding Config Items
   hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
@@ -127,6 +323,35 @@ exports[`generates a rule-based playbook (vulnerabilities) 1`] = `
 
 exports[`generates a rule-based playbook with resolution preference (vulnerabilities) 1`] = `
 "---
+- name: run insights to obtain latest report info
+  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  tasks:
+    - name: determine insights version
+      shell: 'redhat-access-insights --version'
+      changed_when: false
+      register: insights_version
+
+    - when: insights_version.stdout[0:2] != '1.'
+      block:
+        - name: obtaining insights report
+          shell: 'redhat-access-insights --to-json --quiet'
+          register: insights_result
+          changed_when: false
+          check_mode: false
+        - name: register insights report as fact for use by other plays
+          set_fact: insights_report={{ insights_result.stdout }}
+
+    - when: insights_version.stdout[0:2] == '1.'
+      block:
+        - name: obtaining insights report (legacy client)
+          shell: 'redhat-access-insights --verbose | grep \\"Upload status: 201 Created\\" | grep -o \\"{.*}\\"'
+          register: insights_result_legacy
+          changed_when: false
+          check_mode: false
+        - name: register insights report as fact for use by other plays (legacy client)
+          set_fact: insights_report={{ insights_result_legacy.stdout }}
+
 - name: Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7
   hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: yes

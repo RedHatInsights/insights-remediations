@@ -29,6 +29,7 @@ exports.generate = errors.async(async function (req, res) {
 
     addRebootPlay(plays);
     addPostRunCheckIn(plays);
+    addDiagnosisPlay(plays);
 
     const playbook = format.render(plays);
     format.validate(playbook);
@@ -107,6 +108,17 @@ function addRebootPlay (plays) {
 function addPostRunCheckIn (plays) {
     const hosts = _(plays).flatMap('hosts').uniq().sort().value();
     plays.push(new Play('special:post-run-check-in', templates.special.postRunCheckIn, hosts));
+}
+
+function addDiagnosisPlay (plays) {
+    const diagnosisPlays = plays.filter(play => play.template.needsDiagnosis);
+
+    if (!diagnosisPlays.length) {
+        return;
+    }
+
+    const hosts = _(diagnosisPlays).flatMap('hosts').uniq().sort().value();
+    plays.unshift(new Play('special:diagnosis', templates.special.diagnosis, hosts));
 }
 
 function send (res, playbook) {
