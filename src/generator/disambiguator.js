@@ -19,8 +19,7 @@ exports.disambiguate = function (templates, resolution, id) {
             return found;
         }
 
-        throw new errors.BadRequest('UNKNOWN_RESOLUTION',
-            `Issue "${id.full}" does not have Ansible resolution "${resolution}"`);
+        throw errors.unknownResolution(id, resolution);
     }
 
     const fix = _.find(templates, {resolutionType: 'fix'});

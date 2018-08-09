@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const log = require('./util/log');
 
 class HttpError {
     constructor (status) {
@@ -53,7 +54,7 @@ exports.handler = (err, req, res, next) => {
         return err.writeResponse(res);
     }
 
-    // TODO: log
+    log.error(err, 'caught error');
 
     next(err);
 };
@@ -67,3 +68,9 @@ exports.async = fn => (req, res, next) => {
 
     return result;
 };
+
+exports.unsupportedIssue = issue =>
+    new exports.BadRequest('UNSUPPORTED_ISSUE', `Issue "${issue.id.full}" does not have Ansible support`);
+
+exports.unknownResolution = (id, resolution) =>
+    new exports.BadRequest('UNKNOWN_RESOLUTION', `Issue "${id.full}" does not have Ansible resolution "${resolution}"`);

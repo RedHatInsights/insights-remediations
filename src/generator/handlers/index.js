@@ -19,5 +19,5 @@ exports.createPlay = async function (issue) {
         }
     }
 
-    throw new errors.BadRequest('UNSUPPORTED_ISSUE', `Issue "${issue.id.full}" does not have Ansible support`);
+    throw errors.unsupportedIssue(issue);
 };
