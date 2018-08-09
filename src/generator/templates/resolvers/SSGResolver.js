@@ -1,40 +1,17 @@
 'use strict';
 
-const _ = require('lodash');
-const P = require('bluebird');
 const yaml = require('js-yaml');
-const ssg = require('../../external/ssg');
-const keyValueParser = require('../../util/keyValueParser');
-const Template = require('../templates/Template');
-const identifiers = require('../../util/identifiers');
+const ssg = require('../../../external/ssg');
+const keyValueParser = require('../../../util/keyValueParser');
+const Template = require('../Template');
 
-const APP = 'compliance';
-
-exports.resolveTemplates = async function (ids) {
-    const filtered = ids.map(identifiers.parse).filter(id => id.app === APP);
-
-    if (!filtered.length) {
-        return {};
-    }
-
-    const pending = _(filtered)
-    .keyBy(id => id.full)
-    .mapValues(resolveTemplate)
-    .value();
-
-    const resolved = await P.props(pending);
-    return _.pickBy(resolved);
-};
-
-async function resolveTemplate(id) {
+exports.resolveTemplate = async function (id) {
     const raw = await getTemplate(id);
 
-    if (!raw) {
-        return;
+    if (raw) {
+        return parseTemplate(raw, id);
     }
-
-    return [parseTemplate(raw, id)];
-}
+};
 
 async function getTemplate (id) {
     try {
@@ -53,7 +30,7 @@ function parseTemplate (template, id) {
     const parsed = yaml.safeLoad(template);
     parsed.forEach(item => delete item.tags);
 
-    const play = createBaseTemplate(id.issue);
+    const play = createBaseTemplate(id);
     play.tasks = parsed;
     // TODO: add reboot trigger if needed
 
@@ -68,7 +45,7 @@ function parseMetadata (template) {
 
 function createBaseTemplate (id) {
     return {
-        name: `fix ${id}`,
+        name: `fix ${id.issue}`,
         hosts: '@@HOSTS@@',
         become: true
     };

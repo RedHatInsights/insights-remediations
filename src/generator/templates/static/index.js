@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const Template = require('./Template');
+const Template = require('../Template');
 
 function load (file) {
     return fs.readFileSync(path.join(__dirname, file), {encoding: 'utf8'}).trim();

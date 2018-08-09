@@ -1,8 +1,9 @@
 'use strict';
 
-const mock = require('../../test');
-const ssg = require('../../external/ssg');
+const mock = require('../../../test');
+const ssg = require('../../../external/ssg');
 const resolver = require('./SSGResolver');
+const id = require('../../../util/identifiers');
 const i = require('dedent-js');
 
 test('parses a simple template', async () => {
@@ -24,10 +25,7 @@ test('parses a simple template', async () => {
           tags:
             @ANSIBLE_TAGS@`);
 
-    const result = await resolver.resolveTemplates(['compliance:sshd_disable_root_login']);
-    result.should.have.key('compliance:sshd_disable_root_login');
-
-    const template = result['compliance:sshd_disable_root_login'][0];
+    const template = await resolver.resolveTemplate(id.parse('compliance:sshd_disable_root_login'));
     template.needsReboot.should.be.false();
     expect(template.template).toMatchSnapshot();
 });
@@ -44,10 +42,7 @@ test('parses a template with reboot', async () => {
           tags:
             @ANSIBLE_TAGS@`);
 
-    const result = await resolver.resolveTemplates(['compliance:bootloader_audit_argument']);
-    result.should.have.key('compliance:bootloader_audit_argument');
-
-    const template = result['compliance:bootloader_audit_argument'][0];
+    const template = await resolver.resolveTemplate(id.parse('compliance:bootloader_audit_argument'));
     template.needsReboot.should.be.true();
     expect(template.template).toMatchSnapshot();
 });

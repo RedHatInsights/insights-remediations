@@ -1,7 +1,6 @@
 'use strict';
 
 require('should');
-const _ = require('lodash');
 const sinon = require('sinon');
 const supertest = require('supertest');
 
@@ -33,5 +32,5 @@ afterAll(async () => {
 exports.request = supertest.agent(`http://localhost:${config.port}`);
 
 exports.mockVmaas = function () {
-    exports.sandbox.stub(vmaas, 'getErrata').callsFake((ids) => (_.keyBy(ids)));
+    exports.sandbox.stub(vmaas, 'getErratum').callsFake(() => ({}));
 };

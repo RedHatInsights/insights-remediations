@@ -5,27 +5,21 @@ const P = require('bluebird');
 
 const errors = require('../errors');
 const inventory = require('../external/inventory');
-const templates = require('./templates');
+const templates = require('./templates/static');
 const Play = require('./Play');
 const format = require('./format');
+const identifiers = require('../util/identifiers');
 
-const RESOLVERS = [
-    require('./resolvers/ContentServerResolver'),
-    require('./resolvers/ErrataResolver'),
-    require('./resolvers/SSGResolver'),
-    require('./resolvers/TestResolver')
-].reverse();
+const handlers = require('./handlers');
 
 exports.generate = errors.async(async function (req, res) {
     const input = { ...req.swagger.params.body.value };
 
     await resolveSystems(input.issues);
-    await resolveTemplates(input.issues);
 
-    disambiguateTemplates(input.issues);
-    validateTemplates(input.issues);
+    input.issues.forEach(issue => issue.id = identifiers.parse(issue.id));
 
-    const plays = input.issues.map(({id, template, hosts}) => new Play(id, template, hosts));
+    const plays = await P.map(input.issues, handlers.createPlay);
 
     addRebootPlay(plays);
     addPostRunCheckIn(plays);
@@ -43,57 +37,6 @@ async function resolveSystems (issues) {
     issues.forEach(issue => issue.hosts = issue.systems.map(id => {
         return systems[id].display_name || systems[id].hostname || systems[id].id;
     }));
-}
-
-async function resolveTemplates (issues) {
-    const ids = _.map(issues, 'id');
-
-    const responses = await P.all(P.map(RESOLVERS, handler => handler.resolveTemplates(ids)));
-    const templates = _.assign({}, ...responses);
-
-    issues.forEach(issue => issue.templates = templates[issue.id] || []);
-}
-
-function disambiguateTemplates (issues) {
-    issues.forEach(issue => {
-        if (!issue.templates || !issue.templates.length) {
-            return;
-        }
-
-        if (issue.templates.length === 1) {
-            issue.template = issue.templates[0];
-            return;
-        }
-
-        issue.template = issue.templates[0];
-
-        if (issue.resolution) {
-            const found = _.find(issue.templates, {resolutionType: issue.resolution});
-
-            if (found) {
-                issue.template = found;
-                return;
-            }
-
-            throw new errors.BadRequest('UNKNOWN_RESOLUTION',
-                `Issue "${issue.id}" does not have Ansible resolution "${issue.resolution}"`);
-        }
-
-        const fix = _.find(issue.templates, {resolutionType: 'fix'});
-        if (fix) {
-            return [fix];
-        }
-
-        return [_.sortBy(issue.templates, 'resolutionType')[0]];
-    });
-}
-
-function validateTemplates (issues) {
-    issues.forEach(issue => {
-        if (!issue.template) {
-            throw new errors.BadRequest('UNSUPPORTED_ISSUE', `Issue "${issue.id}" does not have Ansible support`);
-        }
-    });
 }
 
 function addRebootPlay (plays) {

@@ -53,6 +53,8 @@ exports.handler = (err, req, res, next) => {
         return err.writeResponse(res);
     }
 
+    // TODO: log
+
     next(err);
 };
 

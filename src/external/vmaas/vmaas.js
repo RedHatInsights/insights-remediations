@@ -2,15 +2,17 @@
 
 const config = require('../../config');
 const request = require('../../util/request');
-const uri = `${config.vmaas.host}/api/v1/errata`;
+const URI = require('urijs');
 
-exports.getErrata = function (ids) {
+exports.getErratum = function (id) {
+    const uri = new URI(config.vmaas.host);
+    uri.path('/api/v1/errata');
+    uri.segment(id);
+
     return request({
-        uri,
-        method: 'POST',
-        json: true,
-        body: {
-            errata_list: ids
-        }
+        uri: uri.toString(),
+        method: 'GET',
+        json: true
     }).then(res => res.errata_list);
 };
+
