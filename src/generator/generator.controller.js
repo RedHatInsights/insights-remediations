@@ -9,6 +9,7 @@ const templates = require('./templates/static');
 const Play = require('./Play');
 const format = require('./format');
 const identifiers = require('../util/identifiers');
+const erratumPlayAggregator = require('./erratumPlayAggregator');
 
 const handlers = require('./handlers');
 
@@ -19,7 +20,8 @@ exports.generate = errors.async(async function (req, res) {
 
     input.issues.forEach(issue => issue.id = identifiers.parse(issue.id));
 
-    const plays = await P.map(input.issues, handlers.createPlay);
+    let plays = await P.map(input.issues, handlers.createPlay);
+    plays = erratumPlayAggregator.process(plays);
 
     addRebootPlay(plays);
     addPostRunCheckIn(plays);

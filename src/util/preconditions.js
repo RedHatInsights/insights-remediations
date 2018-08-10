@@ -9,3 +9,11 @@ exports.notNil = value => {
 
     return value;
 };
+
+exports.nonEmptyArray = value => {
+    if (!Array.isArray(value) || !value.length) {
+        throw new TypeError(`Precondition failed: expected non-empty array, got: ${value}`);
+    }
+
+    return value;
+};

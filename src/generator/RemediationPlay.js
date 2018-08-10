@@ -10,7 +10,6 @@ module.exports = class RemediationPlay extends Play {
         this.description = description;
     }
 
-    // TODO: move down to template
     generateHeader () {
         return i`
             # ${this.description}
@@ -20,7 +19,7 @@ module.exports = class RemediationPlay extends Play {
 
     render () {
         const header = this.generateHeader();
-        const body = this.template.render(this.hosts);
+        const body = this.template.render(this.getTemplateParameters());
         return [header, body].join('\n');
     }
 };

@@ -75,11 +75,19 @@ definitions:
               - a8799a02-8be9-11e8-9eb6-529269fb1459
               - 736ef48c-8f05-11e8-9eb6-529269fb1459
             resolution: mitigate
-          - id: vulnerabilities:RHBA-2007:0331
+          - id: compliance:sshd_disable_root_login
             systems:
               - a8799a02-8be9-11e8-9eb6-529269fb1459
               - 736ef48c-8f05-11e8-9eb6-529269fb1459
-          - id: compliance:sshd_disable_root_login
+          - id: vulnerabilities:RHSA-2018:0502
+            systems:
+              - a8799a02-8be9-11e8-9eb6-529269fb1459
+              - 736ef48c-8f05-11e8-9eb6-529269fb1459
+          - id: vulnerabilities:RHSA-2017:1852
+            systems:
+              - a8799a02-8be9-11e8-9eb6-529269fb1459
+              - 736ef48c-8f05-11e8-9eb6-529269fb1459
+          - id: vulnerabilities:RHBA-2007:0331
             systems:
               - a8799a02-8be9-11e8-9eb6-529269fb1459
               - 736ef48c-8f05-11e8-9eb6-529269fb1459

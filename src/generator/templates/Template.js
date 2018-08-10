@@ -21,13 +21,9 @@ module.exports = class Template {
         this.parameters = parameters;
     }
 
-    render (systems) {
-        if (!Array.isArray(systems) || !systems.length) {
-            throw new Error(`unexpected systems: ${systems}`);
-        }
-
+    render (parameters) {
         return mustache.render(this.template, {
-            HOSTS: systems.join(),
+            ...parameters,
             ...this.parameters
         });
     }
