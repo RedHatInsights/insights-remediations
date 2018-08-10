@@ -10,60 +10,68 @@ const Play = require('./Play');
 const format = require('./format');
 const identifiers = require('../util/identifiers');
 const erratumPlayAggregator = require('./erratumPlayAggregator');
+const {composeAsync} = require('../util/fn');
 
 const handlers = require('./handlers');
 
+const playbookPipeline = composeAsync(
+    resolveSystems,
+    input => {
+        input.issues.forEach(issue => issue.id = identifiers.parse(issue.id));
+        return input;
+    },
+    ({issues}) => P.map(issues, handlers.createPlay),
+    erratumPlayAggregator.process,
+    addRebootPlay,
+    addPostRunCheckIn,
+    addDiagnosisPlay,
+    format.render,
+    format.validate
+);
+
 exports.generate = errors.async(async function (req, res) {
     const input = { ...req.swagger.params.body.value };
-
-    await resolveSystems(input.issues);
-
-    input.issues.forEach(issue => issue.id = identifiers.parse(issue.id));
-
-    let plays = await P.map(input.issues, handlers.createPlay);
-    plays = erratumPlayAggregator.process(plays);
-
-    addRebootPlay(plays);
-    addPostRunCheckIn(plays);
-    addDiagnosisPlay(plays);
-
-    const playbook = format.render(plays);
-    format.validate(playbook);
+    const playbook = await playbookPipeline(input);
     return send(res, playbook);
 });
 
-async function resolveSystems (issues) {
-    const systemIds = _(issues).flatMap('systems').uniq().value();
+async function resolveSystems (input) {
+    const systemIds = _(input.issues).flatMap('systems').uniq().value();
     const systems = await inventory.getSystemDetailsBatch(systemIds);
 
-    issues.forEach(issue => issue.hosts = issue.systems.map(id => {
+    input.issues.forEach(issue => issue.hosts = issue.systems.map(id => {
         return systems[id].display_name || systems[id].hostname || systems[id].id;
     }));
+
+    return input;
 }
 
 function addRebootPlay (plays) {
     if (!_.some(plays, 'template.needsReboot')) {
-        return;
+        return plays;
     }
 
     const hosts = _(plays).filter(play => play.template.needsReboot).flatMap('hosts').uniq().sort().value();
     plays.push(new Play('special:reboot', templates.special.reboot, hosts));
+    return plays;
 }
 
 function addPostRunCheckIn (plays) {
     const hosts = _(plays).flatMap('hosts').uniq().sort().value();
     plays.push(new Play('special:post-run-check-in', templates.special.postRunCheckIn, hosts));
+    return plays;
 }
 
 function addDiagnosisPlay (plays) {
     const diagnosisPlays = plays.filter(play => play.template.needsDiagnosis);
 
     if (!diagnosisPlays.length) {
-        return;
+        return plays;
     }
 
     const hosts = _(diagnosisPlays).flatMap('hosts').uniq().sort().value();
     plays.unshift(new Play('special:diagnosis', templates.special.diagnosis, hosts));
+    return plays;
 }
 
 function send (res, playbook) {

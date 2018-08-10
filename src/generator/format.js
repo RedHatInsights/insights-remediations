@@ -21,4 +21,5 @@ exports.validate = function (playbook) {
     }
 
     // TODO: proper error handling
+    return playbook;
 };
