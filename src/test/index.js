@@ -6,7 +6,7 @@ const supertest = require('supertest');
 
 const app = require('../app');
 const config = require('../config');
-const vmaas = require('../external/vmaas');
+const vmaas = require('../connectors/vmaas');
 
 let server;
 

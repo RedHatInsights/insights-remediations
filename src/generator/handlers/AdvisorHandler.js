@@ -2,7 +2,7 @@
 
 const P = require('bluebird');
 const RemediationPlay = require('../RemediationPlay');
-const advisor = require('../../external/advisor');
+const advisor = require('../../connectors/advisor');
 const disambiguator = require('../disambiguator');
 const contentServerResolver = require('../templates/resolvers/ContentServerResolver');
 

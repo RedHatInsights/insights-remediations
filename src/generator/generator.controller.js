@@ -4,7 +4,7 @@ const _ = require('lodash');
 const P = require('bluebird');
 
 const errors = require('../errors');
-const inventory = require('../external/inventory');
+const inventory = require('../connectors/inventory');
 const templates = require('./templates/static');
 const Play = require('./Play');
 const format = require('./format');

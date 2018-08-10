@@ -1,7 +1,7 @@
 'use strict';
 
 const mock = require('../../../test');
-const ssg = require('../../../external/ssg');
+const ssg = require('../../../connectors/ssg');
 const resolver = require('./SSGResolver');
 const id = require('../../../util/identifiers');
 const i = require('dedent-js');

@@ -1,7 +1,7 @@
 'use strict';
 
 const yaml = require('js-yaml');
-const ssg = require('../../../external/ssg');
+const ssg = require('../../../connectors/ssg');
 const keyValueParser = require('../../../util/keyValueParser');
 const Template = require('../Template');
 

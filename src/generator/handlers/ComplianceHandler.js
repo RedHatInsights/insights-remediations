@@ -2,7 +2,7 @@
 
 const P = require('bluebird');
 const RemediationPlay = require('../RemediationPlay');
-const compliance = require('../../external/compliance');
+const compliance = require('../../connectors/compliance');
 const ssgResolver = require('../templates/resolvers/SSGResolver');
 
 exports.application = 'compliance';

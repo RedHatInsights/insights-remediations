@@ -1,6 +1,6 @@
 'use strict';
 
-const contentServer = require('../../../external/contentServer');
+const contentServer = require('../../../connectors/contentServer');
 const Template = require('../Template');
 const yaml = require('../../../util/yaml');
 
