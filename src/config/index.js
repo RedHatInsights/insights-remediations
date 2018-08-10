@@ -15,6 +15,12 @@ module.exports = {
         pretty: (process.env.NODE_ENV !== 'production')
     },
 
+    advisor: {
+        host: process.env.ADVISOR_HOST || 'https://accessqa.usersys.redhat.com',
+        auth: process.env.ADVISOR_AUTH || '',
+        insecure: (process.env.ADVISOR_INSECURE === 'true') ? true : false
+    },
+
     contentServer: {
         host: process.env.CONTENT_SERVER_HOST || 'https://accessqa.usersys.redhat.com',
         auth: process.env.CONTENT_SERVER_AUTH || '',
@@ -23,6 +29,12 @@ module.exports = {
 
     vmaas: {
         host: process.env.VMAAS_HOST || 'http://webapp-vmaas-stable.1b13.insights.openshiftapps.com'
+    },
+
+    vulnerabilities: {
+        host: process.env.VULNERABILITIES_HOST || 'https://accessqa.usersys.redhat.com',
+        auth: process.env.VULNERABILITIES_AUTH || '',
+        insecure: (process.env.VULNERABILITIES_INSECURE === 'true') ? true : false
     },
 
     ssg: {

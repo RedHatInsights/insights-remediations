@@ -32,5 +32,14 @@ afterAll(async () => {
 exports.request = supertest.agent(`http://localhost:${config.port}`);
 
 exports.mockVmaas = function () {
-    exports.sandbox.stub(vmaas, 'getErratum').callsFake(() => ({}));
+    exports.sandbox.stub(vmaas, 'getErratum').callsFake(id => ({[id]: {
+        synopsis: 'mock synopsis'
+    }}));
+};
+
+exports.throw404 = () => {
+    const error =  new Error();
+    error.name === 'StatusCodeError';
+    error.statusCode === 404;
+    throw new error;
 };

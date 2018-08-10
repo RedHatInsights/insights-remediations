@@ -31,6 +31,9 @@ exports[`adds diagnosis play 1`] = `
         - name: register insights report as fact for use by other plays (legacy client)
           set_fact: insights_report={{ insights_result_legacy.stdout }}
 
+# Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)
+# Identifier: (vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,selinux_mitigate)
+# Version: unknown
 - name: Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7
   hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: yes
@@ -85,6 +88,9 @@ exports[`adds diagnosis play 1`] = `
           insights_needs_reboot: True
 
 
+# Unexpected bonding behavior with incorrect syntax in bond configuration files
+# Identifier: (advisor:bond_config_issue|BOND_CONFIG_ISSUE,fix)
+# Version: unknown
 - name: Correct Bonding Config Items
   hosts: \\"4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com\\"
   become: true
@@ -115,6 +121,9 @@ exports[`adds diagnosis play 1`] = `
       with_dict: \\"{{ pydata.interface_issue_dict }}\\"
 
 
+# mock synopsis (RHSA-2018:0502)
+# Identifier: (vulnerabilities:RHSA-2018:0502,fix)
+# Version: unknown
 - name: fix RHSA-2018:0502
   hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.example.com\\"
   become: true
@@ -198,6 +207,9 @@ exports[`generates a rule-based playbook (advisor) 1`] = `
         - name: register insights report as fact for use by other plays (legacy client)
           set_fact: insights_report={{ insights_result_legacy.stdout }}
 
+# Unexpected bonding behavior with incorrect syntax in bond configuration files
+# Identifier: (advisor:bond_config_issue|BOND_CONFIG_ISSUE,fix)
+# Version: unknown
 - name: Correct Bonding Config Items
   hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
@@ -240,6 +252,9 @@ exports[`generates a rule-based playbook (advisor) 1`] = `
 
 exports[`generates a rule-based playbook (vulnerabilities) 1`] = `
 "---
+# Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)
+# Identifier: (vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,kernel_update)
+# Version: unknown
 - name: Update system to the latest kernel and reboot
   hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
@@ -352,6 +367,9 @@ exports[`generates a rule-based playbook with resolution preference (vulnerabili
         - name: register insights report as fact for use by other plays (legacy client)
           set_fact: insights_report={{ insights_result_legacy.stdout }}
 
+# Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)
+# Identifier: (vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,selinux_mitigate)
+# Version: unknown
 - name: Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7
   hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: yes
@@ -507,6 +525,9 @@ exports[`generates a simple playbook with reboot 1`] = `
 
 exports[`generates an erratum-based playbook 1`] = `
 "---
+# mock synopsis (RHSA-2018:0502)
+# Identifier: (vulnerabilities:RHSA-2018:0502,fix)
+# Version: unknown
 - name: fix RHSA-2018:0502
   hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true

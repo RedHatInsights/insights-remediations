@@ -2,6 +2,9 @@
 
 exports[`generates a simple playbook with multiple compliance remediation 1`] = `
 "---
+# Problem known as no_empty_passwords
+# Identifier: (compliance:no_empty_passwords,fix)
+# Version: unknown
 - name: fix no_empty_passwords
   hosts: 'a8799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
@@ -17,6 +20,9 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
         follow: 'yes'
         regexp: nullok
 
+# Problem known as bootloader_audit_argument
+# Identifier: (compliance:bootloader_audit_argument,fix)
+# Version: unknown
 - name: fix bootloader_audit_argument
   hosts: 'a8799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
@@ -62,6 +68,9 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
 
 exports[`generates a simple playbook with single compliance remediation 1`] = `
 "---
+# Problem known as sshd_disable_root_login
+# Identifier: (compliance:sshd_disable_root_login,fix)
+# Version: unknown
 - name: fix sshd_disable_root_login
   hosts: 'a8799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true

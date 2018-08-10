@@ -1,6 +1,7 @@
 'use strict';
 
 const mustache = require('mustache');
+const {notNil} = require('../../util/preconditions');
 
 const TAG = '@@';
 const HOSTS_PLACEHOLDER = `${TAG}HOSTS${TAG}`;
@@ -13,7 +14,7 @@ module.exports = class Template {
             throw new Error (`Template does not include ${HOSTS_PLACEHOLDER}: ${template}`);
         }
 
-        this.template = template;
+        this.template = notNil(template);
         this.resolutionType = resolutionType;
         this.needsReboot = needsReboot;
         this.needsDiagnosis = needsDiagnosis;

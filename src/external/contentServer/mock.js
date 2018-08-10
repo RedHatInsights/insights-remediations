@@ -2,6 +2,8 @@
 
 /* eslint max-len: off */
 
+const test = require('../../test');
+
 const DATA = {
     'bond_config_issue|BOND_CONFIG_ISSUE': [{
         rule_id: `bond_config_issue|BOND_CONFIG_ISSUE`,
@@ -48,8 +50,5 @@ exports.getResolutions = async function (id) {
         return DATA[id];
     }
 
-    const error =  new Error();
-    error.name === 'StatusCodeError';
-    error.statusCode === 404;
-    throw new error;
+    test.throw404();
 };

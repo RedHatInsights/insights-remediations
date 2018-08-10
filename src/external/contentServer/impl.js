@@ -13,6 +13,11 @@ exports.getResolutions = async function (id, includePlay = false) {
     if (includePlay) {
         resolutions = P.map(resolutions, async resolution => {
             const { play } = await getResolutionDetails(id, resolution.resolution_type);
+
+            if (play === undefined) {
+                throw new Error(`Failed to obtain actual play for "${id}". Check AUTH is set properly.`);
+            }
+
             resolution.play = play;
             return resolution;
         });

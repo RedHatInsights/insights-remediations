@@ -54,7 +54,7 @@ exports.handler = (err, req, res, next) => {
         return err.writeResponse(res);
     }
 
-    log.error(err, 'caught error');
+    log.error({error: err}, 'caught error');
 
     next(err);
 };

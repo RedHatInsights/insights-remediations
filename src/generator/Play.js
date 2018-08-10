@@ -1,11 +1,13 @@
 'use strict';
 
+const {notNil} = require('../util/preconditions');
+
 module.exports = class Play {
 
     constructor (id, template, hosts) {
-        this.id = id;
-        this.template = template;
-        this.hosts = hosts;
+        this.id = notNil(id);
+        this.template = notNil(template);
+        this.hosts = notNil(hosts);
     }
 
     render () {

@@ -1,17 +1,22 @@
 'use strict';
 
-const Play = require('../Play');
+const P = require('bluebird');
+const RemediationPlay = require('../RemediationPlay');
+const compliance = require('../../external/compliance');
 const ssgResolver = require('../templates/resolvers/SSGResolver');
 
 exports.application = 'compliance';
 
 exports.createPlay = async function ({id, hosts}) {
-    const template = await ssgResolver.resolveTemplate(id);
+    const [template, rule] = await P.all([
+        ssgResolver.resolveTemplate(id),
+        compliance.getRule(id.issue)
+    ]);
 
-    // TODO get metadata
-
-    if (template) {
-        return new Play(id, template, hosts);
+    if (!template || !rule) {
+        return;
     }
+
+    return new RemediationPlay(id, template, hosts, rule.description);
 };
 

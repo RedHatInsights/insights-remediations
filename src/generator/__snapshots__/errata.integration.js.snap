@@ -2,6 +2,9 @@
 
 exports[`generates a simple playbook with multiple erratum-based remediation 1`] = `
 "---
+# Important: kernel-alt security and bug fix update (RHSA-2018:0502)
+# Identifier: (vulnerabilities:RHSA-2018:0502,fix)
+# Version: unknown
 - name: fix RHSA-2018:0502
   hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
@@ -18,6 +21,9 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
       set_fact:
         insights_needs_reboot: True
 
+# conga bug fix update (RHBA-2007:0331)
+# Identifier: (vulnerabilities:RHBA-2007:0331,fix)
+# Version: unknown
 - name: fix RHBA-2007:0331
   hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
@@ -72,6 +78,9 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 
 exports[`generates a simple playbook with single RHSA remediation 1`] = `
 "---
+# Important: kernel-alt security and bug fix update (RHSA-2018:0502)
+# Identifier: (vulnerabilities:RHSA-2018:0502,fix)
+# Version: unknown
 - name: fix RHSA-2018:0502
   hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
