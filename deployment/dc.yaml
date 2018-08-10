@@ -45,9 +45,23 @@ objects:
             periodSeconds: 10
             failureThreshold: 2
           env:
+          - name: ADVISOR_HOST
+            value: http://insights-api.insights-qa.svc.cluster.local:9002
+          - name: ADVISOR_AUTH
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: content-server
           - name: CONTENT_SERVER_HOST
             value: http://insights-api.insights-qa.svc.cluster.local:9002
           - name: CONTENT_SERVER_AUTH
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: content-server
+          - name: VULNERABILITIES_HOST
+            value: http://insights-api.insights-qa.svc.cluster.local:9002
+          - name: VULNERABILITIES_AUTH
             valueFrom:
               secretKeyRef:
                 key: password
