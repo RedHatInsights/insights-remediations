@@ -2,9 +2,9 @@
 
 const _ = require('lodash');
 const Play = require('./Play');
-const {nonEmptyArray} = require('../util/preconditions');
-const TEMPLATE = require('../templates/static').vulnerabilities.errata;
-const HEADER_TEMPLATE = require('../templates/static').special.headerMulti;
+const {nonEmptyArray} = require('../../util/preconditions');
+const TEMPLATE = require('../../templates/static').vulnerabilities.errata;
+const HEADER_TEMPLATE = require('../../templates/static').special.headerMulti;
 
 module.exports = class MergedPlay extends Play {
 

@@ -1,7 +1,7 @@
 'use strict';
 
 const ResolutionPlay = require('./ResolutionPlay');
-const {notNil} = require('../util/preconditions');
+const {notNil} = require('../../util/preconditions');
 
 module.exports = class ErratumPlay extends ResolutionPlay {
 

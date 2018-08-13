@@ -1,8 +1,8 @@
 'use strict';
 
 const Play = require('./Play');
-const {notNil} = require('../util/preconditions');
-const HEADER_TEMPLATE = require('../templates/static').special.headerSimple;
+const {notNil} = require('../../util/preconditions');
+const HEADER_TEMPLATE = require('../../templates/static').special.headerSimple;
 
 module.exports = class RemediationPlay extends Play {
 

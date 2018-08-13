@@ -1,8 +1,8 @@
 'use strict';
 
 const _ = require('lodash');
-const ErratumPlay = require('./ErratumPlay');
-const AggregatedErratumPlay = require('./AggregatedErrataPlay');
+const ErratumPlay = require('./plays/ErratumPlay');
+const AggregatedErratumPlay = require('./plays/AggregatedErrataPlay');
 
 exports.process = function (plays) {
     const mergedPlays = _(plays)

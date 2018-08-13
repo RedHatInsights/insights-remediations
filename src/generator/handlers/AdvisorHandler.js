@@ -1,7 +1,7 @@
 'use strict';
 
 const P = require('bluebird');
-const ResolutionPlay = require('../ResolutionPlay');
+const ResolutionPlay = require('../plays/ResolutionPlay');
 const advisor = require('../../connectors/advisor');
 const disambiguator = require('../../resolutions/disambiguator');
 const contentServerResolver = require('../../resolutions/resolvers/contentServerResolver');

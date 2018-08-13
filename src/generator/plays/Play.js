@@ -1,6 +1,6 @@
 'use strict';
 
-const {notNil, nonEmptyArray} = require('../util/preconditions');
+const {notNil, nonEmptyArray} = require('../../util/preconditions');
 
 module.exports = class Play {
 

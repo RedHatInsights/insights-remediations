@@ -1,6 +1,6 @@
 'use strict';
 
-const ResolutionPlay = require('../ResolutionPlay');
+const ResolutionPlay = require('../plays/ResolutionPlay');
 const TEMPLATES = require('../../resolutions').test;
 
 exports.application = 'test';
