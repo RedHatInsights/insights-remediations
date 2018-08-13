@@ -1,0 +1,4 @@
+- name: "@@MISSING@@"
+  hosts: "@@HOSTS@@"
+  tasks:
+    - ping

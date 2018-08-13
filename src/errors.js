@@ -13,6 +13,13 @@ class HttpError {
     }
 }
 
+class InternalError extends Error {
+    constructor (errorCode, message) {
+        super(message);
+        this.errorCode = errorCode;
+    }
+}
+
 exports.BadRequest = class BadRequest extends HttpError {
     constructor (code, message, details) {
         super(400);
@@ -54,7 +61,9 @@ exports.handler = (err, req, res, next) => {
         return err.writeResponse(res);
     }
 
-    log.error({error: err, message: err.message, stack: err.stack}, 'caught error');
+    if (err instanceof InternalError) {
+        log.error({error: {message: err.message, stack: err.stack, error_code: err.errorCode}}, 'caught internal error');
+    }
 
     next(err);
 };
@@ -74,3 +83,9 @@ exports.unsupportedIssue = issue =>
 
 exports.unknownResolution = (id, resolution) =>
     new exports.BadRequest('UNKNOWN_RESOLUTION', `Issue "${id.full}" does not have Ansible resolution "${resolution}"`);
+
+exports.internal = {
+    missingVariable (variable) {
+        return new InternalError('MISSING_VARIABLE', `Variable "${variable}" not provided for template`);
+    }
+};

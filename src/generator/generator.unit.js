@@ -1,6 +1,7 @@
 'use strict';
 
-const { request, mockVmaas } = require('../test');
+const errors = require('../errors');
+const { request, mockVmaas, getSandbox } = require('../test');
 
 test('generates a simple playbook', () => {
     const data = {
@@ -201,4 +202,20 @@ test('400s on unknown issue id', () => {
             message: 'Issue "test:nonExistentId" does not have Ansible support'
         });
     });
+});
+
+test('detects missing variable in template', async () => {
+    const spy = getSandbox().spy(errors.internal, 'missingVariable');
+
+    await request
+    .post('/v1/playbook')
+    .send({
+        issues: [{
+            id: 'test:missingVariable',
+            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    })
+    .expect(500);
+
+    spy.callCount.should.equal(1);
 });

@@ -18,6 +18,8 @@ beforeEach(() => {
     exports.sandbox = sinon.createSandbox();
 });
 
+exports.getSandbox = () => exports.sandbox;
+
 afterEach(() => {
     exports.sandbox.restore();
     delete exports.sandbox;
@@ -43,3 +45,4 @@ exports.throw404 = () => {
     error.statusCode === 404;
     throw new error;
 };
+

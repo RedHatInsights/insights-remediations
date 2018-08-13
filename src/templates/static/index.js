@@ -11,7 +11,8 @@ function load (file) {
 const templates = {
     test: {
         ping: new Template(load('test/ping.yml')),
-        reboot: new Template(load('test/rebootTrigger.yml'))
+        reboot: new Template(load('test/rebootTrigger.yml')),
+        missingVariable: new Template(load('test/missingVariable.yml'))
     },
     special: {
         diagnosis: new Template(load('special/diagnosis.yml')),
