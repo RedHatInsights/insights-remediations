@@ -8,9 +8,6 @@ const templates = {
         ping: new Resolution(staticTemplates.test.ping),
         reboot: new Resolution(staticTemplates.test.rebootTrigger, 'fix', true, false),
         missingVariable: new Resolution(staticTemplates.test.missingVariable)
-    },
-    vulnerabilities: {
-        errata: new Resolution(staticTemplates.vulnerabilities.errata, 'fix', true)
     }
 };
 
