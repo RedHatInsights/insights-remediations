@@ -1,12 +1,12 @@
 'use strict';
 
-const RemediationPlay = require('./RemediationPlay');
+const ResolutionPlay = require('./ResolutionPlay');
 const {notNil} = require('../util/preconditions');
 
-module.exports = class ErratumPlay extends RemediationPlay {
+module.exports = class ErratumPlay extends ResolutionPlay {
 
-    constructor (id, template, hosts, description) {
-        super(id, template, hosts, description);
+    constructor (id, hosts, resolution, description) {
+        super(id, hosts, resolution, description);
         this.erratum = notNil(id.issue);
     }
 

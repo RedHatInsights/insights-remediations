@@ -462,6 +462,9 @@ exports[`generates a rule-based playbook with resolution preference (vulnerabili
 
 exports[`generates a simple playbook 1`] = `
 "---
+# Fixes test:ping
+# Identifier: (test:ping,fix)
+# Version: unknown
 - name: ping
   hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   tasks:
@@ -479,6 +482,9 @@ exports[`generates a simple playbook 1`] = `
 
 exports[`generates a simple playbook with reboot 1`] = `
 "---
+# Fixes test:reboot
+# Identifier: (test:reboot,fix)
+# Version: unknown
 - name: Trigger reboot
   hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com,d36ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
 

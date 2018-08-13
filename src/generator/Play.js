@@ -4,9 +4,8 @@ const {notNil, nonEmptyArray} = require('../util/preconditions');
 
 module.exports = class Play {
 
-    constructor (id, template, hosts) {
+    constructor (id, hosts) {
         this.id = notNil(id);
-        this.template = notNil(template);
         this.hosts = nonEmptyArray(hosts);
     }
 
@@ -17,6 +16,14 @@ module.exports = class Play {
     }
 
     render () {
-        return this.template.render(this.getTemplateParameters());
+        throw new Error('not implemented');
+    }
+
+    needsReboot () {
+        return false;
+    }
+
+    needsDiagnosis () {
+        return false;
     }
 };

@@ -13,7 +13,7 @@ exports.disambiguate = function (templates, resolution, id) {
     }
 
     if (resolution) {
-        const found = _.find(templates, {resolutionType: resolution});
+        const found = _.find(templates, {type: resolution});
 
         if (found) {
             return found;
@@ -22,10 +22,10 @@ exports.disambiguate = function (templates, resolution, id) {
         throw errors.unknownResolution(id, resolution);
     }
 
-    const fix = _.find(templates, {resolutionType: 'fix'});
+    const fix = _.find(templates, {type: 'fix'});
     if (fix) {
         return fix;
     }
 
-    return _.sortBy(templates, 'resolutionType')[0];
+    return _.sortBy(templates, 'type')[0];
 };

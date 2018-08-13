@@ -1,11 +1,11 @@
 'use strict';
 
 const yaml = require('js-yaml');
-const ssg = require('../../../connectors/ssg');
-const keyValueParser = require('../../../util/keyValueParser');
-const Template = require('../Template');
+const ssg = require('../../connectors/ssg');
+const keyValueParser = require('../../util/keyValueParser');
+const Resolution = require('../Resolution');
 
-exports.resolveTemplate = async function (id) {
+exports.resolveResolution = async function (id) {
     const raw = await getTemplate(id);
 
     if (raw) {
@@ -35,7 +35,7 @@ function parseTemplate (template, id) {
     // TODO: add reboot trigger if needed
 
     const metadata = parseMetadata(template);
-    return new Template(yaml.safeDump([play]).trim(), 'fix', metadata.reboot);
+    return new Resolution(yaml.safeDump([play]).trim(), 'fix', metadata.reboot);
 }
 
 function parseMetadata (template) {

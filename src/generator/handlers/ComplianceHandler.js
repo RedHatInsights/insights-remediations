@@ -1,15 +1,15 @@
 'use strict';
 
 const P = require('bluebird');
-const RemediationPlay = require('../RemediationPlay');
+const ResolutionPlay = require('../ResolutionPlay');
 const compliance = require('../../connectors/compliance');
-const ssgResolver = require('../templates/resolvers/SSGResolver');
+const ssgResolver = require('../../resolutions/resolvers/ssgResolver');
 
 exports.application = 'compliance';
 
 exports.createPlay = async function ({id, hosts}) {
     const [template, rule] = await P.all([
-        ssgResolver.resolveTemplate(id),
+        ssgResolver.resolveResolution(id),
         compliance.getRule(id.issue)
     ]);
 
@@ -17,6 +17,6 @@ exports.createPlay = async function ({id, hosts}) {
         return;
     }
 
-    return new RemediationPlay(id, template, hosts, rule.description);
+    return new ResolutionPlay(id, hosts, template, rule.description);
 };
 

@@ -5,8 +5,8 @@ const P = require('bluebird');
 
 const errors = require('../errors');
 const inventory = require('../connectors/inventory');
-const templates = require('./templates/static');
-const Play = require('./Play');
+const templates = require('../templates/static');
+const SpecialPlay = require('./SpecialPlay');
 const format = require('./format');
 const identifiers = require('../util/identifiers');
 const erratumPlayAggregator = require('./erratumPlayAggregator');
@@ -47,30 +47,31 @@ async function resolveSystems (input) {
 }
 
 function addRebootPlay (plays) {
-    if (!_.some(plays, 'template.needsReboot')) {
+    const rebootRequiringPlays = _.filter(plays, play => play.needsReboot());
+    if (rebootRequiringPlays.length === 0) {
         return plays;
     }
 
-    const hosts = _(plays).filter(play => play.template.needsReboot).flatMap('hosts').uniq().sort().value();
-    plays.push(new Play('special:reboot', templates.special.reboot, hosts));
+    const hosts = _(rebootRequiringPlays).flatMap('hosts').uniq().sort().value();
+    plays.push(new SpecialPlay('special:reboot', hosts, templates.special.reboot));
     return plays;
 }
 
 function addPostRunCheckIn (plays) {
     const hosts = _(plays).flatMap('hosts').uniq().sort().value();
-    plays.push(new Play('special:post-run-check-in', templates.special.postRunCheckIn, hosts));
+    plays.push(new SpecialPlay('special:post-run-check-in', hosts, templates.special.postRunCheckIn));
     return plays;
 }
 
 function addDiagnosisPlay (plays) {
-    const diagnosisPlays = plays.filter(play => play.template.needsDiagnosis);
+    const diagnosisPlays = plays.filter(play => play.needsDiagnosis());
 
     if (!diagnosisPlays.length) {
         return plays;
     }
 
     const hosts = _(diagnosisPlays).flatMap('hosts').uniq().sort().value();
-    plays.unshift(new Play('special:diagnosis', templates.special.diagnosis, hosts));
+    plays.unshift(new SpecialPlay('special:diagnosis', hosts, templates.special.diagnosis));
     return plays;
 }
 

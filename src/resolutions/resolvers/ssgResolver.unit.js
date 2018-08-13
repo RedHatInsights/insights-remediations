@@ -1,9 +1,9 @@
 'use strict';
 
-const mock = require('../../../test');
-const ssg = require('../../../connectors/ssg');
-const resolver = require('./SSGResolver');
-const id = require('../../../util/identifiers');
+const mock = require('../../test');
+const ssg = require('../../connectors/ssg');
+const resolver = require('./ssgResolver');
+const id = require('../../util/identifiers');
 const i = require('dedent-js');
 
 test('parses a simple template', async () => {
@@ -25,9 +25,9 @@ test('parses a simple template', async () => {
           tags:
             @ANSIBLE_TAGS@`);
 
-    const template = await resolver.resolveTemplate(id.parse('compliance:sshd_disable_root_login'));
-    template.needsReboot.should.be.false();
-    expect(template.template).toMatchSnapshot();
+    const resolution = await resolver.resolveResolution(id.parse('compliance:sshd_disable_root_login'));
+    resolution.needsReboot.should.be.false();
+    expect(resolution.template.data).toMatchSnapshot();
 });
 
 test('parses a template with reboot', async () => {
@@ -42,7 +42,7 @@ test('parses a template with reboot', async () => {
           tags:
             @ANSIBLE_TAGS@`);
 
-    const template = await resolver.resolveTemplate(id.parse('compliance:bootloader_audit_argument'));
-    template.needsReboot.should.be.true();
-    expect(template.template).toMatchSnapshot();
+    const resolution = await resolver.resolveResolution(id.parse('compliance:bootloader_audit_argument'));
+    resolution.needsReboot.should.be.true();
+    expect(resolution.template.data).toMatchSnapshot();
 });

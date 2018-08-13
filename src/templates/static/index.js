@@ -11,15 +11,17 @@ function load (file) {
 const templates = {
     test: {
         ping: new Template(load('test/ping.yml')),
-        reboot: new Template(load('test/rebootTrigger.yml'), 'fix', true, false)
+        reboot: new Template(load('test/rebootTrigger.yml'))
     },
     special: {
         diagnosis: new Template(load('special/diagnosis.yml')),
+        headerMulti: new Template(load('special/headerMulti.yml')),
+        headerSimple: new Template(load('special/headerSimple.yml')),
         postRunCheckIn: new Template(load('special/postRunCheckIn.yml')),
         reboot: new Template(load('special/reboot.yml'))
     },
     vulnerabilities: {
-        errata: new Template(load('vulnerabilities/errata.yml'), 'fix', true)
+        errata: new Template(load('vulnerabilities/errata.yml'))
     }
 };
 

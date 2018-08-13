@@ -1,0 +1,6 @@
+# Upgrade packages to apply the following errata:
+@@#plays@@
+#   - @@description@@
+@@/plays@@
+# Identifier: (@@identifier@@)
+# Version: @@version@@
