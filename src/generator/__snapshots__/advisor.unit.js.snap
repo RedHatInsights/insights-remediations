@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generates a rule-based playbook 1`] = `
+"---
+- name: run insights to obtain latest report info
+  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  tasks:
+    - name: determine insights version
+      shell: 'redhat-access-insights --version'
+      changed_when: false
+      register: insights_version
+
+    - when: insights_version.stdout[0:2] != '1.'
+      block:
+        - name: obtaining insights report
+          shell: 'redhat-access-insights --to-json --quiet'
+          register: insights_result
+          changed_when: false
+          check_mode: false
+        - name: register insights report as fact for use by other plays
+          set_fact: insights_report={{ insights_result.stdout }}
+
+    - when: insights_version.stdout[0:2] == '1.'
+      block:
+        - name: obtaining insights report (legacy client)
+          shell: 'redhat-access-insights --verbose | grep \\"Upload status: 201 Created\\" | grep -o \\"{.*}\\"'
+          register: insights_result_legacy
+          changed_when: false
+          check_mode: false
+        - name: register insights report as fact for use by other plays (legacy client)
+          set_fact: insights_report={{ insights_result_legacy.stdout }}
+
+# Unexpected bonding behavior with incorrect syntax in bond configuration files
+# Identifier: (advisor:bond_config_issue|BOND_CONFIG_ISSUE,fix)
+# Version: unknown
+- name: Correct Bonding Config Items
+  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  vars:
+    pydata: \\"{{ insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] }}\\"
+  tasks:
+
+    - when: 
+        - insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] is defined
+        - item.value == 2
+      name: Add quotes around bonding options
+      lineinfile:
+        dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
+        regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
+        backrefs: yes
+        line: '\\\\1\\"\\\\2\\"'
+      with_dict: \\"{{ pydata.interface_issue_dict }}\\"
+
+    - when:
+        - insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] is defined
+        - item.value == 1
+      name: lowercase yes in Slave option
+      lineinfile:
+        dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
+        regexp: '(^\\\\s*SLAVE=)(\\"*YES\\"*)'
+        backrefs: yes
+        line: '\\\\1yes'
+      with_dict: \\"{{ pydata.interface_issue_dict }}\\"
+
+
+- name: run insights
+  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: redhat-access-insights
+      changed_when: false"
+`;
