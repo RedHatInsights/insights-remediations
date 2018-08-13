@@ -8,7 +8,7 @@ exports.disambiguate = function (templates, resolution, id) {
         return;
     }
 
-    if (templates.length === 1) {
+    if (templates.length === 1 && !resolution) {
         return templates[0];
     }
 
