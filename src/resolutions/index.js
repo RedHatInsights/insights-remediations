@@ -6,7 +6,7 @@ const staticTemplates = require('../templates/static');
 const templates = {
     test: {
         ping: new Resolution(staticTemplates.test.ping),
-        reboot: new Resolution(staticTemplates.test.reboot, 'fix', true, false),
+        reboot: new Resolution(staticTemplates.test.rebootTrigger, 'fix', true, false),
         missingVariable: new Resolution(staticTemplates.test.missingVariable)
     },
     vulnerabilities: {

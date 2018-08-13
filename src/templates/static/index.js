@@ -1,29 +1,23 @@
 'use strict';
 
+const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const Template = require('../Template');
 
-function load (file) {
-    return fs.readFileSync(path.join(__dirname, file), {encoding: 'utf8'}).trim();
+module.exports = Object.freeze(traverse(__dirname));
+
+function traverse (dir) {
+    const files = fs.readdirSync((dir), {encoding: 'utf8'});
+    return _(files).keyBy(file => file.replace(/\.yml$/, '')).mapValues(file => {
+        const isDirectory = fs.statSync(path.join(dir, file)).isDirectory();
+
+        if (isDirectory) {
+            return traverse(path.join(dir, file));
+        }
+
+        if (file.endsWith('yml')) {
+            return new Template(fs.readFileSync(path.join(dir, file), 'utf8').trim());
+        }
+    }).pickBy().value();
 }
-
-const templates = {
-    test: {
-        ping: new Template(load('test/ping.yml')),
-        reboot: new Template(load('test/rebootTrigger.yml')),
-        missingVariable: new Template(load('test/missingVariable.yml'))
-    },
-    special: {
-        diagnosis: new Template(load('special/diagnosis.yml')),
-        headerMulti: new Template(load('special/headerMulti.yml')),
-        headerSimple: new Template(load('special/headerSimple.yml')),
-        postRunCheckIn: new Template(load('special/postRunCheckIn.yml')),
-        reboot: new Template(load('special/reboot.yml'))
-    },
-    vulnerabilities: {
-        errata: new Template(load('vulnerabilities/errata.yml'))
-    }
-};
-
-module.exports = Object.freeze(templates);
