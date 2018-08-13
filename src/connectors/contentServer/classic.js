@@ -7,8 +7,11 @@ const config = require('../../config');
 const request = require('../../util/request');
 
 exports.getResolutions = async function (id, includePlay = false) {
-
     let resolutions = await getResolutions(id);
+
+    if (resolutions === null) {
+        return [];
+    }
 
     if (includePlay) {
         resolutions = P.map(resolutions, async resolution => {

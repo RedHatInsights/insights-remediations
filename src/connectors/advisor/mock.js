@@ -12,6 +12,6 @@ exports.getRule = async function (id) {
         return DATA[id];
     }
 
-    test.throw404();
+    return null;
 };
 

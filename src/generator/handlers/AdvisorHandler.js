@@ -1,6 +1,7 @@
 'use strict';
 
 const P = require('bluebird');
+const errors = require('../../errors');
 const ResolutionPlay = require('../plays/ResolutionPlay');
 const advisor = require('../../connectors/advisor');
 const disambiguator = require('../../resolutions/disambiguator');
@@ -14,8 +15,12 @@ exports.createPlay = async function ({id, resolution, hosts}) {
         advisor.getRule(id.issue)
     ]);
 
-    if (!resolutions.length || !rule) {
-        return;
+    if (!rule) {
+        throw errors.unknownIssue(id);
+    }
+
+    if (!resolutions.length) {
+        throw errors.unsupportedIssue(id);
     }
 
     const disambiguatedResolution = disambiguator.disambiguate(resolutions, resolution, id);

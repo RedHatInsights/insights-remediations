@@ -2,7 +2,7 @@
 
 /* eslint max-len: off */
 
-const test = require('../../test');
+require('../../test');
 
 const DATA = {
     'bond_config_issue|BOND_CONFIG_ISSUE': [{
@@ -50,5 +50,5 @@ exports.getResolutions = async function (id) {
         return DATA[id];
     }
 
-    test.throw404();
+    return [];
 };

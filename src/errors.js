@@ -78,8 +78,11 @@ exports.async = fn => (req, res, next) => {
     return result;
 };
 
-exports.unsupportedIssue = issue =>
-    new exports.BadRequest('UNSUPPORTED_ISSUE', `Issue "${issue.id.full}" does not have Ansible support`);
+exports.unknownIssue = id =>
+    new exports.BadRequest('UNKNOWN_ISSUE', `Unknown issue identifier "${id.full}"`);
+
+exports.unsupportedIssue = id =>
+    new exports.BadRequest('UNSUPPORTED_ISSUE', `Issue "${id.full}" does not have Ansible support`);
 
 exports.unknownResolution = (id, resolution) =>
     new exports.BadRequest('UNKNOWN_RESOLUTION', `Issue "${id.full}" does not have Ansible resolution "${resolution}"`);

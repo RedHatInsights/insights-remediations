@@ -5,25 +5,15 @@ const ssg = require('../../connectors/ssg');
 const keyValueParser = require('../../util/keyValueParser');
 const Resolution = require('../Resolution');
 
-exports.resolveResolution = async function (id) {
-    const raw = await getTemplate(id);
+exports.resolveResolutions = async function (id) {
+    const raw = await ssg.getTemplate(id.issue);
 
-    if (raw) {
-        return parseTemplate(raw, id);
+    if (!raw) {
+        return [];
     }
+
+    return [parseTemplate(raw, id)];
 };
-
-async function getTemplate (id) {
-    try {
-        return await ssg.getTemplate(id.issue);
-    } catch (e) {
-        if (e.name === 'StatusCodeError' && e.statusCode === 404) {
-            return;
-        }
-
-        throw e;
-    }
-}
 
 function parseTemplate (template, id) {
     template = template.replace(/@ANSIBLE_TAGS@/g, '- 0');

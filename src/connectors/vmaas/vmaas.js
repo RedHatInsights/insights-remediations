@@ -13,6 +13,12 @@ exports.getErratum = function (id) {
         uri: uri.toString(),
         method: 'GET',
         json: true
-    }).then(res => res.errata_list);
+    }).then(res => {
+        if (res) {
+            return res.errata_list[id];
+        }
+
+        return res;
+    });
 };
 

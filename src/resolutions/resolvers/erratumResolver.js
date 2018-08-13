@@ -3,12 +3,12 @@
 const vmaas = require('../../connectors/vmaas');
 const ErratumResolution = require('../ErratumResolution');
 
-exports.resolveResolution = async function (id) {
-    const erratum = (await vmaas.getErratum(id.issue))[id.issue];
+exports.resolveResolutions = async function (id) {
+    const erratum = await vmaas.getErratum(id.issue);
 
     if (!erratum) {
-        return;
+        return [];
     }
 
-    return new ErratumResolution(erratum);
+    return [new ErratumResolution(erratum)];
 };

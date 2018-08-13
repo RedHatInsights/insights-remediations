@@ -59,7 +59,7 @@ test('aggregates multiple errata into a single play', async () => {
     expect(res.text).toMatchSnapshot();
 });
 
-test('400s on unknown resolution type', () => {
+test('400s on unknown issue', () => {
     return request
     .post('/v1/playbook')
     .send({
@@ -71,8 +71,8 @@ test('400s on unknown resolution type', () => {
     .expect(400)
     .then(({ body }) => {
         body.should.have.property('error', {
-            code: 'UNSUPPORTED_ISSUE',
-            message: 'Issue "vulnerabilities:RHSA-2018:99999" does not have Ansible support'
+            code: 'UNKNOWN_ISSUE',
+            message: 'Unknown issue identifier "vulnerabilities:RHSA-2018:99999"'
         });
     });
 });

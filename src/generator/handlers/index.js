@@ -15,12 +15,8 @@ const HANDLERS = _([
 
 exports.createPlay = async function (issue) {
     if (issue.id.app in HANDLERS) {
-        const play = await HANDLERS[issue.id.app].createPlay(issue);
-
-        if (play) {
-            return play;
-        }
+        return await HANDLERS[issue.id.app].createPlay(issue);
     }
 
-    throw errors.unsupportedIssue(issue);
+    throw errors.unknownIssue(issue);
 };
