@@ -4,6 +4,7 @@ const yaml = require('js-yaml');
 const ssg = require('../../connectors/ssg');
 const keyValueParser = require('../../util/keyValueParser');
 const Resolution = require('../Resolution');
+const yamlUtils = require('../../util/yaml');
 
 exports.resolveResolutions = async function (id) {
     const raw = await ssg.getTemplate(id.issue);
@@ -17,6 +18,7 @@ exports.resolveResolutions = async function (id) {
 
 function parseTemplate (template, id) {
     template = template.replace(/@ANSIBLE_TAGS@/g, '- 0');
+    template = yamlUtils.removeDocumentMarkers(template);
     const parsed = yaml.safeLoad(template);
     parsed.forEach(item => delete item.tags);
 

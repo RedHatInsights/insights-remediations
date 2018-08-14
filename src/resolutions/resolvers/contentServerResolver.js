@@ -12,8 +12,9 @@ exports.resolveResolutions = async function (id) {
     return templates.map(template => parseResolution(template, id));
 };
 
-function parseResolution (template) {
-    const play = template.play.replace('{{HOSTS}}', Template.HOSTS_PLACEHOLDER);
-    const needsDiagnosis = yaml.isVariableUsed(INSIGHTS_DIAGNOSIS_VAR_NAME, play);
-    return new Resolution(play, template.resolution_type, template.needs_reboot, needsDiagnosis);
+function parseResolution (response) {
+    let template = response.play.replace('{{HOSTS}}', Template.HOSTS_PLACEHOLDER);
+    template = yaml.removeDocumentMarkers(template);
+    const needsDiagnosis = yaml.isVariableUsed(INSIGHTS_DIAGNOSIS_VAR_NAME, template);
+    return new Resolution(template, response.resolution_type, response.needs_reboot, needsDiagnosis);
 }
