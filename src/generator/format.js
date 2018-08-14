@@ -1,6 +1,7 @@
 'use strict';
 
 const yaml = require('js-yaml');
+const errors = require('../errors');
 
 const DOCUMENT_PREFIX = '---\n';
 
@@ -14,12 +15,16 @@ exports.validate = function (playbook) {
     }
 
     // crosscheck that what we generated is a valid yaml document
-    const parsed = yaml.safeLoad(playbook);
-
-    if (!Array.isArray(parsed)) {
-        throw new Error('expected playbook to be an array of plays');
+    let parsed;
+    try {
+        parsed = yaml.safeLoad(playbook);
+    } catch (e) {
+        throw errors.internal.playbookValidationFailed(e, playbook);
     }
 
-    // TODO: proper error handling
+    if (!Array.isArray(parsed)) {
+        throw errors.internal.playbookValidationFailed(new Error('expected playbook to be an array of plays'), playbook);
+    }
+
     return playbook;
 };

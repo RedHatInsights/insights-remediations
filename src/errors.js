@@ -14,9 +14,10 @@ class HttpError {
 }
 
 class InternalError extends Error {
-    constructor (errorCode, message) {
+    constructor (errorCode, message, details = {}) {
         super(message);
         this.errorCode = errorCode;
+        this.details = details;
     }
 }
 
@@ -45,6 +46,7 @@ exports.handler = (err, req, res, next) => {
     // swagger request validation handler
     if (err.code === 'SCHEMA_VALIDATION_FAILED' && !err.originalResponse) {
         const {code, message} = err.results.errors[0];
+        log.debug('rejecting request due to SCHEMA_VALIDATION_FAILED');
 
         return res
         .status(400)
@@ -58,11 +60,15 @@ exports.handler = (err, req, res, next) => {
     }
 
     if (err instanceof HttpError) {
+        log.debug(err, 'rejecting request due to HttpError');
         return err.writeResponse(res);
     }
 
     if (err instanceof InternalError) {
-        log.error({error: {message: err.message, stack: err.stack, error_code: err.errorCode}}, 'caught internal error');
+        log.error({
+            error: {message: err.message, stack: err.stack},
+            error_code: err.errorCode, ...err.details
+        }, 'caught internal error');
     }
 
     next(err);
@@ -90,5 +96,9 @@ exports.unknownResolution = (id, resolution) =>
 exports.internal = {
     missingVariable (variable) {
         return new InternalError('MISSING_VARIABLE', `Variable "${variable}" not provided for template`);
+    },
+
+    playbookValidationFailed (e, playbook) {
+        return new InternalError('PLAYBOOK_VALIDATION_FAILED', 'Playbook output validation failed', {error: e, playbook});
     }
 };
