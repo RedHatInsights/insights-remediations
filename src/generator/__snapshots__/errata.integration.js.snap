@@ -10,7 +10,7 @@ exports[`aggregates multiple errata into a single play 1`] = `
 # Identifier: (vulnerabilities:RHSA-2018:0502,vulnerabilities:RHSA-2017:1852,vulnerabilities:RHSA-2017:1382,vulnerabilities:RHSA-2017:2679,fix)
 # Version: unknown
 - name: fix RHSA-2018:0502,RHSA-2017:1852,RHSA-2017:1382,RHSA-2017:2679
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:
     changed_keyword: \\"Complete!\\"
@@ -28,7 +28,7 @@ exports[`aggregates multiple errata into a single play 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -52,7 +52,7 @@ exports[`aggregates multiple errata into a single play 1`] = `
           become: false
 
 - name: run insights
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -67,7 +67,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
 - name: fix RHSA-2018:0502
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:
     changed_keyword: \\"Complete!\\"
@@ -104,7 +104,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com,a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -128,7 +128,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
           become: false
 
 - name: run insights
-  hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com,a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -143,7 +143,7 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
 - name: fix RHSA-2018:0502
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:
     changed_keyword: \\"Complete!\\"
@@ -161,7 +161,7 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -185,7 +185,7 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
           become: false
 
 - name: run insights
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:

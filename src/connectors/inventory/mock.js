@@ -3,9 +3,14 @@
 const _ = require('lodash');
 
 exports.getSystemDetailsBatch = async function (systems) {
-    return Promise.resolve(_(systems).keyBy().mapValues(id => ({
-        id,
-        hostname: `${id}.example.com`,
-        display_name: (id.startsWith('d') ? `${id}-system` : undefined)
-    })).value());
+    return Promise.resolve(_(systems).keyBy().mapValues(id => {
+        const result = {
+            id,
+            hostname: (/^[0-8]/.test(id) ? `${id}.example.com` : id),
+            display_name: (id.startsWith('9') ? `${id}-system` : undefined)
+        };
+
+        return result;
+
+    }).value());
 };

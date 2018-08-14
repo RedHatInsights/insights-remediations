@@ -3,7 +3,7 @@
 exports[`generates a rule-based playbook 1`] = `
 "---
 - name: run insights to obtain latest report info
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   tasks:
     - name: determine insights version
@@ -35,7 +35,7 @@ exports[`generates a rule-based playbook 1`] = `
 # Identifier: (advisor:bond_config_issue|BOND_CONFIG_ISSUE,fix)
 # Version: unknown
 - name: Correct Bonding Config Items
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:
     pydata: \\"{{ insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] }}\\"
@@ -65,7 +65,7 @@ exports[`generates a rule-based playbook 1`] = `
 
 
 - name: run insights
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:

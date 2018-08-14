@@ -6,7 +6,7 @@ test('generates a rule-based playbook', () => {
     const data = {
         issues: [{
             id: 'advisor:bond_config_issue|BOND_CONFIG_ISSUE',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
 
@@ -23,7 +23,7 @@ test('400s on unknown issue id', () => {
     .send({
         issues: [{
             id: 'advisor:nonExistentId',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     })
     .expect(400)
@@ -41,7 +41,7 @@ test('400s on unsupported issue', () => {
     .send({
         issues: [{
             id: 'advisor:alias_interface_invalid|ALIAS_INTERFACE_INVALID',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     })
     .expect(400)

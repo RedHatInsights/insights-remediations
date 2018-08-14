@@ -3,7 +3,7 @@
 exports[`adds diagnosis play 1`] = `
 "---
 - name: run insights to obtain latest report info
-  hosts: \\"4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com,a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   tasks:
     - name: determine insights version
@@ -35,7 +35,7 @@ exports[`adds diagnosis play 1`] = `
 # Identifier: (vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,selinux_mitigate)
 # Version: unknown
 - name: Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: yes
   vars:
     pydata: \\"{{insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074']}}\\"
@@ -143,7 +143,7 @@ exports[`adds diagnosis play 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.example.com,a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -167,7 +167,7 @@ exports[`adds diagnosis play 1`] = `
           become: false
 
 - name: run insights
-  hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.example.com,4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com,a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.example.com,4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -182,12 +182,12 @@ exports[`generates a simple playbook 1`] = `
 # Identifier: (test:ping,fix)
 # Version: unknown
 - name: ping
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   tasks:
     - ping
 
 - name: run insights
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -202,7 +202,7 @@ exports[`generates a simple playbook with reboot 1`] = `
 # Identifier: (test:reboot,fix)
 # Version: unknown
 - name: Trigger reboot
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com,d36ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
 
   tasks:
     - name: Trigger reboot
@@ -212,7 +212,7 @@ exports[`generates a simple playbook with reboot 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com,d36ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
   become: True
   gather_facts: False
   tasks:
@@ -236,7 +236,7 @@ exports[`generates a simple playbook with reboot 1`] = `
           become: false
 
 - name: run insights
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com,d36ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
   become: True
   gather_facts: False
   tasks:
@@ -251,7 +251,7 @@ exports[`generates an erratum-based playbook 1`] = `
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
 - name: fix RHSA-2018:0502
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:
     changed_keyword: \\"Complete!\\"
@@ -269,7 +269,7 @@ exports[`generates an erratum-based playbook 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -293,7 +293,7 @@ exports[`generates an erratum-based playbook 1`] = `
           become: false
 
 - name: run insights
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:

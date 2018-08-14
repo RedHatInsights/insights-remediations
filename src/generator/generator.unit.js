@@ -7,7 +7,7 @@ test('generates a simple playbook', () => {
     const data = {
         issues: [{
             id: 'test:ping',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
 
@@ -22,7 +22,7 @@ test('generates a simple playbook with reboot', () => {
     const data = {
         issues: [{
             id: 'test:reboot',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459', 'd36ef48c-8f05-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459', '936ef48c-8f05-11e8-9eb6-529269fb1459']
         }]
     };
 
@@ -39,7 +39,7 @@ test('generates an erratum-based playbook', () => {
     const data = {
         issues: [{
             id: 'vulnerabilities:RHSA-2018:0502',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
 
@@ -56,7 +56,7 @@ test('adds diagnosis play', () => {
     const data = {
         issues: [{
             id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459'],
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
             resolution: 'selinux_mitigate'
         }, {
             id: 'advisor:bond_config_issue|BOND_CONFIG_ISSUE',
@@ -126,7 +126,7 @@ test('400s on unknown issue id', () => {
     .send({
         issues: [{
             id: 'test:nonExistentId',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     })
     .expect(400)
@@ -146,7 +146,7 @@ test('detects missing variable in template', async () => {
     .send({
         issues: [{
             id: 'test:missingVariable',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     })
     .expect(500);

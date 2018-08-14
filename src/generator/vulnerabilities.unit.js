@@ -6,7 +6,7 @@ test('generates a rule-based playbook', () => {
     const data = {
         issues: [{
             id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
 
@@ -21,7 +21,7 @@ test('generates a rule-based playbook with resolution preference', () => {
     const data = {
         issues: [{
             id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459'],
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
             resolution: 'selinux_mitigate'
         }]
     };
@@ -39,7 +39,7 @@ test('400s on unknown resolution type', () => {
     .send({
         issues: [{
             id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459'],
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
             resolution: 'non-existing-resolution'
         }]
     })

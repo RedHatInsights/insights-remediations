@@ -6,7 +6,7 @@ exports[`generates a rule-based playbook 1`] = `
 # Identifier: (vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,kernel_update)
 # Version: unknown
 - name: Update system to the latest kernel and reboot
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:
     # determine if we need to update the 'kernel' package or 'kernel-rt' package
@@ -53,7 +53,7 @@ exports[`generates a rule-based playbook 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -77,7 +77,7 @@ exports[`generates a rule-based playbook 1`] = `
           become: false
 
 - name: run insights
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -89,7 +89,7 @@ exports[`generates a rule-based playbook 1`] = `
 exports[`generates a rule-based playbook with resolution preference 1`] = `
 "---
 - name: run insights to obtain latest report info
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   tasks:
     - name: determine insights version
@@ -121,7 +121,7 @@ exports[`generates a rule-based playbook with resolution preference 1`] = `
 # Identifier: (vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,selinux_mitigate)
 # Version: unknown
 - name: Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: yes
   vars:
     pydata: \\"{{insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074']}}\\"
@@ -177,7 +177,7 @@ exports[`generates a rule-based playbook with resolution preference 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -201,7 +201,7 @@ exports[`generates a rule-based playbook with resolution preference 1`] = `
           become: false
 
 - name: run insights
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:

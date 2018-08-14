@@ -6,7 +6,7 @@ test('generates a simple playbook with single RHSA remediation', async () => {
     const data = {
         issues: [{
             id: 'vulnerabilities:RHSA-2018:0502',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
 
@@ -21,7 +21,7 @@ test('generates a simple playbook with multiple erratum-based remediation', asyn
     const data = {
         issues: [{
             id: 'vulnerabilities:RHSA-2018:0502',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }, {
             id: 'vulnerabilities:RHBA-2007:0331',
             systems: ['53fbcd90-9c8f-11e8-98d0-529269fb1459']
@@ -39,16 +39,16 @@ test('aggregates multiple errata into a single play', async () => {
     const data = {
         issues: [{
             id: 'vulnerabilities:RHSA-2018:0502',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }, {
             id: 'vulnerabilities:RHSA-2017:1852',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }, {
             id: 'vulnerabilities:RHSA-2017:1382',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }, {
             id: 'vulnerabilities:RHSA-2017:2679',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
 
@@ -65,7 +65,7 @@ test('400s on unknown issue', () => {
     .send({
         issues: [{
             id: 'vulnerabilities:RHSA-2018:99999',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     })
     .expect(400)
@@ -83,7 +83,7 @@ test('400s on unknown resolution type other than fix', () => {
     .send({
         issues: [{
             id: 'vulnerabilities:RHSA-2018:0502',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459'],
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
             resolution: 'non-existing-resolution'
         }]
     })

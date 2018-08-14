@@ -6,7 +6,7 @@ test('generates a simple playbook with single compliance remediation', async () 
     const data = {
         issues: [{
             id: 'compliance:sshd_disable_root_login',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
 
@@ -21,10 +21,10 @@ test('generates a simple playbook with multiple compliance remediation', async (
     const data = {
         issues: [{
             id: 'compliance:no_empty_passwords',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }, {
             id: 'compliance:bootloader_audit_argument',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
 
@@ -41,7 +41,7 @@ test('400s on unknown resolution type', () => {
     .send({
         issues: [{
             id: 'compliance:non-existing-issue',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459']
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     })
     .expect(400)
@@ -59,7 +59,7 @@ test('400s on unknown resolution type other than fix', () => {
     .send({
         issues: [{
             id: 'compliance:sshd_disable_root_login',
-            systems: ['a8799a02-8be9-11e8-9eb6-529269fb1459'],
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
             resolution: 'non-existing-resolution'
         }]
     })

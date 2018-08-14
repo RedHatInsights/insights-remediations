@@ -6,7 +6,7 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
 # Identifier: (compliance:no_empty_passwords,fix)
 # Version: unknown
 - name: fix no_empty_passwords
-  hosts: 'a8799a02-8be9-11e8-9eb6-529269fb1459.example.com'
+  hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
   tasks:
     - name: Prevent Log In to Accounts With Empty Password - system-auth
@@ -24,7 +24,7 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
 # Identifier: (compliance:bootloader_audit_argument,fix)
 # Version: unknown
 - name: fix bootloader_audit_argument
-  hosts: 'a8799a02-8be9-11e8-9eb6-529269fb1459.example.com'
+  hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
   tasks:
     - name: Enable Auditing for Processes Which Start Prior to the Audit Daemon
@@ -33,7 +33,7 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -57,7 +57,7 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
           become: false
 
 - name: run insights
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -72,7 +72,7 @@ exports[`generates a simple playbook with single compliance remediation 1`] = `
 # Identifier: (compliance:sshd_disable_root_login,fix)
 # Version: unknown
 - name: fix sshd_disable_root_login
-  hosts: 'a8799a02-8be9-11e8-9eb6-529269fb1459.example.com'
+  hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
   tasks:
     - name: Disable SSH Root Login
@@ -85,7 +85,7 @@ exports[`generates a simple playbook with single compliance remediation 1`] = `
         validate: sshd -t -f %s
 
 - name: run insights
-  hosts: \\"a8799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:
