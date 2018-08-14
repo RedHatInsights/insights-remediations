@@ -53,14 +53,12 @@ function addRebootPlay (plays) {
     }
 
     const hosts = _(rebootRequiringPlays).flatMap('hosts').uniq().sort().value();
-    plays.push(new SpecialPlay('special:reboot', hosts, templates.special.reboot));
-    return plays;
+    return [...plays, new SpecialPlay('special:reboot', hosts, templates.special.reboot)];
 }
 
 function addPostRunCheckIn (plays) {
     const hosts = _(plays).flatMap('hosts').uniq().sort().value();
-    plays.push(new SpecialPlay('special:post-run-check-in', hosts, templates.special.postRunCheckIn));
-    return plays;
+    return [...plays, new SpecialPlay('special:post-run-check-in', hosts, templates.special.postRunCheckIn)];
 }
 
 function addDiagnosisPlay (plays) {
@@ -71,8 +69,7 @@ function addDiagnosisPlay (plays) {
     }
 
     const hosts = _(diagnosisPlays).flatMap('hosts').uniq().sort().value();
-    plays.unshift(new SpecialPlay('special:diagnosis', hosts, templates.special.diagnosis));
-    return plays;
+    return [new SpecialPlay('special:diagnosis', hosts, templates.special.diagnosis), ...plays];
 }
 
 function send (res, playbook) {
