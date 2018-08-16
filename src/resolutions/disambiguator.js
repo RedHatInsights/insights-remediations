@@ -29,3 +29,7 @@ exports.disambiguate = function (templates, resolution, id) {
 
     return _.sortBy(templates, 'type')[0];
 };
+
+exports.sort = function (resolutions) {
+    return _.sortBy(resolutions, resolution => resolution.type === 'fix' ? 0 : 1, 'resolution_type');
+};

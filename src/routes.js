@@ -12,8 +12,12 @@ module.exports = async function (app) {
     await swagger(app);
 
     const v1 = express.Router();
-    require('./generator')(v1);
-    require('./version')(v1);
+
+    [
+        'generator',
+        'resolutions',
+        'version'
+    ].forEach(resource => require(`./${resource}/routes`)(v1));
 
     app.use('/v1', v1);
 

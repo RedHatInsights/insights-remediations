@@ -20,7 +20,7 @@ const playbookPipeline = composeAsync(
         input.issues.forEach(issue => issue.id = identifiers.parse(issue.id));
         return input;
     },
-    ({issues}) => P.map(issues, handlers.createPlay),
+    ({issues}) => P.map(issues, issue => handlers.createPlay(issue)),
     erratumPlayAggregator.process,
     addRebootPlay,
     addPostRunCheckIn,

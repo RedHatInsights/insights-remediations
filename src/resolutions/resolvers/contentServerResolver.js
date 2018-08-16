@@ -16,5 +16,11 @@ function parseResolution (response) {
     let template = response.play.replace('{{HOSTS}}', Template.HOSTS_PLACEHOLDER);
     template = yaml.removeDocumentMarkers(template);
     const needsDiagnosis = yaml.isVariableUsed(INSIGHTS_DIAGNOSIS_VAR_NAME, template);
-    return new Resolution(template, response.resolution_type, response.needs_reboot, needsDiagnosis);
+    return new Resolution(
+        template,
+        response.resolution_type,
+        response.description,
+        response.needs_reboot,
+        needsDiagnosis,
+        response.resolution_risk);
 }

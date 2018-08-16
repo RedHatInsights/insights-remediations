@@ -10,5 +10,5 @@ exports.resolveResolutions = async function (id) {
         return [];
     }
 
-    return [new ErratumResolution(erratum)];
+    return [new ErratumResolution(id, erratum)];
 };

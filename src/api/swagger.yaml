@@ -27,11 +27,34 @@ paths:
           $ref: "#/definitions/PlaybookDefinition"
       responses:
         200:
-          description: success
+          description: OK
           schema:
             type: string
         400:
           $ref: '#/responses/InvalidRequest'
+
+  /resolutions/{issue}:
+    get:
+      summary: Resolution metadata
+      description: Provides information about resolutions available for the given issue
+      operationId: resolutions
+      parameters:
+        - $ref: '#/parameters/IssueId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Resolutions'
+        404:
+          description: Issue not known or Ansible resolution not available
+
+parameters:
+  IssueId:
+    in: path
+    name: issue
+    type: string
+    required: true
+    description: Issue identifier (e.g. `vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074`)
 
 responses:
   InvalidRequest:
@@ -49,13 +72,16 @@ definitions:
     type: string
     pattern: ^(advisor|vulnerabilities|compliance|test):[\w\d-_|:]+$
     example: vulnerabilities:CVE_2017_5461_nss|CVE_2017_5461_NSS_2
+
   SystemId:
     type: string
     example: a8799a02-8be9-11e8-9eb6-529269fb1459
+
   ResolutionType:
     type: string
     example: fix
     default: fix
+
   PlaybookDefinition:
     type: object
     additionalProperties: false
@@ -107,3 +133,39 @@ definitions:
                 $ref: "#/definitions/SystemId"
             resolution:
               $ref: "#/definitions/ResolutionType"
+
+  Resolutions:
+    type: object
+    properties:
+      id:
+        $ref: "#/definitions/IssueId"
+      riskOfChange:
+        $ref: '#/definitions/RiskOfChange'
+      resolutions:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              $ref: '#/definitions/ResolutionId'
+            description:
+              type: string
+              example: Disable DCCP kernel module
+            needsReboot:
+              type: boolean
+            riskOfChange:
+              $ref: '#/definitions/RiskOfChange'
+
+  ResolutionId:
+    type: string
+    example: 'fix'
+
+  RiskOfChange:
+    type: integer
+    enum:
+      - -1
+      - 1
+      - 2
+      - 3
+      - 4
+    example: 2

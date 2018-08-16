@@ -16,12 +16,13 @@ function createTemplate (template) {
 
 module.exports = class Resolution {
 
-    constructor (template, type = 'fix', needsReboot = false, needsDiagnosis = false, parameters = {}) {
+    constructor (template, type = 'fix', description, needsReboot = false, needsDiagnosis = false, riskOfChange = -1) {
         this.template = createTemplate(template);
         this.type = type;
         this.needsReboot = needsReboot;
         this.needsDiagnosis = needsDiagnosis;
-        this.parameters = parameters;
+        this.description = description;
+        this.riskOfChange = riskOfChange;
 
         if (!this.template.data.includes(Template.HOSTS_PLACEHOLDER)) {
             throw new Error (`Template does not include ${Template.HOSTS_PLACEHOLDER}: ${this.template.data}`);

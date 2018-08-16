@@ -25,9 +25,10 @@ function parseTemplate (template, id) {
     const play = createBaseTemplate(id);
     play.tasks = parsed;
     // TODO: add reboot trigger if needed
+    // TODO: infer risk of change
 
     const metadata = parseMetadata(template);
-    return new Resolution(yaml.safeDump([play]).trim(), 'fix', metadata.reboot);
+    return new Resolution(yaml.safeDump([play]).trim(), 'fix', `Fix`, metadata.reboot);
 }
 
 function parseMetadata (template) {

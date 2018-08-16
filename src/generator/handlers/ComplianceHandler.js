@@ -27,3 +27,7 @@ exports.createPlay = async function ({id, hosts, resolution}) {
     return new ResolutionPlay(id, hosts, disambiguatedResolution, rule.description);
 };
 
+exports.getResolver = function () {
+    return ssgResolver;
+};
+
