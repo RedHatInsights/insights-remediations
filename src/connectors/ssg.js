@@ -1,7 +1,7 @@
 'use strict';
 
 const config = require('../config');
-const request = require('../util/request');
+const request = require('./http');
 
 exports.getTemplate = function (id) {
     const uri = `${config.ssg.repository}/${id.toLowerCase()}.yml`;

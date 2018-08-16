@@ -17,7 +17,7 @@ class InternalError extends Error {
     constructor (errorCode, message, details = {}) {
         super(message);
         this.errorCode = errorCode;
-        this.details = details;
+        _.assign(this, details);
     }
 }
 
@@ -64,12 +64,13 @@ exports.handler = (err, req, res, next) => {
         return err.writeResponse(res);
     }
 
-    if (err instanceof InternalError) {
-        log.error({
-            error: {message: err.message, stack: err.stack},
-            error_code: err.errorCode, ...err.details
-        }, 'caught internal error');
-    }
+    log.error({
+        error: {
+            message: err.message,
+            stack: err.stack,
+            ...err
+        }
+    }, 'caught internal error');
 
     next(err);
 };
@@ -99,6 +100,12 @@ exports.internal = {
     },
 
     playbookValidationFailed (e, playbook) {
-        return new InternalError('PLAYBOOK_VALIDATION_FAILED', 'Playbook output validation failed', {error: e, playbook});
+        return new InternalError('PLAYBOOK_VALIDATION_FAILED', 'Playbook output validation failed', {cause: e, playbook});
+    },
+
+    dependencyFailureHttp (e) {
+        return new InternalError('DEPENDENCY_FAILURE_HTTP', 'An HTTP dependency returned unexpected response', {
+            cause: e
+        });
     }
 };

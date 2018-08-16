@@ -4,7 +4,7 @@ const URI = require('urijs');
 const P = require('bluebird');
 
 const config = require('../../config');
-const request = require('../../util/request');
+const request = require('../http');
 
 exports.getResolutions = async function (id, includePlay = false) {
     let resolutions = await getResolutions(id);

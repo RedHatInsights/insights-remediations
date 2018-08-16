@@ -1,7 +1,7 @@
 'use strict';
 
 const {host, auth, insecure} = require('../../config').vulnerabilities;
-const request = require('../../util/request');
+const request = require('../http');
 const URI = require('urijs');
 
 exports.getRule = function (id) {

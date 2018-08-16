@@ -1,7 +1,7 @@
 'use strict';
 
 const config = require('../../config');
-const request = require('../../util/request');
+const request = require('../http');
 const URI = require('urijs');
 
 exports.getErratum = function (id) {
