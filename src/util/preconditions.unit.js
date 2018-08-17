@@ -2,13 +2,14 @@
 
 require('../test');
 const preconditions = require('./preconditions');
+const { InternalError } = require('../errors');
 
 test('notNil throws error on null', () => {
-    expect(() => { preconditions.notNil(null); }).toThrow(TypeError);
+    expect(() => { preconditions.notNil(null); }).toThrow(InternalError);
 });
 
 test('notNil throws error on undefined', () => {
-    expect(() => { preconditions.notNil(undefined); }).toThrow(TypeError);
+    expect(() => { preconditions.notNil(undefined); }).toThrow(InternalError);
 });
 
 test('notNil succeedes otherwise', () => {
@@ -16,11 +17,11 @@ test('notNil succeedes otherwise', () => {
 });
 
 test('nonEmptyArray throws error on string', () => {
-    expect(() => { preconditions.nonEmptyArray('array'); }).toThrow(TypeError);
+    expect(() => { preconditions.nonEmptyArray('array'); }).toThrow(InternalError);
 });
 
 test('nonEmptyArray throws error on empty array', () => {
-    expect(() => { preconditions.nonEmptyArray([]); }).toThrow(TypeError);
+    expect(() => { preconditions.nonEmptyArray([]); }).toThrow(InternalError);
 });
 
 test('nonEmptyArray succeeds on non-empty array', () => {

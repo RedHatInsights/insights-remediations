@@ -21,6 +21,8 @@ class InternalError extends Error {
     }
 }
 
+exports.InternalError = InternalError;
+
 exports.BadRequest = class BadRequest extends HttpError {
     constructor (code, message, details) {
         super(400);
