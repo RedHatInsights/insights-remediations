@@ -35,6 +35,21 @@ test('generates a simple playbook with multiple compliance remediation', async (
     expect(res.text).toMatchSnapshot();
 });
 
+test('generates a simple playbook with reboot support', async () => {
+    const data = {
+        issues: [{
+            id: 'compliance:security_patches_up_to_date',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    const res = await request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200);
+    expect(res.text).toMatchSnapshot();
+});
+
 test('400s on unknown resolution type', () => {
     return request
     .post('/v1/playbook')

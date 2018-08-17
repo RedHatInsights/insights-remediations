@@ -5,7 +5,10 @@ const ssg = require('../../connectors/ssg');
 const keyValueParser = require('../../util/keyValueParser');
 const Resolution = require('../Resolution');
 const yamlUtils = require('../../util/yaml');
-const { isNumber, isBoolean } = require('../../util/preconditions');
+const { isNumber, isBoolean, nonEmptyArray, notIn } = require('../../util/preconditions');
+const templates = require('../../templates/static');
+
+const rebootFactSetter = yaml.safeLoad(templates.special.rebootFactSetter.data);
 
 const LEVELS = {
     low: 1,
@@ -33,9 +36,12 @@ function parseTemplate (template, id) {
     const riskOfChange = parseRiskOfChange(metadata);
     const needsReboot = isBoolean(metadata.reboot);
 
+    if (needsReboot) {
+        addRebootSupport(parsed);
+    }
+
     const play = createBaseTemplate(id);
     play.tasks = parsed;
-    // TODO: add reboot trigger if needed
 
     return new Resolution(yaml.safeDump([play]).trim(), 'fix', `Fix`, needsReboot, false, riskOfChange);
 }
@@ -63,4 +69,12 @@ function parseRiskOfChange (metadata) {
     const complexity = isNumber(LEVELS[metadata.complexity]);
 
     return disruption + (complexity === 1 ? 0 : 1);
+}
+
+function addRebootSupport (tasks) {
+    nonEmptyArray(tasks, 1);
+    notIn(tasks[0], 'register');
+
+    tasks[0].register = 'result';
+    tasks.push(rebootFactSetter);
 }

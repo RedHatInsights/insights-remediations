@@ -2,7 +2,7 @@
 
 exports[`generates a simple playbook with multiple compliance remediation 1`] = `
 "---
-# Problem known as no_empty_passwords
+# OpenSCAP fix for no_empty_passwords
 # Identifier: (compliance:no_empty_passwords,fix)
 # Version: unknown
 - name: fix no_empty_passwords
@@ -20,7 +20,7 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
         follow: 'yes'
         regexp: nullok
 
-# Problem known as bootloader_audit_argument
+# OpenSCAP fix for bootloader_audit_argument
 # Identifier: (compliance:bootloader_audit_argument,fix)
 # Version: unknown
 - name: fix bootloader_audit_argument
@@ -29,6 +29,64 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
   tasks:
     - name: Enable Auditing for Processes Which Start Prior to the Audit Daemon
       shell: /sbin/grubby --update-kernel=ALL --args=\\"audit=1\\"
+      register: result
+    - when: result is changed
+      set_fact:
+        insights_needs_reboot: true
+
+# Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
+# The variable can be overridden to suppress this behavior.
+- name: Reboot system (if applicable)
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - when:
+        - insights_needs_reboot is defined
+        - insights_needs_reboot
+      block:
+        - name: Reboot system
+          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          async: 1
+          poll: 0
+          ignore_errors: true
+
+        - name: Wait for system to boot up
+          local_action:
+            module: wait_for
+            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
+            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            delay: 15
+            timeout: 300
+          become: false
+
+- name: run insights
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: redhat-access-insights
+      changed_when: false"
+`;
+
+exports[`generates a simple playbook with reboot support 1`] = `
+"---
+# OpenSCAP fix for security_patches_up_to_date
+# Identifier: (compliance:security_patches_up_to_date,fix)
+# Version: unknown
+- name: fix security_patches_up_to_date
+  hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
+  become: true
+  tasks:
+    - name: Security patches are up to date
+      package:
+        name: '*'
+        state: latest
+      register: result
+    - when: result is changed
+      set_fact:
+        insights_needs_reboot: true
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
@@ -68,7 +126,7 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
 
 exports[`generates a simple playbook with single compliance remediation 1`] = `
 "---
-# Problem known as sshd_disable_root_login
+# OpenSCAP fix for sshd_disable_root_login
 # Identifier: (compliance:sshd_disable_root_login,fix)
 # Version: unknown
 - name: fix sshd_disable_root_login

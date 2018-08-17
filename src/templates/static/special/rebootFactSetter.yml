@@ -1,0 +1,3 @@
+when: result is changed
+set_fact:
+  insights_needs_reboot: True

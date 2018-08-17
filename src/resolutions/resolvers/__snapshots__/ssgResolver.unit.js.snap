@@ -21,5 +21,9 @@ exports[`parses a template with reboot 1`] = `
   become: true
   tasks:
     - name: Enable Auditing for Processes Which Start Prior to the Audit Daemon
-      shell: /sbin/grubby --update-kernel=ALL --args=\\"audit=1\\""
+      shell: /sbin/grubby --update-kernel=ALL --args=\\"audit=1\\"
+      register: result
+    - when: result is changed
+      set_fact:
+        insights_needs_reboot: true"
 `;

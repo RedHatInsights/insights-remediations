@@ -107,5 +107,9 @@ exports.internal = {
         return new InternalError('DEPENDENCY_FAILURE_HTTP', 'An HTTP dependency returned unexpected response', {
             cause: e
         });
+    },
+
+    preconditionFailed (msg) {
+        return new InternalError('PRECONDITION_FAILED', msg);
     }
 };
