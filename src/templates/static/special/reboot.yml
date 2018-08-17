@@ -21,5 +21,6 @@
             host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
             port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
+            search_regex: OpenSSH
             timeout: 300
           become: false

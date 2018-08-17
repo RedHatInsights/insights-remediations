@@ -163,6 +163,7 @@ exports[`adds diagnosis play 1`] = `
             host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
             port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
             delay: 15
+            search_regex: OpenSSH
             timeout: 300
           become: false
 
@@ -232,6 +233,7 @@ exports[`generates a simple playbook with reboot 1`] = `
             host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
             port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
             delay: 15
+            search_regex: OpenSSH
             timeout: 300
           become: false
 
@@ -289,6 +291,7 @@ exports[`generates an erratum-based playbook 1`] = `
             host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
             port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
             delay: 15
+            search_regex: OpenSSH
             timeout: 300
           become: false
 
