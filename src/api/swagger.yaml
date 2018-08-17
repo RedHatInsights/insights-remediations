@@ -11,9 +11,17 @@ consumes:
 produces:
 - application/json
 - text/html
+tags:
+- name: "generator"
+  description: "Ansible Playbook Generator"
+- name: "resolutions"
+  description: "Information about available Ansible resolutions"
+
 paths:
   /playbook:
     post:
+      tags:
+        - generator
       summary: Generate an Ansible Playbook
       description: Generates an Ansible Playbook based on input parameters
       operationId: generate
@@ -35,6 +43,8 @@ paths:
 
   /resolutions/{issue}:
     get:
+      tags:
+        - resolutions
       summary: Resolution metadata
       description: Provides information about resolutions available for the given issue
       operationId: resolutions
