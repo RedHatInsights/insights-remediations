@@ -39,6 +39,7 @@ module.exports = {
 
     ssg: {
         repository: process.env.SSG_REPO ||
-            'https://raw.githubusercontent.com/OpenSCAP/scap-security-guide/master/shared/fixes/ansible'
+            'https://raw.githubusercontent.com/OpenSCAP/scap-security-guide/255a015c92b869d579cb1af98ff1e83f1babbd55/' +
+                'shared/fixes/ansible'
     }
 };
