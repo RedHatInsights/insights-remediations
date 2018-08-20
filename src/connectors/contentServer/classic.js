@@ -61,3 +61,7 @@ function getResolutionDetails (id, resolution) {
 
     return contentServerRequest(uri.toString());
 }
+
+exports.ping = function () {
+    return exports.getResolutions('bond_config_issue|BOND_CONFIG_ISSUE');
+};

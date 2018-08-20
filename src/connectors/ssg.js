@@ -11,3 +11,7 @@ exports.getTemplate = function (id) {
         method: 'GET'
     });
 };
+
+exports.ping = function () {
+    return exports.getTemplate('sshd_disable_root_login');
+};

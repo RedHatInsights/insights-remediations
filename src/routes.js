@@ -3,12 +3,14 @@
 const express = require('express');
 const log = require('./util/log');
 const pino = require('express-pino-logger')({ logger: log });
+const prettyJson = require('./util/prettyJson');
 
 const swagger = require('./api/swagger');
 const errors = require('./errors');
 
 module.exports = async function (app) {
     app.use(pino);
+    app.use(prettyJson);
     await swagger(app);
 
     const v1 = express.Router();
@@ -16,6 +18,7 @@ module.exports = async function (app) {
     [
         'generator',
         'resolutions',
+        'status',
         'version'
     ].forEach(resource => require(`./${resource}/routes`)(v1));
 

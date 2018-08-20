@@ -15,3 +15,7 @@ exports.getRule = async function (id) {
     test.throw404();
 };
 
+exports.ping = function () {
+    return exports.getRule('CVE_2017_6074_kernel|KERNEL_CVE_2017_6074');
+};
+

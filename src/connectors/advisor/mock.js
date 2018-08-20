@@ -20,3 +20,7 @@ exports.getRule = async function (id) {
     return null;
 };
 
+exports.ping = function () {
+    return exports.getRule('bond_config_issue|BOND_CONFIG_ISSUE');
+};
+

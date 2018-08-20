@@ -7,3 +7,7 @@ exports.getRule = async function (id) {
     };
 };
 
+exports.ping = function () {
+    return exports.getRule('sshd_disable_root_login');
+};
+

@@ -22,3 +22,7 @@ exports.getErratum = function (id) {
     });
 };
 
+exports.ping = function () {
+    return exports.getErratum('RHSA-2018:0502');
+};
+

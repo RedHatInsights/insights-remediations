@@ -14,3 +14,5 @@ exports.getSystemDetailsBatch = async function (systems) {
 
     }).value());
 };
+
+exports.ping = async function () {};

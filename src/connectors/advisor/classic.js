@@ -20,3 +20,7 @@ exports.getRule = function (id) {
     });
 };
 
+exports.ping = function () {
+    return exports.getRule('bond_config_issue|BOND_CONFIG_ISSUE');
+};
+
