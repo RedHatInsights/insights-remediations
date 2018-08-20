@@ -8,11 +8,6 @@ const base = require('request-promise').defaults({
 function wrap (request) {
     const wrapper = (uri, options) => request(uri, options).catch(e => {
         e.options = (typeof uri === 'object') ? uri : options;
-
-        if (e.name === 'StatusCodeError' && e.statusCode === 404) {
-            return null;
-        }
-
         throw e;
     });
 
