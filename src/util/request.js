@@ -6,8 +6,8 @@ const base = require('request-promise').defaults({
 });
 
 function wrap (request) {
-    const wrapper = (uri, options) => request(uri, options).catch(e => {
-        e.options = (typeof uri === 'object') ? uri : options;
+    const wrapper = options => request(options).catch(e => {
+        e.options = options;
         throw e;
     });
 
