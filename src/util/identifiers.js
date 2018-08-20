@@ -1,11 +1,12 @@
 'use strict';
 
+const errors = require('../errors');
 const PATTERN = /^(advisor|vulnerabilities|compliance|test):([\w\d-_|:]+)$/;
 
 function match (id) {
     const match = PATTERN.exec(id);
     if (!match) {
-        throw new Error(`Invalid id: "${id}"`); // TODO
+        throw errors.invalidIssueId(id);
     }
 
     return match;

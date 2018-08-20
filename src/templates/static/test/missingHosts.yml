@@ -1,0 +1,4 @@
+- name: This play does not define HOSTS placeholder
+  hosts: "all"
+  tasks:
+    - ping

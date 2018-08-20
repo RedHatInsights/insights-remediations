@@ -139,7 +139,7 @@ test('400s on unknown issue id', () => {
 });
 
 test('detects missing variable in template', async () => {
-    const spy = getSandbox().spy(errors.internal, 'missingVariable');
+    const spy = getSandbox().spy(errors.internal, 'invalidTemplate');
 
     await request
     .post('/v1/playbook')

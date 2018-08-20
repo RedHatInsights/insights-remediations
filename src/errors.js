@@ -96,9 +96,15 @@ exports.unsupportedIssue = id =>
 exports.unknownResolution = (id, resolution) =>
     new exports.BadRequest('UNKNOWN_RESOLUTION', `Issue "${id.full}" does not have Ansible resolution "${resolution}"`);
 
+exports.invalidIssueId = (id) => new exports.BadRequest('INVALID_ISSUE_IDENTIFIER', `"${id}" is not a valid issue identifier.`);
+
 exports.internal = {
-    missingVariable (variable) {
-        return new InternalError('MISSING_VARIABLE', `Variable "${variable}" not provided for template`);
+    invalidTemplate (msg) {
+        return new InternalError('INVALID_TEMPLATE', msg);
+    },
+
+    invalidResolution (msg, template) {
+        return new InternalError('INVALID_RESOLUTION', msg, {template});
     },
 
     playbookValidationFailed (e, playbook) {
@@ -113,5 +119,9 @@ exports.internal = {
 
     preconditionFailed (msg) {
         return new InternalError('PRECONDITION_FAILED', msg);
+    },
+
+    classicNotProvidingPlays (id) {
+        return new InternalError('CLASSIC_PLAY_NOT_PROVIDED', `Failed to obtain play for "${id}". Check AUTH is set properly.`);
     }
 };

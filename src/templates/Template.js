@@ -21,7 +21,7 @@ class StrictContext extends mustache.Context {
         const value = super.lookup(name);
 
         if (value === undefined) {
-            throw errors.internal.missingVariable(name);
+            throw errors.internal.invalidTemplate(`Variable "${name}" not provided for template`);
         }
 
         return value;

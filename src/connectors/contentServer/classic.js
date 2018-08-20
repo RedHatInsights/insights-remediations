@@ -2,6 +2,7 @@
 
 const URI = require('urijs');
 const P = require('bluebird');
+const errors = require('../../errors');
 
 const config = require('../../config');
 const request = require('../http');
@@ -18,7 +19,7 @@ exports.getResolutions = async function (id, includePlay = false) {
             const { play } = await getResolutionDetails(id, resolution.resolution_type);
 
             if (play === undefined) {
-                throw new Error(`Failed to obtain actual play for "${id}". Check AUTH is set properly.`);
+                throw errors.classicNotProvidingPlays(id);
             }
 
             resolution.play = play;

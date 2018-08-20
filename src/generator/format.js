@@ -11,7 +11,7 @@ exports.render = function (plays) {
 
 exports.validate = function (playbook) {
     if (playbook.includes('@@')) {
-        throw new Error(`playbook not fully rendered: ${playbook}`);
+        throw errors.internal.playbookValidationFailed(new Error('playbook not fully rendered'), playbook);
     }
 
     // crosscheck that what we generated is a valid yaml document

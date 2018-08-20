@@ -1,6 +1,7 @@
 'use strict';
 
 const Template = require('../templates/Template');
+const errors = require('../errors').internal;
 
 function createTemplate (template) {
     if (typeof template === 'string') {
@@ -11,7 +12,7 @@ function createTemplate (template) {
         return template;
     }
 
-    throw new Error(`Invalid template type ${typeof template}`);
+    throw errors.internal.preconditionFailed(`Invalid template type ${typeof template}`);
 }
 
 module.exports = class Resolution {
@@ -25,7 +26,7 @@ module.exports = class Resolution {
         this.riskOfChange = riskOfChange;
 
         if (!this.template.data.includes(Template.HOSTS_PLACEHOLDER)) {
-            throw new Error (`Template does not include ${Template.HOSTS_PLACEHOLDER}: ${this.template.data}`);
+            throw errors.invalidResolution(`Template does not include "${Template.HOSTS_PLACEHOLDER}"`, this.template.data);
         }
     }
 
