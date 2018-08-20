@@ -20,6 +20,7 @@ module.exports = async function (app) {
     const v1 = express.Router();
 
     [
+        'diagnosis',
         'generator',
         'resolutions',
         'status',

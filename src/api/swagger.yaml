@@ -16,6 +16,8 @@ tags:
   description: "Ansible Playbook Generator"
 - name: "resolutions"
   description: "Information about available Ansible resolutions"
+- name: "diagnosis"
+  description: "Host-specific detailed diagnosis information"
 
 paths:
   /playbook:
@@ -58,6 +60,23 @@ paths:
         404:
           description: Issue not known or Ansible resolution not available
 
+  /diagnosis/{system}:
+    get:
+      tags:
+        - diagnosis
+      summary: host-specific diagnosis
+      description: Provides host-specific diagnosis information
+      operationId: diagnosis
+      parameters:
+        - $ref: '#/parameters/SystemId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Diagnosis'
+        404:
+          description: System not found
+
 parameters:
   IssueId:
     in: path
@@ -65,6 +84,12 @@ parameters:
     type: string
     required: true
     description: Issue identifier (e.g. `vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074`)
+  SystemId:
+    in: path
+    name: system
+    type: string
+    required: true
+    description: System identifier
 
 responses:
   InvalidRequest:
@@ -179,3 +204,17 @@ definitions:
       - 3
       - 4
     example: 2
+
+  Diagnosis:
+    type: object
+    properties:
+      diagnosis:
+        type: object
+        example:
+          CVE_2018_1111_dhcp|ERROR_CVE_2018_1111_DHCP_2:
+            dhcp_devs:
+              - enp0s3
+          CVE_2017_5753_4_cpu_kernel|KERNEL_CVE_2017_5753_4_CPU_ERROR_3:
+            debugfs_available: true
+            dmesg_available: true
+            dmesg_wrapped: false
