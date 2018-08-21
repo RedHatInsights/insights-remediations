@@ -8,6 +8,8 @@ objects:
   kind: ImageStream
   metadata:
     name: redis
+    labels:
+      app: redis
   spec:
     dockerImageRepository: "registry.access.redhat.com/rhscl/redis-32-rhel7"
 
@@ -15,6 +17,8 @@ objects:
   kind: DeploymentConfig
   metadata:
     name: redis
+    labels:
+      app: redis
   spec:
     replicas: 1
     selector:
@@ -92,6 +96,8 @@ objects:
 - apiVersion: v1
   kind: Service
   metadata:
+    labels:
+      app: redis
     name: redis
   spec:
     ports:
