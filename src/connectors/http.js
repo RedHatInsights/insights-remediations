@@ -84,7 +84,7 @@ module.exports = async function (options, useCache = false) {
         module.exports.stats.hits++;
         return cached.body;
     } else if (cached) {
-        log.trace({uri}, 'cache hit (needs revalidation)');
+        log.trace({uri, etag: cached.etag}, 'cache hit (needs revalidation)');
         module.exports.stats.hits++;
     } else {
         log.trace({uri}, 'cache miss');
