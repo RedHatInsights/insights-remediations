@@ -7,7 +7,7 @@ if [[ $(oc project -q) != remediations* ]]; then
     exit 1;
 fi
 
-for i in *.yaml; do
+for i in configuration/*.yaml; do
     echo "Updating $i"
     oc process -f $i --local --ignore-unknown-parameters NAMESPACE="$(oc project --short)" | oc apply -f -
 done;

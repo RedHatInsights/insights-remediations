@@ -66,6 +66,19 @@ objects:
               secretKeyRef:
                 key: password
                 name: content-server
+          - name: LOG_LEVEL
+            value: trace
+          - name: REDIS_ENABLED
+            value: "true"
+          - name: REDIS_HOST
+            value: redis
+          - name: REDIS_PORT
+            value: "6379"
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: redis
           resources:
             requests:
               cpu: 100m
