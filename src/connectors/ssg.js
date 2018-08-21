@@ -9,7 +9,7 @@ exports.getTemplate = function (id) {
     return request({
         uri,
         method: 'GET'
-    });
+    }, true);
 };
 
 exports.ping = function () {

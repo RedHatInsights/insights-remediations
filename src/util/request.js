@@ -25,4 +25,4 @@ function wrap (request) {
 /*
  * Wraps request to provide better debugging (include request opts with the error object)
  */
-module.exports = wrap(base);
+exports.run = wrap(base);

@@ -16,7 +16,7 @@ test('includes request options in the error object', async function () {
     };
 
     try {
-        await request(options);
+        await request.run(options);
         throw new Error('not thrown!');
     } catch (e) {
         // the exact error code varies between these two values randomly
@@ -32,7 +32,7 @@ test('includes request options in the error object of a request child', async fu
         url: `http://localhost:9003/v1/version`
     };
 
-    const req = request.defaults({ timeout: 20 });
+    const req = request.run.defaults({ timeout: 20 });
 
     try {
         await req(options);
@@ -47,5 +47,5 @@ test('includes request options in the error object of a request child', async fu
 });
 
 test('unwraps request if needed', function () {
-    request.unwrap().should.not.be.null();
+    request.run.unwrap().should.not.be.null();
 });

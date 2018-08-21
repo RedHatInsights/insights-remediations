@@ -16,5 +16,5 @@ exports.getRule = function ({host, insecure, auth}, id) {
         headers: {
             Authorization: auth
         }
-    });
+    }, true);
 };

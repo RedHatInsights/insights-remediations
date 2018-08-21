@@ -1,6 +1,23 @@
 'use strict';
 
 /* eslint no-process-env: off */
+function parseIntEnv (name, defaultValue) {
+    if (typeof name !== 'string') {
+        throw new Error(`invalid key ${name}`);
+    }
+
+    if (process.env[name] === undefined) {
+        return defaultValue;
+    }
+
+    const parsed = parseInt(process.env[name]);
+
+    if (isNaN(parsed)) {
+        throw new Error(`invalid value ${name}=${process.env[name]}`);
+    }
+
+    return parsed;
+}
 
 module.exports = {
     env: process.env.NODE_ENV || 'development',
@@ -41,5 +58,17 @@ module.exports = {
         repository: process.env.SSG_REPO ||
             'https://raw.githubusercontent.com/OpenSCAP/scap-security-guide/255a015c92b869d579cb1af98ff1e83f1babbd55/' +
                 'shared/fixes/ansible'
+    },
+
+    redis: {
+        enabled: process.env.REDIS_ENABLED === 'true' ? true : false,
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseIntEnv('REDIS_PORT', 6379),
+        password: process.env.REDIS_PASSWORD || undefined
+    },
+
+    cache: {
+        ttl: parseIntEnv('CACHE_TTL', 24 * 60 * 60), // 24 hours
+        revalidationInterval: parseIntEnv('CACHE_REVALIDATION_INVERVAL', 10 * 60) // 10 mins
     }
 };

@@ -39,7 +39,7 @@ function contentServerRequest (uri) {
         headers: {
             Authorization: config.contentServer.auth
         }
-    });
+    }, true);
 }
 
 function getResolutions (id) {

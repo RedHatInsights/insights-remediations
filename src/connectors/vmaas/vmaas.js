@@ -13,7 +13,7 @@ exports.getErratum = function (id) {
         uri: uri.toString(),
         method: 'GET',
         json: true
-    }).then(res => {
+    }, true).then(res => {
         if (res) {
             return res.errata_list[id];
         }

@@ -10,7 +10,7 @@ consumes:
 - application/json
 produces:
 - application/json
-- text/html
+- text/plain
 tags:
 - name: "generator"
   description: "Ansible Playbook Generator"

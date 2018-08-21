@@ -8,6 +8,7 @@ const log = require('./util/log');
 const routes = require('./routes');
 const config = require('./config');
 const version = require('./util/version');
+const redis = require('./cache');
 
 const P = require('bluebird');
 
@@ -25,6 +26,7 @@ async function start () {
     routes(app);
 
     const server = P.promisifyAll(http.createServer(app));
+    redis.connect();
 
     terminus(server, {
         signals: ['SIGINT', 'SIGTERM'],
@@ -34,11 +36,14 @@ async function start () {
 
         async onSignal () {
             log.info(`${version.full} shutting down`);
+            await redis.close();
         },
 
         onShutdown () {
             log.info(`${version.full} shutdown complete`);
-        }
+        },
+
+        logger: (msg, error) => log.error({error}, msg)
     });
 
     await server.listenAsync(config.port);
