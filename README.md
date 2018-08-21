@@ -37,7 +37,12 @@ Insights Remediations supports the following types of remediations:
 
 ### Running the application locally
 
-1. ```npm ci```
+1. ```docker-compose -f build/docker-compose.yml up```
+1. open http://localhost:9002
+
+### Local development
+
+1. ```docker-compose -f build/docker-compose.yml up redis```
 1. ```npm start```
 1. open http://localhost:9002
 

@@ -1,0 +1,21 @@
+version: '3.2'
+
+services:
+  remediations:
+    build:
+      context: ../
+      dockerfile: build/Dockerfile
+    links:
+      - redis
+    ports:
+      - 9002:9002
+    environment:
+      - REDIS_ENABLED=true
+      - REDIS_HOST=redis
+      - LOG_LEVEL=trace
+
+  redis:
+    image: registry.access.redhat.com/rhscl/redis-32-rhel7:latest
+    ports:
+      - 6379:6379
+    restart: always
