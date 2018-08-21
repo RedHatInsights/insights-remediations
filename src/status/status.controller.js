@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const P = require('bluebird');
 const log = require('../util/log');
+const http = require('../connectors/http');
 
 const TIMEOUT_CODES = ['ESOCKETTIMEDOUT', 'ETIMEDOUT'];
 
@@ -32,6 +33,8 @@ exports.status = async function (req, res) {
             return 'error';
         }
     }));
+
+    result.httpCache = http.stats;
 
     res.json(result).end();
 };

@@ -7,7 +7,7 @@ test('provides status information', async () => {
     .get('/v1/status')
     .expect(200);
 
-    body.should.eql({
+    body.should.containEql({
         advisor: 'ok',
         compliance: 'ok',
         contentServer: 'ok',
@@ -16,4 +16,7 @@ test('provides status information', async () => {
         vmaas: 'ok',
         vulnerabilities: 'ok'
     });
+
+    body.should.have.key('httpCache');
+    body.httpCache.should.have.keys('hits', 'misses');
 });
