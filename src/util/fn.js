@@ -11,3 +11,17 @@ exports.composeAsync = (...fns) => (...args) => fns.reduce((result, f) => {
 
     return result.then(f);
 }, ...args);
+
+/*
+ * Runs all the functions sequentially regardless of whether a preceeding function failed.
+ * Returns an array of errors thrown by the functions (may be empty).
+ */
+exports.runAllSeq = (...fns) => P.reduce(fns, async (result, f) => {
+    try {
+        await f();
+    } catch (e) {
+        result.push(e);
+    }
+
+    return result;
+}, []);

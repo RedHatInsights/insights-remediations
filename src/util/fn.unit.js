@@ -2,7 +2,7 @@
 
 require('../test');
 const P = require('bluebird');
-const {compose, composeAsync} = require('./fn');
+const {compose, composeAsync, runAllSeq} = require('./fn');
 
 test('compose()', () => {
     const a = value => [...value, 'a'];
@@ -22,3 +22,21 @@ test('composeAsync()', async () => {
     (await pipeline([])).join('').should.equal('abc');
 });
 
+test('runAllSync', async () => {
+    let i = 0;
+
+    const result = await runAllSeq(
+        () => {
+            throw new Error('0');
+        },
+        () => P.reject(new Error('1')),
+        () => P.reject(new Error('2')),
+        () => i++
+    );
+
+    i.should.equal(1);
+    result.should.have.length(3);
+    result[0].should.have.property('message', '0');
+    result[1].should.have.property('message', '1');
+    result[2].should.have.property('message', '2');
+});

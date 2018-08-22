@@ -9,6 +9,7 @@ const routes = require('./routes');
 const config = require('./config');
 const version = require('./util/version');
 const redis = require('./cache');
+const fn = require('./util/fn');
 
 const P = require('bluebird');
 
@@ -28,22 +29,30 @@ async function start () {
     const server = P.promisifyAll(http.createServer(app));
     redis.connect();
 
+    async function shutdown () {
+        const errors = await fn.runAllSeq(
+            redis.close
+        );
+
+        errors.forEach(({message, stack}) => log.error({error: {message, stack}}));
+    }
+
     terminus(server, {
         signals: ['SIGINT', 'SIGTERM'],
         healthChecks: {
             '/health': healthCheck
         },
 
-        async onSignal () {
+        onSignal () {
             log.info(`${version.full} shutting down`);
-            await redis.close();
+            return shutdown();
         },
 
         onShutdown () {
             log.info(`${version.full} shutdown complete`);
         },
 
-        logger: (msg, error) => log.error({error}, msg)
+        logger: (msg, {message, stack}) => log.error({error: {message, stack}}, msg)
     });
 
     await server.listenAsync(config.port);
@@ -51,7 +60,9 @@ async function start () {
 
     return {
         stop () {
-            return server.closeAsync();
+            return server
+            .closeAsync()
+            .finally(shutdown);
         }
     };
 }
