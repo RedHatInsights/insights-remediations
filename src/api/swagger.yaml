@@ -1,3 +1,4 @@
+---
 swagger: "2.0"
 info:
   description: Insights Remediations Service
@@ -7,18 +8,19 @@ info:
     email: jozef@redhat.com
 basePath: /v1
 consumes:
-- application/json
+  - application/json
 produces:
-- application/json
-- text/plain
-- text/html
+  - application/json
+  - text/plain
+  - text/html
 tags:
-- name: "generator"
-  description: "Ansible Playbook Generator"
-- name: "resolutions"
-  description: "Information about available Ansible resolutions"
-- name: "diagnosis"
-  description: "Host-specific detailed diagnosis information"
+  - name: "generator"
+    description: "Ansible Playbook Generator"
+  - name: "resolutions"
+    description: "Information about available Ansible resolutions"
+  - name: "diagnosis"
+    description: "Host-specific detailed diagnosis information"
+
 
 paths:
   /playbook:
@@ -29,13 +31,13 @@ paths:
       description: Generates an Ansible Playbook based on input parameters
       operationId: generate
       produces:
-      - text/vnd.yaml
+        - text/vnd.yaml
       parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          $ref: "#/definitions/PlaybookDefinition"
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/PlaybookDefinition"
       responses:
         200:
           description: OK
@@ -78,6 +80,7 @@ paths:
         404:
           description: System not found
 
+
 parameters:
   IssueId:
     in: path
@@ -92,6 +95,7 @@ parameters:
     required: true
     description: System identifier
 
+
 responses:
   InvalidRequest:
     description: invalid request
@@ -102,6 +106,7 @@ responses:
           type: string
         message:
           type: string
+
 
 definitions:
   IssueId:

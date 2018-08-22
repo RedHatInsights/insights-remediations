@@ -9,6 +9,7 @@
   },
   "scripts": {
     "lint": "eslint src",
+    "lint-yaml": "yamllint src/api/swagger.yaml",
     "prod": "NODE_ENV=production node src/app.js",
     "start": "NODE_ENV=development nodemon --watch src  -e js,yaml src/app.js",
     "test": "NODE_ENV=test jest -i --coverage --testMatch='**/?(*.)+(unit|integration).js'",
