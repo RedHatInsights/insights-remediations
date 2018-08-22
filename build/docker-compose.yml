@@ -7,6 +7,7 @@ services:
       dockerfile: build/Dockerfile
     links:
       - redis
+      - db
     ports:
       - 9002:9002
     environment:
@@ -19,3 +20,10 @@ services:
     ports:
       - 6379:6379
     restart: always
+
+  db:
+    image: registry.access.redhat.com/rhscl/postgresql-96-rhel7
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRESQL_ADMIN_PASSWORD=redhat
