@@ -15,7 +15,7 @@ exports.connect = function () {
         return client;
     }
 
-    log.info(`Redis ${config.redis.enabled ? 'enabled' : 'disabled'}`);
+    log.info(`redis ${config.redis.enabled ? 'enabled' : 'disabled'}`);
 
     if (!config.redis.enabled) {
         return;
@@ -30,7 +30,7 @@ exports.connect = function () {
 
     client = new Redis(opts);
 
-    client.on('connect', () => log.info('connected to Redis'));
+    client.on('connect', () => log.info('connected to redis'));
     client.on('error', err => {
         log.warn({error: err.message}, 'error connecting to redis');
     });
@@ -40,7 +40,7 @@ exports.connect = function () {
 
 exports.get = function () {
     if (!client) {
-        throw new Error('not connected to Redis');
+        throw new Error('not connected to redis');
     }
 
     return client;
@@ -53,6 +53,6 @@ exports.close = function () {
         return P.resolve(local.quit())
         .timeout(QUIT_TIMEOUT)
         .catch(P.TimeoutError, () => local.disconnect())
-        .finally(() => log.info('Redis disconnected'));
+        .finally(() => log.info('redis disconnected'));
     }
 };
