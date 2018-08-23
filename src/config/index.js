@@ -79,7 +79,7 @@ const config = {
 
     db: {
         username: env.DB_USERNAME || 'postgres',
-        password: env.DB_PASSWORD || 'redhat',
+        password: env.DB_PASSWORD || 'remediations',
         database: env.DB_DATABASE || 'remediations',
         host: env.DB_HOST || '127.0.0.1',
         dialect: 'postgres',

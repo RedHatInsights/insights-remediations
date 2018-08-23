@@ -29,4 +29,4 @@ services:
     ports:
       - 5432:5432
     environment:
-      - POSTGRESQL_ADMIN_PASSWORD=redhat
+      - POSTGRESQL_ADMIN_PASSWORD=remediations

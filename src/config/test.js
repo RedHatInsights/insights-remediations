@@ -2,7 +2,7 @@
 
 module.exports = {
     db: {
-        database: 'remediations-test',
+        database: 'remediationstest',
         logging: false
     }
 };

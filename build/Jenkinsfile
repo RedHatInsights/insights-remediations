@@ -1,3 +1,32 @@
+#!/usr/bin/env groovy
+
+NS='remediations-pr'
+
+def scale (count) {
+    sh "oc scale --replicas=${count} --namespace=${NS} dc/postgres"
+
+    // wait for dependencies
+    waitFor(count, 'postgres')
+}
+
+def waitFor (count, resource) {
+    println "waiting for ${resource} to scale to ${count}"
+
+    openshift.withCluster() {
+        openshift.withProject(NS) {
+            timeout(2) {
+                def latestDeploymentVersion = openshift.selector('dc', resource).object().status.latestVersion
+                def rc = openshift.selector('rc', "${resource}-${latestDeploymentVersion}")
+                rc.untilEach(1) {
+                    def rcMap = it.object()
+                    def ready = rcMap.status.readyReplicas == null ? 0 : rcMap.status.readyReplicas
+                    return (rcMap.status.replicas.equals(ready))
+                }
+            }
+        }
+    }
+}
+
 node {
     env.NODEJS_HOME = "${tool 'node-10'}"
     env.PATH="${env.NODEJS_HOME}/bin:${env.PATH}"
@@ -11,6 +40,21 @@ node {
     }
 
     stage('verify') {
-        sh 'npm run verify'
+        env.DB_HOST="postgres.${NS}.svc"
+        env.DB_DATABASE='remediationstest'
+
+        lock(NS) {
+            scale(1)
+            sh "oc get pods --namespace ${NS}"
+
+            try {
+                sh 'npm run verify'
+                sh 'npm run db:migrate'
+                sh 'npm run db:migrate:undo:all'
+            } finally {
+                scale(0)
+                sh "oc get pods --namespace ${NS}"
+            }
+        }
     }
 }

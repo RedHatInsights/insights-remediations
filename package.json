@@ -12,6 +12,7 @@
     "db:ims": "npm-run-all db:init db:migrate db:seed",
     "db:init": "sequelize db:drop; sequelize db:create",
     "db:migrate": "sequelize db:migrate",
+    "db:migrate:undo:all": "sequelize db:migrate:undo:all",
     "db:seed": "sequelize db:seed:all",
     "lint": "eslint *.js db src",
     "lint:yaml": "yamllint src/api/swagger.yaml",
