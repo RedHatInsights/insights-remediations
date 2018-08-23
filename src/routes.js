@@ -22,6 +22,7 @@ module.exports = async function (app) {
     [
         'diagnosis',
         'generator',
+        'remediations',
         'resolutions',
         'status',
         'version'

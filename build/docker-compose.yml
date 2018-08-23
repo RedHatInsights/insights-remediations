@@ -5,6 +5,7 @@ services:
     build:
       context: ../
       dockerfile: build/Dockerfile
+    command: sh -c "npm run db:ims && node src/app.js"
     links:
       - redis
       - db
@@ -14,6 +15,8 @@ services:
       - REDIS_ENABLED=true
       - REDIS_HOST=redis
       - LOG_LEVEL=trace
+      - DB_HOST=db
+    restart: always
 
   redis:
     image: registry.access.redhat.com/rhscl/redis-32-rhel7:latest

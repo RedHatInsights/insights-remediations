@@ -8,13 +8,18 @@
     "url": "git@github.com:RedHatInsights/insights-remediations.git"
   },
   "scripts": {
-    "lint": "eslint src",
-    "lint-yaml": "yamllint src/api/swagger.yaml",
+    "coverage": "NODE_ENV=test npm run db:ims && jest -i --coverage",
+    "db:ims": "npm-run-all db:init db:migrate db:seed",
+    "db:init": "sequelize db:drop; sequelize db:create",
+    "db:migrate": "sequelize db:migrate",
+    "db:seed": "sequelize db:seed:all",
+    "lint": "eslint *.js db src",
+    "lint:yaml": "yamllint src/api/swagger.yaml",
     "prod": "NODE_ENV=production node src/app.js",
     "start": "NODE_ENV=development nodemon --watch src  -e js,yaml src/app.js",
-    "test": "NODE_ENV=test jest -i --coverage --testMatch='**/?(*.)+(unit|integration).js'",
-    "test-unit": "NODE_ENV=test jest -i --testMatch='**/?(*.)+(unit).js'",
-    "verify": "npm-run-all lint test"
+    "test": "NODE_ENV=test npm run db:ims && jest -i",
+    "test:unit": "NODE_ENV=test jest -i --testMatch='**/?(*.)+(unit).js'",
+    "verify": "npm-run-all lint coverage"
   },
   "author": "Jozef Hartinger",
   "dependencies": {
@@ -28,11 +33,15 @@
     "js-yaml": "^3.12.0",
     "lodash": "^4.17.10",
     "mustache": "^2.3.0",
+    "pg": "^7.4.3",
     "pino": "^4.17.3",
     "request": "^2.87.0",
     "request-promise": "^4.2.2",
+    "sequelize": "^4.38.0",
+    "sequelize-cli": "^4.1.1",
     "swagger-tools": "^0.10.4",
-    "urijs": "^1.19.1"
+    "urijs": "^1.19.1",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "eslint": "^5.1.0",

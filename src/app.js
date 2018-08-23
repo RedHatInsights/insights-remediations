@@ -10,6 +10,7 @@ const config = require('./config');
 const version = require('./util/version');
 const redis = require('./cache');
 const fn = require('./util/fn');
+const db = require('./db');
 
 const P = require('bluebird');
 
@@ -31,7 +32,8 @@ async function start () {
 
     async function shutdown () {
         const errors = await fn.runAllSeq(
-            redis.close
+            redis.close,
+            db.close
         );
 
         errors.forEach(({message, stack}) => log.error({error: {message, stack}}));
@@ -55,6 +57,7 @@ async function start () {
         logger: (msg, {message, stack}) => log.error({error: {message, stack}}, msg)
     });
 
+    await db.connect();
     await server.listenAsync(config.port);
     log.info(`${version.full} started`);
 

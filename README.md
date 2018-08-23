@@ -53,6 +53,11 @@ To run the linter, unit and integration tests run:
 npm run verify
 ```
 
+To run a single test run:
+```
+npm test <path-to-test-file>
+```
+
 ## Configuration
 
 Application configuration can be [changed using environmental variables](https://github.com/RedHatInsights/insights-remediations/blob/master/src/config/index.js).

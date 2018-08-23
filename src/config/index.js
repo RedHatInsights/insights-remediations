@@ -1,5 +1,8 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
+const _ = require('lodash');
 const env = process.env;
 
 /* eslint no-process-env: off */
@@ -21,7 +24,7 @@ function parseIntEnv (name, defaultValue) {
     return parsed;
 }
 
-module.exports = {
+const config = {
     env: env.NODE_ENV || 'development',
     port: (env.NODE_ENV === 'test') ? 9003 : 9002,
     commit: env.OPENSHIFT_BUILD_COMMIT,
@@ -72,5 +75,30 @@ module.exports = {
     cache: {
         ttl: parseIntEnv('CACHE_TTL', 24 * 60 * 60), // 24 hours
         revalidationInterval: parseIntEnv('CACHE_REVALIDATION_INVERVAL', 10 * 60) // 10 mins
+    },
+
+    db: {
+        username: env.DB_USERNAME || 'postgres',
+        password: env.DB_PASSWORD || 'redhat',
+        database: env.DB_DATABASE || 'remediations',
+        host: env.DB_HOST || '127.0.0.1',
+        dialect: 'postgres',
+        logging: true,
+        operatorsAliases: false,
+        pool: {
+            min: 5,
+            max: 50
+        },
+        define: {
+            charset: 'utf8',
+            timestamps: false,
+            underscored: true
+        }
     }
 };
+
+if (fs.existsSync(path.join(__dirname, `${config.env}.js`))) {
+    _.merge(config, require(`./${config.env}`));
+}
+
+module.exports = config;

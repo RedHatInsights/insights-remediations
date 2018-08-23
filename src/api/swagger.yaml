@@ -16,6 +16,8 @@ produces:
 tags:
   - name: "generator"
     description: "Ansible Playbook Generator"
+  - name: "remediations"
+    description: "Stored Remediations"
   - name: "resolutions"
     description: "Information about available Ansible resolutions"
   - name: "diagnosis"
@@ -44,7 +46,69 @@ paths:
           schema:
             type: string
         400:
-          $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/BadRequest'
+
+  /remediations:
+    get:
+      tags:
+        - remediations
+      summary: List Remediations
+      description: Provides information about Remediations
+      operationId: listRemediations
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/RemediationList'
+    post:
+      tags:
+        - remediations
+      summary: Create Remediation
+      description: Creates a new Remediation based on given information
+      operationId: createRemediation
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/RemediationInput'
+      responses:
+        201:
+          description: Created
+          schema:
+            $ref: '#/definitions/Remediation'
+        400:
+          $ref: '#/responses/BadRequest'
+
+  /remediations/{id}:
+    get:
+      tags:
+        - remediations
+      summary: Get Remediation
+      description: Provides information about the given Remediation
+      operationId: getRemediation
+      parameters:
+        - $ref: '#/parameters/RemediationId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Remediation'
+        404:
+          $ref: '#/responses/NotFound'
+    delete:
+      tags:
+        - remediations
+      summary: Remove Remediation
+      description: Removes the given Remediation
+      operationId: deleteRemediation
+      parameters:
+        - $ref: '#/parameters/RemediationId'
+      responses:
+        204:
+          $ref: '#/responses/Deleted'
+        404:
+          $ref: '#/responses/NotFound'
 
   /resolutions/{issue}:
     get:
@@ -88,17 +152,25 @@ parameters:
     type: string
     required: true
     description: Issue identifier (e.g. `vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074`)
+  RemediationId:
+    in: path
+    name: id
+    type: string
+    required: true
+    description: Remediation identifier
+    format: uuid
   SystemId:
     in: path
     name: system
     type: string
     required: true
     description: System identifier
+    format: uuid
 
 
 responses:
-  InvalidRequest:
-    description: invalid request
+  BadRequest:
+    description: Bad Request
     schema:
       type: object
       properties:
@@ -106,6 +178,10 @@ responses:
           type: string
         message:
           type: string
+  Deleted:
+    description: Entity was deleted
+  NotFound:
+    description: Entity Not Found
 
 
 definitions:
@@ -174,6 +250,38 @@ definitions:
                 $ref: "#/definitions/SystemId"
             resolution:
               $ref: "#/definitions/ResolutionType"
+
+  RemediationList:
+    type: object
+    additionalProperties: false
+    properties:
+      remediations:
+        type: array
+        items:
+          $ref: '#/definitions/Remediation'
+
+  Remediation:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
+      name:
+        $ref: '#/definitions/RemediationName'
+
+  RemediationInput:
+    type: object
+    additionalProperties: false
+    properties:
+      name:
+        $ref: '#/definitions/RemediationName'
+
+  RemediationName:
+    type: string
+    example: Fix Critical CVEs
+
 
   Resolutions:
     type: object
