@@ -24,6 +24,14 @@ objects:
         maxUnavailable: 25%
         timeoutSeconds: 600
         updatePeriodSeconds: 1
+        pre:
+          execNewPod:
+            command:
+            - /bin/sh
+            - -c
+            - npm run db:create; npm run db:migrate
+            containerName: remediations
+          failurePolicy: Abort
     template:
       metadata:
         labels:
@@ -79,6 +87,13 @@ objects:
               secretKeyRef:
                 key: password
                 name: redis
+          - name: DB_HOST
+            value: postgres
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: db
           resources:
             requests:
               cpu: 100m

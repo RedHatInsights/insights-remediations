@@ -2,7 +2,7 @@
 
 set -e
 
-if [[ $(oc project -q) != remediations* ]]; then
+if [[ $(oc project -q) != remediations* || $(oc project -q) == "remediations-pr" ]]; then
     echo "unexpected project: $(oc project -q)"
     exit 1;
 fi
