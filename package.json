@@ -10,6 +10,7 @@
   "scripts": {
     "coverage": "NODE_ENV=test npm run db:ims && jest -i --coverage",
     "db:ims": "npm-run-all db:init db:migrate db:seed",
+    "db:create": "sequelize db:create",
     "db:init": "sequelize db:drop; sequelize db:create",
     "db:migrate": "sequelize db:migrate",
     "db:migrate:undo:all": "sequelize db:migrate:undo:all",
