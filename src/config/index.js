@@ -38,15 +38,15 @@ const config = {
     },
 
     advisor: {
-        host: env.ADVISOR_HOST || 'https://accessqa.usersys.redhat.com',
+        host: env.ADVISOR_HOST || 'https://access.qa.itop.redhat.com',
         auth: env.ADVISOR_AUTH || '',
         insecure: (env.ADVISOR_INSECURE === 'true') ? true : false
     },
 
     contentServer: {
-        host: env.CONTENT_SERVER_HOST || 'https://accessqa.usersys.redhat.com',
-        auth: env.CONTENT_SERVER_AUTH || '',
-        insecure: (env.CONTENT_SERVER_INSECURE === 'true') ? true : false
+        host: env.CONTENT_SERVER_HOST || 'http://localhost:8080',
+        auth: env.CONTENT_SERVER_AUTH || null,
+        insecure: (env.CONTENT_SERVER_INSECURE === 'false') ? false : true
     },
 
     vmaas: {
@@ -54,7 +54,7 @@ const config = {
     },
 
     vulnerabilities: {
-        host: env.VULNERABILITIES_HOST || 'https://accessqa.usersys.redhat.com',
+        host: env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com',
         auth: env.VULNERABILITIES_AUTH || '',
         insecure: (env.VULNERABILITIES_INSECURE === 'true') ? true : false
     },

@@ -2,5 +2,5 @@
 
 const config = require('../../config');
 
-module.exports = config.env === 'test' ? require('./mock') : require('./classic');
+module.exports = config.env === 'test' ? require('./mock') : require('./impl');
 

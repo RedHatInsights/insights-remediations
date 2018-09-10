@@ -61,12 +61,7 @@ objects:
                 key: password
                 name: content-server
           - name: CONTENT_SERVER_HOST
-            value: http://insights-api.insights-qa.svc.cluster.local:9002
-          - name: CONTENT_SERVER_AUTH
-            valueFrom:
-              secretKeyRef:
-                key: password
-                name: content-server
+            value: http://content-server.advisor-ci.svc.cluster.local:8080
           - name: VULNERABILITIES_HOST
             value: http://insights-api.insights-qa.svc.cluster.local:9002
           - name: VULNERABILITIES_AUTH
