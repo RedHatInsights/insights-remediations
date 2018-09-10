@@ -50,7 +50,7 @@ const config = {
     },
 
     vmaas: {
-        host: env.VMAAS_HOST || 'http://webapp-vmaas-stable.1b13.insights.openshiftapps.com'
+        host: env.VMAAS_HOST || 'https://webapp-vmaas-stable.1b13.insights.openshiftapps.com'
     },
 
     vulnerabilities: {
