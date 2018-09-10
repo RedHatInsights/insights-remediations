@@ -42,6 +42,16 @@ const DATA = {
         needs_reboot: true,
         resolution_risk: 3,
         play: `- name: Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7\n  hosts: "{{HOSTS}}"\n  become: yes\n  vars:\n    pydata: "{{insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074']}}"\n\n  tasks:\n  - when: insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'] is defined\n    block:\n    - when: not pydata.selinux_can_help\n      fail:\n        msg: SELinux cannot mitigate the problem on this system.  Please try one of the other playbooks.\n\n    - name: Get selinux mode\n      command: getenforce\n      register: getenforce\n      check_mode: no\n\n    - name: Enable SELinux immediately\n      command: setenforce enforcing\n      # setenforce enforcing will fail if SElinux is disabled so just ignore that situation\n      failed_when: false\n\n    - name: remove selinux=0 and enforcing=0 from grub config file\n      command: /sbin/grubby --update-kernel=ALL --remove-args="selinux enforcing"\n\n    - name: Set SELINUX=enforcing in /etc/selinux/config\n      lineinfile:\n        backup: true\n        dest: /etc/selinux/config\n        regexp: '(?i)^\\s*SELINUX *=.*'\n        line: SELINUX=enforcing\n        state: present\n\n    - when: ansible_distribution_major_version == '7' and\n            pydata.minimal_selinux_policy and pydata.active_policy and\n            pydata.minimal_selinux_policy | version_compare(pydata.active_policy, '>')\n      name: Update selinux-policy package to latest version\n      yum:\n        name: selinux-policy\n        state: latest\n\n    - when: "getenforce.stdout == 'Disabled'"\n      block:\n      - name: SELinux relabel to be done on reboot (note, a relabel may take a while to complete)\n        file:\n          path: /.autorelabel\n          state: touch\n\n      - name: set reboot fact\n        set_fact:\n          insights_needs_reboot: True\n`
+    }],
+    'bond_config_issue|NO_QUOTES': [{
+        rule_id: `bond_config_issue|BOND_CONFIG_ISSUE`,
+        system_type_id: 105,
+        resolution_type: 'fix',
+        description: `Correct Bonding Config Items`,
+        version: `a0e934f07d8167073546cbc5108c4345f92559a5`,
+        needs_reboot: false,
+        resolution_risk: 3,
+        play: `---\n- name: Correct Bonding Config Items\n  hosts: {{HOSTS}}\n  become: true\n  vars:\n    pydata: "{{ insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] }}"\n  tasks:\n\n    - when: \n        - insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] is defined\n        - item.value == 2\n      name: Add quotes around bonding options\n      lineinfile:\n        dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}"\n        regexp: '(^\\s*BONDING_OPTS=)(.*)'\n        backrefs: yes\n        line: '\\1"\\2"'\n      with_dict: "{{ pydata.interface_issue_dict }}"\n\n    - when:\n        - insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] is defined\n        - item.value == 1\n      name: lowercase yes in Slave option\n      lineinfile:\n        dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}"\n        regexp: '(^\\s*SLAVE=)("*YES"*)'\n        backrefs: yes\n        line: '\\1yes'\n      with_dict: "{{ pydata.interface_issue_dict }}"\n`
     }]
 };
 

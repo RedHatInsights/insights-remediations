@@ -52,3 +52,16 @@ test('400s on unsupported issue', () => {
         });
     });
 });
+
+test('puts quotes around hosts list', async () => {
+    const {text} = await request
+    .post('/v1/playbook')
+    .send({
+        issues: [{
+            id: 'advisor:bond_config_issue|NO_QUOTES',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    }).expect(200);
+
+    expect(text).toMatchSnapshot();
+});

@@ -9,6 +9,11 @@ const DATA = {
     'alias_interface_invalid|ALIAS_INTERFACE_INVALID': {
         id: 'alias_interface_invalid|ALIAS_INTERFACE_INVALID',
         description: 'Interface enabled at boot-time when ONBOOT parameter is disabled in configuration file'
+    },
+
+    'bond_config_issue|NO_QUOTES': {
+        id: 'bond_config_issue|NO_QUOTES',
+        description: 'Unexpected bonding behavior with incorrect syntax in bond configuration files'
     }
 };
 

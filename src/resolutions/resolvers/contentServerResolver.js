@@ -13,7 +13,9 @@ exports.resolveResolutions = async function (id) {
 };
 
 function parseResolution (response) {
-    let template = response.play.replace('{{HOSTS}}', Template.HOSTS_PLACEHOLDER);
+    // adds quotes around the placeholder regardless of whether the original template uses quotes or not
+    let template = response.play.replace(/["]?{{HOSTS}}["]?/, `"${Template.HOSTS_PLACEHOLDER}"`);
+
     template = yaml.removeDocumentMarkers(template);
     const needsDiagnosis = yaml.isVariableUsed(INSIGHTS_DIAGNOSIS_VAR_NAME, template);
     return new Resolution(
