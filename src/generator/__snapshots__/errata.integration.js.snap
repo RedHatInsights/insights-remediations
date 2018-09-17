@@ -9,7 +9,7 @@ exports[`aggregates multiple errata into a single play 1`] = `
 #   - Important: kernel security update (RHSA-2017:2679)
 # Identifier: (vulnerabilities:RHSA-2018:0502,vulnerabilities:RHSA-2017:1852,vulnerabilities:RHSA-2017:1382,vulnerabilities:RHSA-2017:2679,fix)
 # Version: unknown
-- name: fix RHSA-2018:0502,RHSA-2017:1852,RHSA-2017:1382,RHSA-2017:2679
+- name: upgrade packages affected by RHSA-2018:0502,RHSA-2017:1852,RHSA-2017:1382,RHSA-2017:2679
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:
@@ -67,7 +67,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 # Important: kernel-alt security and bug fix update (RHSA-2018:0502)
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
-- name: fix RHSA-2018:0502
+- name: upgrade packages affected by RHSA-2018:0502
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:
@@ -86,7 +86,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 # conga bug fix update (RHBA-2007:0331)
 # Identifier: (vulnerabilities:RHBA-2007:0331,fix)
 # Version: unknown
-- name: fix RHBA-2007:0331
+- name: upgrade packages affected by RHBA-2007:0331
   hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com\\"
   become: true
   vars:
@@ -144,7 +144,7 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
 # Important: kernel-alt security and bug fix update (RHSA-2018:0502)
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
-- name: fix RHSA-2018:0502
+- name: upgrade packages affected by RHSA-2018:0502
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:

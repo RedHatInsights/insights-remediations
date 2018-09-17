@@ -124,7 +124,7 @@ exports[`adds diagnosis play 1`] = `
 # mock synopsis (RHSA-2018:0502)
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
-- name: fix RHSA-2018:0502
+- name: upgrade packages affected by RHSA-2018:0502
   hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:
@@ -252,7 +252,7 @@ exports[`generates an erratum-based playbook 1`] = `
 # mock synopsis (RHSA-2018:0502)
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
-- name: fix RHSA-2018:0502
+- name: upgrade packages affected by RHSA-2018:0502
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:

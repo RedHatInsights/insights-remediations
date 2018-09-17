@@ -1,4 +1,4 @@
-- name: fix @@ERRATA@@
+- name: upgrade packages affected by @@ERRATA@@
   hosts: "@@HOSTS@@"
   become: true
   vars:
