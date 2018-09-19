@@ -3,7 +3,8 @@
 const _ = require('lodash');
 const Play = require('./Play');
 const {nonEmptyArray} = require('../../util/preconditions');
-const TEMPLATE = require('../../templates/static').vulnerabilities.errata;
+const ERRATA_TEMPLATE = require('../../templates/static').vulnerabilities.errata;
+const CVES_TEMPLATE = require('../../templates/static').vulnerabilities.cves;
 const HEADER_TEMPLATE = require('../../templates/static').special.headerMulti;
 
 module.exports = class MergedPlay extends Play {
@@ -12,7 +13,8 @@ module.exports = class MergedPlay extends Play {
         nonEmptyArray(plays);
         super(plays[0].id, plays[0].hosts);
         this.plays = plays;
-        this.errata = plays.map(play => play.erratum);
+        this.issues = plays.map(play => play.erratum);
+        this.template = plays[0].isAdvisory ? ERRATA_TEMPLATE : CVES_TEMPLATE;
     }
 
     generateHeader () {
@@ -26,13 +28,13 @@ module.exports = class MergedPlay extends Play {
 
     getTemplateParameters () {
         const params = super.getTemplateParameters();
-        params.ERRATA = this.errata;
+        params.ISSUES = this.issues;
         return params;
     }
 
     render () {
         const header = this.generateHeader();
-        const body = TEMPLATE.render(this.getTemplateParameters());
+        const body = this.template.render(this.getTemplateParameters());
         return [header, body].join('\n');
     }
 

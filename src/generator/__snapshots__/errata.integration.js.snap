@@ -2,11 +2,11 @@
 
 exports[`aggregates multiple errata into a single play 1`] = `
 "---
-# Upgrade packages to apply the following errata:
-#   - Important: kernel-alt security and bug fix update (RHSA-2018:0502)
-#   - Moderate: openldap security, bug fix, and enhancement update (RHSA-2017:1852)
-#   - Important: sudo security update (RHSA-2017:1382)
-#   - Important: kernel security update (RHSA-2017:2679)
+# Upgrade the following packages:
+#   - Upgrade packages affected by RHSA-2018:0502
+#   - Upgrade packages affected by RHSA-2017:1852
+#   - Upgrade packages affected by RHSA-2017:1382
+#   - Upgrade packages affected by RHSA-2017:2679
 # Identifier: (vulnerabilities:RHSA-2018:0502,vulnerabilities:RHSA-2017:1852,vulnerabilities:RHSA-2017:1382,vulnerabilities:RHSA-2017:2679,fix)
 # Version: unknown
 - name: upgrade packages affected by RHSA-2018:0502,RHSA-2017:1852,RHSA-2017:1382,RHSA-2017:2679
@@ -62,9 +62,92 @@ exports[`aggregates multiple errata into a single play 1`] = `
       changed_when: false"
 `;
 
+exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
+"---
+# Upgrade the following packages:
+#   - Upgrade packages affected by RHSA-2018:0502
+#   - Upgrade packages affected by RHSA-2017:1852
+#   - Upgrade packages affected by RHSA-2017:1382
+#   - Upgrade packages affected by RHSA-2017:2679
+# Identifier: (vulnerabilities:RHSA-2018:0502,vulnerabilities:RHSA-2017:1852,vulnerabilities:RHSA-2017:1382,vulnerabilities:RHSA-2017:2679,fix)
+# Version: unknown
+- name: upgrade packages affected by RHSA-2018:0502,RHSA-2017:1852,RHSA-2017:1382,RHSA-2017:2679
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  vars:
+    changed_keyword: \\"Complete!\\"
+  tasks:
+    - name: upgrade package
+      shell: yum update -d 2 -y --advisories=RHSA-2018:0502,RHSA-2017:1852,RHSA-2017:1382,RHSA-2017:2679
+      register: yum_result
+      changed_when: changed_keyword in yum_result.stdout
+
+    - when: changed_keyword in yum_result.stdout
+      name: set reboot fact
+      set_fact:
+        insights_needs_reboot: True
+
+# Upgrade the following packages:
+#   - Upgrade packages affected by CVE-2017-17713
+#   - Upgrade packages affected by CVE-2017-17712
+# Identifier: (vulnerabilities:CVE-2017-17713,vulnerabilities:CVE-2017-17712,fix)
+# Version: unknown
+- name: upgrade packages affected by CVE-2017-17713,CVE-2017-17712
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  vars:
+    changed_keyword: \\"Complete!\\"
+  tasks:
+    - name: upgrade package
+      shell: yum update -d 2 -y --cves=CVE-2017-17713,CVE-2017-17712
+      register: yum_result
+      changed_when: changed_keyword in yum_result.stdout
+
+    - when: changed_keyword in yum_result.stdout
+      name: set reboot fact
+      set_fact:
+        insights_needs_reboot: True
+
+# Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
+# The variable can be overridden to suppress this behavior.
+- name: Reboot system (if applicable)
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - when:
+        - insights_needs_reboot is defined
+        - insights_needs_reboot
+      block:
+        - name: Reboot system
+          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          async: 1
+          poll: 0
+          ignore_errors: true
+
+        - name: Wait for system to boot up
+          local_action:
+            module: wait_for
+            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
+            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            delay: 15
+            search_regex: OpenSSH
+            timeout: 300
+          become: false
+
+- name: run insights
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: redhat-access-insights
+      changed_when: false"
+`;
+
 exports[`generates a simple playbook with multiple erratum-based remediation 1`] = `
 "---
-# Important: kernel-alt security and bug fix update (RHSA-2018:0502)
+# Upgrade packages affected by RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
 - name: upgrade packages affected by RHSA-2018:0502
@@ -83,7 +166,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
       set_fact:
         insights_needs_reboot: True
 
-# conga bug fix update (RHBA-2007:0331)
+# Upgrade packages affected by RHBA-2007:0331
 # Identifier: (vulnerabilities:RHBA-2007:0331,fix)
 # Version: unknown
 - name: upgrade packages affected by RHBA-2007:0331
@@ -94,6 +177,25 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
   tasks:
     - name: upgrade package
       shell: yum update -d 2 -y --advisories=RHBA-2007:0331
+      register: yum_result
+      changed_when: changed_keyword in yum_result.stdout
+
+    - when: changed_keyword in yum_result.stdout
+      name: set reboot fact
+      set_fact:
+        insights_needs_reboot: True
+
+# Upgrade packages affected by CVE-2017-17712
+# Identifier: (vulnerabilities:CVE-2017-17712,fix)
+# Version: unknown
+- name: upgrade packages affected by CVE-2017-17712
+  hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com\\"
+  become: true
+  vars:
+    changed_keyword: \\"Complete!\\"
+  tasks:
+    - name: upgrade package
+      shell: yum update -d 2 -y --cves=CVE-2017-17712
       register: yum_result
       changed_when: changed_keyword in yum_result.stdout
 
@@ -139,9 +241,67 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
       changed_when: false"
 `;
 
+exports[`generates a simple playbook with single CVE remediation 1`] = `
+"---
+# Upgrade packages affected by CVE-2017-17712
+# Identifier: (vulnerabilities:CVE-2017-17712,fix)
+# Version: unknown
+- name: upgrade packages affected by CVE-2017-17712
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  vars:
+    changed_keyword: \\"Complete!\\"
+  tasks:
+    - name: upgrade package
+      shell: yum update -d 2 -y --cves=CVE-2017-17712
+      register: yum_result
+      changed_when: changed_keyword in yum_result.stdout
+
+    - when: changed_keyword in yum_result.stdout
+      name: set reboot fact
+      set_fact:
+        insights_needs_reboot: True
+
+# Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
+# The variable can be overridden to suppress this behavior.
+- name: Reboot system (if applicable)
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - when:
+        - insights_needs_reboot is defined
+        - insights_needs_reboot
+      block:
+        - name: Reboot system
+          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          async: 1
+          poll: 0
+          ignore_errors: true
+
+        - name: Wait for system to boot up
+          local_action:
+            module: wait_for
+            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
+            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            delay: 15
+            search_regex: OpenSSH
+            timeout: 300
+          become: false
+
+- name: run insights
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: redhat-access-insights
+      changed_when: false"
+`;
+
 exports[`generates a simple playbook with single RHSA remediation 1`] = `
 "---
-# Important: kernel-alt security and bug fix update (RHSA-2018:0502)
+# Upgrade packages affected by RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
 - name: upgrade packages affected by RHSA-2018:0502

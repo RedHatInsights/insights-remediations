@@ -121,7 +121,7 @@ exports[`adds diagnosis play 1`] = `
       with_dict: \\"{{ pydata.interface_issue_dict }}\\"
 
 
-# mock synopsis (RHSA-2018:0502)
+# Upgrade packages affected by RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
 - name: upgrade packages affected by RHSA-2018:0502
@@ -249,7 +249,7 @@ exports[`generates a simple playbook with reboot 1`] = `
 
 exports[`generates an erratum-based playbook 1`] = `
 "---
-# mock synopsis (RHSA-2018:0502)
+# Upgrade packages affected by RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
 - name: upgrade packages affected by RHSA-2018:0502

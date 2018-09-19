@@ -5,7 +5,7 @@
     changed_keyword: "Complete!"
   tasks:
     - name: upgrade package
-      shell: yum update -d 2 -y --advisories=@@ISSUES@@
+      shell: yum update -d 2 -y --cves=@@ISSUES@@
       register: yum_result
       changed_when: changed_keyword in yum_result.stdout
 

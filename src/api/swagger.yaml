@@ -222,15 +222,15 @@ definitions:
             systems:
               - a8799a02-8be9-11e8-9eb6-529269fb1459
               - 736ef48c-8f05-11e8-9eb6-529269fb1459
-          - id: vulnerabilities:RHSA-2018:0502
+          - id: vulnerabilities:CVE-2017-15126
             systems:
               - a8799a02-8be9-11e8-9eb6-529269fb1459
               - 736ef48c-8f05-11e8-9eb6-529269fb1459
-          - id: vulnerabilities:RHSA-2017:1852
+          - id: vulnerabilities:CVE-2018-1087
             systems:
               - a8799a02-8be9-11e8-9eb6-529269fb1459
               - 736ef48c-8f05-11e8-9eb6-529269fb1459
-          - id: vulnerabilities:RHBA-2007:0331
+          - id: vulnerabilities:CVE-2016-7913
             systems:
               - a8799a02-8be9-11e8-9eb6-529269fb1459
               - 736ef48c-8f05-11e8-9eb6-529269fb1459

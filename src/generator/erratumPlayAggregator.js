@@ -5,13 +5,19 @@ const ErratumPlay = require('./plays/ErratumPlay');
 const AggregatedErratumPlay = require('./plays/AggregatedErrataPlay');
 
 exports.process = function (plays) {
-    const mergedPlays = _(plays)
+    const erratumPlaysByType = _(plays)
     .filter(play => play instanceof ErratumPlay)
-    .groupBy(play => play.hosts.join())
-    .pickBy(plays => plays.length > 1)
-    .mapValues(plays => new AggregatedErratumPlay(plays))
-    .mapKeys(play => play.plays[0].id.full)
+    .partition(play => play.isAdvisory === false)
     .value();
+
+    const mergedPlays = _.assign(..._.map(erratumPlaysByType, plays =>
+        _(plays)
+        .groupBy(play => play.hosts.join())
+        .pickBy(plays => plays.length > 1)
+        .mapValues(plays => new AggregatedErratumPlay(plays))
+        .mapKeys(play => play.plays[0].id.full)
+        .value()
+    ));
 
     const toReplace = _(mergedPlays).values().flatMap(merged => merged.plays).keyBy(play => play.id.full).value();
 
