@@ -138,6 +138,24 @@ test('400s on unknown issue id', () => {
     });
 });
 
+test('400s on unknown system id', () => {
+    return request
+    .post('/v1/playbook')
+    .send({
+        issues: [{
+            id: 'vulnerabilities:CVE_2017_5461_nss|CVE_2017_5461_NSS_2',
+            systems: ['non-existent-system']
+        }]
+    })
+    .expect(400)
+    .then(({ body }) => {
+        body.should.have.property('error', {
+            code: 'UNKNOWN_SYSTEM',
+            message: 'Unknown system identifier "non-existent-system"'
+        });
+    });
+});
+
 test('detects missing variable in template', async () => {
     const spy = getSandbox().spy(errors.internal, 'invalidTemplate');
 

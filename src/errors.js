@@ -90,6 +90,9 @@ exports.async = fn => (req, res, next) => {
 exports.unknownIssue = id =>
     new exports.BadRequest('UNKNOWN_ISSUE', `Unknown issue identifier "${id.full}"`);
 
+exports.unknownSystem = id =>
+    new exports.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${id}"`);
+
 exports.unsupportedIssue = id =>
     new exports.BadRequest('UNSUPPORTED_ISSUE', `Issue "${id.full}" does not have Ansible support`);
 

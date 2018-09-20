@@ -3,7 +3,10 @@
 const _ = require('lodash');
 
 exports.getSystemDetailsBatch = async function (systems) {
-    return Promise.resolve(_(systems).keyBy().mapValues(id => {
+    return Promise.resolve(_(systems)
+    .filter(id => id !== 'non-existent-system')
+    .keyBy()
+    .mapValues(id => {
         const result = {
             id,
             hostname: (/^[0-8]/.test(id) ? `${id}.example.com` : id),

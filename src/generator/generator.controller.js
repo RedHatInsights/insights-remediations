@@ -40,6 +40,10 @@ async function resolveSystems (input) {
     const systems = await inventory.getSystemDetailsBatch(systemIds);
 
     input.issues.forEach(issue => issue.hosts = issue.systems.map(id => {
+        if (!systems.hasOwnProperty(id)) {
+            throw errors.unknownSystem(id);
+        }
+
         return systems[id].display_name || systems[id].hostname || systems[id].id;
     }));
 
