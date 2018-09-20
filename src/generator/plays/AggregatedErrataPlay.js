@@ -12,8 +12,8 @@ module.exports = class MergedPlay extends Play {
     constructor (plays) {
         nonEmptyArray(plays);
         super(plays[0].id, plays[0].hosts);
-        this.plays = plays;
-        this.issues = plays.map(play => play.erratum);
+        this.plays = _.sortBy(plays, 'erratum');
+        this.issues = _.map(this.plays, 'erratum');
         this.template = plays[0].isAdvisory ? ERRATA_TEMPLATE : CVES_TEMPLATE;
     }
 

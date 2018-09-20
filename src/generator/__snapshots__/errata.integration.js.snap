@@ -3,20 +3,20 @@
 exports[`aggregates multiple errata into a single play 1`] = `
 "---
 # Upgrade the following packages:
-#   - Upgrade packages affected by RHSA-2018:0502
-#   - Upgrade packages affected by RHSA-2017:1852
 #   - Upgrade packages affected by RHSA-2017:1382
+#   - Upgrade packages affected by RHSA-2017:1852
 #   - Upgrade packages affected by RHSA-2017:2679
-# Identifier: (vulnerabilities:RHSA-2018:0502,vulnerabilities:RHSA-2017:1852,vulnerabilities:RHSA-2017:1382,vulnerabilities:RHSA-2017:2679,fix)
+#   - Upgrade packages affected by RHSA-2018:0502
+# Identifier: (vulnerabilities:RHSA-2017:1382,vulnerabilities:RHSA-2017:1852,vulnerabilities:RHSA-2017:2679,vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
-- name: upgrade packages affected by RHSA-2018:0502,RHSA-2017:1852,RHSA-2017:1382,RHSA-2017:2679
+- name: upgrade packages affected by RHSA-2017:1382,RHSA-2017:1852,RHSA-2017:2679,RHSA-2018:0502
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:
     changed_keyword: \\"Complete!\\"
   tasks:
     - name: upgrade package
-      shell: yum update -d 2 -y --advisories=RHSA-2018:0502,RHSA-2017:1852,RHSA-2017:1382,RHSA-2017:2679
+      shell: yum update -d 2 -y --advisories=RHSA-2017:1382,RHSA-2017:1852,RHSA-2017:2679,RHSA-2018:0502
       register: yum_result
       changed_when: changed_keyword in yum_result.stdout
 
@@ -65,20 +65,20 @@ exports[`aggregates multiple errata into a single play 1`] = `
 exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 "---
 # Upgrade the following packages:
-#   - Upgrade packages affected by RHSA-2018:0502
-#   - Upgrade packages affected by RHSA-2017:1852
 #   - Upgrade packages affected by RHSA-2017:1382
+#   - Upgrade packages affected by RHSA-2017:1852
 #   - Upgrade packages affected by RHSA-2017:2679
-# Identifier: (vulnerabilities:RHSA-2018:0502,vulnerabilities:RHSA-2017:1852,vulnerabilities:RHSA-2017:1382,vulnerabilities:RHSA-2017:2679,fix)
+#   - Upgrade packages affected by RHSA-2018:0502
+# Identifier: (vulnerabilities:RHSA-2017:1382,vulnerabilities:RHSA-2017:1852,vulnerabilities:RHSA-2017:2679,vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
-- name: upgrade packages affected by RHSA-2018:0502,RHSA-2017:1852,RHSA-2017:1382,RHSA-2017:2679
+- name: upgrade packages affected by RHSA-2017:1382,RHSA-2017:1852,RHSA-2017:2679,RHSA-2018:0502
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:
     changed_keyword: \\"Complete!\\"
   tasks:
     - name: upgrade package
-      shell: yum update -d 2 -y --advisories=RHSA-2018:0502,RHSA-2017:1852,RHSA-2017:1382,RHSA-2017:2679
+      shell: yum update -d 2 -y --advisories=RHSA-2017:1382,RHSA-2017:1852,RHSA-2017:2679,RHSA-2018:0502
       register: yum_result
       changed_when: changed_keyword in yum_result.stdout
 
@@ -88,18 +88,18 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
         insights_needs_reboot: True
 
 # Upgrade the following packages:
-#   - Upgrade packages affected by CVE-2017-17713
 #   - Upgrade packages affected by CVE-2017-17712
-# Identifier: (vulnerabilities:CVE-2017-17713,vulnerabilities:CVE-2017-17712,fix)
+#   - Upgrade packages affected by CVE-2017-17713
+# Identifier: (vulnerabilities:CVE-2017-17712,vulnerabilities:CVE-2017-17713,fix)
 # Version: unknown
-- name: upgrade packages affected by CVE-2017-17713,CVE-2017-17712
+- name: upgrade packages affected by CVE-2017-17712,CVE-2017-17713
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:
     changed_keyword: \\"Complete!\\"
   tasks:
     - name: upgrade package
-      shell: yum update -d 2 -y --cves=CVE-2017-17713,CVE-2017-17712
+      shell: yum update -d 2 -y --cves=CVE-2017-17712,CVE-2017-17713
       register: yum_result
       changed_when: changed_keyword in yum_result.stdout
 
