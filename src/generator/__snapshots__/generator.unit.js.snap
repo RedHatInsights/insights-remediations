@@ -132,6 +132,8 @@ exports[`adds diagnosis play 1`] = `
   tasks:
     - name: upgrade package
       shell: yum update -d 2 -y --advisories=RHSA-2018:0502
+      args:
+        warn: false
       register: yum_result
       changed_when: changed_keyword in yum_result.stdout
 
@@ -260,6 +262,8 @@ exports[`generates an erratum-based playbook 1`] = `
   tasks:
     - name: upgrade package
       shell: yum update -d 2 -y --advisories=RHSA-2018:0502
+      args:
+        warn: false
       register: yum_result
       changed_when: changed_keyword in yum_result.stdout
 

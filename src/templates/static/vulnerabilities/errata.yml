@@ -6,6 +6,8 @@
   tasks:
     - name: upgrade package
       shell: yum update -d 2 -y --advisories=@@ISSUES@@
+      args:
+        warn: false
       register: yum_result
       changed_when: changed_keyword in yum_result.stdout
 

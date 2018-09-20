@@ -17,6 +17,8 @@ exports[`aggregates multiple errata into a single play 1`] = `
   tasks:
     - name: upgrade package
       shell: yum update -d 2 -y --advisories=RHSA-2017:1382,RHSA-2017:1852,RHSA-2017:2679,RHSA-2018:0502
+      args:
+        warn: false
       register: yum_result
       changed_when: changed_keyword in yum_result.stdout
 
@@ -79,6 +81,8 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
   tasks:
     - name: upgrade package
       shell: yum update -d 2 -y --advisories=RHSA-2017:1382,RHSA-2017:1852,RHSA-2017:2679,RHSA-2018:0502
+      args:
+        warn: false
       register: yum_result
       changed_when: changed_keyword in yum_result.stdout
 
@@ -100,6 +104,8 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
   tasks:
     - name: upgrade package
       shell: yum update -d 2 -y --cves=CVE-2017-17712,CVE-2017-17713
+      args:
+        warn: false
       register: yum_result
       changed_when: changed_keyword in yum_result.stdout
 
@@ -158,6 +164,8 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
   tasks:
     - name: upgrade package
       shell: yum update -d 2 -y --advisories=RHSA-2018:0502
+      args:
+        warn: false
       register: yum_result
       changed_when: changed_keyword in yum_result.stdout
 
@@ -177,6 +185,8 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
   tasks:
     - name: upgrade package
       shell: yum update -d 2 -y --advisories=RHBA-2007:0331
+      args:
+        warn: false
       register: yum_result
       changed_when: changed_keyword in yum_result.stdout
 
@@ -196,6 +206,8 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
   tasks:
     - name: upgrade package
       shell: yum update -d 2 -y --cves=CVE-2017-17712
+      args:
+        warn: false
       register: yum_result
       changed_when: changed_keyword in yum_result.stdout
 
@@ -254,6 +266,8 @@ exports[`generates a simple playbook with single CVE remediation 1`] = `
   tasks:
     - name: upgrade package
       shell: yum update -d 2 -y --cves=CVE-2017-17712
+      args:
+        warn: false
       register: yum_result
       changed_when: changed_keyword in yum_result.stdout
 
@@ -312,6 +326,8 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
   tasks:
     - name: upgrade package
       shell: yum update -d 2 -y --advisories=RHSA-2018:0502
+      args:
+        warn: false
       register: yum_result
       changed_when: changed_keyword in yum_result.stdout
 
