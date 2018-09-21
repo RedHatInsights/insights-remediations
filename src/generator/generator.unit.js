@@ -50,6 +50,23 @@ test('generates an erratum-based playbook', () => {
     .then(res => expect(res.text).toMatchSnapshot());
 });
 
+test('sorts the hosts line', () => {
+    mockVmaas();
+
+    const data = {
+        issues: [{
+            id: 'vulnerabilities:RHSA-2018:0502',
+            systems: ['d2c8db4e-bd6a-11e8-a355-529269fb1459', '68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200)
+    .then(res => expect(res.text).toMatchSnapshot());
+});
+
 test('adds diagnosis play', () => {
     mockVmaas();
 

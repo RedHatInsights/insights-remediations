@@ -308,3 +308,63 @@ exports[`generates an erratum-based playbook 1`] = `
       command: redhat-access-insights
       changed_when: false"
 `;
+
+exports[`sorts the hosts line 1`] = `
+"---
+# Upgrade packages affected by RHSA-2018:0502
+# Identifier: (vulnerabilities:RHSA-2018:0502,fix)
+# Version: unknown
+- name: upgrade packages affected by RHSA-2018:0502
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,d2c8db4e-bd6a-11e8-a355-529269fb1459\\"
+  become: true
+  vars:
+    changed_keyword: \\"Complete!\\"
+  tasks:
+    - name: upgrade package
+      shell: yum update -d 2 -y --advisories=RHSA-2018:0502
+      args:
+        warn: false
+      register: yum_result
+      changed_when: changed_keyword in yum_result.stdout
+
+    - when: changed_keyword in yum_result.stdout
+      name: set reboot fact
+      set_fact:
+        insights_needs_reboot: True
+
+# Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
+# The variable can be overridden to suppress this behavior.
+- name: Reboot system (if applicable)
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,d2c8db4e-bd6a-11e8-a355-529269fb1459\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - when:
+        - insights_needs_reboot is defined
+        - insights_needs_reboot
+      block:
+        - name: Reboot system
+          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          async: 1
+          poll: 0
+          ignore_errors: true
+
+        - name: Wait for system to boot up
+          local_action:
+            module: wait_for
+            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
+            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            delay: 15
+            search_regex: OpenSSH
+            timeout: 300
+          become: false
+
+- name: run insights
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,d2c8db4e-bd6a-11e8-a355-529269fb1459\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: redhat-access-insights
+      changed_when: false"
+`;
