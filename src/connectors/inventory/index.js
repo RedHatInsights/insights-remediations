@@ -1,3 +1,4 @@
 'use strict';
 
-module.exports = require('./mock');
+const config = require('../../config');
+module.exports = require(`./${config.inventory.impl}`);

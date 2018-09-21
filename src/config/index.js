@@ -94,6 +94,12 @@ const config = {
             timestamps: false,
             underscored: true
         }
+    },
+
+    inventory: {
+        impl: env.INVENTORY_IMPL || 'mock',
+        host: env.INVENTORY_HOST || 'localhost',
+        port: parseIntEnv('INVENTORY_PORT', 50051)
     }
 };
 
