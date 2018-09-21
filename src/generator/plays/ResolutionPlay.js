@@ -16,7 +16,7 @@ module.exports = class RemediationPlay extends Play {
         return HEADER_TEMPLATE.render({
             description: this.description,
             identifier: `${this.id.full},${this.resolution.type}`,
-            version: `${this.version || 'unknown'}`
+            version: `${this.resolution.version || 'unknown'}`
         });
     }
 

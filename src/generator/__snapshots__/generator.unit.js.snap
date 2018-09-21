@@ -33,7 +33,7 @@ exports[`adds diagnosis play 1`] = `
 
 # Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)
 # Identifier: (vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,selinux_mitigate)
-# Version: unknown
+# Version: 3f74744ce9b66c20b55f6dd4e580d77d7e7039b1
 - name: Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: yes
@@ -90,7 +90,7 @@ exports[`adds diagnosis play 1`] = `
 
 # Unexpected bonding behavior with incorrect syntax in bond configuration files
 # Identifier: (advisor:bond_config_issue|BOND_CONFIG_ISSUE,fix)
-# Version: unknown
+# Version: a0e934f07d8167073546cbc5108c4345f92559a5
 - name: Correct Bonding Config Items
   hosts: \\"4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com\\"
   become: true

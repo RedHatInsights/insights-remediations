@@ -28,5 +28,6 @@ function parseResolution (response) {
         response.description,
         needsReboot,
         needsDiagnosis,
-        response.resolution_risk);
+        response.resolution_risk,
+        response.version);
 }

@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const Play = require('./Play');
+const version = require('../../util/version');
 const {nonEmptyArray} = require('../../util/preconditions');
 const ERRATA_TEMPLATE = require('../../templates/static').vulnerabilities.errata;
 const CVES_TEMPLATE = require('../../templates/static').vulnerabilities.cves;
@@ -22,7 +23,7 @@ module.exports = class MergedPlay extends Play {
             plays: this.plays,
             description: this.description,
             identifier: `${this.plays.map(play => play.id.full).join()},fix`,
-            version: `${this.version || 'unknown'}`
+            version: `${version.commit || 'unknown'}`
         });
     }
 

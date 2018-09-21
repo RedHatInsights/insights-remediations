@@ -4,24 +4,28 @@
 
 const fs = require('fs');
 const { version } = require('../../package.json');
-const { commit } = require('../config');
+const config = require('../config');
 
 function getCommit () {
-    if (commit) {
-        return String(commit).substring(0, 7);
+    if (config.commit) {
+        return String(config.commit);
     }
 
     try {
         return fs.readFileSync('commit.txt', 'utf-8').trim();
     } catch (ignored) {
     }
-
-    return 'unknown';
 }
 
-module.exports = {
-    version,
-    commit: getCommit()
-};
+exports.version = version;
 
-module.exports.full = `InsightsRemediations/${module.exports.commit}`;
+const commit = getCommit();
+
+if (commit) {
+    exports.commit = commit;
+    exports.short = commit.substring(0, 7);
+} else {
+    exports.commit = exports.short = 'unknown';
+}
+
+exports.full = `InsightsRemediations/${exports.short}`;

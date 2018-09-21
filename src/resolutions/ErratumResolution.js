@@ -1,5 +1,6 @@
 'use strict';
 
+const version = require('../util/version');
 const Resolution = require('./Resolution');
 const ERRATA_TEMPLATE = require('../templates/static').vulnerabilities.errata;
 const CVES_TEMPLATE = require('../templates/static').vulnerabilities.cves;
@@ -10,6 +11,7 @@ class ErratumResolution extends Resolution {
         super(template, 'fix', `Update packages (${id.issue})`, true, false);
         this.details = details;
         this.isAdvisory = isAdvisory;
+        this.version = version.commit;
     }
 }
 

@@ -1,6 +1,8 @@
 'use strict';
 
-const { request } = require('../test');
+const base = require('../test');
+const version = require('../util/version');
+const { request } = base;
 
 test('generates a simple playbook with single RHSA remediation', async () => {
     const data = {
@@ -18,6 +20,8 @@ test('generates a simple playbook with single RHSA remediation', async () => {
 });
 
 test('generates a simple playbook with single CVE remediation', async () => {
+    base.sandbox.stub(version, 'commit').value('test-version');
+
     const data = {
         issues: [{
             id: 'vulnerabilities:CVE-2017-17712',
@@ -78,6 +82,8 @@ test('aggregates multiple errata into a single play', async () => {
 });
 
 test('aggregates multiple errata-based issues into advisory/cve plays', async () => {
+    base.sandbox.stub(version, 'commit').value('test-version');
+
     const data = {
         issues: [{
             id: 'vulnerabilities:RHSA-2018:0502',

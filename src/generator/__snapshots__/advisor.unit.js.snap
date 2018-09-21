@@ -33,7 +33,7 @@ exports[`generates a rule-based playbook 1`] = `
 
 # Unexpected bonding behavior with incorrect syntax in bond configuration files
 # Identifier: (advisor:bond_config_issue|BOND_CONFIG_ISSUE,fix)
-# Version: unknown
+# Version: a0e934f07d8167073546cbc5108c4345f92559a5
 - name: Correct Bonding Config Items
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
@@ -107,7 +107,7 @@ exports[`puts quotes around hosts list 1`] = `
 
 # Unexpected bonding behavior with incorrect syntax in bond configuration files
 # Identifier: (advisor:bond_config_issue|NO_QUOTES,fix)
-# Version: unknown
+# Version: a0e934f07d8167073546cbc5108c4345f92559a5
 - name: Correct Bonding Config Items
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
