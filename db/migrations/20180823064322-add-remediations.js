@@ -1,15 +1,28 @@
 'use strict';
 
 module.exports = {
-    async up (q, DataTypes) {
+    async up (q, {DATE, INTEGER, fn, STRING, UUID}) {
         await q.createTable('remediations', {
             id: {
-                type: DataTypes.UUID,
+                type: UUID,
                 primaryKey: true
             },
             name: {
-                type: DataTypes.STRING
-            }
+                type: STRING
+            },
+            tenant: {
+                type: STRING,
+                allowNull: false
+            },
+            owner: {
+                type: INTEGER,
+                allowNull: false
+            },
+            created_at: {
+                type: DATE,
+                defaultValue: fn('now')
+            },
+            updated_at: DATE
         });
     },
 

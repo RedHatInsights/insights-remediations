@@ -277,6 +277,10 @@ definitions:
         example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
       name:
         $ref: '#/definitions/RemediationName'
+      owner:
+        type: integer
+      tenant:
+        type: string
 
   RemediationInput:
     type: object

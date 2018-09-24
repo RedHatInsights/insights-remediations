@@ -44,7 +44,9 @@ describe('remediations', function () {
 
             body.should.eql({
                 id: '66eec356-dd06-4c72-a3b6-ef27d1508a02',
-                name: 'remediation 1'
+                name: 'remediation 1',
+                tenant: '540155',
+                owner: 1
             });
         });
 
@@ -55,13 +57,15 @@ describe('remediations', function () {
 
             body.should.eql({
                 id: 'e809526c-56f5-4cd8-a809-93328436ea23',
-                name: ''
+                name: '',
+                tenant: '540155',
+                owner: 1
             });
         });
     });
 
     describe('list', function () {
-        test('list remediation', async () => {
+        test('list remediations', async () => {
             const {body} = await request
             .get('/v1/remediations')
             .expect(200);
@@ -73,6 +77,15 @@ describe('remediations', function () {
                 'cbc782e4-e8ae-4807-82ab-505387981d2e',
                 'e809526c-56f5-4cd8-a809-93328436ea23'
             ]);
+        });
+
+        test('does not leak data outside of the account', async () => {
+            const {body} = await request
+            .get('/v1/remediations?fakeid=99999')
+            .expect(200);
+
+            body.should.have.property('remediations');
+            body.remediations.should.be.empty();
         });
     });
 

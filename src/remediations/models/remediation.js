@@ -1,13 +1,13 @@
 'use strict';
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, {INTEGER, STRING, UUID}) => {
     const Remediation = sequelize.define('remediation', {
         id: {
-            type: DataTypes.UUID,
+            type: UUID,
             primaryKey: true
         },
         name: {
-            type: DataTypes.STRING,
+            type: STRING,
             get() {
                 const value = this.getDataValue('name');
 
@@ -17,7 +17,17 @@ module.exports = (sequelize, DataTypes) => {
 
                 return value;
             }
+        },
+        tenant: {
+            type: STRING,
+            allowNull: false
+        },
+        owner: {
+            type: INTEGER,
+            allowNull: false
         }
+    }, {
+        timestamps: true
     });
 
     return Remediation;
