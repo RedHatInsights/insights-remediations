@@ -7,23 +7,36 @@ const db = require('../db');
 
 const notFound = res => res.status(404).json();
 
+const REMEDIATION_ATTRIBUTES = ['id', 'name', 'tenant', 'owner'];
+const ISSUE_ATTRIBUTES = ['issue_id', 'resolution'];
+
 function publicRepresentation (remediation) {
-    return _.pick(remediation, ['id', 'name', 'tenant', 'owner']);
+    return _.pick(remediation, ['id', 'name', 'tenant', 'owner', 'issues']);
 }
 
 exports.list = errors.async(async function (req, res) {
     const remediations = await db.remediation.findAll({
+        attributes: REMEDIATION_ATTRIBUTES,
+        include: [{
+            attributes: ISSUE_ATTRIBUTES,
+            model: db.issue
+        }],
         where: {
             tenant: req.identity.account_number,
             owner: req.identity.id
         }
     });
 
-    res.json({remediations: remediations.map(publicRepresentation)});
+    res.json({remediations});
 });
 
 exports.get = errors.async(async function (req, res) {
     const remediation = await db.remediation.findOne({
+        attributes: REMEDIATION_ATTRIBUTES,
+        include: [{
+            attributes: ISSUE_ATTRIBUTES,
+            model: db.issue
+        }],
         where: {
             id: req.swagger.params.id.value,
             tenant: req.identity.account_number,

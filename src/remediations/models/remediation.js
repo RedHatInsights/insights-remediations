@@ -1,5 +1,7 @@
 'use strict';
 
+const { emptyStringOnNull } = require('../../util/models');
+
 module.exports = (sequelize, {INTEGER, STRING, UUID}) => {
     const Remediation = sequelize.define('remediation', {
         id: {
@@ -9,13 +11,7 @@ module.exports = (sequelize, {INTEGER, STRING, UUID}) => {
         name: {
             type: STRING,
             get() {
-                const value = this.getDataValue('name');
-
-                if (value === null) {
-                    return ''; // MARK: OpenAPI 2.0 does not allow nullable types
-                }
-
-                return value;
+                return emptyStringOnNull(this.getDataValue('name'));
             }
         },
         tenant: {
@@ -29,6 +25,12 @@ module.exports = (sequelize, {INTEGER, STRING, UUID}) => {
     }, {
         timestamps: true
     });
+
+    Remediation.associate = models => {
+        Remediation.hasMany(models.issue, {
+            foreignKey: 'remediation_id'
+        });
+    };
 
     return Remediation;
 };

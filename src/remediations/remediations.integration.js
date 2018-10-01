@@ -38,16 +38,11 @@ describe('remediations', function () {
 
     describe('get', function () {
         test('get remediation', async () => {
-            const {body} = await request
-            .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02')
+            const {text} = await request
+            .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02?pretty')
             .expect(200);
 
-            body.should.eql({
-                id: '66eec356-dd06-4c72-a3b6-ef27d1508a02',
-                name: 'remediation 1',
-                tenant: '540155',
-                owner: 1
-            });
+            expect(text).toMatchSnapshot();
         });
 
         test('get remediation (2)', async () => {
@@ -59,7 +54,8 @@ describe('remediations', function () {
                 id: 'e809526c-56f5-4cd8-a809-93328436ea23',
                 name: '',
                 tenant: '540155',
-                owner: 1
+                owner: 1,
+                issues: []
             });
         });
     });

@@ -281,6 +281,21 @@ definitions:
         type: integer
       tenant:
         type: string
+      issues:
+        type: array
+        items:
+          $ref: '#/definitions/RemediationIssue'
+
+
+  RemediationIssue:
+    type: object
+    additionalProperties: false
+    properties:
+      issue_id:
+        $ref: '#/definitions/IssueId'
+      resolution:
+        type: string
+        example: fix
 
   RemediationInput:
     type: object

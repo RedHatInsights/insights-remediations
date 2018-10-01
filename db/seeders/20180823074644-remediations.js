@@ -1,8 +1,8 @@
 'use strict';
 
 module.exports = {
-    async up (queryInterface) {
-        await queryInterface.bulkInsert('remediations', [{
+    async up (qi) {
+        await qi.bulkInsert('remediations', [{
             id: '66eec356-dd06-4c72-a3b6-ef27d1508a02',
             name: 'remediation 1',
             tenant: '540155',
@@ -22,6 +22,14 @@ module.exports = {
             name: 'to be deleted',
             tenant: '540155',
             owner: 1
+        }]);
+
+        await qi.bulkInsert('remediation_issues', [{
+            issue_id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+            remediation_id: '66eec356-dd06-4c72-a3b6-ef27d1508a02'
+        }, {
+            issue_id: 'vulnerabilities:CVE-2017-17713',
+            remediation_id: '66eec356-dd06-4c72-a3b6-ef27d1508a02'
         }]);
     },
 
