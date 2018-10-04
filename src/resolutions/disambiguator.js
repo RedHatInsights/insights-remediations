@@ -12,7 +12,7 @@ exports.disambiguate = function (templates, resolution, id) {
         return templates[0];
     }
 
-    if (resolution) {
+    if (resolution && resolution.length) {
         const found = _.find(templates, {type: resolution});
 
         if (found) {

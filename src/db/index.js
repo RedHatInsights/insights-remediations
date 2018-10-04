@@ -9,6 +9,11 @@ const path = require('path');
 
 exports.Sequelize = Sequelize;
 
+exports.fn = _(['COALESCE', 'COUNT', 'DISTINCT', 'NULLIF', 'SUM'])
+.keyBy()
+.mapValues(fn => _.partial(Sequelize.fn, fn))
+.value();
+
 function loadModels (sequelize, dir) {
     const models = fs.readdirSync(dir).reduce((models, current) => {
         const model = sequelize.import(path.join(dir, current));

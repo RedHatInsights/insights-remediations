@@ -70,7 +70,9 @@ exports.handler = (err, req, res, next) => {
         error: {
             message: err.message,
             stack: err.stack,
-            ...err
+            ..._.omit(err, [
+                ['originalResponse'] // avoid writting down the entire response buffer
+            ])
         }
     }, 'caught internal error');
 

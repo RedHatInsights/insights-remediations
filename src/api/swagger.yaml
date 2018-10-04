@@ -265,7 +265,29 @@ definitions:
       remediations:
         type: array
         items:
-          $ref: '#/definitions/Remediation'
+          $ref: '#/definitions/RemediationListItem'
+
+  RemediationListItem:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
+      name:
+        $ref: '#/definitions/RemediationName'
+      owner:
+        type: integer
+      updated_at:
+        $ref: '#/definitions/DateTime'
+        format: date-time
+      issueCount:
+        type: integer
+      systemCount:
+        type: integer
+      needsReboot:
+        type: boolean
 
   Remediation:
     type: object
@@ -279,8 +301,8 @@ definitions:
         $ref: '#/definitions/RemediationName'
       owner:
         type: integer
-      tenant:
-        type: string
+      updated_at:
+        $ref: '#/definitions/DateTime'
       issues:
         type: array
         items:
@@ -296,6 +318,18 @@ definitions:
       resolution:
         type: string
         example: fix
+      systems:
+        type: array
+        items:
+          $ref: "#/definitions/System"
+
+  System:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        $ref: '#/definitions/SystemId'
+
 
   RemediationInput:
     type: object
@@ -308,6 +342,9 @@ definitions:
     type: string
     example: Fix Critical CVEs
 
+  DateTime:
+    type: string
+    format: date-time
 
   Resolutions:
     type: object
