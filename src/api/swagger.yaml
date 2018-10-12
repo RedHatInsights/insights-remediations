@@ -136,6 +136,13 @@ paths:
       operationId: diagnosis
       parameters:
         - $ref: '#/parameters/SystemId'
+        - in: query
+          name: remediation
+          type: string
+          format: uuid
+          required: false
+          description: Remediation identifier (uuid)
+
       responses:
         200:
           description: OK
