@@ -8,19 +8,87 @@ exports[`remediations get get remediation 1`] = `
     \\"owner\\": 1,
     \\"issues\\": [
         {
-            \\"resolution\\": \\"\\",
-            \\"issue_id\\": \\"vulnerabilities:CVE-2017-17713\\",
-            \\"systems\\": []
-        },
-        {
-            \\"resolution\\": \\"\\",
-            \\"issue_id\\": \\"vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074\\",
+            \\"issue_id\\": \\"advisor:bond_config_issue|BOND_CONFIG_ISSUE\\",
+            \\"description\\": \\"Unexpected bonding behavior with incorrect syntax in bond configuration files\\",
+            \\"resolution\\": {
+                \\"description\\": \\"Correct Bonding Config Items\\",
+                \\"riskOfChange\\": 3,
+                \\"needsReboot\\": false
+            },
             \\"systems\\": [
                 {
-                    \\"id\\": \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+                    \\"id\\": \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\",
+                    \\"hostname\\": \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\",
+                    \\"display_name\\": \\"null\\"
+                }
+            ]
+        },
+        {
+            \\"issue_id\\": \\"compliance:sshd_disable_root_login\\",
+            \\"description\\": \\"OpenSCAP fix for sshd_disable_root_login\\",
+            \\"resolution\\": {
+                \\"description\\": \\"Fix\\",
+                \\"riskOfChange\\": 1,
+                \\"needsReboot\\": false
+            },
+            \\"systems\\": [
+                {
+                    \\"id\\": \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\",
+                    \\"hostname\\": \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\",
+                    \\"display_name\\": \\"null\\"
+                }
+            ]
+        },
+        {
+            \\"issue_id\\": \\"vulnerabilities:CVE-2017-17713\\",
+            \\"description\\": \\"CVE-2017-17713\\",
+            \\"resolution\\": {
+                \\"description\\": \\"Update packages (CVE-2017-17713)\\",
+                \\"riskOfChange\\": -1,
+                \\"needsReboot\\": true
+            },
+            \\"systems\\": [
+                {
+                    \\"id\\": \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\",
+                    \\"hostname\\": \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\",
+                    \\"display_name\\": \\"null\\"
+                }
+            ]
+        },
+        {
+            \\"issue_id\\": \\"vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074\\",
+            \\"description\\": \\"Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)\\",
+            \\"resolution\\": {
+                \\"description\\": \\"Update system to the latest kernel and reboot\\",
+                \\"riskOfChange\\": 3,
+                \\"needsReboot\\": true
+            },
+            \\"systems\\": [
+                {
+                    \\"id\\": \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\",
+                    \\"hostname\\": \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\",
+                    \\"display_name\\": \\"null\\"
                 },
                 {
-                    \\"id\\": \\"1f12bdfc-8267-492d-a930-92f498fe65b9\\"
+                    \\"id\\": \\"1f12bdfc-8267-492d-a930-92f498fe65b9\\",
+                    \\"hostname\\": \\"1f12bdfc-8267-492d-a930-92f498fe65b9.example.com\\",
+                    \\"display_name\\": \\"null\\"
+                }
+            ]
+        },
+        {
+            \\"issue_id\\": \\"vulnerabilities:RHSA-2018:0502\\",
+            \\"description\\": \\"RHSA-2018:0502\\",
+            \\"resolution\\": {
+                \\"description\\": \\"Update packages (RHSA-2018:0502)\\",
+                \\"riskOfChange\\": -1,
+                \\"needsReboot\\": true
+            },
+            \\"systems\\": [
+                {
+                    \\"id\\": \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\",
+                    \\"hostname\\": \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\",
+                    \\"display_name\\": \\"null\\"
                 }
             ]
         }
@@ -38,7 +106,7 @@ exports[`remediations list list remediations 1`] = `
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needsReboot\\": true,
             \\"systemCount\\": 2,
-            \\"issueCount\\": 1
+            \\"issueCount\\": 5
         },
         {
             \\"id\\": \\"cbc782e4-e8ae-4807-82ab-505387981d2e\\",

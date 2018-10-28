@@ -12,7 +12,7 @@ const identifiers = require('../util/identifiers');
 const erratumPlayAggregator = require('./erratumPlayAggregator');
 const {composeAsync} = require('../util/fn');
 
-const handlers = require('./handlers');
+const issueManager = require('../issues');
 
 const playbookPipeline = composeAsync(
     resolveSystems,
@@ -20,7 +20,7 @@ const playbookPipeline = composeAsync(
         input.issues.forEach(issue => issue.id = identifiers.parse(issue.id));
         return input;
     },
-    ({issues}) => P.map(issues, issue => handlers.createPlay(issue)),
+    ({issues}) => P.map(issues, issue => issueManager.getPlayFactory(issue.id).createPlay(issue)),
     erratumPlayAggregator.process,
     addRebootPlay,
     addPostRunCheckIn,

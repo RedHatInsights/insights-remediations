@@ -4,8 +4,6 @@ const errors = require('../../errors');
 const ResolutionPlay = require('../plays/ResolutionPlay');
 const testResolver = require('../../resolutions/resolvers/testResolver');
 
-exports.application = 'test';
-
 exports.createPlay = async function ({id, hosts}) {
     const resolutions = await testResolver.resolveResolutions(id);
     if (resolutions.length === 1) {

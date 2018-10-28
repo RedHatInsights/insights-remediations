@@ -2,13 +2,14 @@
 
 const _ = require('lodash');
 const errors = require('../errors');
-const handlers = require('../generator/handlers');
+const issues = require('../issues');
 const identifiers = require('../util/identifiers');
 const disambiguator = require('./disambiguator');
 
 exports.getResolutions = errors.async(async function (req, res) {
     const id = identifiers.parse(req.swagger.params.issue.value);
-    const resolver = handlers.getResolver(id);
+    const factory = issues.getPlayFactory(id);
+    const resolver = factory.getResolver(id);
     const resolutions = await resolver.resolveResolutions(id);
 
     if (!resolutions.length) {

@@ -71,12 +71,12 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/RemediationInput'
+            $ref: '#/definitions/RemediationIn'
       responses:
         201:
           description: Created
           schema:
-            $ref: '#/definitions/Remediation'
+            $ref: '#/definitions/RemediationDetails'
         400:
           $ref: '#/responses/BadRequest'
 
@@ -93,7 +93,7 @@ paths:
         200:
           description: OK
           schema:
-            $ref: '#/definitions/Remediation'
+            $ref: '#/definitions/RemediationDetails'
         404:
           $ref: '#/responses/NotFound'
     delete:
@@ -192,20 +192,160 @@ responses:
 
 
 definitions:
+# Common types
+  DateTime:
+    type: string
+    format: date-time
+
+  RiskOfChange:
+    type: integer
+    enum:
+      - -1
+      - 1
+      - 2
+      - 3
+      - 4
+    example: 2
+
+# Issue specific types
   IssueId:
     type: string
     pattern: ^(advisor|vulnerabilities|compliance|test):[\w\d-_|:]+$
     example: vulnerabilities:CVE_2017_5461_nss|CVE_2017_5461_NSS_2
 
+# System specific types
   SystemId:
     type: string
+    format: uuid
     example: a8799a02-8be9-11e8-9eb6-529269fb1459
 
+  SystemOut:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        $ref: '#/definitions/SystemId'
+      hostname:
+        type: string
+      display_name:
+        type: string
+
+# Resolution specific types
   ResolutionType:
     type: string
     example: fix
     default: fix
 
+  Resolutions:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        $ref: "#/definitions/IssueId"
+      riskOfChange:
+        $ref: '#/definitions/RiskOfChange'
+      resolutions:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          properties:
+            id:
+              $ref: '#/definitions/ResolutionType'
+            description:
+              type: string
+              example: Disable DCCP kernel module
+            needsReboot:
+              type: boolean
+            riskOfChange:
+              $ref: '#/definitions/RiskOfChange'
+
+# Remediation specific types
+  RemediationName:
+    type: string
+    example: Fix Critical CVEs
+
+  RemediationIn:
+    type: object
+    additionalProperties: false
+    properties:
+      name:
+        $ref: '#/definitions/RemediationName'
+
+  RemediationList:
+    type: object
+    additionalProperties: false
+    properties:
+      remediations:
+        type: array
+        items:
+          $ref: '#/definitions/RemediationListItem'
+
+  RemediationListItem:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
+      name:
+        $ref: '#/definitions/RemediationName'
+      owner:
+        type: integer
+      updated_at:
+        $ref: '#/definitions/DateTime'
+        format: date-time
+      issueCount:
+        type: integer
+      systemCount:
+        type: integer
+      needsReboot:
+        type: boolean
+
+  RemediationDetails:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
+      name:
+        $ref: '#/definitions/RemediationName'
+      owner:
+        type: integer
+      updated_at:
+        $ref: '#/definitions/DateTime'
+      issues:
+        type: array
+        items:
+          $ref: '#/definitions/RemediationIssue'
+
+  RemediationIssue:
+    type: object
+    additionalProperties: false
+    properties:
+      issue_id:
+        $ref: '#/definitions/IssueId'
+      description:
+        type: string
+      resolution:
+        type: object
+        additionalProperties: false
+        properties:
+          description:
+            type: string
+          riskOfChange:
+            $ref: '#/definitions/RiskOfChange'
+          needsReboot:
+            type: boolean
+      systems:
+        type: array
+        items:
+          $ref: "#/definitions/SystemOut"
+
+# Generator specific types
   PlaybookDefinition:
     type: object
     additionalProperties: false
@@ -258,132 +398,10 @@ definitions:
             resolution:
               $ref: "#/definitions/ResolutionType"
 
-  RemediationList:
-    type: object
-    additionalProperties: false
-    properties:
-      remediations:
-        type: array
-        items:
-          $ref: '#/definitions/RemediationListItem'
-
-  RemediationListItem:
-    type: object
-    additionalProperties: false
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
-      name:
-        $ref: '#/definitions/RemediationName'
-      owner:
-        type: integer
-      updated_at:
-        $ref: '#/definitions/DateTime'
-        format: date-time
-      issueCount:
-        type: integer
-      systemCount:
-        type: integer
-      needsReboot:
-        type: boolean
-
-  Remediation:
-    type: object
-    additionalProperties: false
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
-      name:
-        $ref: '#/definitions/RemediationName'
-      owner:
-        type: integer
-      updated_at:
-        $ref: '#/definitions/DateTime'
-      issues:
-        type: array
-        items:
-          $ref: '#/definitions/RemediationIssue'
-
-
-  RemediationIssue:
-    type: object
-    additionalProperties: false
-    properties:
-      issue_id:
-        $ref: '#/definitions/IssueId'
-      resolution:
-        type: string
-        example: fix
-      systems:
-        type: array
-        items:
-          $ref: "#/definitions/System"
-
-  System:
-    type: object
-    additionalProperties: false
-    properties:
-      id:
-        $ref: '#/definitions/SystemId'
-
-
-  RemediationInput:
-    type: object
-    additionalProperties: false
-    properties:
-      name:
-        $ref: '#/definitions/RemediationName'
-
-  RemediationName:
-    type: string
-    example: Fix Critical CVEs
-
-  DateTime:
-    type: string
-    format: date-time
-
-  Resolutions:
-    type: object
-    properties:
-      id:
-        $ref: "#/definitions/IssueId"
-      riskOfChange:
-        $ref: '#/definitions/RiskOfChange'
-      resolutions:
-        type: array
-        items:
-          type: object
-          properties:
-            id:
-              $ref: '#/definitions/ResolutionId'
-            description:
-              type: string
-              example: Disable DCCP kernel module
-            needsReboot:
-              type: boolean
-            riskOfChange:
-              $ref: '#/definitions/RiskOfChange'
-
-  ResolutionId:
-    type: string
-    example: 'fix'
-
-  RiskOfChange:
-    type: integer
-    enum:
-      - -1
-      - 1
-      - 2
-      - 3
-      - 4
-    example: 2
-
+# Diagnosis specific types
   Diagnosis:
     type: object
+    additionalProperties: false
     properties:
       diagnosis:
         type: object

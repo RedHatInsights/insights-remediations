@@ -10,7 +10,7 @@ exports.getSystemDetailsBatch = async function (systems) {
         const result = {
             id,
             hostname: (/^[0-8]/.test(id) ? `${id}.example.com` : id),
-            display_name: (id.startsWith('9') ? `${id}-system` : undefined)
+            display_name: (id.startsWith('9') ? `${id}-system` : null)
         };
 
         return result;

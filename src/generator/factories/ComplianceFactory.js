@@ -3,16 +3,14 @@
 const P = require('bluebird');
 const errors = require('../../errors');
 const ResolutionPlay = require('../plays/ResolutionPlay');
-const advisor = require('../../connectors/advisor');
+const compliance = require('../../connectors/compliance');
+const ssgResolver = require('../../resolutions/resolvers/ssgResolver');
 const disambiguator = require('../../resolutions/disambiguator');
-const contentServerResolver = require('../../resolutions/resolvers/contentServerResolver');
 
-exports.application = 'advisor';
-
-exports.createPlay = async function ({id, resolution, hosts}) {
+exports.createPlay = async function ({id, hosts, resolution}) {
     const [resolutions, rule] = await P.all([
-        contentServerResolver.resolveResolutions(id),
-        advisor.getRule(id.issue)
+        ssgResolver.resolveResolutions(id),
+        compliance.getRule(id.issue)
     ]);
 
     if (!rule) {
@@ -28,6 +26,6 @@ exports.createPlay = async function ({id, resolution, hosts}) {
 };
 
 exports.getResolver = function () {
-    return contentServerResolver;
+    return ssgResolver;
 };
 

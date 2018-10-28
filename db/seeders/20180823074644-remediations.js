@@ -1,8 +1,8 @@
 'use strict';
 
 module.exports = {
-    async up (qi) {
-        await qi.bulkInsert('remediations', [{
+    async up (q) {
+        await q.bulkInsert('remediations', [{
             id: '66eec356-dd06-4c72-a3b6-ef27d1508a02',
             name: 'remediation 1',
             tenant: '540155',
@@ -32,28 +32,52 @@ module.exports = {
             updated_at: '2018-10-04T08:19:36.641Z'
         }]);
 
-        await qi.bulkInsert('remediation_issues', [{
+        await q.bulkInsert('remediation_issues', [{
             id: 1,
-            issue_id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
-            remediation_id: '66eec356-dd06-4c72-a3b6-ef27d1508a02'
+            remediation_id: '66eec356-dd06-4c72-a3b6-ef27d1508a02',
+            issue_id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'
         }, {
             id: 2,
-            issue_id: 'vulnerabilities:CVE-2017-17713',
-            remediation_id: '66eec356-dd06-4c72-a3b6-ef27d1508a02'
+            remediation_id: '66eec356-dd06-4c72-a3b6-ef27d1508a02',
+            issue_id: 'vulnerabilities:CVE-2017-17713'
+        }, {
+            id: 3,
+            remediation_id: '66eec356-dd06-4c72-a3b6-ef27d1508a02',
+            issue_id: 'vulnerabilities:RHSA-2018:0502'
+        }, {
+            id: 4,
+            remediation_id: '66eec356-dd06-4c72-a3b6-ef27d1508a02',
+            issue_id: 'advisor:bond_config_issue|BOND_CONFIG_ISSUE'
+        }, {
+            id: 5,
+            remediation_id: '66eec356-dd06-4c72-a3b6-ef27d1508a02',
+            issue_id: 'compliance:sshd_disable_root_login'
         }]);
 
-        await qi.bulkInsert('systems', [{
+        await q.bulkInsert('systems', [{
             id: 'fc94beb8-21ee-403d-99b1-949ef7adb762'
         }, {
             id: '1f12bdfc-8267-492d-a930-92f498fe65b9'
         }]);
 
-        await qi.bulkInsert('remediation_issue_systems', [{
-            remediation_issue_id: 1,
-            system_id: 'fc94beb8-21ee-403d-99b1-949ef7adb762'
+        await q.bulkInsert('remediation_issue_systems', [{
+            system_id: 'fc94beb8-21ee-403d-99b1-949ef7adb762',
+            remediation_issue_id: 1
         }, {
-            remediation_issue_id: 1,
-            system_id: '1f12bdfc-8267-492d-a930-92f498fe65b9'
+            system_id: 'fc94beb8-21ee-403d-99b1-949ef7adb762',
+            remediation_issue_id: 2
+        }, {
+            system_id: 'fc94beb8-21ee-403d-99b1-949ef7adb762',
+            remediation_issue_id: 3
+        }, {
+            system_id: 'fc94beb8-21ee-403d-99b1-949ef7adb762',
+            remediation_issue_id: 4
+        }, {
+            system_id: 'fc94beb8-21ee-403d-99b1-949ef7adb762',
+            remediation_issue_id: 5
+        }, {
+            system_id: '1f12bdfc-8267-492d-a930-92f498fe65b9',
+            remediation_issue_id: 1
         }]);
     },
 
