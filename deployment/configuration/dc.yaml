@@ -21,8 +21,17 @@ objects:
       app: remediations
       deploymentconfig: remediations
     strategy:
-      type: Rolling
+      type: Recreate
       activeDeadlineSeconds: 21600
+      recreateParams:
+        mid:
+          execNewPod:
+            command:
+            - /bin/sh
+            - -c
+            - ${MIGRATION_CMD}
+            containerName: remediations
+          failurePolicy: Abort
       rollingParams:
         intervalSeconds: 1
         maxSurge: 25%
