@@ -3,6 +3,11 @@ kind: Template
 metadata:
   name: remediations-dc
 
+parameters:
+- name: MIGRATION_CMD
+  description: Command to use for db migration. In stable environments this should be "npm run db:create; npm run db:migrate"
+  value: "npm run db:init && npm run db:migrate && npm run db:seed"
+
 objects:
 - apiVersion: v1
   kind: DeploymentConfig
@@ -29,7 +34,7 @@ objects:
             command:
             - /bin/sh
             - -c
-            - npm run db:create; npm run db:migrate
+            - ${MIGRATION_CMD}
             containerName: remediations
           failurePolicy: Abort
     template:
