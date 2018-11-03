@@ -4,9 +4,8 @@ metadata:
   name: remediations-route
 
 parameters:
-- name: NAMESPACE
-  description: OpenShift namespace
-  value: remediations-ci
+- name: HOSTNAME
+  description: Service route hostname
 
 objects:
 - apiVersion: v1
@@ -16,7 +15,7 @@ objects:
       app: remediations
     name: remediations
   spec:
-    host: "${NAMESPACE}.1b13.insights.openshiftapps.com"
+    host: "${HOSTNAME}"
     port:
       targetPort: 9002-tcp
     tls:
