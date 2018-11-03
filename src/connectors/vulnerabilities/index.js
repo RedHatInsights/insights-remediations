@@ -1,4 +1,11 @@
 'use strict';
 
 const config = require('../../config');
-module.exports = config.env === 'test' ? require('./mock') : require('./classic');
+
+if (config.vulnerabilities.impl) {
+    module.exports = require(`./${config.vulnerabilities.impl}`);
+} else if (config.env === 'test' || config.env === 'development') {
+    module.exports = require('./mock');
+} else {
+    module.exports = require('./classic');
+}

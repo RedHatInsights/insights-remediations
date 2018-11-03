@@ -2,8 +2,6 @@
 
 /* eslint max-len: off */
 
-require('../../test');
-
 const DATA = {
     'bond_config_issue|BOND_CONFIG_ISSUE': [{
         resolution_type: 'fix',

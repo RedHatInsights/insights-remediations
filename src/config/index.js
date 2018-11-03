@@ -38,12 +38,14 @@ const config = {
     },
 
     advisor: {
+        impl: env.ADVISOR_IMPL,
         host: env.ADVISOR_HOST || 'https://access.qa.itop.redhat.com',
         auth: env.ADVISOR_AUTH || '',
         insecure: (env.ADVISOR_INSECURE === 'true') ? true : false
     },
 
     contentServer: {
+        impl: env.CONTENT_SERVER_IMPL,
         host: env.CONTENT_SERVER_HOST || 'http://localhost:8080',
         auth: env.CONTENT_SERVER_AUTH || null,
         insecure: (env.CONTENT_SERVER_INSECURE === 'false') ? false : true
@@ -54,6 +56,7 @@ const config = {
     },
 
     vulnerabilities: {
+        impl: env.VULNERABILITIES_IMPL,
         host: env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com',
         auth: env.VULNERABILITIES_AUTH || '',
         insecure: (env.VULNERABILITIES_INSECURE === 'true') ? true : false
