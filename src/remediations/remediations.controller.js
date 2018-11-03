@@ -20,22 +20,14 @@ function resolveResolutions (...remediations) {
     }).value());
 }
 
-function determineNeedsReboot (remediation) {
-    remediation.needsReboot = _.some(remediation.issues, 'resolution.needsReboot');
-}
-
-function determineSystemCount (remediation) {
-    remediation.systemCount = _(remediation.issues).flatMap('systems').uniqBy('id').size();
-}
-
 exports.list = errors.async(async function (req, res) {
     const remediations = await db.list(req.identity.account_number, req.identity.id).map(r => r.toJSON());
 
     await resolveResolutions(...remediations);
 
     remediations.forEach(remediation => {
-        determineNeedsReboot(remediation);
-        determineSystemCount(remediation);
+        remediation.needsReboot = _.some(remediation.issues, 'resolution.needsReboot');
+        remediation.systemCount = _(remediation.issues).flatMap('systems').uniqBy('id').size();
         remediation.issueCount = remediation.issues.length;
     });
 
