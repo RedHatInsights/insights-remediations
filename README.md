@@ -1,4 +1,4 @@
-[![Build Status](https://jenkins-insights-jenkins.1b13.insights.openshiftapps.com/buildStatus/icon?job=insights-remediations/insights-remediations-ci)](https://jenkins-insights-jenkins.1b13.insights.openshiftapps.com/job/insights-remediations/job/insights-remediations-ci/)
+[![Build Status](https://jenkins-jenkins.5a9f.insights-dev.openshiftapps.com/buildStatus/icon?job=insights-remediations/insights-remediations-ci)](https://jenkins-jenkins.5a9f.insights-dev.openshiftapps.com/job/insights-remediations/job/insights-remediations-ci/)
 
 # Insights Remediations
 
