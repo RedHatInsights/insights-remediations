@@ -29,6 +29,11 @@ const config = {
     port: (env.NODE_ENV === 'test') ? 9003 : 9002,
     commit: env.OPENSHIFT_BUILD_COMMIT,
 
+    path: {
+        prefix: env.PATH_PREFIX || '/r/insights/platform',
+        app: env.APP_NAME || 'remediations'
+    },
+
     // general timeout for HTTP invocations of external services
     requestTimeout: parseInt(env.REQUEST_TIMEOUT) || 10000,
 
@@ -99,6 +104,8 @@ const config = {
         }
     }
 };
+
+config.path.base = `${config.path.prefix}/${config.path.app}`;
 
 if (fs.existsSync(path.join(__dirname, `${config.env}.js`))) {
     _.merge(config, require(`./${config.env}`));

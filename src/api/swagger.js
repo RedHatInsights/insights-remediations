@@ -9,7 +9,7 @@ const jsyaml = require('js-yaml');
 
 const spec = jsyaml.safeLoad(fs.readFileSync(path.join(__dirname, './swagger.yaml'), 'utf8'));
 
-module.exports = async function (app) {
+module.exports = async function (app, prefix) {
 
     const mw = await P.fromCallback(cb => swaggerTools.initializeMiddleware(spec, mw => cb(null, mw)));
 
@@ -17,5 +17,8 @@ module.exports = async function (app) {
     app.use(mw.swaggerValidator({
         validateResponse: true
     }));
-    app.use(mw.swaggerUi());
+
+    app.use(mw.swaggerUi({
+        swaggerUi: `${prefix}/docs`
+    }));
 };

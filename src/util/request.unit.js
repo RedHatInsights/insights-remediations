@@ -4,6 +4,7 @@ const P = require('bluebird');
 const base = require('../test');
 const request = require('./request');
 const version = require('../version/version.controller');
+const config = require('../config');
 
 // stub getVersions for the request to take at least 50ms
 beforeEach(() => base.sandbox.stub(version, 'get').callsFake((req, res) => P.delay(50).then(() => res.end())));
@@ -11,7 +12,7 @@ beforeEach(() => base.sandbox.stub(version, 'get').callsFake((req, res) => P.del
 test('includes request options in the error object', async function () {
 
     const options = {
-        url: `http://localhost:9003/v1/version`,
+        url: `http://localhost:9003${config.path.base}/v1/version`,
         timeout: 20
     };
 
@@ -29,7 +30,7 @@ test('includes request options in the error object', async function () {
 
 test('includes request options in the error object of a request child', async function () {
     const options = {
-        url: `http://localhost:9003/v1/version`
+        url: `http://localhost:9003${config.path.base}/v1/version`
     };
 
     const req = request.run.defaults({ timeout: 20 });

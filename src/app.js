@@ -42,7 +42,7 @@ async function start () {
     terminus(server, {
         signals: ['SIGINT', 'SIGTERM'],
         healthChecks: {
-            '/health': healthCheck
+            [`${config.path.base}/health`]: healthCheck
         },
 
         onSignal () {

@@ -31,7 +31,7 @@ afterAll(async () => {
     }
 });
 
-exports.request = supertest.agent(`http://localhost:${config.port}`);
+exports.request = supertest.agent(`http://localhost:${config.port}${config.path.base}`);
 
 exports.mockVmaas = function () {
     exports.sandbox.stub(vmaas, 'getErratum').callsFake(() => ({ synopsis: 'mock synopsis' }));

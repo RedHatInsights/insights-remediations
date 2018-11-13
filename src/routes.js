@@ -7,6 +7,7 @@ const prettyJson = require('./util/prettyJson');
 const httpContext = require('express-http-context');
 const identity = require('./middleware/identity/mock');
 const cls = require('./util/cls');
+const config = require('./config');
 
 const swagger = require('./api/swagger');
 const errors = require('./errors');
@@ -16,7 +17,7 @@ module.exports = async function (app) {
     app.use(httpContext.middleware);
     app.use(pino);
     app.use(prettyJson);
-    await swagger(app);
+    await swagger(app, config.path.base);
     app.use(cls.middleware);
 
     const v1 = express.Router();
@@ -30,9 +31,8 @@ module.exports = async function (app) {
         'version'
     ].forEach(resource => require(`./${resource}/routes`)(v1));
 
-    app.use('/v1', v1);
-
-    app.get('/', (req, res) => res.redirect('/docs'));
+    app.use(`${config.path.base}/v1`, v1);
+    app.get('/', (req, res) => res.redirect(`${config.path.base}/docs`));
 
     app.use(errors.handler);
 };

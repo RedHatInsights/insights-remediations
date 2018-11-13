@@ -6,7 +6,7 @@ info:
   title: Insights Remediations
   contact:
     email: jozef@redhat.com
-basePath: /v1
+basePath: /r/insights/platform/remediations/v1
 consumes:
   - application/json
 produces:
