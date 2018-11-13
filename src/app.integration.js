@@ -4,6 +4,6 @@ const { request } = require('./test');
 
 test('healthcheck', () => {
     return request
-    .get('/health')
+    .get('/v1/health')
     .expect(200);
 });
