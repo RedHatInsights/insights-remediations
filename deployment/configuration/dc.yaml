@@ -61,7 +61,7 @@ objects:
             protocol: TCP
           livenessProbe:
             httpGet:
-              path: /health
+              path: /r/insights/platform/remediations/v1/health
               port: 9002
             initialDelaySeconds: 10
             periodSeconds: 10
