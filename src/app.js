@@ -24,7 +24,7 @@ async function healthCheck() {
 }
 
 async function start () {
-    log.info(`${version.full} starting`);
+    log.info({env: config.env}, `${version.full} starting`);
     routes(app);
 
     const server = P.promisifyAll(http.createServer(app));

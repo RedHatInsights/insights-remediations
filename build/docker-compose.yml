@@ -5,18 +5,19 @@ services:
     build:
       context: ../
       dockerfile: build/Dockerfile
-    command: sh -c "npm run db:ims && node src/app.js"
+    command: sh -c "echo 'Waiting 3s for db to start' && sleep 3 && npm run db:ims && node src/app.js"
     links:
       - redis
       - db
     ports:
       - 9002:9002
     environment:
+      - NODE_ENV=development
       - REDIS_ENABLED=true
       - REDIS_HOST=redis
       - LOG_LEVEL=trace
       - DB_HOST=db
-    restart: always
+    restart: unless-stopped
 
   redis:
     image: registry.access.redhat.com/rhscl/redis-32-rhel7:latest
