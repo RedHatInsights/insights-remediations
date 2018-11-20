@@ -43,6 +43,12 @@ exports.BadRequest = class BadRequest extends HttpError {
     }
 };
 
+exports.Unauthorized = class Unauthorized extends HttpError {
+    constructor () {
+        super(401);
+    }
+};
+
 exports.handler = (err, req, res, next) => {
 
     // swagger request validation handler

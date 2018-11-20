@@ -4,6 +4,14 @@ const pino = require('pino');
 const config = require('../config');
 const cls = require('./cls');
 
+const serializers = {
+    req: value => {
+        const result = pino.stdSerializers.req(value);
+        result.identity = value.raw.identity;
+        return result;
+    }
+};
+
 const logger = pino({
     name: 'remediations',
     level: config.logging.level,
@@ -36,3 +44,5 @@ module.exports = new Proxy (logger, {
         return result;
     }
 });
+
+module.exports.serializers = serializers;

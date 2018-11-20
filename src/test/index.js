@@ -7,6 +7,7 @@ const supertest = require('supertest');
 const app = require('../app');
 const config = require('../config');
 const vmaas = require('../connectors/vmaas');
+const identityUtils = require('../middleware/identity/utils');
 
 let server;
 
@@ -32,6 +33,17 @@ afterAll(async () => {
 });
 
 exports.request = supertest.agent(`http://localhost:${config.port}${config.path.base}`);
+
+function createHeader (id, account_number) {
+    return {
+        [identityUtils.IDENTITY_HEADER]: identityUtils.createIdentityHeader(id, account_number)
+    };
+}
+
+exports.auth = Object.freeze({
+    default: createHeader(),
+    empty: createHeader(101, 'test01')
+});
 
 exports.mockVmaas = function () {
     exports.sandbox.stub(vmaas, 'getErratum').callsFake(() => ({ synopsis: 'mock synopsis' }));

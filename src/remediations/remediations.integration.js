@@ -1,6 +1,6 @@
 'use strict';
 
-const { request } = require('../test');
+const { request, auth } = require('../test');
 
 describe('remediations', function () {
     describe('list', function () {
@@ -22,7 +22,17 @@ describe('remediations', function () {
 
         test('does not leak data outside of the account', async () => {
             const {body} = await request
-            .get('/v1/remediations?fakeid=99999')
+            .get('/v1/remediations?user_id=99999')
+            .expect(200);
+
+            body.should.have.property('remediations');
+            body.remediations.should.be.empty();
+        });
+
+        test('does not leak data outside of the account (2)', async () => {
+            const {body} = await request
+            .get('/v1/remediations?user_id=99999')
+            .set(auth.empty)
             .expect(200);
 
             body.should.have.property('remediations');
@@ -48,7 +58,7 @@ describe('remediations', function () {
                 id: 'e809526c-56f5-4cd8-a809-93328436ea23',
                 name: '',
                 updated_at: '2018-10-04T08:19:36.641Z',
-                owner: 1,
+                owner: 100,
                 issues: []
             });
         });
