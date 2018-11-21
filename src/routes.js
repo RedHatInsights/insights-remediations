@@ -5,7 +5,6 @@ const log = require('./util/log');
 const prettyJson = require('./middleware/prettyJson');
 const httpContext = require('express-http-context');
 const identity = require('./middleware/identity/impl');
-const identityFallback = require('./middleware/identity/fallback');
 const identitySwitcher = require('./middleware/identity/switcher');
 const cls = require('./util/cls');
 const config = require('./config');
@@ -21,8 +20,12 @@ const pino = require('express-pino-logger')({
 });
 
 module.exports = async function (app) {
+    if (config.demo === true) {
+        app.use(require('./middleware/identity/demo'));
+    }
+
     if (config.env === 'development' || config.env === 'test') {
-        app.use(identityFallback);
+        app.use(require('./middleware/identity/fallback'));
     }
 
     app.use(identity);
