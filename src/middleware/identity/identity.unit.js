@@ -8,7 +8,7 @@ describe('identity', () => {
         .get('/v1/whoami')
         .expect(200);
 
-        body.should.eql({
+        body.should.containEql({
             id: '100',
             username: 'tuser@redhat.com',
             account_number: 'test'
@@ -21,7 +21,7 @@ describe('identity', () => {
         .set(auth.emptyInternal)
         .expect(200);
 
-        body.should.eql({
+        body.should.containEql({
             id: '101',
             username: 'tuser@redhat.com',
             account_number: 'test01'
@@ -33,7 +33,7 @@ describe('identity', () => {
         .get('/v1/whoami?user_id=500')
         .expect(200);
 
-        body.should.eql({
+        body.should.containEql({
             id: '500',
             username: 'tuser@redhat.com',
             account_number: 'test'
@@ -46,7 +46,7 @@ describe('identity', () => {
         .set(auth.emptyInternal)
         .expect(200);
 
-        body.should.eql({
+        body.should.containEql({
             id: '101',
             username: 'tuser@redhat.com',
             account_number: 'foo'
@@ -59,7 +59,7 @@ describe('identity', () => {
         .set(auth.emptyCustomer)
         .expect(200);
 
-        body.should.eql({
+        body.should.containEql({
             id: '102',
             username: 'tuser@redhat.com',
             account_number: 'test02'

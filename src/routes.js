@@ -2,8 +2,7 @@
 
 const express = require('express');
 const log = require('./util/log');
-const pino = require('express-pino-logger')({ logger: log, serializers: log.serializers });
-const prettyJson = require('./util/prettyJson');
+const prettyJson = require('./middleware/prettyJson');
 const httpContext = require('express-http-context');
 const identity = require('./middleware/identity/impl');
 const identityFallback = require('./middleware/identity/fallback');
@@ -13,6 +12,13 @@ const config = require('./config');
 
 const swagger = require('./api/swagger');
 const errors = require('./errors');
+
+let fallbackRequestIdentifier = 1;
+const pino = require('express-pino-logger')({
+    logger: log,
+    serializers: log.serializers,
+    genReqId: req => req.headers['x-rh-insights-request-id'] || fallbackRequestIdentifier++
+});
 
 module.exports = async function (app) {
     if (config.env === 'development' || config.env === 'test') {
