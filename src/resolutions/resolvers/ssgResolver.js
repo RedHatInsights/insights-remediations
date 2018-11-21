@@ -33,7 +33,7 @@ function parseTemplate (template, id) {
     parsed.forEach(item => delete item.tags);
 
     const metadata = parseMetadata(template);
-    const riskOfChange = parseRiskOfChange(metadata);
+    const resolutionRisk = parseResolutionRisk(metadata);
     const needsReboot = isBoolean(metadata.reboot);
 
     if (needsReboot) {
@@ -43,7 +43,7 @@ function parseTemplate (template, id) {
     const play = createBaseTemplate(id);
     play.tasks = parsed;
 
-    return new Resolution(yaml.safeDump([play]).trim(), 'fix', `Fix`, needsReboot, false, riskOfChange);
+    return new Resolution(yaml.safeDump([play]).trim(), 'fix', `Fix`, needsReboot, false, resolutionRisk);
 }
 
 function createBaseTemplate (id) {
@@ -60,7 +60,7 @@ function parseMetadata (template) {
 }
 
 // TODO: this may need some tuning to align with how risk of change is computed for other types of resolutions
-function parseRiskOfChange (metadata) {
+function parseResolutionRisk (metadata) {
     if (!metadata.disruption || !metadata.complexity) {
         return -1;
     }

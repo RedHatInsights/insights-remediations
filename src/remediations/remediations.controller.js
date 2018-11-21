@@ -26,9 +26,9 @@ exports.list = errors.async(async function (req, res) {
     await resolveResolutions(...remediations);
 
     remediations.forEach(remediation => {
-        remediation.needsReboot = _.some(remediation.issues, 'resolution.needsReboot');
-        remediation.systemCount = _(remediation.issues).flatMap('systems').uniqBy('id').size();
-        remediation.issueCount = remediation.issues.length;
+        remediation.needs_reboot = _.some(remediation.issues, 'resolution.needsReboot');
+        remediation.system_count = _(remediation.issues).flatMap('systems').uniqBy('id').size();
+        remediation.issue_count = remediation.issues.length;
     });
 
     // TODO: resolve owner information

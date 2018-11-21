@@ -21,16 +21,16 @@ exports.getResolutions = errors.async(async function (req, res) {
 
 function buildRepresentation (id, availableResolutions) {
     availableResolutions = disambiguator.sort(availableResolutions);
-    const resolutions = availableResolutions.map(({description, type, needsReboot, riskOfChange}) => ({
+    const resolutions = availableResolutions.map(({description, type, needsReboot, resolutionRisk}) => ({
         description,
         id: type,
-        needsReboot,
-        riskOfChange
+        needs_reboot: needsReboot,
+        resolution_risk: resolutionRisk
     }));
 
     return {
         id: id.full,
-        riskOfChange: _.minBy(resolutions, 'riskOfChange').riskOfChange,
+        resolution_risk: _.minBy(resolutions, 'resolution_risk').resolution_risk,
         resolutions
     };
 }

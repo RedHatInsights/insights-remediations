@@ -197,7 +197,7 @@ definitions:
     type: string
     format: date-time
 
-  RiskOfChange:
+  ResolutionRisk:
     type: integer
     enum:
       - -1
@@ -242,8 +242,8 @@ definitions:
     properties:
       id:
         $ref: "#/definitions/IssueId"
-      riskOfChange:
-        $ref: '#/definitions/RiskOfChange'
+      resolution_risk:
+        $ref: '#/definitions/ResolutionRisk'
       resolutions:
         type: array
         items:
@@ -255,10 +255,10 @@ definitions:
             description:
               type: string
               example: Disable DCCP kernel module
-            needsReboot:
+            needs_reboot:
               type: boolean
-            riskOfChange:
-              $ref: '#/definitions/RiskOfChange'
+            resolution_risk:
+              $ref: '#/definitions/ResolutionRisk'
 
 # Remediation specific types
   RemediationName:
@@ -296,11 +296,11 @@ definitions:
       updated_at:
         $ref: '#/definitions/DateTime'
         format: date-time
-      issueCount:
+      issue_count:
         type: integer
-      systemCount:
+      system_count:
         type: integer
-      needsReboot:
+      needs_reboot:
         type: boolean
 
   RemediationDetails:
@@ -336,9 +336,9 @@ definitions:
         properties:
           description:
             type: string
-          riskOfChange:
-            $ref: '#/definitions/RiskOfChange'
-          needsReboot:
+          resolution_risk:
+            $ref: '#/definitions/ResolutionRisk'
+          needs_reboot:
             type: boolean
       systems:
         type: array

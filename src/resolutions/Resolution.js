@@ -23,7 +23,7 @@ module.exports = class Resolution {
         description,
         needsReboot = false,
         needsDiagnosis = false,
-        riskOfChange = -1,
+        resolutionRisk = -1,
         version = 'unknown') {
 
         this.template = createTemplate(template);
@@ -31,7 +31,7 @@ module.exports = class Resolution {
         this.needsReboot = needsReboot;
         this.needsDiagnosis = needsDiagnosis;
         this.description = description;
-        this.riskOfChange = riskOfChange;
+        this.resolutionRisk = resolutionRisk;
         this.version = version;
 
         if (!this.template.data.includes(Template.HOSTS_PLACEHOLDER)) {

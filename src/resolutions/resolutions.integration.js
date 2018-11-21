@@ -10,12 +10,12 @@ describe('resolve compliance resolutions', function () {
 
         body.should.eql({
             id: 'compliance:sshd_disable_root_login',
-            riskOfChange: 1,
+            resolution_risk: 1,
             resolutions: [{
                 description: 'Fix',
                 id: 'fix',
-                needsReboot: false,
-                riskOfChange: 1
+                needs_reboot: false,
+                resolution_risk: 1
             }]
         });
     });
@@ -27,12 +27,12 @@ describe('resolve compliance resolutions', function () {
 
         body.should.eql({
             id: 'compliance:security_patches_up_to_date',
-            riskOfChange: 3,
+            resolution_risk: 3,
             resolutions: [{
                 description: 'Fix',
                 id: 'fix',
-                needsReboot: true,
-                riskOfChange: 3
+                needs_reboot: true,
+                resolution_risk: 3
             }]
         });
     });

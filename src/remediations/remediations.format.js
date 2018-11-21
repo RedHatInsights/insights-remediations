@@ -8,9 +8,9 @@ exports.list = function (remediations) {
         'name',
         'owner',
         'updated_at',
-        'needsReboot',
-        'systemCount',
-        'issueCount'
+        'needs_reboot',
+        'system_count',
+        'issue_count'
     ]));
 
     return {
@@ -29,8 +29,8 @@ exports.get = function ({id, name, updated_at, owner, issues}) {
             description: details.description,
             resolution: {
                 description: resolution.description,
-                riskOfChange: resolution.riskOfChange,
-                needsReboot: resolution.needsReboot
+                resolution_risk: resolution.resolutionRisk,
+                needs_reboot: resolution.needsReboot
             },
             systems: systems.map(({id, hostname, display_name}) => ({
                 id,
