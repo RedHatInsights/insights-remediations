@@ -103,6 +103,8 @@ objects:
               secretKeyRef:
                 key: password
                 name: db
+          - name: DEMO_MODE
+            value: "true"
           resources:
             requests:
               cpu: 100m

@@ -17,6 +17,7 @@ services:
       - REDIS_HOST=redis
       - LOG_LEVEL=trace
       - DB_HOST=db
+      - DEMO_MODE=true
     restart: unless-stopped
 
   redis:
