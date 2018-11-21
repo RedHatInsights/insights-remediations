@@ -6,7 +6,7 @@ module.exports = function (req, res, next) {
     }
 
     if (req.query.user_id) {
-        req.identity.id = parseInt(req.query.user_id);
+        req.identity.id = req.query.user_id;
     }
 
     if (req.query.account_number) {

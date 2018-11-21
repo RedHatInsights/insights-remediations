@@ -17,12 +17,13 @@ const DEFAULTS = Object.freeze({
     locale: 'en_US'
 });
 
-exports.createIdentityHeader = function (id = DEFAULTS.id, account_number = DEFAULTS.account_number) {
+exports.createIdentityHeader = function (id = DEFAULTS.id, account_number = DEFAULTS.account_number, is_internal = true) {
     return encode({
         identity: {
             ...DEFAULTS,
             id,
-            account_number
+            account_number,
+            is_internal
         }
     });
 };

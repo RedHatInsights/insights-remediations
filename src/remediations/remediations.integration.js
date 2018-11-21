@@ -32,7 +32,7 @@ describe('remediations', function () {
         test('does not leak data outside of the account (2)', async () => {
             const {body} = await request
             .get('/v1/remediations?user_id=99999')
-            .set(auth.empty)
+            .set(auth.emptyInternal)
             .expect(200);
 
             body.should.have.property('remediations');

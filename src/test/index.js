@@ -34,15 +34,16 @@ afterAll(async () => {
 
 exports.request = supertest.agent(`http://localhost:${config.port}${config.path.base}`);
 
-function createHeader (id, account_number) {
+function createHeader (id, account_number, internal) {
     return {
-        [identityUtils.IDENTITY_HEADER]: identityUtils.createIdentityHeader(id, account_number)
+        [identityUtils.IDENTITY_HEADER]: identityUtils.createIdentityHeader(String(id), account_number, internal)
     };
 }
 
 exports.auth = Object.freeze({
     default: createHeader(),
-    empty: createHeader(101, 'test01')
+    emptyInternal: createHeader(101, 'test01'),
+    emptyCustomer: createHeader(102, 'test02', false)
 });
 
 exports.mockVmaas = function () {

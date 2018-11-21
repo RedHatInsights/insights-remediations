@@ -35,7 +35,8 @@ module.exports = async function (app) {
         'remediations',
         'resolutions',
         'status',
-        'version'
+        'version',
+        'whoami'
     ].forEach(resource => require(`./${resource}/routes`)(v1));
 
     app.use(`${config.path.base}/v1`, v1);
