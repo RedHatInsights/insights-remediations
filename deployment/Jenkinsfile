@@ -16,7 +16,7 @@ def notifyOnFailure(Closure step) {
     try {
         step()
     } catch (e) {
-        notify("@jharting [${env.JOB_NAME}] Build failed", "See ${env.BUILD_URL}console", "danger")
+        notify("@jharting [${env.JOB_NAME.split('/')[-1]}] Build failed", "See ${env.BUILD_URL}console", "danger")
         throw e
     }
 }
@@ -48,7 +48,7 @@ def waitFor (count, resource) {
 
 node {
     notifyOnFailure {
-        notify("[${env.JOB_NAME}] Build started", null, "#439FE0")
+        notify("[${env.JOB_NAME.split('/')[-1]}] Build started", null, "#439FE0")
 
         env.NODEJS_HOME = "${tool 'node-10'}"
         env.PATH="${env.NODEJS_HOME}/bin:${env.PATH}"
@@ -87,7 +87,7 @@ node {
         stage('deploy') {
             openshiftDeploy(deploymentConfig: "remediations", namespace: NS)
             sh "oc rollout status --namespace=${NS} dc/remediations"
-            notify("[${env.JOB_NAME}] Deployment finished", null, "good")
+            notify("[${env.JOB_NAME.split('/')[-1]}] Deployment finished", null, "good")
         }
     }
 }
