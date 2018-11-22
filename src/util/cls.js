@@ -10,3 +10,9 @@ exports.middleware = function (req, res, next) {
 exports.getReq = function () {
     return httpContext.get('req');
 };
+
+exports.patchMiddleware = function (fn) {
+    return function (req, res, next) {
+        return fn(req, res, httpContext.ns.bind(next));
+    };
+};

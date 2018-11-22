@@ -1,6 +1,6 @@
 'use strict';
 
-const { request } = require('../test');
+const { request, reqId } = require('../test');
 
 test('generates a rule-based playbook', () => {
     const data = {
@@ -18,8 +18,11 @@ test('generates a rule-based playbook', () => {
 });
 
 test('400s on unknown issue id', () => {
+    const {id, header} = reqId();
+
     return request
     .post('/v1/playbook')
+    .set(header)
     .send({
         issues: [{
             id: 'advisor:nonExistentId',
@@ -28,16 +31,21 @@ test('400s on unknown issue id', () => {
     })
     .expect(400)
     .then(({ body }) => {
-        body.should.have.property('error', {
+        body.errors.should.eql([{
+            id,
+            status: 400,
             code: 'UNKNOWN_ISSUE',
-            message: 'Unknown issue identifier "advisor:nonExistentId"'
-        });
+            title: 'Unknown issue identifier "advisor:nonExistentId"'
+        }]);
     });
 });
 
 test('400s on unsupported issue', () => {
+    const {id, header} = reqId();
+
     return request
     .post('/v1/playbook')
+    .set(header)
     .send({
         issues: [{
             id: 'advisor:alias_interface_invalid|ALIAS_INTERFACE_INVALID',
@@ -46,10 +54,12 @@ test('400s on unsupported issue', () => {
     })
     .expect(400)
     .then(({ body }) => {
-        body.should.have.property('error', {
+        body.errors.should.eql([{
+            id,
+            status: 400,
             code: 'UNSUPPORTED_ISSUE',
-            message: 'Issue "advisor:alias_interface_invalid|ALIAS_INTERFACE_INVALID" does not have Ansible support'
-        });
+            title: 'Issue "advisor:alias_interface_invalid|ALIAS_INTERFACE_INVALID" does not have Ansible support'
+        }]);
     });
 });
 

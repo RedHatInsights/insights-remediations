@@ -31,10 +31,10 @@ module.exports = async function (app) {
     app.use(identity);
     app.use(identitySwitcher);
     app.use(httpContext.middleware);
-    app.use(pino);
-    app.use(prettyJson);
-    await swagger(app, config.path.base);
     app.use(cls.middleware);
+    app.use(pino);
+    await swagger(app, config.path.base);
+    app.use(prettyJson);
 
     const v1 = express.Router();
 

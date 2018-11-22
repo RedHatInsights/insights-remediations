@@ -1,6 +1,6 @@
 'use strict';
 
-const { request } = require('../test');
+const { request, reqId } = require('../test');
 
 test('generates a rule-based playbook', () => {
     const data = {
@@ -34,8 +34,11 @@ test('generates a rule-based playbook with resolution preference', () => {
 });
 
 test('400s on unknown resolution type', () => {
+    const {id, header} = reqId();
+
     return request
     .post('/v1/playbook')
+    .set(header)
     .send({
         issues: [{
             id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
@@ -45,10 +48,12 @@ test('400s on unknown resolution type', () => {
     })
     .expect(400)
     .then(({ body }) => {
-        body.should.have.property('error', {
+        body.errors.should.eql([{
+            id,
+            status: 400,
             code: 'UNKNOWN_RESOLUTION',
-            message: 'Issue "vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074"' +
+            title: 'Issue "vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074"' +
                 ' does not have Ansible resolution "non-existing-resolution"'
-        });
+        }]);
     });
 });

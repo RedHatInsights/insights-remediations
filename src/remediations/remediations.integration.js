@@ -1,6 +1,6 @@
 'use strict';
 
-const { request, auth } = require('../test');
+const { request, auth, reqId } = require('../test');
 
 describe('remediations', function () {
     describe('list', function () {
@@ -85,15 +85,20 @@ describe('remediations', function () {
         });
 
         test('400s if unexpected property is provided', async () => {
+            const {id, header} = reqId();
+
             const {body} = await request
             .post('/v1/remediations')
+            .set(header)
             .send({foo: 'bar'})
             .expect(400);
 
-            body.should.have.property('error', {
+            body.errors.should.eql([{
+                id,
+                status: 400,
                 code: 'OBJECT_ADDITIONAL_PROPERTIES',
-                message: 'Additional properties not allowed: foo'
-            });
+                title: 'Additional properties not allowed: foo'
+            }]);
         });
     });
 

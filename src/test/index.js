@@ -3,6 +3,7 @@
 require('should');
 const sinon = require('sinon');
 const supertest = require('supertest');
+const uuid = require('uuid');
 
 const app = require('../app');
 const config = require('../config');
@@ -55,5 +56,16 @@ exports.throw404 = () => {
     error.name === 'StatusCodeError';
     error.statusCode === 404;
     throw new error;
+};
+
+exports.reqId = () => {
+    const id = uuid.v4();
+
+    return {
+        header: {
+            'x-rh-insights-request-id': id
+        },
+        id
+    };
 };
 

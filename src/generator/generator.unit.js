@@ -1,7 +1,7 @@
 'use strict';
 
 const errors = require('../errors');
-const { request, mockVmaas, getSandbox } = require('../test');
+const { request, mockVmaas, getSandbox, reqId } = require('../test');
 
 test('generates a simple playbook', () => {
     const data = {
@@ -92,36 +92,49 @@ test('adds diagnosis play', () => {
 });
 
 test('400s on invalid body parameters', () => {
+    const {id, header} = reqId();
+
     return request
     .post('/v1/playbook')
+    .set(header)
     .send({})
     .expect(400)
     .then(({ body }) => {
-        body.should.have.property('error', {
+        body.errors.should.eql([{
+            id,
+            status: 400,
             code: 'OBJECT_MISSING_REQUIRED_PROPERTY',
-            message: 'Missing required property: issues'
-        });
+            title: 'Missing required property: issues'
+        }]);
     });
 });
 
 test('400s on empty issue list', () => {
+    const {id, header} = reqId();
+
     return request
     .post('/v1/playbook')
+    .set(header)
     .send({
         issues: []
     })
     .expect(400)
     .then(({ body }) => {
-        body.should.have.property('error', {
+        body.errors.should.eql([{
+            id,
+            status: 400,
             code: 'ARRAY_LENGTH_SHORT',
-            message: 'Array is too short (0), minimum 1'
-        });
+            title: 'Array is too short (0), minimum 1'
+        }]);
     });
 });
 
 test('400s on empty system list', () => {
+    const {id, header} = reqId();
+
     return request
     .post('/v1/playbook')
+    .set(header)
     .send({
         issues: [{
             id: 'vulnerabilities:CVE_2017_5461_nss|CVE_2017_5461_NSS_2',
@@ -130,16 +143,21 @@ test('400s on empty system list', () => {
     })
     .expect(400)
     .then(({ body }) => {
-        body.should.have.property('error', {
+        body.errors.should.eql([{
+            id,
+            status: 400,
             code: 'ARRAY_LENGTH_SHORT',
-            message: 'Array is too short (0), minimum 1'
-        });
+            title: 'Array is too short (0), minimum 1'
+        }]);
     });
 });
 
 test('400s on unknown issue id', () => {
+    const {id, header} = reqId();
+
     return request
     .post('/v1/playbook')
+    .set(header)
     .send({
         issues: [{
             id: 'test:nonExistentId',
@@ -148,16 +166,21 @@ test('400s on unknown issue id', () => {
     })
     .expect(400)
     .then(({ body }) => {
-        body.should.have.property('error', {
+        body.errors.should.eql([{
+            id,
+            status: 400,
             code: 'UNSUPPORTED_ISSUE',
-            message: 'Issue "test:nonExistentId" does not have Ansible support'
-        });
+            title: 'Issue "test:nonExistentId" does not have Ansible support'
+        }]);
     });
 });
 
 test('400s on unknown system id', () => {
+    const {id, header} = reqId();
+
     return request
     .post('/v1/playbook')
+    .set(header)
     .send({
         issues: [{
             id: 'vulnerabilities:CVE_2017_5461_nss|CVE_2017_5461_NSS_2',
@@ -166,10 +189,12 @@ test('400s on unknown system id', () => {
     })
     .expect(400)
     .then(({ body }) => {
-        body.should.have.property('error', {
+        body.errors.should.eql([{
+            id,
+            status: 400,
             code: 'UNKNOWN_SYSTEM',
-            message: 'Unknown system identifier "non-existent-system"'
-        });
+            title: 'Unknown system identifier "non-existent-system"'
+        }]);
     });
 });
 

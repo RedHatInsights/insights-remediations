@@ -2,14 +2,31 @@
 
 const _ = require('lodash');
 const log = require('./util/log');
+const cls = require('./util/cls');
 
 class HttpError {
-    constructor (status) {
-        this.status = status;
+    constructor (status, code, title, details) {
+        const req = cls.getReq();
+        this.error = {
+            id: req ? req.id : undefined,
+            status,
+            code,
+            title
+        };
+
+        if (details) {
+            this.error.details = details;
+        }
+    }
+
+    getError () {
+        return this.error;
     }
 
     writeResponse (res) {
-        res.status(this.status).end();
+        res.status(this.error.status).json({
+            errors: [this.getError()]
+        }).end();
     }
 }
 
@@ -24,28 +41,14 @@ class InternalError extends Error {
 exports.InternalError = InternalError;
 
 exports.BadRequest = class BadRequest extends HttpError {
-    constructor (code, message, details) {
-        super(400);
-        this.data = {
-            error: {
-                code,
-                message
-            }
-        };
-
-        if (details) {
-            this.data.details = details;
-        }
-    }
-
-    writeResponse (res) {
-        res.status(this.status).json(this.data).end();
+    constructor (code, title, details) {
+        super(400, code, title, details);
     }
 };
 
 exports.Unauthorized = class Unauthorized extends HttpError {
     constructor () {
-        super(401);
+        super(401, 'UNAUTHORIZED', 'Authorization headers missing');
     }
 };
 
@@ -53,16 +56,20 @@ exports.handler = (err, req, res, next) => {
 
     // swagger request validation handler
     if (err.code === 'SCHEMA_VALIDATION_FAILED' && !err.originalResponse) {
-        const {code, message} = err.results.errors[0];
+        const errors = err.results.errors;
         log.debug('rejecting request due to SCHEMA_VALIDATION_FAILED');
 
+        const status = 400;
+
         return res
-        .status(400)
+        .status(status)
         .json({
-            error: {
+            errors: errors.map(({code, message}) => ({
+                id: req.id,
+                status,
                 code,
-                message
-            }
+                title: message
+            }))
         })
         .end();
     }

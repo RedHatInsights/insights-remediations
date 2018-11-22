@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const P = require('bluebird');
+const cls = require('../util/cls');
 
 const swaggerTools = require('swagger-tools');
 const jsyaml = require('js-yaml');
@@ -13,7 +14,7 @@ module.exports = async function (app, prefix) {
 
     const mw = await P.fromCallback(cb => swaggerTools.initializeMiddleware(spec, mw => cb(null, mw)));
 
-    app.use(mw.swaggerMetadata());
+    app.use(cls.patchMiddleware(mw.swaggerMetadata()));
     app.use(mw.swaggerValidator({
         validateResponse: true
     }));

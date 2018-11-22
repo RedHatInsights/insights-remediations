@@ -1,6 +1,6 @@
 'use strict';
 
-const { request } = require('../test');
+const { request, reqId } = require('../test');
 
 test('generates a simple playbook with single compliance remediation', async () => {
     const data = {
@@ -51,8 +51,11 @@ test('generates a simple playbook with reboot support', async () => {
 });
 
 test('400s on unknown resolution type', () => {
+    const {id, header} = reqId();
+
     return request
     .post('/v1/playbook')
+    .set(header)
     .send({
         issues: [{
             id: 'compliance:non-existing-issue',
@@ -61,16 +64,21 @@ test('400s on unknown resolution type', () => {
     })
     .expect(400)
     .then(({ body }) => {
-        body.should.have.property('error', {
+        body.errors.should.eql([{
+            id,
+            status: 400,
             code: 'UNSUPPORTED_ISSUE',
-            message: 'Issue "compliance:non-existing-issue" does not have Ansible support'
-        });
+            title: 'Issue "compliance:non-existing-issue" does not have Ansible support'
+        }]);
     });
 });
 
 test('400s on unknown resolution type other than fix', () => {
+    const {id, header} = reqId();
+
     return request
     .post('/v1/playbook')
+    .set(header)
     .send({
         issues: [{
             id: 'compliance:sshd_disable_root_login',
@@ -80,11 +88,13 @@ test('400s on unknown resolution type other than fix', () => {
     })
     .expect(400)
     .then(({ body }) => {
-        body.should.have.property('error', {
+        body.errors.should.eql([{
+            id,
+            status: 400,
             code: 'UNKNOWN_RESOLUTION',
-            message: 'Issue "compliance:sshd_disable_root_login"' +
+            title: 'Issue "compliance:sshd_disable_root_login"' +
                 ' does not have Ansible resolution "non-existing-resolution"'
-        });
+        }]);
     });
 });
 

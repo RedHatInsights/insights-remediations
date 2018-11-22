@@ -114,8 +114,11 @@ test('aggregates multiple errata-based issues into advisory/cve plays', async ()
 });
 
 test('400s on unknown issue', () => {
+    const {id, header} = base.reqId();
+
     return request
     .post('/v1/playbook')
+    .set(header)
     .send({
         issues: [{
             id: 'vulnerabilities:RHSA-2018:99999',
@@ -124,16 +127,21 @@ test('400s on unknown issue', () => {
     })
     .expect(400)
     .then(({ body }) => {
-        body.should.have.property('error', {
+        body.errors.should.eql([{
+            id,
+            status: 400,
             code: 'UNKNOWN_ISSUE',
-            message: 'Unknown issue identifier "vulnerabilities:RHSA-2018:99999"'
-        });
+            title: 'Unknown issue identifier "vulnerabilities:RHSA-2018:99999"'
+        }]);
     });
 });
 
 test('400s on unknown resolution type other than fix', () => {
+    const {id, header} = base.reqId();
+
     return request
     .post('/v1/playbook')
+    .set(header)
     .send({
         issues: [{
             id: 'vulnerabilities:RHSA-2018:0502',
@@ -143,10 +151,12 @@ test('400s on unknown resolution type other than fix', () => {
     })
     .expect(400)
     .then(({ body }) => {
-        body.should.have.property('error', {
+        body.errors.should.eql([{
+            id,
+            status: 400,
             code: 'UNKNOWN_RESOLUTION',
-            message: 'Issue "vulnerabilities:RHSA-2018:0502"' +
+            title: 'Issue "vulnerabilities:RHSA-2018:0502"' +
                 ' does not have Ansible resolution "non-existing-resolution"'
-        });
+        }]);
     });
 });
