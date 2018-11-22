@@ -102,6 +102,7 @@ rules:
 # ES6
   no-var: 2
   object-shorthand: 2
+  prefer-const: 2
 
 # node
   no-mixed-requires: 2
