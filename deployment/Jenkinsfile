@@ -16,7 +16,7 @@ def notifyOnFailure(Closure step) {
     try {
         step()
     } catch (e) {
-        notify("@channel [${env.JOB_NAME}] Build failed", "See ${env.BUILD_URL}console", "danger")
+        notify("@jharting [${env.JOB_NAME}] Build failed", "See ${env.BUILD_URL}console", "danger")
         throw e
     }
 }
