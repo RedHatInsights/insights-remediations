@@ -44,7 +44,8 @@ function createHeader (id, account_number, internal) {
 exports.auth = Object.freeze({
     default: createHeader(),
     emptyInternal: createHeader(101, 'test01'),
-    emptyCustomer: createHeader(102, 'test02', false)
+    emptyCustomer: createHeader(102, 'test02', false),
+    testWrite: createHeader(103, 'testWrite', false)
 });
 
 exports.mockVmaas = function () {

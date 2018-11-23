@@ -29,13 +29,6 @@ exports.up = async q => {
         owner,
         created_at: '2018-10-04T08:19:36.641Z',
         updated_at: '2018-10-04T08:19:36.641Z'
-    }, {
-        id: 'e67118cc-28ec-4b55-afe9-2b5cfab24f13',
-        name: 'to be deleted',
-        tenant,
-        owner,
-        created_at: '2018-10-04T08:19:36.641Z',
-        updated_at: '2018-10-04T08:19:36.641Z'
     }], opts);
 
     const systems = await q.bulkInsert('systems', [{

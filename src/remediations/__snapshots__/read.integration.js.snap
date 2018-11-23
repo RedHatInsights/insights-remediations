@@ -118,15 +118,6 @@ exports[`remediations list list remediations 1`] = `
             \\"issue_count\\": 0
         },
         {
-            \\"id\\": \\"e67118cc-28ec-4b55-afe9-2b5cfab24f13\\",
-            \\"name\\": \\"to be deleted\\",
-            \\"owner\\": 100,
-            \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
-            \\"needs_reboot\\": false,
-            \\"system_count\\": 0,
-            \\"issue_count\\": 0
-        },
-        {
             \\"id\\": \\"e809526c-56f5-4cd8-a809-93328436ea23\\",
             \\"name\\": \\"\\",
             \\"owner\\": 100,

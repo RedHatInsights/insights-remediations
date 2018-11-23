@@ -41,7 +41,9 @@ module.exports = {
                 references: {
                     model: 'remediations',
                     key: 'id'
-                }
+                },
+                onDelete: 'cascade',
+                onUpdate: 'cascade'
             },
             resolution: {
                 type: STRING,

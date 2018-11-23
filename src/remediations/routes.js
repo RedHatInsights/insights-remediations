@@ -1,10 +1,11 @@
 'use strict';
 
-const controller = require('./remediations.controller');
+const read = require('./controller.read');
+const write = require('./controller.write');
 
 module.exports = function (router) {
-    router.get('/remediations', controller.list);
-    router.get('/remediations/:id', controller.get);
-    router.post('/remediations', controller.create);
-    router.delete('/remediations/:id', controller.remove);
+    router.get('/remediations', read.list);
+    router.get('/remediations/:id', read.get);
+    router.post('/remediations', write.create);
+    router.delete('/remediations/:id', write.remove);
 };
