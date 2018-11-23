@@ -22,7 +22,10 @@ module.exports = {
                 type: DATE,
                 defaultValue: fn('now')
             },
-            updated_at: DATE
+            updated_at: {
+                type: DATE,
+                defaultValue: fn('now')
+            }
         });
 
         await q.createTable('remediation_issues', {

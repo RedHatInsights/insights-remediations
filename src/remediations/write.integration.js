@@ -45,7 +45,7 @@ describe('remediations', function () {
     });
 
     describe('remove', function () {
-        test('remove remediation', async () => {
+        test('remediation', async () => {
             await request
             .delete('/v1/remediations/3d34ed5c-a71f-48ee-b7af-b215f27ae68d')
             .set(auth.testWrite)
@@ -55,6 +55,25 @@ describe('remediations', function () {
             .delete('/v1/remediations/3d34ed5c-a71f-48ee-b7af-b215f27ae68d')
             .set(auth.testWrite)
             .expect(404);
+        });
+
+        test('issue', async () => {
+            await request
+            .delete('/v1/remediations/3274d99f-511d-4b05-9d88-69934f6bb8ec/issues/vulnerabilities:CVE-2017-17713')
+            .set(auth.testWrite)
+            .expect(204);
+
+            await request
+            .delete('/v1/remediations/3274d99f-511d-4b05-9d88-69934f6bb8ec/issues/vulnerabilities:CVE-2017-17713')
+            .set(auth.testWrite)
+            .expect(404);
+
+            const {body} = await request
+            .get('/v1/remediations/3274d99f-511d-4b05-9d88-69934f6bb8ec')
+            .set(auth.testWrite)
+            .expect(200);
+
+            body.issues.should.have.length(1);
         });
     });
 });

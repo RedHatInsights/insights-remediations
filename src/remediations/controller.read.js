@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const P = require('bluebird');
 const errors = require('../errors');
-const db = require('./remediations.db');
+const queries = require('./remediations.queries');
 const format = require('./remediations.format');
 const resolutions = require('../resolutions');
 const inventory = require('../connectors/inventory');
@@ -21,7 +21,7 @@ function resolveResolutions (...remediations) {
 }
 
 exports.list = errors.async(async function (req, res) {
-    const remediations = await db.list(req.identity.account_number, req.identity.id).map(r => r.toJSON());
+    const remediations = await queries.list(req.identity.account_number, req.identity.id).map(r => r.toJSON());
 
     await resolveResolutions(...remediations);
 
@@ -57,7 +57,7 @@ function resolveIssues (remediation) {
 }
 
 exports.get = errors.async(async function (req, res) {
-    let remediation = await db.get(req.swagger.params.id.value, req.identity.account_number, req.identity.id);
+    let remediation = await queries.get(req.swagger.params.id.value, req.identity.account_number, req.identity.id);
 
     if (!remediation) {
         return notFound(res);

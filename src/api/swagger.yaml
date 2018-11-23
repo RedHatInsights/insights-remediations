@@ -110,6 +110,22 @@ paths:
         404:
           $ref: '#/responses/NotFound'
 
+  /remediations/{id}/issues/{issue}:
+    delete:
+      tags:
+        - remediations
+      summary: Remove Remediation Issue
+      description: Removes the given Issue from the Remediation
+      operationId: deleteRemediationIssue
+      parameters:
+        - $ref: '#/parameters/RemediationId'
+        - $ref: '#/parameters/IssueId'
+      responses:
+        204:
+          $ref: '#/responses/Deleted'
+        404:
+          $ref: '#/responses/NotFound'
+
   /resolutions/{issue}:
     get:
       tags:

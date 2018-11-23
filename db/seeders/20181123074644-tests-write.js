@@ -1,5 +1,7 @@
 'use strict';
 
+const _ = require('lodash');
+
 const tenant = 'testWrite';
 const owner = 103;
 
@@ -12,22 +14,28 @@ exports.up = async q => {
         id: '3d34ed5c-a71f-48ee-b7af-b215f27ae68d',
         name: 'to be deleted',
         tenant,
-        owner,
-        created_at: '2018-10-04T08:19:36.641Z',
-        updated_at: '2018-10-04T08:19:36.641Z'
+        owner
+    }, {
+        id: '3274d99f-511d-4b05-9d88-69934f6bb8ec',
+        name: 'to have issue deleted',
+        tenant,
+        owner
     }], opts);
 
     const systems = await q.bulkInsert('systems', [{
         id: '1bada2ce-e379-4e17-9569-8a22e09760af'
     }], opts);
 
-    const issues = await q.bulkInsert('remediation_issues', [{
-        remediation_id: remediations[0].id,
+    const issues = await q.bulkInsert('remediation_issues', _.flatMap(remediations, remediation => [{
+        remediation_id: remediation.id,
         issue_id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'
-    }], opts);
+    }, {
+        remediation_id: remediation.id,
+        issue_id: 'vulnerabilities:CVE-2017-17713'
+    }]), opts);
 
-    await q.bulkInsert('remediation_issue_systems', [{
+    await q.bulkInsert('remediation_issue_systems', issues.map(issue => ({
         system_id: systems[0].id,
-        remediation_issue_id: issues[0].id
-    }]);
+        remediation_issue_id: issue.id
+    })));
 };

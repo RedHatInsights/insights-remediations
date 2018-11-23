@@ -8,4 +8,5 @@ module.exports = function (router) {
     router.get('/remediations/:id', read.get);
     router.post('/remediations', write.create);
     router.delete('/remediations/:id', write.remove);
+    router.delete('/remediations/:id/issues/:issue', write.removeIssue);
 };
