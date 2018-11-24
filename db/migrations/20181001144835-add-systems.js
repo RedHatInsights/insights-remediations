@@ -2,13 +2,6 @@
 
 module.exports = {
     async up (q, {INTEGER, UUID}) {
-        await q.createTable('systems', {
-            id: {
-                type: UUID,
-                primaryKey: true
-            }
-        });
-
         await q.createTable('remediation_issue_systems', {
             remediation_issue_id: {
                 type: INTEGER,
@@ -22,19 +15,12 @@ module.exports = {
             },
             system_id: {
                 type: UUID,
-                primaryKey: true,
-                references: {
-                    model: 'systems',
-                    key: 'id'
-                },
-                onDelete: 'cascade',
-                onUpdate: 'cascade'
+                primaryKey: true
             }
         });
     },
 
     async down (q) {
         await q.dropTable('remediation_issue_systems');
-        await q.dropTable('systems');
     }
 };

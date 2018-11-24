@@ -32,8 +32,8 @@ exports.get = function ({id, name, updated_at, owner, issues}) {
                 resolution_risk: resolution.resolutionRisk,
                 needs_reboot: resolution.needsReboot
             },
-            systems: systems.map(({id, hostname, display_name}) => ({
-                id,
+            systems: systems.map(({system_id, hostname, display_name}) => ({
+                id: system_id,
                 hostname,
                 display_name: display_name || 'null' // FIXME
             }))

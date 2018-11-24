@@ -33,9 +33,9 @@ module.exports = (sequelize, {INTEGER, STRING, UUID}) => {
             foreignKey: 'remediation_id'
         });
 
-        Issue.belongsToMany(models.system, {
+        Issue.hasMany(models.issue_system, {
             foreignKey: 'remediation_issue_id',
-            through: 'remediation_issue_systems'
+            as: 'systems'
         });
     };
 

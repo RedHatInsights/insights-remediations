@@ -13,12 +13,9 @@ exports.list = function (tenant, owner) {
             model: db.issue,
             required: false,
             include: [{
-                attributes: ['id'],
-                model: db.system,
-                required: true,
-                through: {
-                    attributes: []
-                }
+                attributes: ['system_id'],
+                association: db.issue.associations.systems,
+                required: true
             }]
         }],
         where: {
@@ -35,11 +32,9 @@ exports.get = function (id, tenant, owner) {
             attributes: ISSUE_ATTRIBUTES,
             model: db.issue,
             include: {
-                attributes: ['id'],
-                model: db.system,
-                through: {
-                    attributes: []
-                }
+                attributes: ['system_id'],
+                association: db.issue.associations.systems,
+                required: true
             }
         }],
         where: {

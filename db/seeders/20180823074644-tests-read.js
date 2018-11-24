@@ -7,6 +7,11 @@ const opts = {
     returning: true
 };
 
+const systems = [
+    'fc94beb8-21ee-403d-99b1-949ef7adb762',
+    '1f12bdfc-8267-492d-a930-92f498fe65b9'
+];
+
 exports.up = async q => {
     const remediations = await q.bulkInsert('remediations', [{
         id: '66eec356-dd06-4c72-a3b6-ef27d1508a02',
@@ -31,12 +36,6 @@ exports.up = async q => {
         updated_at: '2018-10-04T08:19:36.641Z'
     }], opts);
 
-    const systems = await q.bulkInsert('systems', [{
-        id: 'fc94beb8-21ee-403d-99b1-949ef7adb762'
-    }, {
-        id: '1f12bdfc-8267-492d-a930-92f498fe65b9'
-    }], opts);
-
     const issues = await q.bulkInsert('remediation_issues', [{
         remediation_id: remediations[0].id,
         issue_id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'
@@ -55,22 +54,22 @@ exports.up = async q => {
     }], opts);
 
     await q.bulkInsert('remediation_issue_systems', [{
-        system_id: systems[0].id,
+        system_id: systems[0],
         remediation_issue_id: issues[0].id
     }, {
-        system_id: systems[0].id,
+        system_id: systems[0],
         remediation_issue_id: issues[1].id
     }, {
-        system_id: systems[0].id,
+        system_id: systems[0],
         remediation_issue_id: issues[2].id
     }, {
-        system_id: systems[0].id,
+        system_id: systems[0],
         remediation_issue_id: issues[3].id
     }, {
-        system_id: systems[0].id,
+        system_id: systems[0],
         remediation_issue_id: issues[4].id
     }, {
-        system_id: systems[1].id,
+        system_id: systems[1],
         remediation_issue_id: issues[0].id
     }]);
 };

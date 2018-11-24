@@ -7,6 +7,13 @@ const opts = {
     returning: true
 };
 
+const systems = [
+    '8dadd8d7-5f1d-49c3-a560-af3cada7ce83',
+    'fc84c991-a029-4882-bc9c-7e351a73b59f',
+    '58b2837a-5df5-4466-9033-c4b46248d4b4',
+    '29dafba0-c190-4acd-998d-074ba0aee477'
+];
+
 exports.up = async q => {
     const remediations = await q.bulkInsert('remediations', [{
         id: '9939e04a-a936-482d-a317-008c058f7918',
@@ -22,16 +29,6 @@ exports.up = async q => {
         owner,
         created_at: '2018-11-21T09:19:38.541Z',
         updated_at: '2018-11-21T09:19:38.541Z'
-    }], opts);
-
-    const systems = await q.bulkInsert('systems', [{
-        id: '8dadd8d7-5f1d-49c3-a560-af3cada7ce83'
-    }, {
-        id: 'fc84c991-a029-4882-bc9c-7e351a73b59f'
-    }, {
-        id: '58b2837a-5df5-4466-9033-c4b46248d4b4'
-    }, {
-        id: '29dafba0-c190-4acd-998d-074ba0aee477'
     }], opts);
 
     const issues = await q.bulkInsert('remediation_issues', [{
@@ -56,7 +53,7 @@ exports.up = async q => {
 
         q.bulkInsert('remediation_issue_systems', systemSlice.map(system => ({
             remediation_issue_id: issue.id,
-            system_id: system.id
+            system_id: system
         })));
     });
 };

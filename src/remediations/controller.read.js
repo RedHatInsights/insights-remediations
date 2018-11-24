@@ -27,7 +27,7 @@ exports.list = errors.async(async function (req, res) {
 
     remediations.forEach(remediation => {
         remediation.needs_reboot = _.some(remediation.issues, 'resolution.needsReboot');
-        remediation.system_count = _(remediation.issues).flatMap('systems').uniqBy('id').size();
+        remediation.system_count = _(remediation.issues).flatMap('systems').uniqBy('system_id').size();
         remediation.issue_count = remediation.issues.length;
     });
 
@@ -38,12 +38,12 @@ exports.list = errors.async(async function (req, res) {
 
 async function resolveSystems (remediation) {
     const systems = _.flatMap(remediation.issues, 'systems');
-    const ids = _(systems).map('id').uniq().value();
+    const ids = _(systems).map('system_id').uniq().value();
 
     const systemDetails = await inventory.getSystemDetailsBatch(ids);
 
     _.forEach(systems, system => {
-        const {hostname, display_name} = systemDetails[system.id];
+        const {hostname, display_name} = systemDetails[system.system_id];
         system.hostname = hostname;
         system.display_name = display_name;
     });

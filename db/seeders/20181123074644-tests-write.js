@@ -22,10 +22,6 @@ exports.up = async q => {
         owner
     }], opts);
 
-    const systems = await q.bulkInsert('systems', [{
-        id: '1bada2ce-e379-4e17-9569-8a22e09760af'
-    }], opts);
-
     const issues = await q.bulkInsert('remediation_issues', _.flatMap(remediations, remediation => [{
         remediation_id: remediation.id,
         issue_id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'
@@ -35,7 +31,7 @@ exports.up = async q => {
     }]), opts);
 
     await q.bulkInsert('remediation_issue_systems', issues.map(issue => ({
-        system_id: systems[0].id,
+        system_id: '1bada2ce-e379-4e17-9569-8a22e09760af',
         remediation_issue_id: issue.id
     })));
 };
