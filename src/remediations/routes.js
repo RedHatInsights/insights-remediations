@@ -9,4 +9,5 @@ module.exports = function (router) {
     router.post('/remediations', write.create);
     router.delete('/remediations/:id', write.remove);
     router.delete('/remediations/:id/issues/:issue', write.removeIssue);
+    router.delete('/remediations/:id/issues/:issue/systems/:system', write.removeIssueSystem);
 };

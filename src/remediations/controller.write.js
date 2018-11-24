@@ -21,24 +21,32 @@ exports.create = errors.async(async function (req, res) {
     res.status(201).json(format.get(result));
 });
 
+function findAndDestroy (entity, query, res) {
+    return db.s.transaction(async transaction => {
+        const result = await entity.findOne(query, {transaction});
+
+        if (result) {
+            await result.destroy({transaction});
+            return true;
+        }
+    }).then(result => {
+        if (result) {
+            return res.status(204).end();
+        }
+
+        return notFound(res);
+    });
+}
+
 exports.remove = errors.async(function (req, res) {
     const id = req.swagger.params.id.value;
     const {account_number: tenant, id: owner} = req.identity;
 
-    return db.s.transaction(async transaction => {
-        const remediation = await db.remediation.findOne({
-            where: {
-                id, tenant, owner
-            }
-        }, {transaction});
-
-        if (!remediation) {
-            return notFound(res);
+    return findAndDestroy(db.remediation, {
+        where: {
+            id, tenant, owner
         }
-
-        await remediation.destroy({transaction});
-        return res.status(204).end();
-    });
+    }, res);
 });
 
 exports.removeIssue = errors.async(function (req, res) {
@@ -46,11 +54,36 @@ exports.removeIssue = errors.async(function (req, res) {
     const iid = req.swagger.params.issue.value;
     const {account_number: tenant, id: owner} = req.identity;
 
-    return db.s.transaction(async transaction => {
-        const issue = await db.issue.findOne({
+    return findAndDestroy(db.issue, {
+        where: {
+            issue_id: iid,
+            remediation_id: id
+        },
+        include: {
+            model: db.remediation,
+            required: true,
             where: {
-                issue_id: iid,
-                remediation_id: id
+                id, tenant, owner
+            }
+        }
+    }, res);
+});
+
+exports.removeIssueSystem = errors.async(function (req, res) {
+    const id = req.swagger.params.id.value;
+    const iid = req.swagger.params.issue.value;
+    const sid = req.swagger.params.system.value;
+    const {account_number: tenant, id: owner} = req.identity;
+
+    return findAndDestroy(db.issue_system, {
+        where: {
+            system_id: sid
+        },
+        include: {
+            model: db.issue,
+            required: true,
+            where: {
+                issue_id: iid
             },
             include: {
                 model: db.remediation,
@@ -59,13 +92,6 @@ exports.removeIssue = errors.async(function (req, res) {
                     id, tenant, owner
                 }
             }
-        }, {transaction});
-
-        if (!issue) {
-            return notFound(res);
         }
-
-        await issue.destroy({transaction});
-        return res.status(204).end();
-    });
+    }, res);
 });

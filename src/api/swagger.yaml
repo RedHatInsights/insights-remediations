@@ -126,6 +126,23 @@ paths:
         404:
           $ref: '#/responses/NotFound'
 
+  /remediations/{id}/issues/{issue}/systems/{system}:
+    delete:
+      tags:
+        - remediations
+      summary: Remove Remediation Issue System
+      description: Removes the given System from the Issue Remediation
+      operationId: deleteRemediationIssueSystem
+      parameters:
+        - $ref: '#/parameters/RemediationId'
+        - $ref: '#/parameters/IssueId'
+        - $ref: '#/parameters/SystemId'
+      responses:
+        204:
+          $ref: '#/responses/Deleted'
+        404:
+          $ref: '#/responses/NotFound'
+
   /resolutions/{issue}:
     get:
       tags:
