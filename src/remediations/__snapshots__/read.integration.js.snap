@@ -8,7 +8,7 @@ exports[`remediations get get remediation 1`] = `
     \\"owner\\": 100,
     \\"issues\\": [
         {
-            \\"issue_id\\": \\"advisor:bond_config_issue|BOND_CONFIG_ISSUE\\",
+            \\"id\\": \\"advisor:bond_config_issue|BOND_CONFIG_ISSUE\\",
             \\"description\\": \\"Unexpected bonding behavior with incorrect syntax in bond configuration files\\",
             \\"resolution\\": {
                 \\"description\\": \\"Correct Bonding Config Items\\",
@@ -24,7 +24,7 @@ exports[`remediations get get remediation 1`] = `
             ]
         },
         {
-            \\"issue_id\\": \\"compliance:sshd_disable_root_login\\",
+            \\"id\\": \\"compliance:sshd_disable_root_login\\",
             \\"description\\": \\"OpenSCAP fix for sshd_disable_root_login\\",
             \\"resolution\\": {
                 \\"description\\": \\"Fix\\",
@@ -40,7 +40,7 @@ exports[`remediations get get remediation 1`] = `
             ]
         },
         {
-            \\"issue_id\\": \\"vulnerabilities:CVE-2017-17713\\",
+            \\"id\\": \\"vulnerabilities:CVE-2017-17713\\",
             \\"description\\": \\"CVE-2017-17713\\",
             \\"resolution\\": {
                 \\"description\\": \\"Update packages (CVE-2017-17713)\\",
@@ -56,7 +56,7 @@ exports[`remediations get get remediation 1`] = `
             ]
         },
         {
-            \\"issue_id\\": \\"vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074\\",
+            \\"id\\": \\"vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074\\",
             \\"description\\": \\"Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)\\",
             \\"resolution\\": {
                 \\"description\\": \\"Update system to the latest kernel and reboot\\",
@@ -77,7 +77,7 @@ exports[`remediations get get remediation 1`] = `
             ]
         },
         {
-            \\"issue_id\\": \\"vulnerabilities:RHSA-2018:0502\\",
+            \\"id\\": \\"vulnerabilities:RHSA-2018:0502\\",
             \\"description\\": \\"RHSA-2018:0502\\",
             \\"resolution\\": {
                 \\"description\\": \\"Update packages (RHSA-2018:0502)\\",

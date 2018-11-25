@@ -25,7 +25,7 @@ exports.get = function ({id, name, updated_at, owner, issues}) {
         updated_at,
         owner,
         issues: _.map(issues, ({issue_id, resolution, details, systems}) => ({
-            issue_id,
+            id: issue_id,
             description: details.description,
             resolution: {
                 description: resolution.description,

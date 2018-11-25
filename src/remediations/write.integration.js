@@ -96,7 +96,7 @@ describe('remediations', function () {
             .set(auth.testWrite)
             .expect(200);
 
-            const issue = _.find(body.issues, {issue_id: 'vulnerabilities:CVE-2017-17713'});
+            const issue = _.find(body.issues, {id: 'vulnerabilities:CVE-2017-17713'});
             issue.systems.should.have.length(1);
             issue.systems[0].id.should.equal('6749b8cf-1955-42c1-9b48-afc6a0374cd6');
         });
