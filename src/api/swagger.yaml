@@ -111,6 +111,27 @@ paths:
           $ref: '#/responses/NotFound'
 
   /remediations/{id}/issues/{issue}:
+    patch:
+      tags:
+        - remediations
+      summary: Update Remediation Issue
+      description: Updates the given Remediation Issue
+      operationId: patchRemediationIssue
+      parameters:
+        - $ref: '#/parameters/RemediationId'
+        - $ref: '#/parameters/IssueId'
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/RemediationIssueIn'
+      responses:
+        200:
+          description: OK
+        400:
+          $ref: '#/responses/BadRequest'
+        404:
+          $ref: '#/responses/NotFound'
     delete:
       tags:
         - remediations
@@ -367,6 +388,8 @@ definitions:
         type: object
         additionalProperties: false
         properties:
+          id:
+            type: string
           description:
             type: string
           resolution_risk:
@@ -377,6 +400,13 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/SystemOut"
+
+  RemediationIssueIn:
+    type: object
+    additionalProperties: false
+    properties:
+      resolution:
+        type: string
 
 # Generator specific types
   PlaybookDefinition:

@@ -28,6 +28,7 @@ exports.get = function ({id, name, updated_at, owner, issues}) {
             id: issue_id,
             description: details.description,
             resolution: {
+                id: resolution.type,
                 description: resolution.description,
                 resolution_risk: resolution.resolutionRisk,
                 needs_reboot: resolution.needsReboot

@@ -5,9 +5,13 @@ const write = require('./controller.write');
 
 module.exports = function (router) {
     router.get('/remediations', read.list);
-    router.get('/remediations/:id', read.get);
     router.post('/remediations', write.create);
+
+    router.get('/remediations/:id', read.get);
     router.delete('/remediations/:id', write.remove);
+
+    router.patch('/remediations/:id/issues/:issue', write.patchIssue);
     router.delete('/remediations/:id/issues/:issue', write.removeIssue);
+
     router.delete('/remediations/:id/issues/:issue/systems/:system', write.removeIssueSystem);
 };

@@ -45,6 +45,71 @@ describe('remediations', function () {
         });
     });
 
+    describe('update', function () {
+        describe('issue', function () {
+            test('resolution', async () => {
+                const id = '/v1/remediations/022e01be-74f1-4893-b48c-df429fe7d09f' +
+                    '/issues/vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074';
+
+                await request
+                .patch(id)
+                .send({
+                    resolution: 'selinux_mitigate'
+                })
+                .set(auth.testWrite)
+                .expect(200);
+
+                const {body} = await request
+                .get('/v1/remediations/022e01be-74f1-4893-b48c-df429fe7d09f')
+                .set(auth.testWrite)
+                .expect(200);
+
+                const issue = _.find(body.issues, { id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074' });
+                issue.resolution.should.have.property('id', 'selinux_mitigate');
+            });
+
+            test('400s on unknown resolution id', async () => {
+                const {id, header} = reqId();
+
+                const {body} = await request
+                .patch('/v1/remediations/022e01be-74f1-4893-b48c-df429fe7d09f/issues/vulnerabilities:CVE-2017-17713')
+                .set(header)
+                .send({
+                    resolution: 'foobar'
+                })
+                .set(auth.testWrite)
+                .expect(400);
+
+                body.errors.should.eql([{
+                    id,
+                    status: 400,
+                    code: 'UNKNOWN_RESOLUTION',
+                    title: 'Issue "vulnerabilities:CVE-2017-17713" does not have Ansible resolution "foobar"'
+                }]);
+            });
+
+            test('400s on unknown issue id', async () => {
+                await request
+                .patch('/v1/remediations/022e01be-74f1-4893-b48c-df429fe7d09f/issues/vulnerabilities:foo')
+                .send({
+                    resolution: 'fix'
+                })
+                .set(auth.testWrite)
+                .expect(400);
+            });
+
+            test('404s on unknown remediation id', async () => {
+                await request
+                .patch('/v1/remediations/6b491f9e-70ef-445b-8178-a173dddbbb96/issues/vulnerabilities:CVE-2017-17713')
+                .send({
+                    resolution: 'fix'
+                })
+                .set(auth.testWrite)
+                .expect(404);
+            });
+        });
+    });
+
     describe('remove', function () {
         test('remediation', async () => {
             await request

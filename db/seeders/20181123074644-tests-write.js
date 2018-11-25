@@ -30,6 +30,11 @@ exports.up = async q => {
         name: 'to have system deleted',
         tenant,
         owner
+    }, {
+        id: '022e01be-74f1-4893-b48c-df429fe7d09f',
+        name: 'to have resolution selected',
+        tenant,
+        owner
     }], opts);
 
     const issues = await q.bulkInsert('remediation_issues', _.flatMap(remediations, remediation => [{

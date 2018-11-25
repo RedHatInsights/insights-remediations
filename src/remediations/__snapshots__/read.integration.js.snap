@@ -11,6 +11,7 @@ exports[`remediations get get remediation 1`] = `
             \\"id\\": \\"advisor:bond_config_issue|BOND_CONFIG_ISSUE\\",
             \\"description\\": \\"Unexpected bonding behavior with incorrect syntax in bond configuration files\\",
             \\"resolution\\": {
+                \\"id\\": \\"fix\\",
                 \\"description\\": \\"Correct Bonding Config Items\\",
                 \\"resolution_risk\\": 3,
                 \\"needs_reboot\\": false
@@ -27,6 +28,7 @@ exports[`remediations get get remediation 1`] = `
             \\"id\\": \\"compliance:sshd_disable_root_login\\",
             \\"description\\": \\"OpenSCAP fix for sshd_disable_root_login\\",
             \\"resolution\\": {
+                \\"id\\": \\"fix\\",
                 \\"description\\": \\"Fix\\",
                 \\"resolution_risk\\": 1,
                 \\"needs_reboot\\": false
@@ -43,6 +45,7 @@ exports[`remediations get get remediation 1`] = `
             \\"id\\": \\"vulnerabilities:CVE-2017-17713\\",
             \\"description\\": \\"CVE-2017-17713\\",
             \\"resolution\\": {
+                \\"id\\": \\"fix\\",
                 \\"description\\": \\"Update packages (CVE-2017-17713)\\",
                 \\"resolution_risk\\": -1,
                 \\"needs_reboot\\": true
@@ -59,6 +62,7 @@ exports[`remediations get get remediation 1`] = `
             \\"id\\": \\"vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074\\",
             \\"description\\": \\"Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)\\",
             \\"resolution\\": {
+                \\"id\\": \\"kernel_update\\",
                 \\"description\\": \\"Update system to the latest kernel and reboot\\",
                 \\"resolution_risk\\": 3,
                 \\"needs_reboot\\": true
@@ -80,6 +84,7 @@ exports[`remediations get get remediation 1`] = `
             \\"id\\": \\"vulnerabilities:RHSA-2018:0502\\",
             \\"description\\": \\"RHSA-2018:0502\\",
             \\"resolution\\": {
+                \\"id\\": \\"fix\\",
                 \\"description\\": \\"Update packages (RHSA-2018:0502)\\",
                 \\"resolution_risk\\": -1,
                 \\"needs_reboot\\": true
