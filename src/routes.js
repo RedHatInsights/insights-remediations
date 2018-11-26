@@ -51,5 +51,7 @@ module.exports = async function (app) {
     app.use(`${config.path.base}/v1`, v1);
     app.get('/', (req, res) => res.redirect(`${config.path.base}/docs`));
 
+    // The handler is intentionally defined twice so that schema validation errors during error handling are caught
+    app.use(errors.handler);
     app.use(errors.handler);
 };

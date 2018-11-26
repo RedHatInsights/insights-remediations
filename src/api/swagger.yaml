@@ -234,11 +234,25 @@ responses:
     description: Bad Request
     schema:
       type: object
+      additionalProperties: false
       properties:
-        code:
-          type: string
-        message:
-          type: string
+        errors:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              id:
+                type: string
+              status:
+                type: integer
+                example: 400
+              code:
+                type: string
+                example: UNKNOWN_SYSTEM
+              title:
+                type: string
+                example: Unknown system identifier "abcd"
   Deleted:
     description: Entity was deleted
   NotFound:
