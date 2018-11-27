@@ -15,6 +15,8 @@ const systems = [
 ];
 
 exports.up = async q => {
+
+    // these remediations have two issues assigned with two systems each (4 actions)
     const remediations = await q.bulkInsert('remediations', [{
         id: '3d34ed5c-a71f-48ee-b7af-b215f27ae68d',
         name: 'to be deleted',
@@ -35,6 +37,16 @@ exports.up = async q => {
         name: 'to have resolution selected',
         tenant,
         owner
+    }, {
+        id: '05860f91-4bc4-4bcf-9e5d-a6db6041ae76',
+        name: 'to have actions added',
+        tenant,
+        owner
+    }, {
+        id: '06c25d1c-b94f-49ce-b5cc-cd6ceaf6431b',
+        name: 'to have overlapping stuff added',
+        tenant,
+        owner
     }], opts);
 
     const issues = await q.bulkInsert('remediation_issues', _.flatMap(remediations, remediation => [{
@@ -49,4 +61,17 @@ exports.up = async q => {
         system_id,
         remediation_issue_id: issue.id
     }))));
+
+    // empty remediations
+    await q.bulkInsert('remediations', [{
+        id: '3c1877a0-bbcd-498a-8349-272129dc0b88',
+        name: 'empty remediation to have actions added',
+        tenant,
+        owner
+    }, {
+        id: '466fc274-16fe-4239-a648-2083ed2e05b0',
+        name: 'to be used for validation',
+        tenant,
+        owner
+    }], opts);
 };

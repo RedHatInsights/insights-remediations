@@ -41,7 +41,7 @@
     "pino": "^4.17.3",
     "request": "^2.87.0",
     "request-promise": "^4.2.2",
-    "sequelize": "^4.38.0",
+    "sequelize": "^4.41.2",
     "sequelize-cli": "^4.1.1",
     "swagger-tools": "^0.10.4",
     "urijs": "^1.19.1",

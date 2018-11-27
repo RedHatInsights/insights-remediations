@@ -96,6 +96,26 @@ paths:
             $ref: '#/definitions/RemediationDetails'
         404:
           $ref: '#/responses/NotFound'
+    patch:
+      tags:
+        - remediations
+      summary: Update Remediation
+      description: Updates the given Remediation
+      operationId: patchRemediation
+      parameters:
+        - $ref: '#/parameters/RemediationId'
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/RemediationPatch'
+      responses:
+        200:
+          description: OK
+        400:
+          $ref: '#/responses/BadRequest'
+        404:
+          $ref: '#/responses/NotFound'
     delete:
       tags:
         - remediations
@@ -329,6 +349,11 @@ definitions:
               $ref: '#/definitions/ResolutionRisk'
 
 # Remediation specific types
+  RemediationId:
+    type: string
+    format: uuid
+    example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
+
   RemediationName:
     type: string
     example: Fix Critical CVEs
@@ -339,6 +364,36 @@ definitions:
     properties:
       name:
         $ref: '#/definitions/RemediationName'
+
+  RemediationPatch:
+    type: object
+    additionalProperties: false
+    properties:
+      add:
+        type: object
+        additionalProperties: false
+        properties:
+          issues:
+            type: array
+            minItems: 1
+            items:
+              type: object
+              additionalProperties: false
+              required:
+                - id
+              properties:
+                id:
+                  $ref: '#/definitions/IssueId'
+                resolution:
+                  $ref: '#/definitions/ResolutionType'
+                systems:
+                  type: array
+                  items:
+                    $ref: '#/definitions/SystemId'
+          systems:
+            type: array
+            items:
+              $ref: '#/definitions/SystemId'
 
   RemediationList:
     type: object
@@ -354,9 +409,7 @@ definitions:
     additionalProperties: false
     properties:
       id:
-        type: string
-        format: uuid
-        example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
+        $ref: '#/definitions/RemediationId'
       name:
         $ref: '#/definitions/RemediationName'
       owner:
