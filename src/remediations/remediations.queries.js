@@ -39,6 +39,11 @@ exports.get = function (id, tenant, owner) {
         }],
         where: {
             id, tenant, owner
-        }
+        },
+        order: [
+            ['id'],
+            [db.issue, 'issue_id'],
+            [db.issue, db.issue.associations.systems, 'system_id']
+        ]
     });
 };
