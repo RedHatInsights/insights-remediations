@@ -16,7 +16,7 @@ let fallbackRequestIdentifier = 1;
 const pino = require('express-pino-logger')({
     logger: log,
     serializers: log.serializers,
-    genReqId: req => req.headers['x-rh-insights-request-id'] || fallbackRequestIdentifier++
+    genReqId: req => req.headers['x-rh-insights-request-id'] || String(fallbackRequestIdentifier++)
 });
 
 module.exports = async function (app) {

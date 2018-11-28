@@ -27,7 +27,7 @@ describe('whoami', () => {
             const {body} = await request
             .get('/v1/whoami')
             .expect(200);
-            body.should.have.property('request_id').which.is.a.Number();
+            body.should.have.property('request_id').which.is.a.String();
         });
     });
 });
