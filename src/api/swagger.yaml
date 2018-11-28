@@ -333,8 +333,10 @@ definitions:
   RemediationPatch:
     type: object
     additionalProperties: false
-    required: [add]
+    x-remediations-strict: false # suppress validation since none of the properties is required
     properties:
+      name:
+        $ref: '#/definitions/RemediationName'
       add:
         type: object
         additionalProperties: false

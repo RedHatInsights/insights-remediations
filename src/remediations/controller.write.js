@@ -26,11 +26,7 @@ exports.create = errors.async(async function (req, res) {
     res.status(201).json(format.get(result));
 });
 
-exports.patch = errors.async(async function (req, res) {
-    const id = req.swagger.params.id.value;
-    const {account_number: tenant, id: owner} = req.identity;
-    const {add} = req.swagger.params.body.value;
-
+async function validateNewActions(add) {
     // normalize and validate
     add.issues.forEach(issue => {
         if (!issue.systems && add.systems) {
@@ -50,6 +46,7 @@ exports.patch = errors.async(async function (req, res) {
 
     const systems = _(add.issues).flatMap('systems').uniq().value();
 
+    // TODO: might be better to call these before the transaction
     const [systemsById] = await P.all([
         inventory.getSystemDetailsBatch(systems),
         P.all(add.issues.map(issue => resolutions.resolveResolution(issue.id, issue.resolution)))
@@ -61,6 +58,64 @@ exports.patch = errors.async(async function (req, res) {
             throw errors.unknownSystem(system);
         }
     });
+}
+
+async function storeNewActions (remediation, add, transaction) {
+    // need to diff against existing issues as postgresql does not have ON CONFLICT UPDATE implemented yet
+    const existingIssuesById = _.keyBy(remediation.issues, 'issue_id');
+    const toCreate = add.issues.filter(issue => !existingIssuesById[issue.id]);
+    const toUpdate = add.issues.filter(issue => {
+        const existing = existingIssuesById[issue.id];
+        // if the incoming issue has a different resolution selected than the existing one do update
+        return existing && issue.resolution && issue.resolution !== existing.resolution;
+    });
+
+    await P.all(toUpdate.map(issue => db.issue.update({
+        resolution: issue.resolution
+    }, {
+        where: {
+            remediation_id: remediation.id,
+            issue_id: issue.id
+        },
+        transaction
+    })));
+
+    const newIssues = await db.issue.bulkCreate(toCreate.map(issue => ({
+        remediation_id: remediation.id,
+        issue_id: issue.id,
+        resolution: issue.resolution
+    })), {
+        transaction,
+        returning: true
+    });
+
+    const issuesById = {
+        ..._.keyBy(newIssues, 'issue_id'),
+        ...existingIssuesById
+    };
+
+    await db.issue_system.bulkCreate(_.flatMap(add.issues, issue => {
+        const id = issuesById[issue.id].id;
+
+        return issue.systems.map(system => ({
+            remediation_issue_id: id,
+            system_id: system
+        }));
+    }), {
+        transaction,
+        ignoreDuplicates: true,
+        returning: true
+    });
+}
+
+exports.patch = errors.async(async function (req, res) {
+    const id = req.swagger.params.id.value;
+    const {account_number: tenant, id: owner} = req.identity;
+    const {add, name} = req.swagger.params.body.value;
+
+    if (add) {
+        await validateNewActions(add);
+    }
 
     const result = await db.s.transaction(async transaction => {
         const remediation = await db.remediation.findOne({
@@ -71,59 +126,21 @@ exports.patch = errors.async(async function (req, res) {
                 model: db.issue
             }
         }, {
-            transaction,
-            raw: true
+            transaction
         });
 
         if (!remediation) {
             return notFound(res);
         }
 
-        // need to diff against existing issues as postgresql does not have ON CONFLICT UPDATE implemented yet
-        const existingIssuesById = _.keyBy(remediation.issues, 'issue_id');
-        const toCreate = add.issues.filter(issue => !existingIssuesById[issue.id]);
-        const toUpdate = add.issues.filter(issue => {
-            const existing = existingIssuesById[issue.id];
-            // if the incoming issue has a different resolution selected than the existing one do update
-            return existing && issue.resolution && issue.resolution !== existing.resolution;
-        });
+        if (add) {
+            await storeNewActions(remediation, add, transaction);
+        }
 
-        await P.all(toUpdate.map(issue => db.issue.update({
-            resolution: issue.resolution
-        }, {
-            where: {
-                remediation_id: remediation.id,
-                issue_id: issue.id
-            },
-            transaction
-        })));
-
-        const newIssues = await db.issue.bulkCreate(toCreate.map(issue => ({
-            remediation_id: remediation.id,
-            issue_id: issue.id,
-            resolution: issue.resolution
-        })), {
-            transaction,
-            returning: true
-        });
-
-        const issuesById = {
-            ..._.keyBy(newIssues, 'issue_id'),
-            ...existingIssuesById
-        };
-
-        await db.issue_system.bulkCreate(_.flatMap(add.issues, issue => {
-            const id = issuesById[issue.id].id;
-
-            return issue.systems.map(system => ({
-                remediation_issue_id: id,
-                system_id: system
-            }));
-        }), {
-            transaction,
-            ignoreDuplicates: true,
-            returning: true
-        });
+        if (name) {
+            remediation.name = name;
+            await remediation.save({transaction});
+        }
 
         return true;
     });

@@ -276,10 +276,8 @@ describe('remediations', function () {
                 });
 
                 test('404s on invalid remediation id', async () => {
-                    const url = '/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02';
-
                     await request
-                    .patch(url)
+                    .patch('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02')
                     .send({
                         add: {
                             issues: [{
@@ -290,6 +288,26 @@ describe('remediations', function () {
                     })
                     .set(auth.testWrite)
                     .expect(404);
+                });
+            });
+
+            describe('rename', function () {
+                test('give new name to remediation', async () => {
+                    const url = '/v1/remediations/8b427145-ac9f-4727-9543-76eb140222cd';
+                    const name = 'renamed remediation';
+
+                    await request
+                    .patch(url)
+                    .send({name})
+                    .set(auth.testWrite)
+                    .expect(200);
+
+                    const {body} = await request
+                    .get(url)
+                    .set(auth.testWrite)
+                    .expect(200);
+
+                    body.name.should.equal(name);
                 });
             });
         });

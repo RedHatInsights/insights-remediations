@@ -20,7 +20,7 @@ function checkPropsStrict (ref, path) {
         code = 1;
     }
 
-    if (_.has(ref, 'properties') && !_.has(ref, 'required')) {
+    if (_.has(ref, 'properties') && !_.has(ref, 'required') && ref['x-remediations-strict'] !== false) {
         /* eslint no-console: off */
         console.error(`ERROR: "required" missing in ${path.join('-->')}`);
         code = 1;

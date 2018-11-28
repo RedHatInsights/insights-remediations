@@ -47,6 +47,11 @@ exports.up = async q => {
         name: 'to have overlapping stuff added',
         tenant,
         owner
+    }, {
+        id: '8b427145-ac9f-4727-9543-76eb140222cd',
+        name: 'to be renamed',
+        tenant,
+        owner
     }], opts);
 
     const issues = await q.bulkInsert('remediation_issues', _.flatMap(remediations, remediation => [{
