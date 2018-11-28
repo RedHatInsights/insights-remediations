@@ -8,8 +8,9 @@ const _ = require('lodash');
 const spec = jsyaml.safeLoad(fs.readFileSync(path.join(__dirname, 'src', 'api', './swagger.yaml'), 'utf8'));
 let code = 0;
 
-function checkNoAdditionalPropsAllowed (ref, path) {
-    if (typeof ref !== 'object') {
+// validates that every object type has additionalProperties and required attributes set
+function checkPropsStrict (ref, path) {
+    if (typeof ref !== 'object' || ref === null) {
         return;
     }
 
@@ -19,9 +20,15 @@ function checkNoAdditionalPropsAllowed (ref, path) {
         code = 1;
     }
 
-    Object.keys(ref).forEach(key => checkNoAdditionalPropsAllowed(ref[key], [...path, key]));
+    if (_.has(ref, 'properties') && !_.has(ref, 'required')) {
+        /* eslint no-console: off */
+        console.error(`ERROR: "required" missing in ${path.join('-->')}`);
+        code = 1;
+    }
+
+    Object.keys(ref).forEach(key => checkPropsStrict(ref[key], [...path, key]));
 }
 
-checkNoAdditionalPropsAllowed(spec, []);
+checkPropsStrict(spec, []);
 /* eslint no-process-exit: off */
 process.exit(code);

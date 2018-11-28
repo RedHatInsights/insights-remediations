@@ -255,12 +255,14 @@ responses:
     schema:
       type: object
       additionalProperties: false
+      required: [errors]
       properties:
         errors:
           type: array
           items:
             type: object
             additionalProperties: false
+            required: [id, status, code, title]
             properties:
               id:
                 type: string
@@ -280,7 +282,9 @@ responses:
 
 
 definitions:
-# Common types
+  #
+  # Common types
+  #
   DateTime:
     type: string
     format: date-time
@@ -295,72 +299,33 @@ definitions:
       - 4
     example: 2
 
-# Issue specific types
   IssueId:
     type: string
     pattern: ^(advisor|vulnerabilities|compliance|test):[\w\d-_|:]+$
     example: vulnerabilities:CVE_2017_5461_nss|CVE_2017_5461_NSS_2
 
-# System specific types
   SystemId:
     type: string
     format: uuid
     example: a8799a02-8be9-11e8-9eb6-529269fb1459
 
-  SystemOut:
-    type: object
-    additionalProperties: false
-    properties:
-      id:
-        $ref: '#/definitions/SystemId'
-      hostname:
-        type: string
-      display_name:
-        type: string
-
-# Resolution specific types
   ResolutionType:
     type: string
     example: fix
     default: fix
 
-  Resolutions:
-    type: object
-    additionalProperties: false
-    properties:
-      id:
-        $ref: "#/definitions/IssueId"
-      resolution_risk:
-        $ref: '#/definitions/ResolutionRisk'
-      resolutions:
-        type: array
-        items:
-          type: object
-          additionalProperties: false
-          properties:
-            id:
-              $ref: '#/definitions/ResolutionType'
-            description:
-              type: string
-              example: Disable DCCP kernel module
-            needs_reboot:
-              type: boolean
-            resolution_risk:
-              $ref: '#/definitions/ResolutionRisk'
-
-# Remediation specific types
   RemediationId:
     type: string
     format: uuid
     example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
 
-  RemediationName:
-    type: string
-    example: Fix Critical CVEs
-
+  #
+  # Input types
+  #
   RemediationIn:
     type: object
     additionalProperties: false
+    required: [name]
     properties:
       name:
         $ref: '#/definitions/RemediationName'
@@ -368,10 +333,12 @@ definitions:
   RemediationPatch:
     type: object
     additionalProperties: false
+    required: [add]
     properties:
       add:
         type: object
         additionalProperties: false
+        required: [issues]
         properties:
           issues:
             type: array
@@ -379,8 +346,7 @@ definitions:
             items:
               type: object
               additionalProperties: false
-              required:
-                - id
+              required: [id]
               properties:
                 id:
                   $ref: '#/definitions/IssueId'
@@ -395,92 +361,18 @@ definitions:
             items:
               $ref: '#/definitions/SystemId'
 
-  RemediationList:
-    type: object
-    additionalProperties: false
-    properties:
-      remediations:
-        type: array
-        items:
-          $ref: '#/definitions/RemediationListItem'
-
-  RemediationListItem:
-    type: object
-    additionalProperties: false
-    properties:
-      id:
-        $ref: '#/definitions/RemediationId'
-      name:
-        $ref: '#/definitions/RemediationName'
-      owner:
-        type: integer
-      updated_at:
-        $ref: '#/definitions/DateTime'
-        format: date-time
-      issue_count:
-        type: integer
-      system_count:
-        type: integer
-      needs_reboot:
-        type: boolean
-
-  RemediationDetails:
-    type: object
-    additionalProperties: false
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
-      name:
-        $ref: '#/definitions/RemediationName'
-      owner:
-        type: integer
-      updated_at:
-        $ref: '#/definitions/DateTime'
-      issues:
-        type: array
-        items:
-          $ref: '#/definitions/RemediationIssue'
-
-  RemediationIssue:
-    type: object
-    additionalProperties: false
-    properties:
-      id:
-        $ref: '#/definitions/IssueId'
-      description:
-        type: string
-      resolution:
-        type: object
-        additionalProperties: false
-        properties:
-          id:
-            type: string
-          description:
-            type: string
-          resolution_risk:
-            $ref: '#/definitions/ResolutionRisk'
-          needs_reboot:
-            type: boolean
-      systems:
-        type: array
-        items:
-          $ref: "#/definitions/SystemOut"
-
   RemediationIssueIn:
     type: object
     additionalProperties: false
+    required: [resolution]
     properties:
       resolution:
         type: string
 
-# Generator specific types
   PlaybookDefinition:
     type: object
     additionalProperties: false
-    required:
-      - issues
+    required: [issues]
     properties:
       issues:
         type: array
@@ -514,9 +406,7 @@ definitions:
         items:
           type: object
           additionalProperties: false
-          required:
-            - id
-            - systems
+          required: [id, systems]
           properties:
             id:
               $ref: "#/definitions/IssueId"
@@ -528,10 +418,138 @@ definitions:
             resolution:
               $ref: "#/definitions/ResolutionType"
 
-# Diagnosis specific types
+  #
+  # Output types
+  #
+
+  # System specific types
+  SystemOut:
+    type: object
+    additionalProperties: false
+    required: [id, hostname, display_name]
+    properties:
+      id:
+        $ref: '#/definitions/SystemId'
+      hostname:
+        type: string
+      display_name:
+        type: string
+
+  # Resolution specific types
+  Resolutions:
+    type: object
+    additionalProperties: false
+    required: [id, resolution_risk, resolutions]
+    properties:
+      id:
+        $ref: "#/definitions/IssueId"
+      resolution_risk:
+        $ref: '#/definitions/ResolutionRisk'
+      resolutions:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [id, description, needs_reboot, resolution_risk]
+          properties:
+            id:
+              $ref: '#/definitions/ResolutionType'
+            description:
+              type: string
+              example: Disable DCCP kernel module
+            needs_reboot:
+              type: boolean
+            resolution_risk:
+              $ref: '#/definitions/ResolutionRisk'
+
+  # Remediation specific types
+  RemediationName:
+    type: string
+    example: Fix Critical CVEs
+
+  RemediationList:
+    type: object
+    additionalProperties: false
+    required: [remediations]
+    properties:
+      remediations:
+        type: array
+        items:
+          $ref: '#/definitions/RemediationListItem'
+
+  RemediationListItem:
+    type: object
+    additionalProperties: false
+    required: [id, name, owner, updated_at, issue_count, system_count, needs_reboot]
+    properties:
+      id:
+        $ref: '#/definitions/RemediationId'
+      name:
+        $ref: '#/definitions/RemediationName'
+      owner:
+        type: integer
+      updated_at:
+        $ref: '#/definitions/DateTime'
+        format: date-time
+      issue_count:
+        type: integer
+      system_count:
+        type: integer
+      needs_reboot:
+        type: boolean
+
+  RemediationDetails:
+    type: object
+    additionalProperties: false
+    required: [id, name, owner, updated_at, issues]
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
+      name:
+        $ref: '#/definitions/RemediationName'
+      owner:
+        type: integer
+      updated_at:
+        $ref: '#/definitions/DateTime'
+      issues:
+        type: array
+        items:
+          $ref: '#/definitions/RemediationIssue'
+
+  RemediationIssue:
+    type: object
+    additionalProperties: false
+    required: [id, description, resolution, systems]
+    properties:
+      id:
+        $ref: '#/definitions/IssueId'
+      description:
+        type: string
+      resolution:
+        type: object
+        additionalProperties: false
+        required: [id, description, resolution_risk, needs_reboot]
+        properties:
+          id:
+            type: string
+          description:
+            type: string
+          resolution_risk:
+            $ref: '#/definitions/ResolutionRisk'
+          needs_reboot:
+            type: boolean
+      systems:
+        type: array
+        items:
+          $ref: "#/definitions/SystemOut"
+
+  # Diagnosis specific types
   Diagnosis:
     type: object
     additionalProperties: false
+    required: [diagnosis]
     properties:
       diagnosis:
         type: object

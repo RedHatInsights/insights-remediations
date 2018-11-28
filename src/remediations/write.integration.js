@@ -33,7 +33,10 @@ describe('remediations', function () {
             .post('/v1/remediations')
             .set(header)
             .set(auth.testWrite)
-            .send({foo: 'bar'})
+            .send({
+                name: 'foo',
+                foo: 'bar'
+            })
             .expect(400);
 
             body.errors.should.eql([{
