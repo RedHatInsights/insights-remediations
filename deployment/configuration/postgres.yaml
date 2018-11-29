@@ -95,7 +95,6 @@ objects:
           kind: ImageStreamTag
           name: postgres:latest
       type: ImageChange
-    - type: ConfigChange
 
 - apiVersion: v1
   kind: Service

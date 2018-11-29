@@ -91,7 +91,6 @@ objects:
           name: redis:latest
           namespace: openshift
       type: ImageChange
-    - type: ConfigChange
 
 - apiVersion: v1
   kind: Service

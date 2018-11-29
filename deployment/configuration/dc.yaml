@@ -67,8 +67,10 @@ objects:
             periodSeconds: 10
             failureThreshold: 2
           env:
+          - name: ADVISOR_IMPL
+            value: mock
           - name: ADVISOR_HOST
-            value: http://insights-api.insights-qa.svc.cluster.local:9002
+            value: http://insights-api.insights-ci.svc.cluster.local:9002
           - name: ADVISOR_AUTH
             valueFrom:
               secretKeyRef:
@@ -76,8 +78,10 @@ objects:
                 name: content-server
           - name: CONTENT_SERVER_HOST
             value: http://content-server.advisor-ci.svc.cluster.local:8080
+          - name: VULNERABILITIES_IMPL
+            value: mock
           - name: VULNERABILITIES_HOST
-            value: http://insights-api.insights-qa.svc.cluster.local:9002
+            value: http://insights-api.insights-ci.svc.cluster.local:9002
           - name: VULNERABILITIES_AUTH
             valueFrom:
               secretKeyRef:
