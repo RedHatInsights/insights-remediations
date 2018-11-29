@@ -86,15 +86,7 @@ objects:
         restartPolicy: Always
         schedulerName: default-scheduler
         terminationGracePeriodSeconds: 30
-    triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - postgres
-        from:
-          kind: ImageStreamTag
-          name: postgres:latest
-      type: ImageChange
+    triggers: []
 
 - apiVersion: v1
   kind: Service
