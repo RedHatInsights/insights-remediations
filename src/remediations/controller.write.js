@@ -4,6 +4,7 @@ const uuid = require('uuid');
 const _ = require('lodash');
 const P = require('bluebird');
 
+const config = require('../config');
 const errors = require('../errors');
 const db = require('../db');
 const format = require('./remediations.format');
@@ -15,15 +16,16 @@ const notFound = res => res.status(404).json();
 exports.create = errors.async(async function (req, res) {
     const { name } = req.swagger.params.body.value;
 
+    const id = uuid.v4();
+
     const result = await db.remediation.create({
-        id: uuid.v4(),
+        id,
         name,
         tenant: req.identity.account_number,
         owner: req.identity.id
     });
 
-    // TODO: 201 header
-    res.status(201).json(format.get(result));
+    res.status(201).set('Location', `${config.path.base}/v1/remediations/${id}`).json(format.get(result));
 });
 
 async function validateNewActions(add) {

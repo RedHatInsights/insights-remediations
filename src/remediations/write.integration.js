@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const config = require('../config');
 const { request, reqId, auth } = require('../test');
 
 describe('remediations', function () {
@@ -16,9 +17,13 @@ describe('remediations', function () {
 
             r1.body.should.have.property('id');
             r1.body.should.have.property('name', name);
+            const location = r1.header.location;
+            location.should.match(
+                new RegExp(`^${config.path.base}/v1/remediations/[\\w]{8}-[\\w]{4}-[\\w]{4}-[\\w]{4}-[\\w]{12}$`));
 
             const r2 = await request
-            .get(`/v1/remediations/${r1.body.id}`)
+            // strip away the base path as request already counts with that
+            .get(location.replace('/r/insights/platform/remediations', ''))
             .set(auth.testWrite)
             .expect(200);
 
