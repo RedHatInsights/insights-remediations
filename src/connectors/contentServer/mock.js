@@ -3,12 +3,12 @@
 /* eslint max-len: off */
 
 const DATA = {
-    'bond_config_issue|BOND_CONFIG_ISSUE': [{
+    'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE': [{
         resolution_type: 'fix',
         description: `Correct Bonding Config Items`,
         version: `a0e934f07d8167073546cbc5108c4345f92559a5`,
         resolution_risk: 3,
-        play: `---\n- name: Correct Bonding Config Items\n  hosts: "{{HOSTS}}"\n  become: true\n  vars:\n    pydata: "{{ insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] }}"\n  tasks:\n\n    - when: \n        - insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] is defined\n        - item.value == 2\n      name: Add quotes around bonding options\n      lineinfile:\n        dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}"\n        regexp: '(^\\s*BONDING_OPTS=)(.*)'\n        backrefs: yes\n        line: '\\1"\\2"'\n      with_dict: "{{ pydata.interface_issue_dict }}"\n\n    - when:\n        - insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] is defined\n        - item.value == 1\n      name: lowercase yes in Slave option\n      lineinfile:\n        dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}"\n        regexp: '(^\\s*SLAVE=)("*YES"*)'\n        backrefs: yes\n        line: '\\1yes'\n      with_dict: "{{ pydata.interface_issue_dict }}"\n`
+        play: `---\n- name: Correct Bonding Config Items\n  hosts: "{{HOSTS}}"\n  become: true\n  vars:\n    pydata: "{{ insights_report.details['network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'] }}"\n\n  tasks:\n    - when:\n       - pydata.bond_config is defined\n      block:\n        - name: Add quotes around bonding options\n          lineinfile:\n            dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}"\n            regexp: '(^\\s*BONDING_OPTS=)(.*)'\n            backrefs: yes\n            line: '\\1"\\2"'\n          with_dict: "{{ pydata.bond_config }}"\n\n        - name: Restart Network Interfaces\n          shell: ifdown {{item.key}}  && ifup {{item.key}}\n          with_dict: "{{ pydata.bond_config }}"\n`
     }],
     'CVE_2017_6074_kernel|KERNEL_CVE_2017_6074': [{
         resolution_type: 'kernel_update',
@@ -47,5 +47,5 @@ exports.getResolutions = async function (id) {
 };
 
 exports.ping = function () {
-    return exports.getResolutions('bond_config_issue|BOND_CONFIG_ISSUE');
+    return exports.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
 };

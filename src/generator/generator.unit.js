@@ -76,7 +76,7 @@ test('adds diagnosis play', () => {
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
             resolution: 'selinux_mitigate'
         }, {
-            id: 'advisor:bond_config_issue|BOND_CONFIG_ISSUE',
+            id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
             systems: ['4109fa1a-9a3f-11e8-9eb6-529269fb1459']
         }, {
             id: 'vulnerabilities:RHSA-2018:0502',

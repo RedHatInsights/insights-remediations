@@ -380,7 +380,7 @@ definitions:
         type: array
         minItems: 1
         example:
-          - id: advisor:bond_config_issue|BOND_CONFIG_ISSUE
+          - id: advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE
             systems:
               - a8799a02-8be9-11e8-9eb6-529269fb1459
               - 736ef48c-8f05-11e8-9eb6-529269fb1459

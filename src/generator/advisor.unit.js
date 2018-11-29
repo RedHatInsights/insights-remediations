@@ -5,7 +5,7 @@ const { request, reqId } = require('../test');
 test('generates a rule-based playbook', () => {
     const data = {
         issues: [{
-            id: 'advisor:bond_config_issue|BOND_CONFIG_ISSUE',
+            id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };

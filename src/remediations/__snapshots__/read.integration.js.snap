@@ -8,8 +8,8 @@ exports[`remediations get get remediation 1`] = `
     \\"owner\\": 100,
     \\"issues\\": [
         {
-            \\"id\\": \\"advisor:bond_config_issue|BOND_CONFIG_ISSUE\\",
-            \\"description\\": \\"Unexpected bonding behavior with incorrect syntax in bond configuration files\\",
+            \\"id\\": \\"advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE\\",
+            \\"description\\": \\"Bonding will not fail over to the backup link when bonding options are partially read\\",
             \\"resolution\\": {
                 \\"id\\": \\"fix\\",
                 \\"description\\": \\"Correct Bonding Config Items\\",

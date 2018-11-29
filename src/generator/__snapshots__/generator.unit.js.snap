@@ -88,37 +88,30 @@ exports[`adds diagnosis play 1`] = `
           insights_needs_reboot: True
 
 
-# Unexpected bonding behavior with incorrect syntax in bond configuration files
-# Identifier: (advisor:bond_config_issue|BOND_CONFIG_ISSUE,fix)
+# Bonding will not fail over to the backup link when bonding options are partially read
+# Identifier: (advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE,fix)
 # Version: a0e934f07d8167073546cbc5108c4345f92559a5
 - name: Correct Bonding Config Items
   hosts: \\"4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:
-    pydata: \\"{{ insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] }}\\"
+    pydata: \\"{{ insights_report.details['network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'] }}\\"
+
   tasks:
-
-    - when: 
-        - insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] is defined
-        - item.value == 2
-      name: Add quotes around bonding options
-      lineinfile:
-        dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
-        regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
-        backrefs: yes
-        line: '\\\\1\\"\\\\2\\"'
-      with_dict: \\"{{ pydata.interface_issue_dict }}\\"
-
     - when:
-        - insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] is defined
-        - item.value == 1
-      name: lowercase yes in Slave option
-      lineinfile:
-        dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
-        regexp: '(^\\\\s*SLAVE=)(\\"*YES\\"*)'
-        backrefs: yes
-        line: '\\\\1yes'
-      with_dict: \\"{{ pydata.interface_issue_dict }}\\"
+       - pydata.bond_config is defined
+      block:
+        - name: Add quotes around bonding options
+          lineinfile:
+            dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
+            regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
+            backrefs: yes
+            line: '\\\\1\\"\\\\2\\"'
+          with_dict: \\"{{ pydata.bond_config }}\\"
+
+        - name: Restart Network Interfaces
+          shell: ifdown {{item.key}}  && ifup {{item.key}}
+          with_dict: \\"{{ pydata.bond_config }}\\"
 
 
 # Upgrade packages affected by RHSA-2018:0502

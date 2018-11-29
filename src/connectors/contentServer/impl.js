@@ -38,5 +38,5 @@ exports.getResolutions = async function (id) {
 };
 
 exports.ping = function () {
-    return exports.getResolutions('bond_config_issue|BOND_CONFIG_ISSUE');
+    return exports.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
 };

@@ -47,7 +47,7 @@ exports.up = async q => {
         issue_id: 'vulnerabilities:RHSA-2018:0502'
     }, {
         remediation_id: remediations[0].id,
-        issue_id: 'advisor:bond_config_issue|BOND_CONFIG_ISSUE'
+        issue_id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'
     }, {
         remediation_id: remediations[0].id,
         issue_id: 'compliance:sshd_disable_root_login'

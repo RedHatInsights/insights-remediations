@@ -11,10 +11,10 @@ test('parses a test id', () => {
 });
 
 test('parses an advisor id', () => {
-    const parsed = identifiers.parse('advisor:bond_config_issue|BOND_CONFIG_ISSUE');
+    const parsed = identifiers.parse('advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
     parsed.should.have.property('app', 'advisor');
-    parsed.should.have.property('issue', 'bond_config_issue|BOND_CONFIG_ISSUE');
-    parsed.should.have.property('full', 'advisor:bond_config_issue|BOND_CONFIG_ISSUE');
+    parsed.should.have.property('issue', 'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+    parsed.should.have.property('full', 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
 });
 
 test('parses a vulnerabilities id', () => {

@@ -109,11 +109,11 @@ describe('resolve vulnerabilities resolutions', function () {
 describe('resolve advisor resolutions', function () {
     test('resolution info', async () => {
         const {body} = await request
-        .get('/v1/resolutions/advisor:bond_config_issue|BOND_CONFIG_ISSUE')
+        .get('/v1/resolutions/advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE')
         .expect(200);
 
         body.should.eql({
-            id: 'advisor:bond_config_issue|BOND_CONFIG_ISSUE',
+            id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
             resolution_risk: 3,
             resolutions: [{
                 description: 'Correct Bonding Config Items',
