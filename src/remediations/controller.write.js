@@ -13,21 +13,6 @@ const inventory = require('../connectors/inventory');
 
 const notFound = res => res.status(404).json();
 
-exports.create = errors.async(async function (req, res) {
-    const { name } = req.swagger.params.body.value;
-
-    const id = uuid.v4();
-
-    const result = await db.remediation.create({
-        id,
-        name,
-        tenant: req.identity.account_number,
-        owner: req.identity.id
-    });
-
-    res.status(201).set('Location', `${config.path.base}/v1/remediations/${id}`).json(format.get(result));
-});
-
 async function validateNewActions(add) {
     // normalize and validate
     add.issues.forEach(issue => {
@@ -109,6 +94,35 @@ async function storeNewActions (remediation, add, transaction) {
         returning: true
     });
 }
+
+exports.create = errors.async(async function (req, res) {
+    const {add, name} = req.swagger.params.body.value;
+
+    if (add) {
+        await validateNewActions(add);
+    }
+
+    const id = uuid.v4();
+
+    const result = await db.s.transaction(async transaction => {
+        const remediation = await db.remediation.create({
+            id,
+            name,
+            tenant: req.identity.account_number,
+            owner: req.identity.id
+        }, {transaction});
+
+        if (add) {
+            await storeNewActions(remediation, add, transaction);
+        }
+
+        return remediation;
+    });
+
+    res.status(201)
+    .set('Location', `${config.path.base}/v1/remediations/${id}`)
+    .json(format.get(result));
+});
 
 exports.patch = errors.async(async function (req, res) {
     const id = req.swagger.params.id.value;

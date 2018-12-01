@@ -71,7 +71,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/RemediationIn'
+            $ref: '#/definitions/RemediationInput'
       responses:
         201:
           description: Created
@@ -108,7 +108,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/RemediationPatch'
+            $ref: '#/definitions/RemediationInput'
       responses:
         200:
           description: OK
@@ -322,15 +322,7 @@ definitions:
   #
   # Input types
   #
-  RemediationIn:
-    type: object
-    additionalProperties: false
-    required: [name]
-    properties:
-      name:
-        $ref: '#/definitions/RemediationName'
-
-  RemediationPatch:
+  RemediationInput:
     type: object
     additionalProperties: false
     x-remediations-strict: false # suppress validation since none of the properties is required

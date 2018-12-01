@@ -4,6 +4,13 @@ const _ = require('lodash');
 const config = require('../config');
 const { request, reqId, auth } = require('../test');
 
+function testIssue (remediation, id, resolution, systems) {
+    const issue = _.find(remediation.issues, {id});
+    issue.resolution.id.should.equal(resolution);
+    issue.systems.should.have.length(systems.length);
+    issue.systems.map(system => system.id).should.containDeep(systems);
+}
+
 describe('remediations', function () {
     describe('create', function () {
         test('creates a new remediation', async () => {
@@ -31,6 +38,48 @@ describe('remediations', function () {
             r2.body.should.have.property('name', name);
         });
 
+        test('creates a new remediation with issues', async () => {
+            const name = 'new remediation with issues';
+            const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f', 'f5ce853a-c922-46f7-bd82-50286b7d8459'];
+
+            const r1 = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({
+                name,
+                add: {
+                    issues: [{
+                        id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+                        resolution: 'selinux_mitigate'
+                    }, {
+                        id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'
+                    }],
+                    systems
+                }
+            })
+            .expect(201);
+
+            r1.body.should.have.property('id');
+            r1.body.should.have.property('name', name);
+
+            const location = r1.header.location;
+            location.should.match(
+                new RegExp(`^${config.path.base}/v1/remediations/[\\w]{8}-[\\w]{4}-[\\w]{4}-[\\w]{4}-[\\w]{12}$`));
+
+            const r2 = await request
+            // strip away the base path as request already counts with that
+            .get(location.replace('/r/insights/platform/remediations', ''))
+            .set(auth.testWrite)
+            .expect(200);
+
+            r2.body.should.have.property('id', r1.body.id);
+            r2.body.should.have.property('name', name);
+            r2.body.issues.should.have.length(2);
+
+            testIssue(r2.body, 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074', 'selinux_mitigate', systems);
+            testIssue(r2.body, 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE', 'fix', systems);
+        });
+
         test('400s if unexpected property is provided', async () => {
             const {id, header} = reqId();
 
@@ -55,13 +104,6 @@ describe('remediations', function () {
 
     describe('update', function () {
         describe('remediation', function () {
-            function testIssue (remediation, id, resolution, systems) {
-                const issue = _.find(remediation.issues, {id});
-                issue.resolution.id.should.equal(resolution);
-                issue.systems.should.have.length(systems.length);
-                issue.systems.map(system => system.id).should.containDeep(systems);
-            }
-
             test('adding actions to empty remediation', async () => {
                 const url = '/v1/remediations/3c1877a0-bbcd-498a-8349-272129dc0b88';
                 const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f', 'f5ce853a-c922-46f7-bd82-50286b7d8459'];
