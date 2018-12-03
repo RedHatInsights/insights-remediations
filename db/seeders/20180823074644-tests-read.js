@@ -25,15 +25,15 @@ exports.up = async q => {
         name: 'remediation 2',
         tenant,
         owner,
-        created_at: '2018-10-04T08:19:36.641Z',
-        updated_at: '2018-10-04T08:19:36.641Z'
+        created_at: '2018-11-04T08:19:36.641Z',
+        updated_at: '2018-11-04T08:19:36.641Z'
     }, {
         id: 'e809526c-56f5-4cd8-a809-93328436ea23',
         name: null,
         tenant,
         owner,
-        created_at: '2018-10-04T08:19:36.641Z',
-        updated_at: '2018-10-04T08:19:36.641Z'
+        created_at: '2018-12-04T08:19:36.641Z',
+        updated_at: '2018-12-04T08:19:36.641Z'
     }], opts);
 
     const issues = await q.bulkInsert('remediation_issues', [{
@@ -51,6 +51,15 @@ exports.up = async q => {
     }, {
         remediation_id: remediations[0].id,
         issue_id: 'compliance:sshd_disable_root_login'
+    }, {
+        remediation_id: remediations[1].id,
+        issue_id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'
+    }, {
+        remediation_id: remediations[1].id,
+        issue_id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'
+    }, {
+        remediation_id: remediations[2].id,
+        issue_id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'
     }], opts);
 
     await q.bulkInsert('remediation_issue_systems', [{
@@ -71,5 +80,17 @@ exports.up = async q => {
     }, {
         system_id: systems[1],
         remediation_issue_id: issues[0].id
+    }, {
+        remediation_issue_id: issues[5].id,
+        system_id: systems[0]
+    }, {
+        remediation_issue_id: issues[6].id,
+        system_id: systems[0]
+    }, {
+        remediation_issue_id: issues[7].id,
+        system_id: systems[0]
+    }, {
+        remediation_issue_id: issues[7].id,
+        system_id: systems[1]
     }]);
 };
