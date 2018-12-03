@@ -20,8 +20,32 @@ function resolveResolutions (...remediations) {
     }).value());
 }
 
+function parseSort (param) {
+    if (!param) {
+        throw new Error(`Invalid sort param value ${param}`);
+    }
+
+    if (param.startsWith('-')) {
+        return {
+            column: param.substring(1),
+            asc: false
+        };
+    }
+
+    return {
+        column: param,
+        asc: true
+    };
+}
+
 exports.list = errors.async(async function (req, res) {
-    const remediations = await queries.list(req.identity.account_number, req.identity.id).map(r => r.toJSON());
+    const {column, asc} = parseSort(req.swagger.params.sort.value);
+
+    // updated_at, name are sorted on the db level
+    // issue_count, system_count on the app level below
+    const dbColumn = ['updated_at', 'name'].includes(column) ? column : undefined;
+
+    let remediations = await queries.list(req.identity.account_number, req.identity.id, dbColumn, asc).map(r => r.toJSON());
 
     await resolveResolutions(...remediations);
 
@@ -32,6 +56,11 @@ exports.list = errors.async(async function (req, res) {
     });
 
     // TODO: resolve owner information
+
+    // TODO: it should be possible to move this down to db level using group_by after Sequelize is fixed
+    if (dbColumn === undefined) {
+        remediations = _.orderBy(remediations, [column, 'name'], [asc ? 'asc' : 'desc', 'asc']);
+    }
 
     res.json(format.list(remediations));
 });

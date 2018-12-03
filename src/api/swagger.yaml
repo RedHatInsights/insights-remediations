@@ -55,6 +55,8 @@ paths:
       summary: List Remediations
       description: Provides information about Remediations
       operationId: listRemediations
+      parameters:
+        - $ref: '#/parameters/RemediationSort'
       responses:
         200:
           description: OK
@@ -247,6 +249,13 @@ parameters:
     required: true
     description: System identifier
     format: uuid
+  RemediationSort:
+    in: query
+    name: sort
+    type: string
+    description: Sort order
+    enum: [updated_at, -updated_at, name, -name, 'system_count', '-system_count', 'issue_count', '-issue_count']
+    default: -updated_at
 
 
 responses:

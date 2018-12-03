@@ -5,7 +5,7 @@ const db = require('../db');
 const REMEDIATION_ATTRIBUTES = ['id', 'name', 'tenant', 'owner', 'updated_at'];
 const ISSUE_ATTRIBUTES = ['issue_id', 'resolution'];
 
-exports.list = function (tenant, owner) {
+exports.list = function (tenant, owner, primaryOrder = 'updated_at', asc = true) {
     return db.remediation.findAll({
         attributes: REMEDIATION_ATTRIBUTES,
         include: [{
@@ -21,7 +21,10 @@ exports.list = function (tenant, owner) {
         where: {
             tenant, owner
         },
-        order: ['id']
+        order: [
+            [primaryOrder, asc ? 'ASC' : 'DESC'],
+            'id'
+        ]
     });
 };
 
