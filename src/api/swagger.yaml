@@ -302,7 +302,7 @@ definitions:
   IssueId:
     type: string
     pattern: ^(advisor|vulnerabilities|compliance|test):[\w\d-_|:]+$
-    example: vulnerabilities:CVE_2017_5461_nss|CVE_2017_5461_NSS_2
+    example: vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
 
   SystemId:
     type: string
@@ -354,6 +354,12 @@ definitions:
             type: array
             items:
               $ref: '#/definitions/SystemId'
+        example:
+          issues:
+            - id: vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+              resolution: mitigate
+              systems:
+                - a8799a02-8be9-11e8-9eb6-529269fb1459
 
   RemediationIssueIn:
     type: object
