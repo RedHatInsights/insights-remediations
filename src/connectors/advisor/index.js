@@ -7,5 +7,5 @@ if (config.advisor.impl) {
 } else if (config.env === 'test' || config.env === 'development') {
     module.exports = require('./mock');
 } else {
-    module.exports = require('./classic');
+    module.exports = require('./impl');
 }

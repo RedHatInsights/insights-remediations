@@ -45,7 +45,7 @@ const config = {
 
     advisor: {
         impl: env.ADVISOR_IMPL,
-        host: env.ADVISOR_HOST || 'https://access.qa.itop.redhat.com',
+        host: env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000',
         auth: env.ADVISOR_AUTH || '',
         insecure: (env.ADVISOR_INSECURE === 'true') ? true : false
     },
