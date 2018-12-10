@@ -22,8 +22,8 @@ describe('remediations', function () {
             .send({name})
             .expect(201);
 
+            r1.body.should.have.size(1);
             r1.body.should.have.property('id');
-            r1.body.should.have.property('name', name);
             const location = r1.header.location;
             location.should.match(
                 new RegExp(`^${config.path.base}/v1/remediations/[\\w]{8}-[\\w]{4}-[\\w]{4}-[\\w]{4}-[\\w]{12}$`));
@@ -47,9 +47,15 @@ describe('remediations', function () {
             .send({name, auto_reboot: false})
             .expect(201);
 
+            r1.body.should.have.size(1);
             r1.body.should.have.property('id');
-            r1.body.should.have.property('name', name);
-            r1.body.should.have.property('auto_reboot', false);
+
+            const r2 = await request
+            .get(`/v1/remediations/${r1.body.id}`)
+            .set(auth.testWrite)
+            .expect(200);
+
+            r2.body.should.have.property('auto_reboot', false);
         });
 
         test('creates a new remediation with issues', async () => {
@@ -73,8 +79,8 @@ describe('remediations', function () {
             })
             .expect(201);
 
+            r1.body.should.have.size(1);
             r1.body.should.have.property('id');
-            r1.body.should.have.property('name', name);
 
             const location = r1.header.location;
             location.should.match(

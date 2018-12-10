@@ -47,3 +47,7 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
         }))
     };
 };
+
+exports.created = function ({id}) {
+    return {id};
+};

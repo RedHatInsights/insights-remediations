@@ -78,7 +78,7 @@ paths:
         201:
           description: Created
           schema:
-            type: object
+            $ref: '#/definitions/RemediationCreated'
         400:
           $ref: '#/responses/BadRequest'
 
@@ -547,6 +547,16 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/RemediationIssue'
+
+  RemediationCreated:
+    type: object
+    additionalProperties: false
+    required: [id]
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
 
   RemediationIssue:
     type: object

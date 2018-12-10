@@ -123,7 +123,7 @@ exports.create = errors.async(async function (req, res) {
 
     res.status(201)
     .set('Location', `${config.path.base}/v1/remediations/${id}`)
-    .json(format.get(result));
+    .json(format.created(result));
 });
 
 exports.patch = errors.async(async function (req, res) {
