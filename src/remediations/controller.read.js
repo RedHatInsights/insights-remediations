@@ -38,6 +38,10 @@ function parseSort (param) {
     };
 }
 
+function inferNeedsReboot (remediation) {
+    return _.some(remediation.issues, 'resolution.needsReboot');
+}
+
 exports.list = errors.async(async function (req, res) {
     const {column, asc} = parseSort(req.swagger.params.sort.value);
 
@@ -50,7 +54,7 @@ exports.list = errors.async(async function (req, res) {
     await resolveResolutions(...remediations);
 
     remediations.forEach(remediation => {
-        remediation.needs_reboot = _.some(remediation.issues, 'resolution.needsReboot');
+        remediation.needs_reboot = inferNeedsReboot(remediation);
         remediation.system_count = _(remediation.issues).flatMap('systems').uniqBy('system_id').size();
         remediation.issue_count = remediation.issues.length;
     });
@@ -99,6 +103,8 @@ exports.get = errors.async(async function (req, res) {
         resolveResolutions(remediation),
         resolveIssues(remediation)
     ]);
+
+    remediation.needs_reboot = inferNeedsReboot(remediation);
 
     res.json(format.get(remediation));
 });

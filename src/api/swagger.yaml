@@ -482,6 +482,10 @@ definitions:
     type: boolean
     description: Indicates whether systems that require reboot for the remediation to be properly applied should be rebooted automatically or not
 
+  RemediationNeedsReboot:
+    type: boolean
+    description: Indicates whether any of the issues contained in the remediation require system reboot
+
   RemediationList:
     type: object
     additionalProperties: false
@@ -524,6 +528,8 @@ definitions:
         example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
       name:
         $ref: '#/definitions/RemediationName'
+      needs_reboot:
+        $ref: '#/definitions/RemediationNeedsReboot'
       auto_reboot:
         $ref: '#/definitions/RemediationAutoReboot'
       owner:

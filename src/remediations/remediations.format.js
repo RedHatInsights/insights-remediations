@@ -18,10 +18,11 @@ exports.list = function (remediations) {
     };
 };
 
-exports.get = function ({id, name, auto_reboot, updated_at, owner, issues}) {
+exports.get = function ({id, name, needs_reboot, auto_reboot, updated_at, owner, issues}) {
     return {
         id,
         name,
+        needs_reboot,
         auto_reboot,
         updated_at,
         owner,

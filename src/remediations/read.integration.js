@@ -91,6 +91,7 @@ describe('remediations', function () {
             body.should.eql({
                 id: 'e809526c-56f5-4cd8-a809-93328436ea23',
                 name: '',
+                needs_reboot: false,
                 auto_reboot: false,
                 updated_at: '2018-12-04T08:19:36.641Z',
                 owner: 100,
