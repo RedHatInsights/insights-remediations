@@ -96,7 +96,7 @@ async function storeNewActions (remediation, add, transaction) {
 }
 
 exports.create = errors.async(async function (req, res) {
-    const {add, name} = req.swagger.params.body.value;
+    const {add, name, auto_reboot} = req.swagger.params.body.value;
 
     if (add) {
         await validateNewActions(add);
@@ -108,6 +108,7 @@ exports.create = errors.async(async function (req, res) {
         const remediation = await db.remediation.create({
             id,
             name,
+            auto_reboot,
             tenant: req.identity.account_number,
             owner: req.identity.id
         }, {transaction});
@@ -127,7 +128,7 @@ exports.create = errors.async(async function (req, res) {
 exports.patch = errors.async(async function (req, res) {
     const id = req.swagger.params.id.value;
     const {account_number: tenant, id: owner} = req.identity;
-    const {add, name} = req.swagger.params.body.value;
+    const {add, name, auto_reboot} = req.swagger.params.body.value;
 
     if (add) {
         await validateNewActions(add);
@@ -153,8 +154,15 @@ exports.patch = errors.async(async function (req, res) {
             await storeNewActions(remediation, add, transaction);
         }
 
-        if (name) {
-            remediation.name = name;
+        if (name || auto_reboot !== undefined) {
+            if (name) {
+                remediation.name = name;
+            }
+
+            if (auto_reboot !== undefined) {
+                remediation.auto_reboot = auto_reboot;
+            }
+
             await remediation.save({transaction});
         }
 

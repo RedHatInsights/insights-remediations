@@ -338,6 +338,8 @@ definitions:
     properties:
       name:
         $ref: '#/definitions/RemediationName'
+      auto_reboot:
+        $ref: '#/definitions/RemediationAutoReboot'
       add:
         type: object
         additionalProperties: false
@@ -476,6 +478,10 @@ definitions:
     type: string
     example: Fix Critical CVEs
 
+  RemediationAutoReboot:
+    type: boolean
+    description: Indicates whether systems that require reboot for the remediation to be properly applied should be rebooted automatically or not
+
   RemediationList:
     type: object
     additionalProperties: false
@@ -510,7 +516,7 @@ definitions:
   RemediationDetails:
     type: object
     additionalProperties: false
-    required: [id, name, owner, updated_at, issues]
+    required: [id, name, auto_reboot, owner, updated_at, issues]
     properties:
       id:
         type: string
@@ -518,6 +524,8 @@ definitions:
         example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
       name:
         $ref: '#/definitions/RemediationName'
+      auto_reboot:
+        $ref: '#/definitions/RemediationAutoReboot'
       owner:
         type: integer
       updated_at:

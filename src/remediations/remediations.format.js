@@ -18,10 +18,11 @@ exports.list = function (remediations) {
     };
 };
 
-exports.get = function ({id, name, updated_at, owner, issues}) {
+exports.get = function ({id, name, auto_reboot, updated_at, owner, issues}) {
     return {
         id,
         name,
+        auto_reboot,
         updated_at,
         owner,
         issues: _.map(issues, ({issue_id, resolution, details, systems}) => ({

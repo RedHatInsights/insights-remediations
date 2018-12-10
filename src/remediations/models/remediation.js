@@ -2,7 +2,7 @@
 
 const { emptyStringOnNull } = require('../../util/models');
 
-module.exports = (sequelize, {INTEGER, STRING, UUID}) => {
+module.exports = (sequelize, {BOOLEAN, INTEGER, STRING, UUID}) => {
     const Remediation = sequelize.define('remediation', {
         id: {
             type: UUID,
@@ -21,6 +21,11 @@ module.exports = (sequelize, {INTEGER, STRING, UUID}) => {
         owner: {
             type: INTEGER,
             allowNull: false
+        },
+        auto_reboot: {
+            type: BOOLEAN,
+            allowNull: false,
+            defaultValue: true
         }
     }, {
         timestamps: true

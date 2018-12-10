@@ -38,6 +38,20 @@ describe('remediations', function () {
             r2.body.should.have.property('name', name);
         });
 
+        test('creates a new remediation (2)', async () => {
+            const name = 'remediation with auto reboot suppressed';
+
+            const r1 = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({name, auto_reboot: false})
+            .expect(201);
+
+            r1.body.should.have.property('id');
+            r1.body.should.have.property('name', name);
+            r1.body.should.have.property('auto_reboot', false);
+        });
+
         test('creates a new remediation with issues', async () => {
             const name = 'new remediation with issues';
             const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f', 'f5ce853a-c922-46f7-bd82-50286b7d8459'];
@@ -338,14 +352,14 @@ describe('remediations', function () {
                 });
             });
 
-            describe('rename', function () {
-                test('give new name to remediation', async () => {
+            describe('properties', function () {
+                test('give new name and suppress auto reboot for remediation', async () => {
                     const url = '/v1/remediations/8b427145-ac9f-4727-9543-76eb140222cd';
                     const name = 'renamed remediation';
 
                     await request
                     .patch(url)
-                    .send({name})
+                    .send({name, auto_reboot: false})
                     .set(auth.testWrite)
                     .expect(200);
 
@@ -355,6 +369,7 @@ describe('remediations', function () {
                     .expect(200);
 
                     body.name.should.equal(name);
+                    body.auto_reboot.should.equal(false);
                 });
             });
         });

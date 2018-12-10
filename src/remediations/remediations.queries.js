@@ -2,7 +2,7 @@
 
 const db = require('../db');
 
-const REMEDIATION_ATTRIBUTES = ['id', 'name', 'tenant', 'owner', 'updated_at'];
+const REMEDIATION_ATTRIBUTES = ['id', 'name', 'auto_reboot', 'tenant', 'owner', 'updated_at'];
 const ISSUE_ATTRIBUTES = ['issue_id', 'resolution'];
 
 exports.list = function (tenant, owner, primaryOrder = 'updated_at', asc = true) {
