@@ -1,5 +1,9 @@
 'use strict';
 
-const impl = require('./vmaas');
-module.exports = impl;
+const config = require('../../config');
 
+if (config.vmaas.impl) {
+    module.exports = require(`./${config.vmaas.impl}`);
+} else {
+    module.exports = require('./vmaas');
+}

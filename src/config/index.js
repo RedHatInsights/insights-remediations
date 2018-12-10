@@ -58,6 +58,7 @@ const config = {
     },
 
     vmaas: {
+        impl: env.VMAAS_IMPL,
         host: env.VMAAS_HOST || 'https://webapp-vmaas-stable.1b13.insights.openshiftapps.com'
     },
 
