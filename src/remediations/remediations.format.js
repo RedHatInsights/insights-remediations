@@ -6,8 +6,9 @@ exports.list = function (remediations) {
     const formatted = _.map(remediations, remediation => _.pick(remediation, [
         'id',
         'name',
-        'owner',
+        'created_by',
         'created_at',
+        'updated_by',
         'updated_at',
         'needs_reboot',
         'system_count',
@@ -19,15 +20,16 @@ exports.list = function (remediations) {
     };
 };
 
-exports.get = function ({id, name, needs_reboot, auto_reboot, created_at, updated_at, owner, issues}) {
+exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at, issues}) {
     return {
         id,
         name,
         needs_reboot,
         auto_reboot,
+        created_by,
         created_at,
+        updated_by,
         updated_at,
-        owner,
         issues: _.map(issues, ({issue_id, resolution, details, systems}) => ({
             id: issue_id,
             description: details.description,

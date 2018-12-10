@@ -1,7 +1,7 @@
 'use strict';
 
 const tenant = 'test';
-const owner = 100;
+const created_by = 100;
 
 const opts = {
     returning: true
@@ -18,24 +18,27 @@ exports.up = async q => {
         name: 'remediation 1',
         auto_reboot: true,
         tenant,
-        owner,
+        created_by,
         created_at: '2018-10-04T08:19:36.641Z',
+        updated_by: created_by,
         updated_at: '2018-10-04T08:19:36.641Z'
     }, {
         id: 'cbc782e4-e8ae-4807-82ab-505387981d2e',
         name: 'remediation 2',
         auto_reboot: true,
         tenant,
-        owner,
+        created_by,
         created_at: '2018-11-04T08:19:36.641Z',
+        updated_by: created_by,
         updated_at: '2018-11-04T08:19:36.641Z'
     }, {
         id: 'e809526c-56f5-4cd8-a809-93328436ea23',
         name: null,
         auto_reboot: false,
         tenant,
-        owner,
+        created_by,
         created_at: '2018-12-04T08:19:36.641Z',
+        updated_by: created_by,
         updated_at: '2018-12-04T08:19:36.641Z'
     }], opts);
 

@@ -2,10 +2,10 @@
 
 const db = require('../db');
 
-const REMEDIATION_ATTRIBUTES = ['id', 'name', 'auto_reboot', 'tenant', 'owner', 'created_at', 'updated_at'];
+const REMEDIATION_ATTRIBUTES = ['id', 'name', 'auto_reboot', 'tenant', 'created_by', 'created_at', 'updated_by', 'updated_at'];
 const ISSUE_ATTRIBUTES = ['issue_id', 'resolution'];
 
-exports.list = function (tenant, owner, primaryOrder = 'updated_at', asc = true) {
+exports.list = function (tenant, created_by, primaryOrder = 'updated_at', asc = true) {
     return db.remediation.findAll({
         attributes: REMEDIATION_ATTRIBUTES,
         include: [{
@@ -19,7 +19,7 @@ exports.list = function (tenant, owner, primaryOrder = 'updated_at', asc = true)
             }]
         }],
         where: {
-            tenant, owner
+            tenant, created_by
         },
         order: [
             [primaryOrder, asc ? 'ASC' : 'DESC'],
@@ -28,7 +28,7 @@ exports.list = function (tenant, owner, primaryOrder = 'updated_at', asc = true)
     });
 };
 
-exports.get = function (id, tenant, owner) {
+exports.get = function (id, tenant, created_by) {
     return db.remediation.findOne({
         attributes: REMEDIATION_ATTRIBUTES,
         include: [{
@@ -41,7 +41,7 @@ exports.get = function (id, tenant, owner) {
             }
         }],
         where: {
-            id, tenant, owner
+            id, tenant, created_by
         },
         order: [
             ['id'],

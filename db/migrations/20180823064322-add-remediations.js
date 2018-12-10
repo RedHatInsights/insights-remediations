@@ -14,7 +14,11 @@ module.exports = {
                 type: STRING,
                 allowNull: false
             },
-            owner: {
+            created_by: {
+                type: INTEGER,
+                allowNull: false
+            },
+            updated_by: {
                 type: INTEGER,
                 allowNull: false
             },

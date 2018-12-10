@@ -1,7 +1,7 @@
 'use strict';
 
 const tenant = 'demo';
-const owner = 1;
+const created_by = 1;
 
 const opts = {
     returning: true
@@ -19,15 +19,17 @@ exports.up = async q => {
         id: '9939e04a-a936-482d-a317-008c058f7918',
         name: 'Patch vulnerabilities on production systems',
         tenant,
-        owner,
+        created_by,
         created_at: '2018-11-21T10:19:38.541Z',
+        updated_by: created_by,
         updated_at: '2018-11-21T10:19:38.541Z'
     }, {
         id: '0bcebc81-0d53-4f77-b0f0-1a56e01a55fd',
         name: 'Recommended configuration changes',
         tenant,
-        owner,
+        created_by,
         created_at: '2018-11-21T09:19:38.541Z',
+        updated_by: created_by,
         updated_at: '2018-11-21T09:19:38.541Z'
     }], opts);
 

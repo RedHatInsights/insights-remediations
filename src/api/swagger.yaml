@@ -78,7 +78,7 @@ paths:
         201:
           description: Created
           schema:
-            $ref: '#/definitions/RemediationDetails'
+            type: object
         400:
           $ref: '#/responses/BadRequest'
 
@@ -499,16 +499,18 @@ definitions:
   RemediationListItem:
     type: object
     additionalProperties: false
-    required: [id, name, owner, updated_at, issue_count, system_count, needs_reboot]
+    required: [id, name, created_by, created_at, updated_by, updated_at, issue_count, system_count, needs_reboot]
     properties:
       id:
         $ref: '#/definitions/RemediationId'
       name:
         $ref: '#/definitions/RemediationName'
-      owner:
+      created_by:
         type: integer
       created_at:
         $ref: '#/definitions/DateTime'
+      updated_by:
+        type: integer
       updated_at:
         $ref: '#/definitions/DateTime'
       issue_count:
@@ -521,7 +523,7 @@ definitions:
   RemediationDetails:
     type: object
     additionalProperties: false
-    required: [id, name, auto_reboot, owner, updated_at, issues]
+    required: [id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at, issues]
     properties:
       id:
         type: string
@@ -533,10 +535,12 @@ definitions:
         $ref: '#/definitions/RemediationNeedsReboot'
       auto_reboot:
         $ref: '#/definitions/RemediationAutoReboot'
-      owner:
+      created_by:
         type: integer
       created_at:
         $ref: '#/definitions/DateTime'
+      updated_by:
+        type: integer
       updated_at:
         $ref: '#/definitions/DateTime'
       issues:

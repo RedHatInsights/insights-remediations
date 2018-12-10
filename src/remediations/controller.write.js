@@ -110,7 +110,8 @@ exports.create = errors.async(async function (req, res) {
             name,
             auto_reboot,
             tenant: req.identity.account_number,
-            owner: req.identity.id
+            created_by: req.identity.id,
+            updated_by: req.identity.id
         }, {transaction});
 
         if (add) {
@@ -127,8 +128,12 @@ exports.create = errors.async(async function (req, res) {
 
 exports.patch = errors.async(async function (req, res) {
     const id = req.swagger.params.id.value;
-    const {account_number: tenant, id: owner} = req.identity;
+    const {account_number: tenant, id: userId} = req.identity;
     const {add, name, auto_reboot} = req.swagger.params.body.value;
+
+    if (_.isUndefined(add) && _.isUndefined(name) && _.isUndefined(auto_reboot)) {
+        throw new errors.BadRequest('EMPTY_REQUEST', 'At least one of "add", "name", "auto_reboot" needs to be specified');
+    }
 
     if (add) {
         await validateNewActions(add);
@@ -137,7 +142,7 @@ exports.patch = errors.async(async function (req, res) {
     const result = await db.s.transaction(async transaction => {
         const remediation = await db.remediation.findOne({
             attributes: ['id'],
-            where: { id, tenant, owner },
+            where: { id, tenant, created_by: userId },
             include: {
                 attributes: ['id', 'issue_id', 'resolution'],
                 model: db.issue
@@ -154,17 +159,16 @@ exports.patch = errors.async(async function (req, res) {
             await storeNewActions(remediation, add, transaction);
         }
 
-        if (name || auto_reboot !== undefined) {
-            if (name) {
-                remediation.name = name;
-            }
-
-            if (auto_reboot !== undefined) {
-                remediation.auto_reboot = auto_reboot;
-            }
-
-            await remediation.save({transaction});
+        if (name) {
+            remediation.name = name;
         }
+
+        if (auto_reboot !== undefined) {
+            remediation.auto_reboot = auto_reboot;
+        }
+
+        remediation.updated_by = userId;
+        await remediation.save({transaction});
 
         return true;
     });
@@ -188,6 +192,7 @@ exports.patchIssue = errors.async(async function (req, res) {
 
         issue.resolution = rid;
         await issue.save({transaction});
+        await remediationUpdated(req, transaction);
         return true;
     });
 
@@ -199,7 +204,7 @@ exports.patchIssue = errors.async(async function (req, res) {
 function findIssueQuery (req) {
     const id = req.swagger.params.id.value;
     const iid = req.swagger.params.issue.value;
-    const {account_number: tenant, id: owner} = req.identity;
+    const {account_number: tenant, id: created_by} = req.identity;
 
     return {
         where: {
@@ -210,18 +215,33 @@ function findIssueQuery (req) {
             model: db.remediation,
             required: true,
             where: {
-                id, tenant, owner
+                id, tenant, created_by
             }
         }
     };
 }
 
-function findAndDestroy (entity, query, res) {
+function remediationUpdated (req, transaction) {
+    const {account_number: tenant, id: userId} = req.identity;
+
+    return db.remediation.update({
+        updated_by: userId
+    }, {
+        where: {tenant, created_by: userId, id: req.swagger.params.id.value},
+        transaction
+    });
+}
+
+function findAndDestroy (req, entity, query, res) {
     return db.s.transaction(async transaction => {
         const result = await entity.findOne(query, {transaction});
 
         if (result) {
             await result.destroy({transaction});
+            if (entity !== db.remediation) {
+                await remediationUpdated(req, transaction);
+            }
+
             return true;
         }
     }).then(result => {
@@ -235,26 +255,26 @@ function findAndDestroy (entity, query, res) {
 
 exports.remove = errors.async(function (req, res) {
     const id = req.swagger.params.id.value;
-    const {account_number: tenant, id: owner} = req.identity;
+    const {account_number: tenant, id: created_by} = req.identity;
 
-    return findAndDestroy(db.remediation, {
+    return findAndDestroy(req, db.remediation, {
         where: {
-            id, tenant, owner
+            id, tenant, created_by
         }
     }, res);
 });
 
 exports.removeIssue = errors.async(function (req, res) {
-    return findAndDestroy(db.issue, findIssueQuery(req), res);
+    return findAndDestroy(req, db.issue, findIssueQuery(req), res);
 });
 
 exports.removeIssueSystem = errors.async(function (req, res) {
     const id = req.swagger.params.id.value;
     const iid = req.swagger.params.issue.value;
     const sid = req.swagger.params.system.value;
-    const {account_number: tenant, id: owner} = req.identity;
+    const {account_number: tenant, id: created_by} = req.identity;
 
-    return findAndDestroy(db.issue_system, {
+    return findAndDestroy(req, db.issue_system, {
         where: {
             system_id: sid
         },
@@ -268,7 +288,7 @@ exports.removeIssueSystem = errors.async(function (req, res) {
                 model: db.remediation,
                 required: true,
                 where: {
-                    id, tenant, owner
+                    id, tenant, created_by
                 }
             }
         }

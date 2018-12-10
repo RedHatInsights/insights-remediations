@@ -350,6 +350,17 @@ describe('remediations', function () {
                     .set(auth.testWrite)
                     .expect(404);
                 });
+
+                test('400s on empty request', async () => {
+                    const {body} = await sendPatch({});
+
+                    body.errors.should.eql([{
+                        id,
+                        status: 400,
+                        code: 'EMPTY_REQUEST',
+                        title: 'At least one of "add", "name", "auto_reboot" needs to be specified'
+                    }]);
+                });
             });
 
             describe('properties', function () {

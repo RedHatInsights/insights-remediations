@@ -93,9 +93,10 @@ describe('remediations', function () {
                 name: '',
                 needs_reboot: false,
                 auto_reboot: false,
+                created_by: 100,
                 created_at: '2018-12-04T08:19:36.641Z',
+                updated_by: 100,
                 updated_at: '2018-12-04T08:19:36.641Z',
-                owner: 100,
                 issues: [{
                     id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
                     description: 'Bonding will not fail over to the backup link when bonding options are partially read',
