@@ -93,6 +93,7 @@ describe('remediations', function () {
                 name: '',
                 needs_reboot: false,
                 auto_reboot: false,
+                created_at: '2018-12-04T08:19:36.641Z',
                 updated_at: '2018-12-04T08:19:36.641Z',
                 owner: 100,
                 issues: [{

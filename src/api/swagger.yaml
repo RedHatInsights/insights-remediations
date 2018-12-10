@@ -507,9 +507,10 @@ definitions:
         $ref: '#/definitions/RemediationName'
       owner:
         type: integer
+      created_at:
+        $ref: '#/definitions/DateTime'
       updated_at:
         $ref: '#/definitions/DateTime'
-        format: date-time
       issue_count:
         type: integer
       system_count:
@@ -534,6 +535,8 @@ definitions:
         $ref: '#/definitions/RemediationAutoReboot'
       owner:
         type: integer
+      created_at:
+        $ref: '#/definitions/DateTime'
       updated_at:
         $ref: '#/definitions/DateTime'
       issues:
