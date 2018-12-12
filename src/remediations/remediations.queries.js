@@ -2,10 +2,19 @@
 
 const db = require('../db');
 
-const REMEDIATION_ATTRIBUTES = ['id', 'name', 'auto_reboot', 'tenant', 'created_by', 'created_at', 'updated_by', 'updated_at'];
+const REMEDIATION_ATTRIBUTES = [
+    'id',
+    'name',
+    'auto_reboot',
+    'account_number',
+    'created_by',
+    'created_at',
+    'updated_by',
+    'updated_at'
+];
 const ISSUE_ATTRIBUTES = ['issue_id', 'resolution'];
 
-exports.list = function (tenant, created_by, primaryOrder = 'updated_at', asc = true) {
+exports.list = function (account_number, created_by, primaryOrder = 'updated_at', asc = true) {
     return db.remediation.findAll({
         attributes: REMEDIATION_ATTRIBUTES,
         include: [{
@@ -19,7 +28,7 @@ exports.list = function (tenant, created_by, primaryOrder = 'updated_at', asc = 
             }]
         }],
         where: {
-            tenant, created_by
+            account_number, created_by
         },
         order: [
             [primaryOrder, asc ? 'ASC' : 'DESC'],
@@ -28,7 +37,7 @@ exports.list = function (tenant, created_by, primaryOrder = 'updated_at', asc = 
     });
 };
 
-exports.get = function (id, tenant, created_by) {
+exports.get = function (id, account_number, created_by) {
     return db.remediation.findOne({
         attributes: REMEDIATION_ATTRIBUTES,
         include: [{
@@ -41,7 +50,7 @@ exports.get = function (id, tenant, created_by) {
             }
         }],
         where: {
-            id, tenant, created_by
+            id, account_number, created_by
         },
         order: [
             ['id'],

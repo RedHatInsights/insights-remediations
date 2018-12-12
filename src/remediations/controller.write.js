@@ -109,7 +109,7 @@ exports.create = errors.async(async function (req, res) {
             id,
             name,
             auto_reboot,
-            tenant: req.user.account_number,
+            account_number: req.user.account_number,
             created_by: req.user.username,
             updated_by: req.user.username
         }, {transaction});
@@ -128,7 +128,7 @@ exports.create = errors.async(async function (req, res) {
 
 exports.patch = errors.async(async function (req, res) {
     const id = req.swagger.params.id.value;
-    const {account_number: tenant, username} = req.user;
+    const {account_number, username} = req.user;
     const {add, name, auto_reboot} = req.swagger.params.body.value;
 
     if (_.isUndefined(add) && _.isUndefined(name) && _.isUndefined(auto_reboot)) {
@@ -142,7 +142,7 @@ exports.patch = errors.async(async function (req, res) {
     const result = await db.s.transaction(async transaction => {
         const remediation = await db.remediation.findOne({
             attributes: ['id'],
-            where: { id, tenant, created_by: username },
+            where: { id, account_number, created_by: username },
             include: {
                 attributes: ['id', 'issue_id', 'resolution'],
                 model: db.issue
@@ -204,7 +204,7 @@ exports.patchIssue = errors.async(async function (req, res) {
 function findIssueQuery (req) {
     const id = req.swagger.params.id.value;
     const iid = req.swagger.params.issue.value;
-    const {account_number: tenant, username: created_by} = req.user;
+    const {account_number, username: created_by} = req.user;
 
     return {
         where: {
@@ -215,19 +215,19 @@ function findIssueQuery (req) {
             model: db.remediation,
             required: true,
             where: {
-                id, tenant, created_by
+                id, account_number, created_by
             }
         }
     };
 }
 
 function remediationUpdated (req, transaction) {
-    const {account_number: tenant, username} = req.user;
+    const {account_number, username} = req.user;
 
     return db.remediation.update({
         updated_by: username
     }, {
-        where: {tenant, created_by: username, id: req.swagger.params.id.value},
+        where: {account_number, created_by: username, id: req.swagger.params.id.value},
         transaction
     });
 }
@@ -255,11 +255,11 @@ function findAndDestroy (req, entity, query, res) {
 
 exports.remove = errors.async(function (req, res) {
     const id = req.swagger.params.id.value;
-    const {account_number: tenant, username: created_by} = req.user;
+    const {account_number, username: created_by} = req.user;
 
     return findAndDestroy(req, db.remediation, {
         where: {
-            id, tenant, created_by
+            id, account_number, created_by
         }
     }, res);
 });
@@ -272,7 +272,7 @@ exports.removeIssueSystem = errors.async(function (req, res) {
     const id = req.swagger.params.id.value;
     const iid = req.swagger.params.issue.value;
     const sid = req.swagger.params.system.value;
-    const {account_number: tenant, username: created_by} = req.user;
+    const {account_number, username: created_by} = req.user;
 
     return findAndDestroy(req, db.issue_system, {
         where: {
@@ -288,7 +288,7 @@ exports.removeIssueSystem = errors.async(function (req, res) {
                 model: db.remediation,
                 required: true,
                 where: {
-                    id, tenant, created_by
+                    id, account_number, created_by
                 }
             }
         }

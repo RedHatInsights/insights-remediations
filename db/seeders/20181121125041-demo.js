@@ -1,6 +1,6 @@
 'use strict';
 
-const tenant = 'demo';
+const account_number = 'demo';
 const created_by = 'demoUser';
 
 const opts = {
@@ -18,7 +18,7 @@ exports.up = async q => {
     const remediations = await q.bulkInsert('remediations', [{
         id: '9939e04a-a936-482d-a317-008c058f7918',
         name: 'Patch vulnerabilities on production systems',
-        tenant,
+        account_number,
         created_by,
         created_at: '2018-11-21T10:19:38.541Z',
         updated_by: created_by,
@@ -26,7 +26,7 @@ exports.up = async q => {
     }, {
         id: '0bcebc81-0d53-4f77-b0f0-1a56e01a55fd',
         name: 'Recommended configuration changes',
-        tenant,
+        account_number,
         created_by,
         created_at: '2018-11-21T09:19:38.541Z',
         updated_by: created_by,

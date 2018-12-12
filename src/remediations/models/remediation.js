@@ -14,7 +14,7 @@ module.exports = (sequelize, {BOOLEAN, STRING, UUID}) => {
                 return emptyStringOnNull(this.getDataValue('name'));
             }
         },
-        tenant: {
+        account_number: {
             type: STRING,
             allowNull: false
         },

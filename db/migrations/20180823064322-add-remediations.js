@@ -10,7 +10,7 @@ module.exports = {
             name: {
                 type: STRING
             },
-            tenant: {
+            account_number: {
                 type: STRING,
                 allowNull: false
             },
