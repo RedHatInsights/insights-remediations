@@ -1,6 +1,7 @@
 'use strict';
 
 const { request, auth } = require('../../test');
+const utils = require('./utils');
 
 describe('identity', () => {
     test('fallback', async () => {
@@ -59,5 +60,45 @@ describe('identity', () => {
             username: 'test02User',
             account_number: 'test02'
         });
+    });
+
+    test('401s on missing account_number', async () => {
+        await request
+        .get('/v1/whoami')
+        .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, true, data => {
+            delete data.identity.account_number;
+            return data;
+        }))
+        .expect(401);
+    });
+
+    test('401s on missing username', async () => {
+        await request
+        .get('/v1/whoami')
+        .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, true, data => {
+            delete data.identity.user.username;
+            return data;
+        }))
+        .expect(401);
+    });
+
+    test('401s on type === system', async () => {
+        await request
+        .get('/v1/whoami')
+        .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, true, data => {
+            data.identity.type = 'System';
+            return data;
+        }))
+        .expect(401);
+    });
+
+    test('401s on missing is_internal', async () => {
+        await request
+        .get('/v1/whoami')
+        .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, true, data => {
+            delete data.identity.user.is_internal;
+            return data;
+        }))
+        .expect(401);
     });
 });

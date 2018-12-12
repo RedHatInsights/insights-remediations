@@ -3,32 +3,39 @@
 exports.IDENTITY_HEADER = 'x-rh-identity';
 
 const DEFAULTS = Object.freeze({
-    org_id: 'test',
     account_number: 'test',
-    username: 'tuser@redhat.com',
-    email: 'tuser@redhat.com',
-    first_name: 'test',
-    last_name: 'user',
-    address_string: 'test user tuser@redhat.com',
-    is_active: true,
-    is_org_admin: false,
-    is_internal: true,
-    locale: 'en_US'
+    type: 'User',
+    user: {
+        username: 'tuser@redhat.com',
+        email: 'tuser@redhat.com',
+        first_name: 'test',
+        last_name: 'user',
+        is_active: true,
+        is_org_admin: false,
+        is_internal: true,
+        locale: 'en_US'
+    }
 });
 
 exports.createIdentityHeader = function (
-    username = DEFAULTS.username,
+    username = DEFAULTS.user.username,
     account_number = DEFAULTS.account_number,
-    is_internal = true) {
+    is_internal = true,
+    transform = f => f) {
 
-    return encode({
+    const data = {
         identity: {
-            ...DEFAULTS,
-            username,
             account_number,
-            is_internal
+            type: DEFAULTS.type,
+            user: {
+                ...DEFAULTS.user,
+                username,
+                is_internal
+            }
         }
-    });
+    };
+
+    return encode(transform(data));
 };
 
 function encode (data) {

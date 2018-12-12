@@ -9,16 +9,27 @@ module.exports = function (req, res, next) {
 
     if (raw === undefined) {
         log.info({headers: req.headers}, 'rejecting request due to missing identity header');
-        throw new errors.Unauthorized();
+        return next(new errors.Unauthorized());
     }
 
     try {
         const value = Buffer.from(raw, 'base64').toString('ascii');
         req.identity = JSON.parse(value).identity;
         log.trace({identity: req.identity}, 'parsed identity header');
+
+        if (!req.identity.account_number || req.identity.type !== 'User' || !req.identity.user.username ||
+            req.identity.user.is_internal === undefined) {
+            return next(new errors.Unauthorized());
+        }
+
+        req.user = {
+            account_number: req.identity.account_number,
+            username: req.identity.user.username
+        };
+
         next();
     } catch (e) {
-        log.debug({header: raw}, 'Error decoding identity header');
+        log.debug({header: raw, error: e.message}, 'Error decoding identity header');
         next(new errors.BadRequest('IDENTITY_HEADER', 'Invalid identity header'));
     }
 };

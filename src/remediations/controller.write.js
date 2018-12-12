@@ -109,9 +109,9 @@ exports.create = errors.async(async function (req, res) {
             id,
             name,
             auto_reboot,
-            tenant: req.identity.account_number,
-            created_by: req.identity.username,
-            updated_by: req.identity.username
+            tenant: req.user.account_number,
+            created_by: req.user.username,
+            updated_by: req.user.username
         }, {transaction});
 
         if (add) {
@@ -128,7 +128,7 @@ exports.create = errors.async(async function (req, res) {
 
 exports.patch = errors.async(async function (req, res) {
     const id = req.swagger.params.id.value;
-    const {account_number: tenant, username} = req.identity;
+    const {account_number: tenant, username} = req.user;
     const {add, name, auto_reboot} = req.swagger.params.body.value;
 
     if (_.isUndefined(add) && _.isUndefined(name) && _.isUndefined(auto_reboot)) {
@@ -204,7 +204,7 @@ exports.patchIssue = errors.async(async function (req, res) {
 function findIssueQuery (req) {
     const id = req.swagger.params.id.value;
     const iid = req.swagger.params.issue.value;
-    const {account_number: tenant, username: created_by} = req.identity;
+    const {account_number: tenant, username: created_by} = req.user;
 
     return {
         where: {
@@ -222,7 +222,7 @@ function findIssueQuery (req) {
 }
 
 function remediationUpdated (req, transaction) {
-    const {account_number: tenant, username} = req.identity;
+    const {account_number: tenant, username} = req.user;
 
     return db.remediation.update({
         updated_by: username
@@ -255,7 +255,7 @@ function findAndDestroy (req, entity, query, res) {
 
 exports.remove = errors.async(function (req, res) {
     const id = req.swagger.params.id.value;
-    const {account_number: tenant, username: created_by} = req.identity;
+    const {account_number: tenant, username: created_by} = req.user;
 
     return findAndDestroy(req, db.remediation, {
         where: {
@@ -272,7 +272,7 @@ exports.removeIssueSystem = errors.async(function (req, res) {
     const id = req.swagger.params.id.value;
     const iid = req.swagger.params.issue.value;
     const sid = req.swagger.params.system.value;
-    const {account_number: tenant, username: created_by} = req.identity;
+    const {account_number: tenant, username: created_by} = req.user;
 
     return findAndDestroy(req, db.issue_system, {
         where: {
