@@ -3,7 +3,7 @@
 const _ = require('lodash');
 
 const tenant = 'testWrite';
-const created_by = 103;
+const created_by = 'testWriteUser';
 
 const opts = {
     returning: true

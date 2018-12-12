@@ -8,7 +8,6 @@ describe('whoami', () => {
         .get('/v1/whoami')
         .expect(200);
         res.body.should.containEql({
-            id: '100',
             username: 'tuser@redhat.com',
             account_number: 'test'
         });

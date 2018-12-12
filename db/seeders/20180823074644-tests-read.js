@@ -1,7 +1,7 @@
 'use strict';
 
 const tenant = 'test';
-const created_by = 100;
+const created_by = 'tuser@redhat.com';
 
 const opts = {
     returning: true

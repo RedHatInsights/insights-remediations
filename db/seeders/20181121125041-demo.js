@@ -1,7 +1,7 @@
 'use strict';
 
 const tenant = 'demo';
-const created_by = 1;
+const created_by = 'demoUser';
 
 const opts = {
     returning: true

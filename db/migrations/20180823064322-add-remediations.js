@@ -15,11 +15,11 @@ module.exports = {
                 allowNull: false
             },
             created_by: {
-                type: INTEGER,
+                type: STRING,
                 allowNull: false
             },
             updated_by: {
-                type: INTEGER,
+                type: STRING,
                 allowNull: false
             },
             created_at: {

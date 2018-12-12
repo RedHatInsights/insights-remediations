@@ -506,11 +506,11 @@ definitions:
       name:
         $ref: '#/definitions/RemediationName'
       created_by:
-        type: integer
+        type: string
       created_at:
         $ref: '#/definitions/DateTime'
       updated_by:
-        type: integer
+        type: string
       updated_at:
         $ref: '#/definitions/DateTime'
       issue_count:
@@ -536,11 +536,11 @@ definitions:
       auto_reboot:
         $ref: '#/definitions/RemediationAutoReboot'
       created_by:
-        type: integer
+        type: string
       created_at:
         $ref: '#/definitions/DateTime'
       updated_by:
-        type: integer
+        type: string
       updated_at:
         $ref: '#/definitions/DateTime'
       issues:

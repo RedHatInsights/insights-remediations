@@ -49,7 +49,7 @@ exports.list = errors.async(async function (req, res) {
     // issue_count, system_count on the app level below
     const dbColumn = ['updated_at', 'name'].includes(column) ? column : undefined;
 
-    let remediations = await queries.list(req.identity.account_number, req.identity.id, dbColumn, asc).map(r => r.toJSON());
+    let remediations = await queries.list(req.identity.account_number, req.identity.username, dbColumn, asc).map(r => r.toJSON());
 
     await resolveResolutions(...remediations);
 
@@ -90,7 +90,7 @@ function resolveIssues (remediation) {
 }
 
 exports.get = errors.async(async function (req, res) {
-    let remediation = await queries.get(req.swagger.params.id.value, req.identity.account_number, req.identity.id);
+    let remediation = await queries.get(req.swagger.params.id.value, req.identity.account_number, req.identity.username);
 
     if (!remediation) {
         return notFound(res);

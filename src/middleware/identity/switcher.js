@@ -5,8 +5,8 @@ module.exports = function (req, res, next) {
         return next();
     }
 
-    if (req.query.user_id) {
-        req.identity.id = req.query.user_id;
+    if (req.query.username) {
+        req.identity.username = req.query.username;
     }
 
     if (req.query.account_number) {

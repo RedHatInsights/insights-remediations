@@ -3,7 +3,6 @@
 exports.IDENTITY_HEADER = 'x-rh-identity';
 
 const DEFAULTS = Object.freeze({
-    id: '100',
     org_id: 'test',
     account_number: 'test',
     username: 'tuser@redhat.com',
@@ -17,11 +16,15 @@ const DEFAULTS = Object.freeze({
     locale: 'en_US'
 });
 
-exports.createIdentityHeader = function (id = DEFAULTS.id, account_number = DEFAULTS.account_number, is_internal = true) {
+exports.createIdentityHeader = function (
+    username = DEFAULTS.username,
+    account_number = DEFAULTS.account_number,
+    is_internal = true) {
+
     return encode({
         identity: {
             ...DEFAULTS,
-            id,
+            username,
             account_number,
             is_internal
         }

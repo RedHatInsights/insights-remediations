@@ -23,7 +23,7 @@ describe('remediations', function () {
 
         test('does not leak data outside of the account', async () => {
             const {body} = await request
-            .get('/v1/remediations?user_id=99999')
+            .get('/v1/remediations?username=99999')
             .expect(200);
 
             body.should.have.property('remediations');
@@ -93,9 +93,9 @@ describe('remediations', function () {
                 name: '',
                 needs_reboot: false,
                 auto_reboot: false,
-                created_by: 100,
+                created_by: 'tuser@redhat.com',
                 created_at: '2018-12-04T08:19:36.641Z',
-                updated_by: 100,
+                updated_by: 'tuser@redhat.com',
                 updated_at: '2018-12-04T08:19:36.641Z',
                 issues: [{
                     id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',

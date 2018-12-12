@@ -9,7 +9,6 @@ describe('identity', () => {
         .expect(200);
 
         body.should.containEql({
-            id: '100',
             username: 'tuser@redhat.com',
             account_number: 'test'
         });
@@ -22,20 +21,18 @@ describe('identity', () => {
         .expect(200);
 
         body.should.containEql({
-            id: '101',
-            username: 'tuser@redhat.com',
+            username: 'test01User',
             account_number: 'test01'
         });
     });
 
     test('id switcher', async () => {
         const {body} = await request
-        .get('/v1/whoami?user_id=500')
+        .get('/v1/whoami?username=500')
         .expect(200);
 
         body.should.containEql({
-            id: '500',
-            username: 'tuser@redhat.com',
+            username: '500',
             account_number: 'test'
         });
     });
@@ -47,21 +44,19 @@ describe('identity', () => {
         .expect(200);
 
         body.should.containEql({
-            id: '101',
-            username: 'tuser@redhat.com',
+            username: 'test01User',
             account_number: 'foo'
         });
     });
 
     test('only internal users can switch accounts', async () => {
         const {body} = await request
-        .get('/v1/whoami?account_number=foo&user_id=2')
+        .get('/v1/whoami?account_number=foo&username=200')
         .set(auth.emptyCustomer)
         .expect(200);
 
         body.should.containEql({
-            id: '102',
-            username: 'tuser@redhat.com',
+            username: 'test02User',
             account_number: 'test02'
         });
     });
