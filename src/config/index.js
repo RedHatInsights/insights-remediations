@@ -69,6 +69,12 @@ const config = {
         insecure: (env.VULNERABILITIES_INSECURE === 'true') ? true : false
     },
 
+    compliance: {
+        impl: env.COMPLIANCE_IMPL,
+        host: env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000',
+        insecure: (env.COMPLIANCE_INSECURE === 'true') ? true : false
+    },
+
     ssg: {
         repository: env.SSG_REPO ||
             'https://raw.githubusercontent.com/OpenSCAP/scap-security-guide/255a015c92b869d579cb1af98ff1e83f1babbd55/' +
