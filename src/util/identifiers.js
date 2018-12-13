@@ -1,7 +1,7 @@
 'use strict';
 
 const errors = require('../errors');
-const PATTERN = /^(advisor|vulnerabilities|compliance|test):([\w\d-_|:]+)$/;
+const PATTERN = /^(advisor|vulnerabilities|compliance|test):([\w\d-_|:\\.]+)$/;
 
 function match (id) {
     const match = PATTERN.exec(id);

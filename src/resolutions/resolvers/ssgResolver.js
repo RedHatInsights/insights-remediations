@@ -10,6 +10,8 @@ const templates = require('../../templates/static');
 
 const rebootFactSetter = yaml.safeLoad(templates.special.rebootFactSetter.data);
 
+const PATTERN = /xccdf_org\.ssgproject\.content_rule_([a-z_]+)/;
+
 const LEVELS = {
     low: 1,
     medium: 2,
@@ -17,7 +19,13 @@ const LEVELS = {
 };
 
 exports.resolveResolutions = async function (id) {
-    const raw = await ssg.getTemplate(id.issue);
+    const match = PATTERN.exec(id.issue);
+
+    if (!match) {
+        return [];
+    }
+
+    const raw = await ssg.getTemplate(match[1]);
 
     if (!raw) {
         return [];

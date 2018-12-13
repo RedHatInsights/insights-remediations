@@ -29,8 +29,8 @@ exports[`remediations get get remediation 1`] = `
             ]
         },
         {
-            \\"id\\": \\"compliance:sshd_disable_root_login\\",
-            \\"description\\": \\"OpenSCAP fix for sshd_disable_root_login\\",
+            \\"id\\": \\"compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login\\",
+            \\"description\\": \\"Disable SSH Root Login\\",
             \\"resolution\\": {
                 \\"id\\": \\"fix\\",
                 \\"description\\": \\"Fix\\",

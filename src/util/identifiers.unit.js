@@ -32,8 +32,8 @@ test('parses a vulnerabilities (erratum) id', () => {
 });
 
 test('parses a compliance id', () => {
-    const parsed = identifiers.parse('compliance:sshd_disable_root_login');
+    const parsed = identifiers.parse('compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
     parsed.should.have.property('app', 'compliance');
-    parsed.should.have.property('issue', 'sshd_disable_root_login');
-    parsed.should.have.property('full', 'compliance:sshd_disable_root_login');
+    parsed.should.have.property('issue', 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
+    parsed.should.have.property('full', 'compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
 });

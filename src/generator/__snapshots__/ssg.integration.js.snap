@@ -2,10 +2,10 @@
 
 exports[`generates a simple playbook with multiple compliance remediation 1`] = `
 "---
-# OpenSCAP fix for no_empty_passwords
-# Identifier: (compliance:no_empty_passwords,fix)
+# Prevent Log In to Accounts With Empty Password
+# Identifier: (compliance:xccdf_org.ssgproject.content_rule_no_empty_passwords,fix)
 # Version: unknown
-- name: fix no_empty_passwords
+- name: fix xccdf_org.ssgproject.content_rule_no_empty_passwords
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
   tasks:
@@ -20,10 +20,10 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
         follow: 'yes'
         regexp: nullok
 
-# OpenSCAP fix for bootloader_audit_argument
-# Identifier: (compliance:bootloader_audit_argument,fix)
+# Enable Auditing for Processes Which Start Prior to the Audit Daemon
+# Identifier: (compliance:xccdf_org.ssgproject.content_rule_bootloader_audit_argument,fix)
 # Version: unknown
-- name: fix bootloader_audit_argument
+- name: fix xccdf_org.ssgproject.content_rule_bootloader_audit_argument
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
   tasks:
@@ -73,10 +73,10 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
 
 exports[`generates a simple playbook with reboot support 1`] = `
 "---
-# OpenSCAP fix for security_patches_up_to_date
-# Identifier: (compliance:security_patches_up_to_date,fix)
+# System security patches and updates must be installed and up-to-date.
+# Identifier: (compliance:xccdf_org.ssgproject.content_rule_security_patches_up_to_date,fix)
 # Version: unknown
-- name: fix security_patches_up_to_date
+- name: fix xccdf_org.ssgproject.content_rule_security_patches_up_to_date
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
   tasks:
@@ -128,10 +128,10 @@ exports[`generates a simple playbook with reboot support 1`] = `
 
 exports[`generates a simple playbook with single compliance remediation 1`] = `
 "---
-# OpenSCAP fix for sshd_disable_root_login
-# Identifier: (compliance:sshd_disable_root_login,fix)
+# Disable SSH Root Login
+# Identifier: (compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login,fix)
 # Version: unknown
-- name: fix sshd_disable_root_login
+- name: fix xccdf_org.ssgproject.content_rule_sshd_disable_root_login
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
   tasks:

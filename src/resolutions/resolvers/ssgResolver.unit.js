@@ -25,7 +25,8 @@ test('parses a simple template', async () => {
           tags:
             @ANSIBLE_TAGS@`);
 
-    const resolution = (await resolver.resolveResolutions(id.parse('compliance:sshd_disable_root_login')))[0];
+    const resolution = (await resolver.resolveResolutions(
+        id.parse('compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login')))[0];
     resolution.needsReboot.should.be.false();
     expect(resolution.template.data).toMatchSnapshot();
 });
@@ -42,7 +43,8 @@ test('parses a template with reboot', async () => {
           tags:
             @ANSIBLE_TAGS@`);
 
-    const resolution = (await resolver.resolveResolutions(id.parse('compliance:bootloader_audit_argument')))[0];
+    const resolution = (await resolver.resolveResolutions(
+        id.parse('compliance:xccdf_org.ssgproject.content_rule_bootloader_audit_argument')))[0];
     resolution.needsReboot.should.be.true();
     expect(resolution.template.data).toMatchSnapshot();
 });

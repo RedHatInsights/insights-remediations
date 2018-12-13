@@ -310,7 +310,7 @@ definitions:
 
   IssueId:
     type: string
-    pattern: ^(advisor|vulnerabilities|compliance|test):[\w\d-_|:]+$
+    pattern: ^(advisor|vulnerabilities|compliance|test):[\w\d-_|:\.]+$
     example: vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
 
   SystemId:
@@ -398,7 +398,7 @@ definitions:
               - a8799a02-8be9-11e8-9eb6-529269fb1459
               - 736ef48c-8f05-11e8-9eb6-529269fb1459
             resolution: mitigate
-          - id: compliance:sshd_disable_root_login
+          - id: compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login
             systems:
               - a8799a02-8be9-11e8-9eb6-529269fb1459
               - 736ef48c-8f05-11e8-9eb6-529269fb1459

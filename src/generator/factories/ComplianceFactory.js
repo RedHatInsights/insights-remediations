@@ -22,7 +22,9 @@ exports.createPlay = async function ({id, hosts, resolution}) {
     }
 
     const disambiguatedResolution = disambiguator.disambiguate(resolutions, resolution, id);
-    return new ResolutionPlay(id, hosts, disambiguatedResolution, rule.description);
+
+    // TODO: remove duplication between getIssueDetails and getPlayFactory
+    return new ResolutionPlay(id, hosts, disambiguatedResolution, rule.data.attributes.title);
 };
 
 exports.getResolver = function () {

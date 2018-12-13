@@ -87,9 +87,12 @@ const vulnerabilitiesHandler = new class extends Handler {
 
 const complianceHandler = new class extends Handler {
     async getIssueDetails (id) {
+
+        // TODO: what if 404
         const raw = await compliance.getRule(id.issue);
+
         return {
-            description: raw.description,
+            description: raw.data.attributes.title,
             raw
         };
     }
