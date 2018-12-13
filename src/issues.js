@@ -88,8 +88,10 @@ const vulnerabilitiesHandler = new class extends Handler {
 const complianceHandler = new class extends Handler {
     async getIssueDetails (id) {
 
-        // TODO: what if 404
         const raw = await compliance.getRule(id.issue);
+        if (!raw) {
+            throw errors.unknownIssue(id); // TODO: this needs better handling
+        }
 
         return {
             description: raw.data.attributes.title,
