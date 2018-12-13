@@ -87,6 +87,10 @@ objects:
               secretKeyRef:
                 key: password
                 name: content-server
+          - name: COMPLIANCE_IMPL
+            value: impl
+          - name: COMPLIANCE_HOST
+            value: http://compliance-backend.compliance-ci.svc.cluster.local:3000
           - name: LOG_LEVEL
             value: trace
           - name: REDIS_ENABLED
