@@ -14,6 +14,9 @@ const DEFAULTS = Object.freeze({
         is_org_admin: false,
         is_internal: true,
         locale: 'en_US'
+    },
+    internal: {
+        org_id: '5318290' // not used by remediations but some apps (compliance) rely on this (demo mode)
     }
 });
 
