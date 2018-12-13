@@ -8,7 +8,7 @@ const cls = require('../../util/cls');
 const assert = require('assert');
 
 exports.getRule = function (id) {
-    id = id.replace('.', '-'); // compliance API limitation
+    id = id.replace(/\./g, '-'); // compliance API limitation
 
     const uri = new URI(host);
     uri.path('/r/insights/platform/compliance/rules/');
