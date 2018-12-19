@@ -23,7 +23,7 @@ test('generates a simple playbook with multiple compliance remediation', async (
             id: 'compliance:xccdf_org.ssgproject.content_rule_no_empty_passwords',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }, {
-            id: 'compliance:xccdf_org.ssgproject.content_rule_bootloader_audit_argument',
+            id: 'compliance:xccdf_org.ssgproject.content_rule_security_patches_up_to_date',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };

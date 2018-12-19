@@ -20,15 +20,17 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
         follow: 'yes'
         regexp: nullok
 
-# Enable Auditing for Processes Which Start Prior to the Audit Daemon
-# Identifier: (compliance:xccdf_org.ssgproject.content_rule_bootloader_audit_argument,fix)
+# System security patches and updates must be installed and up-to-date.
+# Identifier: (compliance:xccdf_org.ssgproject.content_rule_security_patches_up_to_date,fix)
 # Version: unknown
-- name: fix xccdf_org.ssgproject.content_rule_bootloader_audit_argument
+- name: fix xccdf_org.ssgproject.content_rule_security_patches_up_to_date
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
   tasks:
-    - name: Enable Auditing for Processes Which Start Prior to the Audit Daemon
-      shell: /sbin/grubby --update-kernel=ALL --args=\\"audit=1\\"
+    - name: Security patches are up to date
+      package:
+        name: '*'
+        state: latest
       register: result
     - when: result is changed
       set_fact:

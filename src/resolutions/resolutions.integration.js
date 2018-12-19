@@ -36,4 +36,10 @@ describe('resolve compliance resolutions', function () {
             }]
         });
     });
+
+    test('template with reboot and multiple tasks not supported at the moment', async () => {
+        await request
+        .get('/v1/resolutions/compliance:xccdf_org.ssgproject.content_rule_grub2_disable_interactive_boot')
+        .expect(404);
+    });
 });

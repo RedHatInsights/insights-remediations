@@ -10,7 +10,7 @@ const templates = require('../../templates/static');
 
 const rebootFactSetter = yaml.safeLoad(templates.special.rebootFactSetter.data);
 
-const PATTERN = /xccdf_org\.ssgproject\.content_rule_([a-z_]+)/;
+const PATTERN = /xccdf_org\.ssgproject\.content_rule_([a-z0-9_]+)/;
 
 const LEVELS = {
     low: 1,
@@ -31,11 +31,14 @@ exports.resolveResolutions = async function (id) {
         return [];
     }
 
-    return [parseTemplate(raw, id)];
+    const result = parseTemplate(raw, id);
+
+    return result ? [result] : [];
 };
 
 function parseTemplate (template, id) {
     template = template.replace(/@ANSIBLE_TAGS@/g, '- 0');
+    template = template.replace(/^.*@ANSIBLE_ENSURE_PLATFORM@.*$/gm, ''); // TODO!!
     template = yamlUtils.removeDocumentMarkers(template);
     const parsed = yaml.safeLoad(template);
     parsed.forEach(item => delete item.tags);
@@ -45,7 +48,9 @@ function parseTemplate (template, id) {
     const needsReboot = isBoolean(metadata.reboot);
 
     if (needsReboot) {
-        addRebootSupport(parsed);
+        if (!addRebootSupport(parsed)) {
+            return false;
+        }
     }
 
     const play = createBaseTemplate(id);
@@ -80,9 +85,16 @@ function parseResolutionRisk (metadata) {
 }
 
 function addRebootSupport (tasks) {
-    nonEmptyArray(tasks, 1);
+    nonEmptyArray(tasks);
+
+    if (tasks.length !== 1) {
+        return false; // TODO: this needs proper support
+    }
+
     notIn(tasks[0], 'register');
 
     tasks[0].register = 'result';
     tasks.push(rebootFactSetter);
+
+    return true;
 }
