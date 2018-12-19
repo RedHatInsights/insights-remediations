@@ -4,9 +4,11 @@ NS='remediations-pr'
 
 def scale (count) {
     sh "oc scale --replicas=${count} --namespace=${NS} dc/postgres"
+    sh "oc scale --replicas=${count} --namespace=${NS} dc/playbooks-cac"
 
     // wait for dependencies
     waitFor(count, 'postgres')
+    waitFor(count, 'playbooks-cac')
 }
 
 def waitFor (count, resource) {
@@ -42,6 +44,8 @@ node {
     stage('verify') {
         env.DB_HOST="postgres.${NS}.svc"
         env.DB_DATABASE='remediationstest'
+        env.SSG_IMPL='impl'
+        env.SSG_HOST="http://playbooks-cac.${NS}.svc:8080"
 
         lock(NS) {
             scale(1)

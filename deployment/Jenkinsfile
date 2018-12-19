@@ -23,9 +23,11 @@ def notifyOnFailure(Closure step) {
 
 def scale (count) {
     sh "oc scale --replicas=${count} --namespace=${TESTNS} dc/postgres"
+    sh "oc scale --replicas=${count} --namespace=${TESTNS} dc/playbooks-cac"
 
     // wait for dependencies
     waitFor(count, 'postgres')
+    waitFor(count, 'playbooks-cac')
 }
 
 def waitFor (count, resource) {
@@ -64,6 +66,8 @@ node {
         stage('verify') {
             env.DB_HOST="postgres.${TESTNS}.svc"
             env.DB_DATABASE='remediationstest'
+            env.SSG_IMPL='impl'
+            env.SSG_HOST="http://playbooks-cac.${TESTNS}.svc:8080"
 
             lock(TESTNS) {
                 scale(1)
