@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: playbooks-cac-is
+
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      app: playbooks
+    name: playbooks-cac
+  spec:
+    lookupPolicy:
+      local: true

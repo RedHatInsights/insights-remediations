@@ -91,6 +91,10 @@ objects:
             value: impl
           - name: COMPLIANCE_HOST
             value: http://compliance-backend.compliance-ci.svc.cluster.local:3000
+          - name: SSG_IMPL
+            value: impl
+          - name: SSG_HOST
+            value: http://playbooks-cac:8080
           - name: LOG_LEVEL
             value: trace
           - name: REDIS_ENABLED

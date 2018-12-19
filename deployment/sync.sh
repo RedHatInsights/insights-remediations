@@ -14,7 +14,7 @@ if [[ $NAMESPACE == "remediations-prod" ]]; then
     HOSTNAME="remediations.1b13.insights.openshiftapps.com"
 fi
 
-for i in configuration/*.yaml; do
+for i in configuration/*.yaml configuration/cac/*.yaml; do
     echo "Updating $i"
     oc process -f $i --local --ignore-unknown-parameters NAMESPACE="$(oc project --short)" HOSTNAME="$HOSTNAME" | oc apply -f -
 done;

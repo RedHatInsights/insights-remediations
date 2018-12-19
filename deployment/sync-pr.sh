@@ -7,7 +7,7 @@ if [[ $(oc project -q) != remediations-pr ]]; then
     exit 1;
 fi
 
-for i in secrets/postgres.yaml configuration/postgres.yaml; do
+for i in secrets/postgres.yaml configuration/postgres.yaml configuration/cac/dc.yaml configuration/cac/svc.yaml; do
     echo "Updating $i"
     oc process -f $i --local --ignore-unknown-parameters NAMESPACE="$(oc project --short)" DB_PASS="remediations" | oc apply -f -
 done;
