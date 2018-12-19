@@ -40,4 +40,4 @@ services:
       args:
         - REVISION=972f5ac923fbc1e667326fc4c5c50ade3f8e70e2
     ports:
-      - 8090:80
+      - 8090:8080

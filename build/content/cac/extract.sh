@@ -4,7 +4,7 @@ set -e
 REVISION="${1:-972f5ac923fbc1e667326fc4c5c50ade3f8e70e2}"
 echo "Fetching playbooks from rev. ${REVISION}"
 
-wget "https://github.com/ComplianceAsCode/content/tarball/${REVISION}" -qO- | tar xz
+curl -s -L "https://github.com/ComplianceAsCode/content/tarball/${REVISION}" --output - | tar xz
 
 CONTENT=$(find ComplianceAsCode-content-*/linux_os/ -name 'shared.yml')
 
