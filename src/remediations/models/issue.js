@@ -1,7 +1,5 @@
 'use strict';
 
-const { emptyStringOnNull } = require('../../util/models');
-
 module.exports = (sequelize, {INTEGER, STRING, UUID}) => {
     const Issue = sequelize.define('issue', {
         id: {
@@ -19,10 +17,7 @@ module.exports = (sequelize, {INTEGER, STRING, UUID}) => {
         },
         resolution: {
             type: STRING,
-            allowNull: true,
-            get() {
-                return emptyStringOnNull(this.getDataValue('resolution'));
-            }
+            allowNull: true
         }
     }, {
         tableName: 'remediation_issues'
