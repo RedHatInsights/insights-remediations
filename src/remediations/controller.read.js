@@ -9,6 +9,7 @@ const resolutions = require('../resolutions');
 const inventory = require('../connectors/inventory');
 const issues = require('../issues');
 const identifiers = require('../util/identifiers');
+const generator = require('../generator/generator.controller');
 
 const notFound = res => res.status(404).json();
 
@@ -107,4 +108,24 @@ exports.get = errors.async(async function (req, res) {
     remediation.needs_reboot = inferNeedsReboot(remediation);
 
     res.json(format.get(remediation));
+});
+
+exports.playbook = errors.async(async function (req, res) {
+    const remediation = await queries.get(req.swagger.params.id.value, req.user.account_number, req.user.username);
+
+    if (!remediation) {
+        return notFound(res);
+    }
+
+    const issues = remediation.toJSON().issues;
+    issues.forEach(issue => {
+        issue.id = issue.issue_id;
+        issue.systems = _.map(issue.systems, 'system_id');
+    });
+
+    const playbook = await generator.playbookPipeline({
+        issues
+    });
+
+    generator.send(res, playbook, format.playbookName(remediation));
 });

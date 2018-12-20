@@ -1,6 +1,8 @@
 'use strict';
 
 const _ = require('lodash');
+const DEFAULT_REMEDIATION_NAME = 'unnamed-remediation';
+const PLAYBOOK_SUFFIX = 'yml';
 
 exports.list = function (remediations) {
     const formatted = _.map(remediations, remediation => _.pick(remediation, [
@@ -50,4 +52,23 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
 
 exports.created = function ({id}) {
     return {id};
+};
+
+function playbookNamePrefix (name) {
+    if (!name || !name.length) {
+        return DEFAULT_REMEDIATION_NAME;
+    }
+
+    let result = name.toLowerCase().trim(); // no capital letters
+    result = result.replace(/\s+/g, '-'); // no whitespace
+    result = result.replace(/[^\w-]/g, ''); // only alphanumeric, hyphens or underscore
+    return result;
+}
+
+exports.playbookName = function (remediation) {
+    const name = playbookNamePrefix(remediation.name);
+    const fileName = [name, new Date().getTime()];
+
+    // my-remediation-1462522068064.yml
+    return `${fileName.join('-')}.${PLAYBOOK_SUFFIX}`;
 };

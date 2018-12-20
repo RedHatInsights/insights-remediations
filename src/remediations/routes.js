@@ -11,6 +11,8 @@ module.exports = function (router) {
     router.patch('/remediations/:id', write.patch);
     router.delete('/remediations/:id', write.remove);
 
+    router.get('/remediations/:id/playbook', read.playbook);
+
     router.patch('/remediations/:id/issues/:issue', write.patchIssue);
     router.delete('/remediations/:id/issues/:issue', write.removeIssue);
 

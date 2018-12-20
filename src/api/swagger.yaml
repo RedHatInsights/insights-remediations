@@ -132,6 +132,25 @@ paths:
         404:
           $ref: '#/responses/NotFound'
 
+  /remediations/{id}/playbook:
+    get:
+      tags:
+        - remediations
+      summary: Get Remediation Playbook
+      description: Provides Ansible Playbook
+      operationId: getRemediationPlaybook
+      parameters:
+        - $ref: '#/parameters/RemediationId'
+      produces:
+        - text/vnd.yaml
+      responses:
+        200:
+          description: OK
+          schema:
+            type: string
+        404:
+          $ref: '#/responses/NotFound'
+
   /remediations/{id}/issues/{issue}:
     patch:
       tags:

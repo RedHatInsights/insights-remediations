@@ -14,7 +14,7 @@ const {composeAsync} = require('../util/fn');
 
 const issueManager = require('../issues');
 
-const playbookPipeline = composeAsync(
+exports.playbookPipeline = composeAsync(
     resolveSystems,
     input => {
         input.issues.forEach(issue => issue.id = identifiers.parse(issue.id));
@@ -31,8 +31,8 @@ const playbookPipeline = composeAsync(
 
 exports.generate = errors.async(async function (req, res) {
     const input = { ...req.swagger.params.body.value };
-    const playbook = await playbookPipeline(input);
-    return send(res, playbook);
+    const playbook = await exports.playbookPipeline(input);
+    return exports.send(res, playbook);
 });
 
 async function resolveSystems (input) {
@@ -76,13 +76,12 @@ function addDiagnosisPlay (plays) {
     return [new SpecialPlay('special:diagnosis', hosts, templates.special.diagnosis), ...plays];
 }
 
-function send (res, playbook) {
-    res.set({
-        'Content-type': 'text/vnd.yaml'
+exports.send = function (res, playbook, attachment = false) {
+    res.set('Content-type', 'text/vnd.yaml');
 
-        // TODO make optional
-        //'Content-disposition': `attachment;filename="insights-playbook.yml"`
-    });
+    if (attachment) {
+        res.set('Content-disposition', `attachment;filename="${attachment}"`);
+    }
 
     return res.send(playbook).end();
-}
+};
