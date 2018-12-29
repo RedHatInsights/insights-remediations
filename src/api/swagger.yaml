@@ -612,9 +612,9 @@ definitions:
   Diagnosis:
     type: object
     additionalProperties: false
-    required: [diagnosis]
+    required: [details]
     properties:
-      diagnosis:
+      details:
         type: object
         example:
           CVE_2018_1111_dhcp|ERROR_CVE_2018_1111_DHCP_2:

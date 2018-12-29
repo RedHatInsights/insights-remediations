@@ -1,28 +1,11 @@
-- name: run insights to obtain latest report info
+- name: run insights to obtain latest diagnosis info
   hosts: "@@HOSTS@@"
   become: True
   tasks:
-    - name: determine insights version
-      shell: 'redhat-access-insights --version'
+    - name: obtain diagnosis info
+      shell: 'insights-client --diagnosis@@REMEDIATION@@'
+      register: insights_result
       changed_when: false
-      register: insights_version
-
-    - when: insights_version.stdout[0:2] != '1.'
-      block:
-        - name: obtaining insights report
-          shell: 'redhat-access-insights --to-json --quiet'
-          register: insights_result
-          changed_when: false
-          check_mode: false
-        - name: register insights report as fact for use by other plays
-          set_fact: insights_report={{ insights_result.stdout }}
-
-    - when: insights_version.stdout[0:2] == '1.'
-      block:
-        - name: obtaining insights report (legacy client)
-          shell: 'redhat-access-insights --verbose | grep "Upload status: 201 Created" | grep -o "{.*}"'
-          register: insights_result_legacy
-          changed_when: false
-          check_mode: false
-        - name: register insights report as fact for use by other plays (legacy client)
-          set_fact: insights_report={{ insights_result_legacy.stdout }}
+      check_mode: false
+    - name: register insights report as fact for use by other plays
+      set_fact: insights_report={{ insights_result.stdout }}

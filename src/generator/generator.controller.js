@@ -20,7 +20,7 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
     issues = erratumPlayAggregator.process(issues);
     issues = addRebootPlay(issues, auto_reboot);
     issues = addPostRunCheckIn(issues);
-    issues = addDiagnosisPlay(issues);
+    issues = addDiagnosisPlay(issues, remediation);
 
     const playbook = format.render(issues, remediation);
     format.validate(playbook);
@@ -67,7 +67,7 @@ function addPostRunCheckIn (plays) {
     return [...plays, new SpecialPlay('special:post-run-check-in', hosts, templates.special.postRunCheckIn)];
 }
 
-function addDiagnosisPlay (plays) {
+function addDiagnosisPlay (plays, remediation = false) {
     const diagnosisPlays = plays.filter(play => play.needsDiagnosis());
 
     if (!diagnosisPlays.length) {
@@ -75,7 +75,8 @@ function addDiagnosisPlay (plays) {
     }
 
     const hosts = _(diagnosisPlays).flatMap('hosts').uniq().sort().value();
-    return [new SpecialPlay('special:diagnosis', hosts, templates.special.diagnosis), ...plays];
+    const params = {REMEDIATION: remediation ? ` ${remediation.id}` : ''};
+    return [new SpecialPlay('special:diagnosis', hosts, templates.special.diagnosis, params), ...plays];
 }
 
 exports.send = function (res, playbook, attachment = false) {

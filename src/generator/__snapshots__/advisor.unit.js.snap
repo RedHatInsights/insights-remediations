@@ -8,34 +8,17 @@ exports[`generates a rule-based playbook 1`] = `
 # they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
-- name: run insights to obtain latest report info
+- name: run insights to obtain latest diagnosis info
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   tasks:
-    - name: determine insights version
-      shell: 'redhat-access-insights --version'
+    - name: obtain diagnosis info
+      shell: 'insights-client --diagnosis'
+      register: insights_result
       changed_when: false
-      register: insights_version
-
-    - when: insights_version.stdout[0:2] != '1.'
-      block:
-        - name: obtaining insights report
-          shell: 'redhat-access-insights --to-json --quiet'
-          register: insights_result
-          changed_when: false
-          check_mode: false
-        - name: register insights report as fact for use by other plays
-          set_fact: insights_report={{ insights_result.stdout }}
-
-    - when: insights_version.stdout[0:2] == '1.'
-      block:
-        - name: obtaining insights report (legacy client)
-          shell: 'redhat-access-insights --verbose | grep \\"Upload status: 201 Created\\" | grep -o \\"{.*}\\"'
-          register: insights_result_legacy
-          changed_when: false
-          check_mode: false
-        - name: register insights report as fact for use by other plays (legacy client)
-          set_fact: insights_report={{ insights_result_legacy.stdout }}
+      check_mode: false
+    - name: register insights report as fact for use by other plays
+      set_fact: insights_report={{ insights_result.stdout }}
 
 # Bonding will not fail over to the backup link when bonding options are partially read
 # Identifier: (advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE,fix)
@@ -81,34 +64,17 @@ exports[`puts quotes around hosts list 1`] = `
 # they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
-- name: run insights to obtain latest report info
+- name: run insights to obtain latest diagnosis info
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   tasks:
-    - name: determine insights version
-      shell: 'redhat-access-insights --version'
+    - name: obtain diagnosis info
+      shell: 'insights-client --diagnosis'
+      register: insights_result
       changed_when: false
-      register: insights_version
-
-    - when: insights_version.stdout[0:2] != '1.'
-      block:
-        - name: obtaining insights report
-          shell: 'redhat-access-insights --to-json --quiet'
-          register: insights_result
-          changed_when: false
-          check_mode: false
-        - name: register insights report as fact for use by other plays
-          set_fact: insights_report={{ insights_result.stdout }}
-
-    - when: insights_version.stdout[0:2] == '1.'
-      block:
-        - name: obtaining insights report (legacy client)
-          shell: 'redhat-access-insights --verbose | grep \\"Upload status: 201 Created\\" | grep -o \\"{.*}\\"'
-          register: insights_result_legacy
-          changed_when: false
-          check_mode: false
-        - name: register insights report as fact for use by other plays (legacy client)
-          set_fact: insights_report={{ insights_result_legacy.stdout }}
+      check_mode: false
+    - name: register insights report as fact for use by other plays
+      set_fact: insights_report={{ insights_result.stdout }}
 
 # Unexpected bonding behavior with incorrect syntax in bond configuration files
 # Identifier: (advisor:bond_config_issue|NO_QUOTES,fix)

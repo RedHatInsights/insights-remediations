@@ -15,7 +15,7 @@ exports.getDiagnosis = errors.async(async function (req, res) {
     // 3) get report details from advisor, vulnerabilities
 
     const data = {
-        diagnosis: {
+        details: {
             'CVE_2018_1111_dhcp|ERROR_CVE_2018_1111_DHCP_2': {
                 dhcp_devs: [
                     'enp0s3'
@@ -26,7 +26,7 @@ exports.getDiagnosis = errors.async(async function (req, res) {
     };
 
     if (!remediationId) {
-        data.diagnosis['CVE_2017_5753_4_cpu_kernel|KERNEL_CVE_2017_5753_4_CPU_ERROR_3'] = {
+        data.details['CVE_2017_5753_4_cpu_kernel|KERNEL_CVE_2017_5753_4_CPU_ERROR_3'] = {
             debugfs_available: true,
             dmesg_available: true,
             dmesg_wrapped: false
