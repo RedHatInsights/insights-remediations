@@ -10,24 +10,23 @@ const SpecialPlay = require('./plays/SpecialPlay');
 const format = require('./format');
 const identifiers = require('../util/identifiers');
 const erratumPlayAggregator = require('./erratumPlayAggregator');
-const {composeAsync} = require('../util/fn');
-
 const issueManager = require('../issues');
 
-exports.playbookPipeline = composeAsync(
-    resolveSystems,
-    input => {
-        input.issues.forEach(issue => issue.id = identifiers.parse(issue.id));
-        return input;
-    },
-    ({issues}) => P.map(issues, issue => issueManager.getPlayFactory(issue.id).createPlay(issue)),
-    erratumPlayAggregator.process,
-    addRebootPlay,
-    addPostRunCheckIn,
-    addDiagnosisPlay,
-    format.render,
-    format.validate
-);
+exports.playbookPipeline = async function (input) {
+    await resolveSystems(input);
+    input.issues.forEach(issue => issue.id = identifiers.parse(issue.id));
+    let issues = await P.map(input.issues, issue => issueManager.getPlayFactory(issue.id).createPlay(issue));
+
+    issues = erratumPlayAggregator.process(issues);
+    issues = addRebootPlay(issues);
+    issues = addPostRunCheckIn(issues);
+    issues = addDiagnosisPlay(issues);
+
+    const playbook = format.render(issues);
+    format.validate(playbook);
+
+    return playbook;
+};
 
 exports.generate = errors.async(async function (req, res) {
     const input = { ...req.swagger.params.body.value };
