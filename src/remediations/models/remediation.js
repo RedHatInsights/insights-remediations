@@ -1,6 +1,6 @@
 'use strict';
 
-const { emptyStringOnNull } = require('../../util/models');
+const NULL_NAME_VALUE = 'Unnamed remediation';
 
 module.exports = (sequelize, {BOOLEAN, STRING, UUID}) => {
     const Remediation = sequelize.define('remediation', {
@@ -11,7 +11,13 @@ module.exports = (sequelize, {BOOLEAN, STRING, UUID}) => {
         name: {
             type: STRING,
             get() {
-                return emptyStringOnNull(this.getDataValue('name'));
+                const value = this.getDataValue('name');
+
+                if (value === null) {
+                    return NULL_NAME_VALUE;
+                }
+
+                return value;
             }
         },
         account_number: {

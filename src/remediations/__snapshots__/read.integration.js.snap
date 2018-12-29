@@ -110,7 +110,7 @@ exports[`remediations list list remediations 1`] = `
     \\"remediations\\": [
         {
             \\"id\\": \\"e809526c-56f5-4cd8-a809-93328436ea23\\",
-            \\"name\\": \\"\\",
+            \\"name\\": \\"Unnamed remediation\\",
             \\"created_by\\": \\"tuser@redhat.com\\",
             \\"created_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"updated_by\\": \\"tuser@redhat.com\\",

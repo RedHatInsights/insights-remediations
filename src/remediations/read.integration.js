@@ -90,7 +90,7 @@ describe('remediations', function () {
 
             body.should.eql({
                 id: 'e809526c-56f5-4cd8-a809-93328436ea23',
-                name: '',
+                name: 'Unnamed remediation',
                 needs_reboot: false,
                 auto_reboot: false,
                 created_by: 'tuser@redhat.com',
