@@ -33,6 +33,23 @@ test('generates a simple playbook with reboot', () => {
     .then(res => expect(res.text).toMatchSnapshot());
 });
 
+test('generates a simple playbook with suppressed reboot', async () => {
+    const data = {
+        issues: [{
+            id: 'test:reboot',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459', '936ef48c-8f05-11e8-9eb6-529269fb1459']
+        }],
+        auto_reboot: false
+    };
+
+    const {text} = await request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200);
+
+    expect(text).toMatchSnapshot();
+});
+
 test('generates an erratum-based playbook', () => {
     mockVmaas();
 

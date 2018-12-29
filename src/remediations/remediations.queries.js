@@ -32,7 +32,7 @@ exports.list = function (account_number, created_by, primaryOrder = 'updated_at'
         },
         order: [
             [primaryOrder, asc ? 'ASC' : 'DESC'],
-            'id'
+            ['id', 'ASC']
         ]
     });
 };

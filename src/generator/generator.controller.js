@@ -12,13 +12,13 @@ const identifiers = require('../util/identifiers');
 const erratumPlayAggregator = require('./erratumPlayAggregator');
 const issueManager = require('../issues');
 
-exports.playbookPipeline = async function (input, remediation = false) {
-    await resolveSystems(input);
-    input.issues.forEach(issue => issue.id = identifiers.parse(issue.id));
-    let issues = await P.map(input.issues, issue => issueManager.getPlayFactory(issue.id).createPlay(issue));
+exports.playbookPipeline = async function ({issues, auto_reboot = true}, remediation = false) {
+    await resolveSystems(issues);
+    issues.forEach(issue => issue.id = identifiers.parse(issue.id));
+    issues = await P.map(issues, issue => issueManager.getPlayFactory(issue.id).createPlay(issue));
 
     issues = erratumPlayAggregator.process(issues);
-    issues = addRebootPlay(issues);
+    issues = addRebootPlay(issues, auto_reboot);
     issues = addPostRunCheckIn(issues);
     issues = addDiagnosisPlay(issues);
 
@@ -34,11 +34,11 @@ exports.generate = errors.async(async function (req, res) {
     return exports.send(res, playbook);
 });
 
-async function resolveSystems (input) {
-    const systemIds = _(input.issues).flatMap('systems').uniq().value();
+async function resolveSystems (issues) {
+    const systemIds = _(issues).flatMap('systems').uniq().value();
     const systems = await inventory.getSystemDetailsBatch(systemIds);
 
-    input.issues.forEach(issue => issue.hosts = issue.systems.map(id => {
+    issues.forEach(issue => issue.hosts = issue.systems.map(id => {
         if (!systems.hasOwnProperty(id)) {
             throw errors.unknownSystem(id);
         }
@@ -46,17 +46,20 @@ async function resolveSystems (input) {
         return systems[id].display_name || systems[id].hostname || systems[id].id;
     }));
 
-    return input;
+    return issues;
 }
 
-function addRebootPlay (plays) {
+function addRebootPlay (plays, autoReboot = true) {
     const rebootRequiringPlays = _.filter(plays, play => play.needsReboot());
     if (rebootRequiringPlays.length === 0) {
         return plays;
     }
 
     const hosts = _(rebootRequiringPlays).flatMap('hosts').uniq().sort().value();
-    return [...plays, new SpecialPlay('special:reboot', hosts, templates.special.reboot)];
+    return [
+        ...plays,
+        new SpecialPlay('special:reboot', hosts, autoReboot ? templates.special.reboot : templates.special.rebootSuppressed)
+    ];
 }
 
 function addPostRunCheckIn (plays) {

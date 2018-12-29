@@ -13,6 +13,7 @@ describe('remediations', function () {
             body.should.have.property('remediations');
             body.remediations.should.not.be.empty();
             _.map(body.remediations, 'id').should.eql([
+                '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
                 'e809526c-56f5-4cd8-a809-93328436ea23',
                 'cbc782e4-e8ae-4807-82ab-505387981d2e',
                 '66eec356-dd06-4c72-a3b6-ef27d1508a02'
@@ -41,7 +42,8 @@ describe('remediations', function () {
         });
 
         describe('sorting', function () {
-            const [r1, r2, r3] = [
+            const [r1, r2, r3, r4] = [
+                '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
                 'e809526c-56f5-4cd8-a809-93328436ea23',
                 'cbc782e4-e8ae-4807-82ab-505387981d2e',
                 '66eec356-dd06-4c72-a3b6-ef27d1508a02'
@@ -51,7 +53,7 @@ describe('remediations', function () {
                 const {body} = await request
                 .get('/v1/remediations?pretty')
                 .expect(200);
-                _.map(body.remediations, 'id').should.eql([r1, r2, r3]);
+                _.map(body.remediations, 'id').should.eql([r1, r2, r3, r4]);
             });
 
             function testSorting (column, asc, ...expected) {
@@ -63,14 +65,14 @@ describe('remediations', function () {
                 });
             }
 
-            testSorting('updated_at', true, r3, r2, r1);
-            testSorting('updated_at', false, r1, r2, r3);
-            testSorting('name', true, r3, r2, r1);
-            testSorting('name', false, r1, r2, r3);
-            testSorting('issue_count', true, r1, r2, r3);
-            testSorting('issue_count', false, r3, r2, r1);
-            testSorting('system_count', true, r2, r1, r3);
-            testSorting('system_count', false, r1, r3, r2);
+            testSorting('updated_at', true, r4, r3, r2, r1);
+            testSorting('updated_at', false, r1, r2, r3, r4);
+            testSorting('name', true, r4, r3, r1, r2);
+            testSorting('name', false, r2, r1, r3, r4);
+            testSorting('issue_count', true, r1, r2, r3, r4);
+            testSorting('issue_count', false, r4, r3, r1, r2);
+            testSorting('system_count', true, r1, r3, r2, r4);
+            testSorting('system_count', false, r2, r4, r1, r3);
         });
     });
 

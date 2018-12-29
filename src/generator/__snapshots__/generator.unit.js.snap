@@ -260,6 +260,47 @@ exports[`generates a simple playbook with reboot 1`] = `
       changed_when: false"
 `;
 
+exports[`generates a simple playbook with suppressed reboot 1`] = `
+"---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
+# Fixes test:reboot
+# Identifier: (test:reboot,fix)
+# Version: unknown
+- name: Trigger reboot
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
+
+  tasks:
+    - name: Trigger reboot
+      set_fact:
+        insights_needs_reboot: True
+
+# Automatic system reboot was suppressed for this playbook.
+# This play lists the systems that need to be rebooted manually for the changes to take effect.
+- name: Reboot reminder
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
+  gather_facts: False
+  tasks:
+    - debug:
+        msg: \\"Automatic system reboot was suppressed for this playbook. Reboot {{inventory_hostname}} manually for the changes to take effect.\\"
+      when:
+        - insights_needs_reboot is defined
+        - insights_needs_reboot
+
+- name: run insights
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: redhat-access-insights
+      changed_when: false"
+`;
+
 exports[`generates an erratum-based playbook 1`] = `
 "---
 # Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you

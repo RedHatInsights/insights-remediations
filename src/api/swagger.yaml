@@ -447,6 +447,10 @@ definitions:
                 $ref: "#/definitions/SystemId"
             resolution:
               $ref: "#/definitions/ResolutionType"
+      auto_reboot:
+        type: boolean
+        default: true
+        description: Indicates whether systems that need to be rebooted should be rebooted automatically
 
   #
   # Output types

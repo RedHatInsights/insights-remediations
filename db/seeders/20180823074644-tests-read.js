@@ -40,6 +40,15 @@ exports.up = async q => {
         created_at: '2018-12-04T08:19:36.641Z',
         updated_by: created_by,
         updated_at: '2018-12-04T08:19:36.641Z'
+    }, {
+        id: '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
+        name: 'Remediation with suppressed reboot',
+        auto_reboot: false,
+        account_number,
+        created_by,
+        created_at: '2018-12-05T08:19:36.641Z',
+        updated_by: created_by,
+        updated_at: '2018-12-05T08:19:36.641Z'
     }], opts);
 
     const issues = await q.bulkInsert('remediation_issues', [{
@@ -66,6 +75,9 @@ exports.up = async q => {
     }, {
         remediation_id: remediations[2].id,
         issue_id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'
+    }, {
+        remediation_id: remediations[3].id,
+        issue_id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'
     }], opts);
 
     await q.bulkInsert('remediation_issue_systems', [{
@@ -98,5 +110,8 @@ exports.up = async q => {
     }, {
         remediation_issue_id: issues[7].id,
         system_id: systems[1]
+    }, {
+        remediation_issue_id: issues[8].id,
+        system_id: systems[0]
     }]);
 };
