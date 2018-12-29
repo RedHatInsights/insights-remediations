@@ -22,6 +22,8 @@ beforeEach(() => {
 
 exports.getSandbox = () => exports.sandbox;
 
+exports.mockDate = () => exports.sandbox.stub(Date.prototype, 'toUTCString').returns('Sat, 29 Dec 2018 08:20:35 GMT');
+
 afterEach(() => {
     exports.sandbox.restore();
     delete exports.sandbox;

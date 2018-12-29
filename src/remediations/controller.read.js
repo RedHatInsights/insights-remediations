@@ -125,7 +125,7 @@ exports.playbook = errors.async(async function (req, res) {
 
     const playbook = await generator.playbookPipeline({
         issues
-    });
+    }, remediation);
 
     generator.send(res, playbook, format.playbookName(remediation));
 });

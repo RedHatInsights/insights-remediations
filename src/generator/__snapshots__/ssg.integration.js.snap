@@ -2,6 +2,12 @@
 
 exports[`generates a simple playbook with multiple compliance remediation 1`] = `
 "---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
 # Prevent Log In to Accounts With Empty Password
 # Identifier: (compliance:xccdf_org.ssgproject.content_rule_no_empty_passwords,fix)
 # Version: unknown
@@ -75,6 +81,12 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
 
 exports[`generates a simple playbook with reboot support 1`] = `
 "---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
 # System security patches and updates must be installed and up-to-date.
 # Identifier: (compliance:xccdf_org.ssgproject.content_rule_security_patches_up_to_date,fix)
 # Version: unknown
@@ -130,6 +142,12 @@ exports[`generates a simple playbook with reboot support 1`] = `
 
 exports[`generates a simple playbook with single compliance remediation 1`] = `
 "---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
 # Disable SSH Root Login
 # Identifier: (compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login,fix)
 # Version: unknown

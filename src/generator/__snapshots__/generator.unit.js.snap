@@ -2,6 +2,12 @@
 
 exports[`adds diagnosis play 1`] = `
 "---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
 - name: run insights to obtain latest report info
   hosts: \\"4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
@@ -174,6 +180,12 @@ exports[`adds diagnosis play 1`] = `
 
 exports[`generates a simple playbook 1`] = `
 "---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
 # Fixes test:ping
 # Identifier: (test:ping,fix)
 # Version: unknown
@@ -194,6 +206,12 @@ exports[`generates a simple playbook 1`] = `
 
 exports[`generates a simple playbook with reboot 1`] = `
 "---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
 # Fixes test:reboot
 # Identifier: (test:reboot,fix)
 # Version: unknown
@@ -244,6 +262,12 @@ exports[`generates a simple playbook with reboot 1`] = `
 
 exports[`generates an erratum-based playbook 1`] = `
 "---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
 # Upgrade packages affected by RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
@@ -304,6 +328,12 @@ exports[`generates an erratum-based playbook 1`] = `
 
 exports[`sorts the hosts line 1`] = `
 "---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
 # Upgrade packages affected by RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown

@@ -2,6 +2,12 @@
 
 exports[`aggregates multiple errata into a single play 1`] = `
 "---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
 # Upgrade the following packages:
 #   - Upgrade packages affected by RHSA-2017:1382
 #   - Upgrade packages affected by RHSA-2017:1852
@@ -66,6 +72,12 @@ exports[`aggregates multiple errata into a single play 1`] = `
 
 exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 "---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
 # Upgrade the following packages:
 #   - Upgrade packages affected by RHSA-2017:1382
 #   - Upgrade packages affected by RHSA-2017:1852
@@ -153,6 +165,12 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 
 exports[`generates a simple playbook with multiple erratum-based remediation 1`] = `
 "---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
 # Upgrade packages affected by RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
@@ -255,6 +273,12 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 
 exports[`generates a simple playbook with single CVE remediation 1`] = `
 "---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
 # Upgrade packages affected by CVE-2017-17712
 # Identifier: (vulnerabilities:CVE-2017-17712,fix)
 # Version: test-version
@@ -315,6 +339,12 @@ exports[`generates a simple playbook with single CVE remediation 1`] = `
 
 exports[`generates a simple playbook with single RHSA remediation 1`] = `
 "---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
 # Upgrade packages affected by RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown

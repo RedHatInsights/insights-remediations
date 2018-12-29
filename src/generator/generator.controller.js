@@ -12,7 +12,7 @@ const identifiers = require('../util/identifiers');
 const erratumPlayAggregator = require('./erratumPlayAggregator');
 const issueManager = require('../issues');
 
-exports.playbookPipeline = async function (input) {
+exports.playbookPipeline = async function (input, remediation = false) {
     await resolveSystems(input);
     input.issues.forEach(issue => issue.id = identifiers.parse(issue.id));
     let issues = await P.map(input.issues, issue => issueManager.getPlayFactory(issue.id).createPlay(issue));
@@ -22,7 +22,7 @@ exports.playbookPipeline = async function (input) {
     issues = addPostRunCheckIn(issues);
     issues = addDiagnosisPlay(issues);
 
-    const playbook = format.render(issues);
+    const playbook = format.render(issues, remediation);
     format.validate(playbook);
 
     return playbook;
