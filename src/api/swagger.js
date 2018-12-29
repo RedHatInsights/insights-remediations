@@ -20,6 +20,7 @@ module.exports = async function (app, prefix) {
     }));
 
     app.use(mw.swaggerUi({
-        swaggerUi: `${prefix}/docs`
+        apiDocs: `${prefix}/v1/swagger.json`,
+        swaggerUi: `${prefix}/v1/docs`
     }));
 };
