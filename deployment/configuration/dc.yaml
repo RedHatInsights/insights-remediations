@@ -120,7 +120,7 @@ objects:
                 key: password
                 name: db
           - name: DEMO_MODE
-            value: "true"
+            value: "false"
           resources:
             requests:
               cpu: 100m
