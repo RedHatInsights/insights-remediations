@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const log = require('./util/log');
 const cls = require('./util/cls');
+const config = require('./config');
 
 class HttpError {
     constructor (status, code, title, details) {
@@ -89,7 +90,18 @@ exports.handler = (err, req, res, next) => {
         }
     }, 'caught internal error');
 
-    next(err);
+    if (config.env !== 'production') {
+        return next(err); // write out stack in non-prod envs
+    }
+
+    res.status(500).json({
+        errors: [{
+            id: req.id,
+            status: 500,
+            code: 'INTERNAL_ERROR',
+            title: 'Internal Server Error'
+        }]
+    });
 };
 
 exports.async = fn => (req, res, next) => {
