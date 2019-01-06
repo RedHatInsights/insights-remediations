@@ -32,7 +32,7 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
         created_at,
         updated_by,
         updated_at,
-        issues: _.map(issues, ({issue_id, resolution, details, systems}) => ({
+        issues: _.map(issues, ({issue_id, resolution, details, systems, resolutionsAvailable }) => ({
             id: issue_id,
             description: details.description,
             resolution: {
@@ -41,6 +41,7 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
                 resolution_risk: resolution.resolutionRisk,
                 needs_reboot: resolution.needsReboot
             },
+            resolutions_available: resolutionsAvailable,
             systems: systems.map(({system_id, hostname, display_name}) => ({
                 id: system_id,
                 hostname,

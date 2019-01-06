@@ -108,6 +108,7 @@ describe('remediations', function () {
                         resolution_risk: 3,
                         needs_reboot: false
                     },
+                    resolutions_available: 1,
                     systems: [{
                         id: '1f12bdfc-8267-492d-a930-92f498fe65b9',
                         hostname: '1f12bdfc-8267-492d-a930-92f498fe65b9.example.com',

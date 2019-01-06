@@ -603,6 +603,9 @@ definitions:
             $ref: '#/definitions/ResolutionRisk'
           needs_reboot:
             type: boolean
+      resolutions_available:
+        type: number
+        description: The total number of available resolutions for this issue
       systems:
         type: array
         items:

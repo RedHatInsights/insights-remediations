@@ -16,5 +16,8 @@ exports.resolveResolution = async function (issueId, resolutionId) {
         throw errors.unsupportedIssue(id);
     }
 
-    return resolution;
+    return {
+        resolution,
+        resolutionsAvailable: resolutions
+    };
 };

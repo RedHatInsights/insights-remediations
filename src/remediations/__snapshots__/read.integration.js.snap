@@ -20,6 +20,7 @@ exports[`remediations get get remediation 1`] = `
                 \\"resolution_risk\\": 3,
                 \\"needs_reboot\\": false
             },
+            \\"resolutions_available\\": 1,
             \\"systems\\": [
                 {
                     \\"id\\": \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\",
@@ -37,6 +38,7 @@ exports[`remediations get get remediation 1`] = `
                 \\"resolution_risk\\": 1,
                 \\"needs_reboot\\": false
             },
+            \\"resolutions_available\\": 1,
             \\"systems\\": [
                 {
                     \\"id\\": \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\",
@@ -54,6 +56,7 @@ exports[`remediations get get remediation 1`] = `
                 \\"resolution_risk\\": -1,
                 \\"needs_reboot\\": true
             },
+            \\"resolutions_available\\": 1,
             \\"systems\\": [
                 {
                     \\"id\\": \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\",
@@ -71,6 +74,7 @@ exports[`remediations get get remediation 1`] = `
                 \\"resolution_risk\\": 3,
                 \\"needs_reboot\\": true
             },
+            \\"resolutions_available\\": 3,
             \\"systems\\": [
                 {
                     \\"id\\": \\"1f12bdfc-8267-492d-a930-92f498fe65b9\\",
@@ -93,6 +97,7 @@ exports[`remediations get get remediation 1`] = `
                 \\"resolution_risk\\": -1,
                 \\"needs_reboot\\": true
             },
+            \\"resolutions_available\\": 1,
             \\"systems\\": [
                 {
                     \\"id\\": \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\",

@@ -17,7 +17,9 @@ const notFound = res => res.status(404).json();
 // TODO: side-effects are ugly
 function resolveResolutions (...remediations) {
     return P.all(_(remediations).flatMap('issues').map(async issue => {
-        issue.resolution = await resolutions.resolveResolution(issue.issue_id, issue.resolution);
+        const result = await resolutions.resolveResolution(issue.issue_id, issue.resolution);
+        issue.resolution = result.resolution;
+        issue.resolutionsAvailable = result.resolutionsAvailable.length;
     }).value());
 }
 
