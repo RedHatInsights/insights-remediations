@@ -5,15 +5,6 @@ metadata:
 
 objects:
 - apiVersion: v1
-  kind: ImageStream
-  metadata:
-    name: redis
-    labels:
-      app: redis
-  spec:
-    dockerImageRepository: "registry.access.redhat.com/rhscl/redis-32-rhel7"
-
-- apiVersion: v1
   kind: DeploymentConfig
   metadata:
     name: redis
@@ -41,7 +32,7 @@ objects:
               secretKeyRef:
                 key: password
                 name: redis
-          image: redis:latest
+          image: " "
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -83,7 +74,7 @@ objects:
         terminationGracePeriodSeconds: 30
     triggers:
     - imageChangeParams:
-        automatic: true
+        automatic: false
         containerNames:
         - redis
         from:
