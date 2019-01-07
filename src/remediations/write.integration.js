@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const config = require('../config');
 const { request, reqId, auth } = require('../test');
+const { NON_EXISTENT_SYSTEM } = require('../connectors/inventory/mock');
 
 function testIssue (remediation, id, resolution, systems) {
     const issue = _.find(remediation.issues, {id});
@@ -220,7 +221,7 @@ describe('remediations', function () {
                         add: {
                             issues: [{
                                 id: 'vulnerabilities:CVE-2017-17713',
-                                systems: ['04f79296-82ff-4806-9f70-df15a5b60d47', 'non-existent-system']
+                                systems: ['04f79296-82ff-4806-9f70-df15a5b60d47', NON_EXISTENT_SYSTEM]
                             }]
                         }
                     });
@@ -229,7 +230,7 @@ describe('remediations', function () {
                         id,
                         status: 400,
                         code: 'UNKNOWN_SYSTEM',
-                        title: 'Unknown system identifier "non-existent-system"'
+                        title: `Unknown system identifier "${NON_EXISTENT_SYSTEM}"`
                     }]);
                 });
 

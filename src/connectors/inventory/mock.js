@@ -2,9 +2,11 @@
 
 const _ = require('lodash');
 
+exports.NON_EXISTENT_SYSTEM = '1040856f-b772-44c7-83a9-eeeeeeeeeeee';
+
 exports.getSystemDetailsBatch = async function (systems) {
     return Promise.resolve(_(systems)
-    .filter(id => id !== 'non-existent-system')
+    .filter(id => id !== exports.NON_EXISTENT_SYSTEM)
     .keyBy()
     .mapValues(id => {
         const result = {

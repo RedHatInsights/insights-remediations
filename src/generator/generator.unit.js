@@ -2,6 +2,7 @@
 
 const errors = require('../errors');
 const { request, mockVmaas, getSandbox, reqId } = require('../test');
+const { NON_EXISTENT_SYSTEM } = require('../connectors/inventory/mock');
 
 test('generates a simple playbook', () => {
     const data = {
@@ -201,7 +202,7 @@ test('400s on unknown system id', () => {
     .send({
         issues: [{
             id: 'vulnerabilities:CVE_2017_5461_nss|CVE_2017_5461_NSS_2',
-            systems: ['non-existent-system']
+            systems: [NON_EXISTENT_SYSTEM]
         }]
     })
     .expect(400)
@@ -210,7 +211,7 @@ test('400s on unknown system id', () => {
             id,
             status: 400,
             code: 'UNKNOWN_SYSTEM',
-            title: 'Unknown system identifier "non-existent-system"'
+            title: `Unknown system identifier "${NON_EXISTENT_SYSTEM}"`
         }]);
     });
 });
