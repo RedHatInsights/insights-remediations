@@ -13,13 +13,42 @@ const generator = require('../generator/generator.controller');
 
 const notFound = res => res.status(404).json();
 
+async function handleMissingIssue (promise, success, missing) {
+    try {
+        return success(await promise);
+    } catch (e) {
+        if (!(e instanceof errors.BadRequest)) {
+            throw e;
+        }
+
+        if (!['UNKNOWN_ISSUE', 'UNSUPPORTED_ISSUE'].includes(e.error.code)) {
+            throw e;
+        }
+
+        return missing();
+    }
+}
+
 // TODO: optimize overlapping issue IDs
 // TODO: side-effects are ugly
+// TODO: this needs refactoring
 function resolveResolutions (...remediations) {
     return P.all(_(remediations).flatMap('issues').map(async issue => {
-        const result = await resolutions.resolveResolution(issue.issue_id, issue.resolution);
-        issue.resolution = result.resolution;
-        issue.resolutionsAvailable = result.resolutionsAvailable.length;
+        return handleMissingIssue(
+            resolutions.resolveResolutions(issue.issue_id)
+            .then(async result => {
+                const resolution = await resolutions.disambiguate(issue.issue_id, result, issue.resolution, false);
+                return {
+                    resolutions: result,
+                    resolution
+                };
+            }),
+            ({resolution, resolutions}) => {
+                issue.resolution = resolution;
+                issue.resolutionsAvailable = resolutions.length;
+            },
+            () => issue.resolution = false
+        );
     }).value());
 }
 
@@ -57,6 +86,9 @@ exports.list = errors.async(async function (req, res) {
     await resolveResolutions(...remediations);
 
     remediations.forEach(remediation => {
+        // filter out issues with 0 systems and unknown issues
+        remediation.issues = remediation.issues.filter(issue => issue.systems.length && issue.resolution);
+
         remediation.needs_reboot = inferNeedsReboot(remediation);
         remediation.system_count = _(remediation.issues).flatMap('systems').uniqBy('system_id').size();
         remediation.issue_count = remediation.issues.length;
@@ -76,20 +108,25 @@ async function resolveSystems (remediation) {
     const systems = _.flatMap(remediation.issues, 'systems');
     const ids = _(systems).map('system_id').uniq().value();
 
-    const systemDetails = await inventory.getSystemDetailsBatch(ids);
+    const resolvedSystems = await inventory.getSystemDetailsBatch(ids);
 
-    _.forEach(systems, system => {
-        const {hostname, display_name} = systemDetails[system.system_id];
-        system.hostname = hostname;
-        system.display_name = display_name;
-    });
+    remediation.issues.forEach(issue => issue.systems = issue.systems
+    .filter(({system_id}) => _.has(resolvedSystems, system_id)) // filter out systems not found in inventory
+    .map(({system_id}) => {
+        const { hostname, display_name } = resolvedSystems[system_id];
+        return { system_id, hostname, display_name };
+    }));
 }
 
 function resolveIssues (remediation) {
-    return P.all(remediation.issues.map(async issue => {
+    return P.map(remediation.issues, async issue => {
         const id = identifiers.parse(issue.issue_id);
-        issue.details = await issues.getIssueDetails(id);
-    }));
+        return handleMissingIssue(
+            issues.getIssueDetails(id),
+            result => issue.details = result,
+            () => issue.details = false
+        );
+    });
 }
 
 exports.get = errors.async(async function (req, res) {
@@ -106,6 +143,9 @@ exports.get = errors.async(async function (req, res) {
         resolveResolutions(remediation),
         resolveIssues(remediation)
     ]);
+
+    // filter out issues with 0 systems or missing issue details
+    remediation.issues = remediation.issues.filter(issue => issue.systems.length && issue.details && issue.resolution);
 
     remediation.needs_reboot = inferNeedsReboot(remediation);
 

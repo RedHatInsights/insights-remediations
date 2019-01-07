@@ -122,4 +122,56 @@ describe('remediations', function () {
             });
         });
     });
+
+    describe('missing', function () {
+        test('get remediation with missing system', async () => {
+            const {body} = await request
+            .get('/v1/remediations/82aeb63f-fc25-4eef-9333-4fa7e10f7217?pretty')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.issues[0].systems.should.have.length(1);
+            body.issues[0].systems[0].should.have.property('id', '1040856f-b772-44c7-83a9-eea4813c4be8');
+        });
+
+        test('get remediation with missing system causing an issue to be empty', async () => {
+            const {body} = await request
+            .get('/v1/remediations/27e36e14-e1c2-4b5a-9382-ec80ca9a6c1a?pretty')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.issues.should.have.length(1);
+            body.issues[0].should.have.property('id', 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074');
+            body.issues[0].systems.should.have.length(1);
+            body.issues[0].systems[0].should.have.property('id', '1040856f-b772-44c7-83a9-eea4813c4be8');
+        });
+
+        test('get remediation with unknown resolution', async () => {
+            const {body} = await request
+            .get('/v1/remediations/ea5b1507-4cd3-4c87-aa5a-6c755d32a7bd?pretty')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.issues.should.have.length(1);
+            body.issues[0].resolution.should.have.property('id', 'fix');
+        });
+
+        test('get remediation with unknown issues', async () => {
+            const {body} = await request
+            .get('/v1/remediations/62c95092-ac83-4025-a676-362a67e68579?pretty')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.issues.should.have.length(0);
+        });
+
+        test('listing of remediations does not blow up', async () => {
+            const {body} = await request
+            .get('/v1/remediations?pretty')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            expect(body).toMatchSnapshot();
+        });
+    });
 });

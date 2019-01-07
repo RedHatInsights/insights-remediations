@@ -21,3 +21,15 @@ exports.resolveResolution = async function (issueId, resolutionId) {
         resolutionsAvailable: resolutions
     };
 };
+
+exports.resolveResolutions = function (issueId) {
+    const id = identifiers.parse(issueId);
+    const playFactory = issues.getPlayFactory(id);
+    const resolver = playFactory.getResolver(id);
+    return resolver.resolveResolutions(id);
+};
+
+exports.disambiguate = function (issueId, resolutions, resolutionId, strict = true) {
+    const id = identifiers.parse(issueId);
+    return disambiguator.disambiguate(resolutions, resolutionId, id, strict);
+};

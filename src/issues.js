@@ -3,9 +3,7 @@
 const config = require('./config');
 const errors = require('./errors');
 
-const advisor = require('./connectors/advisor');
 const compliance = require('./connectors/compliance');
-const vulnerabilities = require('./connectors/vulnerabilities');
 const vmaas = require('./connectors/vmaas');
 
 const advisorFactory = require('./generator/factories/AdvisorFactory');
@@ -31,7 +29,7 @@ class Handler {
 const advisorHandler = new class extends Handler {
 
     async getIssueDetails (id) {
-        const raw = await advisor.getRule(id.issue);
+        const raw = await advisorFactory.getIssueDetails(id);
         return {
             description: raw.description,
             raw
@@ -73,7 +71,7 @@ const erratumHandler = new class extends Handler {
 
 const vulnerabilitiesHandler = new class extends Handler {
     async getIssueDetails (id) {
-        const raw = await vulnerabilities.getRule(id.issue);
+        const raw = await vulnerabilityFactory.getIssueDetails(id);
         return {
             description: raw.description,
             raw

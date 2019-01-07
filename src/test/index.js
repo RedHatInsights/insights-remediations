@@ -47,7 +47,8 @@ exports.auth = Object.freeze({
     default: createHeader(),
     emptyInternal: createHeader('test01User', 'test01'),
     emptyCustomer: createHeader('test02User', 'test02', false),
-    testWrite: createHeader('testWriteUser', 'testWrite', false)
+    testWrite: createHeader('testWriteUser', 'testWrite', false),
+    testReadSingle: createHeader('testReadSingleUser', 'testReadSingle', false)
 });
 
 exports.mockVmaas = function () {

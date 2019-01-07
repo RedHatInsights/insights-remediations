@@ -10,12 +10,8 @@ const contentServerResolver = require('../../resolutions/resolvers/contentServer
 exports.createPlay = async function ({id, resolution, hosts}) {
     const [resolutions, rule] = await P.all([
         contentServerResolver.resolveResolutions(id),
-        advisor.getRule(id.issue)
+        exports.getIssueDetails(id)
     ]);
-
-    if (!rule) {
-        throw errors.unknownIssue(id);
-    }
 
     if (!resolutions.length) {
         throw errors.unsupportedIssue(id);
@@ -27,5 +23,15 @@ exports.createPlay = async function ({id, resolution, hosts}) {
 
 exports.getResolver = function () {
     return contentServerResolver;
+};
+
+exports.getIssueDetails = async function (id) {
+    const rule = await advisor.getRule(id.issue);
+
+    if (!rule) {
+        throw errors.unknownIssue(id);
+    }
+
+    return rule;
 };
 

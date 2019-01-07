@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const errors = require('../errors');
 
-exports.disambiguate = function (templates, resolution, id) {
+exports.disambiguate = function (templates, resolution, id, strict = true) {
     if (!templates.length) {
         return;
     }
@@ -19,7 +19,9 @@ exports.disambiguate = function (templates, resolution, id) {
             return found;
         }
 
-        throw errors.unknownResolution(id, resolution);
+        if (strict) {
+            throw errors.unknownResolution(id, resolution);
+        }
     }
 
     const fix = _.find(templates, {type: 'fix'});
