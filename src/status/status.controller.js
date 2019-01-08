@@ -13,6 +13,7 @@ const CONNECTORS = _([
     'contentServer',
     'inventory',
     'ssg',
+    'users',
     'vmaas',
     'vulnerabilities'
 ]).keyBy().mapValues(id => require(`../connectors/${id}`)).value();

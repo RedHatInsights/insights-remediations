@@ -1,7 +1,6 @@
 'use strict';
 
-const account_number = 'test';
-const created_by = 'tuser@redhat.com';
+const { account_number, username: created_by } = require('../../src/connectors/users/mock').MOCK_USERS['tuser@redhat.com'];
 
 const opts = {
     returning: true

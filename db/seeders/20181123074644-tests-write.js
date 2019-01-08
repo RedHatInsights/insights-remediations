@@ -2,8 +2,7 @@
 
 const _ = require('lodash');
 
-const account_number = 'testWrite';
-const created_by = 'testWriteUser';
+const { account_number, username: created_by } = require('../../src/connectors/users/mock').MOCK_USERS.testWriteUser;
 
 const opts = {
     returning: true

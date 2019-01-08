@@ -5,17 +5,19 @@ const DEFAULT_REMEDIATION_NAME = 'unnamed-remediation';
 const PLAYBOOK_SUFFIX = 'yml';
 
 exports.list = function (remediations) {
-    const formatted = _.map(remediations, remediation => _.pick(remediation, [
-        'id',
-        'name',
-        'created_by',
-        'created_at',
-        'updated_by',
-        'updated_at',
-        'needs_reboot',
-        'system_count',
-        'issue_count'
-    ]));
+    const formatted = _.map(remediations,
+        ({id, name, needs_reboot, created_by, created_at, updated_by, updated_at, system_count, issue_count}) => ({
+            id,
+            name,
+            created_by: _.pick(created_by, ['username', 'first_name', 'last_name']),
+            created_at,
+            updated_by: _.pick(updated_by, ['username', 'first_name', 'last_name']),
+            updated_at,
+            needs_reboot,
+            system_count,
+            issue_count
+        })
+    );
 
     return {
         remediations: formatted
@@ -28,9 +30,9 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
         name,
         needs_reboot,
         auto_reboot,
-        created_by,
+        created_by: _.pick(created_by, ['username', 'first_name', 'last_name']),
         created_at,
-        updated_by,
+        updated_by: _.pick(updated_by, ['username', 'first_name', 'last_name']),
         updated_at,
         issues: _.map(issues, ({issue_id, resolution, details, systems, resolutionsAvailable }) => ({
             id: issue_id,

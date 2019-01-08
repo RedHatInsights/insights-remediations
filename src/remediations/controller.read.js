@@ -10,6 +10,7 @@ const inventory = require('../connectors/inventory');
 const issues = require('../issues');
 const identifiers = require('../util/identifiers');
 const generator = require('../generator/generator.controller');
+const users = require('../connectors/users');
 
 const notFound = res => res.status(404).json();
 
@@ -52,6 +53,28 @@ function resolveResolutions (...remediations) {
     }).value());
 }
 
+async function resolveUsers (...remediations) {
+    const usernames = _(remediations).flatMap(({created_by, updated_by}) => [created_by, updated_by]).uniq().value();
+    const resolvedUsers = await users.getUsers(usernames);
+
+    function getUser (username) {
+        if (_.has(resolvedUsers, username)) {
+            return resolvedUsers[username];
+        }
+
+        return {
+            username,
+            first_name: 'Unknown',
+            last_name: 'User'
+        };
+    }
+
+    remediations.forEach(remediation => {
+        remediation.created_by = getUser(remediation.created_by);
+        remediation.updated_by = getUser(remediation.updated_by);
+    });
+}
+
 function parseSort (param) {
     if (!param) {
         throw new Error(`Invalid sort param value ${param}`);
@@ -83,7 +106,10 @@ exports.list = errors.async(async function (req, res) {
 
     let remediations = await queries.list(req.user.account_number, req.user.username, dbColumn, asc).map(r => r.toJSON());
 
-    await resolveResolutions(...remediations);
+    await P.all([
+        await resolveResolutions(...remediations),
+        await resolveUsers(...remediations)
+    ]);
 
     remediations.forEach(remediation => {
         // filter out issues with 0 systems and unknown issues
@@ -141,7 +167,8 @@ exports.get = errors.async(async function (req, res) {
     await P.all([
         resolveSystems(remediation),
         resolveResolutions(remediation),
-        resolveIssues(remediation)
+        resolveIssues(remediation),
+        resolveUsers(remediation)
     ]);
 
     // filter out issues with 0 systems or missing issue details

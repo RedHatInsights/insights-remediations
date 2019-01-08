@@ -9,6 +9,7 @@ const app = require('../app');
 const config = require('../config');
 const vmaas = require('../connectors/vmaas');
 const identityUtils = require('../middleware/identity/utils');
+const USERS = require('../../src/connectors/users/mock').MOCK_USERS;
 
 let server;
 
@@ -47,8 +48,8 @@ exports.auth = Object.freeze({
     default: createHeader(),
     emptyInternal: createHeader('test01User', 'test01'),
     emptyCustomer: createHeader('test02User', 'test02', false),
-    testWrite: createHeader('testWriteUser', 'testWrite', false),
-    testReadSingle: createHeader('testReadSingleUser', 'testReadSingle', false)
+    testWrite: createHeader(USERS.testWriteUser.username, USERS.testWriteUser.account_number, false),
+    testReadSingle: createHeader(USERS.testReadSingleUser.username, USERS.testReadSingleUser.account_number, false)
 });
 
 exports.mockVmaas = function () {

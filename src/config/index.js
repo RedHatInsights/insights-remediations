@@ -89,6 +89,14 @@ const config = {
         insecure: (env.INVENTORY_INSECURE === 'true') ? true : false
     },
 
+    users: {
+        impl: env.USERS_IMPL,
+        host: env.USERS_HOST || 'https://insights-services-pipeline-insights.ext.paas.redhat.com',
+        auth: env.USERS_AUTH || '',
+        env: env.USERS_ENV || 'prod',
+        insecure: (env.USERS_INSECURE === 'true') ? true : false
+    },
+
     redis: {
         enabled: env.REDIS_ENABLED === 'true' ? true : false,
         host: env.REDIS_HOST || 'localhost',

@@ -1,7 +1,6 @@
 'use strict';
 
-const account_number = 'testReadSingle';
-const created_by = 'testReadSingleUser';
+const { account_number, username: created_by } = require('../../src/connectors/users/mock').MOCK_USERS.testReadSingleUser;
 
 const { NON_EXISTENT_SYSTEM } = require('../../src/connectors/inventory/mock');
 const SYSTEM = '1040856f-b772-44c7-83a9-eea4813c4be8';

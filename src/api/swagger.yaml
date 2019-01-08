@@ -529,11 +529,11 @@ definitions:
       name:
         $ref: '#/definitions/RemediationName'
       created_by:
-        type: string
+        $ref: '#/definitions/UserOut'
       created_at:
         $ref: '#/definitions/DateTime'
       updated_by:
-        type: string
+        $ref: '#/definitions/UserOut'
       updated_at:
         $ref: '#/definitions/DateTime'
       issue_count:
@@ -559,11 +559,11 @@ definitions:
       auto_reboot:
         $ref: '#/definitions/RemediationAutoReboot'
       created_by:
-        type: string
+        $ref: '#/definitions/UserOut'
       created_at:
         $ref: '#/definitions/DateTime'
       updated_by:
-        type: string
+        $ref: '#/definitions/UserOut'
       updated_at:
         $ref: '#/definitions/DateTime'
       issues:
@@ -610,6 +610,18 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/SystemOut"
+
+  UserOut:
+    type: object
+    additionalProperties: false
+    required: [username, first_name, last_name]
+    properties:
+      username:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
 
   # Diagnosis specific types
   Diagnosis:

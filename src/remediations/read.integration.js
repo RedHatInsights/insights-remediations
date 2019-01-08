@@ -95,9 +95,17 @@ describe('remediations', function () {
                 name: 'Unnamed remediation',
                 needs_reboot: false,
                 auto_reboot: false,
-                created_by: 'tuser@redhat.com',
+                created_by: {
+                    username: 'tuser@redhat.com',
+                    first_name: 'Test',
+                    last_name: 'User'
+                },
                 created_at: '2018-12-04T08:19:36.641Z',
-                updated_by: 'tuser@redhat.com',
+                updated_by: {
+                    username: 'tuser@redhat.com',
+                    first_name: 'Test',
+                    last_name: 'User'
+                },
                 updated_at: '2018-12-04T08:19:36.641Z',
                 issues: [{
                     id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
