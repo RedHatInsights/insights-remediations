@@ -123,7 +123,7 @@ describe('remediations', function () {
                         display_name: 'null'
                     }, {
                         id: 'fc94beb8-21ee-403d-99b1-949ef7adb762',
-                        hostname: 'fc94beb8-21ee-403d-99b1-949ef7adb762',
+                        hostname: 'null',
                         display_name: 'null'
                     }]
                 }]

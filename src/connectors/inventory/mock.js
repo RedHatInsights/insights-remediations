@@ -15,6 +15,10 @@ exports.getSystemDetailsBatch = async function (systems) {
             display_name: (id.startsWith('9') ? `${id}-system` : null)
         };
 
+        if (id === 'fc94beb8-21ee-403d-99b1-949ef7adb762') {
+            result.hostname = null;
+        }
+
         return result;
 
     }).value());
