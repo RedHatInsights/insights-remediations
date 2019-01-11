@@ -48,6 +48,10 @@ objects:
           failurePolicy: Abort
     template:
       metadata:
+        annotations:
+          prometheus.io/path: /metrics
+          prometheus.io/port: "9002"
+          prometheus.io/scrape: "true"
         labels:
           app: remediations
           deploymentconfig: remediations
