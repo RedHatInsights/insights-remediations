@@ -1,6 +1,7 @@
 'use strict';
 
 const express = require('express');
+
 const log = require('./util/log');
 const prettyJson = require('./middleware/prettyJson');
 const httpContext = require('express-http-context');
@@ -8,6 +9,7 @@ const identity = require('./middleware/identity/impl');
 const identitySwitcher = require('./middleware/identity/switcher');
 const cls = require('./util/cls');
 const config = require('./config');
+const metrics = require('./metrics');
 
 const swagger = require('./api/swagger');
 const errors = require('./errors');
@@ -28,6 +30,7 @@ module.exports = async function (app) {
         app.use(require('./middleware/identity/fallback'));
     }
 
+    metrics.start(app);
     app.use(identity);
     app.use(identitySwitcher);
     app.use(httpContext.middleware);

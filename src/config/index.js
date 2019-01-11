@@ -44,6 +44,11 @@ const config = {
         pretty: (env.NODE_ENV !== 'production')
     },
 
+    metrics: {
+        prefix: env.METRICS_PREFIX || 'remediations_',
+        enabled: env.METRICS_ENABLED === 'false' ? false : true
+    },
+
     /*
      * Connector configuration
      */
