@@ -25,6 +25,10 @@ function parseIntEnv (name, defaultValue) {
 }
 
 const config = {
+
+    /*
+     * Server configuration
+     */
     env: env.NODE_ENV || 'development',
     port: (env.NODE_ENV === 'test') ? 9003 : 9002,
     commit: env.OPENSHIFT_BUILD_COMMIT,
@@ -35,12 +39,21 @@ const config = {
         app: env.APP_NAME || 'remediations'
     },
 
-    // general timeout for HTTP invocations of external services
-    requestTimeout: parseInt(env.REQUEST_TIMEOUT) || 10000,
-
     logging: {
         level: env.LOG_LEVEL || ((env.NODE_ENV === 'test') ? 'error' : 'debug'),
         pretty: (env.NODE_ENV !== 'production')
+    },
+
+    /*
+     * Connector configuration
+     */
+
+    // general timeout for HTTP invocations of external services
+    requestTimeout: parseInt(env.REQUEST_TIMEOUT) || 10000,
+
+    cache: {
+        ttl: parseIntEnv('CACHE_TTL', 24 * 60 * 60), // 24 hours
+        revalidationInterval: parseIntEnv('CACHE_REVALIDATION_INVERVAL', 10 * 60) // 10 mins
     },
 
     advisor: {
@@ -50,11 +63,39 @@ const config = {
         insecure: (env.ADVISOR_INSECURE === 'true') ? true : false
     },
 
+    compliance: {
+        impl: env.COMPLIANCE_IMPL,
+        host: env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000',
+        insecure: (env.COMPLIANCE_INSECURE === 'true') ? true : false
+    },
+
     contentServer: {
         impl: env.CONTENT_SERVER_IMPL,
         host: env.CONTENT_SERVER_HOST || 'http://localhost:8080',
         auth: env.CONTENT_SERVER_AUTH || null,
         insecure: (env.CONTENT_SERVER_INSECURE === 'false') ? false : true
+    },
+
+    inventory: {
+        impl: env.INVENTORY_IMPL,
+        host: env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080',
+        insecure: (env.INVENTORY_INSECURE === 'true') ? true : false
+    },
+
+    ssg: {
+        impl: env.SSG_IMPL,
+        host: env.SSG_HOST || 'http://localhost:8090',
+        repository: env.SSG_REPO ||
+            'https://raw.githubusercontent.com/OpenSCAP/scap-security-guide/255a015c92b869d579cb1af98ff1e83f1babbd55/' +
+                'shared/fixes/ansible'
+    },
+
+    users: {
+        impl: env.USERS_IMPL,
+        host: env.USERS_HOST || 'https://insights-services-pipeline-insights.ext.paas.redhat.com',
+        auth: env.USERS_AUTH || '',
+        env: env.USERS_ENV || 'prod',
+        insecure: (env.USERS_INSECURE === 'true') ? true : false
     },
 
     vmaas: {
@@ -69,46 +110,9 @@ const config = {
         insecure: (env.VULNERABILITIES_INSECURE === 'true') ? true : false
     },
 
-    compliance: {
-        impl: env.COMPLIANCE_IMPL,
-        host: env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000',
-        insecure: (env.COMPLIANCE_INSECURE === 'true') ? true : false
-    },
-
-    ssg: {
-        impl: env.SSG_IMPL,
-        host: env.SSG_HOST || 'http://localhost:8090',
-        repository: env.SSG_REPO ||
-            'https://raw.githubusercontent.com/OpenSCAP/scap-security-guide/255a015c92b869d579cb1af98ff1e83f1babbd55/' +
-                'shared/fixes/ansible'
-    },
-
-    inventory: {
-        impl: env.INVENTORY_IMPL,
-        host: env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080',
-        insecure: (env.INVENTORY_INSECURE === 'true') ? true : false
-    },
-
-    users: {
-        impl: env.USERS_IMPL,
-        host: env.USERS_HOST || 'https://insights-services-pipeline-insights.ext.paas.redhat.com',
-        auth: env.USERS_AUTH || '',
-        env: env.USERS_ENV || 'prod',
-        insecure: (env.USERS_INSECURE === 'true') ? true : false
-    },
-
-    redis: {
-        enabled: env.REDIS_ENABLED === 'true' ? true : false,
-        host: env.REDIS_HOST || 'localhost',
-        port: parseIntEnv('REDIS_PORT', 6379),
-        password: env.REDIS_PASSWORD || undefined
-    },
-
-    cache: {
-        ttl: parseIntEnv('CACHE_TTL', 24 * 60 * 60), // 24 hours
-        revalidationInterval: parseIntEnv('CACHE_REVALIDATION_INVERVAL', 10 * 60) // 10 mins
-    },
-
+    /*
+     * Dependencies
+     */
     db: {
         username: env.DB_USERNAME || 'postgres',
         password: env.DB_PASSWORD || 'remediations',
@@ -126,6 +130,13 @@ const config = {
             timestamps: false,
             underscored: true
         }
+    },
+
+    redis: {
+        enabled: env.REDIS_ENABLED === 'true' ? true : false,
+        host: env.REDIS_HOST || 'localhost',
+        port: parseIntEnv('REDIS_PORT', 6379),
+        password: env.REDIS_PASSWORD || undefined
     }
 };
 
