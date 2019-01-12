@@ -16,7 +16,3 @@ exports.createPlay = async function ({id, hosts, resolution}) {
     const description = `Upgrade packages affected by ${id.issue}`;
     return new ErratumPlay(id, hosts, disambiguatedResolution, description);
 };
-
-exports.getResolver = function () {
-    return erratumResolver;
-};

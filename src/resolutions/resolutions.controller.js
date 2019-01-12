@@ -8,8 +8,8 @@ const disambiguator = require('./disambiguator');
 
 exports.getResolutions = errors.async(async function (req, res) {
     const id = identifiers.parse(req.swagger.params.issue.value);
-    const factory = issues.getPlayFactory(id);
-    const resolver = factory.getResolver(id);
+    const handler = issues.getHandler(id);
+    const resolver = handler.getResolutionResolver();
     const resolutions = await resolver.resolveResolutions(id);
 
     if (!resolutions.length) {

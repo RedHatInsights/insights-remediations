@@ -12,7 +12,3 @@ exports.createPlay = async function ({id, hosts}) {
 
     throw errors.unsupportedIssue(id);
 };
-
-exports.getResolver = function () {
-    return testResolver;
-};

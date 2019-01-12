@@ -120,8 +120,6 @@ exports.list = errors.async(async function (req, res) {
         remediation.issue_count = remediation.issues.length;
     });
 
-    // TODO: resolve owner information
-
     // TODO: it should be possible to move this down to db level using group_by after Sequelize is fixed
     if (dbColumn === undefined) {
         remediations = _.orderBy(remediations, [column, 'name'], [asc ? 'asc' : 'desc', 'asc']);

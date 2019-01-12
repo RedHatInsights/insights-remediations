@@ -2,20 +2,17 @@
 
 const P = require('bluebird');
 const errors = require('../../errors');
+const issues = require('../../issues');
 const ResolutionPlay = require('../plays/ResolutionPlay');
-const compliance = require('../../connectors/compliance');
-const ssgResolver = require('../../resolutions/resolvers/ssgResolver');
 const disambiguator = require('../../resolutions/disambiguator');
 
 exports.createPlay = async function ({id, hosts, resolution}) {
-    const [resolutions, rule] = await P.all([
-        ssgResolver.resolveResolutions(id),
-        compliance.getRule(id.issue)
-    ]);
+    const handler = issues.getHandler(id);
 
-    if (!rule) {
-        throw errors.unknownIssue(id);
-    }
+    const [resolutions, rule] = await P.all([
+        handler.getResolutionResolver().resolveResolutions(id),
+        handler.getIssueDetails(id)
+    ]);
 
     if (!resolutions.length) {
         throw errors.unsupportedIssue(id);
@@ -23,11 +20,6 @@ exports.createPlay = async function ({id, hosts, resolution}) {
 
     const disambiguatedResolution = disambiguator.disambiguate(resolutions, resolution, id);
 
-    // TODO: remove duplication between getIssueDetails and getPlayFactory
-    return new ResolutionPlay(id, hosts, disambiguatedResolution, rule.data.attributes.title);
-};
-
-exports.getResolver = function () {
-    return ssgResolver;
+    return new ResolutionPlay(id, hosts, disambiguatedResolution, rule.description);
 };
 
