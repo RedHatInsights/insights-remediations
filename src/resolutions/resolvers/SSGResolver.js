@@ -7,6 +7,7 @@ const Resolution = require('../Resolution');
 const yamlUtils = require('../../util/yaml');
 const { isNumber, isBoolean, nonEmptyArray, notIn } = require('../../util/preconditions');
 const templates = require('../../templates/static');
+const Resolver = require('./Resolver');
 
 const rebootFactSetter = yaml.safeLoad(templates.special.rebootFactSetter.data);
 
@@ -18,22 +19,24 @@ const LEVELS = {
     high: 3
 };
 
-exports.resolveResolutions = async function (id) {
-    const match = PATTERN.exec(id.issue);
+module.exports = class SSGResolver extends Resolver {
+    async resolveResolutions (id) {
+        const match = PATTERN.exec(id.issue);
 
-    if (!match) {
-        return [];
+        if (!match) {
+            return [];
+        }
+
+        const raw = await ssg.getTemplate(match[1]);
+
+        if (!raw) {
+            return [];
+        }
+
+        const result = parseTemplate(raw, id);
+
+        return result ? [result] : [];
     }
-
-    const raw = await ssg.getTemplate(match[1]);
-
-    if (!raw) {
-        return [];
-    }
-
-    const result = parseTemplate(raw, id);
-
-    return result ? [result] : [];
 };
 
 function parseTemplate (template, id) {

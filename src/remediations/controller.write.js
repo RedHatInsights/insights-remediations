@@ -6,12 +6,20 @@ const P = require('bluebird');
 
 const config = require('../config');
 const errors = require('../errors');
+const issues = require('../issues');
 const db = require('../db');
 const format = require('./remediations.format');
-const resolutions = require('../resolutions');
 const inventory = require('../connectors/inventory');
+const identifiers = require('../util/identifiers');
+const disambiguator = require('../resolutions/disambiguator');
 
 const notFound = res => res.status(404).json();
+
+async function validateResolution (id, resolutionId) {
+    const identifier = identifiers.parse(id);
+    const resolutions = await issues.getHandler(identifier).getResolutionResolver().resolveResolutions(identifier);
+    disambiguator.disambiguate(resolutions, resolutionId, identifier);
+}
 
 async function validateNewActions(add) {
     // normalize and validate
@@ -36,7 +44,7 @@ async function validateNewActions(add) {
     // TODO: might be better to call these before the transaction
     const [systemsById] = await P.all([
         inventory.getSystemDetailsBatch(systems),
-        P.all(add.issues.map(issue => resolutions.resolveResolution(issue.id, issue.resolution)))
+        P.all(add.issues.map(issue => validateResolution(issue.id, issue.resolution)))
     ]);
 
     // verify systems identifiers are valid
@@ -181,7 +189,7 @@ exports.patchIssue = errors.async(async function (req, res) {
     const { resolution: rid } = req.swagger.params.body.value;
 
     // validate that the given resolution exists
-    await resolutions.resolveResolution(iid, rid);
+    await validateResolution(iid, rid);
 
     const result = await db.s.transaction(async transaction => {
         const issue = await db.issue.findOne(findIssueQuery(req), {transaction});

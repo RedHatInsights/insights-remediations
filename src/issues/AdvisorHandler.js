@@ -4,8 +4,8 @@ const errors = require('../errors');
 
 const Handler = require('./Handler');
 const advisor = require('../connectors/advisor');
-const advisorFactory = require('../generator/factories/AdvisorFactory');
-const contentServerResolver = require('../resolutions/resolvers/contentServerResolver');
+const advisorFactory = new(require('../generator/factories/AdvisorFactory'))();
+const contentServerResolver = new(require('../resolutions/resolvers/ContentServerResolver'))();
 
 module.exports = class AdvisorHandler extends Handler {
 

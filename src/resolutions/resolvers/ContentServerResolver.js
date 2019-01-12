@@ -4,13 +4,17 @@ const contentServer = require('../../connectors/contentServer');
 const Resolution = require('../Resolution');
 const Template = require('../../templates/Template');
 const yaml = require('../../util/yaml');
+const Resolver = require('./Resolver');
 
 const INSIGHTS_DIAGNOSIS_VAR_NAME = 'insights_report';
 const INSIGHTS_REBOOT_VAR_NAME = 'insights_needs_reboot';
 
-exports.resolveResolutions = async function (id) {
-    const templates = await contentServer.getResolutions(id.issue, true);
-    return templates.map(template => parseResolution(template, id));
+module.exports = class ContentServerResolver extends Resolver {
+
+    async resolveResolutions (id) {
+        const templates = await contentServer.getResolutions(id.issue, true);
+        return templates.map(template => parseResolution(template, id));
+    }
 };
 
 function parseResolution (response) {

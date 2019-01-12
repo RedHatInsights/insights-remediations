@@ -1,6 +1,7 @@
 'use strict';
 
 const Resolution = require('../Resolution');
+const Resolver = require('./Resolver');
 const templates = require('../../templates/static');
 
 const RESOLUTIONS = Object.freeze({
@@ -13,11 +14,12 @@ const RESOLUTIONS = Object.freeze({
     ]
 });
 
-exports.resolveResolutions = async function (id) {
-    if (RESOLUTIONS[id.issue]) {
-        return RESOLUTIONS[id.issue];
+module.exports = class TestResolver extends Resolver {
+    async resolveResolutions (id) {
+        if (RESOLUTIONS[id.issue]) {
+            return RESOLUTIONS[id.issue];
+        }
+
+        return [];
     }
-
-    return [];
 };
-

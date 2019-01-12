@@ -1,25 +1,22 @@
 'use strict';
 
 const P = require('bluebird');
-const errors = require('../../errors');
 const issues = require('../../issues');
 const ResolutionPlay = require('../plays/ResolutionPlay');
-const disambiguator = require('../../resolutions/disambiguator');
+const Factory = require('./Factory');
 
-exports.createPlay = async function ({id, hosts, resolution}) {
-    const handler = issues.getHandler(id);
+module.exports = class ComplianceFactory extends Factory {
 
-    const [resolutions, rule] = await P.all([
-        handler.getResolutionResolver().resolveResolutions(id),
-        handler.getIssueDetails(id)
-    ]);
+    async createPlay ({id, hosts, resolution}) {
+        const handler = issues.getHandler(id);
 
-    if (!resolutions.length) {
-        throw errors.unsupportedIssue(id);
+        const [resolutions, rule] = await P.all([
+            handler.getResolutionResolver().resolveResolutions(id),
+            handler.getIssueDetails(id)
+        ]);
+
+        const disambiguatedResolution = this.disambiguate(resolutions, resolution, id);
+        return new ResolutionPlay(id, hosts, disambiguatedResolution, rule.description);
     }
-
-    const disambiguatedResolution = disambiguator.disambiguate(resolutions, resolution, id);
-
-    return new ResolutionPlay(id, hosts, disambiguatedResolution, rule.description);
 };
 

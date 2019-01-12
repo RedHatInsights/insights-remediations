@@ -2,22 +2,22 @@
 
 const P = require('bluebird');
 const issues = require('../../issues');
-const errors = require('../../errors');
 const ResolutionPlay = require('../plays/ResolutionPlay');
-const disambiguator = require('../../resolutions/disambiguator');
 
-exports.createPlay = async function ({id, resolution, hosts}) {
-    const handler = issues.getHandler(id);
+const Factory = require('./Factory');
 
-    const [resolutions, rule] = await P.all([
-        handler.getResolutionResolver().resolveResolutions(id),
-        handler.getIssueDetails(id)
-    ]);
+module.exports = class AdvisorFactory extends Factory {
 
-    if (!resolutions.length) {
-        throw errors.unsupportedIssue(id);
+    async createPlay ({id, resolution, hosts}) {
+        const handler = issues.getHandler(id);
+
+        const [resolutions, rule] = await P.all([
+            handler.getResolutionResolver().resolveResolutions(id),
+            handler.getIssueDetails(id)
+        ]);
+
+        const disambiguatedResolution = this.disambiguate(resolutions, resolution, id);
+        return new ResolutionPlay(id, hosts, disambiguatedResolution, rule.description);
     }
-
-    const disambiguatedResolution = disambiguator.disambiguate(resolutions, resolution, id);
-    return new ResolutionPlay(id, hosts, disambiguatedResolution, rule.description);
 };
+

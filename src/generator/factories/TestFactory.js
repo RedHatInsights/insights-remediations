@@ -2,13 +2,17 @@
 
 const errors = require('../../errors');
 const ResolutionPlay = require('../plays/ResolutionPlay');
-const testResolver = require('../../resolutions/resolvers/testResolver');
+const testResolver = new(require('../../resolutions/resolvers/TestResolver'))();
+const Factory = require('./Factory');
 
-exports.createPlay = async function ({id, hosts}) {
-    const resolutions = await testResolver.resolveResolutions(id);
-    if (resolutions.length === 1) {
-        return new ResolutionPlay(id, hosts, resolutions[0]);
+module.exports = class TestFactory extends Factory {
+
+    async createPlay ({id, hosts}) {
+        const resolutions = await testResolver.resolveResolutions(id);
+        if (resolutions.length === 1) {
+            return new ResolutionPlay(id, hosts, resolutions[0]);
+        }
+
+        throw errors.unsupportedIssue(id);
     }
-
-    throw errors.unsupportedIssue(id);
 };

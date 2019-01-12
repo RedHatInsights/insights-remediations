@@ -4,8 +4,8 @@ const Handler = require('./Handler');
 const errors = require('../errors');
 
 const vmaas = require('../connectors/vmaas');
-const erratumResolver = require('../resolutions/resolvers/erratumResolver');
-const cveFactory = require('../generator/factories/CveFactory');
+const cveResolver = new(require('../resolutions/resolvers/CVEResolver'))();
+const cveFactory = new(require('../generator/factories/CVEFactory'))();
 
 module.exports = class CVEHandler extends Handler {
 
@@ -27,7 +27,7 @@ module.exports = class CVEHandler extends Handler {
     }
 
     getResolutionResolver () {
-        return erratumResolver;
+        return cveResolver;
     }
 
     getPlayFactory () {

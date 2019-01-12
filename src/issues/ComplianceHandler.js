@@ -4,8 +4,8 @@ const Handler = require('./Handler');
 const errors = require('../errors');
 
 const compliance = require('../connectors/compliance');
-const complianceFactory = require('../generator/factories/ComplianceFactory');
-const ssgResolver = require('../resolutions/resolvers/ssgResolver');
+const complianceFactory = new(require('../generator/factories/ComplianceFactory'))();
+const ssgResolver = new(require('../resolutions/resolvers/SSGResolver'))();
 
 module.exports = class ComplianceHandler extends Handler {
     async getIssueDetails (id) {

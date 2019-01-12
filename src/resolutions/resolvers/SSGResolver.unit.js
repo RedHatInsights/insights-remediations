@@ -2,7 +2,7 @@
 
 const mock = require('../../test');
 const ssg = require('../../connectors/ssg');
-const resolver = require('./ssgResolver');
+const resolver = new(require('./SSGResolver'))();
 const id = require('../../util/identifiers');
 const i = require('dedent-js');
 

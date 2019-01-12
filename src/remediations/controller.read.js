@@ -3,53 +3,37 @@
 const _ = require('lodash');
 const P = require('bluebird');
 const errors = require('../errors');
+const issues = require('../issues');
 const queries = require('./remediations.queries');
 const format = require('./remediations.format');
-const resolutions = require('../resolutions');
+const disambiguator = require('../resolutions/disambiguator');
 const inventory = require('../connectors/inventory');
-const issues = require('../issues');
 const identifiers = require('../util/identifiers');
 const generator = require('../generator/generator.controller');
 const users = require('../connectors/users');
 
 const notFound = res => res.status(404).json();
 
-async function handleMissingIssue (promise, success, missing) {
-    try {
-        return success(await promise);
-    } catch (e) {
-        if (!(e instanceof errors.BadRequest)) {
-            throw e;
-        }
-
-        if (!['UNKNOWN_ISSUE', 'UNSUPPORTED_ISSUE'].includes(e.error.code)) {
-            throw e;
-        }
-
-        return missing();
+const catchErrorCode = (code, fn) => e => {
+    if (e.error && e.error.code === code) {
+        return fn(e);
     }
-}
 
-// TODO: optimize overlapping issue IDs
-// TODO: side-effects are ugly
-// TODO: this needs refactoring
+    throw e;
+};
+
 function resolveResolutions (...remediations) {
     return P.all(_(remediations).flatMap('issues').map(async issue => {
-        return handleMissingIssue(
-            resolutions.resolveResolutions(issue.issue_id)
-            .then(async result => {
-                const resolution = await resolutions.disambiguate(issue.issue_id, result, issue.resolution, false);
-                return {
-                    resolutions: result,
-                    resolution
-                };
-            }),
-            ({resolution, resolutions}) => {
-                issue.resolution = resolution;
-                issue.resolutionsAvailable = resolutions.length;
-            },
-            () => issue.resolution = false
-        );
+        const id = identifiers.parse(issue.issue_id);
+        const resolutions = await issues.getHandler(id).getResolutionResolver().resolveResolutions(id);
+        const resolution = disambiguator.disambiguate(resolutions, issue.resolution, id, false, false);
+
+        if (resolution) {
+            issue.resolution = resolution;
+            issue.resolutionsAvailable = resolutions.length;
+        } else {
+            issue.resolution = false;
+        }
     }).value());
 }
 
@@ -145,11 +129,9 @@ async function resolveSystems (remediation) {
 function resolveIssues (remediation) {
     return P.map(remediation.issues, async issue => {
         const id = identifiers.parse(issue.issue_id);
-        return handleMissingIssue(
-            issues.getIssueDetails(id),
-            result => issue.details = result,
-            () => issue.details = false
-        );
+        return issues.getIssueDetails(id)
+        .then(result => issue.details = result)
+        .catch(catchErrorCode('UNKNOWN_ISSUE', () => issue.details = false));
     });
 }
 

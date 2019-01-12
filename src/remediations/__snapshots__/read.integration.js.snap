@@ -60,7 +60,7 @@ exports[`remediations get get remediation 1`] = `
             \\"description\\": \\"CVE-2017-17713\\",
             \\"resolution\\": {
                 \\"id\\": \\"fix\\",
-                \\"description\\": \\"Update packages (CVE-2017-17713)\\",
+                \\"description\\": \\"Upgrade packages affected by CVE-2017-17713\\",
                 \\"resolution_risk\\": -1,
                 \\"needs_reboot\\": true
             },
@@ -101,7 +101,7 @@ exports[`remediations get get remediation 1`] = `
             \\"description\\": \\"RHSA-2018:0502\\",
             \\"resolution\\": {
                 \\"id\\": \\"fix\\",
-                \\"description\\": \\"Update packages (RHSA-2018:0502)\\",
+                \\"description\\": \\"Upgrade packages affected by RHSA-2018:0502\\",
                 \\"resolution_risk\\": -1,
                 \\"needs_reboot\\": true
             },

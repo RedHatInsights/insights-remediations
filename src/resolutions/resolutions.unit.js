@@ -70,7 +70,7 @@ describe('resolve vulnerabilities resolutions', function () {
             id: 'vulnerabilities:RHSA-2018:0007',
             resolution_risk: -1,
             resolutions: [{
-                description: 'Update packages (RHSA-2018:0007)',
+                description: 'Upgrade packages affected by RHSA-2018:0007',
                 id: 'fix',
                 needs_reboot: true,
                 resolution_risk: -1
