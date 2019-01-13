@@ -1,0 +1,40 @@
+deploy:
+  build: false
+  redis: true
+  postgres: false
+  cac: true
+  remediations: true
+
+imageRepo: 172.30.217.42:5000/remediations-prod
+
+remediations:
+  # Command to use for db migration. In stable environments this should be "npm run db:create; npm run db:migrate"
+  migrationCommand: "npm run db:create; npm run db:migrate"
+
+  logLevel: trace
+
+  advisor:
+    impl: impl
+    host: http://insights-advisor-api.advisor-prod.svc.cluster.local:8000
+  contentServer:
+    host: http://content-server.advisor-prod.svc.cluster.local:8080
+  vulnerabilities:
+    impl: mock
+    host: " "
+  compliance:
+    impl: impl
+    host: http://compliance-backend.compliance-prod.svc.cluster.local:3000
+  ssg:
+    impl: impl
+    host: http://playbooks-cac:8080
+  inventory:
+    impl: impl
+    host: http://insights-inventory.platform-prod.svc.cluster.local:8080
+  users:
+    impl: impl
+    host: https://insights-services-pipeline-insights.ext.paas.redhat.com
+    insecure: "true"
+
+secrets:
+  backoffice: false
+  redis: false

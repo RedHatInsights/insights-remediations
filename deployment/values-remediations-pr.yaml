@@ -1,0 +1,10 @@
+deploy:
+  build: false
+  redis: false
+  postgres: true
+  cac: true
+  remediations: false
+
+secrets:
+  postgres: false
+

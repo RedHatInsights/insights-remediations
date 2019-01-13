@@ -1,0 +1,29 @@
+{{ if .Values.deploy.build }}
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  labels:
+    app: remediations
+  name: remediations
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: remediations:latest
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    git:
+      ref: master
+      uri: git@github.com:RedHatInsights/insights-remediations
+    sourceSecret:
+      name: nachobot
+    type: Git
+  strategy:
+    dockerStrategy:
+      dockerfilePath: build/Dockerfile
+    type: Docker
+  triggers:
+  - type: ConfigChange
+{{ end }}

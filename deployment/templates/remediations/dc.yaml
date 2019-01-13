@@ -1,0 +1,158 @@
+{{ if .Values.deploy.remediations }}
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: remediations
+  name: remediations
+spec:
+  replicas: 1
+  selector:
+    app: remediations
+    deploymentconfig: remediations
+  strategy:
+    type: Recreate
+    activeDeadlineSeconds: 21600
+    recreateParams:
+      mid:
+        execNewPod:
+          command:
+          - /bin/sh
+          - -c
+          - {{ .Values.remediations.migrationCommand }}
+          containerName: remediations
+        failurePolicy: Abort
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+      pre:
+        execNewPod:
+          command:
+          - /bin/sh
+          - -c
+          - {{ .Values.remediations.migrationCommand }}
+          containerName: remediations
+        failurePolicy: Abort
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9002"
+        prometheus.io/scrape: "true"
+      labels:
+        app: remediations
+        deploymentconfig: remediations
+    spec:
+      containers:
+      - image: "{{ .Values.imageRepo | default "docker-registry.default.svc:5000/buildfactory" }}/remediations:latest"
+        imagePullPolicy: Always
+        name: remediations
+        ports:
+        - containerPort: 9002
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /r/insights/platform/remediations/v1/health
+            port: 9002
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          failureThreshold: 2
+        env:
+        - name: ADVISOR_IMPL
+          value: {{ .Values.remediations.advisor.impl }}
+        - name: ADVISOR_HOST
+          value: {{ .Values.remediations.advisor.host }}
+
+        - name: COMPLIANCE_IMPL
+          value: {{ .Values.remediations.compliance.impl }}
+        - name: COMPLIANCE_HOST
+          value: {{ .Values.remediations.compliance.host }}
+
+        - name: CONTENT_SERVER_HOST
+          value: {{ .Values.remediations.contentServer.host }}
+
+{{ if .Values.deploy.postgres }}
+        - name: DB_HOST
+          value: postgres
+        - name: DB_USERNAME
+          value: postgres
+{{ else }}
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              key: hostname
+              name: remediation-db
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: remediation-db
+{{ end }}
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: remediation-db
+
+        - name: DEMO_MODE
+          value: "false"
+
+        - name: INVENTORY_IMPL
+          value: {{ .Values.remediations.inventory.impl }}
+        - name: INVENTORY_HOST
+          value: {{ .Values.remediations.inventory.host }}
+
+        - name: LOG_LEVEL
+          value: {{ .Values.remediations.logLevel }}
+
+        - name: REDIS_ENABLED
+          value: "true"
+        - name: REDIS_HOST
+          value: redis
+        - name: REDIS_PORT
+          value: "6379"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: redis
+
+        - name: SSG_IMPL
+          value: {{ .Values.remediations.ssg.impl }}
+        - name: SSG_HOST
+          value: {{ .Values.remediations.ssg.host }}
+
+        - name: USERS_IMPL
+          value: {{ .Values.remediations.users.impl }}
+        - name: USERS_HOST
+          value: {{ .Values.remediations.users.host }}
+        - name: USERS_INSECURE
+          value: "{{ .Values.remediations.users.insecure }}"
+        - name: USERS_AUTH
+          valueFrom:
+            secretKeyRef:
+              key: token
+              name: backoffice
+
+        - name: VULNERABILITIES_IMPL
+          value: {{ .Values.remediations.vulnerabilities.impl }}
+        - name: VULNERABILITIES_HOST
+          value: {{ .Values.remediations.vulnerabilities.host }}
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+  triggers:
+  - type: ConfigChange
+{{ end }}

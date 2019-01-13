@@ -1,0 +1,18 @@
+{{ if .Values.deploy.remediations }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: remediations
+  name: remediations
+spec:
+  ports:
+  - name: 9002-tcp
+    port: 9002
+    protocol: TCP
+    targetPort: 9002
+  sessionAffinity: None
+  type: ClusterIP
+  selector:
+    deploymentconfig: remediations
+{{ end }}
