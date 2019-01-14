@@ -31,6 +31,8 @@ module.exports = async function (app) {
     }
 
     metrics.start(app);
+    require('./status/routes')(app);
+
     app.use(identity);
     app.use(identitySwitcher);
     app.use(httpContext.middleware);
@@ -49,7 +51,7 @@ module.exports = async function (app) {
         'status',
         'version',
         'whoami'
-    ].forEach(resource => require(`./${resource}/routes`)(v1, app));
+    ].forEach(resource => require(`./${resource}/routes`)(v1));
 
     app.use(`${config.path.base}/v1`, v1);
     app.get('/', (req, res) => res.redirect(`${config.path.base}/v1/docs`));

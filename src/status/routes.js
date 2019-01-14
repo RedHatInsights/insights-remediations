@@ -2,7 +2,6 @@
 
 const controller = require('./status.controller');
 
-module.exports = function (router, app) {
+module.exports = function (router) {
     router.get('/status', controller.status);
-    app.get('/status', controller.status);
 };
