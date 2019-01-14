@@ -49,7 +49,7 @@ module.exports = async function (app) {
         'status',
         'version',
         'whoami'
-    ].forEach(resource => require(`./${resource}/routes`)(v1));
+    ].forEach(resource => require(`./${resource}/routes`)(v1, app));
 
     app.use(`${config.path.base}/v1`, v1);
     app.get('/', (req, res) => res.redirect(`${config.path.base}/v1/docs`));
