@@ -85,7 +85,7 @@ node {
         }
 
         stage('build image') {
-            openshiftBuild(buildConfig: "remediations", showBuildLogs: "true", namespace: NS)
+            openshiftBuild(buildConfig: "remediations", showBuildLogs: "true", namespace: 'buildfactory')
         }
 
         stage('deploy') {
