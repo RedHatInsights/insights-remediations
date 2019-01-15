@@ -1,5 +1,4 @@
 deploy:
-  build: false
   redis: false
   postgres: true
   cac: true
