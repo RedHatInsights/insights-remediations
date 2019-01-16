@@ -26,7 +26,7 @@ spec:
         deploymentconfig: playbooks-cac
     spec:
       containers:
-      - image: "{{ .Values.imageRepo | default "docker-registry.default.svc:5000/buildfactory" }}/playbooks-cac:latest"
+      - image: "{{ .Values.imageRegistry }}/{{ .Values.imageNamespace }}/playbooks-cac:latest"
         imagePullPolicy: Always
         name: playbooks-cac
         ports:

@@ -4,7 +4,8 @@ deploy:
   cac: true
   remediations: true
 
-imageRepo: 172.30.217.42:5000/remediations-prod
+imageRegistry: 172.30.217.42:5000
+imageNamespace: remediations-prod
 
 remediations:
   # Command to use for db migration. In stable environments this should be "npm run db:create; npm run db:migrate"
@@ -19,7 +20,7 @@ remediations:
     host: http://content-server.advisor-prod.svc.cluster.local:8080
   vulnerabilities:
     impl: mock
-    host: " "
+    host: "nope"
   compliance:
     impl: impl
     host: http://compliance-backend.compliance-prod.svc.cluster.local:3000

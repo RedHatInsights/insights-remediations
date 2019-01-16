@@ -4,6 +4,9 @@ deploy:
   cac: true
   remediations: true
 
+imageRegistry: docker-registry.default.svc:5000
+imageNamespace: buildfactory
+
 remediations:
   # Command to use for db migration. In stable environments this should be "npm run db:create; npm run db:migrate"
   migrationCommand: "npm run db:init && npm run db:migrate && npm run db:seed"
@@ -17,7 +20,7 @@ remediations:
     host: http://content-server.advisor-ci.svc.cluster.local:8080
   vulnerabilities:
     impl: mock
-    host: " "
+    host: "nope"
   compliance:
     impl: impl
     host: http://compliance-backend.compliance-ci.svc.cluster.local:3000

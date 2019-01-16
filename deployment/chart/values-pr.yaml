@@ -4,6 +4,9 @@ deploy:
   cac: true
   remediations: false
 
+imageRegistry: docker-registry.default.svc:5000
+imageNamespace: buildfactory
+
 secrets:
   postgres: false
 

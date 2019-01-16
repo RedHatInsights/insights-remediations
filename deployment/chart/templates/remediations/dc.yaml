@@ -47,7 +47,7 @@ spec:
         deploymentconfig: remediations
     spec:
       containers:
-      - image: "{{ .Values.imageRepo | default "docker-registry.default.svc:5000/buildfactory" }}/remediations:latest"
+      - image: "{{ .Values.imageRegistry }}/{{ .Values.imageNamespace }}/remediations:latest"
         imagePullPolicy: Always
         name: remediations
         ports:

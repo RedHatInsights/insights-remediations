@@ -27,7 +27,7 @@ spec:
             secretKeyRef:
               key: password
               name: redis
-        image: " "
+        image: "{{ .Values.imageRegistry }}/openshift/redis:latest"
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3
