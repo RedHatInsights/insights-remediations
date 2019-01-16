@@ -33,6 +33,7 @@ remediations:
   users:
     impl: impl
     host: https://insights-services-pipeline-insights.ext.paas.redhat.com
+    insecure: "true"
 
 
 secrets:
