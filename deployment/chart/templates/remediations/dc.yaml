@@ -130,7 +130,7 @@ spec:
         - name: USERS_HOST
           value: {{ .Values.remediations.users.host }}
         - name: USERS_INSECURE
-          value: "{{ .Values.remediations.users.insecure }}"
+          value: "{{ .Values.remediations.users.insecure | default false }}"
         - name: USERS_AUTH
           valueFrom:
             secretKeyRef:
