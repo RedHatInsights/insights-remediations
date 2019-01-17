@@ -5,7 +5,7 @@ deploy:
   remediations: true
 
 imageRegistry: 172.30.217.42:5000
-imageNamespace: remediations-prod
+imageNamespace: remediations-stage
 
 remediations:
   # Command to use for db migration. In stable environments this should be "npm run db:create; npm run db:migrate"

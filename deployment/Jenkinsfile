@@ -1,5 +1,7 @@
 #!/usr/bin/env groovy
 
+@Library("github.com/RedHatInsights/insights-pipeline-lib")
+
 NS = 'remediations-ci'
 TESTNS = 'remediations-pr'
 
@@ -92,6 +94,18 @@ node {
             openshiftDeploy(deploymentConfig: "remediations", namespace: NS)
             sh "oc rollout status --namespace=${NS} dc/remediations"
             notify("[${env.JOB_NAME.split('/')[-1]}] Deployment finished", null, "good")
+        }
+
+        stage('push image to stage') {
+            openShift.withNode(defaults: true) {
+                promoteImages(
+                    srcImages: [
+                        "remediations:latest"
+                    ],
+                    dstProject: "remediations-stage",
+                    dstCredentialsId: "remediations-image-sync"
+                )
+            }
         }
     }
 }
