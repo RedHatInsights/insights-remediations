@@ -1,5 +1,7 @@
 'use strict';
 
+const Connector = require('../Connector');
+
 const DATA = {
     'CVE_2017_6074_kernel|KERNEL_CVE_2017_6074': {
         id: 'CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
@@ -7,15 +9,20 @@ const DATA = {
     }
 };
 
-exports.getRule = async function (id) {
-    if (DATA[id]) {
-        return DATA[id];
+module.exports = new class extends Connector {
+    constructor () {
+        super(module);
     }
 
-    return null;
-};
+    getRule (id) {
+        if (DATA[id]) {
+            return DATA[id];
+        }
 
-exports.ping = function () {
-    return exports.getRule('CVE_2017_6074_kernel|KERNEL_CVE_2017_6074');
-};
+        return null;
+    }
 
+    ping () {
+        return this.getRule('CVE_2017_6074_kernel|KERNEL_CVE_2017_6074');
+    }
+}();

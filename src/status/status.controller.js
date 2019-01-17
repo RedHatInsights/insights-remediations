@@ -3,7 +3,6 @@
 const _ = require('lodash');
 const P = require('bluebird');
 const log = require('../util/log');
-const http = require('../connectors/http');
 
 const TIMEOUT_CODES = ['ESOCKETTIMEDOUT', 'ETIMEDOUT'];
 
@@ -18,24 +17,33 @@ const CONNECTORS = _([
     'vulnerabilities'
 ]).keyBy().mapValues(id => require(`../connectors/${id}`)).value();
 
-exports.status = async function (req, res) {
-    const result = await P.props(_.mapValues(CONNECTORS, async connector => {
-        try {
-            await connector.ping();
-            return 'ok';
-        } catch (e) {
-            log.warn({error: {message: e.message, stack: e.stack, options: e.options, ...e}}, 'ping failed');
+async function getStatus (connector) {
+    try {
+        await connector.ping();
+        return 'ok';
+    } catch (e) {
+        log.warn({error: {message: e.message, stack: e.stack, options: e.options, ...e}}, 'ping failed');
 
-            const code = _.get(e, 'cause.error.code');
-            if (TIMEOUT_CODES.includes(code)) {
-                return 'timeout';
-            }
-
-            return 'error';
+        const code = _.get(e, 'cause.error.code');
+        if (TIMEOUT_CODES.includes(code)) {
+            return 'timeout';
         }
+
+        return 'error';
+    }
+}
+
+exports.status = async function (req, res) {
+    const connectors = await P.props(_.mapValues(CONNECTORS, async connector => {
+        const status = await getStatus(connector);
+
+        return {
+            status,
+            impl: connector.getImpl()
+        };
     }));
 
-    result.httpCache = http.stats;
-
-    res.json(result).end();
+    res.json({
+        connectors
+    }).end();
 };

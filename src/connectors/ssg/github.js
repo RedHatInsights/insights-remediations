@@ -2,16 +2,23 @@
 
 const config = require('../../config');
 const request = require('../http');
+const Connector = require('../Connector');
 
-exports.getTemplate = function (id) {
-    const uri = `${config.ssg.repository}/${id.toLowerCase()}.yml`;
+module.exports = new class extends Connector {
+    constructor () {
+        super(module);
+    }
 
-    return request({
-        uri,
-        method: 'GET'
-    }, true);
-};
+    getTemplate (id) {
+        const uri = `${config.ssg.repository}/${id.toLowerCase()}.yml`;
 
-exports.ping = function () {
-    return exports.getTemplate('sshd_disable_root_login');
-};
+        return request({
+            uri,
+            method: 'GET'
+        }, true);
+    }
+
+    ping () {
+        return this.getTemplate('sshd_disable_root_login');
+    }
+}();

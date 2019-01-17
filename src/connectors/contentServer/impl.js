@@ -6,37 +6,46 @@ const _ = require('lodash');
 const config = require('../../config');
 const request = require('../http');
 
-exports.getResolutions = async function (id) {
-    const uri = new URI(config.contentServer.host);
-    uri.segment('playbooks');
-    uri.segment(id);
+const Connector = require('../Connector');
 
-    const options = {
-        uri: uri.toString(),
-        method: 'GET',
-        json: true,
-        rejectUnauthorized: !config.contentServer.insecure
-    };
-
-    if (config.contentServer.auth) {
-        options.headers = {
-            Authorization: config.contentServer.auth
-        };
+module.exports = new class extends Connector {
+    constructor () {
+        super(module);
     }
 
-    const resolutions = await request(options, true);
+    async getResolutions (id) {
+        const uri = new URI(config.contentServer.host);
+        uri.segment('playbooks');
+        uri.segment(id);
 
-    return _.map(resolutions, resolution =>
-        _(resolution)
-        .pick(['description', 'play', 'resolution_type', 'resolution_risk', 'version'])
-        .defaults({
-            resolution_risk: -1,
-            version: 'unknown'
-        })
-        .value()
-    );
-};
+        const options = {
+            uri: uri.toString(),
+            method: 'GET',
+            json: true,
+            rejectUnauthorized: !config.contentServer.insecure
+        };
 
-exports.ping = function () {
-    return exports.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
-};
+        if (config.contentServer.auth) {
+            options.headers = {
+                Authorization: config.contentServer.auth
+            };
+        }
+
+        const resolutions = await request(options, true);
+
+        return _.map(resolutions, resolution =>
+            _(resolution)
+            .pick(['description', 'play', 'resolution_type', 'resolution_risk', 'version'])
+            .defaults({
+                resolution_risk: -1,
+                version: 'unknown'
+            })
+            .value()
+        );
+    }
+
+    ping () {
+        return this.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+    }
+}();
+

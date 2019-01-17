@@ -3,44 +3,50 @@
 const config = require('../../config');
 const request = require('../http');
 const URI = require('urijs');
+const Connector = require('../Connector');
 
-exports.getErratum = function (id) {
-    const uri = new URI(config.vmaas.host);
-    uri.path('/api/v1/errata');
-    uri.segment(id);
+module.exports = new class extends Connector {
+    constructor () {
+        super(module);
+    }
 
-    return request({
-        uri: uri.toString(),
-        method: 'GET',
-        json: true
-    }, true).then(res => {
-        if (res) {
-            return res.errata_list[id];
-        }
+    getErratum (id) {
+        const uri = new URI(config.vmaas.host);
+        uri.path('/api/v1/errata');
+        uri.segment(id);
 
-        return res;
-    });
-};
+        return request({
+            uri: uri.toString(),
+            method: 'GET',
+            json: true
+        }, true).then(res => {
+            if (res) {
+                return res.errata_list[id];
+            }
 
-exports.getCve = function (id) {
-    const uri = new URI(config.vmaas.host);
-    uri.path('/api/v1/cves');
-    uri.segment(id);
+            return res;
+        });
+    }
 
-    return request({
-        uri: uri.toString(),
-        method: 'GET',
-        json: true
-    }, true).then(res => {
-        if (res) {
-            return res.cve_list[id];
-        }
+    getCve (id) {
+        const uri = new URI(config.vmaas.host);
+        uri.path('/api/v1/cves');
+        uri.segment(id);
 
-        return res;
-    });
-};
+        return request({
+            uri: uri.toString(),
+            method: 'GET',
+            json: true
+        }, true).then(res => {
+            if (res) {
+                return res.cve_list[id];
+            }
 
-exports.ping = function () {
-    return exports.getCve('CVE-2017-17712');
-};
+            return res;
+        });
+    }
 
+    ping () {
+        return this.getCve('CVE-2017-17712');
+    }
+}();

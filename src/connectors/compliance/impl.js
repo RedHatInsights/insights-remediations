@@ -7,29 +7,38 @@ const { IDENTITY_HEADER } = require('../../middleware/identity/utils');
 const cls = require('../../util/cls');
 const assert = require('assert');
 
-exports.getRule = function (id) {
-    id = id.replace(/\./g, '-'); // compliance API limitation
+const Connector = require('../Connector');
 
-    const uri = new URI(host);
-    uri.path('/r/insights/platform/compliance/rules/');
-    uri.segment(id);
+module.exports = new class extends Connector {
+    constructor () {
+        super(module);
+    }
 
-    const req = cls.getReq();
-    assert(req, 'request not available in CLS');
-    const identity = req.headers[IDENTITY_HEADER];
-    assert(req, 'identity header not available for outbound compliance request');
+    getRule (id) {
+        id = id.replace(/\./g, '-'); // compliance API limitation
 
-    return request({
-        uri: uri.toString(),
-        method: 'GET',
-        json: true,
-        rejectUnauthorized: !insecure,
-        headers: {
-            [IDENTITY_HEADER]: identity
-        }
-    }, true);
-};
+        const uri = new URI(host);
+        uri.path('/r/insights/platform/compliance/rules/');
+        uri.segment(id);
 
-exports.ping = function () {
-    return exports.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
-};
+        const req = cls.getReq();
+        assert(req, 'request not available in CLS');
+        const identity = req.headers[IDENTITY_HEADER];
+        assert(req, 'identity header not available for outbound compliance request');
+
+        return request({
+            uri: uri.toString(),
+            method: 'GET',
+            json: true,
+            rejectUnauthorized: !insecure,
+            headers: {
+                [IDENTITY_HEADER]: identity
+            }
+        }, true);
+    }
+
+    ping () {
+        return this.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
+    }
+}();
+

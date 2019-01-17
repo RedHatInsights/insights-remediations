@@ -1,6 +1,7 @@
 'use strict';
 
 const P = require('bluebird');
+const Connector = require('../Connector');
 
 /* eslint max-len: off */
 
@@ -40,15 +41,21 @@ const CVES = {
 
 };
 
-exports.getErratum = function (id) {
-    return P.resolve(ERRATA[id]);
-};
+module.exports = new class extends Connector {
+    constructor () {
+        super(module);
+    }
 
-exports.getCve = function (id) {
-    return P.resolve(CVES[id]);
-};
+    getErratum (id) {
+        return P.resolve(ERRATA[id]);
+    }
 
-exports.ping = function () {
-    return exports.getCve('CVE-2017-17712');
-};
+    getCve (id) {
+        return P.resolve(CVES[id]);
+    }
+
+    ping () {
+        return this.getCve('CVE-2017-17712');
+    }
+}();
 

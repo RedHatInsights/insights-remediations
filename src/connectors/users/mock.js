@@ -1,8 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
+const Connector = require('../Connector');
 
-exports.MOCK_USERS = _.keyBy([{
+const MOCK_USERS = _.keyBy([{
     username: 'tuser@redhat.com',
     account_number: 'test',
     first_name: 'Test',
@@ -29,14 +30,22 @@ exports.MOCK_USERS = _.keyBy([{
     last_name: 'Hartinger'
 }], 'username');
 
-exports.getUsers = async function (ids = []) {
-    return _(ids)
-    .filter(id => id in exports.MOCK_USERS)
-    .keyBy()
-    .mapValues(id => exports.MOCK_USERS[id])
-    .value();
-};
+module.exports = new class extends Connector {
+    constructor () {
+        super(module);
+    }
 
-exports.ping = async function () {
-    return true;
-};
+    getUsers (ids = []) {
+        return _(ids)
+        .filter(id => id in MOCK_USERS)
+        .keyBy()
+        .mapValues(id => MOCK_USERS[id])
+        .value();
+    }
+
+    ping () {
+        return true;
+    }
+}();
+
+module.exports.MOCK_USERS = MOCK_USERS;

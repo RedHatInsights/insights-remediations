@@ -8,15 +8,39 @@ test('provides status information', async () => {
     .expect(200);
 
     body.should.containEql({
-        advisor: 'ok',
-        compliance: 'ok',
-        contentServer: 'ok',
-        inventory: 'ok',
-        ssg: 'ok',
-        vmaas: 'ok',
-        vulnerabilities: 'ok'
+        connectors: {
+            advisor: {
+                status: 'ok',
+                impl: 'mock'
+            },
+            compliance: {
+                status: 'ok',
+                impl: 'mock'
+            },
+            contentServer: {
+                status: 'ok',
+                impl: 'mock'
+            },
+            inventory: {
+                status: 'ok',
+                impl: 'mock'
+            },
+            ssg: {
+                status: 'ok',
+                impl: 'impl'
+            },
+            users: {
+                status: 'ok',
+                impl: 'mock'
+            },
+            vmaas: {
+                status: 'ok',
+                impl: 'vmaas'
+            },
+            vulnerabilities: {
+                status: 'ok',
+                impl: 'mock'
+            }
+        }
     });
-
-    body.should.have.key('httpCache');
-    body.httpCache.should.have.keys('hits', 'misses');
 });

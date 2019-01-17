@@ -2,18 +2,24 @@
 
 const request = require('../http');
 const URI = require('urijs');
+const Connector = require('../Connector');
 
 const {host} = require('../../config').ssg;
 
-exports.getTemplate = function (id) {
-    const uri = new URI(host);
-    uri.segment('/playbooks');
-    uri.segment(`${id}.yml`);
+module.exports = new class extends Connector {
+    constructor () {
+        super(module);
+    }
 
-    return request({ uri: uri.toString() }, true);
-};
+    getTemplate (id) {
+        const uri = new URI(host);
+        uri.segment('/playbooks');
+        uri.segment(`${id}.yml`);
 
-exports.ping = function () {
-    return exports.getTemplate('sshd_disable_root_login');
-};
+        return request({ uri: uri.toString() }, true);
+    }
 
+    ping () {
+        return this.getTemplate('sshd_disable_root_login');
+    }
+}();

@@ -1,5 +1,7 @@
 'use strict';
 
+const Connector = require('../Connector');
+
 const DATA = {
     'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE': {
         id: 'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
@@ -17,15 +19,20 @@ const DATA = {
     }
 };
 
-exports.getRule = async function (id) {
-    if (DATA[id]) {
-        return DATA[id];
+module.exports = new class extends Connector {
+    constructor () {
+        super(module);
     }
 
-    return null;
-};
+    async getRule (id) {
+        if (DATA[id]) {
+            return DATA[id];
+        }
 
-exports.ping = function () {
-    return exports.getRule('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
-};
+        return null;
+    }
 
+    ping () {
+        return this.getRule('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+    }
+}();

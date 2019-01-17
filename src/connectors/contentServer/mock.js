@@ -38,14 +38,23 @@ const DATA = {
     }]
 };
 
-exports.getResolutions = async function (id) {
-    if (id in DATA) {
-        return DATA[id];
+const Connector = require('../Connector');
+
+module.exports = new class extends Connector {
+    constructor () {
+        super(module);
     }
 
-    return [];
-};
+    getResolutions (id) {
+        if (id in DATA) {
+            return DATA[id];
+        }
 
-exports.ping = function () {
-    return exports.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
-};
+        return [];
+    }
+
+    ping () {
+        return this.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+    }
+}();
+

@@ -73,11 +73,18 @@ const DATA = Object.freeze({
     }
 });
 
-exports.getRule = async function (id) {
-    return P.resolve(DATA[id]);
-};
+const Connector = require('../Connector');
 
-exports.ping = function () {
-    return exports.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
-};
+module.exports = new class extends Connector {
+    constructor () {
+        super(module);
+    }
 
+    getRule (id) {
+        return P.resolve(DATA[id]);
+    }
+
+    ping () {
+        return this.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
+    }
+}();
