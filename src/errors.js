@@ -149,9 +149,5 @@ exports.internal = {
 
     preconditionFailed (msg) {
         return new InternalError('PRECONDITION_FAILED', msg);
-    },
-
-    classicNotProvidingPlays (id) {
-        return new InternalError('CLASSIC_PLAY_NOT_PROVIDED', `Failed to obtain play for "${id}". Check AUTH is set properly.`);
     }
 };
