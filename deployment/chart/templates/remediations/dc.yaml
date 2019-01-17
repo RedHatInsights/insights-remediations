@@ -159,6 +159,7 @@ spec:
 {{ if .Values.remediations.imageChangeTrigger }}
   - type: ImageChange
     imageChangeParams:
+      automatic: true
       containerNames:
       - remediations
       from:
