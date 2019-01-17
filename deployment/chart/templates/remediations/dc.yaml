@@ -11,7 +11,7 @@ spec:
     app: remediations
     deploymentconfig: remediations
   strategy:
-    type: Recreate
+    type: {{ .Values.remediations.strategy | default "Recreate" }}
     activeDeadlineSeconds: 21600
     recreateParams:
       mid:
@@ -155,4 +155,16 @@ spec:
       terminationGracePeriodSeconds: 30
   triggers:
   - type: ConfigChange
+
+{{ if .Values.remediations.imageChangeTrigger }}
+  - type: ImageChange
+    imageChangeParams:
+      containerNames:
+      - remediations
+      from:
+        kind: ImageStreamTag
+        name: remediations:latest
+        namespace: {{ .Values.imageNamespace }}
+{{ end }}
+
 {{ end }}

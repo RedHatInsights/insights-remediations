@@ -11,6 +11,9 @@ remediations:
   # Command to use for db migration. In stable environments this should be "npm run db:create; npm run db:migrate"
   migrationCommand: "npm run db:create; npm run db:migrate"
 
+  strategy: Rolling
+  imageChangeTrigger: true
+
   logLevel: trace
 
   advisor:
