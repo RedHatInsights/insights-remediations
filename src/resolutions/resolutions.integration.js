@@ -10,12 +10,12 @@ describe('resolve compliance resolutions', function () {
 
         body.should.eql({
             id: 'compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login',
-            resolution_risk: 1,
+            resolution_risk: -1,
             resolutions: [{
-                description: 'Fix',
+                description: 'Disable SSH Root Login',
                 id: 'fix',
                 needs_reboot: false,
-                resolution_risk: 1
+                resolution_risk: -1
             }]
         });
     });
@@ -27,12 +27,12 @@ describe('resolve compliance resolutions', function () {
 
         body.should.eql({
             id: 'compliance:xccdf_org.ssgproject.content_rule_security_patches_up_to_date',
-            resolution_risk: 3,
+            resolution_risk: -1,
             resolutions: [{
-                description: 'Fix',
+                description: 'Security patches are up to date',
                 id: 'fix',
                 needs_reboot: true,
-                resolution_risk: 3
+                resolution_risk: -1
             }]
         });
     });
@@ -40,6 +40,12 @@ describe('resolve compliance resolutions', function () {
     test('template with reboot and multiple tasks not supported at the moment', async () => {
         await request
         .get('/v1/resolutions/compliance:xccdf_org.ssgproject.content_rule_grub2_disable_interactive_boot')
+        .expect(404);
+    });
+
+    test('template with multiple tasks not supported at the moment', async () => {
+        await request
+        .get('/v1/resolutions/compliance:xccdf_org.ssgproject.content_rule_no_empty_passwords')
         .expect(404);
     });
 });

@@ -5,7 +5,7 @@ const ssg = require('../../connectors/ssg');
 const keyValueParser = require('../../util/keyValueParser');
 const Resolution = require('../Resolution');
 const yamlUtils = require('../../util/yaml');
-const { isNumber, isBoolean, nonEmptyArray, notIn } = require('../../util/preconditions');
+const { isBoolean, nonEmptyArray, notIn } = require('../../util/preconditions');
 const templates = require('../../templates/static');
 const Resolver = require('./Resolver');
 
@@ -13,11 +13,13 @@ const rebootFactSetter = yaml.safeLoad(templates.special.rebootFactSetter.data);
 
 const PATTERN = /xccdf_org\.ssgproject\.content_rule_([a-z0-9_]+)/;
 
+/*
 const LEVELS = {
     low: 1,
     medium: 2,
     high: 3
 };
+*/
 
 module.exports = class SSGResolver extends Resolver {
     async resolveResolutions (id) {
@@ -39,11 +41,16 @@ module.exports = class SSGResolver extends Resolver {
     }
 };
 
-function parseTemplate (template, id) {
+function parseTemplate (template) {
     template = template.replace(/@ANSIBLE_TAGS@/g, '- 0');
     template = template.replace(/^.*@ANSIBLE_ENSURE_PLATFORM@.*$/gm, ''); // TODO!!
     template = yamlUtils.removeDocumentMarkers(template);
     const parsed = yaml.safeLoad(template);
+
+    if (parsed.length !== 1) {
+        return null; // TODO: at this point we only support single-task resolutions
+    }
+
     parsed.forEach(item => delete item.tags);
 
     const metadata = parseMetadata(template);
@@ -56,15 +63,17 @@ function parseTemplate (template, id) {
         }
     }
 
-    const play = createBaseTemplate(id);
+    const name = parsed[0].name;
+
+    const play = createBaseTemplate(name);
     play.tasks = parsed;
 
-    return new Resolution(yaml.safeDump([play]).trim(), 'fix', `Fix`, needsReboot, false, resolutionRisk);
+    return new Resolution(yaml.safeDump([play]).trim(), 'fix', name, needsReboot, false, resolutionRisk);
 }
 
-function createBaseTemplate (id) {
+function createBaseTemplate (name) {
     return {
-        name: `fix ${id.issue}`,
+        name,
         hosts: '@@HOSTS@@',
         become: true
     };
@@ -76,7 +85,8 @@ function parseMetadata (template) {
 }
 
 // TODO: this may need some tuning to align with how risk of change is computed for other types of resolutions
-function parseResolutionRisk (metadata) {
+function parseResolutionRisk () {
+    /*
     if (!metadata.disruption || !metadata.complexity) {
         return -1;
     }
@@ -85,6 +95,8 @@ function parseResolutionRisk (metadata) {
     const complexity = isNumber(LEVELS[metadata.complexity]);
 
     return disruption + (complexity === 1 ? 0 : 1);
+    */
+    return -1; // TODO: revisit ^^^
 }
 
 function addRebootSupport (tasks) {

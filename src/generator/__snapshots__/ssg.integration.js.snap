@@ -8,28 +8,26 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
 # they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
-# Prevent Log In to Accounts With Empty Password
-# Identifier: (compliance:xccdf_org.ssgproject.content_rule_no_empty_passwords,fix)
+# Disable SSH Root Login
+# Identifier: (compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login,fix)
 # Version: unknown
-- name: fix xccdf_org.ssgproject.content_rule_no_empty_passwords
+- name: Disable SSH Root Login
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
   tasks:
-    - name: Prevent Log In to Accounts With Empty Password - system-auth
-      replace:
-        dest: /etc/pam.d/system-auth
-        follow: 'yes'
-        regexp: nullok
-    - name: Prevent Log In to Accounts With Empty Password - password-auth
-      replace:
-        dest: /etc/pam.d/password-auth
-        follow: 'yes'
-        regexp: nullok
+    - name: Disable SSH Root Login
+      lineinfile:
+        create: 'yes'
+        dest: /etc/ssh/sshd_config
+        regexp: ^PermitRootLogin
+        line: PermitRootLogin no
+        insertafter: '(?i)^#?authentication'
+        validate: sshd -t -f %s
 
 # System security patches and updates must be installed and up-to-date.
 # Identifier: (compliance:xccdf_org.ssgproject.content_rule_security_patches_up_to_date,fix)
 # Version: unknown
-- name: fix xccdf_org.ssgproject.content_rule_security_patches_up_to_date
+- name: Security patches are up to date
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
   tasks:
@@ -90,7 +88,7 @@ exports[`generates a simple playbook with reboot support 1`] = `
 # System security patches and updates must be installed and up-to-date.
 # Identifier: (compliance:xccdf_org.ssgproject.content_rule_security_patches_up_to_date,fix)
 # Version: unknown
-- name: fix xccdf_org.ssgproject.content_rule_security_patches_up_to_date
+- name: Security patches are up to date
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
   tasks:
@@ -151,7 +149,7 @@ exports[`generates a simple playbook with single compliance remediation 1`] = `
 # Disable SSH Root Login
 # Identifier: (compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login,fix)
 # Version: unknown
-- name: fix xccdf_org.ssgproject.content_rule_sshd_disable_root_login
+- name: Disable SSH Root Login
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
   tasks:

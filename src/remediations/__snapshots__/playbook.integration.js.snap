@@ -113,7 +113,7 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
 # Disable SSH Root Login
 # Identifier: (compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login,fix)
 # Version: unknown
-- name: fix xccdf_org.ssgproject.content_rule_sshd_disable_root_login
+- name: Disable SSH Root Login
   hosts: 'fc94beb8-21ee-403d-99b1-949ef7adb762'
   become: true
   tasks:

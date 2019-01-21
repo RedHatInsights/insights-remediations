@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`parses a simple template 1`] = `
-"- name: fix xccdf_org.ssgproject.content_rule_sshd_disable_root_login
+"- name: Disable SSH Root Login
   hosts: '@@HOSTS@@'
   become: true
   tasks:
@@ -16,7 +16,7 @@ exports[`parses a simple template 1`] = `
 `;
 
 exports[`parses a template with reboot 1`] = `
-"- name: fix xccdf_org.ssgproject.content_rule_bootloader_audit_argument
+"- name: Enable Auditing for Processes Which Start Prior to the Audit Daemon
   hosts: '@@HOSTS@@'
   become: true
   tasks:

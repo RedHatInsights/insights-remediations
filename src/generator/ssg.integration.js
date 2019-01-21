@@ -20,7 +20,7 @@ test('generates a simple playbook with single compliance remediation', async () 
 test('generates a simple playbook with multiple compliance remediation', async () => {
     const data = {
         issues: [{
-            id: 'compliance:xccdf_org.ssgproject.content_rule_no_empty_passwords',
+            id: 'compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }, {
             id: 'compliance:xccdf_org.ssgproject.content_rule_security_patches_up_to_date',

@@ -42,8 +42,8 @@ exports[`remediations get get remediation 1`] = `
             \\"description\\": \\"Disable SSH Root Login\\",
             \\"resolution\\": {
                 \\"id\\": \\"fix\\",
-                \\"description\\": \\"Fix\\",
-                \\"resolution_risk\\": 1,
+                \\"description\\": \\"Disable SSH Root Login\\",
+                \\"resolution_risk\\": -1,
                 \\"needs_reboot\\": false
             },
             \\"resolutions_available\\": 1,
