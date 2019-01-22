@@ -10,15 +10,15 @@ const identitySwitcher = require('./middleware/identity/switcher');
 const cls = require('./util/cls');
 const config = require('./config');
 const metrics = require('./metrics');
+const reqId = require('./middleware/reqId');
 
 const swagger = require('./api/swagger');
 const errors = require('./errors');
 
-let fallbackRequestIdentifier = 1;
 const pino = require('express-pino-logger')({
     logger: log,
     serializers: log.serializers,
-    genReqId: req => req.headers['x-rh-insights-request-id'] || String(fallbackRequestIdentifier++)
+    genReqId: req => req.headers['x-rh-insights-request-id']
 });
 
 module.exports = async function (app) {
@@ -37,6 +37,7 @@ module.exports = async function (app) {
     app.use(identitySwitcher);
     app.use(httpContext.middleware);
     app.use(cls.middleware);
+    app.use(reqId);
     app.use(pino);
     await swagger(app, config.path.base);
     app.use(prettyJson);
