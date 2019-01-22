@@ -7,7 +7,6 @@ const _ = require('lodash');
 const assert = require('assert');
 const Connector = require('../Connector');
 
-const request = require('../http');
 const {host, insecure, auth, env} = require('../../config').users;
 
 const cert = fs.readFileSync(path.resolve(__dirname, '../../../certs/backoffice-proxy.crt'));
@@ -28,7 +27,7 @@ module.exports = new class extends Connector {
         const uri = new URI(host);
         uri.path('/v1/users');
 
-        const result = await request({
+        const result = await this.doHttp({
             uri: uri.toString(),
             method: 'POST',
             json: true,

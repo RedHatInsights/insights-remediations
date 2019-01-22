@@ -1,7 +1,6 @@
 'use strict';
 
 const config = require('../../config');
-const request = require('../http');
 const Connector = require('../Connector');
 
 module.exports = new class extends Connector {
@@ -12,7 +11,7 @@ module.exports = new class extends Connector {
     getTemplate (id) {
         const uri = `${config.ssg.repository}/${id.toLowerCase()}.yml`;
 
-        return request({
+        return this.doHttp({
             uri,
             method: 'GET'
         }, true);

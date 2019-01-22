@@ -1,7 +1,6 @@
 'use strict';
 
 const config = require('../../config');
-const request = require('../http');
 const URI = require('urijs');
 const Connector = require('../Connector');
 
@@ -15,7 +14,7 @@ module.exports = new class extends Connector {
         uri.path('/api/v1/errata');
         uri.segment(id);
 
-        return request({
+        return this.doHttp({
             uri: uri.toString(),
             method: 'GET',
             json: true
@@ -33,7 +32,7 @@ module.exports = new class extends Connector {
         uri.path('/api/v1/cves');
         uri.segment(id);
 
-        return request({
+        return this.doHttp({
             uri: uri.toString(),
             method: 'GET',
             json: true

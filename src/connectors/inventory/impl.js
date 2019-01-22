@@ -1,11 +1,8 @@
 'use strict';
 
 const _ = require('lodash');
-const request = require('../http');
 const URI = require('urijs');
 const {host, insecure} = require('../../config').inventory;
-const { IDENTITY_HEADER } = require('../../middleware/identity/utils');
-const cls = require('../../util/cls');
 const assert = require('assert');
 
 const Connector = require('../Connector');
@@ -26,6 +23,10 @@ module.exports = new class extends Connector {
     }
 
     async getSystemDetailsBatch (ids = false) {
+        if (ids.length === 0) {
+            return {};
+        }
+
         const uri = new URI(host);
         uri.path('/r/insights/platform/inventory/api/v1/hosts');
 
@@ -39,18 +40,13 @@ module.exports = new class extends Connector {
             uri.addQuery('per_page', String(1));
         }
 
-        const req = cls.getReq();
-        assert(req, 'request not available in CLS');
-        const identity = req.headers[IDENTITY_HEADER];
-        assert(req, 'identity header not available for outbound inventory request');
-
-        const response = await request({
+        const response = await this.doHttp({
             uri: uri.toString(),
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
             headers: {
-                [IDENTITY_HEADER]: identity
+                ...this.getForwardedHeaders()
             }
         }, true);
 

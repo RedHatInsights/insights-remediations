@@ -6,7 +6,7 @@ const config = require('../config');
 const cache = require('../cache');
 const http = require('./http');
 const request = require('../util/request');
-const errors = require('../errors');
+const StatusCodeError = require('./StatusCodeError');
 
 const MOCK_CACHE = {
     status: 'ready',
@@ -34,7 +34,7 @@ describe('connector caching', function () {
         base.sandbox.spy(MOCK_CACHE, 'setex');
         base.sandbox.spy(request, 'run');
 
-        const result = await http({
+        const result = await http.request({
             uri: 'https://example.com'
         }, true);
 
@@ -58,7 +58,7 @@ describe('connector caching', function () {
         });
         base.sandbox.spy(MOCK_CACHE, 'setex');
 
-        const result = await http({
+        const result = await http.request({
             uri: 'https://example.com'
         }, true);
 
@@ -88,7 +88,7 @@ describe('connector caching', function () {
         });
         base.sandbox.spy(MOCK_CACHE, 'setex');
 
-        const result = await http({
+        const result = await http.request({
             uri: 'https://example.com'
         }, true);
 
@@ -115,7 +115,7 @@ describe('connector caching', function () {
         base.sandbox.spy(MOCK_CACHE, 'setex');
         base.sandbox.spy(MOCK_CACHE, 'del');
 
-        const result = await http({
+        const result = await http.request({
             uri: 'https://example.com'
         }, true);
 
@@ -139,7 +139,7 @@ describe('connector caching', function () {
         });
         base.sandbox.spy(MOCK_CACHE, 'setex');
 
-        const result = await http({
+        const result = await http.request({
             uri: 'https://example.com'
         }, true);
 
@@ -157,7 +157,7 @@ describe('connector caching', function () {
         });
         base.sandbox.spy(MOCK_CACHE, 'setex');
 
-        const result = await http({
+        const result = await http.request({
             uri: 'https://example.com'
         }, true);
 
@@ -174,13 +174,12 @@ describe('connector caching', function () {
         });
         base.sandbox.stub(MOCK_CACHE, 'setex').resolves(null);
 
-        const expected = expect(http({
+        const expected = expect(http.request({
             uri: 'https://example.com'
         }, true)).rejects;
 
-        await expected.toThrowError(errors.InternalError);
-        await expected.toHaveProperty('errorCode', 'DEPENDENCY_FAILURE_HTTP');
-        await expected.toHaveProperty('message', 'An HTTP dependency returned unexpected response');
+        await expected.toThrowError(StatusCodeError);
+        await expected.toHaveProperty('statusCode', 500);
 
         MOCK_CACHE.get.callCount.should.equal(1);
         request.run.callCount.should.equal(1);
@@ -192,13 +191,11 @@ describe('connector caching', function () {
         base.sandbox.stub(request, 'run').rejects(new Error('socket timeout'));
         base.sandbox.stub(MOCK_CACHE, 'setex').resolves(null);
 
-        const expected = expect(http({
+        const expected = expect(http.request({
             uri: 'https://example.com'
         }, true)).rejects;
 
-        await expected.toThrowError(errors.InternalError);
-        await expected.toHaveProperty('errorCode', 'DEPENDENCY_FAILURE_HTTP');
-        await expected.toHaveProperty('message', 'An HTTP dependency returned unexpected response');
+        await expected.toThrowError('socket timeout');
 
         MOCK_CACHE.get.callCount.should.equal(1);
         request.run.callCount.should.equal(1);
@@ -212,7 +209,7 @@ describe('connector caching', function () {
         });
         base.sandbox.stub(MOCK_CACHE, 'setex').resolves(null);
 
-        await http({
+        await http.request({
             uri: 'https://example.com'
         });
 

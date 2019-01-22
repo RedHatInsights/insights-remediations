@@ -1,11 +1,7 @@
 'use strict';
 
-const request = require('../http');
 const URI = require('urijs');
 const {host, insecure} = require('../../config').compliance;
-const { IDENTITY_HEADER } = require('../../middleware/identity/utils');
-const cls = require('../../util/cls');
-const assert = require('assert');
 
 const Connector = require('../Connector');
 
@@ -21,18 +17,13 @@ module.exports = new class extends Connector {
         uri.path('/r/insights/platform/compliance/rules/');
         uri.segment(id);
 
-        const req = cls.getReq();
-        assert(req, 'request not available in CLS');
-        const identity = req.headers[IDENTITY_HEADER];
-        assert(req, 'identity header not available for outbound compliance request');
-
-        return request({
+        return this.doHttp({
             uri: uri.toString(),
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
             headers: {
-                [IDENTITY_HEADER]: identity
+                ...this.getForwardedHeaders()
             }
         }, true);
     }

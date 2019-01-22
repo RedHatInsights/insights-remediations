@@ -2,22 +2,14 @@
 
 const _ = require('lodash');
 const request = require('../util/request');
-const errors = require('../errors');
 const cache = require('../cache');
 const log = require('../util/log');
 const { notNil } = require('../util/preconditions');
 const config = require('../config');
+const StatusCodeError = require('./StatusCodeError');
 
 const CACHE_TTL = config.cache.ttl;
 const REVALIDATION_INTERVAL = config.cache.revalidationInterval;
-
-class StatusCodeError extends Error {
-    constructor (statusCode, options) {
-        super(`Unexpected status code ${statusCode}`);
-        this.statusCode = statusCode;
-        this.options = options;
-    }
-}
 
 function doHttp (options, cached) {
     const opts = {
@@ -37,11 +29,8 @@ function doHttp (options, cached) {
             case 200:
             case 304: return res;
             case 404: return null;
-            default: throw errors.internal.dependencyFailureHttp(new StatusCodeError(res.statusCode, opts));
+            default: throw new StatusCodeError(res.statusCode, opts);
         }
-    })
-    .catch(e => {
-        throw errors.internal.dependencyFailureHttp(e);
     });
 }
 
@@ -70,7 +59,7 @@ function saveCachedEntry (redis, key, etag, body) {
     }));
 }
 
-module.exports = async function (options, useCache = false) {
+async function run (options, useCache = false) {
     if (!useCache || !config.redis.enabled || cache.get().status !== 'ready') {
         return doHttp(options).then(res => (res === null ? null : res.body));
     }
@@ -110,9 +99,12 @@ module.exports = async function (options, useCache = false) {
     log.trace({uri}, 'saved to cache');
     saveCachedEntry(cache.get(), key, res.headers.etag, res.body);
     return res.body;
-};
+}
+
+module.exports.request = run;
 
 module.exports.stats = {
     hits: 0,
     misses: 0
 };
+

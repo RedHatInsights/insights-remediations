@@ -1,6 +1,5 @@
 'use strict';
 
-const request = require('../http');
 const URI = require('urijs');
 const Connector = require('../Connector');
 
@@ -16,7 +15,7 @@ module.exports = new class extends Connector {
         uri.segment('/playbooks');
         uri.segment(`${id}.yml`);
 
-        return request({ uri: uri.toString() }, true);
+        return this.doHttp({ uri: uri.toString() }, true);
     }
 
     ping () {

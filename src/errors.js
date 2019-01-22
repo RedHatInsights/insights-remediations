@@ -5,8 +5,9 @@ const log = require('./util/log');
 const cls = require('./util/cls');
 const config = require('./config');
 
-class HttpError {
+class HttpError extends Error {
     constructor (status, code, title, details) {
+        super(title);
         const req = cls.getReq();
         this.error = {
             id: req ? req.id : undefined,
@@ -53,6 +54,16 @@ exports.Unauthorized = class Unauthorized extends HttpError {
     }
 };
 
+exports.DependencyError = class DependencyError extends HttpError {
+    constructor (e, connector) {
+        super(503, 'DEPENDENCY_UNAVAILABLE', 'Service dependency unavailable', {
+            name: connector.getName(),
+            impl: connector.getImpl()
+        });
+        this.cause = e;
+    }
+};
+
 exports.handler = (err, req, res, next) => {
 
     // swagger request validation handler
@@ -75,7 +86,10 @@ exports.handler = (err, req, res, next) => {
         .end();
     }
 
-    if (err instanceof HttpError) {
+    if (err instanceof exports.DependencyError) {
+        log.error(err, 'rejecting request due to DependencyError');
+        return err.writeResponse(res);
+    } else if (err instanceof HttpError) {
         log.debug(err, 'rejecting request due to HttpError');
         return err.writeResponse(res);
     }
@@ -141,10 +155,8 @@ exports.internal = {
         return new InternalError('PLAYBOOK_VALIDATION_FAILED', 'Playbook output validation failed', {cause: e, playbook});
     },
 
-    dependencyFailureHttp (e) {
-        return new InternalError('DEPENDENCY_FAILURE_HTTP', 'An HTTP dependency returned unexpected response', {
-            cause: e
-        });
+    dependencyError (e, connector) {
+        return new exports.DependencyError(e, connector);
     },
 
     preconditionFailed (msg) {

@@ -4,7 +4,6 @@ const URI = require('urijs');
 const _ = require('lodash');
 
 const config = require('../../config');
-const request = require('../http');
 
 const Connector = require('../Connector');
 
@@ -31,7 +30,7 @@ module.exports = new class extends Connector {
             };
         }
 
-        const resolutions = await request(options, true);
+        const resolutions = await this.doHttp(options, true);
 
         return _.map(resolutions, resolution =>
             _(resolution)
