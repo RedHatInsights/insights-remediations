@@ -29,7 +29,7 @@ function doHttp (options, cached) {
             case 200:
             case 304: return res;
             case 404: return null;
-            default: throw new StatusCodeError(res.statusCode, opts);
+            default: throw new StatusCodeError(res.statusCode, opts, res.body);
         }
     });
 }

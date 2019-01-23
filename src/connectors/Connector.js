@@ -42,5 +42,6 @@ module.exports = class Connector {
         const name = this.getName();
         assert(forwarded[IDENTITY_HEADER], `identity header not available for outbound ${name} request`);
         assert(forwarded[REQ_ID_HEADER], `request id header not available for outbound ${name} request`);
+        return forwarded;
     }
 };
