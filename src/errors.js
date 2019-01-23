@@ -64,11 +64,11 @@ exports.DependencyError = class DependencyError extends HttpError {
     }
 };
 
-exports.handler = (err, req, res, next) => {
+exports.handler = (error, req, res, next) => {
 
     // swagger request validation handler
-    if (err.code === 'SCHEMA_VALIDATION_FAILED' && !err.originalResponse) {
-        const errors = err.results.errors;
+    if (error.code === 'SCHEMA_VALIDATION_FAILED' && !error.originalResponse) {
+        const errors = error.results.errors;
         log.debug('rejecting request due to SCHEMA_VALIDATION_FAILED');
 
         const status = 400;
@@ -86,26 +86,26 @@ exports.handler = (err, req, res, next) => {
         .end();
     }
 
-    if (err instanceof exports.DependencyError) {
-        log.error(err, 'rejecting request due to DependencyError');
-        return err.writeResponse(res);
-    } else if (err instanceof HttpError) {
-        log.debug(err, 'rejecting request due to HttpError');
-        return err.writeResponse(res);
+    if (error instanceof exports.DependencyError) {
+        log.error({ error }, 'rejecting request due to DependencyError');
+        return error.writeResponse(res);
+    } else if (error instanceof HttpError) {
+        log.debug({ error }, 'rejecting request due to HttpError');
+        return error.writeResponse(res);
     }
 
     log.error({
         error: {
-            message: err.message,
-            stack: err.stack,
-            ..._.omit(err, [
+            message: error.message,
+            stack: error.stack,
+            ..._.omit(error, [
                 ['originalResponse'] // avoid writting down the entire response buffer
             ])
         }
     }, 'caught internal error');
 
     if (config.env !== 'production') {
-        return next(err); // write out stack in non-prod envs
+        return next(error); // write out stack in non-prod envs
     }
 
     res.status(500).json({
