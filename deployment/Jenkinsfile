@@ -103,7 +103,8 @@ node {
                         "remediations:latest"
                     ],
                     dstProject: "remediations-stage",
-                    dstCredentialsId: "remediations-image-sync"
+                    dstSaUsername: "image-sync",
+                    dstSaTokenCredentialsId: "remediations-image-sync"
                 )
             }
         }
