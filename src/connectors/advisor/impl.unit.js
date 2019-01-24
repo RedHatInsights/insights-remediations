@@ -1,15 +1,21 @@
 'use strict';
 
-const { request } = require('../test');
-const mockInventory = require('../connectors/inventory/mock');
+const impl = require('./impl');
+const base = require('../../test');
+const Connector = require('../Connector');
+const data = require('./impl.unit.data');
+const { mockHeaders } = require('../testUtils');
 
-describe('/diagnosis', function () {
-    test('returns all details information for the given system', async () => {
-        const {body} = await request
-        .get('/v1/diagnosis/9a212816-a472-11e8-98d0-529269fb1459')
-        .expect(200);
+describe('advisor impl', function () {
 
-        body.should.have.property('details', {
+    test('parses diagnosis reports', async function () {
+        mockHeaders();
+        const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(data.diagnosis1);
+
+        const diagnosis = await impl.getDiagnosis('id');
+
+        spy.callCount.should.equal(1);
+        diagnosis.should.eql({
             'crashkernel_reservation_failed|CRASHKERNEL_RESERVATION_FAILED': {
                 rhel_ver: 7,
                 msg: '[    0.000000] crashkernel=auto resulted in zero bytes of reserved memory.',
@@ -31,11 +37,5 @@ describe('/diagnosis', function () {
                 error_key: 'CVE_2018_3620_CPU_KERNEL_NEED_UPDATE'
             }
         });
-    });
-
-    test('404s on unknown system', async () => {
-        await request
-        .get('/v1/diagnosis/' + mockInventory.NON_EXISTENT_SYSTEM)
-        .expect(404);
     });
 });

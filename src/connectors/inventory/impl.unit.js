@@ -4,14 +4,7 @@ const impl = require('./impl');
 const base = require('../../test');
 const http = require('../http');
 const Connector = require('../Connector');
-
-function mockHeaders (headers = {
-    'x-rh-identity': 'identity',
-    'x-rh-insights-request-id': 'request-id'
-}) {
-    base.getSandbox().stub(Connector.prototype, 'getForwardedHeaders').returns(headers);
-    return headers;
-}
+const { mockHeaders } = require('../testUtils');
 
 describe('inventory impl', function () {
 
