@@ -222,6 +222,25 @@ paths:
         404:
           description: Issue not known or Ansible resolution not available
 
+  /resolutions:
+    post:
+      tags:
+        - resolutions
+      summary: Resolution metadata (batch)
+      description: Provides information about resolutions available for the given issues
+      operationId: resolutionsBatch
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ResolutionsBatchInput'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/ResolutionsBatch'
+
   /diagnosis/{system}:
     get:
       tags:
@@ -452,6 +471,22 @@ definitions:
         default: true
         description: Indicates whether systems that need to be rebooted should be rebooted automatically
 
+  ResolutionsBatchInput:
+    type: object
+    additionalProperties: false
+    required: [issues]
+    properties:
+      issues:
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/definitions/IssueId"
+    example:
+      issues:
+        - vulnerabilities:CVE-2018-1087
+        - vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074377300
+
+
   #
   # Output types
   #
@@ -495,6 +530,35 @@ definitions:
               type: boolean
             resolution_risk:
               $ref: '#/definitions/ResolutionRisk'
+
+  # Resolution specific types
+  ResolutionsBatch:
+    type: object
+    example:
+      vulnerabilities:CVE-2018-1087:
+        id: vulnerabilities:CVE-2018-1087
+        resolution_risk: -1
+        resolutions:
+          - description: Upgrade packages affected by CVE-2018-1087
+            id: fix
+            needs_reboot: true
+            resolution_risk: -1
+      vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074:
+        id: vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+        resolution_risk: 3
+        resolutions:
+          - description: Update system to the latest kernel and reboot
+            id: kernel_update
+            needs_reboot: true
+            resolution_risk: 3
+          - description: Disable DCCP kernel module
+            id: mitigate
+            needs_reboot: true
+            resolution_risk: 3
+          - description: Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7
+            id: selinux_mitigate
+            needs_reboot: true
+            resolution_risk: 3
 
   # Remediation specific types
   RemediationName:

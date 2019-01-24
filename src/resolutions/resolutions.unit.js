@@ -124,3 +124,28 @@ describe('resolve advisor resolutions', function () {
         });
     });
 });
+
+describe('batch', function () {
+    test('400s on empty list', async () => {
+        await request
+        .post('/v1/resolutions')
+        .send({ issues: [] })
+        .expect(400);
+    });
+
+    test('template batch resource', async () => {
+        const { body } = await request
+        .post('/v1/resolutions')
+        .send({
+            issues: [
+                'test:ping',
+                'vulnerabilities:CVE-2017-15126',
+                'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+                'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
+                'advisor:non-existent-issue'
+            ]
+        })
+        .expect(200);
+        expect(body).toMatchSnapshot();
+    });
+});

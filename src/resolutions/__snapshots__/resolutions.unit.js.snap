@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`batch template batch resource 1`] = `
+Object {
+  "advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE": Object {
+    "id": "advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE",
+    "resolution_risk": 3,
+    "resolutions": Array [
+      Object {
+        "description": "Correct Bonding Config Items",
+        "id": "fix",
+        "needs_reboot": false,
+        "resolution_risk": 3,
+      },
+    ],
+  },
+  "advisor:non-existent-issue": false,
+  "test:ping": Object {
+    "id": "test:ping",
+    "resolution_risk": -1,
+    "resolutions": Array [
+      Object {
+        "description": "Ping",
+        "id": "fix",
+        "needs_reboot": false,
+        "resolution_risk": -1,
+      },
+    ],
+  },
+  "vulnerabilities:CVE-2017-15126": Object {
+    "id": "vulnerabilities:CVE-2017-15126",
+    "resolution_risk": -1,
+    "resolutions": Array [
+      Object {
+        "description": "Upgrade packages affected by CVE-2017-15126",
+        "id": "fix",
+        "needs_reboot": true,
+        "resolution_risk": -1,
+      },
+    ],
+  },
+  "vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074": Object {
+    "id": "vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+    "resolution_risk": 3,
+    "resolutions": Array [
+      Object {
+        "description": "Update system to the latest kernel and reboot",
+        "id": "kernel_update",
+        "needs_reboot": true,
+        "resolution_risk": 3,
+      },
+      Object {
+        "description": "Disable DCCP kernel module",
+        "id": "mitigate",
+        "needs_reboot": true,
+        "resolution_risk": 3,
+      },
+      Object {
+        "description": "Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7",
+        "id": "selinux_mitigate",
+        "needs_reboot": true,
+        "resolution_risk": 3,
+      },
+    ],
+  },
+}
+`;
