@@ -485,6 +485,7 @@ definitions:
       issues:
         - vulnerabilities:CVE-2018-1087
         - vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074377300
+        - advisor:non-existent-issue
 
 
   #
@@ -559,6 +560,7 @@ definitions:
             id: selinux_mitigate
             needs_reboot: true
             resolution_risk: 3
+      advisor:non-existent-issue: false
 
   # Remediation specific types
   RemediationName:
