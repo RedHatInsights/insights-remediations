@@ -565,6 +565,7 @@ definitions:
   # Remediation specific types
   RemediationName:
     type: string
+    pattern: ^$|^.*[\w\d]+.*$ # empty string or anything that contains at least one character
     example: Fix Critical CVEs
 
   RemediationAutoReboot:

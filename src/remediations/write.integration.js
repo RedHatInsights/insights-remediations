@@ -59,6 +59,14 @@ describe('remediations', function () {
             r2.body.should.have.property('auto_reboot', false);
         });
 
+        test('400s on weird remediation name', async () => {
+            await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({name: '  :-) !!! \\-/'})
+            .expect(400);
+        });
+
         test('creates a new remediation with issues', async () => {
             const name = 'new remediation with issues';
             const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f', 'f5ce853a-c922-46f7-bd82-50286b7d8459'];
