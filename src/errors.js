@@ -84,6 +84,18 @@ exports.handler = (error, req, res, next) => {
             }))
         })
         .end();
+    } else if (error.failedValidation) {
+        const status = 400;
+        return res
+        .status(status)
+        .json({
+            errors: [{
+                id: req.id,
+                status,
+                code: error.code,
+                title: error.message
+            }]
+        });
     }
 
     if (error instanceof exports.DependencyError) {

@@ -73,6 +73,15 @@ describe('remediations', function () {
             testSorting('issue_count', false, r4, r3, r1, r2);
             testSorting('system_count', true, r1, r3, r2, r4);
             testSorting('system_count', false, r2, r4, r1, r3);
+
+            test('invalid column', async () => {
+                const { body } = await request
+                .get('/v1/remediations?pretty&sort=foo')
+                .expect(400);
+
+                body.errors[0].code.should.equal('ENUM_MISMATCH');
+                body.errors[0].status.should.equal(400);
+            });
         });
     });
 
