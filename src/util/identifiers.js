@@ -20,7 +20,8 @@ exports.parse = function (id) {
     return {
         app: result[1],
         issue: result[2],
-        full: id
+        full: id,
+        toString: () => id
     };
 };
 

@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const yaml = require('js-yaml');
 const ssg = require('../../connectors/ssg');
 const keyValueParser = require('../../util/keyValueParser');
@@ -8,6 +9,7 @@ const yamlUtils = require('../../util/yaml');
 const { isBoolean, nonEmptyArray, notIn } = require('../../util/preconditions');
 const templates = require('../../templates/static');
 const Resolver = require('./Resolver');
+const log = require('../../util/log');
 
 const rebootFactSetter = yaml.safeLoad(templates.special.rebootFactSetter.data);
 
@@ -41,14 +43,14 @@ module.exports = class SSGResolver extends Resolver {
     }
 };
 
-function parseTemplate (template) {
+function parseTemplate (template, id) {
     template = template.replace(/@ANSIBLE_TAGS@/g, '- 0');
     template = template.replace(/^.*@ANSIBLE_ENSURE_PLATFORM@.*$/gm, ''); // TODO!!
     template = yamlUtils.removeDocumentMarkers(template);
     const parsed = yaml.safeLoad(template);
 
-    if (parsed.length !== 1) {
-        return null; // TODO: at this point we only support single-task resolutions
+    if (parsed.length !== 1 || _.has(parsed[0], 'block')) {
+        return false; // TODO: at this point we only support single-task resolutions
     }
 
     parsed.forEach(item => delete item.tags);
@@ -68,7 +70,15 @@ function parseTemplate (template) {
     const play = createBaseTemplate(name);
     play.tasks = parsed;
 
-    return new Resolution(yaml.safeDump([play]).trim(), 'fix', name, needsReboot, false, resolutionRisk);
+    let processedTemplate = false;
+    try {
+        processedTemplate = yaml.safeDump([play]).trim();
+    } catch (e) {
+        log.warn(e, `Error processing ssg template for ${id}`);
+        return false;
+    }
+
+    return new Resolution(processedTemplate, 'fix', name, needsReboot, false, resolutionRisk);
 }
 
 function createBaseTemplate (name) {

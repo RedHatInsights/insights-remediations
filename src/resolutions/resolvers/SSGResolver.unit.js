@@ -48,3 +48,33 @@ test('parses a template with reboot', async () => {
     resolution.needsReboot.should.be.true();
     expect(resolution.template.data).toMatchSnapshot();
 });
+
+test('skips playbooks with blocks', async () => {
+    mock.sandbox.stub(ssg, 'getTemplate').callsFake(() => i`
+        # platform = multi_platform_rhel,multi_platform_fedora
+        # reboot = false
+        # strategy = restrict
+        # complexity = low
+        # disruption = low
+        - block:
+            - name: "Detect shosts.equiv Files on the System"
+              find:
+                  paths: /
+                  recurse: yes
+                  patterns: shosts.equiv
+              check_mode: no
+              register: shosts_equiv_locations
+
+            - name: "Remove Rsh Trust Files"
+              file:
+                  path: "{{ item.path }}"
+                  state: absent
+              with_items: "{{ shosts_equiv_locations.files }}"
+              when: shosts_equiv_locations and @ANSIBLE_PLATFORM_CONDITION@
+          tags:
+            @ANSIBLE_TAGS@`);
+
+    const resolutions = (await resolver.resolveResolutions(
+        id.parse('compliance:xccdf_org.ssgproject.content_rule_no_rsh_trust_files')));
+    resolutions.should.be.empty();
+});
