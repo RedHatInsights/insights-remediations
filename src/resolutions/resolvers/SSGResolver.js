@@ -15,6 +15,10 @@ const rebootFactSetter = yaml.safeLoad(templates.special.rebootFactSetter.data);
 
 const PATTERN = /xccdf_org\.ssgproject\.content_rule_([a-z0-9_]+)/;
 
+const DEFAULTS = Object.freeze({
+    reboot: true
+});
+
 /*
 const LEVELS = {
     low: 1,
@@ -91,7 +95,8 @@ function createBaseTemplate (name) {
 
 function parseMetadata (template) {
     const lines = template.split('\n').filter(line => line.startsWith('#'));
-    return keyValueParser.parse(lines.join('\n'));
+    const metadata = keyValueParser.parse(lines.join('\n'));
+    return _.defaults(metadata, DEFAULTS);
 }
 
 // TODO: this may need some tuning to align with how risk of change is computed for other types of resolutions

@@ -78,3 +78,16 @@ test('skips playbooks with blocks', async () => {
         id.parse('compliance:xccdf_org.ssgproject.content_rule_no_rsh_trust_files')));
     resolutions.should.be.empty();
 });
+
+test('uses defaults if metadata is absent', async () => {
+    mock.sandbox.stub(ssg, 'getTemplate').callsFake(() => i`
+        - name: "Enable Auditing for Processes Which Start Prior to the Audit Daemon"
+          shell: /sbin/grubby --update-kernel=ALL --args="audit=1"
+          tags:
+            @ANSIBLE_TAGS@`);
+
+    const resolution = (await resolver.resolveResolutions(
+        id.parse('compliance:xccdf_org.ssgproject.content_rule_bootloader_audit_argument')))[0];
+    resolution.needsReboot.should.be.true();
+    expect(resolution.template.data).toMatchSnapshot();
+});
