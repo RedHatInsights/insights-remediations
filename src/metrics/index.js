@@ -15,7 +15,7 @@ exports.start = function (app) {
         includeUp: false,
         includeMethod: false,
         includePath: false,
-        includeStatusCode: false,
+        includeStatusCode: true,
 
         promClient: {
             collectDefaultMetrics: {
