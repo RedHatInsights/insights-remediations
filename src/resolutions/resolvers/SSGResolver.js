@@ -51,7 +51,14 @@ function parseTemplate (template, id) {
     template = template.replace(/@ANSIBLE_TAGS@/g, '- 0');
     template = template.replace(/^.*@ANSIBLE_ENSURE_PLATFORM@.*$/gm, ''); // TODO!!
     template = yamlUtils.removeDocumentMarkers(template);
-    const parsed = yaml.safeLoad(template);
+    let parsed = false;
+
+    try {
+        parsed = yaml.safeLoad(template);
+    } catch (e) {
+        log.warn(e, `Error processing ssg template for ${id}`);
+        return false;
+    }
 
     if (parsed.length !== 1 || _.has(parsed[0], 'block')) {
         return false; // TODO: at this point we only support single-task resolutions
