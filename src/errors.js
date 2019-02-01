@@ -64,6 +64,10 @@ exports.DependencyError = class DependencyError extends HttpError {
     }
 };
 
+function mapValidationError ({id}, {code, message: title}) {
+    return { id, status: 400, code, title };
+}
+
 exports.handler = (error, req, res, next) => {
 
     // swagger request validation handler
@@ -76,12 +80,7 @@ exports.handler = (error, req, res, next) => {
         return res
         .status(status)
         .json({
-            errors: errors.map(({code, message}) => ({
-                id: req.id,
-                status,
-                code,
-                title: message
-            }))
+            errors: errors.map(error => mapValidationError(req, error))
         })
         .end();
     } else if (error.failedValidation) {
@@ -89,12 +88,7 @@ exports.handler = (error, req, res, next) => {
         return res
         .status(status)
         .json({
-            errors: [{
-                id: req.id,
-                status,
-                code: error.code,
-                title: error.message
-            }]
+            errors: [mapValidationError(req, error)]
         });
     }
 
