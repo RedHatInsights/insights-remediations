@@ -4,7 +4,7 @@ WORKDIR /opt/app-root/src
 
 COPY package.json package-lock.json /opt/app-root/src/
 
-RUN npm ci --verbose --only=production
+RUN npm ci --only=production
 
 COPY . /opt/app-root/src
 
