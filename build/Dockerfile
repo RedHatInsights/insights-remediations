@@ -1,17 +1,13 @@
-FROM node:10-alpine
+FROM registry.access.redhat.com/rhoar-nodejs/nodejs-10
 
-WORKDIR /usr/src/app
+WORKDIR /opt/app-root/src
 
-COPY package.json package-lock.json /usr/src/app/
+COPY package.json package-lock.json /opt/app-root/src/
 
-RUN apk update && \
-    apk upgrade && \
-    npm install --production && \
-    chmod 1777 /tmp
+RUN npm ci --verbose --only=production
 
-COPY . /usr/src/app
+COPY . /opt/app-root/src
 
-USER node:node
 EXPOSE 9002
 ENV NODE_ENV=production
 CMD [ "node", "src/app.js" ]
