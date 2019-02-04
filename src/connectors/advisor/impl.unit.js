@@ -4,12 +4,13 @@ const impl = require('./impl');
 const base = require('../../test');
 const Connector = require('../Connector');
 const data = require('./impl.unit.data');
-const { mockHeaders } = require('../testUtils');
+const { mockRequest } = require('../testUtils');
 
 describe('advisor impl', function () {
 
+    beforeEach(mockRequest);
+
     test('parses diagnosis reports', async function () {
-        mockHeaders();
         const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(data.diagnosis1);
 
         const diagnosis = await impl.getDiagnosis('id');

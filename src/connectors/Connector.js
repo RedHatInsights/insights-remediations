@@ -34,13 +34,21 @@ module.exports = class Connector {
         }
     }
 
-    getForwardedHeaders () {
+    getForwardedHeaders (identity = true) {
         const req = cls.getReq();
         assert(req, 'request not available in CLS');
-        const forwarded = _.pick(req.headers, [IDENTITY_HEADER, REQ_ID_HEADER]);
+        const toPick = [REQ_ID_HEADER];
+        if (identity) {
+            toPick.push(IDENTITY_HEADER);
+        }
+
+        const forwarded = _.pick(req.headers, toPick);
 
         const name = this.getName();
-        assert(forwarded[IDENTITY_HEADER], `identity header not available for outbound ${name} request`);
+        if (identity) {
+            assert(forwarded[IDENTITY_HEADER], `identity header not available for outbound ${name} request`);
+        }
+
         assert(forwarded[REQ_ID_HEADER], `request id header not available for outbound ${name} request`);
         return forwarded;
     }

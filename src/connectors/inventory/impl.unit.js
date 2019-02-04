@@ -4,9 +4,10 @@ const impl = require('./impl');
 const base = require('../../test');
 const http = require('../http');
 const Connector = require('../Connector');
-const { mockHeaders } = require('../testUtils');
+const { mockRequest } = require('../testUtils');
 
 describe('inventory impl', function () {
+    beforeEach(mockRequest);
 
     test('does not make a call for empty list', async function () {
         const spy = base.getSandbox().spy(http, 'request');
@@ -17,13 +18,14 @@ describe('inventory impl', function () {
     });
 
     test('forwards request headers', async function () {
-        const expected = mockHeaders();
-
         const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves({
             results: []
         });
 
         await impl.getSystemDetailsBatch(['id']);
-        spy.args[0][0].headers.should.eql(expected);
+        const headers = spy.args[0][0].headers;
+        headers.should.have.size(2);
+        headers.should.have.property('x-rh-identity', 'identity');
+        headers.should.have.property('x-rh-insights-request-id', 'request-id');
     });
 });

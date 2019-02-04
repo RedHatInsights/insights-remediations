@@ -1,12 +1,13 @@
 'use strict';
 
 const base = require('../test');
-const Connector = require('./Connector');
+const cls = require('../util/cls');
 
-exports.mockHeaders = function (headers = {
+exports.mockRequest = function (headers = {
     'x-rh-identity': 'identity',
     'x-rh-insights-request-id': 'request-id'
 }) {
-    base.getSandbox().stub(Connector.prototype, 'getForwardedHeaders').returns(headers);
-    return headers;
+    base.getSandbox().stub(cls, 'getReq').returns({
+        headers
+    });
 };

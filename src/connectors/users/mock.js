@@ -35,12 +35,8 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    getUsers (ids = []) {
-        return _(ids)
-        .filter(id => id in MOCK_USERS)
-        .keyBy()
-        .mapValues(id => MOCK_USERS[id])
-        .value();
+    async getUser (id) {
+        return MOCK_USERS[id];
     }
 
     ping () {

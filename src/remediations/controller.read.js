@@ -39,11 +39,12 @@ function resolveResolutions (...remediations) {
 
 async function resolveUsers (...remediations) {
     const usernames = _(remediations).flatMap(({created_by, updated_by}) => [created_by, updated_by]).uniq().value();
-    const resolvedUsers = await users.getUsers(usernames);
+    const resolvedUsers = await P.map(usernames, username => users.getUser(username));
+    const resolvedUsersById = _.keyBy(resolvedUsers, 'username');
 
     function getUser (username) {
-        if (_.has(resolvedUsers, username)) {
-            return resolvedUsers[username];
+        if (_.has(resolvedUsersById, username)) {
+            return resolvedUsersById[username];
         }
 
         return {

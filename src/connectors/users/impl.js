@@ -3,7 +3,6 @@
 const fs = require('fs');
 const path = require('path');
 const URI = require('urijs');
-const _ = require('lodash');
 const assert = require('assert');
 const Connector = require('../Connector');
 
@@ -17,13 +16,7 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    async getUsers (ids = []) {
-        assert(Array.isArray(ids));
-
-        if (!ids.length) {
-            return {};
-        }
-
+    async getUser (id) {
         const uri = new URI(host);
         uri.path('/v1/users');
 
@@ -36,18 +29,23 @@ module.exports = new class extends Connector {
             rejectUnauthorized: !insecure,
             headers: {
                 'x-rh-apitoken': auth,
-                'x-rh-insights-env': env
+                'x-rh-insights-env': env,
+                ...this.getForwardedHeaders(false)
             },
             body: {
-                users: ids
+                users: [id]
             }
-        }, true);
+        }, false);
 
-        return _.keyBy(result, 'username');
+        if (result.length !== 1) {
+            return null;
+        }
+
+        return result[0];
     }
 
     async ping () {
-        const result = await this.getUsers(['***REMOVED***']);
-        assert(result['***REMOVED***'].username === '***REMOVED***');
+        const result = await this.getUser('***REMOVED***');
+        assert(result.username === '***REMOVED***');
     }
 }();
