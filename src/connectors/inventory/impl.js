@@ -91,7 +91,8 @@ module.exports = new class extends Connector {
         const transformed = _(responses)
         .flatMap('results')
         .filter(({insights_id}) => insights_id === id)
-        .map(({id, display_name, fqdn: hostname, account, updated}) => ({id, display_name, hostname, account, updated}))
+        .map(({id, insights_id, display_name, fqdn: hostname, account, updated}) =>
+            ({id, insights_id, display_name, hostname, account, updated}))
         .value();
 
         transformed.forEach(validateHost);
