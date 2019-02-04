@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const P = require('bluebird');
+const assert = require('assert');
 
 const errors = require('../errors');
 const advisor = require('../connectors/advisor');
@@ -11,7 +11,7 @@ const inventory = require('../connectors/inventory');
  * For now this is a mock implementation
  */
 exports.getDiagnosis = errors.async(async function (req, res) {
-    const systemId = req.swagger.params.system.value;
+    const insightsId = req.swagger.params.system.value;
 
     // TODO:
     // 1) obtain system data from inventory
@@ -19,14 +19,17 @@ exports.getDiagnosis = errors.async(async function (req, res) {
     // 3) get report details from advisor, vulnerabilities
     // 4) optimize based on req.swagger.params.remediation.value
 
-    const [systems, advisorDiagnosis] = await P.all([
-        inventory.getSystemDetailsBatch([systemId]),
-        advisor.getDiagnosis(systemId)
-    ]);
+    const systems = await inventory.getSystemsByInsightsId(insightsId);
+    const sorted = _.orderBy(systems, ['updated'], ['desc']);
 
-    if (!_.has(systems, systemId)) {
+    if (!sorted.length) {
         return res.status(404).end();
     }
+
+    const system = sorted[0];
+    assert(system.account === req.identity.account_number);
+
+    const advisorDiagnosis = await advisor.getDiagnosis(system.id);
 
     res.json({
         details: {

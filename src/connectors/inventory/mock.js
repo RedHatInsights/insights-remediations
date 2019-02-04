@@ -30,6 +30,32 @@ module.exports = new class extends Connector {
         }).value());
     }
 
+    getSystemsByInsightsId (id) {
+        if (id !== '9a212816-a472-11e8-98d0-529269fb1459') {
+            return [];
+        }
+
+        return [{
+            account: 'diagnosis01',
+            id: 'none',
+            display_name: null,
+            hostname: 'jozef-cert01',
+            updated: '2018-12-19T14:59:47.954018Z'
+        }, {
+            account: 'diagnosis01',
+            id: '56099741-6294-411d-a5c6-3d0eac23c52f',
+            display_name: null,
+            hostname: 'jozef-cert01',
+            updated: '2018-12-19T16:59:47.954018Z'
+        }, {
+            account: 'diagnosis01',
+            id: 'none',
+            display_name: null,
+            hostname: 'jozef-cert01',
+            updated: '2018-12-19T15:59:47.954018Z'
+        }];
+    }
+
     ping () {}
 }();
 
