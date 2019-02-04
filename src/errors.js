@@ -77,19 +77,20 @@ function mapValidationError ({id}, {code, message: title}) {
 exports.handler = (error, req, res, next) => {
 
     // swagger request validation handler
-    if (error.code === 'SCHEMA_VALIDATION_FAILED' && !error.originalResponse) {
-        const errors = error.results.errors;
-        log.debug('rejecting request due to SCHEMA_VALIDATION_FAILED');
+    if (error.failedValidation && !error.originalResponse) {
+        if (error.code === 'SCHEMA_VALIDATION_FAILED') {
+            const errors = error.results.errors;
+            log.debug('rejecting request due to SCHEMA_VALIDATION_FAILED');
 
-        const status = 400;
+            const status = 400;
+            return res
+            .status(status)
+            .json({
+                errors: errors.map(error => mapValidationError(req, error))
+            })
+            .end();
+        }
 
-        return res
-        .status(status)
-        .json({
-            errors: errors.map(error => mapValidationError(req, error))
-        })
-        .end();
-    } else if (error.failedValidation) {
         const status = 400;
         return res
         .status(status)

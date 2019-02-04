@@ -34,7 +34,7 @@ exports.getDiagnosis = errors.async(async function (req, res) {
 
     res.json({
         id: system.id,
-        insights_id: systems.insights_id,
+        insights_id: system.insights_id,
         details: {
             ...advisorDiagnosis
         }
