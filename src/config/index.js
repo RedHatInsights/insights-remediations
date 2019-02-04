@@ -46,7 +46,8 @@ const config = {
 
     metrics: {
         prefix: env.METRICS_PREFIX || 'remediations_',
-        enabled: env.METRICS_ENABLED === 'false' ? false : true
+        enabled: env.METRICS_ENABLED === 'false' ? false : true,
+        summaryMaxAge: parseIntEnv('METRICS_SUMMARY_MAX_AGE', 10 * 60) // 10 mins
     },
 
     /*

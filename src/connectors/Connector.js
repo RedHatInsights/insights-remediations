@@ -26,10 +26,11 @@ module.exports = class Connector {
         return this.impl;
     }
 
-    async doHttp (options, caching) {
+    async doHttp (options, caching, metrics = false) {
         try {
-            return await http.request(options, caching);
+            return await http.request(options, caching, metrics);
         } catch (e) {
+            metrics && metrics.error.inc();
             throw errors.internal.dependencyError(e, this);
         }
     }

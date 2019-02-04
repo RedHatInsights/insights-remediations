@@ -10,10 +10,12 @@ const {host, insecure, auth, env, revalidationInterval} = require('../../config'
 
 const cert = fs.readFileSync(path.resolve(__dirname, '../../../certs/backoffice-proxy.crt'));
 const ca = fs.readFileSync(path.resolve(__dirname, '../../../certs/backoffice-proxy.ca.crt'));
+const metrics = require('../metrics');
 
 module.exports = new class extends Connector {
     constructor () {
         super(module);
+        this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
     async getUser (id) {
@@ -38,7 +40,7 @@ module.exports = new class extends Connector {
         }, {
             key: `remediations|http-cache|users|${id}`,
             revalidationInterval
-        });
+        }, this.metrics);
 
         if (result.length !== 1) {
             return null;

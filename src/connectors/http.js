@@ -11,7 +11,7 @@ const StatusCodeError = require('./StatusCodeError');
 const CACHE_TTL = config.cache.ttl;
 const REVALIDATION_INTERVAL = config.cache.revalidationInterval;
 
-function doHttp (options, cached) {
+function doHttp (options, cached, metrics) {
     const opts = {
         resolveWithFullResponse: true,
         simple: false,
@@ -23,8 +23,10 @@ function doHttp (options, cached) {
         opts.headers['if-none-match'] = cached.etag;
     }
 
+    const before = new Date();
     return request.run(opts)
     .then(res => {
+        metrics && metrics.duration.observe(new Date() - before);
         switch (res.statusCode) {
             case 200:
             case 304: return res;
@@ -59,9 +61,10 @@ function saveCachedEntry (redis, key, etag, body) {
     }));
 }
 
-async function run (options, useCache = false) {
+async function run (options, useCache = false, metrics = false) {
     if (!useCache || !config.redis.enabled || cache.get().status !== 'ready') {
-        return doHttp(options).then(res => (res === null ? null : res.body));
+        metrics && metrics.miss.inc();
+        return doHttp(options, false, metrics).then(res => (res === null ? null : res.body));
     }
 
     const uri = notNil(options.uri);
@@ -72,17 +75,16 @@ async function run (options, useCache = false) {
 
     if (cached && !cached.expired) {
         log.trace({key}, 'cache hit');
-        module.exports.stats.hits++;
+        metrics && metrics.hit.inc();
         return cached.body;
     } else if (cached) {
         log.trace({key, etag: cached.etag}, 'cache hit (needs revalidation)');
-        module.exports.stats.hits++;
     } else {
         log.trace({key}, 'cache miss');
-        module.exports.stats.misses++;
     }
 
-    const res = await doHttp(options, cached);
+    metrics && metrics.miss.inc();
+    const res = await doHttp(options, cached, metrics);
 
     if (!res) { // 404
         if (cached) {
@@ -104,9 +106,3 @@ async function run (options, useCache = false) {
 }
 
 module.exports.request = run;
-
-module.exports.stats = {
-    hits: 0,
-    misses: 0
-};
-
