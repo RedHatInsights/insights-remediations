@@ -72,33 +72,42 @@ describe('identity', () => {
         .expect(401);
     });
 
-    test('401s on missing username', async () => {
+    test('403s on missing username', async () => {
         await request
-        .get('/v1/whoami')
+        .get('/v1/remediations')
         .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, true, data => {
             delete data.identity.user.username;
             return data;
         }))
-        .expect(401);
+        .expect(403);
     });
 
-    test('401s on type === system', async () => {
+    test('403s on type === system', async () => {
         await request
-        .get('/v1/whoami')
-        .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, true, data => {
-            data.identity.type = 'System';
-            return data;
-        }))
-        .expect(401);
+        .get('/v1/remediations')
+        .set(auth.cert01)
+        .expect(403);
     });
 
-    test('401s on missing is_internal', async () => {
+    test('403s on missing is_internal', async () => {
         await request
-        .get('/v1/whoami')
+        .get('/v1/remediations')
         .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, true, data => {
             delete data.identity.user.is_internal;
             return data;
         }))
-        .expect(401);
+        .expect(403);
+    });
+
+    test('cert auth', async () => {
+        const {body} = await request
+        .get('/v1/whoami')
+        .set(auth.cert01)
+        .expect(200);
+
+        body.should.containEql({
+            username: null,
+            account_number: 'diagnosis01'
+        });
     });
 });

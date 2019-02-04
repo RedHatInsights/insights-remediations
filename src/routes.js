@@ -6,6 +6,7 @@ const log = require('./util/log');
 const prettyJson = require('./middleware/prettyJson');
 const httpContext = require('express-http-context');
 const identity = require('./middleware/identity/impl');
+const userIdentity = require('./middleware/identity/userIdentity');
 const identitySwitcher = require('./middleware/identity/switcher');
 const cls = require('./util/cls');
 const config = require('./config');
@@ -43,9 +44,13 @@ module.exports = async function (app) {
     app.use(prettyJson);
 
     const v1 = express.Router();
+    require(`./diagnosis/routes`)(v1);
+    require(`./whoami/routes`)(v1);
+
+    // diagnosis and whoami are the only path that accepts cert auth
+    v1.use(userIdentity);
 
     [
-        'diagnosis',
         'generator',
         'remediations',
         'resolutions',

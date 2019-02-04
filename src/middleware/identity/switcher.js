@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function (req, res, next) {
-    if (!req.identity.user.is_internal) {
+    if (!req.identity || req.identity.type !== 'User' || !req.identity.user.is_internal) {
         return next();
     }
 

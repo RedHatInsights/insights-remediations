@@ -54,6 +54,12 @@ exports.Unauthorized = class Unauthorized extends HttpError {
     }
 };
 
+exports.Forbidden = class Forbidden extends HttpError {
+    constructor () {
+        super(403, 'FORBIDDEN', 'Access forbidden');
+    }
+};
+
 exports.DependencyError = class DependencyError extends HttpError {
     constructor (e, connector) {
         super(503, 'DEPENDENCY_UNAVAILABLE', 'Service dependency unavailable', {

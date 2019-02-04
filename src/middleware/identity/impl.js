@@ -17,15 +17,16 @@ module.exports = function (req, res, next) {
         req.identity = JSON.parse(value).identity;
         log.trace({identity: req.identity}, 'parsed identity header');
 
-        if (!req.identity.account_number || req.identity.type !== 'User' || !req.identity.user.username ||
-            req.identity.user.is_internal === undefined) {
+        if (!req.identity.account_number) {
             return next(new errors.Unauthorized());
         }
 
-        req.user = {
-            account_number: req.identity.account_number,
-            username: req.identity.user.username
-        };
+        if (req.identity.type === 'User') {
+            req.user = {
+                account_number: req.identity.account_number,
+                username: req.identity.user.username
+            };
+        }
 
         next();
     } catch (e) {

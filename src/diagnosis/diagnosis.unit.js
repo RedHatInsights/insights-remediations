@@ -1,12 +1,13 @@
 'use strict';
 
-const { request } = require('../test');
+const { request, auth } = require('../test');
 const mockInventory = require('../connectors/inventory/mock');
 
 describe('/diagnosis', function () {
     test('returns all details information for the given system', async () => {
         const {body} = await request
         .get('/v1/diagnosis/9a212816-a472-11e8-98d0-529269fb1459')
+        .set(auth.cert01)
         .expect(200);
 
         body.should.have.property('details', {
@@ -36,6 +37,7 @@ describe('/diagnosis', function () {
     test('404s on unknown system', async () => {
         await request
         .get('/v1/diagnosis/' + mockInventory.NON_EXISTENT_SYSTEM)
+        .set(auth.cert01)
         .expect(404);
     });
 });

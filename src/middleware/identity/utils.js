@@ -41,6 +41,17 @@ exports.createIdentityHeader = function (
     return encode(transform(data));
 };
 
+exports.createCertIdentityHeader = function (account_number, transform = f=>f) {
+    const data = {
+        identity: {
+            account_number,
+            type: 'System'
+        }
+    };
+
+    return encode(transform(data));
+};
+
 function encode (data) {
     return Buffer.from(JSON.stringify(data)).toString('base64');
 }
