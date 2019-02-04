@@ -100,7 +100,8 @@ const config = {
         host: env.USERS_HOST || 'https://insights-services-pipeline-insights.ext.paas.redhat.com',
         auth: env.USERS_AUTH || '',
         env: env.USERS_ENV || 'prod',
-        insecure: (env.USERS_INSECURE === 'true') ? true : false
+        insecure: (env.USERS_INSECURE === 'true') ? true : false,
+        revalidationInterval: parseIntEnv('USERS_REVALIDATION_INVERVAL', 60 * 60 * 12) // 12 hours
     },
 
     vmaas: {

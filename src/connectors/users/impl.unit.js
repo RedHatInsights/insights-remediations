@@ -3,7 +3,8 @@
 const impl = require('./impl');
 const base = require('../../test');
 const Connector = require('../Connector');
-const { mockRequest } = require('../testUtils');
+const { mockRequest, mockCache } = require('../testUtils');
+const request = require('../../util/request');
 
 const MOCK_USER = {
     org_id: '1979710',
@@ -25,14 +26,19 @@ describe('inventory impl', function () {
     beforeEach(mockRequest);
 
     test('obtains user info', async function () {
-        const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([MOCK_USER]);
+        const http = base.getSandbox().stub(request, 'run').resolves({
+            statusCode: 200,
+            body: [MOCK_USER],
+            headers: {}
+        });
+
         const result = await impl.getUser('***REMOVED***');
         result.should.have.property('username', '***REMOVED***');
         result.should.have.property('first_name', 'Jozef');
         result.should.have.property('last_name', 'Hartinger');
 
-        spy.callCount.should.equal(1);
-        const options = spy.args[0][0];
+        http.callCount.should.equal(1);
+        const options = http.args[0][0];
         options.headers.should.have.size(3);
         options.headers.should.have.property('x-rh-apitoken', '');
         options.headers.should.have.property('x-rh-insights-env', 'prod');
@@ -47,5 +53,27 @@ describe('inventory impl', function () {
     test('ping', async function () {
         base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([MOCK_USER]);
         await impl.ping();
+    });
+
+    test('caches retrieved info', async function () {
+        const http = base.getSandbox().stub(request, 'run').resolves({
+            statusCode: 200,
+            body: [MOCK_USER],
+            headers: {}
+        });
+
+        const cache = mockCache();
+
+        await impl.getUser('***REMOVED***');
+        http.callCount.should.equal(1);
+        cache.get.callCount.should.equal(1);
+        cache.get.args[0][0].should.equal('remediations|http-cache|users|***REMOVED***');
+        cache.setex.callCount.should.equal(1);
+
+        await impl.getUser('***REMOVED***');
+        http.callCount.should.equal(1);
+        cache.get.callCount.should.equal(2);
+        cache.get.args[1][0].should.equal('remediations|http-cache|users|***REMOVED***');
+        cache.setex.callCount.should.equal(1);
     });
 });

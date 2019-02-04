@@ -6,7 +6,7 @@ const URI = require('urijs');
 const assert = require('assert');
 const Connector = require('../Connector');
 
-const {host, insecure, auth, env} = require('../../config').users;
+const {host, insecure, auth, env, revalidationInterval} = require('../../config').users;
 
 const cert = fs.readFileSync(path.resolve(__dirname, '../../../certs/backoffice-proxy.crt'));
 const ca = fs.readFileSync(path.resolve(__dirname, '../../../certs/backoffice-proxy.ca.crt'));
@@ -35,7 +35,10 @@ module.exports = new class extends Connector {
             body: {
                 users: [id]
             }
-        }, false);
+        }, {
+            key: `remediations|http-cache|users|${id}`,
+            revalidationInterval
+        });
 
         if (result.length !== 1) {
             return null;

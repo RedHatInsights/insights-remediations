@@ -38,7 +38,7 @@ function cacheKey (uri) {
     return `remediations|http-cache|${uri}`;
 }
 
-async function loadCachedEntry (redis, key) {
+async function loadCachedEntry (redis, key, revalidationInterval) {
     let cached = await redis.get(key);
 
     if (!cached) {
@@ -47,7 +47,7 @@ async function loadCachedEntry (redis, key) {
 
     cached = JSON.parse(cached);
     cached.time = new Date(cached.time);
-    cached.expired = new Date() - cached.time > REVALIDATION_INTERVAL * 1000;
+    cached.expired = new Date() - cached.time > revalidationInterval * 1000;
     return cached;
 }
 
@@ -65,18 +65,20 @@ async function run (options, useCache = false) {
     }
 
     const uri = notNil(options.uri);
-    const key = cacheKey(uri);
-    const cached = await loadCachedEntry(cache.get(), key);
+    const key = useCache.key || cacheKey(uri);
+    const revalidationInterval = useCache.revalidationInterval || REVALIDATION_INTERVAL; // seconds
+
+    const cached = await loadCachedEntry(cache.get(), key, revalidationInterval);
 
     if (cached && !cached.expired) {
-        log.trace({uri}, 'cache hit');
+        log.trace({key}, 'cache hit');
         module.exports.stats.hits++;
         return cached.body;
     } else if (cached) {
-        log.trace({uri, etag: cached.etag}, 'cache hit (needs revalidation)');
+        log.trace({key, etag: cached.etag}, 'cache hit (needs revalidation)');
         module.exports.stats.hits++;
     } else {
-        log.trace({uri}, 'cache miss');
+        log.trace({key}, 'cache miss');
         module.exports.stats.misses++;
     }
 
@@ -91,12 +93,12 @@ async function run (options, useCache = false) {
     }
 
     if (res.statusCode === 304) {
-        log.trace({uri}, 'revalidated');
+        log.trace({key}, 'revalidated');
         saveCachedEntry(cache.get(), key, cached.etag, cached.body);
         return cached.body;
     }
 
-    log.trace({uri}, 'saved to cache');
+    log.trace({key}, 'saved to cache');
     saveCachedEntry(cache.get(), key, res.headers.etag, res.body);
     return res.body;
 }
