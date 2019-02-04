@@ -10,6 +10,8 @@ describe('/diagnosis', function () {
         .set(auth.cert01)
         .expect(200);
 
+        body.should.have.property('id', '56099741-6294-411d-a5c6-3d0eac23c52f');
+        body.should.have.property('insights_id', '9a212816-a472-11e8-98d0-529269fb1459');
         body.should.have.property('details', {
             'crashkernel_reservation_failed|CRASHKERNEL_RESERVATION_FAILED': {
                 rhel_ver: 7,

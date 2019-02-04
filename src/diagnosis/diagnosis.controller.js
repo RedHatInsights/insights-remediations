@@ -28,10 +28,13 @@ exports.getDiagnosis = errors.async(async function (req, res) {
 
     const system = sorted[0];
     assert(system.account === req.identity.account_number);
+    assert(system.insights_id === insightsId);
 
     const advisorDiagnosis = await advisor.getDiagnosis(system.id);
 
     res.json({
+        id: system.id,
+        insights_id: systems.insights_id,
         details: {
             ...advisorDiagnosis
         }

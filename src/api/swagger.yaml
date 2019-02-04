@@ -356,6 +356,11 @@ definitions:
     format: uuid
     example: a8799a02-8be9-11e8-9eb6-529269fb1459
 
+  InsightsId:
+    type: string
+    format: uuid
+    example: a8799a02-8be9-11e8-9eb6-529269fb1459
+
   ResolutionType:
     type: string
     example: fix
@@ -694,8 +699,12 @@ definitions:
   Diagnosis:
     type: object
     additionalProperties: false
-    required: [details]
+    required: [details, id, insights_id]
     properties:
+      id:
+        $ref: '#/definitions/SystemId'
+      insights_id:
+        $ref: '#/definitions/InsightsId'
       details:
         type: object
         example:

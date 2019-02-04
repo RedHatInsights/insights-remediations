@@ -38,18 +38,21 @@ module.exports = new class extends Connector {
         return [{
             account: 'diagnosis01',
             id: 'none',
+            insights_id: '9a212816-a472-11e8-98d0-529269fb1459',
             display_name: null,
             hostname: 'jozef-cert01',
             updated: '2018-12-19T14:59:47.954018Z'
         }, {
             account: 'diagnosis01',
             id: '56099741-6294-411d-a5c6-3d0eac23c52f',
+            insights_id: '9a212816-a472-11e8-98d0-529269fb1459',
             display_name: null,
             hostname: 'jozef-cert01',
             updated: '2018-12-19T16:59:47.954018Z'
         }, {
             account: 'diagnosis01',
             id: 'none',
+            insights_id: '9a212816-a472-11e8-98d0-529269fb1459',
             display_name: null,
             hostname: 'jozef-cert01',
             updated: '2018-12-19T15:59:47.954018Z'
