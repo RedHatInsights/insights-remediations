@@ -13,6 +13,10 @@ const USERS = require('../../src/connectors/users/mock').MOCK_USERS;
 const request = require('../util/request');
 const RequestError = require('request-promise-core/errors').RequestError;
 
+// because some VMaaS tests take a long time to finish
+// eslint-disable-next-line no-process-env
+jest.setTimeout(parseInt(process.env.TEST_TIMEOUT) || 20000);
+
 let server;
 
 beforeAll(async () => {
