@@ -4,7 +4,7 @@ const _ = require('lodash');
 const client = require('prom-client');
 
 const { prefix, summaryMaxAge } = require('../config').metrics;
-const labelNames = ['connector'];
+const labelNames = ['connector', 'method'];
 
 function createCounter (variant) {
     return new client.Counter({
@@ -31,6 +31,6 @@ const prototype = {
     duration: createSummary()
 };
 
-exports.createConnectorMetric = function (name) {
-    return _.mapValues(prototype, value => value.labels(name));
+exports.createConnectorMetric = function (name, method = 'default') {
+    return _.mapValues(prototype, value => value.labels(name, method));
 };

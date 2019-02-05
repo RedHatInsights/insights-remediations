@@ -1,17 +1,21 @@
 'use strict';
 
 const _ = require('lodash');
+const assert = require('assert');
 
 const Connector = require('../Connector');
 const URI = require('urijs');
-const {host, insecure} = require('../../config').advisor;
+const {host, insecure, revalidationInterval} = require('../../config').advisor;
+const metrics = require('../metrics');
 
 module.exports = new class extends Connector {
     constructor () {
         super(module);
+        this.ruleMetrics = metrics.createConnectorMetric(this.getName(), 'getRule');
+        this.diagnosisMetrics = metrics.createConnectorMetric(this.getName(), 'getDiagnosis');
     }
 
-    getRule (id) {
+    getRule (id, refresh = false) {
         const uri = new URI(host);
         uri.path('/r/insights/platform/advisor/v1/rule/');
         uri.segment(id);
@@ -24,7 +28,11 @@ module.exports = new class extends Connector {
             headers: {
                 ...this.getForwardedHeaders()
             }
-        }, true);
+        }, {
+            refresh,
+            revalidationInterval
+        },
+        this.ruleMetrics);
     }
 
     async getDiagnosis (system) {
@@ -41,7 +49,7 @@ module.exports = new class extends Connector {
             headers: {
                 ...this.getForwardedHeaders()
             }
-        }, false);
+        }, false, this.diagnosisMetrics);
 
         if (!data) {
             return {};
@@ -64,7 +72,8 @@ module.exports = new class extends Connector {
         .value();
     }
 
-    ping () {
-        return this.getRule('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+    async ping () {
+        const result = await this.getRule('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE', true);
+        assert(result !== null);
     }
 }();

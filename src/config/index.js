@@ -66,7 +66,8 @@ const config = {
         impl: env.ADVISOR_IMPL,
         host: env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000',
         auth: env.ADVISOR_AUTH || '',
-        insecure: (env.ADVISOR_INSECURE === 'true') ? true : false
+        insecure: (env.ADVISOR_INSECURE === 'true') ? true : false,
+        revalidationInterval: parseIntEnv('ADVISOR_REVALIDATION_INVERVAL', 60 * 60) // 1 hour
     },
 
     compliance: {
@@ -80,7 +81,7 @@ const config = {
         host: env.CONTENT_SERVER_HOST || 'http://localhost:8080',
         auth: env.CONTENT_SERVER_AUTH || null,
         insecure: (env.CONTENT_SERVER_INSECURE === 'false') ? false : true,
-        revalidationInterval: parseIntEnv('CONTENT_SERVER_REVALIDATION_INVERVAL', 60 * 60 * 12) // 12 hours
+        revalidationInterval: parseIntEnv('CONTENT_SERVER_REVALIDATION_INVERVAL', 60 * 60) // 1 hour
     },
 
     inventory: {
