@@ -31,7 +31,7 @@ module.exports = class Connector {
         try {
             return await http.request(options, caching, metrics);
         } catch (e) {
-            log.trace({error: e}, 'dependency error');
+            log.trace(e, 'dependency error');
             metrics && metrics.error.inc();
             throw errors.internal.dependencyError(e, this);
         }
