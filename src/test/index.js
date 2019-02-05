@@ -10,6 +10,8 @@ const config = require('../config');
 const vmaas = require('../connectors/vmaas');
 const identityUtils = require('../middleware/identity/utils');
 const USERS = require('../../src/connectors/users/mock').MOCK_USERS;
+const request = require('../util/request');
+const RequestError = require('request-promise-core/errors').RequestError;
 
 let server;
 
@@ -77,3 +79,10 @@ exports.reqId = () => {
     };
 };
 
+exports.mockRequestError = function (options = {}, response = {}) {
+    exports.sandbox.stub(request, 'run').rejects(new RequestError('RequestError', options, response));
+};
+
+exports.mockRequestStatusCode = function (statusCode = 500) {
+    exports.sandbox.stub(request, 'run').resolves({ statusCode });
+};

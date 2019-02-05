@@ -9,6 +9,7 @@ class HttpError extends Error {
     constructor (status, code, title, details) {
         super(title);
         const req = cls.getReq();
+        this.name = this.constructor.name;
         this.error = {
             id: req ? req.id : undefined,
             status,

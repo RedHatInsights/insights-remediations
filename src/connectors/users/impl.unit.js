@@ -5,6 +5,7 @@ const base = require('../../test');
 const Connector = require('../Connector');
 const { mockRequest, mockCache } = require('../testUtils');
 const request = require('../../util/request');
+const errors = require('../../errors');
 
 const MOCK_USER = {
     org_id: '1979710',
@@ -75,5 +76,15 @@ describe('inventory impl', function () {
         cache.get.callCount.should.equal(2);
         cache.get.args[1][0].should.equal('remediations|http-cache|users|***REMOVED***');
         cache.setex.callCount.should.equal(1);
+    });
+
+    test('connection error handling', async function () {
+        base.mockRequestError();
+        expect(impl.getUser('***REMOVED***')).rejects.toThrowError(errors.DependencyError);
+    });
+
+    test('status code handling', async function () {
+        base.mockRequestStatusCode();
+        expect(impl.getUser('***REMOVED***')).rejects.toThrowError(errors.DependencyError);
     });
 });
