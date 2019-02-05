@@ -26,10 +26,19 @@ function optionsSerialized (options) {
     return _.omit(options, ['ca', 'cert']);
 }
 
+function headersSerializer (headers) {
+    if (!headers) {
+        return headers;
+    }
+
+    return _.omit(headers, ['cookie']);
+}
+
 const serializers = {
     req: value => {
         const result = pino.stdSerializers.req(value);
         result.identity = value.raw.identity;
+        result.headers = headersSerializer(result.headers);
         return result;
     },
     err: errorSerializer,
