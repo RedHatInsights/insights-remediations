@@ -2,18 +2,20 @@
 
 const URI = require('urijs');
 const _ = require('lodash');
+const assert = require('assert');
 
-const config = require('../../config');
-
+const {host, auth, insecure, revalidationInterval} = require('../../config').contentServer;
 const Connector = require('../Connector');
+const metrics = require('../metrics');
 
 module.exports = new class extends Connector {
     constructor () {
         super(module);
+        this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
     async getResolutions (id) {
-        const uri = new URI(config.contentServer.host);
+        const uri = new URI(host);
         uri.segment('playbooks');
         uri.segment(id);
 
@@ -21,16 +23,21 @@ module.exports = new class extends Connector {
             uri: uri.toString(),
             method: 'GET',
             json: true,
-            rejectUnauthorized: !config.contentServer.insecure
+            rejectUnauthorized: !insecure,
+            headers: this.getForwardedHeaders(false)
         };
 
-        if (config.contentServer.auth) {
+        if (auth) {
             options.headers = {
-                Authorization: config.contentServer.auth
+                Authorization: auth
             };
         }
 
-        const resolutions = await this.doHttp(options, true);
+        const resolutions = await this.doHttp(options, {
+            revalidationInterval,
+            cacheable: body => body.length > 0 // only cache responses with resolutions
+        },
+        this.metrics);
 
         return _.map(resolutions, resolution =>
             _(resolution)
@@ -43,8 +50,9 @@ module.exports = new class extends Connector {
         );
     }
 
-    ping () {
-        return this.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+    async ping () {
+        const result = await this.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+        assert(result.length > 0);
     }
 }();
 

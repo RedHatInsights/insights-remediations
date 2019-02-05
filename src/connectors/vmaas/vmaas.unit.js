@@ -5,7 +5,7 @@ const base = require('../../test');
 const { mockRequest, mockCache } = require('../testUtils');
 const request = require('../../util/request');
 
-describe('inventory impl', function () {
+describe('vmaas impl', function () {
 
     beforeEach(mockRequest);
 

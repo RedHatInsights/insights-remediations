@@ -79,7 +79,8 @@ const config = {
         impl: env.CONTENT_SERVER_IMPL,
         host: env.CONTENT_SERVER_HOST || 'http://localhost:8080',
         auth: env.CONTENT_SERVER_AUTH || null,
-        insecure: (env.CONTENT_SERVER_INSECURE === 'false') ? false : true
+        insecure: (env.CONTENT_SERVER_INSECURE === 'false') ? false : true,
+        revalidationInterval: parseIntEnv('CONTENT_SERVER_REVALIDATION_INVERVAL', 60 * 60 * 12) // 12 hours
     },
 
     inventory: {
