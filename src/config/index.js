@@ -73,7 +73,8 @@ const config = {
     compliance: {
         impl: env.COMPLIANCE_IMPL,
         host: env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000',
-        insecure: (env.COMPLIANCE_INSECURE === 'true') ? true : false
+        insecure: (env.COMPLIANCE_INSECURE === 'true') ? true : false,
+        revalidationInterval: parseIntEnv('COMPLIANCe_REVALIDATION_INVERVAL', 60 * 60) // 1 hour
     },
 
     contentServer: {

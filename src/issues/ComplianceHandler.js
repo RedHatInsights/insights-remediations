@@ -16,7 +16,7 @@ module.exports = class ComplianceHandler extends Handler {
         }
 
         return {
-            description: raw.data.attributes.title,
+            description: raw.title,
             raw
         };
     }

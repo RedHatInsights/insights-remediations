@@ -1,23 +1,27 @@
 'use strict';
 
+const assert = require('assert');
+const _ = require('lodash');
 const URI = require('urijs');
-const {host, insecure} = require('../../config').compliance;
+const {host, insecure, revalidationInterval} = require('../../config').compliance;
 
 const Connector = require('../Connector');
+const metrics = require('../metrics');
 
 module.exports = new class extends Connector {
     constructor () {
         super(module);
+        this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    getRule (id) {
+    async getRule (id, refresh = false) {
         id = id.replace(/\./g, '-'); // compliance API limitation
 
         const uri = new URI(host);
         uri.path('/r/insights/platform/compliance/rules/');
         uri.segment(id);
 
-        return this.doHttp({
+        const result = await this.doHttp({
             uri: uri.toString(),
             method: 'GET',
             json: true,
@@ -25,11 +29,19 @@ module.exports = new class extends Connector {
             headers: {
                 ...this.getForwardedHeaders()
             }
-        }, true);
+        },
+        {
+            refresh,
+            revalidationInterval
+        },
+        this.metrics);
+
+        return _.get(result, 'data.attributes', null);
     }
 
-    ping () {
-        return this.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
+    async ping () {
+        const result = this.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', true);
+        assert(result !== null);
     }
 }();
 
