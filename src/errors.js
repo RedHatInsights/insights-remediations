@@ -101,22 +101,14 @@ exports.handler = (error, req, res, next) => {
     }
 
     if (error instanceof exports.DependencyError) {
-        log.error({ error }, 'rejecting request due to DependencyError');
+        log.error(error, 'rejecting request due to DependencyError');
         return error.writeResponse(res);
     } else if (error instanceof HttpError) {
-        log.debug({ error }, 'rejecting request due to HttpError');
+        log.debug(error, 'rejecting request due to HttpError');
         return error.writeResponse(res);
     }
 
-    log.error({
-        error: {
-            message: error.message,
-            stack: error.stack,
-            ..._.omit(error, [
-                ['originalResponse'] // avoid writting down the entire response buffer
-            ])
-        }
-    }, 'caught internal error');
+    log.error(error, 'caught internal error');
 
     if (config.env !== 'production') {
         return next(error); // write out stack in non-prod envs

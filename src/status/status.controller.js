@@ -23,7 +23,7 @@ async function getStatus (connector) {
         await connector.ping();
         return 'ok';
     } catch (e) {
-        log.warn({error: {message: e.message, stack: e.stack, options: e.options, ...e}}, 'ping failed');
+        log.warn(e, 'ping failed');
 
         const code = _.get(e, 'cause.error.code');
         if (TIMEOUT_CODES.includes(code)) {

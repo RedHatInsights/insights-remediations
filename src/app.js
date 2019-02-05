@@ -36,7 +36,7 @@ async function start () {
             db.close
         );
 
-        errors.forEach(({message, stack}) => log.error({error: {message, stack}}));
+        errors.forEach(error => log.error(error));
     }
 
     terminus(server, {
@@ -54,7 +54,7 @@ async function start () {
             log.info(`${version.full} shutdown complete`);
         },
 
-        logger: (msg, {message, stack}) => log.error({error: {message, stack}}, msg)
+        logger: (msg, error) => log.error(error, msg)
     });
 
     await db.connect();

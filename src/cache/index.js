@@ -32,7 +32,7 @@ exports.connect = function () {
 
     client.on('connect', () => log.info('connected to redis'));
     client.on('error', err => {
-        log.warn({error: err.message}, 'error connecting to redis');
+        log.warn(err, 'error connecting to redis');
     });
 
     return client;

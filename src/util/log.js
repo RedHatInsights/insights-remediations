@@ -1,21 +1,48 @@
 'use strict';
 
+const _ = require('lodash');
 const pino = require('pino');
 const config = require('../config');
 const cls = require('./cls');
+
+// avoid writting down the entire response buffer
+function errorSerializer (e) {
+    if (!e) {
+        return e;
+    }
+
+    const result =  _.omit(pino.stdSerializers.err(e), ['originalResponse']);
+    result.options = optionsSerialized(result.options);
+    result.cause = errorSerializer(result.cause);
+
+    return result;
+}
+
+function optionsSerialized (options) {
+    if (!options) {
+        return options;
+    }
+
+    return _.omit(options, ['ca', 'cert']);
+}
 
 const serializers = {
     req: value => {
         const result = pino.stdSerializers.req(value);
         result.identity = value.raw.identity;
         return result;
-    }
+    },
+    err: errorSerializer,
+    cause: errorSerializer,
+    options: optionsSerialized
 };
 
 const logger = pino({
     name: 'remediations',
     level: config.logging.level,
-    prettyPrint: config.logging.pretty
+    prettyPrint: config.logging.pretty ? {
+        errorProps: '*'
+    } : false
 });
 
 function getLogger () {
