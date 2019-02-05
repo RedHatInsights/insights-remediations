@@ -12,7 +12,7 @@ const INSIGHTS_REBOOT_VAR_NAME = 'insights_needs_reboot';
 module.exports = class ContentServerResolver extends Resolver {
 
     async resolveResolutions (id) {
-        const templates = await contentServer.getResolutions(id.issue, true);
+        const templates = await contentServer.getResolutions(id.issue);
         return templates.map(template => parseResolution(template, id));
     }
 };
