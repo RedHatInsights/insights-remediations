@@ -5,6 +5,7 @@ const assert = require('assert');
 const http = require('./http');
 const errors = require('../errors');
 const cls = require('../util/cls');
+const log = require('../util/log');
 
 const IDENTITY_HEADER = 'x-rh-identity';
 const REQ_ID_HEADER = 'x-rh-insights-request-id';
@@ -30,6 +31,7 @@ module.exports = class Connector {
         try {
             return await http.request(options, caching, metrics);
         } catch (e) {
+            log.trace({error: e}, 'dependency error');
             metrics && metrics.error.inc();
             throw errors.internal.dependencyError(e, this);
         }
