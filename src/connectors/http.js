@@ -88,7 +88,7 @@ async function run (options, useCache = false, metrics = false) {
     metrics && metrics.miss.inc();
     const res = await doHttp(options, cached, metrics);
 
-    if (!res || !res.body) { // 404
+    if (!res) { // 404
         if (cached) {
             cache.get().del(key);
         }
@@ -96,15 +96,15 @@ async function run (options, useCache = false, metrics = false) {
         return null;
     }
 
-    if (useCache.cacheable && !useCache.cacheable(res.body)) {
-        log.trace({key}, 'not cacheable');
-        return res.body;
-    }
-
     if (res.statusCode === 304) {
         log.trace({key}, 'revalidated');
         saveCachedEntry(cache.get(), key, cached.etag, cached.body);
         return cached.body;
+    }
+
+    if (useCache.cacheable && res.body && !useCache.cacheable(res.body)) {
+        log.trace({key}, 'not cacheable');
+        return res.body;
     }
 
     log.trace({key}, 'saved to cache');
