@@ -39,7 +39,8 @@ module.exports = new class extends Connector {
             }
         }, {
             key: `remediations|http-cache|users|${id}`,
-            revalidationInterval
+            revalidationInterval,
+            cacheable: body => body.length === 1 // only cache responses with exactly 1 match
         }, this.metrics);
 
         if (result.length !== 1) {

@@ -22,7 +22,7 @@ const MOCK_USER = {
     is_internal: true
 };
 
-describe('inventory impl', function () {
+describe('users impl', function () {
 
     beforeEach(mockRequest);
 
@@ -76,6 +76,22 @@ describe('inventory impl', function () {
         cache.get.callCount.should.equal(2);
         cache.get.args[1][0].should.equal('remediations|http-cache|users|***REMOVED***');
         cache.setex.callCount.should.equal(1);
+    });
+
+    test('does not cache empty response', async function () {
+        const http = base.getSandbox().stub(request, 'run').resolves({
+            statusCode: 200,
+            body: [],
+            headers: {}
+        });
+
+        const cache = mockCache();
+
+        await impl.getUser('non-existent-user');
+        http.callCount.should.equal(1);
+        cache.get.callCount.should.equal(1);
+        cache.get.args[0][0].should.equal('remediations|http-cache|users|non-existent-user');
+        cache.setex.callCount.should.equal(0);
     });
 
     test('connection error handling', async function () {
