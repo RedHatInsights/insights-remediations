@@ -34,12 +34,12 @@ module.exports = async function (app) {
     metrics.start(app);
     require('./status/routes')(app);
 
+    app.use(reqId);
+    app.use(pino);
     app.use(identity);
     app.use(identitySwitcher);
     app.use(httpContext.middleware);
     app.use(cls.middleware);
-    app.use(reqId);
-    app.use(pino);
     await swagger(app, config.path.base);
     app.use(prettyJson);
 
