@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const P = require('bluebird');
 const log = require('../util/log');
+const errors = require('../errors');
 
 const TIMEOUT_CODES = ['ESOCKETTIMEDOUT', 'ETIMEDOUT'];
 
@@ -33,7 +34,7 @@ async function getStatus (connector) {
     }
 }
 
-exports.status = async function (req, res) {
+exports.status = errors.async(async function (req, res) {
     const connectors = await P.props(_.mapValues(CONNECTORS, async connector => {
         const status = await getStatus(connector);
 
@@ -46,4 +47,4 @@ exports.status = async function (req, res) {
     res.json({
         connectors
     }).end();
-};
+});
