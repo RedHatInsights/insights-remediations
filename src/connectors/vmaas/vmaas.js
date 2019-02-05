@@ -47,8 +47,8 @@ module.exports = new class extends Connector {
         ).then(res => _.get(res, ['cve_list', id], null));
     }
 
-    ping () {
-        const result = this.getCve('CVE-2017-17712', true);
+    async ping () {
+        const result = await this.getCve('CVE-2017-17712', true);
         assert(result.synopsis === 'CVE-2017-17712');
     }
 }();

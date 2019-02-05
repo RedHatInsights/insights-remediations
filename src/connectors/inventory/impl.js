@@ -29,7 +29,7 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName(), 'getSystemDetails');
     }
 
-    async getSystemDetailsBatch (ids = false, refresh = false) {
+    async getSystemDetailsBatch (ids = [], refresh = false) {
         if (ids.length === 0) {
             return {};
         }
@@ -37,16 +37,11 @@ module.exports = new class extends Connector {
         const uri = new URI(host);
         uri.path('/r/insights/platform/inventory/api/v1/hosts');
 
-        if (ids) {
-            ids = _.sortBy(ids);
-            uri.segment(ids.join());
+        ids = _.sortBy(ids);
+        uri.segment(ids.join());
 
-            // TODO: what if we need more than 100?
-            uri.addQuery('per_page', String(PAGE_SIZE));
-        } else {
-            // this is a ping request
-            uri.addQuery('per_page', String(1));
-        }
+        // TODO: what if we need more than 100?
+        uri.addQuery('per_page', String(PAGE_SIZE));
 
         const response = await this.doHttp({
             uri: uri.toString(),
@@ -106,8 +101,20 @@ module.exports = new class extends Connector {
         return transformed;
     }
 
-    ping () {
-        return this.getSystemDetailsBatch(false, true);
+    async ping () {
+        const uri = new URI(host);
+        uri.path('/r/insights/platform/inventory/api/v1/hosts');
+        uri.addQuery('per_page', String(1));
+
+        const response = await this.doHttp({
+            uri: uri.toString(),
+            method: 'GET',
+            json: true,
+            rejectUnauthorized: !insecure,
+            headers: this.getForwardedHeaders()
+        });
+
+        assert(Array.isArray(response.results));
     }
 }();
 
