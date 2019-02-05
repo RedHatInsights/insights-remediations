@@ -3,10 +3,11 @@
 const _ = require('lodash');
 const P = require('bluebird');
 const URI = require('urijs');
-const {host, insecure} = require('../../config').inventory;
+const {host, insecure, revalidationInterval} = require('../../config').inventory;
 const assert = require('assert');
 
 const Connector = require('../Connector');
+const metrics = require('../metrics');
 
 const PAGE_SIZE = 100;
 
@@ -21,12 +22,14 @@ function validate (result) {
     return result;
 }
 
+// TODO: this connector could benefit from better caching strategy
 module.exports = new class extends Connector {
     constructor () {
         super(module);
+        this.metrics = metrics.createConnectorMetric(this.getName(), 'getSystemDetails');
     }
 
-    async getSystemDetailsBatch (ids = false) {
+    async getSystemDetailsBatch (ids = false, refresh = false) {
         if (ids.length === 0) {
             return {};
         }
@@ -35,6 +38,7 @@ module.exports = new class extends Connector {
         uri.path('/r/insights/platform/inventory/api/v1/hosts');
 
         if (ids) {
+            ids = _.sortBy(ids);
             uri.segment(ids.join());
 
             // TODO: what if we need more than 100?
@@ -49,10 +53,15 @@ module.exports = new class extends Connector {
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: {
-                ...this.getForwardedHeaders()
-            }
-        }, true);
+            headers: this.getForwardedHeaders()
+        },
+        {
+            key: `remediations|http-cache|inventory|${ids.join()}`,
+            refresh,
+            revalidationInterval,
+            cacheable: body => body.count > 0 // only cache responses with at least 1 record
+        },
+        this.metrics);
 
         const transformed = _(response.results)
         .keyBy('id')
@@ -73,9 +82,7 @@ module.exports = new class extends Connector {
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: {
-                ...this.getForwardedHeaders()
-            }
+            headers: this.getForwardedHeaders()
         }, false);
     }
 
@@ -100,7 +107,7 @@ module.exports = new class extends Connector {
     }
 
     ping () {
-        return this.getSystemDetailsBatch();
+        return this.getSystemDetailsBatch(false, true);
     }
 }();
 

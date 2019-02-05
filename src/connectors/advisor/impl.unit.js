@@ -84,7 +84,7 @@ describe('advisor impl', function () {
             cache.setex.callCount.should.equal(1);
         });
 
-        test('returns null on unknown resolution', async function () {
+        test('returns empty object unknown rule', async function () {
             const cache = mockCache();
 
             const http = base.getSandbox().stub(request, 'run').resolves({
