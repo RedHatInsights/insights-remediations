@@ -48,7 +48,7 @@ describe('users impl', function () {
 
     test('returns null when user does not exist', async function () {
         base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
-        expect(impl.getUser('***REMOVED***')).resolves.toBeNull();
+        await expect(impl.getUser('***REMOVED***')).resolves.toBeNull();
     });
 
     test('ping', async function () {

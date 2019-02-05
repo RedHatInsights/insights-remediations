@@ -1,51 +1,53 @@
 'use strict';
 
-const config = require('../../config');
+const assert = require('assert');
+const _ = require('lodash');
+const { host, revalidationInterval } = require('../../config').vmaas;
 const URI = require('urijs');
 const Connector = require('../Connector');
+const metrics = require('../metrics');
 
 module.exports = new class extends Connector {
     constructor () {
         super(module);
+        this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
     getErratum (id) {
-        const uri = new URI(config.vmaas.host);
+        const uri = new URI(host);
         uri.path('/api/v1/errata');
         uri.segment(id);
 
         return this.doHttp({
             uri: uri.toString(),
             method: 'GET',
-            json: true
-        }, true).then(res => {
-            if (res) {
-                return res.errata_list[id];
-            }
-
-            return res;
-        });
+            json: true,
+            headers: this.getForwardedHeaders(false)
+        }, false)
+        .then(res => _.get(res, ['errata_list', id], null));
     }
 
     getCve (id) {
-        const uri = new URI(config.vmaas.host);
+        const uri = new URI(host);
         uri.path('/api/v1/cves');
         uri.segment(id);
 
         return this.doHttp({
             uri: uri.toString(),
             method: 'GET',
-            json: true
-        }, true).then(res => {
-            if (res) {
-                return res.cve_list[id];
-            }
-
-            return res;
-        });
+            json: true,
+            headers: this.getForwardedHeaders(false)
+        },
+        {
+            revalidationInterval,
+            cacheable: body => body.pages === 1 // only cache responses with exactly 1 match
+        },
+        this.metrics
+        ).then(res => _.get(res, ['cve_list', id], null));
     }
 
     ping () {
-        return this.getCve('CVE-2017-17712');
+        const result = this.getCve('CVE-2017-17712');
+        assert(result.synopsis === 'CVE-2017-17712');
     }
 }();
