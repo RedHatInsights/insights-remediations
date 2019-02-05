@@ -88,7 +88,7 @@ async function run (options, useCache = false, metrics = false) {
     metrics && metrics.miss.inc();
     const res = await doHttp(options, cached, metrics);
 
-    if (!res) { // 404
+    if (!res || !res.body) { // 404
         if (cached) {
             cache.get().del(key);
         }
