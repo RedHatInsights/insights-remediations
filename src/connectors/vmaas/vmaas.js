@@ -27,7 +27,7 @@ module.exports = new class extends Connector {
         .then(res => _.get(res, ['errata_list', id], null));
     }
 
-    getCve (id) {
+    getCve (id, refresh = false) {
         const uri = new URI(host);
         uri.path('/api/v1/cves');
         uri.segment(id);
@@ -39,6 +39,7 @@ module.exports = new class extends Connector {
             headers: this.getForwardedHeaders(false)
         },
         {
+            refresh,
             revalidationInterval,
             cacheable: body => body.pages === 1 // only cache responses with exactly 1 match
         },
@@ -47,7 +48,7 @@ module.exports = new class extends Connector {
     }
 
     ping () {
-        const result = this.getCve('CVE-2017-17712');
+        const result = this.getCve('CVE-2017-17712', true);
         assert(result.synopsis === 'CVE-2017-17712');
     }
 }();

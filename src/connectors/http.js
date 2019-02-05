@@ -73,7 +73,9 @@ async function run (options, useCache = false, metrics = false) {
 
     const cached = await loadCachedEntry(cache.get(), key, revalidationInterval);
 
-    if (cached && !cached.expired) {
+    if (useCache.refresh) {
+        log.trace({key}, 'forced refresh');
+    } else if (cached && !cached.expired) {
         log.trace({key}, 'cache hit');
         metrics && metrics.hit.inc();
         return cached.body;

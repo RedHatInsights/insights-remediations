@@ -14,7 +14,7 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    async getResolutions (id) {
+    async getResolutions (id, refresh = false) {
         const uri = new URI(host);
         uri.segment('playbooks');
         uri.segment(id);
@@ -34,6 +34,7 @@ module.exports = new class extends Connector {
         }
 
         const resolutions = await this.doHttp(options, {
+            refresh,
             revalidationInterval,
             cacheable: body => body.length > 0 // only cache responses with resolutions
         },
@@ -51,7 +52,7 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        const result = await this.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+        const result = await this.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE', true);
         assert(result.length > 0);
     }
 }();

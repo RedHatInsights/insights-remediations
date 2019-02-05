@@ -18,7 +18,7 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    async getUser (id) {
+    async getUser (id, refresh = false) {
         const uri = new URI(host);
         uri.path('/v1/users');
 
@@ -38,6 +38,7 @@ module.exports = new class extends Connector {
                 users: [id]
             }
         }, {
+            refresh,
             key: `remediations|http-cache|users|${id}`,
             revalidationInterval,
             cacheable: body => body.length === 1 // only cache responses with exactly 1 match
@@ -51,7 +52,7 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        const result = await this.getUser('***REMOVED***');
+        const result = await this.getUser('***REMOVED***', true);
         assert(result.username === '***REMOVED***');
     }
 }();
