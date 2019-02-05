@@ -31,11 +31,9 @@ module.exports = async function (app) {
         app.use(require('./middleware/identity/fallback'));
     }
 
-    metrics.start(app);
-    require('./status/routes')(app);
-
     app.use(reqId);
     app.use(pino);
+    metrics.start(app);
     app.use(identity);
     app.use(identitySwitcher);
     app.use(httpContext.middleware);
