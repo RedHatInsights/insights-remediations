@@ -23,6 +23,11 @@ const pino = require('express-pino-logger')({
 });
 
 module.exports = async function (app) {
+    app.use((req, res, next) => {
+        log.trace({ req }, 'incoming request');
+        next();
+    });
+
     if (config.demo === true) {
         app.use(require('./middleware/identity/demo'));
     }
