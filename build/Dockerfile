@@ -10,4 +10,4 @@ COPY . /opt/app-root/src
 
 EXPOSE 9002
 ENV NODE_ENV=production
-CMD [ "node", "src/app.js" ]
+CMD [ "node", "--max-http-header-size=16384", "src/app.js" ]
