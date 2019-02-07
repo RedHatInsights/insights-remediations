@@ -13,6 +13,7 @@ const config = require('./config');
 const metrics = require('./metrics');
 const reqId = require('./middleware/reqId');
 const bodyParser = require('body-parser');
+const docs = require('./docs');
 
 const errors = require('./errors');
 
@@ -39,6 +40,9 @@ module.exports = async function (app) {
     app.use(reqId);
     app.use(pino);
     metrics.start(app);
+
+    docs(app, config.path.base);
+
     app.use(identity);
     app.use(identitySwitcher);
     app.use(bodyParser.json({

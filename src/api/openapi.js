@@ -6,7 +6,8 @@ const jsyaml = require('js-yaml');
 
 const OpenAPISchemaValidator = require('openapi-schema-validator').default;
 
-const spec = jsyaml.safeLoad(fs.readFileSync(path.join(__dirname, './openapi.yaml'), 'utf8'));
+const specPath = path.join(__dirname, './openapi.yaml');
+const spec = jsyaml.safeLoad(fs.readFileSync(specPath, 'utf8'));
 
 const validator = new OpenAPISchemaValidator({ version: 3 });
 const result = validator.validate(spec);
@@ -15,5 +16,4 @@ if (result.errors.length) {
     throw new Error(JSON.stringify(result.errors, null, 4));
 }
 
-exports.spec = spec;
-
+module.exports = { spec, specPath };
