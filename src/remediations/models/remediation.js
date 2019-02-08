@@ -1,6 +1,6 @@
 'use strict';
 
-const NULL_NAME_VALUE = 'Unnamed remediation';
+const NULL_NAME_VALUE = 'Unnamed Playbook';
 
 module.exports = (sequelize, {BOOLEAN, STRING, UUID}) => {
     const Remediation = sequelize.define('remediation', {

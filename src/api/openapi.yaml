@@ -392,6 +392,7 @@ components:
 
     RemediationName:
       type: string
+      nullable: true
       pattern: ^$|^.*[\w\d]+.*$  # empty string or anything that contains at least one character
       example: Fix Critical CVEs
 
@@ -735,9 +736,11 @@ components:
           $ref: '#/components/schemas/SystemId'
         hostname:
           type: string
+          nullable: true
           example: db01.example.com
         display_name:
           type: string
+          nullable: true
           example: prod-db
 
     UserOut:

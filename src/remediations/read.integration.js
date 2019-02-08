@@ -107,7 +107,7 @@ describe('remediations', function () {
 
             body.should.eql({
                 id: 'e809526c-56f5-4cd8-a809-93328436ea23',
-                name: 'Unnamed remediation',
+                name: 'Unnamed Playbook',
                 needs_reboot: false,
                 auto_reboot: false,
                 created_by: {
@@ -135,11 +135,11 @@ describe('remediations', function () {
                     systems: [{
                         id: '1f12bdfc-8267-492d-a930-92f498fe65b9',
                         hostname: '1f12bdfc-8267-492d-a930-92f498fe65b9.example.com',
-                        display_name: 'null'
+                        display_name: null
                     }, {
                         id: 'fc94beb8-21ee-403d-99b1-949ef7adb762',
-                        hostname: 'null',
-                        display_name: 'null'
+                        hostname: null,
+                        display_name: null
                     }]
                 }]
             });

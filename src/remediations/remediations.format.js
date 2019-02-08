@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const DEFAULT_REMEDIATION_NAME = 'unnamed-remediation';
+const DEFAULT_REMEDIATION_NAME = 'unnamed-playbook';
 const PLAYBOOK_SUFFIX = 'yml';
 
 exports.list = function (remediations) {
@@ -46,8 +46,8 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
             resolutions_available: resolutionsAvailable,
             systems: systems.map(({system_id, hostname, display_name}) => ({
                 id: system_id,
-                hostname: hostname || 'null', // FIXME
-                display_name: display_name || 'null' // FIXME
+                hostname,
+                display_name
             }))
         }))
     };

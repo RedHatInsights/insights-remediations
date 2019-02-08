@@ -19,7 +19,7 @@ describe('playbooks', function () {
         .get('/v1/remediations/e809526c-56f5-4cd8-a809-93328436ea23/playbook')
         .expect(200);
 
-        headers['content-disposition'].should.match(/^attachment;filename="unnamed-remediation-[0-9]+\.yml"$/);
+        headers['content-disposition'].should.match(/^attachment;filename="unnamed-playbook-[0-9]+\.yml"$/);
         expect(text).toMatchSnapshot();
     });
 
