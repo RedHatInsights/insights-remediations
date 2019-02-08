@@ -1,0 +1,796 @@
+---
+openapi: 3.0.0
+
+info:
+  title: Insights Remediations
+  description: Insights Remediations Service
+  version: 1.0.0
+  contact:
+    email: jozef@redhat.com
+
+servers:
+  - url: /r/insights/platform/remediations/v1
+
+tags:
+  - name: generator
+    description: Ansible Playbook Generator
+  - name: remediations
+    description: Stored Remediations
+  - name: resolutions
+    description: Information about available Ansible resolutions
+  - name: diagnosis
+    description: Host-specific detailed diagnosis information
+
+paths:
+  /remediations:
+    get:
+      tags:
+        - remediations
+      summary: List Remediations
+      description: Provides information about Remediations
+      operationId: listRemediations
+      parameters:
+        - $ref: '#/components/parameters/RemediationSort'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemediationList'
+        400:
+          $ref: '#/components/responses/BadRequest'
+    post:
+      tags:
+        - remediations
+      summary: Create Remediation
+      description: Creates a new Remediation based on given information
+      operationId: createRemediation
+      requestBody:
+        $ref: '#/components/requestBodies/RemediationInput'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemediationCreated'
+        400:
+          $ref: '#/components/responses/BadRequest'
+
+  /remediations/{id}:
+    get:
+      tags:
+        - remediations
+      summary: Get Remediation
+      description: Provides information about the given Remediation
+      operationId: getRemediation
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemediationDetails'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - remediations
+      summary: Update Remediation
+      description: Updates the given Remediation
+      operationId: patchRemediation
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+      requestBody:
+        $ref: '#/components/requestBodies/RemediationInput'
+      responses:
+        200:
+          description: OK
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - remediations
+      summary: Remove Remediation
+      description: Removes the given Remediation
+      operationId: deleteRemediation
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+      responses:
+        204:
+          $ref: '#/components/responses/Deleted'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /remediations/{id}/playbook:
+    get:
+      tags:
+        - remediations
+      summary: Get Remediation Playbook
+      description: Provides Ansible Playbook
+      operationId: getRemediationPlaybook
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+      responses:
+        200:
+          description: OK
+          content:
+            text/vnd.yaml:
+              schema:
+                type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /remediations/{id}/issues/{issue}:
+    patch:
+      tags:
+        - remediations
+      summary: Update Remediation Issue
+      description: Updates the given Remediation Issue
+      operationId: patchRemediationIssue
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/IssueId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schema/RemediationIssueIn'
+      responses:
+        200:
+          description: OK
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - remediations
+      summary: Remove Remediation Issue
+      description: Removes the given Issue from the Remediation
+      operationId: deleteRemediationIssue
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/IssueId'
+      responses:
+        204:
+          $ref: '#/components/responses/Deleted'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /remediations/{id}/issues/{issue}/systems/{system}:
+    delete:
+      tags:
+        - remediations
+      summary: Remove Remediation Issue System
+      description: Removes the given System from the Issue Remediation
+      operationId: deleteRemediationIssueSystem
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/IssueId'
+        - $ref: '#/components/parameters/SystemId'
+      responses:
+        204:
+          $ref: '#/components/responses/Deleted'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+
+  /resolutions/{issue}:
+    get:
+      tags:
+        - resolutions
+      summary: Resolution metadata
+      description: Provides information about resolutions available for the given issue
+      operationId: resolutions
+      parameters:
+        - $ref: '#/components/parameters/IssueId'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resolutions'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          description: Issue not known or Ansible resolution not available
+
+  /resolutions:
+    post:
+      tags:
+        - resolutions
+      summary: Resolution metadata (batch)
+      description: Provides information about resolutions available for the given issues
+      operationId: resolutionsBatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolutionsBatchInput'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolutionsBatch'
+        400:
+          $ref: '#/components/responses/BadRequest'
+
+
+  /diagnosis/{system}:
+    get:
+      tags:
+        - diagnosis
+      summary: host-specific diagnosis
+      description: Provides host-specific diagnosis information
+      operationId: diagnosis
+      parameters:
+        - $ref: '#/components/parameters/SystemId'
+        - $ref: '#/components/parameters/RemediationIdQuery'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diagnosis'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          description: System not found
+
+
+  /playbook:
+    post:
+      tags:
+        - generator
+      summary: Generate an Ansible Playbook
+      description: Generates an Ansible Playbook based on input parameters
+      operationId: generate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaybookDefinition'
+      responses:
+        200:
+          description: OK
+          content:
+            text/vnd.yaml:
+              schema:
+                type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+
+
+  /version:
+    get:
+      tags:
+        - version
+      summary: Get service version
+      description: Provides information about the version of the service
+      operationId: version
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [version, commit]
+                additionalProperties: false
+                properties:
+                  version:
+                    type: string
+                    example: '1.0.0'
+                  commit:
+                    type: string
+                    example: '8b87342'
+
+
+components:
+  parameters:
+    IssueId:
+      in: path
+      name: issue
+      description: Issue identifier (e.g. `vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074`)
+      required: true
+      schema:
+        $ref: '#/components/schemas/IssueId'
+    RemediationId:
+      in: path
+      name: id
+      description: Remediation identifier
+      required: true
+      schema:
+        $ref: '#/components/schemas/RemediationId'
+    RemediationIdQuery:
+      in: query
+      name: remediation
+      description: Remediation identifier (uuid)
+      required: false
+      schema:
+        $ref: '#/components/schemas/RemediationId'
+    RemediationSort:
+      in: query
+      name: sort
+      description: Sort order
+      required: false
+      schema:
+        type: string
+        enum: [updated_at, -updated_at, name, -name, system_count, -system_count, issue_count, -issue_count]
+        default: -updated_at
+    SystemId:
+      in: path
+      name: system
+      description: System identifier
+      required: true
+      schema:
+        $ref: '#/components/schemas/SystemId'
+
+
+  requestBodies:
+    RemediationInput:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RemediationInput'
+
+
+  schemas:
+    #
+    # Primitive types
+    #
+    DateTime:
+      type: string
+      format: date-time
+      example: '2018-12-05T08:19:36.641Z'
+
+    InsightsId:
+      type: string
+      format: uuid
+      example: a8799a02-8be9-11e8-9eb6-529269fb1459
+
+    IssueId:
+      type: string
+      pattern: ^(advisor|vulnerabilities|compliance|test):[\w\d-_|:\.]+$
+      example: vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+
+    RemediationAutoReboot:
+      type: boolean
+      default: true
+      description: >
+        Indicates whether systems that require reboot for the remediation to be properly applied should be
+        rebooted automatically or not
+
+    RemediationId:
+      type: string
+      format: uuid
+      example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
+
+    RemediationName:
+      type: string
+      pattern: ^$|^.*[\w\d]+.*$  # empty string or anything that contains at least one character
+      example: Fix Critical CVEs
+
+    RemediationNeedsReboot:
+      type: boolean
+      description: Indicates whether any of the issues contained in the remediation require system reboot
+
+    ResolutionNeedsReboot:
+      type: boolean
+      description: Indicates whether the given resolution involves system reboot
+
+    ResolutionRisk:
+      type: integer
+      enum:
+        - -1
+        - 1
+        - 2
+        - 3
+        - 4
+      example: 2
+
+    ResolutionType:
+      type: string
+      example: fix
+
+    SystemId:
+      type: string
+      format: uuid
+      example: a8799a02-8be9-11e8-9eb6-529269fb1459
+
+
+    #
+    # Input schemas
+    #
+    PlaybookDefinition:
+      type: object
+      additionalProperties: false
+      required: [issues]
+      properties:
+        issues:
+          type: array
+          minItems: 1
+          example:
+            - id: advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE
+              systems:
+                - a8799a02-8be9-11e8-9eb6-529269fb1459
+                - 736ef48c-8f05-11e8-9eb6-529269fb1459
+            - id: vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+              systems:
+                - a8799a02-8be9-11e8-9eb6-529269fb1459
+                - 736ef48c-8f05-11e8-9eb6-529269fb1459
+              resolution: mitigate
+            - id: compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login
+              systems:
+                - a8799a02-8be9-11e8-9eb6-529269fb1459
+                - 736ef48c-8f05-11e8-9eb6-529269fb1459
+            - id: vulnerabilities:CVE-2017-15126
+              systems:
+                - a8799a02-8be9-11e8-9eb6-529269fb1459
+                - 736ef48c-8f05-11e8-9eb6-529269fb1459
+            - id: vulnerabilities:CVE-2018-1087
+              systems:
+                - a8799a02-8be9-11e8-9eb6-529269fb1459
+                - 736ef48c-8f05-11e8-9eb6-529269fb1459
+            - id: vulnerabilities:CVE-2016-7913
+              systems:
+                - a8799a02-8be9-11e8-9eb6-529269fb1459
+                - 736ef48c-8f05-11e8-9eb6-529269fb1459
+          items:
+            type: object
+            additionalProperties: false
+            required: [id, systems]
+            properties:
+              id:
+                $ref: '#/components/schemas/IssueId'
+              systems:
+                type: array
+                minItems: 1
+                items:
+                  $ref: '#/components/schemas/SystemId'
+              resolution:
+                $ref: '#/components/schemas/ResolutionType'
+        auto_reboot:
+          $ref: '#/components/schemas/RemediationAutoReboot'
+
+    ResolutionsBatchInput:
+      type: object
+      additionalProperties: false
+      required: [issues]
+      properties:
+        issues:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/IssueId'
+      example:
+        issues:
+          - vulnerabilities:CVE-2018-1087
+          - vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074377300
+          - advisor:non-existent-issue
+
+    RemediationInput:
+      type: object
+      additionalProperties: false
+      x-remediations-strict: false  # suppress validation since none of the properties is required
+      properties:
+        name:
+          $ref: '#/components/schemas/RemediationName'
+        auto_reboot:
+          $ref: '#/components/schemas/RemediationAutoReboot'
+        add:
+          type: object
+          additionalProperties: false
+          required: [issues]
+          properties:
+            issues:
+              type: array
+              minItems: 1
+              items:
+                type: object
+                additionalProperties: false
+                required: [id]
+                properties:
+                  id:
+                    $ref: '#/components/schemas/IssueId'
+                  resolution:
+                    $ref: '#/components/schemas/ResolutionType'
+                  systems:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SystemId'
+            systems:
+              type: array
+              items:
+                $ref: '#/components/schemas/SystemId'
+          example:
+            issues:
+              - id: vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+                resolution: mitigate
+                systems:
+                  - a8799a02-8be9-11e8-9eb6-529269fb1459
+
+    RemediationIssueIn:
+      type: object
+      additionalProperties: false
+      required: [resolution]
+      properties:
+        resolution:
+          $ref: '#/components/schemas/ResolutionType'
+
+
+    #
+    # Output schemas
+    #
+    Error:
+      type: object
+      additionalProperties: false
+      required: [errors]
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [id, status, code, title]
+            properties:
+              id:
+                type: string
+              status:
+                type: integer
+                example: 400
+              code:
+                type: string
+                example: UNKNOWN_SYSTEM
+              title:
+                type: string
+                example: Unknown system identifier 'abcd'
+
+    # Resolution specific types
+    Resolutions:
+      type: object
+      additionalProperties: false
+      required: [id, resolution_risk, resolutions]
+      properties:
+        id:
+          $ref: '#/components/schemas/IssueId'
+        resolution_risk:
+          $ref: '#/components/schemas/ResolutionRisk'
+        resolutions:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [id, description, needs_reboot, resolution_risk]
+            properties:
+              id:
+                $ref: '#/components/schemas/ResolutionType'
+              description:
+                type: string
+                example: Disable DCCP kernel module
+              needs_reboot:
+                $ref: '#/components/schemas/ResolutionNeedsReboot'
+              resolution_risk:
+                $ref: '#/components/schemas/ResolutionRisk'
+
+    ResolutionsBatch:
+      type: object
+      example:
+        vulnerabilities:CVE-2018-1087:
+          id: vulnerabilities:CVE-2018-1087
+          resolution_risk: -1
+          resolutions:
+            - description: Upgrade packages affected by CVE-2018-1087
+              id: fix
+              needs_reboot: true
+              resolution_risk: -1
+        vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074:
+          id: vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+          resolution_risk: 3
+          resolutions:
+            - description: Update system to the latest kernel and reboot
+              id: kernel_update
+              needs_reboot: true
+              resolution_risk: 3
+            - description: Disable DCCP kernel module
+              id: mitigate
+              needs_reboot: true
+              resolution_risk: 3
+            - description: Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7
+              id: selinux_mitigate
+              needs_reboot: true
+              resolution_risk: 3
+        advisor:non-existent-issue: false
+
+
+    # Remediation specific types
+    RemediationCreated:
+      type: object
+      additionalProperties: false
+      required: [id]
+      properties:
+        id:
+          $ref: '#/components/schemas/RemediationId'
+
+    RemediationDetails:
+      type: object
+      additionalProperties: false
+      required: [id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at, issues]
+      properties:
+        id:
+          $ref: '#/components/schemas/RemediationId'
+        name:
+          $ref: '#/components/schemas/RemediationName'
+        needs_reboot:
+          $ref: '#/components/schemas/RemediationNeedsReboot'
+        auto_reboot:
+          $ref: '#/components/schemas/RemediationAutoReboot'
+        created_by:
+          $ref: '#/components/schemas/UserOut'
+        created_at:
+          $ref: '#/components/schemas/DateTime'
+        updated_by:
+          $ref: '#/components/schemas/UserOut'
+        updated_at:
+          $ref: '#/components/schemas/DateTime'
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/RemediationIssue'
+
+    RemediationIssue:
+      type: object
+      additionalProperties: false
+      required: [id, description, resolution, systems]
+      properties:
+        id:
+          $ref: '#/components/schemas/IssueId'
+        description:
+          type: string
+        resolution:
+          type: object
+          additionalProperties: false
+          required: [id, description, resolution_risk, needs_reboot]
+          properties:
+            id:
+              $ref: '#/components/schemas/ResolutionType'
+            description:
+              type: string
+            resolution_risk:
+              $ref: '#/components/schemas/ResolutionRisk'
+            needs_reboot:
+              $ref: '#/components/schemas/ResolutionNeedsReboot'
+        resolutions_available:
+          type: number
+          description: The total number of available resolutions for this issue
+        systems:
+          type: array
+          items:
+            $ref: '#/components/schemas/SystemOut'
+
+    RemediationList:
+      type: object
+      additionalProperties: false
+      required: [remediations]
+      properties:
+        remediations:
+          type: array
+          items:
+            $ref: '#/components/schemas/RemediationListItem'
+
+    RemediationListItem:
+      type: object
+      additionalProperties: false
+      required: [id, name, created_by, created_at, updated_by, updated_at, issue_count, system_count, needs_reboot]
+      properties:
+        id:
+          $ref: '#/components/schemas/RemediationId'
+        name:
+          $ref: '#/components/schemas/RemediationName'
+        created_by:
+          $ref: '#/components/schemas/UserOut'
+        created_at:
+          $ref: '#/components/schemas/DateTime'
+        updated_by:
+          $ref: '#/components/schemas/UserOut'
+        updated_at:
+          $ref: '#/components/schemas/DateTime'
+        issue_count:
+          type: integer
+        system_count:
+          type: integer
+        needs_reboot:
+          $ref: '#/components/schemas/RemediationNeedsReboot'
+
+    SystemOut:
+      type: object
+      additionalProperties: false
+      required: [id, hostname, display_name]
+      properties:
+        id:
+          $ref: '#/components/schemas/SystemId'
+        hostname:
+          type: string
+          example: db01.example.com
+        display_name:
+          type: string
+          example: prod-db
+
+    UserOut:
+      type: object
+      additionalProperties: false
+      required: [username, first_name, last_name]
+      properties:
+        username:
+          type: string
+          example: jharting@redhat.com
+        first_name:
+          type: string
+          example: Jozef
+        last_name:
+          type: string
+          example: Hartinger
+
+
+    # Diagnosis specific types
+    Diagnosis:
+      type: object
+      additionalProperties: false
+      required: [details, id, insights_id]
+      properties:
+        id:
+          $ref: '#/components/schemas/SystemId'
+        insights_id:
+          $ref: '#/components/schemas/InsightsId'
+        details:
+          type: object
+          example:
+            CVE_2018_1111_dhcp|ERROR_CVE_2018_1111_DHCP_2:
+              dhcp_devs:
+                - enp0s3
+            CVE_2017_5753_4_cpu_kernel|KERNEL_CVE_2017_5753_4_CPU_ERROR_3:
+              debugfs_available: true
+              dmesg_available: true
+              dmesg_wrapped: false
+
+  responses:
+    Deleted:
+      description: Entity was deleted
+    NotFound:
+      description: Entity Not Found
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ServerError:
+      description: Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

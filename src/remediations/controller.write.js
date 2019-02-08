@@ -104,7 +104,7 @@ async function storeNewActions (remediation, add, transaction) {
 }
 
 exports.create = errors.async(async function (req, res) {
-    const {add, name, auto_reboot} = req.swagger.params.body.value;
+    const {add, name, auto_reboot} = req.body;
 
     if (add) {
         await validateNewActions(add);
@@ -135,9 +135,9 @@ exports.create = errors.async(async function (req, res) {
 });
 
 exports.patch = errors.async(async function (req, res) {
-    const id = req.swagger.params.id.value;
+    const id = req.params.id;
     const {account_number, username} = req.user;
-    const {add, name, auto_reboot} = req.swagger.params.body.value;
+    const {add, name, auto_reboot} = req.body;
 
     if (_.isUndefined(add) && _.isUndefined(name) && _.isUndefined(auto_reboot)) {
         throw new errors.BadRequest('EMPTY_REQUEST', 'At least one of "add", "name", "auto_reboot" needs to be specified');
@@ -185,8 +185,8 @@ exports.patch = errors.async(async function (req, res) {
 });
 
 exports.patchIssue = errors.async(async function (req, res) {
-    const iid = req.swagger.params.issue.value;
-    const { resolution: rid } = req.swagger.params.body.value;
+    const iid = req.params.issue;
+    const { resolution: rid } = req.body;
 
     // validate that the given resolution exists
     await validateResolution(iid, rid);
@@ -210,8 +210,8 @@ exports.patchIssue = errors.async(async function (req, res) {
 });
 
 function findIssueQuery (req) {
-    const id = req.swagger.params.id.value;
-    const iid = req.swagger.params.issue.value;
+    const id = req.params.id;
+    const iid = req.params.issue;
     const {account_number, username: created_by} = req.user;
 
     return {
@@ -235,7 +235,7 @@ function remediationUpdated (req, transaction) {
     return db.remediation.update({
         updated_by: username
     }, {
-        where: {account_number, created_by: username, id: req.swagger.params.id.value},
+        where: {account_number, created_by: username, id: req.params.id},
         transaction
     });
 }
@@ -262,7 +262,7 @@ function findAndDestroy (req, entity, query, res) {
 }
 
 exports.remove = errors.async(function (req, res) {
-    const id = req.swagger.params.id.value;
+    const id = req.params.id;
     const {account_number, username: created_by} = req.user;
 
     return findAndDestroy(req, db.remediation, {
@@ -277,9 +277,9 @@ exports.removeIssue = errors.async(function (req, res) {
 });
 
 exports.removeIssueSystem = errors.async(function (req, res) {
-    const id = req.swagger.params.id.value;
-    const iid = req.swagger.params.issue.value;
-    const sid = req.swagger.params.system.value;
+    const id = req.params.id;
+    const iid = req.params.issue;
+    const sid = req.params.system;
     const {account_number, username: created_by} = req.user;
 
     return findAndDestroy(req, db.issue_system, {

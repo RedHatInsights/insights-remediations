@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const { request, auth } = require('../test');
+const { request, auth, reqId } = require('../test');
 
 describe('remediations', function () {
     describe('list', function () {
@@ -75,12 +75,18 @@ describe('remediations', function () {
             testSorting('system_count', false, r2, r4, r1, r3);
 
             test('invalid column', async () => {
+                const {id, header} = reqId();
                 const { body } = await request
                 .get('/v1/remediations?pretty&sort=foo')
+                .set(header)
                 .expect(400);
 
-                body.errors[0].code.should.equal('ENUM_MISMATCH');
-                body.errors[0].status.should.equal(400);
+                body.errors.should.eql([{
+                    id,
+                    status: 400,
+                    code: 'enum.openapi.validation',
+                    title: 'should be equal to one of the allowed values (location: query, path: sort)'
+                }]);
             });
         });
     });

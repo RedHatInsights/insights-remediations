@@ -8,7 +8,7 @@ const identifiers = require('../util/identifiers');
 const disambiguator = require('./disambiguator');
 
 exports.getResolutions = errors.async(async function (req, res) {
-    const result = await getResolutions(req.swagger.params.issue.value);
+    const result = await getResolutions(req.params.issue);
 
     if (!result) {
         return res.status(404).end();
@@ -18,7 +18,7 @@ exports.getResolutions = errors.async(async function (req, res) {
 });
 
 exports.resolutionsBatch = errors.async(async function (req, res) {
-    const { issues } = req.swagger.params.body.value;
+    const { issues } = req.body;
 
     let result = _(issues).keyBy().mapValues(getResolutions).value();
     result = await P.props(result);

@@ -10,9 +10,9 @@ exports.list = function (remediations) {
             id,
             name,
             created_by: _.pick(created_by, ['username', 'first_name', 'last_name']),
-            created_at,
+            created_at: created_at.toISOString(),
             updated_by: _.pick(updated_by, ['username', 'first_name', 'last_name']),
-            updated_at,
+            updated_at: updated_at.toISOString(),
             needs_reboot,
             system_count,
             issue_count
@@ -31,9 +31,9 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
         needs_reboot,
         auto_reboot,
         created_by: _.pick(created_by, ['username', 'first_name', 'last_name']),
-        created_at,
+        created_at: created_at.toISOString(),
         updated_by: _.pick(updated_by, ['username', 'first_name', 'last_name']),
-        updated_at,
+        updated_at: updated_at.toISOString(),
         issues: _.map(issues, ({issue_id, resolution, details, systems, resolutionsAvailable }) => ({
             id: issue_id,
             description: details.description,

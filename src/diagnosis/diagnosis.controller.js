@@ -11,7 +11,7 @@ const inventory = require('../connectors/inventory');
  * For now this is a mock implementation
  */
 exports.getDiagnosis = errors.async(async function (req, res) {
-    const insightsId = req.swagger.params.system.value;
+    const insightsId = req.params.system;
 
     // TODO:
     // 1) obtain system data from inventory

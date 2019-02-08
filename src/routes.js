@@ -12,8 +12,8 @@ const cls = require('./util/cls');
 const config = require('./config');
 const metrics = require('./metrics');
 const reqId = require('./middleware/reqId');
+const bodyParser = require('body-parser');
 
-const swagger = require('./api/swagger');
 const errors = require('./errors');
 
 const pino = require('express-pino-logger')({
@@ -41,9 +41,13 @@ module.exports = async function (app) {
     metrics.start(app);
     app.use(identity);
     app.use(identitySwitcher);
+    app.use(bodyParser.json({
+        limit: config.bodyParserLimit
+    }));
+
     app.use(httpContext.middleware);
     app.use(cls.middleware);
-    await swagger(app, config.path.base);
+    //await swagger(app, config.path.base);
     app.use(prettyJson);
 
     const v1 = express.Router();
@@ -65,7 +69,5 @@ module.exports = async function (app) {
     app.use(`${config.path.base}/v1`, v1);
     app.get('/', (req, res) => res.redirect(`${config.path.base}/v1/docs`));
 
-    // The handler is intentionally defined twice so that schema validation errors during error handling are caught
-    app.use(errors.handler);
     app.use(errors.handler);
 };

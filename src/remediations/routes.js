@@ -2,16 +2,17 @@
 
 const read = require('./controller.read');
 const write = require('./controller.write');
+const openapi = require('../middleware/openapi');
 
 module.exports = function (router) {
-    router.get('/remediations', read.list);
-    router.post('/remediations', write.create);
+    router.get('/remediations', openapi('listRemediations'), read.list);
+    router.post('/remediations', openapi('createRemediation'), write.create);
 
-    router.get('/remediations/:id', read.get);
-    router.patch('/remediations/:id', write.patch);
-    router.delete('/remediations/:id', write.remove);
+    router.get('/remediations/:id', openapi('getRemediation'), read.get);
+    router.patch('/remediations/:id', openapi('patchRemediation'), write.patch);
+    router.delete('/remediations/:id', openapi('deleteRemediation'), write.remove);
 
-    router.get('/remediations/:id/playbook', read.playbook);
+    router.get('/remediations/:id/playbook', openapi('getRemediationPlaybook'), read.playbook);
 
     router.patch('/remediations/:id/issues/:issue', write.patchIssue);
     router.delete('/remediations/:id/issues/:issue', write.removeIssue);

@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const log = require('./util/log');
 const cls = require('./util/cls');
-const config = require('./config');
+const RequestSpecValidationError = require('./middleware/openapi/RequestSpecValidationError');
 
 class HttpError extends Error {
     constructor (status, code, title, details) {
@@ -76,6 +76,9 @@ function mapValidationError ({id}, {code, message: title}) {
 }
 
 exports.handler = (error, req, res, next) => {
+    if (res.headersSent) {
+        return next(error);
+    }
 
     // swagger request validation handler
     if (error.failedValidation && !error.originalResponse) {
@@ -108,11 +111,12 @@ exports.handler = (error, req, res, next) => {
         return error.writeResponse(res);
     }
 
-    log.error(error, 'caught internal error');
-
-    if (config.env !== 'production') {
-        return next(error); // write out stack in non-prod envs
+    if (error instanceof RequestSpecValidationError) {
+        log.debug(error.errors, 'rejecting request due to RequestSpecValidationError');
+        return error.writeResponse(req, res);
     }
+
+    log.error(error, 'caught internal error');
 
     res.status(500).json({
         errors: [{

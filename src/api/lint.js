@@ -1,11 +1,9 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-const jsyaml = require('js-yaml');
 const _ = require('lodash');
 
-const spec = jsyaml.safeLoad(fs.readFileSync(path.join(__dirname, 'src', 'api', './swagger.yaml'), 'utf8'));
+const spec = require('./openapi').spec;
+
 let code = 0;
 
 // validates that every object type has additionalProperties and required attributes set

@@ -83,7 +83,7 @@ function inferNeedsReboot (remediation) {
 }
 
 exports.list = errors.async(async function (req, res) {
-    const {column, asc} = parseSort(req.swagger.params.sort.value);
+    const {column, asc} = parseSort(req.query.sort);
 
     // updated_at, name are sorted on the db level
     // issue_count, system_count on the app level below
@@ -137,7 +137,7 @@ function resolveIssues (remediation) {
 }
 
 exports.get = errors.async(async function (req, res) {
-    let remediation = await queries.get(req.swagger.params.id.value, req.user.account_number, req.user.username);
+    let remediation = await queries.get(req.params.id, req.user.account_number, req.user.username);
 
     if (!remediation) {
         return notFound(res);
@@ -161,7 +161,7 @@ exports.get = errors.async(async function (req, res) {
 });
 
 exports.playbook = errors.async(async function (req, res) {
-    const remediation = await queries.get(req.swagger.params.id.value, req.user.account_number, req.user.username);
+    const remediation = await queries.get(req.params.id, req.user.account_number, req.user.username);
 
     if (!remediation) {
         return notFound(res);

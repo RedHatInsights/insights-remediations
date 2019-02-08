@@ -60,11 +60,20 @@ describe('remediations', function () {
         });
 
         test('400s on weird remediation name', async () => {
-            await request
+            const {id, header} = reqId();
+            const {body} = await request
             .post('/v1/remediations')
+            .set(header)
             .set(auth.testWrite)
             .send({name: '  :-) !!! \\-/'})
             .expect(400);
+
+            body.errors.should.eql([{
+                id,
+                status: 400,
+                code: 'pattern.openapi.validation',
+                title: 'should match pattern "^$|^.*[\\w\\d]+.*$" (location: body, path: name)'
+            }]);
         });
 
         test('creates a new remediation with issues', async () => {
@@ -125,8 +134,8 @@ describe('remediations', function () {
             body.errors.should.eql([{
                 id,
                 status: 400,
-                code: 'OBJECT_ADDITIONAL_PROPERTIES',
-                title: 'Additional properties not allowed: foo'
+                code: 'additionalProperties.openapi.validation',
+                title: 'should NOT have additional properties (location: body, path: undefined)'
             }]);
         });
     });
@@ -310,8 +319,8 @@ describe('remediations', function () {
                     body.errors.should.eql([{
                         id,
                         status: 400,
-                        code: 'OBJECT_MISSING_REQUIRED_PROPERTY',
-                        title: 'Missing required property: id'
+                        code: 'required.openapi.validation',
+                        title: 'should have required property \'id\' (location: body, path: add.issues[0].id)'
                     }]);
                 });
 
@@ -325,8 +334,8 @@ describe('remediations', function () {
                     body.errors.should.eql([{
                         id,
                         status: 400,
-                        code: 'ARRAY_LENGTH_SHORT',
-                        title: 'Array is too short (0), minimum 1'
+                        code: 'minItems.openapi.validation',
+                        title: 'should NOT have fewer than 1 items (location: body, path: add.issues)'
                     }]);
                 });
 

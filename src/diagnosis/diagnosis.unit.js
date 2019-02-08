@@ -1,6 +1,6 @@
 'use strict';
 
-const { request, auth } = require('../test');
+const { request, auth, reqId } = require('../test');
 const mockInventory = require('../connectors/inventory/mock');
 
 describe('/diagnosis', function () {
@@ -41,5 +41,21 @@ describe('/diagnosis', function () {
         .get('/v1/diagnosis/' + mockInventory.NON_EXISTENT_SYSTEM)
         .set(auth.cert01)
         .expect(404);
+    });
+
+    test('400s on invalid remediation id', async () => {
+        const {id, header} = reqId();
+        const {body} = await request
+        .get('/v1/diagnosis/9a212816-a472-11e8-98d0-529269fb1459?remediation=foo')
+        .set(header)
+        .set(auth.cert01)
+        .expect(400);
+
+        body.errors.should.eql([{
+            id,
+            status: 400,
+            code: 'format.openapi.validation',
+            title: 'should match format "uuid" (location: query, path: remediation)'
+        }]);
     });
 });

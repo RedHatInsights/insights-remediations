@@ -29,7 +29,7 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
 };
 
 exports.generate = errors.async(async function (req, res) {
-    const input = { ...req.swagger.params.body.value };
+    const input = { ...req.body };
     const playbook = await exports.playbookPipeline(input);
     return exports.send(res, playbook);
 });

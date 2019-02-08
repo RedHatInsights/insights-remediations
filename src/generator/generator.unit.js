@@ -121,8 +121,26 @@ test('400s on invalid body parameters', () => {
         body.errors.should.eql([{
             id,
             status: 400,
-            code: 'OBJECT_MISSING_REQUIRED_PROPERTY',
-            title: 'Missing required property: issues'
+            code: 'required.openapi.validation',
+            title: 'should have required property \'issues\' (location: body, path: issues)'
+        }]);
+    });
+});
+
+test('400s on no body', () => {
+    const {id, header} = reqId();
+
+    return request
+    .post('/v1/playbook')
+    .set(header)
+    .set({'content-type': 'application/json'})
+    .expect(400)
+    .then(({ body }) => {
+        body.errors.should.eql([{
+            id,
+            status: 400,
+            code: 'required.openapi.validation',
+            title: 'should have required property \'issues\' (location: body, path: issues)'
         }]);
     });
 });
@@ -141,8 +159,8 @@ test('400s on empty issue list', () => {
         body.errors.should.eql([{
             id,
             status: 400,
-            code: 'ARRAY_LENGTH_SHORT',
-            title: 'Array is too short (0), minimum 1'
+            code: 'minItems.openapi.validation',
+            title: 'should NOT have fewer than 1 items (location: body, path: issues)'
         }]);
     });
 });
@@ -164,10 +182,35 @@ test('400s on empty system list', () => {
         body.errors.should.eql([{
             id,
             status: 400,
-            code: 'ARRAY_LENGTH_SHORT',
-            title: 'Array is too short (0), minimum 1'
+            code: 'minItems.openapi.validation',
+            title: 'should NOT have fewer than 1 items (location: body, path: issues[0].systems)'
         }]);
     });
+});
+
+test('400s on additional property', async () => {
+    const {id, header} = reqId();
+
+    const data = {
+        foo: 5,
+        issues: [{
+            id: 'test:ping',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    const {body} = await request
+    .post('/v1/playbook')
+    .set(header)
+    .send(data)
+    .expect(400);
+
+    body.errors.should.eql([{
+        id,
+        status: 400,
+        code: 'additionalProperties.openapi.validation',
+        title: 'should NOT have additional properties (location: body, path: undefined)'
+    }]);
 });
 
 test('400s on unknown issue id', () => {
