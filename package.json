@@ -40,7 +40,6 @@
     "lodash": "^4.17.10",
     "mustache": "^2.3.0",
     "openapi-default-setter": "^2.0.4",
-    "openapi-framework": "^0.21.2",
     "openapi-request-coercer": "^2.2.1",
     "openapi-request-validator": "^3.6.0",
     "openapi-response-validator": "^3.7.0",

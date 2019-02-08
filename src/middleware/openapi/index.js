@@ -9,13 +9,9 @@ const OpenAPIRequestValidator = require('openapi-request-validator').default;
 const OpenapiRequestCoercer = require('openapi-request-coercer').default;
 const OpenAPIDefaultSetter = require('openapi-default-setter').default;
 const OpenAPIResponseValidator = require('openapi-response-validator').default;
-const utils = require('openapi-framework/dist/src/util');
 
-const spec = require('../../api/openapi').spec;
-
-const framework = {
-    name: 'remediations-openapi'
-};
+const spec = _.cloneDeep(require('../../api/openapi').spec);
+resolveRefs(spec);
 
 const transformError = ({id}, status) => error => ({
     id,
@@ -53,7 +49,7 @@ function buildDefaulter (parameters) {
     return new OpenAPIDefaultSetter({ parameters });
 }
 
-function resolveRef (ref) {
+function resolveRef (ref, spec) {
     const match = /^#\/components\/(.+)\/(.+)$/.exec(ref);
 
     if (!match || !_.has(spec.components[match[1]], match[2])) {
@@ -63,6 +59,20 @@ function resolveRef (ref) {
     return spec.components[match[1]][match[2]];
 }
 
+function resolveRefs (object, spec = object) {
+    if (typeof object !== 'object' || object === null) {
+        return;
+    }
+
+    Object.keys(object).forEach(key => {
+        if (typeof object[key].$ref === 'string') {
+            object[key] = resolveRef(object[key].$ref, spec);
+        }
+
+        resolveRefs(object[key], spec);
+    });
+}
+
 module.exports = function (operationId) {
     const operation = findOperationById(spec, operationId);
 
@@ -70,25 +80,16 @@ module.exports = function (operationId) {
         throw new Error(`unknown operation id: ${operationId}`);
     }
 
-    const parameters = utils.resolveParameterRefs(framework, operation.parameters || [], spec);
+    const parameters = operation.parameters || [];
     const responses = {
         default: spec.components.responses.ServerError, // implicitly add ServerError to every operation
-        ...utils.resolveResponseRefs(framework, operation.responses || [], spec)
+        ...operation.responses
     };
 
-    // TODO: these may be a bugs in openapi
-    if (operation.requestBody && typeof operation.requestBody.$ref === 'string') {
-        operation.requestBody = resolveRef(operation.requestBody.$ref);
-    }
-
+    // TODO: this may be a bug in openapi
     parameters.forEach(parameter => {
         if (_.has(parameter.schema, 'default')) {
             parameter.default = parameter.schema.default;
-        }
-
-        // for some reason $refs in param definitions are not resolved
-        if (typeof parameter.schema.$ref === 'string') {
-            parameter.schema = resolveRef(parameter.schema.$ref);
         }
     });
 

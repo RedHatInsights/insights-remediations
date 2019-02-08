@@ -80,7 +80,7 @@ exports.handler = (error, req, res, next) => {
         return next(error);
     }
 
-    // swagger request validation handler
+    // openapi request validation handler
     if (error.failedValidation && !error.originalResponse) {
         if (error.code === 'SCHEMA_VALIDATION_FAILED') {
             const errors = error.results.errors;

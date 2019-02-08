@@ -51,7 +51,6 @@ module.exports = async function (app) {
 
     app.use(httpContext.middleware);
     app.use(cls.middleware);
-    //await swagger(app, config.path.base);
     app.use(prettyJson);
 
     const v1 = express.Router();
