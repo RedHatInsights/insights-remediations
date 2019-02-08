@@ -24,6 +24,8 @@ const pino = require('express-pino-logger')({
 });
 
 module.exports = async function (app) {
+    metrics.start(app);
+
     app.use((req, res, next) => {
         log.trace({ req }, 'incoming request');
         next();
@@ -39,7 +41,6 @@ module.exports = async function (app) {
 
     app.use(reqId);
     app.use(pino);
-    metrics.start(app);
 
     docs(app, config.path.base);
 
