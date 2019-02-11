@@ -37,7 +37,7 @@
     "express-prom-bundle": "^5.0.2",
     "ioredis": "^4.0.0",
     "js-yaml": "^3.12.0",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.11",
     "mustache": "^2.3.0",
     "openapi-default-setter": "^2.0.4",
     "openapi-request-coercer": "^2.2.1",
