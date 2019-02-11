@@ -46,6 +46,15 @@ exports.up = async q => {
         created_at: '2018-11-04T05:19:36.641Z',
         updated_by: created_by,
         updated_at: '2018-11-04T05:19:36.641Z'
+    }, {
+        id: 'c3f9f751-4bcc-4222-9b83-77f5e6e603da',
+        name: 'many systems',
+        auto_reboot: true,
+        account_number,
+        created_by,
+        created_at: '2018-11-04T04:19:36.641Z',
+        updated_by: created_by,
+        updated_at: '2018-11-04T04:19:36.641Z'
     }], opts);
 
     const issues = await q.bulkInsert('remediation_issues', [{
@@ -73,6 +82,9 @@ exports.up = async q => {
     }, {
         remediation_id: remediations[3].id,
         issue_id: 'compliance:non-existent-issue'
+    }, {
+        remediation_id: remediations[4].id,
+        issue_id: 'vulnerabilities:CVE-2017-17713'
     }], opts);
 
     await q.bulkInsert('remediation_issue_systems', [
@@ -83,6 +95,10 @@ exports.up = async q => {
         ...[0, 2].map(i => ({
             remediation_issue_id: issues[i].id,
             system_id: NON_EXISTENT_SYSTEM
+        })),
+        ...Array(250).fill(0).map((value, key) => ({
+            remediation_issue_id: issues[8].id,
+            system_id: `84762eb3-0bbb-4bd8-ab11-f420c50e9${String(key).padStart(3, '0')}`
         }))
     ]);
 };

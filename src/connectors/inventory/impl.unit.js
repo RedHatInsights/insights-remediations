@@ -1,5 +1,7 @@
 'use strict';
 
+const _ = require('lodash');
+const URI = require('urijs');
 const impl = require('./impl');
 const base = require('../../test');
 const http = require('../http');
@@ -113,6 +115,43 @@ describe('inventory impl', function () {
         http.callCount.should.equal(1);
         cache.get.callCount.should.equal(1);
         cache.setex.callCount.should.equal(0);
+    });
+
+    test('handles many systems', async function () {
+        const mocks = _.keyBy(Array(250).fill(0).map((value, key) => ({
+            account: 'inventory01',
+            id: `84762eb3-0bbb-4bd8-ab11-f420c50e9${String(key).padStart(3, '0')}`,
+            insights_id: null,
+            display_name: null,
+            fqdn: `${String(key).padStart(3, '0')}.example.com`,
+            updated: '2018-12-19T14:59:47.954018Z'
+        })), 'id');
+
+        base.getSandbox().stub(request, 'run').callsFake(params => {
+            const { path } = URI.parse(params.uri);
+
+            const parts = path.split('/');
+            const ids = parts[parts.length - 1].split(',');
+            const results = _.pickBy(mocks, (value, key) => ids.includes(key));
+
+            return Promise.resolve({
+                statusCode: 200,
+                body: {
+                    count: results.length,
+                    page: 1,
+                    per_page: 100,
+                    results,
+                    total: 250
+                },
+                headers: {}
+            });
+        });
+
+        const ids = Array(250).fill(0).map((value, key) => `84762eb3-0bbb-4bd8-ab11-f420c50e9${String(key).padStart(3, '0')}`);
+
+        const result = await impl.getSystemDetailsBatch(ids);
+        result.should.have.size(250);
+        ids.forEach(id => _.has(result, id).should.be.true());
     });
 
     test('getSystemsByInsightsId', async function () {

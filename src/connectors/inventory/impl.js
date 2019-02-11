@@ -3,13 +3,11 @@
 const _ = require('lodash');
 const P = require('bluebird');
 const URI = require('urijs');
-const {host, insecure, revalidationInterval} = require('../../config').inventory;
+const {host, insecure, revalidationInterval, pageSize} = require('../../config').inventory;
 const assert = require('assert');
 
 const Connector = require('../Connector');
 const metrics = require('../metrics');
-
-const PAGE_SIZE = 100;
 
 function validateHost (host) {
     assert(_.has(host, 'id'), 'id missing for host');
@@ -34,14 +32,19 @@ module.exports = new class extends Connector {
             return {};
         }
 
+        ids = _.sortBy(ids);
+
+        if (ids.length > pageSize) {
+            const chunks = _.chunk(ids, pageSize);
+            const results = await P.map(chunks, chunk => this.getSystemDetailsBatch(chunk, refresh));
+            return _.assign({}, ...results);
+        }
+
         const uri = new URI(host);
         uri.path('/r/insights/platform/inventory/api/v1/hosts');
 
-        ids = _.sortBy(ids);
         uri.segment(ids.join());
-
-        // TODO: what if we need more than 100?
-        uri.addQuery('per_page', String(PAGE_SIZE));
+        uri.addQuery('per_page', String(pageSize));
 
         const response = await this.doHttp({
             uri: uri.toString(),
@@ -69,7 +72,7 @@ module.exports = new class extends Connector {
     async fetchPage (page) {
         const uri = new URI(host);
         uri.path('/r/insights/platform/inventory/api/v1/hosts');
-        uri.addQuery('per_page', String(PAGE_SIZE));
+        uri.addQuery('per_page', String(pageSize));
         uri.addQuery('page', String(page));
 
         return await this.doHttp({
@@ -84,8 +87,8 @@ module.exports = new class extends Connector {
     async getSystemsByInsightsId (id) {
         let responses = [await this.fetchPage(1)];
 
-        if (responses[0].total > PAGE_SIZE) {
-            const lastPage = Math.ceil(responses[0].total / PAGE_SIZE);
+        if (responses[0].total > pageSize) {
+            const lastPage = Math.ceil(responses[0].total / pageSize);
             const rest = await P.map(Array.from(Array(lastPage + 1).keys()).slice(2), i => this.fetchPage(i));
             responses = [...responses, ...rest];
         }

@@ -144,6 +144,16 @@ describe('remediations', function () {
                 }]
             });
         });
+
+        test('get remediation with many systems', async () => {
+            const {body, text} = await request
+            .get('/v1/remediations/c3f9f751-4bcc-4222-9b83-77f5e6e603da?pretty')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.issues[0].systems.should.have.length(250);
+            expect(text).toMatchSnapshot();
+        });
     });
 
     describe('missing', function () {
