@@ -570,6 +570,8 @@ components:
               title:
                 type: string
                 example: Unknown system identifier 'abcd'
+              details:
+                type: object
 
     # Resolution specific types
     Resolutions:
