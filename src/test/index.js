@@ -56,6 +56,7 @@ exports.auth = Object.freeze({
     emptyCustomer: createHeader('test02User', 'test02', false),
     testWrite: createHeader(USERS.testWriteUser.username, USERS.testWriteUser.account_number, false),
     testReadSingle: createHeader(USERS.testReadSingleUser.username, USERS.testReadSingleUser.account_number, false),
+    testStatus: createHeader(USERS.testStatus.username, USERS.testStatus.account_number, false),
     cert01: {
         [identityUtils.IDENTITY_HEADER]: identityUtils.createCertIdentityHeader('diagnosis01')
     }

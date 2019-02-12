@@ -13,4 +13,8 @@ module.exports = class Handler {
     getPlayFactory () {
         throw new Error('not implemented');
     }
+
+    getSystems () {
+        throw new Error('not implemented');
+    }
 };

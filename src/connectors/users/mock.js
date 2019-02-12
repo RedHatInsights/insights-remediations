@@ -28,6 +28,11 @@ const MOCK_USERS = _.keyBy([{
     account_number: '901578',
     first_name: 'Jozef',
     last_name: 'Hartinger'
+}, {
+    username: 'testStatus',
+    account_number: 'testStatus',
+    first_name: 'Test',
+    last_name: 'Status'
 }], 'username');
 
 module.exports = new class extends Connector {

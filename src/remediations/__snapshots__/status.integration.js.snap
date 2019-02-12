@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`remediations status listing of remediations does not blow up 1`] = `
+Object {
+  "data": Object {
+    "advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE": Object {
+      "20a7486c-11bc-4558-a398-f97faf47cdbb": false,
+      "2317adf3-911e-4db3-84fd-27fad9724196": true,
+      "286f602a-157f-4095-8bf2-ad4849ab6c43": true,
+      "9ed58c88-a98d-407f-9384-a76bdab82e7f": false,
+    },
+    "compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login": Object {
+      "20a7486c-11bc-4558-a398-f97faf47cdbb": null,
+      "2317adf3-911e-4db3-84fd-27fad9724196": null,
+      "286f602a-157f-4095-8bf2-ad4849ab6c43": null,
+      "9ed58c88-a98d-407f-9384-a76bdab82e7f": null,
+    },
+    "vulnerabilities:CVE-2017-17712": Object {
+      "20a7486c-11bc-4558-a398-f97faf47cdbb": true,
+      "2317adf3-911e-4db3-84fd-27fad9724196": false,
+      "286f602a-157f-4095-8bf2-ad4849ab6c43": false,
+      "9ed58c88-a98d-407f-9384-a76bdab82e7f": true,
+    },
+  },
+  "summary": Object {
+    "resolved": 4,
+    "total": 12,
+  },
+}
+`;

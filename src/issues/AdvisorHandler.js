@@ -29,4 +29,8 @@ module.exports = class AdvisorHandler extends Handler {
     getPlayFactory () {
         return advisorFactory;
     }
+
+    getSystems (id) {
+        return advisor.getSystems(id.issue);
+    }
 };

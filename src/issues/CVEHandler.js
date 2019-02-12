@@ -4,6 +4,7 @@ const Handler = require('./Handler');
 const errors = require('../errors');
 
 const vmaas = require('../connectors/vmaas');
+const vulnerabilities = require('../connectors/vulnerabilities');
 const cveResolver = new(require('../resolutions/resolvers/CVEResolver'))();
 const cveFactory = new(require('../generator/factories/CVEFactory'))();
 
@@ -32,6 +33,10 @@ module.exports = class CVEHandler extends Handler {
 
     getPlayFactory () {
         return cveFactory;
+    }
+
+    getSystems (id) {
+        return vulnerabilities.getSystems(id.issue);
     }
 };
 
