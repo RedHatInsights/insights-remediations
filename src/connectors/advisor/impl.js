@@ -13,6 +13,7 @@ module.exports = new class extends Connector {
         super(module);
         this.ruleMetrics = metrics.createConnectorMetric(this.getName(), 'getRule');
         this.diagnosisMetrics = metrics.createConnectorMetric(this.getName(), 'getDiagnosis');
+        this.systemsMetrics = metrics.createConnectorMetric(this.getName(), 'getSystems');
     }
 
     getRule (id, refresh = false) {
@@ -70,6 +71,29 @@ module.exports = new class extends Connector {
             return details;
         })
         .value();
+    }
+
+    async getSystems (id) {
+        const uri = new URI(host);
+        uri.path('/r/insights/platform/advisor/v1/rule/');
+        uri.segment(id);
+        uri.segment('systems');
+
+        const data = await this.doHttp({
+            uri: uri.toString(),
+            method: 'GET',
+            json: true,
+            rejectUnauthorized: !insecure,
+            headers: this.getForwardedHeaders()
+        },
+        false,
+        this.systemsMetrics);
+
+        if (!data) {
+            return [];
+        }
+
+        return data.host_ids;
     }
 
     async ping () {

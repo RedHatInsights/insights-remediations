@@ -22,6 +22,13 @@ module.exports = new class extends Connector {
         return null;
     }
 
+    getSystems () {
+        return [
+            '2317adf3-911e-4db3-84fd-27fad9724196',
+            '286f602a-157f-4095-8bf2-ad4849ab6c43'
+        ];
+    }
+
     ping () {
         return this.getRule('CVE_2017_6074_kernel|KERNEL_CVE_2017_6074');
     }

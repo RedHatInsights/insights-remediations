@@ -137,4 +137,45 @@ describe('advisor impl', function () {
             }
         });
     });
+
+    describe('getSystems', function () {
+        test('returns system ids', async function () {
+            const cache = mockCache();
+
+            const http = base.getSandbox().stub(request, 'run').resolves({
+                statusCode: 200,
+                body: {
+                    host_ids: [
+                        '7de3c608-8553-4625-90c7-d27f1d29327f',
+                        '0d962e11-ff3c-4db1-b06c-c4674d90069b'
+                    ]
+                },
+                headers: {}
+            });
+
+            await expect(impl.getSystems('rule')).resolves.toEqual([
+                '7de3c608-8553-4625-90c7-d27f1d29327f',
+                '0d962e11-ff3c-4db1-b06c-c4674d90069b'
+            ]);
+
+            http.callCount.should.equal(1);
+            cache.get.callCount.should.equal(0);
+            cache.setex.callCount.should.equal(0);
+        });
+
+        test('returns empty array on 404', async function () {
+            const cache = mockCache();
+
+            const http = base.getSandbox().stub(request, 'run').resolves({
+                statusCode: 404,
+                headers: {}
+            });
+
+            await expect(impl.getSystems('unknown-rule')).resolves.toEqual([]);
+
+            http.callCount.should.equal(1);
+            cache.get.callCount.should.equal(0);
+            cache.setex.callCount.should.equal(0);
+        });
+    });
 });

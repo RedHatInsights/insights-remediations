@@ -63,6 +63,13 @@ module.exports = new class extends Connector {
         return DIAGNOSIS;
     }
 
+    getSystems () {
+        return [
+            '9ed58c88-a98d-407f-9384-a76bdab82e7f',
+            '20a7486c-11bc-4558-a398-f97faf47cdbb'
+        ];
+    }
+
     ping () {
         return this.getRule('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
     }
