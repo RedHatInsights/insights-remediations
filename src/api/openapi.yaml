@@ -600,6 +600,13 @@ components:
 
     ResolutionsBatch:
       type: object
+      additionalProperties:
+        oneOf:
+          - $ref: '#/components/schemas/Resolutions'
+          - type: boolean
+            description: Indicates that the given issue is not supported
+            enum: [false]
+
       example:
         vulnerabilities:CVE-2018-1087:
           id: vulnerabilities:CVE-2018-1087
@@ -771,6 +778,9 @@ components:
           $ref: '#/components/schemas/InsightsId'
         details:
           type: object
+          additionalProperties:
+            type: object
+            description: Arbitrary diagnosis data
           example:
             CVE_2018_1111_dhcp|ERROR_CVE_2018_1111_DHCP_2:
               dhcp_devs:
