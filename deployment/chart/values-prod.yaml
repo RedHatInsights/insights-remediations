@@ -22,8 +22,8 @@ remediations:
   contentServer:
     host: http://content-server.advisor-prod.svc.cluster.local:8080
   vulnerabilities:
-    impl: mock
-    host: "nope"
+    impl: impl
+    host: http://vulnerability-engine-manager.vulnerability-engine-prod.svc.cluster.local:8443
   compliance:
     impl: impl
     host: http://compliance-backend.compliance-prod.svc.cluster.local:3000
