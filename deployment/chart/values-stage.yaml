@@ -1,0 +1,43 @@
+deploy:
+  redis: true
+  postgres: false
+  cac: true
+  remediations: true
+
+imageRegistry: 172.30.217.42:5000
+imageNamespace: remediations-stage
+
+remediations:
+  # never run migrations in stage
+  migrationCommand: false
+
+  strategy: Rolling
+  imageChangeTrigger: true
+  replicas: 1
+
+  logLevel: trace
+
+  advisor:
+    impl: impl
+    host: http://insights-advisor-api.advisor-prod.svc.cluster.local:8000
+  contentServer:
+    host: http://content-server.advisor-prod.svc.cluster.local:8080
+  vulnerabilities:
+    impl: impl
+    host: http://vulnerability-engine-manager.vulnerability-engine-prod.svc.cluster.local:8443
+  compliance:
+    impl: impl
+    host: http://compliance-backend.compliance-prod.svc.cluster.local:3000
+  ssg:
+    impl: impl
+    host: http://playbooks-cac:8080
+  inventory:
+    impl: impl
+    host: http://insights-inventory.platform-prod.svc.cluster.local:8080
+  users:
+    impl: impl
+    host: https://insights-services-pipeline-insights.ext.paas.redhat.com
+
+secrets:
+  backoffice: false
+  redis: false

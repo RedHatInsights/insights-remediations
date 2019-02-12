@@ -13,6 +13,7 @@ spec:
   strategy:
     type: {{ .Values.remediations.strategy | default "Recreate" }}
     activeDeadlineSeconds: 21600
+    {{ if .Values.remediations.migrationCommand }}
     recreateParams:
       mid:
         execNewPod:
@@ -22,12 +23,14 @@ spec:
           - {{ .Values.remediations.migrationCommand }}
           containerName: remediations
         failurePolicy: Abort
+    {{ end }}
     rollingParams:
       intervalSeconds: 1
       maxSurge: 25%
       maxUnavailable: 25%
       timeoutSeconds: 600
       updatePeriodSeconds: 1
+      {{ if .Values.remediations.migrationCommand }}
       pre:
         execNewPod:
           command:
@@ -36,6 +39,7 @@ spec:
           - {{ .Values.remediations.migrationCommand }}
           containerName: remediations
         failurePolicy: Abort
+      {{ end }}
   template:
     metadata:
       annotations:
