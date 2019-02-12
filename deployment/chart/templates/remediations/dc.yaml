@@ -6,7 +6,7 @@ metadata:
     app: remediations
   name: remediations
 spec:
-  replicas: 1
+  replicas: {{ .Values.remediations.replicas | default 1 }}
   selector:
     app: remediations
     deploymentconfig: remediations

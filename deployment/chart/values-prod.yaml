@@ -13,6 +13,7 @@ remediations:
 
   strategy: Rolling
   imageChangeTrigger: true
+  replicas: 2
 
   logLevel: trace
 
