@@ -1,0 +1,40 @@
+deploy:
+  redis: true
+  postgres: true
+  cac: true
+  remediations: true
+
+imageRegistry: docker-registry.default.svc:5000
+imageNamespace: buildfactory
+
+remediations:
+  # Command to use for db migration. In stable environments this should be "npm run db:create; npm run db:migrate"
+  migrationCommand: "npm run db:init && npm run db:migrate && npm run db:seed"
+
+  logLevel: trace
+
+  advisor:
+    impl: impl
+    host: http://insights-advisor-api.advisor-ci.svc.cluster.local:8000
+  contentServer:
+    host: http://content-server.advisor-ci.svc.cluster.local:8080
+  vulnerabilities:
+    impl: impl
+    host: http://vulnerability-engine-manager.vulnerability-engine-qa.svc.cluster.local:8443
+  compliance:
+    impl: impl
+    host: http://compliance-backend.compliance-qa.svc.cluster.local:3000
+  ssg:
+    impl: impl
+    host: http://playbooks-cac:8080
+  inventory:
+    impl: impl
+    host: http://insights-inventory.platform-qa.svc.cluster.local:8080
+  users:
+    impl: impl
+    host: https://insights-services-pipeline-insights.ext.paas.redhat.com
+
+secrets:
+  backoffice: false
+  postgres: false
+  redis: false
