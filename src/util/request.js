@@ -10,10 +10,16 @@ const base = require('request-promise').defaults({
 function wrap (request) {
     const wrapper = options => {
         log.debug({uri: options.uri, method: options.method}, 'outbound HTTP request');
+        const before = new Date();
         return request(options).catch(e => {
             e.options = options;
             throw e;
-        });
+        }).finally(() =>
+            log.debug({
+                uri: options.uri,
+                method: options.method,
+                responseTime: new Date() - before
+            }, 'outbound HTTP request finished'));
     };
 
     wrapper.unwrap = () => request;
