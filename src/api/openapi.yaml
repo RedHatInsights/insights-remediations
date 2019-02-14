@@ -12,10 +12,10 @@ servers:
   - url: /r/insights/platform/remediations/v1
 
 tags:
+  - name: remediations
+    description: Ansible Playbook Builder
   - name: generator
     description: Ansible Playbook Generator
-  - name: remediations
-    description: Stored Remediations
   - name: resolutions
     description: Information about available Ansible resolutions
   - name: diagnosis
