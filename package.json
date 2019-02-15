@@ -28,8 +28,9 @@
   "author": "Jozef Hartinger",
   "dependencies": {
     "@godaddy/terminus": "^2.4.1",
-    "bluebird": "^3.5.1",
+    "bluebird": "^3.5.3",
     "body-parser": "^1.18.3",
+    "cls-bluebird": "^2.1.0",
     "dedent-js": "^1.0.1",
     "express": "^4.16.3",
     "express-http-context": "^1.2.0",
