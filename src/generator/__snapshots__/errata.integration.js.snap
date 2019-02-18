@@ -66,7 +66,7 @@ exports[`aggregates multiple errata into a single play 1`] = `
   gather_facts: False
   tasks:
     - name: run insights
-      command: redhat-access-insights
+      command: insights-client
       changed_when: false"
 `;
 
@@ -159,7 +159,7 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
   gather_facts: False
   tasks:
     - name: run insights
-      command: redhat-access-insights
+      command: insights-client
       changed_when: false"
 `;
 
@@ -267,7 +267,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
   gather_facts: False
   tasks:
     - name: run insights
-      command: redhat-access-insights
+      command: insights-client
       changed_when: false"
 `;
 
@@ -333,7 +333,7 @@ exports[`generates a simple playbook with single CVE remediation 1`] = `
   gather_facts: False
   tasks:
     - name: run insights
-      command: redhat-access-insights
+      command: insights-client
       changed_when: false"
 `;
 
@@ -399,6 +399,6 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
   gather_facts: False
   tasks:
     - name: run insights
-      command: redhat-access-insights
+      command: insights-client
       changed_when: false"
 `;

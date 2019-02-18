@@ -157,7 +157,7 @@ exports[`adds diagnosis play 1`] = `
   gather_facts: False
   tasks:
     - name: run insights
-      command: redhat-access-insights
+      command: insights-client
       changed_when: false"
 `;
 
@@ -183,7 +183,7 @@ exports[`generates a simple playbook 1`] = `
   gather_facts: False
   tasks:
     - name: run insights
-      command: redhat-access-insights
+      command: insights-client
       changed_when: false"
 `;
 
@@ -239,7 +239,7 @@ exports[`generates a simple playbook with reboot 1`] = `
   gather_facts: False
   tasks:
     - name: run insights
-      command: redhat-access-insights
+      command: insights-client
       changed_when: false"
 `;
 
@@ -280,7 +280,7 @@ exports[`generates a simple playbook with suppressed reboot 1`] = `
   gather_facts: False
   tasks:
     - name: run insights
-      command: redhat-access-insights
+      command: insights-client
       changed_when: false"
 `;
 
@@ -346,7 +346,7 @@ exports[`generates an erratum-based playbook 1`] = `
   gather_facts: False
   tasks:
     - name: run insights
-      command: redhat-access-insights
+      command: insights-client
       changed_when: false"
 `;
 
@@ -412,6 +412,6 @@ exports[`sorts the hosts line 1`] = `
   gather_facts: False
   tasks:
     - name: run insights
-      command: redhat-access-insights
+      command: insights-client
       changed_when: false"
 `;

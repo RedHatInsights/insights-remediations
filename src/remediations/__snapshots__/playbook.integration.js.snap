@@ -56,7 +56,7 @@ exports[`playbooks generates playbook that does not need reboot 1`] = `
   gather_facts: False
   tasks:
     - name: run insights
-      command: redhat-access-insights
+      command: insights-client
       changed_when: false"
 `;
 
@@ -249,7 +249,7 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
   gather_facts: False
   tasks:
     - name: run insights
-      command: redhat-access-insights
+      command: insights-client
       changed_when: false"
 `;
 
@@ -331,6 +331,6 @@ exports[`playbooks generates playbook with suppressed reboot 1`] = `
   gather_facts: False
   tasks:
     - name: run insights
-      command: redhat-access-insights
+      command: insights-client
       changed_when: false"
 `;

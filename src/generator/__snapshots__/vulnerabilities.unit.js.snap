@@ -89,7 +89,7 @@ exports[`generates a rule-based playbook 1`] = `
   gather_facts: False
   tasks:
     - name: run insights
-      command: redhat-access-insights
+      command: insights-client
       changed_when: false"
 `;
 
@@ -203,6 +203,6 @@ exports[`generates a rule-based playbook with resolution preference 1`] = `
   gather_facts: False
   tasks:
     - name: run insights
-      command: redhat-access-insights
+      command: insights-client
       changed_when: false"
 `;
