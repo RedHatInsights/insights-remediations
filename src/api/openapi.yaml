@@ -9,7 +9,10 @@ info:
     email: jozef@redhat.com
 
 servers:
+  - url: https://access.redhat.com/r/insights/platform/remediations/v1
+    description: production server
   - url: /r/insights/platform/remediations/v1
+    description: relative path
 
 tags:
   - name: remediations
@@ -28,7 +31,7 @@ paths:
         - remediations
       summary: List Remediations
       description: Provides information about Remediations
-      operationId: listRemediations
+      operationId: getRemediations
       parameters:
         - $ref: '#/components/parameters/RemediationSort'
       responses:
@@ -83,7 +86,7 @@ paths:
         - remediations
       summary: Update Remediation
       description: Updates the given Remediation
-      operationId: patchRemediation
+      operationId: updateRemediation
       parameters:
         - $ref: '#/components/parameters/RemediationId'
       requestBody:
@@ -138,7 +141,7 @@ paths:
         - remediations
       summary: Update Remediation Issue
       description: Updates the given Remediation Issue
-      operationId: patchRemediationIssue
+      operationId: updateRemediationIssue
       parameters:
         - $ref: '#/components/parameters/RemediationId'
         - $ref: '#/components/parameters/IssueId'
@@ -198,7 +201,7 @@ paths:
         - resolutions
       summary: Resolution metadata
       description: Provides information about resolutions available for the given issue
-      operationId: resolutions
+      operationId: getResolutionsForIssue
       parameters:
         - $ref: '#/components/parameters/IssueId'
       responses:
@@ -219,7 +222,7 @@ paths:
         - resolutions
       summary: Resolution metadata (batch)
       description: Provides information about resolutions available for the given issues
-      operationId: resolutionsBatch
+      operationId: getResolutionsForIssues
       requestBody:
         required: true
         content:
@@ -243,7 +246,7 @@ paths:
         - diagnosis
       summary: host-specific diagnosis
       description: Provides host-specific diagnosis information
-      operationId: diagnosis
+      operationId: getDiagnosis
       parameters:
         - $ref: '#/components/parameters/SystemId'
         - $ref: '#/components/parameters/RemediationIdQuery'
@@ -290,7 +293,7 @@ paths:
         - version
       summary: Get service version
       description: Provides information about the version of the service
-      operationId: version
+      operationId: getVersion
       responses:
         200:
           description: OK
@@ -547,7 +550,7 @@ components:
     #
     # Output schemas
     #
-    Error:
+    RequestError:
       type: object
       additionalProperties: false
       required: [errors]
@@ -802,10 +805,10 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/RequestError'
     ServerError:
       description: Server Error
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/RequestError'
