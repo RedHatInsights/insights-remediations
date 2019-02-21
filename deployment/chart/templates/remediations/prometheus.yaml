@@ -1,18 +1,4 @@
 {{ if .Values.deploy.remediations }}
-apiVersion: v1
-groupNames: null
-kind: RoleBinding
-metadata:
-  name: view-prometheus
-roleRef:
-  name: view
-subjects:
-- kind: ServiceAccount
-  name: prometheus
-  namespace: prometheus
-userNames:
-- system:serviceaccount:prometheus:prometheus
-
 ---
 apiVersion: v1
 groupNames: null
