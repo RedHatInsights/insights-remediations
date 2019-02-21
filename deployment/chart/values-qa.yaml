@@ -15,9 +15,9 @@ remediations:
 
   advisor:
     impl: impl
-    host: http://insights-advisor-api.advisor-ci.svc.cluster.local:8000
+    host: http://insights-advisor-api.advisor-qa.svc.cluster.local:8000
   contentServer:
-    host: http://content-server.advisor-ci.svc.cluster.local:8080
+    host: http://content-server.advisor-qa.svc.cluster.local:8080
   vulnerabilities:
     impl: impl
     host: http://vulnerability-engine-manager.vulnerability-engine-qa.svc.cluster.local:8443
