@@ -56,11 +56,11 @@ exports[`remediations get get remediation 1`] = `
             ]
         },
         {
-            \\"id\\": \\"vulnerabilities:CVE-2017-17713\\",
-            \\"description\\": \\"CVE-2017-17713\\",
+            \\"id\\": \\"vulnerabilities:CVE-2017-5715\\",
+            \\"description\\": \\"CVE-2017-5715\\",
             \\"resolution\\": {
                 \\"id\\": \\"fix\\",
-                \\"description\\": \\"Upgrade packages affected by CVE-2017-17713\\",
+                \\"description\\": \\"Upgrade packages affected by CVE-2017-5715\\",
                 \\"resolution_risk\\": -1,
                 \\"needs_reboot\\": true
             },
@@ -138,11 +138,11 @@ exports[`remediations get get remediation with many systems 1`] = `
     \\"updated_at\\": \\"2018-11-04T04:19:36.641Z\\",
     \\"issues\\": [
         {
-            \\"id\\": \\"vulnerabilities:CVE-2017-17713\\",
-            \\"description\\": \\"CVE-2017-17713\\",
+            \\"id\\": \\"vulnerabilities:CVE-2017-5715\\",
+            \\"description\\": \\"CVE-2017-5715\\",
             \\"resolution\\": {
                 \\"id\\": \\"fix\\",
-                \\"description\\": \\"Upgrade packages affected by CVE-2017-17713\\",
+                \\"description\\": \\"Upgrade packages affected by CVE-2017-5715\\",
                 \\"resolution_risk\\": -1,
                 \\"needs_reboot\\": true
             },

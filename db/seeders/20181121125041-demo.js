@@ -52,7 +52,7 @@ exports.up = async q => {
         issue_id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'
     }, {
         remediation_id: remediations[0].id,
-        issue_id: 'vulnerabilities:CVE-2017-17713'
+        issue_id: 'vulnerabilities:CVE-2017-5715'
     }, {
         remediation_id: remediations[0].id,
         issue_id: 'vulnerabilities:RHSA-2018:0502'

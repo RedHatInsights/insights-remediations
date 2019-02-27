@@ -105,17 +105,17 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 
 # Upgrade the following packages:
 #   - Upgrade packages affected by CVE-2017-17712
-#   - Upgrade packages affected by CVE-2017-17713
-# Identifier: (vulnerabilities:CVE-2017-17712,vulnerabilities:CVE-2017-17713,fix)
+#   - Upgrade packages affected by CVE-2017-5715
+# Identifier: (vulnerabilities:CVE-2017-17712,vulnerabilities:CVE-2017-5715,fix)
 # Version: test-version
-- name: upgrade packages affected by CVE-2017-17712,CVE-2017-17713
+- name: upgrade packages affected by CVE-2017-17712,CVE-2017-5715
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:
     changed_keyword: \\"Complete!\\"
   tasks:
     - name: upgrade package
-      shell: yum update -d 2 -y --cves=CVE-2017-17712,CVE-2017-17713
+      shell: yum update -d 2 -y --cves=CVE-2017-17712,CVE-2017-5715
       args:
         warn: false
       register: yum_result

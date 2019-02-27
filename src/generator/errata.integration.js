@@ -98,7 +98,7 @@ test('aggregates multiple errata-based issues into advisory/cve plays', async ()
             id: 'vulnerabilities:RHSA-2017:2679',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }, {
-            id: 'vulnerabilities:CVE-2017-17713',
+            id: 'vulnerabilities:CVE-2017-5715',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }, {
             id: 'vulnerabilities:CVE-2017-17712',

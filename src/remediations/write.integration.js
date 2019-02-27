@@ -186,7 +186,7 @@ describe('remediations', function () {
                             id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
                             resolution: 'selinux_mitigate'
                         }, {
-                            id: 'vulnerabilities:CVE-2017-17713',
+                            id: 'vulnerabilities:CVE-2017-5715',
                             systems: ['9611764a-8346-4b4c-a0da-2764553f8448']
                         }, {
                             id: 'vulnerabilities:CVE-2017-15126',
@@ -210,7 +210,7 @@ describe('remediations', function () {
                 ]);
 
                 testIssue(body, 'vulnerabilities:CVE-2017-15126', 'fix', ['9611764a-8346-4b4c-a0da-2764553f8448']);
-                testIssue(body, 'vulnerabilities:CVE-2017-17713', 'fix', [
+                testIssue(body, 'vulnerabilities:CVE-2017-5715', 'fix', [
                     '9611764a-8346-4b4c-a0da-2764553f8448',
                     ...defaultSystems
                 ]);
@@ -237,7 +237,7 @@ describe('remediations', function () {
                     const {body} = await sendPatch({
                         add: {
                             issues: [{
-                                id: 'vulnerabilities:CVE-2017-17713',
+                                id: 'vulnerabilities:CVE-2017-5715',
                                 systems: ['04f79296-82ff-4806-9f70-df15a5b60d47', NON_EXISTENT_SYSTEM]
                             }]
                         }
@@ -273,7 +273,7 @@ describe('remediations', function () {
                     const {body} = await sendPatch({
                         add: {
                             issues: [{
-                                id: 'vulnerabilities:CVE-2017-17713',
+                                id: 'vulnerabilities:CVE-2017-5715',
                                 systems: ['04f79296-82ff-4806-9f70-df15a5b60d47'],
                                 resolution: 'non-existent-resolution'
                             }]
@@ -284,7 +284,7 @@ describe('remediations', function () {
                         id,
                         status: 400,
                         code: 'UNKNOWN_RESOLUTION',
-                        title: 'Issue "vulnerabilities:CVE-2017-17713" does not have Ansible resolution "non-existent-resolution"'
+                        title: 'Issue "vulnerabilities:CVE-2017-5715" does not have Ansible resolution "non-existent-resolution"'
                     }]);
                 });
 
@@ -292,7 +292,7 @@ describe('remediations', function () {
                     const {body} = await sendPatch({
                         add: {
                             issues: [{
-                                id: 'vulnerabilities:CVE-2017-17713',
+                                id: 'vulnerabilities:CVE-2017-5715',
                                 resolution: 'fix'
                             }]
                         }
@@ -302,7 +302,7 @@ describe('remediations', function () {
                         id,
                         status: 400,
                         code: 'NO_SYSTEMS',
-                        title: 'Systems not specified for "vulnerabilities:CVE-2017-17713"'
+                        title: 'Systems not specified for "vulnerabilities:CVE-2017-5715"'
                     }]);
                 });
 
@@ -343,10 +343,10 @@ describe('remediations', function () {
                     const {body} = await sendPatch({
                         add: {
                             issues: [{
-                                id: 'vulnerabilities:CVE-2017-17713',
+                                id: 'vulnerabilities:CVE-2017-5715',
                                 systems: ['1a53c38c-2f62-4dde-a16e-60bb29aca334']
                             }, {
-                                id: 'vulnerabilities:CVE-2017-17713',
+                                id: 'vulnerabilities:CVE-2017-5715',
                                 systems: ['d77db1cb-fdec-40cf-a9b4-e0a9308ec072']
                             }]
                         }
@@ -356,7 +356,7 @@ describe('remediations', function () {
                         id,
                         status: 400,
                         code: 'DUPLICATE_ISSUE',
-                        title: 'Issue "vulnerabilities:CVE-2017-17713" specified more than once in the issue list'
+                        title: 'Issue "vulnerabilities:CVE-2017-5715" specified more than once in the issue list'
                     }]);
                 });
 
@@ -366,7 +366,7 @@ describe('remediations', function () {
                     .send({
                         add: {
                             issues: [{
-                                id: 'vulnerabilities:CVE-2017-17713',
+                                id: 'vulnerabilities:CVE-2017-5715',
                                 systems: ['04f79296-82ff-4806-9f70-df15a5b60d47']
                             }]
                         }
@@ -435,7 +435,7 @@ describe('remediations', function () {
                 const {id, header} = reqId();
 
                 const {body} = await request
-                .patch('/v1/remediations/022e01be-74f1-4893-b48c-df429fe7d09f/issues/vulnerabilities:CVE-2017-17713')
+                .patch('/v1/remediations/022e01be-74f1-4893-b48c-df429fe7d09f/issues/vulnerabilities:CVE-2017-5715')
                 .set(header)
                 .send({
                     resolution: 'foobar'
@@ -447,7 +447,7 @@ describe('remediations', function () {
                     id,
                     status: 400,
                     code: 'UNKNOWN_RESOLUTION',
-                    title: 'Issue "vulnerabilities:CVE-2017-17713" does not have Ansible resolution "foobar"'
+                    title: 'Issue "vulnerabilities:CVE-2017-5715" does not have Ansible resolution "foobar"'
                 }]);
             });
 
@@ -463,7 +463,7 @@ describe('remediations', function () {
 
             test('404s on unknown remediation id', async () => {
                 await request
-                .patch('/v1/remediations/6b491f9e-70ef-445b-8178-a173dddbbb96/issues/vulnerabilities:CVE-2017-17713')
+                .patch('/v1/remediations/6b491f9e-70ef-445b-8178-a173dddbbb96/issues/vulnerabilities:CVE-2017-5715')
                 .send({
                     resolution: 'fix'
                 })
@@ -488,12 +488,12 @@ describe('remediations', function () {
 
         test('issue', async () => {
             await request
-            .delete('/v1/remediations/3274d99f-511d-4b05-9d88-69934f6bb8ec/issues/vulnerabilities:CVE-2017-17713')
+            .delete('/v1/remediations/3274d99f-511d-4b05-9d88-69934f6bb8ec/issues/vulnerabilities:CVE-2017-5715')
             .set(auth.testWrite)
             .expect(204);
 
             await request
-            .delete('/v1/remediations/3274d99f-511d-4b05-9d88-69934f6bb8ec/issues/vulnerabilities:CVE-2017-17713')
+            .delete('/v1/remediations/3274d99f-511d-4b05-9d88-69934f6bb8ec/issues/vulnerabilities:CVE-2017-5715')
             .set(auth.testWrite)
             .expect(404);
 
@@ -506,7 +506,7 @@ describe('remediations', function () {
         });
 
         test('system', async () => {
-            const url = '/v1/remediations/869dccf6-19f1-4c2e-9025-e5b8d9e0faef/issues/vulnerabilities:CVE-2017-17713/' +
+            const url = '/v1/remediations/869dccf6-19f1-4c2e-9025-e5b8d9e0faef/issues/vulnerabilities:CVE-2017-5715/' +
                 'systems/1bada2ce-e379-4e17-9569-8a22e09760af';
 
             await request
@@ -524,7 +524,7 @@ describe('remediations', function () {
             .set(auth.testWrite)
             .expect(200);
 
-            const issue = _.find(body.issues, {id: 'vulnerabilities:CVE-2017-17713'});
+            const issue = _.find(body.issues, {id: 'vulnerabilities:CVE-2017-5715'});
             issue.systems.should.have.length(1);
             issue.systems[0].id.should.equal('6749b8cf-1955-42c1-9b48-afc6a0374cd6');
         });

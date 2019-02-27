@@ -37,6 +37,9 @@ const CVES = {
     },
     'CVE-2017-17713': {
         description: 'Trape before 2017-11-05 has SQL injection via the /nr red parameter, the /nr vId parameter, the /register User-Agent HTTP header, the /register country parameter, the /register countryCode parameter, the /register cpu parameter, the /register isp parameter, the /register lat parameter, the /register lon parameter, the /register org parameter, the /register query parameter, the /register region parameter, the /register regionName parameter, the /register timezone parameter, the /register vId parameter, the /register zip parameter, or the /tping id parameter.'
+    },
+    'CVE-2017-5715': {
+        description: 'An industry-wide issue was found in the way many modern microprocessor designs have implemented speculative execution of instructions (a commonly used performance optimization). There are three primary variants of the issue which differ in the way the speculative execution can be exploited. Variant CVE-2017-5715 triggers the speculative execution by utilizing branch target injection. It relies on the presence of a precisely-defined instruction sequence in the privileged code as well as the fact that memory accesses may cause allocation into the microprocessor\'s data cache even for speculatively executed instructions that never actually commit (retire). As a result, an unprivileged attacker could use this flaw to cross the syscall and guest/host boundaries and read privileged memory by conducting targeted cache side-channel attacks.'
     }
 
 };

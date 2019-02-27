@@ -65,10 +65,10 @@ exports.up = async q => {
         issue_id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'
     }, {
         remediation_id: remediations[1].id,
-        issue_id: 'vulnerabilities:CVE-2017-17713'
+        issue_id: 'vulnerabilities:CVE-2017-5715'
     }, {
         remediation_id: remediations[2].id,
-        issue_id: 'vulnerabilities:CVE-2017-17713',
+        issue_id: 'vulnerabilities:CVE-2017-5715',
         resolution: 'non-existent-resolution'
     }, {
         remediation_id: remediations[3].id,
@@ -84,7 +84,7 @@ exports.up = async q => {
         issue_id: 'compliance:non-existent-issue'
     }, {
         remediation_id: remediations[4].id,
-        issue_id: 'vulnerabilities:CVE-2017-17713'
+        issue_id: 'vulnerabilities:CVE-2017-5715'
     }], opts);
 
     await q.bulkInsert('remediation_issue_systems', [

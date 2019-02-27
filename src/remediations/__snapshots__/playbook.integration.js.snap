@@ -126,17 +126,17 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
         insertafter: '(?i)^#?authentication'
         validate: sshd -t -f %s
 
-# Upgrade packages affected by CVE-2017-17713
-# Identifier: (vulnerabilities:CVE-2017-17713,fix)
+# Upgrade packages affected by CVE-2017-5715
+# Identifier: (vulnerabilities:CVE-2017-5715,fix)
 # Version: unknown
-- name: upgrade packages affected by CVE-2017-17713
+- name: upgrade packages affected by CVE-2017-5715
   hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
   become: true
   vars:
     changed_keyword: \\"Complete!\\"
   tasks:
     - name: upgrade package
-      shell: yum update -d 2 -y --cves=CVE-2017-17713
+      shell: yum update -d 2 -y --cves=CVE-2017-5715
       args:
         warn: false
       register: yum_result
