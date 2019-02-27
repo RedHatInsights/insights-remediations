@@ -3,7 +3,7 @@
 const http = require('http');
 const express = require('express');
 const app = express();
-const terminus = require('@godaddy/terminus');
+const { createTerminus } = require('@godaddy/terminus');
 const log = require('./util/log');
 const routes = require('./routes');
 const config = require('./config');
@@ -39,7 +39,7 @@ async function start () {
         errors.forEach(error => log.error(error));
     }
 
-    terminus(server, {
+    createTerminus(server, {
         signals: ['SIGINT', 'SIGTERM'],
         healthChecks: {
             [`${config.path.base}/v1/health`]: healthCheck
