@@ -40,10 +40,11 @@ describe('users impl', function () {
 
         http.callCount.should.equal(1);
         const options = http.args[0][0];
-        options.headers.should.have.size(3);
+        options.headers.should.have.size(4);
         options.headers.should.have.property('x-rh-apitoken', '');
         options.headers.should.have.property('x-rh-insights-env', 'prod');
         options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
+        options.headers.should.have.property('x-rh-clientid', 'remediations');
     });
 
     test('returns null when user does not exist', async function () {
