@@ -71,6 +71,6 @@ describe('compliance impl', function () {
 
     test('status code handling', async function () {
         base.mockRequestStatusCode();
-        expect(impl.getRule('unknown-rule')).rejects.toThrowError(errors.DependencyError);
+        expect(impl.getRule('unknown-rule')).rejects.toThrow(errors.DependencyError);
     });
 });

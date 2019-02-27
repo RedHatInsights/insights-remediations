@@ -12,6 +12,6 @@ describe('Connector', function () {
     test('wraps errors', async function () {
         mockRequest();
         base.getSandbox().stub(http, 'request').rejects(new StatusCodeError(500));
-        await expect(vmaas.getCve('id')).rejects.toThrowError(errors.DependencyError);
+        await expect(vmaas.getCve('id')).rejects.toThrow(errors.DependencyError);
     });
 });

@@ -66,6 +66,6 @@ describe('content server impl', function () {
 
     test('status code handling', async function () {
         base.mockRequestStatusCode();
-        expect(impl.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE')).rejects.toThrowError(errors.DependencyError);
+        expect(impl.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE')).rejects.toThrow(errors.DependencyError);
     });
 });

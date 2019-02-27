@@ -6,6 +6,6 @@ const Resolution = require('./Resolution');
 
 describe('resolution validation', function () {
     test('throws exception when HOSTS placeholder missing', function () {
-        expect(() => new Resolution(templates.test.missingHosts)).toThrowError(errors.InternalError);
+        expect(() => new Resolution(templates.test.missingHosts)).toThrow(errors.InternalError);
     });
 });
