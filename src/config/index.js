@@ -97,7 +97,8 @@ const config = {
         host: env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080',
         insecure: (env.INVENTORY_INSECURE === 'true') ? true : false,
         revalidationInterval: parseIntEnv('INVENTORY_REVALIDATION_INVERVAL', 60 * 15), // 15 mins
-        pageSize: parseIntEnv('INVENTORY_PAGE_SIZE', 100)
+        pageSize: parseIntEnv('INVENTORY_PAGE_SIZE', 100),
+        legacy: (env.INVENTORY_LEGACY === 'false') ? false : true
     },
 
     ssg: {
