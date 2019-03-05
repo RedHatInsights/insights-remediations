@@ -12,6 +12,10 @@ test('provides status information', async () => {
             status: 'ok',
             impl: 'mock'
         },
+        cac: {
+            status: 'ok',
+            impl: 'impl'
+        },
         compliance: {
             status: 'ok',
             impl: 'mock'
@@ -23,10 +27,6 @@ test('provides status information', async () => {
         inventory: {
             status: 'ok',
             impl: 'mock'
-        },
-        ssg: {
-            status: 'ok',
-            impl: 'impl'
         },
         users: {
             status: 'ok',

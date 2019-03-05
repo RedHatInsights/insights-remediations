@@ -5,7 +5,7 @@ const errors = require('../errors');
 
 const compliance = require('../connectors/compliance');
 const complianceFactory = new(require('../generator/factories/ComplianceFactory'))();
-const ssgResolver = new(require('../resolutions/resolvers/SSGResolver'))();
+const cacResolver = new(require('../resolutions/resolvers/CACResolver'))();
 
 module.exports = class ComplianceHandler extends Handler {
     async getIssueDetails (id) {
@@ -22,7 +22,7 @@ module.exports = class ComplianceHandler extends Handler {
     }
 
     getResolutionResolver () {
-        return ssgResolver;
+        return cacResolver;
     }
 
     getPlayFactory () {

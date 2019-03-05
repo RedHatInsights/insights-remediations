@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const yaml = require('js-yaml');
-const ssg = require('../../connectors/ssg');
+const cac = require('../../connectors/cac');
 const keyValueParser = require('../../util/keyValueParser');
 const Resolution = require('../Resolution');
 const yamlUtils = require('../../util/yaml');
@@ -27,7 +27,7 @@ const LEVELS = {
 };
 */
 
-module.exports = class SSGResolver extends Resolver {
+module.exports = class CACResolver extends Resolver {
     async resolveResolutions (id) {
         const match = PATTERN.exec(id.issue);
 
@@ -35,7 +35,7 @@ module.exports = class SSGResolver extends Resolver {
             return [];
         }
 
-        const raw = await ssg.getTemplate(match[1]);
+        const raw = await cac.getTemplate(match[1]);
 
         if (!raw) {
             return [];
@@ -56,7 +56,7 @@ function parseTemplate (template, id) {
     try {
         parsed = yaml.safeLoad(template);
     } catch (e) {
-        log.warn(e, `Error processing ssg template for ${id}`);
+        log.warn(e, `Error processing cac template for ${id}`);
         return false;
     }
 
@@ -85,7 +85,7 @@ function parseTemplate (template, id) {
     try {
         processedTemplate = yaml.safeDump([play]).trim();
     } catch (e) {
-        log.warn(e, `Error processing ssg template for ${id}`);
+        log.warn(e, `Error processing cac template for ${id}`);
         return false;
     }
 

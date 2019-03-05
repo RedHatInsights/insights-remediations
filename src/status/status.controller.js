@@ -9,10 +9,10 @@ const TIMEOUT_CODES = ['ESOCKETTIMEDOUT', 'ETIMEDOUT'];
 
 const CONNECTORS = _([
     'advisor',
+    'cac',
     'compliance',
     'contentServer',
     'inventory',
-    'ssg',
     'users',
     'vmaas',
     'vulnerabilities'

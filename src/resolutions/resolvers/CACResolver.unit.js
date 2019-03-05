@@ -1,13 +1,13 @@
 'use strict';
 
 const mock = require('../../test');
-const ssg = require('../../connectors/ssg');
-const resolver = new(require('./SSGResolver'))();
+const cac = require('../../connectors/cac');
+const resolver = new(require('./CACResolver'))();
 const id = require('../../util/identifiers');
 const i = require('dedent-js');
 
 test('parses a simple template', async () => {
-    mock.sandbox.stub(ssg, 'getTemplate').callsFake(() => i`
+    mock.sandbox.stub(cac, 'getTemplate').callsFake(() => i`
         # platform = multi_platform_rhel,multi_platform_fedora
         # reboot = false
         # strategy = restrict
@@ -32,7 +32,7 @@ test('parses a simple template', async () => {
 });
 
 test('parses a template with reboot', async () => {
-    mock.sandbox.stub(ssg, 'getTemplate').callsFake(() => i`
+    mock.sandbox.stub(cac, 'getTemplate').callsFake(() => i`
         # platform = multi_platform_rhel,multi_platform_fedora
         # reboot = true
         # strategy = restrict
@@ -50,7 +50,7 @@ test('parses a template with reboot', async () => {
 });
 
 test('skips playbooks with blocks', async () => {
-    mock.sandbox.stub(ssg, 'getTemplate').callsFake(() => i`
+    mock.sandbox.stub(cac, 'getTemplate').callsFake(() => i`
         # platform = multi_platform_rhel,multi_platform_fedora
         # reboot = false
         # strategy = restrict
@@ -80,7 +80,7 @@ test('skips playbooks with blocks', async () => {
 });
 
 test('uses defaults if metadata is absent', async () => {
-    mock.sandbox.stub(ssg, 'getTemplate').callsFake(() => i`
+    mock.sandbox.stub(cac, 'getTemplate').callsFake(() => i`
         - name: "Enable Auditing for Processes Which Start Prior to the Audit Daemon"
           shell: /sbin/grubby --update-kernel=ALL --args="audit=1"
           tags:
