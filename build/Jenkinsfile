@@ -44,8 +44,8 @@ node {
     stage('verify') {
         env.DB_HOST="postgres.${NS}.svc"
         env.DB_DATABASE='remediationstest'
-        env.SSG_IMPL='impl'
-        env.SSG_HOST="http://playbooks-cac.${NS}.svc:8080"
+        env.CAC_IMPL='impl'
+        env.CAC_HOST="http://playbooks-cac.${NS}.svc:8080"
 
         lock(NS) {
             scale(1)

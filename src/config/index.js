@@ -77,6 +77,11 @@ const config = {
         revalidationInterval: parseIntEnv('ADVISOR_REVALIDATION_INVERVAL', 60 * 60) // 1 hour
     },
 
+    cac: {
+        impl: env.CAC_IMPL || env.SSG_IMPL,
+        host: env.CAC_HOST || env.SSG_HOST || 'http://localhost:8090'
+    },
+
     compliance: {
         impl: env.COMPLIANCE_IMPL,
         host: env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000',

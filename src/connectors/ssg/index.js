@@ -1,9 +1,9 @@
 'use strict';
 
-const config = require('../../config');
+const impl = require('../../config').cac.impl;
 
-if (config.ssg.impl) {
-    module.exports = require(`./${config.ssg.impl}`);
+if (impl) {
+    module.exports = require(`./${impl}`);
 } else {
     module.exports = require('./impl');
 }

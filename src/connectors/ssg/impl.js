@@ -5,7 +5,7 @@ const Connector = require('../Connector');
 const metrics = require('../metrics');
 const assert = require('assert');
 
-const {host} = require('../../config').ssg;
+const {host} = require('../../config').cac;
 
 module.exports = new class extends Connector {
     constructor () {

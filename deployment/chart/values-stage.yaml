@@ -28,7 +28,7 @@ remediations:
   compliance:
     impl: impl
     host: http://compliance-backend.compliance-prod.svc.cluster.local:3000
-  ssg:
+  cac:
     impl: impl
     host: http://playbooks-cac:8080
   inventory:

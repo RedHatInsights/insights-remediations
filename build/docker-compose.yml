@@ -18,7 +18,7 @@ services:
       - REDIS_HOST=redis
       - LOG_LEVEL=trace
       - DB_HOST=db
-      - SSG_HOST=http://cac:8080
+      - CAC_HOST=http://cac:8080
       - DEMO_MODE=true
     restart: unless-stopped
 
