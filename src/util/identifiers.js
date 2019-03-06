@@ -14,15 +14,22 @@ function match (id) {
 
 exports.validate = match;
 
+exports.Identifier = class Identifier {
+    constructor (app, issue, full) {
+        this.app = app;
+        this.issue = issue;
+        this.full = full;
+    }
+
+    toString () {
+        return this.full;
+    }
+};
+
 exports.parse = function (id) {
     const result = match(id);
 
-    return {
-        app: result[1],
-        issue: result[2],
-        full: id,
-        toString: () => id
-    };
+    return new exports.Identifier(result[1], result[2], id);
 };
 
 exports.toExternal = id => match(id)[2];
