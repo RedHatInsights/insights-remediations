@@ -25,7 +25,8 @@ module.exports = function (req, res, next) {
         if (req.identity.type === 'User') {
             req.user = {
                 account_number: req.identity.account_number,
-                username: req.identity.user.username
+                username: req.identity.user.username,
+                is_internal: req.identity.user.is_internal
             };
         }
 

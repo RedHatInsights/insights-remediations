@@ -62,6 +62,7 @@ module.exports = async function (app) {
     v1.use(userIdentity);
 
     [
+        'admin',
         'generator',
         'remediations',
         'resolutions',
