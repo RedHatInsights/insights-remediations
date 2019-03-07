@@ -378,7 +378,7 @@ components:
 
     IssueId:
       type: string
-      pattern: ^(advisor|vulnerabilities|compliance|test):[\w\d-_|:\.]+$
+      pattern: ^(advisor|vulnerabilities|compliance|ssg|test):[\w\d-_|:\.]+$
       example: vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
 
     RemediationAutoReboot:
@@ -448,7 +448,7 @@ components:
                 - a8799a02-8be9-11e8-9eb6-529269fb1459
                 - 736ef48c-8f05-11e8-9eb6-529269fb1459
               resolution: mitigate
-            - id: compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login
+            - id: ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled
               systems:
                 - a8799a02-8be9-11e8-9eb6-529269fb1459
                 - 736ef48c-8f05-11e8-9eb6-529269fb1459

@@ -64,7 +64,7 @@ exports.up = async q => {
         issue_id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'
     }, {
         remediation_id: remediations[0].id,
-        issue_id: 'compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login'
+        issue_id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled'
     }, {
         remediation_id: remediations[1].id,
         issue_id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'

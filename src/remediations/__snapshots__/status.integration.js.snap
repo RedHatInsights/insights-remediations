@@ -9,7 +9,7 @@ Object {
       "286f602a-157f-4095-8bf2-ad4849ab6c43": true,
       "9ed58c88-a98d-407f-9384-a76bdab82e7f": false,
     },
-    "compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login": Object {
+    "ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled": Object {
       "20a7486c-11bc-4558-a398-f97faf47cdbb": null,
       "2317adf3-911e-4db3-84fd-27fad9724196": null,
       "286f602a-157f-4095-8bf2-ad4849ab6c43": null,

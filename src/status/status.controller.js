@@ -13,6 +13,7 @@ const CONNECTORS = _([
     'compliance',
     'contentServer',
     'inventory',
+    'ssg',
     'users',
     'vmaas',
     'vulnerabilities'

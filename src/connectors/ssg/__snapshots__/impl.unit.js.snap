@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ssg impl returns template 1`] = `
+"- name: service_rsyslog_enabled
+  hosts: '@@HOSTS@@'
+  become: true
+  tags:
+  - enable_strategy
+  - CCE-80188-6
+  - low_disruption
+  - NIST-800-53-AU-12
+  - service_rsyslog_enabled
+  - low_complexity
+  - medium_severity
+  - NIST-800-53-AU-4(1)
+  tasks:
+  - name: Enable service rsyslog
+    service:
+      name: rsyslog
+      enabled: 'yes'
+      state: started
+    when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+      \\"docker\\"
+"
+`;

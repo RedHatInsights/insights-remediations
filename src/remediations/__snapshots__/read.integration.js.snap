@@ -38,13 +38,13 @@ exports[`remediations get get remediation 1`] = `
             ]
         },
         {
-            \\"id\\": \\"compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login\\",
-            \\"description\\": \\"Disable SSH Root Login\\",
+            \\"id\\": \\"ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled\\",
+            \\"description\\": \\"Disable the Automounter\\",
             \\"resolution\\": {
                 \\"id\\": \\"fix\\",
-                \\"description\\": \\"Disable SSH Root Login\\",
+                \\"description\\": \\"Apply fix\\",
                 \\"resolution_risk\\": -1,
-                \\"needs_reboot\\": false
+                \\"needs_reboot\\": true
             },
             \\"resolutions_available\\": 1,
             \\"systems\\": [

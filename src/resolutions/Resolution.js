@@ -12,7 +12,7 @@ function createTemplate (template) {
         return template;
     }
 
-    throw errors.internal.preconditionFailed(`Invalid template type ${typeof template}`);
+    throw errors.preconditionFailed(`Invalid template type ${typeof template}`);
 }
 
 module.exports = class Resolution {

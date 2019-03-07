@@ -34,7 +34,7 @@ exports.up = async q => {
         issue_id: 'vulnerabilities:CVE-2017-17712'
     }, {
         remediation_id: remediations[0].id,
-        issue_id: 'compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login'
+        issue_id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled'
     }], opts);
 
     await q.bulkInsert('remediation_issue_systems', _.flatMap(systems, system_id => issues.map(({ id }) => ({

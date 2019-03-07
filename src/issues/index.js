@@ -11,6 +11,7 @@ const vulnerabilityHandler = new(require('./VulnerabilityHandler'))();
 const cveHandler = new(require('./CVEHandler'))();
 const erratumHandler = new(require('./ErratumHandler'))();
 const complianceHandler = new(require('./ComplianceHandler'))();
+const ssgHandler = new(require('./SSGHandler'))();
 const testHandler = new(require('./TestHandler'))();
 
 /* eslint no-fallthrough: off */
@@ -18,6 +19,7 @@ function getHandler (id) {
     switch (id.app) {
         case 'advisor': return advisorHandler;
         case 'compliance': return complianceHandler;
+        case 'ssg': return ssgHandler;
         case 'vulnerabilities':
             if (CVE_PATTERN.test(id.issue)) {
                 return cveHandler;

@@ -44,6 +44,22 @@ const DATA = Object.freeze({
         severity: 'Medium',
         total_systems_count: 0,
         affected_systems_count: 0
+    },
+
+    'xccdf_org.ssgproject.content_rule_disable_prelink': {
+        title: 'Disable Prelinking'
+    },
+
+    'xccdf_org.ssgproject.content_rule_disable_prelink-unresolved': {
+        title: 'Disable Prelinking'
+    },
+
+    'xccdf_org.ssgproject.content_rule_service_autofs_disabled': {
+        title: 'Disable the Automounter'
+    },
+
+    'xccdf_org.ssgproject.content_rule_service_rsyslog_enabled': {
+        title: 'Enable rsyslog Service'
     }
 });
 

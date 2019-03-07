@@ -5,7 +5,7 @@ const { request, reqId } = require('../test');
 test('generates a simple playbook with single compliance remediation', async () => {
     const data = {
         issues: [{
-            id: 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
+            id: 'compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
@@ -20,10 +20,10 @@ test('generates a simple playbook with single compliance remediation', async () 
 test('generates a simple playbook with multiple compliance remediation', async () => {
     const data = {
         issues: [{
-            id: 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
+            id: 'compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }, {
-            id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled',
+            id: 'compliance:xccdf_org.ssgproject.content_rule_security_patches_up_to_date',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
@@ -35,7 +35,22 @@ test('generates a simple playbook with multiple compliance remediation', async (
     expect(res.text).toMatchSnapshot();
 });
 
-test('400s on unknown issue id', () => {
+test('generates a simple playbook with reboot support', async () => {
+    const data = {
+        issues: [{
+            id: 'compliance:xccdf_org.ssgproject.content_rule_security_patches_up_to_date',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    const res = await request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200);
+    expect(res.text).toMatchSnapshot();
+});
+
+test('400s on unknown resolution type', () => {
     const {id, header} = reqId();
 
     return request
@@ -43,7 +58,7 @@ test('400s on unknown issue id', () => {
     .set(header)
     .send({
         issues: [{
-            id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_non-existing-issue',
+            id: 'compliance:xccdf_org.ssgproject.content_rule_non-existing-issue',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     })
@@ -53,7 +68,7 @@ test('400s on unknown issue id', () => {
             id,
             status: 400,
             code: 'UNKNOWN_ISSUE',
-            title: 'Unknown issue identifier "ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_non-existing-issue"'
+            title: 'Unknown issue identifier "compliance:xccdf_org.ssgproject.content_rule_non-existing-issue"'
         }]);
     });
 });
@@ -66,7 +81,7 @@ test('400s on unknown resolution type other than fix', () => {
     .set(header)
     .send({
         issues: [{
-            id: 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
+            id: 'compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
             resolution: 'non-existing-resolution'
         }]
@@ -77,7 +92,7 @@ test('400s on unknown resolution type other than fix', () => {
             id,
             status: 400,
             code: 'UNKNOWN_RESOLUTION',
-            title: 'Issue "ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink"' +
+            title: 'Issue "compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login"' +
                 ' does not have Ansible resolution "non-existing-resolution"'
         }]);
     });

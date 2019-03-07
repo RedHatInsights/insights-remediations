@@ -125,6 +125,25 @@ describe('resolve advisor resolutions', function () {
     });
 });
 
+describe('resolve ssg resolutions', function () {
+    test('resolution info', async () => {
+        const {body} = await request
+        .get('/v1/resolutions/ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink')
+        .expect(200);
+
+        body.should.eql({
+            id: 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
+            resolution_risk: -1,
+            resolutions: [{
+                description: 'Apply fix',
+                id: 'fix',
+                needs_reboot: true,
+                resolution_risk: -1
+            }]
+        });
+    });
+});
+
 describe('batch', function () {
     test('400s on empty list', async () => {
         await request
