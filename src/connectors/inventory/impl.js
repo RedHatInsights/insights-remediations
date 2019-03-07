@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const P = require('bluebird');
 const URI = require('urijs');
-const {host, insecure, revalidationInterval, pageSize, legacy} = require('../../config').inventory;
+const {host, insecure, revalidationInterval, pageSize} = require('../../config').inventory;
 const assert = require('assert');
 
 const Connector = require('../Connector');
@@ -69,50 +69,7 @@ module.exports = new class extends Connector {
         return validate(transformed);
     }
 
-    async fetchPage (page) {
-        const uri = new URI(host);
-        uri.path('/r/insights/platform/inventory/api/v1/hosts');
-        uri.addQuery('per_page', String(pageSize));
-        uri.addQuery('page', String(page));
-
-        return await this.doHttp({
-            uri: uri.toString(),
-            method: 'GET',
-            json: true,
-            rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders()
-        }, false);
-    }
-
     async getSystemsByInsightsId (id) {
-        if (legacy) {
-            return this.getSystemsByInsightsIdOld(id);
-        }
-
-        return this.getSystemsByInsightsIdNew(id);
-    }
-
-    async getSystemsByInsightsIdOld (id) {
-        let responses = [await this.fetchPage(1)];
-
-        if (responses[0].total > pageSize) {
-            const lastPage = Math.ceil(responses[0].total / pageSize);
-            const rest = await P.map(Array.from(Array(lastPage + 1).keys()).slice(2), i => this.fetchPage(i));
-            responses = [...responses, ...rest];
-        }
-
-        const transformed = _(responses)
-        .flatMap('results')
-        .filter(({insights_id}) => insights_id === id)
-        .map(({id, insights_id, display_name, fqdn: hostname, account, updated}) =>
-            ({id, insights_id, display_name, hostname, account, updated}))
-        .value();
-
-        transformed.forEach(validateHost);
-        return transformed;
-    }
-
-    async getSystemsByInsightsIdNew (id) {
         const uri = new URI(host);
         uri.path('/r/insights/platform/inventory/api/v1/hosts');
         uri.addQuery('per_page', String(pageSize));

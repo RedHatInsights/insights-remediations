@@ -175,55 +175,10 @@ describe('inventory impl', function () {
                 total: 1
             });
 
-            const result = await impl.getSystemsByInsightsIdNew('3ecd82fb-abdd-471c-9ca2-249c055644b8');
+            const result = await impl.getSystemsByInsightsId('3ecd82fb-abdd-471c-9ca2-249c055644b8');
             result.should.has.size(2);
             result[0].should.have.property('insights_id', '3ecd82fb-abdd-471c-9ca2-249c055644b8');
             result[1].should.have.property('insights_id', '3ecd82fb-abdd-471c-9ca2-249c055644b8');
-        });
-
-        test('legacy', async function () {
-            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves({
-                results: [{
-                    account: 'inventory01',
-                    id: 'fakeid',
-                    insights_id: null,
-                    display_name: null,
-                    fqdn: 'example.com',
-                    updated: '2018-12-19T14:59:47.954018Z'
-                }]
-            });
-
-            const result = await impl.getSystemsByInsightsIdOld('3ecd82fb-abdd-471c-9ca2-249c055644b8');
-            result.should.be.empty();
-            spy.callCount.should.equal(1);
-        });
-
-        test('legacy (2)', async function () {
-            const response1 = inventoryResponse(Array(100).fill({
-                account: 'inventory01',
-                id: 'fakeid',
-                insights_id: null,
-                display_name: null,
-                fqdn: 'example.com',
-                updated: '2018-12-19T14:59:47.954018Z'
-            }), 1201);
-
-            const response2 = inventoryResponse([{
-                account: 'inventory01',
-                id: 'real deal',
-                insights_id: '3ecd82fb-abdd-471c-9ca2-249c055644b8',
-                display_name: null,
-                fqdn: 'example.com',
-                updated: '2018-12-19T14:59:47.954018Z'
-            }], 1201);
-
-            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp');
-            [...Array(12).fill(response1), response2].forEach((value, key) => spy.onCall(key).resolves(value));
-
-            const result = await impl.getSystemsByInsightsIdOld('3ecd82fb-abdd-471c-9ca2-249c055644b8');
-            result.should.have.length(1);
-            result[0].should.have.property('id', 'real deal');
-            spy.callCount.should.equal(13);
         });
     });
 });
