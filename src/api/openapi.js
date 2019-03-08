@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const jsyaml = require('js-yaml');
+const config = require('../config');
 
 const OpenAPISchemaValidator = require('openapi-schema-validator').default;
 
@@ -14,6 +15,10 @@ const result = validator.validate(spec);
 
 if (result.errors.length) {
     throw new Error(JSON.stringify(result.errors, null, 4));
+}
+
+if (config.env === 'development') {
+    spec.servers.reverse(); // in DEV make the local server the default
 }
 
 module.exports = { spec, specPath };
