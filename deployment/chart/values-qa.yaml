@@ -12,6 +12,7 @@ remediations:
   migrationCommand: "npm run db:init && npm run db:migrate && npm run db:seed"
 
   logLevel: trace
+  imageChangeTrigger: true
 
   advisor:
     impl: impl
