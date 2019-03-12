@@ -11,7 +11,7 @@ def notify(subject, body, color) {
         message += " | ${body}"
     }
 
-    slackSend message: message, color: color, channel: '#insights-remediations'
+    slackSend message: message, color: color, channel: '#remediations'
 }
 
 def notifyOnFailure(Closure step) {
