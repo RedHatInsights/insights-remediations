@@ -7,7 +7,9 @@ deploy:
 
 imageRegistry: docker-registry.default.svc:5000
 imageNamespace: buildfactory
+
 prometheusRole: edit
+prometheusNamespace: mnm-ci
 
 remediations:
   # Command to use for db migration. In stable environments this should be "npm run db:create; npm run db:migrate"

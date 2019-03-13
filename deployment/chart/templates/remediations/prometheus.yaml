@@ -10,7 +10,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: default
-  namespace: mnm-ci
+  namespace: {{ .Values.prometheusNamespace | default "mnm" }}
 userNames:
-- system:serviceaccount:mnm-ci:default
+- system:serviceaccount:{{ .Values.prometheusNamespace | default "mnm" }}:default
 {{ end }}
