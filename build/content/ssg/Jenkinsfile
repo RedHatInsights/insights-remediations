@@ -83,16 +83,14 @@ node ('openscap') {
 
         stage('push image to stage') {
             openShift.withNode(defaults: true) {
-                node {
-                    promoteImages(
-                        srcImages: [
-                            "playbooks-ssg:latest"
-                        ],
-                        dstProject: "remediations-stage",
-                        dstSaUsername: "image-sync",
-                        dstSaTokenCredentialsId: "remediations-image-sync"
-                    )
-                }
+                promoteImages(
+                    srcImages: [
+                        "playbooks-ssg:latest"
+                    ],
+                    dstProject: "remediations-stage",
+                    dstSaUsername: "image-sync",
+                    dstSaTokenCredentialsId: "remediations-image-sync"
+                )
             }
 
             notify("[${env.JOB_NAME.split('/')[-1]}] Built and promoted to stage", null, "good")
