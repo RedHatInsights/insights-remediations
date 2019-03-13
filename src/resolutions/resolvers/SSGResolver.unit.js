@@ -3,7 +3,7 @@
 require('../../test');
 const resolver = new(require('./SSGResolver'))();
 const identifiers = require('../../util/identifiers');
-const ssg = require('../../connectors/ssg');
+const ssg = require('../../connectors/ssg/mock');
 
 describe('SSGResolved', function () {
     test('detects unresolved interpolation placeholder', async () => {
