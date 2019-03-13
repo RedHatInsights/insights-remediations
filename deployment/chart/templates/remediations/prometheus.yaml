@@ -6,7 +6,7 @@ kind: RoleBinding
 metadata:
   name: view-mnm
 roleRef:
-  name: view
+  name: {{ .Values.prometheusRole | default "view" }}
 subjects:
 - kind: ServiceAccount
   name: default

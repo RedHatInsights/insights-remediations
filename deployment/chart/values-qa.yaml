@@ -3,9 +3,11 @@ deploy:
   postgres: true
   cac: true
   remediations: true
+  ssg: true
 
 imageRegistry: docker-registry.default.svc:5000
 imageNamespace: buildfactory
+prometheusRole: edit
 
 remediations:
   # Command to use for db migration. In stable environments this should be "npm run db:create; npm run db:migrate"
@@ -34,6 +36,8 @@ remediations:
   users:
     impl: impl
     host: https://insights-services-pipeline-insights.ext.paas.redhat.com
+
+ssg: {}
 
 secrets:
   backoffice: false

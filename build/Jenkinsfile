@@ -5,10 +5,12 @@ NS='remediations-pr'
 def scale (count) {
     sh "oc scale --replicas=${count} --namespace=${NS} dc/postgres"
     sh "oc scale --replicas=${count} --namespace=${NS} dc/playbooks-cac"
+    sh "oc scale --replicas=${count} --namespace=${NS} dc/playbooks-ssg"
 
     // wait for dependencies
     waitFor(count, 'postgres')
     waitFor(count, 'playbooks-cac')
+    waitFor(count, 'playbooks-ssg')
 }
 
 def waitFor (count, resource) {
@@ -46,6 +48,8 @@ node {
         env.DB_DATABASE='remediationstest'
         env.CAC_IMPL='impl'
         env.CAC_HOST="http://playbooks-cac.${NS}.svc:8080"
+        env.SSG_IMPL='impl'
+        env.SSG_HOST="http://playbooks-ssg.${NS}.svc:8080"
 
         lock(NS) {
             scale(1)

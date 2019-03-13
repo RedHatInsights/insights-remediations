@@ -3,9 +3,12 @@ deploy:
   postgres: true
   cac: true
   remediations: false
+  ssg: true
 
 imageRegistry: docker-registry.default.svc:5000
 imageNamespace: buildfactory
+
+ssg: {}
 
 secrets:
   postgres: false

@@ -1,0 +1,24 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: jenkins-slave-openscap-builder
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: jenkins-slave-openscap-builder:latest
+  source:
+    dockerfile: |-
+      FROM registry.access.redhat.com/openshift3/jenkins-agent-nodejs-8-rhel7
+      USER 0
+
+      RUN set -eux; \
+          yum -y install make cmake openscap-utils python-jinja2 python-argparse PyYAML; \
+          yum clean all -y
+
+      RUN chown -R 1001:0 $HOME; \
+          chmod -R g+rw $HOME
+      USER 1001
+
+  strategy:
+    dockerStrategy: {}

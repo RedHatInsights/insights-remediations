@@ -1,0 +1,64 @@
+{{ if .Values.deploy.ssg }}
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: playbooks
+  name: playbooks-ssg
+spec:
+  replicas: {{ .Values.ssg.replicas | default 1 }}
+  selector:
+    app: playbooks
+    deploymentconfig: playbooks-ssg
+  strategy:
+    type: Rolling
+    activeDeadlineSeconds: 21600
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+  template:
+    metadata:
+      labels:
+        app: playbooks
+        deploymentconfig: playbooks-ssg
+    spec:
+      containers:
+      - image: "{{ .Values.imageRegistry }}/{{ .Values.imageNamespace }}/playbooks-ssg:latest"
+        imagePullPolicy: Always
+        name: playbooks-ssg
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /playbooks
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          failureThreshold: 2
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 200m
+            memory: 512Mi
+
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+  triggers:
+  - type: ConfigChange
+  - type: ImageChange
+    imageChangeParams:
+      automatic: true
+      containerNames:
+      - playbooks-ssg
+      from:
+        kind: ImageStreamTag
+        name: playbooks-ssg:latest
+        namespace: {{ .Values.imageNamespace }}
+{{ end }}

@@ -3,6 +3,7 @@ deploy:
   postgres: false
   cac: true
   remediations: true
+  ssg: true
 
 imageRegistry: 172.30.217.42:5000
 imageNamespace: remediations-stage
@@ -37,6 +38,9 @@ remediations:
   users:
     impl: impl
     host: https://insights-services-pipeline-insights.ext.paas.redhat.com
+
+ssg:
+  replicas: 2
 
 secrets:
   backoffice: false

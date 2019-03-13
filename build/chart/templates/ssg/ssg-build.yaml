@@ -1,0 +1,22 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: playbooks-ssg
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: playbooks-ssg:latest
+  source:
+    dockerfile: |-
+      FROM registry.access.redhat.com/rhscl/nginx-114-rhel7
+      COPY playbooks /opt/app-root/src/playbooks
+
+      RUN set -eux; \
+          rmdir /opt/app-root/src/nginx-start; \
+          echo "location /playbooks { autoindex on; disable_symlinks on; }" > /opt/app-root/etc/nginx.default.d/default.conf
+
+      CMD ["/usr/libexec/s2i/run"]
+
+  strategy:
+    dockerStrategy: {}

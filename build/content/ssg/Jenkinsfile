@@ -1,0 +1,101 @@
+#!/usr/bin/env groovy
+
+import groovy.json.JsonSlurper
+@Library("github.com/RedHatInsights/insights-pipeline-lib")
+
+def notify(subject, body, color) {
+    message = subject
+    if (body != null) {
+        message += " | ${body}"
+    }
+
+    slackSend message: message, color: color, channel: '#remediations'
+}
+
+def notifyOnFailure(Closure step) {
+    try {
+        step()
+    } catch (e) {
+        notify("@jharting [${env.JOB_NAME.split('/')[-1]}] Build failed", "See ${env.BUILD_URL}console", "danger")
+        throw e
+    }
+}
+
+def resolveRevision (branch) {
+    def content = sh(returnStdout: true, script: "curl https://api.github.com/repos/ComplianceAsCode/content/commits/${REVISION}").trim()
+    return new JsonSlurper().parseText(content).sha
+}
+
+node ('openscap') {
+    notifyOnFailure {
+        env.NODEJS_HOME = "${tool 'node-10'}"
+        env.PATH="${env.NODEJS_HOME}/bin:${env.PATH}"
+
+        sh 'oc whoami'
+        sh 'node -v'
+        sh 'npm -v'
+
+        REVISION = resolveRevision(REVISION)
+        echo REVISION
+
+        notify("[${env.JOB_NAME.split('/')[-1]}] Building ${REVISION}", null, "#439FE0")
+
+        stage('checkout scm') {
+            /*
+            checkout poll:false, scm: [
+                $class: 'GitSCM',
+                branches: [[name: "ssg-2.0"]],
+                userRemoteConfigs: [[
+                    url: 'git@github.com:RedHatInsights/insights-remediations',
+                    credentialsId: 'insightsdroid-ssh-git'
+                ]]
+            ]
+            */
+            checkout scm
+        }
+
+        stage('fetch content') {
+            sh 'curl -s -L "https://github.com/ComplianceAsCode/content/tarball/${REVISION}" --output - | tar xz;'
+            sh 'mv ComplianceAsCode-content-* source'
+        }
+
+        stage('build remediations') {
+            sh 'npm ci'
+        }
+
+        stage('build OpenSCAP') {
+            sh 'mkdir -p artifacts/playbooks'
+            sh "echo ${env.REVISION} > artifacts/playbooks/revision.txt";
+
+            dir('source') {
+                sh 'for i in rhel6 rhel7 rhel8; do ./build_product $i; mkdir ../artifacts/playbooks/$i; mv build/$i/playbooks ../artifacts/playbooks/$i; done'
+            }
+        }
+
+        stage('validate templates') {
+            sh "node src/validateTemplate.js \$(find artifacts/playbooks/ -path '*/playbooks/*/*.yml') || true"
+        }
+
+        stage('build Nginx image') {
+            sh 'ls -l artifacts/playbooks'
+            sh "oc start-build playbooks-ssg -n buildfactory --from-dir=artifacts --follow -w"
+        }
+
+        stage('push image to stage') {
+            openShift.withNode(defaults: true) {
+                node {
+                    promoteImages(
+                        srcImages: [
+                            "playbooks-ssg:latest"
+                        ],
+                        dstProject: "remediations-stage",
+                        dstSaUsername: "image-sync",
+                        dstSaTokenCredentialsId: "remediations-image-sync"
+                    )
+                }
+            }
+
+            notify("[${env.JOB_NAME.split('/')[-1]}] Built and promoted to stage", null, "good")
+        }
+    }
+}
