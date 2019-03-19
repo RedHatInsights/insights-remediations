@@ -59,7 +59,7 @@ spec:
           protocol: TCP
         livenessProbe:
           httpGet:
-            path: /r/insights/platform/remediations/v1/health
+            path: {{ .Values.remediations.pathPrefix | default "/api" }}/remediations/v1/health
             port: 9002
           initialDelaySeconds: 10
           periodSeconds: 10
@@ -111,6 +111,9 @@ spec:
 
         - name: LOG_LEVEL
           value: {{ .Values.remediations.logLevel }}
+
+        - name: PATH_PREFIX
+          value: {{ .Values.remediations.pathPrefix | default "/api" }}
 
         - name: REDIS_ENABLED
           value: "true"

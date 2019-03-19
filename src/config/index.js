@@ -42,7 +42,7 @@ const config = {
         env.VALIDATE_RESPONSE_STRICT === 'true' ? true : false,
 
     path: {
-        prefix: env.PATH_PREFIX || '/r/insights/platform',
+        prefix: env.PATH_PREFIX || '/api',
         app: env.APP_NAME || 'remediations'
     },
 
@@ -164,6 +164,7 @@ const config = {
 };
 
 config.path.base = `${config.path.prefix}/${config.path.app}`;
+config.path.baseLegacy = `/r/insights/platform/${config.path.app}`;
 
 if (fs.existsSync(path.join(__dirname, `${config.env}.js`))) {
     _.merge(config, require(`./${config.env}`));

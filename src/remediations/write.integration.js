@@ -31,7 +31,7 @@ describe('remediations', function () {
 
             const r2 = await request
             // strip away the base path as request already counts with that
-            .get(location.replace('/r/insights/platform/remediations', ''))
+            .get(location.replace(config.path.base, ''))
             .set(auth.testWrite)
             .expect(200);
 
@@ -106,7 +106,7 @@ describe('remediations', function () {
 
             const r2 = await request
             // strip away the base path as request already counts with that
-            .get(location.replace('/r/insights/platform/remediations', ''))
+            .get(location.replace(config.path.base, ''))
             .set(auth.testWrite)
             .expect(200);
 

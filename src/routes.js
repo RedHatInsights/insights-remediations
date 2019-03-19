@@ -72,6 +72,7 @@ module.exports = async function (app) {
     ].forEach(resource => require(`./${resource}/routes`)(v1));
 
     app.use(`${config.path.base}/v1`, v1);
+    app.use(`${config.path.baseLegacy}/v1`, v1);
 
     const toDocs = (req, res) => res.redirect(`${config.path.base}/v1/docs`);
     ['/', config.path.base, `${config.path.base}/v1`].forEach(path => app.get(path, toDocs));
