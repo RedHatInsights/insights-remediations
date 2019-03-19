@@ -49,6 +49,7 @@ const serializers = {
 const logger = pino({
     name: 'remediations',
     level: config.logging.level,
+    serializers,
     prettyPrint: config.logging.pretty ? {
         errorProps: '*'
     } : false
