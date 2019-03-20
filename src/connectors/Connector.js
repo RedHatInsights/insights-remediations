@@ -38,7 +38,8 @@ module.exports = class Connector {
 
     async doHttp (options, caching, metrics = false) {
         try {
-            return await http.request(options, caching, metrics);
+            const result = await http.request(options, caching, metrics);
+            return result;
         } catch (e) {
             log.trace(e, 'dependency error');
             metrics && metrics.error.inc();
