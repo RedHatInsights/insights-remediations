@@ -36,7 +36,7 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        const result = this.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', true);
+        const result = await this.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', true);
         assert(result !== null);
     }
 }();
