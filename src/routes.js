@@ -43,6 +43,7 @@ module.exports = async function (app) {
     app.use(pino);
 
     docs(app, config.path.base);
+    docs(app, config.path.baseLegacy);
 
     app.use(identity);
     app.use(identitySwitcher);
@@ -74,8 +75,9 @@ module.exports = async function (app) {
     app.use(`${config.path.base}/v1`, v1);
     app.use(`${config.path.baseLegacy}/v1`, v1);
 
-    const toDocs = (req, res) => res.redirect(`${config.path.base}/v1/docs`);
-    ['/', config.path.base, `${config.path.base}/v1`].forEach(path => app.get(path, toDocs));
+    const toDocs = base => (req, res) => res.redirect(`${base}/v1/docs`);
+    ['/', config.path.base, `${config.path.base}/v1`].forEach(path => app.get(path, toDocs(config.path.base)));
+    [config.path.baseLegacy, `${config.path.baseLegacy}/v1`].forEach(path => app.get(path, toDocs(config.path.baseLegacy)));
 
     app.use(errors.handler);
 };
