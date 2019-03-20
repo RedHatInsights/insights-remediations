@@ -2,9 +2,9 @@
 
 const _ = require('lodash');
 const P = require('bluebird');
-const URI = require('urijs');
 const {host, insecure, revalidationInterval, pageSize} = require('../../config').inventory;
 const assert = require('assert');
+const config = require('../../config');
 
 const Connector = require('../Connector');
 const metrics = require('../metrics');
@@ -27,6 +27,15 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName(), 'getSystemDetails');
     }
 
+    buildHostsUri () {
+        if (config.path.prefix === '/api') {
+            return this.buildUri(host, 'inventory', 'v1', 'hosts');
+        }
+
+        // TODO: remove once everything is on cloud.redhat.com
+        return this.buildUri(host, 'inventory', 'api', 'v1', 'hosts');
+    }
+
     async getSystemDetailsBatch (ids = [], refresh = false) {
         if (ids.length === 0) {
             return {};
@@ -40,9 +49,7 @@ module.exports = new class extends Connector {
             return _.assign({}, ...results);
         }
 
-        const uri = new URI(host);
-        uri.path('/r/insights/platform/inventory/api/v1/hosts');
-
+        const uri = this.buildHostsUri();
         uri.segment(ids.join());
         uri.addQuery('per_page', String(pageSize));
 
@@ -70,8 +77,7 @@ module.exports = new class extends Connector {
     }
 
     async getSystemsByInsightsId (id) {
-        const uri = new URI(host);
-        uri.path('/r/insights/platform/inventory/api/v1/hosts');
+        const uri = this.buildHostsUri();
         uri.addQuery('per_page', String(pageSize));
         uri.addQuery('insights_id', id);
 
@@ -95,8 +101,7 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        const uri = new URI(host);
-        uri.path('/r/insights/platform/inventory/api/v1/hosts');
+        const uri = this.buildHostsUri();
         uri.addQuery('per_page', String(1));
 
         const response = await this.doHttp({

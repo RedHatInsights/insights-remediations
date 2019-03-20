@@ -2,7 +2,6 @@
 
 const assert = require('assert');
 const _ = require('lodash');
-const URI = require('urijs');
 const {host, insecure, revalidationInterval} = require('../../config').compliance;
 
 const Connector = require('../Connector');
@@ -17,10 +16,7 @@ module.exports = new class extends Connector {
     async getRule (id, refresh = false) {
         id = id.replace(/\./g, '-'); // compliance API limitation
 
-        const uri = new URI(host);
-        uri.path('/r/insights/platform/compliance/rules/');
-        uri.segment(id);
-
+        const uri = this.buildUri(host, 'compliance', 'rules', id);
         const result = await this.doHttp({
             uri: uri.toString(),
             method: 'GET',

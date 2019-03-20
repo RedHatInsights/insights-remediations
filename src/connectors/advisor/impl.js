@@ -4,7 +4,6 @@ const _ = require('lodash');
 const assert = require('assert');
 
 const Connector = require('../Connector');
-const URI = require('urijs');
 const {host, insecure, revalidationInterval} = require('../../config').advisor;
 const metrics = require('../metrics');
 
@@ -17,9 +16,7 @@ module.exports = new class extends Connector {
     }
 
     getRule (id, refresh = false) {
-        const uri = new URI(host);
-        uri.path('/r/insights/platform/advisor/v1/rule/');
-        uri.segment(id);
+        const uri = this.buildUri(host, 'advisor', 'v1', 'rule', id);
 
         return this.doHttp({
             uri: uri.toString(),
@@ -37,10 +34,7 @@ module.exports = new class extends Connector {
     }
 
     async getDiagnosis (system) {
-        const uri = new URI(host);
-        uri.path('/r/insights/platform/advisor/v1/system/');
-        uri.segment(system);
-        uri.segment('reports');
+        const uri = this.buildUri(host, 'advisor', 'v1', 'system', system, 'reports');
 
         const data = await this.doHttp({
             uri: uri.toString(),
@@ -74,10 +68,7 @@ module.exports = new class extends Connector {
     }
 
     async getSystems (id) {
-        const uri = new URI(host);
-        uri.path('/r/insights/platform/advisor/v1/rule/');
-        uri.segment(id);
-        uri.segment('systems');
+        const uri = this.buildUri(host, 'advisor', 'v1', 'rule', id, 'systems');
 
         const data = await this.doHttp({
             uri: uri.toString(),

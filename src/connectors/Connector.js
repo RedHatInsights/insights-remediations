@@ -6,6 +6,8 @@ const http = require('./http');
 const errors = require('../errors');
 const cls = require('../util/cls');
 const log = require('../util/log');
+const URI = require('urijs');
+const config = require('../config');
 
 const IDENTITY_HEADER = 'x-rh-identity';
 const REQ_ID_HEADER = 'x-rh-insights-request-id';
@@ -25,6 +27,13 @@ module.exports = class Connector {
 
     getImpl () {
         return this.impl;
+    }
+
+    buildUri (host, ...segments) {
+        const uri = new URI(host);
+        uri.path(config.path.prefix);
+        segments.forEach(segment => uri.segment(segment));
+        return uri;
     }
 
     async doHttp (options, caching, metrics = false) {
