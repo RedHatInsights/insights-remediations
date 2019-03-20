@@ -18,6 +18,8 @@ remediations:
   logLevel: trace
   imageChangeTrigger: true
 
+  pathPrefix: /r/insights/platform
+
   advisor:
     impl: impl
     host: http://insights-advisor-api.advisor-qa.svc.cluster.local:8000

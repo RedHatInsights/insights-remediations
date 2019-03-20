@@ -13,10 +13,12 @@ remediations:
   migrationCommand: "npm run db:create; npm run db:migrate"
 
   strategy: Rolling
-  imageChangeTrigger: true
+  imageChangeTrigger: false
   replicas: 2
 
   logLevel: trace
+
+  pathPrefix: /r/insights/platform
 
   advisor:
     impl: impl
