@@ -9,9 +9,9 @@ info:
     email: jozef@redhat.com
 
 servers:
-  - url: https://access.redhat.com/r/insights/platform/remediations/v1
+  - url: https://cloud.redhat.com/api/remediations/v1
     description: production server
-  - url: /r/insights/platform/remediations/v1
+  - url: /api/remediations/v1
     description: relative path
 
 tags:

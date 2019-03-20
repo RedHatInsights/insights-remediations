@@ -1,9 +1,11 @@
 'use strict';
 
-const { request } = require('./test');
+require('./test');
+const supertest = require('supertest');
+const config = require('./config');
 
 test('healthcheck', () => {
-    return request
-    .get('/v1/health')
+    return supertest.agent(`http://localhost:${config.port}`)
+    .get('/health')
     .expect(200);
 });

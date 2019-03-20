@@ -59,7 +59,7 @@ spec:
           protocol: TCP
         livenessProbe:
           httpGet:
-            path: {{ .Values.remediations.pathPrefix | default "/api" }}/remediations/v1/health
+            path: /health
             port: 9002
           initialDelaySeconds: 10
           periodSeconds: 10

@@ -164,7 +164,6 @@ const config = {
 };
 
 config.path.base = `${config.path.prefix}/${config.path.app}`;
-config.path.baseLegacy = `/r/insights/platform/${config.path.app}`;
 
 if (fs.existsSync(path.join(__dirname, `${config.env}.js`))) {
     _.merge(config, require(`./${config.env}`));

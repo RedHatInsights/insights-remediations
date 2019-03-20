@@ -42,8 +42,7 @@ async function start () {
     createTerminus(server, {
         signals: ['SIGINT', 'SIGTERM'],
         healthChecks: {
-            [`${config.path.base}/v1/health`]: healthCheck,
-            [`${config.path.baseLegacy}/v1/health`]: healthCheck
+            '/health': healthCheck
         },
 
         onSignal () {
