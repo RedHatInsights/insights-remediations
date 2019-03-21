@@ -6,6 +6,7 @@ const assert = require('assert');
 const Connector = require('../Connector');
 const {host, insecure, revalidationInterval} = require('../../config').advisor;
 const metrics = require('../metrics');
+const config = require('../../config');
 
 module.exports = new class extends Connector {
     constructor () {
@@ -15,8 +16,19 @@ module.exports = new class extends Connector {
         this.systemsMetrics = metrics.createConnectorMetric(this.getName(), 'getSystems');
     }
 
+    buildBaseUri () {
+        if (config.path.prefix === '/api') {
+            return this.buildUri(host, 'insights', 'v1');
+        }
+
+        // TODO: remove once everything is on cloud.redhat.com
+        return this.buildUri(host, 'advisor', 'v1');
+    }
+
     getRule (id, refresh = false) {
-        const uri = this.buildUri(host, 'advisor', 'v1', 'rule', id);
+        const uri = this.buildBaseUri(host, 'advisor', 'v1');
+        uri.segment('rule');
+        uri.segment(id);
 
         return this.doHttp({
             uri: uri.toString(),
@@ -34,7 +46,10 @@ module.exports = new class extends Connector {
     }
 
     async getDiagnosis (system) {
-        const uri = this.buildUri(host, 'advisor', 'v1', 'system', system, 'reports');
+        const uri = this.buildBaseUri(host, 'advisor', 'v1');
+        uri.segment('system');
+        uri.segment(system);
+        uri.segment('reports');
 
         const data = await this.doHttp({
             uri: uri.toString(),
@@ -68,7 +83,10 @@ module.exports = new class extends Connector {
     }
 
     async getSystems (id) {
-        const uri = this.buildUri(host, 'advisor', 'v1', 'rule', id, 'systems');
+        const uri = this.buildBaseUri(host, 'advisor', 'v1');
+        uri.segment('rule');
+        uri.segment(id);
+        uri.segment('systems');
 
         const data = await this.doHttp({
             uri: uri.toString(),
