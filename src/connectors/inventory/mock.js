@@ -5,6 +5,38 @@ const Connector = require('../Connector');
 
 const NON_EXISTENT_SYSTEM = '1040856f-b772-44c7-83a9-eeeeeeeeeeee';
 
+const SYSTEMS = {
+    'fc94beb8-21ee-403d-99b1-949ef7adb762': {},
+    '1040856f-b772-44c7-83a9-eeeeeeeeee01': {
+        hostname: 'foo,bar,example.com'
+    },
+    '1040856f-b772-44c7-83a9-eeeeeeeeee02': {
+        hostname: 'foo.example.com"abc'
+    },
+    '1040856f-b772-44c7-83a9-eeeeeeeeee03': {
+        hostname: 'foo.example.com\nabc'
+    },
+    '1040856f-b772-44c7-83a9-eeeeeeeeee04': {
+        hostname: '  foo.  example.com'
+    }
+};
+
+function generateSystem (id) {
+    if (id === NON_EXISTENT_SYSTEM) {
+        return null;
+    }
+
+    if (SYSTEMS.hasOwnProperty(id)) {
+        return Object.assign({ id, display_name: null, hostname: null}, SYSTEMS[id]);
+    }
+
+    return {
+        id,
+        hostname: (/^[0-8]/.test(id) ? `${id}.example.com` : id),
+        display_name: (id.startsWith('9') ? `${id}-system` : null)
+    };
+}
+
 module.exports = new class extends Connector {
     constructor () {
         super(module);
@@ -12,22 +44,10 @@ module.exports = new class extends Connector {
 
     getSystemDetailsBatch (systems) {
         return Promise.resolve(_(systems)
-        .filter(id => id !== NON_EXISTENT_SYSTEM)
         .keyBy()
-        .mapValues(id => {
-            const result = {
-                id,
-                hostname: (/^[0-8]/.test(id) ? `${id}.example.com` : id),
-                display_name: (id.startsWith('9') ? `${id}-system` : null)
-            };
-
-            if (id === 'fc94beb8-21ee-403d-99b1-949ef7adb762') {
-                result.hostname = null;
-            }
-
-            return result;
-
-        }).value());
+        .mapValues(generateSystem)
+        .pickBy()
+        .value());
     }
 
     getSystemsByInsightsId (id) {

@@ -18,3 +18,7 @@ exports.removeDocumentMarkers = function (yaml) {
     yaml = yaml.replace(DOCUMENT_END_REGEX, '');
     return yaml;
 };
+
+exports.sanitizeHost = function (host) {
+    return host.replace(/[\n\r\s,]/g, '');
+};

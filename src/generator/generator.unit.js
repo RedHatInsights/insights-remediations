@@ -274,3 +274,37 @@ test('detects missing variable in template', async () => {
 
     spy.callCount.should.equal(1);
 });
+
+describe('host sanitation', function () {
+
+    async function getPlaybook (system) {
+        return request
+        .post('/v1/playbook')
+        .send({
+            issues: [{
+                id: 'test:reboot',
+                systems: [system]
+            }]
+        });
+    }
+
+    test('handles commas', async () => {
+        const {text} = await getPlaybook('1040856f-b772-44c7-83a9-eeeeeeeeee01');
+        expect(text).toMatchSnapshot();
+    });
+
+    test('handles quotes', async () => {
+        const {text} = await getPlaybook('1040856f-b772-44c7-83a9-eeeeeeeeee02');
+        expect(text).toMatchSnapshot();
+    });
+
+    test('handles newline', async () => {
+        const {text} = await getPlaybook('1040856f-b772-44c7-83a9-eeeeeeeeee03');
+        expect(text).toMatchSnapshot();
+    });
+
+    test('handles whitespace', async () => {
+        const {text} = await getPlaybook('1040856f-b772-44c7-83a9-eeeeeeeeee04');
+        expect(text).toMatchSnapshot();
+    });
+});

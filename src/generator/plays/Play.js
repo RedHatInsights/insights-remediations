@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const {notNil, nonEmptyArray} = require('../../util/preconditions');
+const {sanitizeHost} = require('../../util/yaml');
 
 module.exports = class Play {
 
@@ -12,7 +13,7 @@ module.exports = class Play {
 
     getTemplateParameters () {
         return {
-            HOSTS: this.hosts.join()
+            HOSTS: this.hosts.map(sanitizeHost).join()
         };
     }
 
