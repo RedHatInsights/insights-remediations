@@ -1,6 +1,6 @@
 'use strict';
 
-const { request } = require('../test');
+const { request, reqId } = require('../test');
 
 describe('resolve test resolutions', function () {
     test('resolution info (1)', async () => {
@@ -166,5 +166,47 @@ describe('batch', function () {
         })
         .expect(200);
         expect(body).toMatchSnapshot();
+    });
+
+    test('ssg id validation (1)', async () => {
+        const {id, header} = reqId();
+
+        const { body } = await request
+        .post('/v1/resolutions')
+        .set(header)
+        .send({
+            issues: [
+                'ssg:rhel7|pci-dss'
+            ]
+        })
+        .expect(400);
+
+        body.errors.should.eql([{
+            id,
+            status: 400,
+            code: 'INVALID_ISSUE_IDENTIFIER',
+            title: '"ssg:rhel7|pci-dss" is not a valid issue identifier.'
+        }]);
+    });
+
+    test('ssg id validation (2)', async () => {
+        const {id, header} = reqId();
+
+        const { body } = await request
+        .post('/v1/resolutions')
+        .set(header)
+        .send({
+            issues: [
+                'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink|test'
+            ]
+        })
+        .expect(400);
+
+        body.errors.should.eql([{
+            id,
+            status: 400,
+            code: 'INVALID_ISSUE_IDENTIFIER',
+            title: '"ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink|test" is not a valid issue identifier.'
+        }]);
     });
 });

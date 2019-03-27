@@ -2,7 +2,7 @@
 
 const errors = require('../errors');
 const PATTERN = /^(advisor|vulnerabilities|compliance|ssg|test):([\w\d-_|:\\.]+)$/;
-const SSG_PATTERN = /^([a-z0-9_-]+)\|([a-z0-9_-]+)\|xccdf_org\.ssgproject\.content_rule_([a-z0-9_-]+)$/;
+const SSG_PATTERN = /^([a-z0-9_-]+)\|([a-z0-9_-]+)\|xccdf_org\.ssgproject\.content_rule_([\w\d-_:\\.]+)$/;
 
 function match (id) {
     const match = PATTERN.exec(id);
@@ -40,7 +40,7 @@ exports.parseSSG = function (id) {
 
     const result = SSG_PATTERN.exec(id.issue);
 
-    if (!result.length === 4) {
+    if (!result || result.length !== 4) {
         throw errors.invalidIssueId(id);
     }
 

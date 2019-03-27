@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const Connector = require('../Connector');
+const identifiers = require('../../util/identifiers');
 
 function read (dir, file) {
     return fs.readFileSync(path.join(__dirname, 'mock', dir, `${file}.yml`), 'utf-8');
@@ -14,6 +15,8 @@ module.exports = new class extends Connector {
     }
 
     async getTemplate (id) {
+        identifiers.parseSSG(id);
+
         switch (id.full) {
             case 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink':
                 return read('pci-dss', 'disable_prelink');
