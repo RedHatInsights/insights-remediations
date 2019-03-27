@@ -70,8 +70,8 @@ node {
             env.DB_DATABASE='remediationstest'
             env.CAC_IMPL='impl'
             env.CAC_HOST="http://playbooks-cac.${TESTNS}.svc:8080"
-            //env.SSG_IMPL='impl'
-            //env.SSG_HOST="http://playbooks-ssg.${NS}.svc:8080"
+            env.SSG_IMPL='impl'
+            env.SSG_HOST="http://playbooks-ssg.${TESTNS}.svc:8080"
 
             lock(TESTNS) {
                 scale(1)
