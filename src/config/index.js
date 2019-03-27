@@ -78,8 +78,8 @@ const config = {
     },
 
     cac: {
-        impl: env.CAC_IMPL || env.SSG_IMPL,
-        host: env.CAC_HOST || env.SSG_HOST || 'http://localhost:8090'
+        impl: env.CAC_IMPL,
+        host: env.CAC_HOST || 'http://localhost:8090'
     },
 
     compliance: {
