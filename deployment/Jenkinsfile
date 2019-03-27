@@ -26,6 +26,7 @@ def notifyOnFailure(Closure step) {
 def scale (count) {
     sh "oc scale --replicas=${count} --namespace=${TESTNS} dc/postgres"
     sh "oc scale --replicas=${count} --namespace=${TESTNS} dc/playbooks-cac"
+    sh "oc scale --replicas=${count} --namespace=${TESTNS} dc/playbooks-ssg"
 
     // wait for dependencies
     waitFor(count, 'postgres')
