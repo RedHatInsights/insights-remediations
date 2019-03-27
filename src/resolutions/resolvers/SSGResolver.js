@@ -55,9 +55,9 @@ module.exports = class SSGResolver extends Resolver {
 
         const name = getName(parsed[0]);
 
-        yaml.safeDump([parsed]);
+        const template = new Template(yaml.safeDump(parsed));
 
-        return new Resolution(new Template(raw), 'fix', name, true);
+        return new Resolution(template, 'fix', name, true);
     }
 };
 
