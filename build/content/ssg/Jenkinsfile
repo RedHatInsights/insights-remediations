@@ -73,7 +73,7 @@ node ('openscap') {
         }
 
         stage('validate templates') {
-            sh "node src/validateTemplate.js \$(find artifacts/playbooks/ -path '*/playbooks/*/*.yml') || true"
+            sh "node src/validateTemplate.js \$(find artifacts/playbooks/ -path '*/playbooks/*/*.yml')"
         }
 
         stage('build Nginx image') {
