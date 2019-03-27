@@ -135,7 +135,7 @@ describe('resolve ssg resolutions', function () {
             id: 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
             resolution_risk: -1,
             resolutions: [{
-                description: 'Apply fix',
+                description: 'Disable Prelinking',
                 id: 'fix',
                 needs_reboot: true,
                 resolution_risk: -1

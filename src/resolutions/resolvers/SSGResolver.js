@@ -8,16 +8,7 @@ const yamlUtils = require('../../util/yaml');
 const yaml = require('js-yaml');
 const log = require('../../util/log');
 
-const DEFAULT_NAME = 'Apply fix';
 const PLACEHOLDER_REGEX = /(@([A-Z_])+@)/;
-
-function getName (parsed) {
-    if (parsed.tasks.length === 1) {
-        return parsed.tasks[0].name;
-    }
-
-    return DEFAULT_NAME;
-}
 
 function testPlaceholders (raw) {
     const result = PLACEHOLDER_REGEX.exec(raw.replace('@@HOSTS@@', 'hosts'));
@@ -53,8 +44,7 @@ module.exports = class SSGResolver extends Resolver {
             throw new Error(`Unexpected number of plays: ${parsed.length}`);
         }
 
-        const name = getName(parsed[0]);
-
+        const name = parsed[0].name;
         const template = new Template(yaml.safeDump(parsed));
 
         return new Resolution(template, 'fix', name, true);

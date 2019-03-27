@@ -42,7 +42,7 @@ exports[`remediations get get remediation 1`] = `
             \\"description\\": \\"Disable the Automounter\\",
             \\"resolution\\": {
                 \\"id\\": \\"fix\\",
-                \\"description\\": \\"Apply fix\\",
+                \\"description\\": \\"Disable the Automounter\\",
                 \\"resolution_risk\\": -1,
                 \\"needs_reboot\\": true
             },

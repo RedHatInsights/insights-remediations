@@ -19,14 +19,14 @@ describe('SSGResolved', function () {
         const id = identifiers.parse('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled');
         const resolutions = (await resolver.resolveResolutions(id));
         resolutions.should.have.size(1);
-        resolutions[0].description.should.equal('Enable service rsyslog');
+        resolutions[0].description.should.equal('Enable rsyslog Service');
     });
 
     test('falls back to default name for more complex plays', async () => {
         const id = identifiers.parse('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled');
         const resolutions = (await resolver.resolveResolutions(id));
         resolutions.should.have.size(1);
-        resolutions[0].description.should.equal('Apply fix');
+        resolutions[0].description.should.equal('Disable the Automounter');
     });
 });
 
