@@ -40,6 +40,9 @@ remediations:
   users:
     impl: impl
     host: https://insights-services-pipeline-insights.ext.paas.redhat.com
+  ssg:
+    impl: impl
+    host: http://playbooks-ssg:8080
 
 ssg: {}
 

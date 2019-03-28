@@ -8,6 +8,8 @@ deploy:
 imageRegistry: 172.30.217.42:5000
 imageNamespace: remediations-stage
 
+jenkinsNamespace: insights-jenkins
+
 remediations:
   # never run migrations in stage
   migrationCommand: false
@@ -40,6 +42,9 @@ remediations:
   users:
     impl: impl
     host: https://insights-services-pipeline-insights.ext.paas.redhat.com
+  ssg:
+    impl: impl
+    host: http://playbooks-ssg:8080
 
 ssg: {}
 

@@ -10,4 +10,4 @@ subjects:
   name: jenkins
   namespace: jenkins
 userNames:
-- system:serviceaccount:jenkins:jenkins
+- system:serviceaccount:{{ .Values.jenkinsNamespace | default "jenkins" }}:jenkins

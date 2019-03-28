@@ -51,7 +51,7 @@ spec:
         deploymentconfig: remediations
     spec:
       containers:
-      - image: "{{ .Values.imageRegistry }}/{{ .Values.imageNamespace }}/remediations:latest"
+      - image: {{ .Values.imageRegistry }}/{{ .Values.imageNamespace }}/remediations:{{ .Values.remediations.istag | default "latest" }}
         imagePullPolicy: Always
         name: remediations
         ports:
@@ -132,6 +132,11 @@ spec:
         - name: CAC_HOST
           value: {{ .Values.remediations.cac.host }}
 
+        - name: SSG_IMPL
+          value: {{ .Values.remediations.ssg.impl }}
+        - name: SSG_HOST
+          value: {{ .Values.remediations.ssg.host }}
+
         - name: USERS_IMPL
           value: {{ .Values.remediations.users.impl }}
         - name: USERS_HOST
@@ -171,7 +176,7 @@ spec:
       - remediations
       from:
         kind: ImageStreamTag
-        name: remediations:latest
+        name: remediations:{{ .Values.remediations.istag | default "latest" }}
         namespace: {{ .Values.imageNamespace }}
 {{ end }}
 

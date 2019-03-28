@@ -13,7 +13,8 @@ remediations:
   migrationCommand: "npm run db:create; npm run db:migrate"
 
   strategy: Rolling
-  imageChangeTrigger: false
+  imageChangeTrigger: true
+  istag: prod
   replicas: 2
 
   logLevel: trace
@@ -40,9 +41,13 @@ remediations:
   users:
     impl: impl
     host: https://insights-services-pipeline-insights.ext.paas.redhat.com
+  ssg:
+    impl: impl
+    host: http://playbooks-ssg:8080
 
 ssg:
   replicas: 2
+  istag: prod
 
 secrets:
   backoffice: false
