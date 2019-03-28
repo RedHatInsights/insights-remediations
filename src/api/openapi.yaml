@@ -34,6 +34,7 @@ paths:
       operationId: getRemediations
       parameters:
         - $ref: '#/components/parameters/RemediationSort'
+        - $ref: '#/components/parameters/RemediationSystem'
       responses:
         200:
           description: OK
@@ -344,6 +345,14 @@ components:
         type: string
         enum: [updated_at, -updated_at, name, -name, system_count, -system_count, issue_count, -issue_count]
         default: -updated_at
+    RemediationSystem:
+      in: query
+      name: system
+      description: System identifier. If specified only remediations that involve the given system will be returned.
+      required: false
+      schema:
+        type: string
+        format: uuid
     SystemId:
       in: path
       name: system

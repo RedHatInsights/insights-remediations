@@ -14,6 +14,8 @@ exports.fn = _(['COALESCE', 'COUNT', 'DISTINCT', 'NULLIF', 'SUM'])
 .mapValues(fn => _.partial(Sequelize.fn, fn))
 .value();
 
+exports.Op = Sequelize.Op;
+
 function loadModels (sequelize, dir) {
     const models = fs.readdirSync(dir).reduce((models, current) => {
         const model = sequelize.import(path.join(dir, current));

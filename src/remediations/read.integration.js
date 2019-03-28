@@ -89,6 +89,51 @@ describe('remediations', function () {
                 }]);
             });
         });
+
+        describe('system filter', function () {
+            test('filters out remediations not featuring the given system', async () => {
+                const {body} = await request
+                .get('/v1/remediations?system=1f12bdfc-8267-492d-a930-92f498fe65b9&pretty')
+                .expect(200);
+
+                body.should.have.property('remediations');
+                body.remediations.should.not.be.empty();
+                _.map(body.remediations, 'id').should.eql([
+                    'e809526c-56f5-4cd8-a809-93328436ea23',
+                    '66eec356-dd06-4c72-a3b6-ef27d1508a02'
+                ]);
+            });
+
+            test('filters out remediations not featuring the given system (2)', async () => {
+                const {body} = await request
+                .get('/v1/remediations?system=fc94beb8-21ee-403d-99b1-949ef7adb762&pretty')
+                .expect(200);
+
+                body.should.have.property('remediations');
+                body.remediations.should.not.be.empty();
+                _.map(body.remediations, 'id').should.eql([
+                    '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
+                    'e809526c-56f5-4cd8-a809-93328436ea23',
+                    'cbc782e4-e8ae-4807-82ab-505387981d2e',
+                    '66eec356-dd06-4c72-a3b6-ef27d1508a02'
+                ]);
+            });
+
+            test('400s on invalid format', async () => {
+                const {id, header} = reqId();
+                const {body} = await request
+                .get('/v1/remediations?system=foo')
+                .set(header)
+                .expect(400);
+
+                body.errors.should.eql([{
+                    id,
+                    status: 400,
+                    code: 'format.openapi.validation',
+                    title: 'should match format "uuid" (location: query, path: system)'
+                }]);
+            });
+        });
     });
 
     describe('get', function () {

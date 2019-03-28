@@ -89,7 +89,8 @@ exports.list = errors.async(async function (req, res) {
     // issue_count, system_count on the app level below
     const dbColumn = ['updated_at', 'name'].includes(column) ? column : undefined;
 
-    let remediations = await queries.list(req.user.account_number, req.user.username, dbColumn, asc).map(r => r.toJSON());
+    let remediations = await queries.list(req.user.account_number, req.user.username, req.query.system, dbColumn, asc)
+    .map(r => r.toJSON());
 
     await P.all([
         await resolveResolutions(...remediations),
