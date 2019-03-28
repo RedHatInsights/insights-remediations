@@ -18,7 +18,7 @@ remediations:
   logLevel: trace
   imageChangeTrigger: true
 
-  pathPrefix: /r/insights/platform
+  pathPrefix: /api
 
   advisor:
     impl: impl
