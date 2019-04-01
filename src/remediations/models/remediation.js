@@ -49,3 +49,5 @@ module.exports = (sequelize, {BOOLEAN, STRING, UUID}) => {
 
     return Remediation;
 };
+
+module.exports.NULL_NAME_VALUE = NULL_NAME_VALUE;

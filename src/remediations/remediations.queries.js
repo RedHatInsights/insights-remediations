@@ -1,6 +1,7 @@
 'use strict';
 
 const db = require('../db');
+const {NULL_NAME_VALUE} = require('./models/remediation');
 
 const REMEDIATION_ATTRIBUTES = [
     'id',
@@ -36,7 +37,9 @@ function systemSubquery (system_id) {
     return literal(`(${sql})`);
 }
 
-exports.list = function (account_number, created_by, system = false, primaryOrder = 'updated_at', asc = true) {
+exports.list = function (account_number, created_by, system = false, primaryOrder = 'updated_at', asc = true, filter = false) {
+    const {Op, s: {literal, where}} = db;
+
     const query = {
         attributes: REMEDIATION_ATTRIBUTES,
         include: [{
@@ -52,7 +55,6 @@ exports.list = function (account_number, created_by, system = false, primaryOrde
         where: {
             account_number,
             created_by
-
         },
         order: [
             [primaryOrder, asc ? 'ASC' : 'DESC'],
@@ -62,8 +64,25 @@ exports.list = function (account_number, created_by, system = false, primaryOrde
 
     if (system) {
         query.where.id = {
-            [db.Op.in]: systemSubquery(system)
+            [Op.in]: systemSubquery(system)
         };
+    }
+
+    if (filter) {
+        filter = `%${filter}%`;
+
+        query.where[Op.or] = [{
+            name: {
+                [Op.iLike]: filter
+            }
+        }, {
+            [Op.and]: [
+                {
+                    name: null
+                },
+                where(literal(db.s.escape(NULL_NAME_VALUE)), Op.iLike, filter)
+            ]
+        }];
     }
 
     return db.remediation.findAll(query);

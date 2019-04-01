@@ -35,6 +35,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/RemediationSort'
         - $ref: '#/components/parameters/RemediationSystem'
+        - $ref: '#/components/parameters/RemediationFilter'
       responses:
         200:
           description: OK
@@ -353,6 +354,13 @@ components:
       schema:
         type: string
         format: uuid
+    RemediationFilter:
+      in: query
+      name: filter
+      description: Remediation name filter. If specified only remediations whose name matches the given string will be returned.
+      required: false
+      schema:
+        type: string
     SystemId:
       in: path
       name: system

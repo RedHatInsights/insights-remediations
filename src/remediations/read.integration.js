@@ -134,6 +134,73 @@ describe('remediations', function () {
                 }]);
             });
         });
+
+        describe('filter', function () {
+            test('empty filter', async () => {
+                const {body} = await request
+                .get('/v1/remediations?filter=&pretty')
+                .expect(200);
+
+                body.should.have.property('remediations');
+                body.remediations.should.not.be.empty();
+                _.map(body.remediations, 'id').should.eql([
+                    '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
+                    'e809526c-56f5-4cd8-a809-93328436ea23',
+                    'cbc782e4-e8ae-4807-82ab-505387981d2e',
+                    '66eec356-dd06-4c72-a3b6-ef27d1508a02'
+                ]);
+            });
+
+            test('basic filter', async () => {
+                const {body} = await request
+                .get('/v1/remediations?filter=remediation&pretty')
+                .expect(200);
+
+                body.should.have.property('remediations');
+                body.remediations.should.not.be.empty();
+                _.map(body.remediations, 'id').should.eql([
+                    '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
+                    'cbc782e4-e8ae-4807-82ab-505387981d2e',
+                    '66eec356-dd06-4c72-a3b6-ef27d1508a02'
+                ]);
+            });
+
+            test('filter case does not matter', async () => {
+                const {body} = await request
+                .get('/v1/remediations?filter=REBooT&pretty')
+                .expect(200);
+
+                body.should.have.property('remediations');
+                body.remediations.should.not.be.empty();
+                _.map(body.remediations, 'id').should.eql([
+                    '178cf0c8-35dd-42a3-96d5-7b50f9d211f6'
+                ]);
+            });
+
+            test('filter matches on default name', async () => {
+                const {body} = await request
+                .get('/v1/remediations?filter=unnamed&pretty')
+                .expect(200);
+
+                body.should.have.property('remediations');
+                body.remediations.should.not.be.empty();
+                _.map(body.remediations, 'id').should.eql([
+                    'e809526c-56f5-4cd8-a809-93328436ea23'
+                ]);
+            });
+
+            test('filter matches on number', async () => {
+                const {body} = await request
+                .get('/v1/remediations?filter=2&pretty')
+                .expect(200);
+
+                body.should.have.property('remediations');
+                body.remediations.should.not.be.empty();
+                _.map(body.remediations, 'id').should.eql([
+                    'cbc782e4-e8ae-4807-82ab-505387981d2e'
+                ]);
+            });
+        });
     });
 
     describe('get', function () {
