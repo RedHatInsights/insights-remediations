@@ -201,6 +201,72 @@ describe('remediations', function () {
                 ]);
             });
         });
+
+        describe('pagination', function () {
+            test('tiny page', async () => {
+                const {body} = await request
+                .get('/v1/remediations?limit=2&pretty')
+                .expect(200);
+
+                body.should.have.property('remediations');
+                body.remediations.should.not.be.empty();
+                _.map(body.remediations, 'id').should.eql([
+                    '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
+                    'e809526c-56f5-4cd8-a809-93328436ea23'
+                ]);
+            });
+
+            test('explicit offset', async () => {
+                const {body} = await request
+                .get('/v1/remediations?limit=2&offset=0&pretty')
+                .expect(200);
+
+                body.should.have.property('remediations');
+                body.remediations.should.not.be.empty();
+                _.map(body.remediations, 'id').should.eql([
+                    '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
+                    'e809526c-56f5-4cd8-a809-93328436ea23'
+                ]);
+            });
+
+            test('offset 1', async () => {
+                const {body} = await request
+                .get('/v1/remediations?limit=2&offset=1&pretty')
+                .expect(200);
+
+                body.should.have.property('remediations');
+                body.remediations.should.not.be.empty();
+                _.map(body.remediations, 'id').should.eql([
+                    'e809526c-56f5-4cd8-a809-93328436ea23',
+                    'cbc782e4-e8ae-4807-82ab-505387981d2e'
+                ]);
+            });
+
+            test('offset 2', async () => {
+                const {body} = await request
+                .get('/v1/remediations?limit=2&offset=2&pretty')
+                .expect(200);
+
+                body.should.have.property('remediations');
+                body.remediations.should.not.be.empty();
+                _.map(body.remediations, 'id').should.eql([
+                    'cbc782e4-e8ae-4807-82ab-505387981d2e',
+                    '66eec356-dd06-4c72-a3b6-ef27d1508a02'
+                ]);
+            });
+
+            test('offset 3', async () => {
+                const {body} = await request
+                .get('/v1/remediations?limit=2&offset=3&pretty')
+                .expect(200);
+
+                body.should.have.property('remediations');
+                body.remediations.should.not.be.empty();
+                _.map(body.remediations, 'id').should.eql([
+                    '66eec356-dd06-4c72-a3b6-ef27d1508a02'
+                ]);
+            });
+        });
     });
 
     describe('get', function () {

@@ -89,7 +89,13 @@ exports.list = errors.async(async function (req, res) {
     // issue_count, system_count on the app level below
     const dbColumn = ['updated_at', 'name'].includes(column) ? column : undefined;
 
-    let remediations = await queries.list(req.user.account_number, req.user.username, req.query.system, dbColumn, asc, req.query.filter)
+    let remediations = await queries.list(
+        req.user.account_number,
+        req.user.username,
+        req.query.system,
+        dbColumn,
+        asc,
+        req.query.filter)
     .map(r => r.toJSON());
 
     await P.all([
@@ -110,6 +116,9 @@ exports.list = errors.async(async function (req, res) {
     if (dbColumn === undefined) {
         remediations = _.orderBy(remediations, [column, 'name'], [asc ? 'asc' : 'desc', 'asc']);
     }
+
+    // TODO: ideally we should page on db level
+    remediations = remediations.slice(req.query.offset, req.query.offset + req.query.limit);
 
     res.json(format.list(remediations));
 });
