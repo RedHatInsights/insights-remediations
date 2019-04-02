@@ -36,8 +36,8 @@ describe('remediations', function () {
                 .get(url)
                 .expect(200);
 
-                body.should.have.property('remediations');
-                _.map(body.remediations, 'id').should.eql(ids);
+                body.should.have.property('data');
+                _.map(body.data, 'id').should.eql(ids);
                 expect(text).toMatchSnapshot();
             });
         }
@@ -47,9 +47,9 @@ describe('remediations', function () {
             .get('/v1/remediations?pretty')
             .expect(200);
 
-            body.should.have.property('remediations');
-            body.remediations.should.not.be.empty();
-            _.map(body.remediations, 'id').should.eql([
+            body.should.have.property('data');
+            body.data.should.not.be.empty();
+            _.map(body.data, 'id').should.eql([
                 '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
                 'e809526c-56f5-4cd8-a809-93328436ea23',
                 'cbc782e4-e8ae-4807-82ab-505387981d2e',
@@ -64,8 +64,8 @@ describe('remediations', function () {
             .get('/v1/remediations?username=99999')
             .expect(200);
 
-            body.should.have.property('remediations');
-            body.remediations.should.be.empty();
+            body.should.have.property('data');
+            body.data.should.be.empty();
         });
 
         test('does not leak data outside of the account (2)', async () => {
@@ -74,8 +74,8 @@ describe('remediations', function () {
             .set(auth.emptyInternal)
             .expect(200);
 
-            body.should.have.property('remediations');
-            body.remediations.should.be.empty();
+            body.should.have.property('data');
+            body.data.should.be.empty();
         });
 
         describe('sorting', function () {
@@ -86,7 +86,7 @@ describe('remediations', function () {
                     const {body} = await request
                     .get(`/v1/remediations?pretty&sort=${asc ? '' : '-'}${column}`)
                     .expect(200);
-                    _.map(body.remediations, 'id').should.eql(expected);
+                    _.map(body.data, 'id').should.eql(expected);
                 });
             }
 
@@ -154,7 +154,7 @@ describe('remediations', function () {
                 '400s on huge limit',
                 '/v1/remediations?limit=24000000',
                 'maximum.openapi.validation',
-                'should be <= 1000 (location: query, path: limit)'
+                'should be <= 200 (location: query, path: limit)'
             );
 
             test400(

@@ -48,7 +48,7 @@ exports.list = function (remediations, total, limit, offset) {
             total
         },
         links: buildListLinks(total, remediations.count, limit, offset),
-        remediations: formatted
+        data: formatted
     };
 };
 
