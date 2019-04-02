@@ -752,6 +752,17 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RemediationListItem'
+        meta:
+          type: object
+          additionalProperties: false
+          required: [count, total]
+          properties:
+            count:
+              type: number
+              description: number of results returned
+            total:
+              type: number
+              description: total number of results matching the query
 
     RemediationListItem:
       type: object

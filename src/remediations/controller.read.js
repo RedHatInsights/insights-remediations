@@ -117,10 +117,13 @@ exports.list = errors.async(async function (req, res) {
         remediations = _.orderBy(remediations, [column, 'name'], [asc ? 'asc' : 'desc', 'asc']);
     }
 
-    // TODO: ideally we should page on db level
-    remediations = remediations.slice(req.query.offset, req.query.offset + req.query.limit);
+    const {limit, offset} = req.query;
+    const total = remediations.length;
 
-    res.json(format.list(remediations));
+    // TODO: ideally we should page on db level
+    remediations = remediations.slice(offset, offset + limit);
+
+    res.json(format.list(remediations, total));
 });
 
 async function resolveSystems (remediation) {

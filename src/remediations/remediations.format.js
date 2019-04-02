@@ -4,7 +4,7 @@ const _ = require('lodash');
 const DEFAULT_REMEDIATION_NAME = 'unnamed-playbook';
 const PLAYBOOK_SUFFIX = 'yml';
 
-exports.list = function (remediations) {
+exports.list = function (remediations, total) {
     const formatted = _.map(remediations,
         ({id, name, needs_reboot, created_by, created_at, updated_by, updated_at, system_count, issue_count}) => ({
             id,
@@ -20,6 +20,10 @@ exports.list = function (remediations) {
     );
 
     return {
+        meta: {
+            count: remediations.length,
+            total
+        },
         remediations: formatted
     };
 };

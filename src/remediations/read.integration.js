@@ -32,12 +32,13 @@ describe('remediations', function () {
 
         async function testList (desc, url, ...ids) {
             test(desc, async () => {
-                const {body} = await request
+                const {body, text} = await request
                 .get(url)
                 .expect(200);
 
                 body.should.have.property('remediations');
                 _.map(body.remediations, 'id').should.eql(ids);
+                expect(text).toMatchSnapshot();
             });
         }
 
@@ -273,12 +274,12 @@ describe('remediations', function () {
         });
 
         test('listing of remediations does not blow up', async () => {
-            const {body} = await request
+            const {text} = await request
             .get('/v1/remediations?pretty')
             .set(auth.testReadSingle)
             .expect(200);
 
-            expect(body).toMatchSnapshot();
+            expect(text).toMatchSnapshot();
         });
     });
 });
