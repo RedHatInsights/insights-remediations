@@ -152,6 +152,9 @@ exports.unknownResolution = (id, resolution) =>
 
 exports.invalidIssueId = (id) => new exports.BadRequest('INVALID_ISSUE_IDENTIFIER', `"${id}" is not a valid issue identifier.`);
 
+exports.invalidOffset = (offset, max) =>
+    new exports.BadRequest('INVALID_OFFSET', `Requested starting offset ${offset} out of range: [0, ${max}]`);
+
 exports.internal = {
     invalidTemplate (msg) {
         return new InternalError('INVALID_TEMPLATE', msg);

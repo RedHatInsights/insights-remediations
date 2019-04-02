@@ -763,6 +763,21 @@ components:
             total:
               type: number
               description: total number of results matching the query
+        links:
+          type: object
+          additionalProperties: false
+          required: [first, last, next, previous]
+          properties:
+            first:
+              type: string
+            last:
+              type: string
+            next:
+              type: string
+              nullable: true
+            previous:
+              type: string
+              nullable: true
 
     RemediationListItem:
       type: object

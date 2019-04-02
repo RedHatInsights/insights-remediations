@@ -163,6 +163,13 @@ describe('remediations', function () {
                 'type.openapi.validation',
                 'should be number (location: query, path: offset)'
             );
+
+            test400(
+                '400s on offset too large',
+                '/v1/remediations?offset=123456',
+                'INVALID_OFFSET',
+                'Requested starting offset 123456 out of range: [0, 3]'
+            );
         });
     });
 

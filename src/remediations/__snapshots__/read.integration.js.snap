@@ -1410,6 +1410,12 @@ exports[`remediations list filter basic filter 1`] = `
         \\"count\\": 3,
         \\"total\\": 3
     },
+    \\"links\\": {
+        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"previous\\": null,
+        \\"next\\": null
+    },
     \\"remediations\\": [
         {
             \\"id\\": \\"178cf0c8-35dd-42a3-96d5-7b50f9d211f6\\",
@@ -1477,6 +1483,12 @@ exports[`remediations list filter empty filter 1`] = `
     \\"meta\\": {
         \\"count\\": 4,
         \\"total\\": 4
+    },
+    \\"links\\": {
+        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"previous\\": null,
+        \\"next\\": null
     },
     \\"remediations\\": [
         {
@@ -1565,6 +1577,12 @@ exports[`remediations list filter filter case does not matter 1`] = `
         \\"count\\": 1,
         \\"total\\": 1
     },
+    \\"links\\": {
+        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"previous\\": null,
+        \\"next\\": null
+    },
     \\"remediations\\": [
         {
             \\"id\\": \\"178cf0c8-35dd-42a3-96d5-7b50f9d211f6\\",
@@ -1594,6 +1612,12 @@ exports[`remediations list filter filter matches on default name 1`] = `
     \\"meta\\": {
         \\"count\\": 1,
         \\"total\\": 1
+    },
+    \\"links\\": {
+        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"previous\\": null,
+        \\"next\\": null
     },
     \\"remediations\\": [
         {
@@ -1625,6 +1649,12 @@ exports[`remediations list filter filter matches on number 1`] = `
         \\"count\\": 1,
         \\"total\\": 1
     },
+    \\"links\\": {
+        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"previous\\": null,
+        \\"next\\": null
+    },
     \\"remediations\\": [
         {
             \\"id\\": \\"cbc782e4-e8ae-4807-82ab-505387981d2e\\",
@@ -1654,6 +1684,12 @@ exports[`remediations list list remediations 1`] = `
     \\"meta\\": {
         \\"count\\": 4,
         \\"total\\": 4
+    },
+    \\"links\\": {
+        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"previous\\": null,
+        \\"next\\": null
     },
     \\"remediations\\": [
         {
@@ -1742,6 +1778,12 @@ exports[`remediations list pagination explicit offset 1`] = `
         \\"count\\": 2,
         \\"total\\": 4
     },
+    \\"links\\": {
+        \\"first\\": \\"/api/remediations/v1/remediations?limit=2&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\",
+        \\"previous\\": null,
+        \\"next\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\"
+    },
     \\"remediations\\": [
         {
             \\"id\\": \\"178cf0c8-35dd-42a3-96d5-7b50f9d211f6\\",
@@ -1790,6 +1832,12 @@ exports[`remediations list pagination offset 1 1`] = `
     \\"meta\\": {
         \\"count\\": 2,
         \\"total\\": 4
+    },
+    \\"links\\": {
+        \\"first\\": \\"/api/remediations/v1/remediations?limit=2&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\",
+        \\"previous\\": \\"/api/remediations/v1/remediations?limit=2&offset=0\\",
+        \\"next\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\"
     },
     \\"remediations\\": [
         {
@@ -1840,6 +1888,12 @@ exports[`remediations list pagination offset 2 1`] = `
         \\"count\\": 2,
         \\"total\\": 4
     },
+    \\"links\\": {
+        \\"first\\": \\"/api/remediations/v1/remediations?limit=2&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\",
+        \\"previous\\": \\"/api/remediations/v1/remediations?limit=2&offset=0\\",
+        \\"next\\": null
+    },
     \\"remediations\\": [
         {
             \\"id\\": \\"cbc782e4-e8ae-4807-82ab-505387981d2e\\",
@@ -1889,6 +1943,12 @@ exports[`remediations list pagination offset 3 1`] = `
         \\"count\\": 1,
         \\"total\\": 4
     },
+    \\"links\\": {
+        \\"first\\": \\"/api/remediations/v1/remediations?limit=2&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\",
+        \\"previous\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\",
+        \\"next\\": null
+    },
     \\"remediations\\": [
         {
             \\"id\\": \\"66eec356-dd06-4c72-a3b6-ef27d1508a02\\",
@@ -1918,6 +1978,12 @@ exports[`remediations list pagination tiny page 1`] = `
     \\"meta\\": {
         \\"count\\": 2,
         \\"total\\": 4
+    },
+    \\"links\\": {
+        \\"first\\": \\"/api/remediations/v1/remediations?limit=2&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\",
+        \\"previous\\": null,
+        \\"next\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\"
     },
     \\"remediations\\": [
         {
@@ -1967,6 +2033,12 @@ exports[`remediations list sorting default 1`] = `
     \\"meta\\": {
         \\"count\\": 4,
         \\"total\\": 4
+    },
+    \\"links\\": {
+        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"previous\\": null,
+        \\"next\\": null
     },
     \\"remediations\\": [
         {
@@ -2055,6 +2127,12 @@ exports[`remediations list system filter filters out remediations not featuring 
         \\"count\\": 4,
         \\"total\\": 4
     },
+    \\"links\\": {
+        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"previous\\": null,
+        \\"next\\": null
+    },
     \\"remediations\\": [
         {
             \\"id\\": \\"178cf0c8-35dd-42a3-96d5-7b50f9d211f6\\",
@@ -2142,6 +2220,12 @@ exports[`remediations list system filter filters out remediations not featuring 
         \\"count\\": 2,
         \\"total\\": 2
     },
+    \\"links\\": {
+        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"previous\\": null,
+        \\"next\\": null
+    },
     \\"remediations\\": [
         {
             \\"id\\": \\"e809526c-56f5-4cd8-a809-93328436ea23\\",
@@ -2190,6 +2274,12 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
     \\"meta\\": {
         \\"count\\": 5,
         \\"total\\": 5
+    },
+    \\"links\\": {
+        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"previous\\": null,
+        \\"next\\": null
     },
     \\"remediations\\": [
         {

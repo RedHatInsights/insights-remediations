@@ -84,6 +84,7 @@ function inferNeedsReboot (remediation) {
 
 exports.list = errors.async(async function (req, res) {
     const {column, asc} = parseSort(req.query.sort);
+    const {limit, offset} = req.query;
 
     // updated_at, name are sorted on the db level
     // issue_count, system_count on the app level below
@@ -97,6 +98,10 @@ exports.list = errors.async(async function (req, res) {
         asc,
         req.query.filter)
     .map(r => r.toJSON());
+
+    if (offset >= Math.max(remediations.length, 1)) {
+        throw errors.invalidOffset(offset, remediations.length - 1);
+    }
 
     await P.all([
         await resolveResolutions(...remediations),
@@ -117,13 +122,12 @@ exports.list = errors.async(async function (req, res) {
         remediations = _.orderBy(remediations, [column, 'name'], [asc ? 'asc' : 'desc', 'asc']);
     }
 
-    const {limit, offset} = req.query;
     const total = remediations.length;
 
     // TODO: ideally we should page on db level
     remediations = remediations.slice(offset, offset + limit);
 
-    res.json(format.list(remediations, total));
+    res.json(format.list(remediations, total, limit, offset));
 });
 
 async function resolveSystems (remediation) {
