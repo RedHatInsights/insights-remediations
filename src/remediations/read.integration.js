@@ -3,8 +3,44 @@
 const _ = require('lodash');
 const { request, auth, reqId } = require('../test');
 
+function test400 (name, url, code, title) {
+    test(name, async () => {
+        const {id, header} = reqId();
+        const { body } = await request
+        .get(url)
+        .set(header)
+        .expect(400);
+
+        body.errors.should.eql([{
+            id,
+            status: 400,
+            code,
+            title
+        }]);
+    });
+}
+
 describe('remediations', function () {
     describe('list', function () {
+
+        const [r178, re80, rcbc, r66e] = [
+            '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
+            'e809526c-56f5-4cd8-a809-93328436ea23',
+            'cbc782e4-e8ae-4807-82ab-505387981d2e',
+            '66eec356-dd06-4c72-a3b6-ef27d1508a02'
+        ];
+
+        async function testList (desc, url, ...ids) {
+            test(desc, async () => {
+                const {body} = await request
+                .get(url)
+                .expect(200);
+
+                body.should.have.property('remediations');
+                _.map(body.remediations, 'id').should.eql(ids);
+            });
+        }
+
         test('list remediations', async () => {
             const {body, text} = await request
             .get('/v1/remediations?pretty')
@@ -42,19 +78,7 @@ describe('remediations', function () {
         });
 
         describe('sorting', function () {
-            const [r1, r2, r3, r4] = [
-                '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
-                'e809526c-56f5-4cd8-a809-93328436ea23',
-                'cbc782e4-e8ae-4807-82ab-505387981d2e',
-                '66eec356-dd06-4c72-a3b6-ef27d1508a02'
-            ];
-
-            test('default', async () => {
-                const {body} = await request
-                .get('/v1/remediations?pretty')
-                .expect(200);
-                _.map(body.remediations, 'id').should.eql([r1, r2, r3, r4]);
-            });
+            testList('default', '/v1/remediations?pretty', r178, re80, rcbc, r66e);
 
             function testSorting (column, asc, ...expected) {
                 test(`${column} ${asc ? 'ASC' : 'DESC'}`, async () => {
@@ -65,207 +89,79 @@ describe('remediations', function () {
                 });
             }
 
-            testSorting('updated_at', true, r4, r3, r2, r1);
-            testSorting('updated_at', false, r1, r2, r3, r4);
-            testSorting('name', true, r4, r3, r1, r2);
-            testSorting('name', false, r2, r1, r3, r4);
-            testSorting('issue_count', true, r1, r2, r3, r4);
-            testSorting('issue_count', false, r4, r3, r1, r2);
-            testSorting('system_count', true, r1, r3, r2, r4);
-            testSorting('system_count', false, r2, r4, r1, r3);
+            testSorting('updated_at', true, r66e, rcbc, re80, r178);
+            testSorting('updated_at', false, r178, re80, rcbc, r66e);
+            testSorting('name', true, r66e, rcbc, r178, re80);
+            testSorting('name', false, re80, r178, rcbc, r66e);
+            testSorting('issue_count', true, r178, re80, rcbc, r66e);
+            testSorting('issue_count', false, r66e, rcbc, r178, re80);
+            testSorting('system_count', true, r178, rcbc, re80, r66e);
+            testSorting('system_count', false, re80, r66e, r178, rcbc);
 
-            test('invalid column', async () => {
-                const {id, header} = reqId();
-                const { body } = await request
-                .get('/v1/remediations?pretty&sort=foo')
-                .set(header)
-                .expect(400);
-
-                body.errors.should.eql([{
-                    id,
-                    status: 400,
-                    code: 'enum.openapi.validation',
-                    title: 'should be equal to one of the allowed values (location: query, path: sort)'
-                }]);
-            });
+            test400(
+                'invalid column',
+                '/v1/remediations?pretty&sort=foo',
+                'enum.openapi.validation',
+                'should be equal to one of the allowed values (location: query, path: sort)'
+            );
         });
 
         describe('system filter', function () {
-            test('filters out remediations not featuring the given system', async () => {
-                const {body} = await request
-                .get('/v1/remediations?system=1f12bdfc-8267-492d-a930-92f498fe65b9&pretty')
-                .expect(200);
+            testList(
+                'filters out remediations not featuring the given system',
+                '/v1/remediations?system=1f12bdfc-8267-492d-a930-92f498fe65b9&pretty',
+                re80, r66e
+            );
 
-                body.should.have.property('remediations');
-                body.remediations.should.not.be.empty();
-                _.map(body.remediations, 'id').should.eql([
-                    'e809526c-56f5-4cd8-a809-93328436ea23',
-                    '66eec356-dd06-4c72-a3b6-ef27d1508a02'
-                ]);
-            });
+            testList(
+                'filters out remediations not featuring the given system (2)',
+                '/v1/remediations?system=fc94beb8-21ee-403d-99b1-949ef7adb762&pretty',
+                r178, re80, rcbc, r66e
+            );
 
-            test('filters out remediations not featuring the given system (2)', async () => {
-                const {body} = await request
-                .get('/v1/remediations?system=fc94beb8-21ee-403d-99b1-949ef7adb762&pretty')
-                .expect(200);
-
-                body.should.have.property('remediations');
-                body.remediations.should.not.be.empty();
-                _.map(body.remediations, 'id').should.eql([
-                    '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
-                    'e809526c-56f5-4cd8-a809-93328436ea23',
-                    'cbc782e4-e8ae-4807-82ab-505387981d2e',
-                    '66eec356-dd06-4c72-a3b6-ef27d1508a02'
-                ]);
-            });
-
-            test('400s on invalid format', async () => {
-                const {id, header} = reqId();
-                const {body} = await request
-                .get('/v1/remediations?system=foo')
-                .set(header)
-                .expect(400);
-
-                body.errors.should.eql([{
-                    id,
-                    status: 400,
-                    code: 'format.openapi.validation',
-                    title: 'should match format "uuid" (location: query, path: system)'
-                }]);
-            });
+            test400(
+                '400s on invalid format',
+                '/v1/remediations?system=foo',
+                'format.openapi.validation',
+                'should match format "uuid" (location: query, path: system)'
+            );
         });
 
         describe('filter', function () {
-            test('empty filter', async () => {
-                const {body} = await request
-                .get('/v1/remediations?filter=&pretty')
-                .expect(200);
-
-                body.should.have.property('remediations');
-                body.remediations.should.not.be.empty();
-                _.map(body.remediations, 'id').should.eql([
-                    '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
-                    'e809526c-56f5-4cd8-a809-93328436ea23',
-                    'cbc782e4-e8ae-4807-82ab-505387981d2e',
-                    '66eec356-dd06-4c72-a3b6-ef27d1508a02'
-                ]);
-            });
-
-            test('basic filter', async () => {
-                const {body} = await request
-                .get('/v1/remediations?filter=remediation&pretty')
-                .expect(200);
-
-                body.should.have.property('remediations');
-                body.remediations.should.not.be.empty();
-                _.map(body.remediations, 'id').should.eql([
-                    '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
-                    'cbc782e4-e8ae-4807-82ab-505387981d2e',
-                    '66eec356-dd06-4c72-a3b6-ef27d1508a02'
-                ]);
-            });
-
-            test('filter case does not matter', async () => {
-                const {body} = await request
-                .get('/v1/remediations?filter=REBooT&pretty')
-                .expect(200);
-
-                body.should.have.property('remediations');
-                body.remediations.should.not.be.empty();
-                _.map(body.remediations, 'id').should.eql([
-                    '178cf0c8-35dd-42a3-96d5-7b50f9d211f6'
-                ]);
-            });
-
-            test('filter matches on default name', async () => {
-                const {body} = await request
-                .get('/v1/remediations?filter=unnamed&pretty')
-                .expect(200);
-
-                body.should.have.property('remediations');
-                body.remediations.should.not.be.empty();
-                _.map(body.remediations, 'id').should.eql([
-                    'e809526c-56f5-4cd8-a809-93328436ea23'
-                ]);
-            });
-
-            test('filter matches on number', async () => {
-                const {body} = await request
-                .get('/v1/remediations?filter=2&pretty')
-                .expect(200);
-
-                body.should.have.property('remediations');
-                body.remediations.should.not.be.empty();
-                _.map(body.remediations, 'id').should.eql([
-                    'cbc782e4-e8ae-4807-82ab-505387981d2e'
-                ]);
-            });
+            testList('empty filter', '/v1/remediations?filter=&pretty', r178, re80, rcbc, r66e);
+            testList('basic filter', '/v1/remediations?filter=remediation&pretty', r178, rcbc, r66e);
+            testList('filter case does not matter', '/v1/remediations?filter=REBooT&pretty', r178);
+            testList('filter matches on default name', '/v1/remediations?filter=unnamed&pretty', re80);
+            testList('filter matches on number', '/v1/remediations?filter=2&pretty', rcbc);
         });
 
         describe('pagination', function () {
-            test('tiny page', async () => {
-                const {body} = await request
-                .get('/v1/remediations?limit=2&pretty')
-                .expect(200);
+            testList('tiny page', '/v1/remediations?limit=2&pretty', r178, re80);
+            testList('explicit offset', '/v1/remediations?limit=2&offset=0&pretty', r178, re80);
+            testList('offset 1', '/v1/remediations?limit=2&offset=1&pretty', re80, rcbc);
+            testList('offset 2', '/v1/remediations?limit=2&offset=2&pretty', rcbc, r66e);
+            testList('offset 3', '/v1/remediations?limit=2&offset=3&pretty', r66e);
 
-                body.should.have.property('remediations');
-                body.remediations.should.not.be.empty();
-                _.map(body.remediations, 'id').should.eql([
-                    '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
-                    'e809526c-56f5-4cd8-a809-93328436ea23'
-                ]);
-            });
+            test400(
+                '400s on zero limit',
+                '/v1/remediations?limit=0',
+                'minimum.openapi.validation',
+                'should be >= 1 (location: query, path: limit)'
+            );
 
-            test('explicit offset', async () => {
-                const {body} = await request
-                .get('/v1/remediations?limit=2&offset=0&pretty')
-                .expect(200);
+            test400(
+                '400s on huge limit',
+                '/v1/remediations?limit=24000000',
+                'maximum.openapi.validation',
+                'should be <= 1000 (location: query, path: limit)'
+            );
 
-                body.should.have.property('remediations');
-                body.remediations.should.not.be.empty();
-                _.map(body.remediations, 'id').should.eql([
-                    '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
-                    'e809526c-56f5-4cd8-a809-93328436ea23'
-                ]);
-            });
-
-            test('offset 1', async () => {
-                const {body} = await request
-                .get('/v1/remediations?limit=2&offset=1&pretty')
-                .expect(200);
-
-                body.should.have.property('remediations');
-                body.remediations.should.not.be.empty();
-                _.map(body.remediations, 'id').should.eql([
-                    'e809526c-56f5-4cd8-a809-93328436ea23',
-                    'cbc782e4-e8ae-4807-82ab-505387981d2e'
-                ]);
-            });
-
-            test('offset 2', async () => {
-                const {body} = await request
-                .get('/v1/remediations?limit=2&offset=2&pretty')
-                .expect(200);
-
-                body.should.have.property('remediations');
-                body.remediations.should.not.be.empty();
-                _.map(body.remediations, 'id').should.eql([
-                    'cbc782e4-e8ae-4807-82ab-505387981d2e',
-                    '66eec356-dd06-4c72-a3b6-ef27d1508a02'
-                ]);
-            });
-
-            test('offset 3', async () => {
-                const {body} = await request
-                .get('/v1/remediations?limit=2&offset=3&pretty')
-                .expect(200);
-
-                body.should.have.property('remediations');
-                body.remediations.should.not.be.empty();
-                _.map(body.remediations, 'id').should.eql([
-                    '66eec356-dd06-4c72-a3b6-ef27d1508a02'
-                ]);
-            });
+            test400(
+                '400s on invalid offset type',
+                '/v1/remediations?offset=false',
+                'type.openapi.validation',
+                'should be number (location: query, path: offset)'
+            );
         });
     });
 
