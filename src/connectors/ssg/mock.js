@@ -28,6 +28,8 @@ module.exports = new class extends Connector {
                 return read('standard', 'service_autofs_disabled');
             case 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled':
                 return read('standard', 'service_rsyslog_enabled');
+            case 'ssg:rhel7|ospp42|xccdf_org.ssgproject.content_rule_mount_option_dev_shm_nodev':
+                return read('ospp42', 'mount_option_dev_shm_nodev');
             default: return null;
         }
     }

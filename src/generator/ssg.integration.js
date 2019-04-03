@@ -83,3 +83,18 @@ test('400s on unknown resolution type other than fix', () => {
     });
 });
 
+test('generates a playbook with block', async () => {
+    const data = {
+        issues: [{
+            id: 'ssg:rhel7|ospp42|xccdf_org.ssgproject.content_rule_mount_option_dev_shm_nodev',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    const res = await request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200);
+    expect(res.text).toMatchSnapshot();
+});
+

@@ -60,6 +60,10 @@ const DATA = Object.freeze({
 
     'xccdf_org.ssgproject.content_rule_service_rsyslog_enabled': {
         title: 'Enable rsyslog Service'
+    },
+
+    'xccdf_org.ssgproject.content_rule_mount_option_dev_shm_nodev': {
+        title: 'Add nodev Option to /dev/shm'
     }
 });
 

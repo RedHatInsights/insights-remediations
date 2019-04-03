@@ -1,0 +1,58 @@
+# platform = multi_platform_all
+# reboot = false
+# strategy = configure
+# complexity = low
+# disruption = high
+- name: Add nodev Option to /dev/shm
+  hosts: '@@HOSTS@@'
+  become: true
+  tags:
+    - CCE-80152-2
+    - NIST-800-53-CM-7
+    - NIST-800-53-MP-2
+    - configure_strategy
+    - high_disruption
+    - low_complexity
+    - medium_severity
+    - mount_option_dev_shm_nodev
+    - no_reboot_needed
+  tasks:
+
+    - name: get back device associated to mountpoint
+      shell: mount | grep ' /dev/shm ' |cut -d ' ' -f 1
+      args:
+        warn: false
+      register: device_name
+      check_mode: false
+      changed_when: false
+      when: ansible_virtualization_role != "guest" or ansible_virtualization_type
+        != "docker"
+    - block:
+
+        - name: get back device previous mount option
+          shell: mount | grep ' /dev/shm ' | sed -re 's:.*\((.*)\):\1:'
+          args:
+            warn: false
+          register: device_cur_mountoption
+          check_mode: false
+          changed_when: false
+
+        - name: get back device fstype
+          shell: mount | grep ' /dev/shm ' | cut -d ' ' -f 5
+          args:
+            warn: false
+          register: device_fstype
+          check_mode: false
+          changed_when: false
+
+        - name: Ensure permission nodev are set on /dev/shm
+          mount:
+            path: /dev/shm
+            src: '{{ device_name.stdout }}'
+            opts: '{{ device_cur_mountoption.stdout }},nodev'
+            state: mounted
+            fstype: '{{ device_fstype.stdout }}'
+      when:
+        - (device_name.stdout | length > 0)
+        - ansible_virtualization_role != "guest" or ansible_virtualization_type !=
+          "docker"
