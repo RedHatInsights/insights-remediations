@@ -65,7 +65,7 @@ node ('openscap') {
 
         stage('build OpenSCAP') {
             sh 'mkdir -p artifacts/playbooks'
-            sh "echo ${env.REVISION} > artifacts/playbooks/revision.txt";
+            sh "echo ${REVISION} > artifacts/playbooks/revision.txt";
 
             dir('source') {
                 sh 'for i in rhel6 rhel7 rhel8; do ./build_product $i; mkdir ../artifacts/playbooks/$i; mv build/$i/playbooks ../artifacts/playbooks/$i; done'
