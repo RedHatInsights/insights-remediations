@@ -20,7 +20,7 @@ remediations:
 
   logLevel: trace
 
-  pathPrefix: /r/insights/platform
+  pathPrefix: /api
 
   advisor:
     impl: impl
