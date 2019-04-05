@@ -4,8 +4,12 @@ const _ = require('lodash');
 const P = require('bluebird');
 const log = require('../util/log');
 const errors = require('../errors');
+const cache = require('../cache');
+const db = require('../db');
 
 const TIMEOUT_CODES = ['ESOCKETTIMEDOUT', 'ETIMEDOUT'];
+const OK = 'ok';
+const ERROR = 'error';
 
 const CONNECTORS = _([
     'advisor',
@@ -19,10 +23,10 @@ const CONNECTORS = _([
     'vulnerabilities'
 ]).keyBy().mapValues(id => require(`../connectors/${id}`)).value();
 
-async function getStatus (connector) {
+async function getConnectorStatus (connector) {
     try {
         await connector.ping();
-        return 'ok';
+        return OK;
     } catch (e) {
         log.warn(e, 'ping failed');
 
@@ -31,21 +35,51 @@ async function getStatus (connector) {
             return 'timeout';
         }
 
-        return 'error';
+        return ERROR;
+    }
+}
+
+function getRedis () {
+    try {
+        if (cache.get().status === 'ready') {
+            return OK;
+        }
+    } catch (e) {} // eslint-disable-line no-empty
+
+    return ERROR;
+}
+
+async function getDb () {
+    try {
+        await db.s.authenticate();
+        return OK;
+    } catch (e) {
+        return ERROR;
     }
 }
 
 exports.status = errors.async(async function (req, res) {
-    const connectors = await P.props(_.mapValues(CONNECTORS, async connector => {
-        const status = await getStatus(connector);
+    const [connectors, db] = await P.all([
+        P.props(_.mapValues(CONNECTORS, async connector => {
+            const status = await getConnectorStatus(connector);
 
-        return {
-            status,
-            impl: connector.getImpl()
-        };
-    }));
+            return {
+                status,
+                impl: connector.getImpl()
+            };
+        })),
+        getDb()
+    ]);
 
     res.json({
-        connectors
+        connectors,
+        dependencies: {
+            db: {
+                status: db
+            },
+            redis: {
+                status: getRedis()
+            }
+        }
     }).end();
 });
