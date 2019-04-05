@@ -41,7 +41,7 @@ remediations:
     host: http://insights-inventory.platform-prod.svc.cluster.local:8080
   users:
     impl: impl
-    host: https://insights-services-pipeline-insights.ext.paas.redhat.com
+    host: https://backoffice-proxy-insights-services.ext.us-east.dc.prod.paas.redhat.com
   ssg:
     impl: impl
     host: http://playbooks-ssg:8080
