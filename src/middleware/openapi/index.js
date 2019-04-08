@@ -35,6 +35,27 @@ function buildReqValidator (operation, parameters, spec) {
 }
 
 function buildResValidator (responses, spec) {
+    spec = _.cloneDeep(spec);
+    responses = _.cloneDeep(responses);
+
+    // workaround for https://github.com/kogosoftwarellc/open-api/issues/413
+    function removeExamples (object) {
+        if (!_.isObject(object)) {
+            return;
+        }
+
+        Object.keys(object).forEach(key => {
+            if (key === 'example' || key === 'examples') {
+                delete object[key];
+            } else {
+                removeExamples(object[key]);
+            }
+        });
+    }
+
+    removeExamples(spec);
+    removeExamples(responses);
+
     return new OpenAPIResponseValidator({
         responses,
         components: spec.components
@@ -65,7 +86,7 @@ function resolveRefs (object, spec = object) {
     }
 
     Object.keys(object).forEach(key => {
-        if (typeof object[key].$ref === 'string') {
+        if (_.isObject(object[key]) && _.isString(object[key].$ref)) {
             object[key] = resolveRef(object[key].$ref, spec);
         }
 

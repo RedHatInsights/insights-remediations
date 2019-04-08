@@ -760,9 +760,11 @@ components:
             count:
               type: number
               description: number of results returned
+              example: 50
             total:
               type: number
               description: total number of results matching the query
+              example: 114
         links:
           type: object
           additionalProperties: false
@@ -770,14 +772,20 @@ components:
           properties:
             first:
               type: string
+              description: relative link to the first page of the query results
             last:
               type: string
+              description: relative link to the last page of the query results
             next:
               type: string
               nullable: true
+              description: relative link to the next page of the query results (or null if this is the last page)
             previous:
               type: string
               nullable: true
+              description: relative link to the previous page of the query results (or null if this is the first page)
+          example:
+            $ref: '#/components/examples/RemediationLinks'
 
     RemediationListItem:
       type: object
@@ -876,3 +884,11 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/RequestError'
+
+  examples:
+    RemediationLinks:
+      value:
+        first: /api/remediations/v1/remediations?limit=50&offset=0
+        last: /api/remediations/v1/remediations?limit=50&offset=50
+        next: /api/remediations/v1/remediations?limit=50&offset=50
+        previous: null
