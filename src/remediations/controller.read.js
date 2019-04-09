@@ -195,5 +195,5 @@ exports.playbook = errors.async(async function (req, res) {
         auto_reboot: remediation.auto_reboot
     }, remediation);
 
-    generator.send(res, playbook, format.playbookName(remediation));
+    generator.send(req, res, playbook, format.playbookName(remediation));
 });
