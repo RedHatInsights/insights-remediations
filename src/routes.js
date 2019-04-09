@@ -55,7 +55,9 @@ module.exports = async function (app) {
     app.use(prettyJson);
 
     const v1 = express.Router();
+    const legacy = express.Router();
     require(`./diagnosis/routes`)(v1);
+    require(`./diagnosis/routes`)(legacy);
     require(`./whoami/routes`)(v1);
 
     // diagnosis and whoami are the only path that accepts cert auth
@@ -72,6 +74,7 @@ module.exports = async function (app) {
     ].forEach(resource => require(`./${resource}/routes`)(v1));
 
     app.use(`${config.path.base}/v1`, v1);
+    app.use('/r/insights/platform/remediations/v1', legacy);
 
     const toDocs = base => (req, res) => res.redirect(`${base}/v1/docs`);
     ['/', config.path.base, `${config.path.base}/v1`].forEach(path => app.get(path, toDocs(config.path.base)));

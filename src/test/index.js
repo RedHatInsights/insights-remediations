@@ -43,6 +43,7 @@ afterAll(async () => {
 });
 
 exports.request = supertest.agent(`http://localhost:${config.port}${config.path.base}`);
+exports.requestLegacy = supertest.agent(`http://localhost:${config.port}/r/insights/platform/remediations`);
 
 function createHeader (id, account_number, internal) {
     return {
