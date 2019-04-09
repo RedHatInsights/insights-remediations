@@ -5,6 +5,7 @@ const errors = require('../../errors');
 const log = require('../../util/log');
 
 module.exports = function (req, res, next) {
+    // eslint-disable-next-line security/detect-object-injection
     const raw = req.headers[IDENTITY_HEADER];
     const reqId = req.id;
 

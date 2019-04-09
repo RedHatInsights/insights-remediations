@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const Template = require('../Template');
 
+/* eslint-disable security/detect-non-literal-fs-filename */
 module.exports = Object.freeze(traverse(__dirname));
 
 function traverse (dir) {

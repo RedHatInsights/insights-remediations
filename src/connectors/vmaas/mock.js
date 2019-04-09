@@ -3,7 +3,7 @@
 const P = require('bluebird');
 const Connector = require('../Connector');
 
-/* eslint max-len: off */
+/* eslint-disable security/detect-object-injection, max-len */
 
 const ERRATA = {
     'RHSA-2018:0502': {

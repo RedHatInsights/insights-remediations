@@ -8,8 +8,10 @@ const Connector = require('../Connector');
 
 const {host, insecure, auth, env, clientId, revalidationInterval} = require('../../config').users;
 
+/* eslint-disable security/detect-non-literal-fs-filename */
 const cert = fs.readFileSync(path.resolve(__dirname, '../../../certs/backoffice-proxy.crt'));
 const ca = fs.readFileSync(path.resolve(__dirname, '../../../certs/backoffice-proxy.ca.crt'));
+/* eslint-enable security/detect-non-literal-fs-filename */
 const metrics = require('../metrics');
 
 module.exports = new class extends Connector {

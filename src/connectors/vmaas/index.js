@@ -2,8 +2,8 @@
 
 const config = require('../../config');
 
-if (config.vmaas.impl) {
-    module.exports = require(`./${config.vmaas.impl}`);
+if (config.vmaas.impl === 'mock') {
+    module.exports = require('./mock');
 } else {
     module.exports = require('./vmaas');
 }

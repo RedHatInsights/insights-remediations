@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint-disable security/detect-object-injection */
+
 const base = require('../test');
 const cls = require('../util/cls');
 const cache = require('../cache');

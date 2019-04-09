@@ -4,6 +4,7 @@ const PARAM = 'pretty';
 const SPACES = 4;
 
 module.exports = function (req, res, next) {
+    // eslint-disable-next-line security/detect-object-injection
     if (typeof req.query[PARAM] !== 'undefined' ||
         (typeof req.headers['user-agent'] === 'string' && req.headers['user-agent'].startsWith('Mozilla'))) {
 

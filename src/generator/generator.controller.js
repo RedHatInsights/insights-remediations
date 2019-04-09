@@ -44,7 +44,10 @@ async function resolveSystems (issues) {
             throw errors.unknownSystem(id);
         }
 
-        return systems[id].display_name || systems[id].hostname || systems[id].id;
+        // validated by openapi middleware and also above
+        // eslint-disable-next-line security/detect-object-injection
+        const system = systems[id];
+        return system.display_name || system.hostname || system.id;
     }));
 
     return issues;

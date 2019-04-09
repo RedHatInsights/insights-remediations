@@ -2,8 +2,8 @@
 
 const config = require('../../config');
 
-if (config.compliance.impl) {
-    module.exports = require(`./${config.compliance.impl}`);
+if (config.compliance.impl === 'impl') {
+    module.exports = require('./impl');
 } else {
     module.exports = require('./mock');
 }

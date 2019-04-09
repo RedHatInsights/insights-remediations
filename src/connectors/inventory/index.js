@@ -2,8 +2,8 @@
 
 const config = require('../../config');
 
-if (config.inventory.impl) {
-    module.exports = require(`./${config.inventory.impl}`);
+if (config.inventory.impl === 'impl') {
+    module.exports = require('./impl');
 } else {
     module.exports = require('./mock');
 }

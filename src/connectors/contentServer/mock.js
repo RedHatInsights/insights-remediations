@@ -1,6 +1,7 @@
 'use strict';
 
 /* eslint max-len: off */
+const _ = require('lodash');
 
 const DATA = {
     'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE': [{
@@ -46,8 +47,8 @@ module.exports = new class extends Connector {
     }
 
     getResolutions (id) {
-        if (id in DATA) {
-            return DATA[id];
+        if (_.has(DATA, id)) {
+            return DATA[id]; // eslint-disable-line security/detect-object-injection
         }
 
         return [];

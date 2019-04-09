@@ -11,14 +11,15 @@ function parseIntEnv (name, defaultValue) {
         throw new Error(`invalid key ${name}`);
     }
 
-    if (env[name] === undefined) {
+    const value = env[name]; // eslint-disable-line security/detect-object-injection
+    if (value === undefined) {
         return defaultValue;
     }
 
-    const parsed = parseInt(env[name]);
+    const parsed = parseInt(value);
 
     if (isNaN(parsed)) {
-        throw new Error(`invalid value ${name}=${env[name]}`);
+        throw new Error(`invalid value ${name}=${value}`);
     }
 
     return parsed;
@@ -165,8 +166,10 @@ const config = {
 
 config.path.base = `${config.path.prefix}/${config.path.app}`;
 
-if (fs.existsSync(path.join(__dirname, `${config.env}.js`))) {
-    _.merge(config, require(`./${config.env}`));
+if (['development', 'production', 'test'].includes(config.env)) {
+    if (fs.existsSync(path.join(__dirname, `${config.env}.js`))) { // eslint-disable-line security/detect-non-literal-fs-filename
+        _.merge(config, require(`./${config.env}`)); // eslint-disable-line security/detect-non-literal-require
+    }
 }
 
 module.exports = config;

@@ -21,7 +21,7 @@ const CONNECTORS = _([
     'users',
     'vmaas',
     'vulnerabilities'
-]).keyBy().mapValues(id => require(`../connectors/${id}`)).value();
+]).keyBy().mapValues(id => require(`../connectors/${id}`)).value(); // eslint-disable-line security/detect-non-literal-require
 
 async function getConnectorStatus (connector) {
     try {

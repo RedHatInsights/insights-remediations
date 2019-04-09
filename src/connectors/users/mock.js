@@ -3,6 +3,8 @@
 const _ = require('lodash');
 const Connector = require('../Connector');
 
+/* eslint-disable security/detect-object-injection */
+
 const MOCK_USERS = _.keyBy([{
     username: 'tuser@redhat.com',
     account_number: 'test',

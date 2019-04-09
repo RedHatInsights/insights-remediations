@@ -27,6 +27,7 @@ describe('remediations', function () {
             r1.body.should.have.property('id');
             const location = r1.header.location;
             location.should.match(
+                // eslint-disable-next-line security/detect-non-literal-regexp
                 new RegExp(`^${config.path.base}/v1/remediations/[\\w]{8}-[\\w]{4}-[\\w]{4}-[\\w]{4}-[\\w]{12}$`));
 
             const r2 = await request
@@ -102,6 +103,7 @@ describe('remediations', function () {
 
             const location = r1.header.location;
             location.should.match(
+                // eslint-disable-next-line security/detect-non-literal-regexp
                 new RegExp(`^${config.path.base}/v1/remediations/[\\w]{8}-[\\w]{4}-[\\w]{4}-[\\w]{4}-[\\w]{12}$`));
 
             const r2 = await request

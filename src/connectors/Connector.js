@@ -59,9 +59,11 @@ module.exports = class Connector {
 
         const name = this.getName();
         if (identity) {
+            // eslint-disable-next-line security/detect-object-injection
             assert(forwarded[IDENTITY_HEADER], `identity header not available for outbound ${name} request`);
         }
 
+        // eslint-disable-next-line security/detect-object-injection
         assert(forwarded[REQ_ID_HEADER], `request id header not available for outbound ${name} request`);
         return forwarded;
     }

@@ -24,6 +24,7 @@ function checkPropsStrict (ref, path) {
         code = 1;
     }
 
+    // eslint-disable-next-line security/detect-object-injection
     Object.keys(ref).forEach(key => checkPropsStrict(ref[key], [...path, key]));
 }
 

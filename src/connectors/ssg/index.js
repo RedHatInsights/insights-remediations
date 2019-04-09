@@ -2,8 +2,8 @@
 
 const impl = require('../../config').ssg.impl;
 
-if (impl) {
-    module.exports = require(`./${impl}`);
+if (impl === 'impl') {
+    module.exports = require('./impl');
 } else {
     module.exports = require('./mock');
 }

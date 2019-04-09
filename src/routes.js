@@ -56,9 +56,9 @@ module.exports = async function (app) {
 
     const v1 = express.Router();
     const legacy = express.Router();
-    require(`./diagnosis/routes`)(v1);
-    require(`./diagnosis/routes`)(legacy);
-    require(`./whoami/routes`)(v1);
+    require('./diagnosis/routes')(v1);
+    require('./diagnosis/routes')(legacy);
+    require('./whoami/routes')(v1);
 
     // diagnosis and whoami are the only path that accepts cert auth
     v1.use(userIdentity);
@@ -71,7 +71,7 @@ module.exports = async function (app) {
         'status',
         'version',
         'whoami'
-    ].forEach(resource => require(`./${resource}/routes`)(v1));
+    ].forEach(resource => require(`./${resource}/routes`)(v1)); // eslint-disable-line security/detect-non-literal-require
 
     app.use(`${config.path.base}/v1`, v1);
     app.use('/r/insights/platform/remediations/v1', legacy);

@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const Connector = require('../Connector');
 
 const DATA = {
@@ -48,7 +49,8 @@ module.exports = new class extends Connector {
     }
 
     async getRule (id) {
-        if (DATA[id]) {
+        if (_.has(DATA, id)) {
+            // eslint-disable-next-line security/detect-object-injection
             return DATA[id];
         }
 

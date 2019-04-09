@@ -9,6 +9,7 @@ const opts = {
     returning: true
 };
 
+/* eslint-disable security/detect-object-injection */
 exports.up = async q => {
     const remediations = await q.bulkInsert('remediations', [{
         id: '82aeb63f-fc25-4eef-9333-4fa7e10f7217',

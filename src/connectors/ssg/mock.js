@@ -6,6 +6,7 @@ const Connector = require('../Connector');
 const identifiers = require('../../util/identifiers');
 
 function read (dir, file) {
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
     return fs.readFileSync(path.join(__dirname, 'mock', dir, `${file}.yml`), 'utf-8');
 }
 

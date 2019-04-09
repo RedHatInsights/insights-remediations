@@ -27,6 +27,7 @@ function generateSystem (id) {
     }
 
     if (SYSTEMS.hasOwnProperty(id)) {
+        // eslint-disable-next-line security/detect-object-injection
         return Object.assign({ id, display_name: null, hostname: null}, SYSTEMS[id]);
     }
 

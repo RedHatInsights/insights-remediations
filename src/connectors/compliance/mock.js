@@ -75,7 +75,7 @@ module.exports = new class extends Connector {
     }
 
     getRule (id) {
-        return P.resolve(DATA[id]);
+        return P.resolve(DATA[id]); // eslint-disable-line security/detect-object-injection
     }
 
     ping () {

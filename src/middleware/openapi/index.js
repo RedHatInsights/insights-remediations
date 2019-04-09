@@ -46,8 +46,12 @@ function buildResValidator (responses, spec) {
 
         Object.keys(object).forEach(key => {
             if (key === 'example' || key === 'examples') {
+                // no user input here
+                // eslint-disable-next-line security/detect-object-injection
                 delete object[key];
             } else {
+                // no user input here
+                // eslint-disable-next-line security/detect-object-injection
                 removeExamples(object[key]);
             }
         });
@@ -85,6 +89,8 @@ function resolveRefs (object, spec = object) {
         return;
     }
 
+    // no user input here
+    /* eslint-disable security/detect-object-injection */
     Object.keys(object).forEach(key => {
         if (_.isObject(object[key]) && _.isString(object[key].$ref)) {
             object[key] = resolveRef(object[key].$ref, spec);
@@ -92,6 +98,7 @@ function resolveRefs (object, spec = object) {
 
         resolveRefs(object[key], spec);
     });
+    /* eslint-enable security/detect-object-injection */
 }
 
 module.exports = function (operationId) {

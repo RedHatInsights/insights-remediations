@@ -15,7 +15,7 @@ if (program.args.length === 0) {
 let code = 0;
 
 function run (filepath) {
-    const file = fs.readFileSync(filepath, 'utf-8');
+    const file = fs.readFileSync(filepath, 'utf-8'); // eslint-disable-line security/detect-non-literal-fs-filename
 
     try {
         resolver.parseResolution(file);
