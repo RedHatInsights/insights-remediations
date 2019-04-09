@@ -888,7 +888,7 @@ components:
   examples:
     RemediationLinks:
       value:
-        first: /api/remediations/v1/remediations?limit=50&offset=0
-        last: /api/remediations/v1/remediations?limit=50&offset=50
-        next: /api/remediations/v1/remediations?limit=50&offset=50
+        first: /api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0
+        last: /api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=50
+        next: /api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=50
         previous: null

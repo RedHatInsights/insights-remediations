@@ -7,27 +7,31 @@ const DEFAULT_REMEDIATION_NAME = 'unnamed-playbook';
 const PLAYBOOK_SUFFIX = 'yml';
 const config = require('../config');
 
-function buildListLink (limit, page) {
-    return new URI(config.path.base).segment('v1').segment('remediations').query({limit, offset: page * limit}).toString();
-}
+const listLinkBuilder = (sort, system) => (limit, page) =>
+    new URI(config.path.base)
+    .segment('v1')
+    .segment('remediations')
+    .query({system, sort, limit, offset: page * limit})
+    .toString();
 
-function buildListLinks (total, count, limit, offset) {
+function buildListLinks (total, limit, offset, sort, system) {
     const lastPage = Math.floor(Math.max(total - 1, 0) / limit);
     const currentPage = Math.floor(offset / limit);
     const remainder = offset % limit;
+    const builder = listLinkBuilder(sort, system);
 
     const links = {
-        first: buildListLink(limit, 0),
-        last: buildListLink(limit, lastPage),
+        first: builder(limit, 0),
+        last: builder(limit, lastPage),
 
-        previous: (offset > 0) ? buildListLink(limit, (remainder === 0) ? currentPage - 1 : currentPage) : null,
-        next: (currentPage < lastPage) ? buildListLink(limit, currentPage + 1) : null
+        previous: (offset > 0) ? builder(limit, (remainder === 0) ? currentPage - 1 : currentPage) : null,
+        next: (currentPage < lastPage) ? builder(limit, currentPage + 1) : null
     };
 
     return links;
 }
 
-exports.list = function (remediations, total, limit, offset) {
+exports.list = function (remediations, total, limit, offset, sort, system) {
     const formatted = _.map(remediations,
         ({id, name, needs_reboot, created_by, created_at, updated_by, updated_at, system_count, issue_count}) => ({
             id,
@@ -47,7 +51,7 @@ exports.list = function (remediations, total, limit, offset) {
             count: remediations.length,
             total
         },
-        links: buildListLinks(total, remediations.count, limit, offset),
+        links: buildListLinks(total, limit, offset, sort, system),
         data: formatted
     };
 };

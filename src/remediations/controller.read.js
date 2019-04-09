@@ -127,7 +127,7 @@ exports.list = errors.async(async function (req, res) {
     // TODO: ideally we should page on db level
     remediations = remediations.slice(offset, offset + limit);
 
-    res.json(format.list(remediations, total, limit, offset));
+    res.json(format.list(remediations, total, limit, offset, req.query.sort, req.query.system));
 });
 
 async function resolveSystems (remediation) {

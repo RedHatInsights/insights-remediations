@@ -1411,8 +1411,8 @@ exports[`remediations list filter basic filter 1`] = `
         \\"total\\": 3
     },
     \\"links\\": {
-        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
         \\"previous\\": null,
         \\"next\\": null
     },
@@ -1485,8 +1485,8 @@ exports[`remediations list filter empty filter 1`] = `
         \\"total\\": 4
     },
     \\"links\\": {
-        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
         \\"previous\\": null,
         \\"next\\": null
     },
@@ -1578,8 +1578,8 @@ exports[`remediations list filter filter case does not matter 1`] = `
         \\"total\\": 1
     },
     \\"links\\": {
-        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
         \\"previous\\": null,
         \\"next\\": null
     },
@@ -1614,8 +1614,8 @@ exports[`remediations list filter filter matches on default name 1`] = `
         \\"total\\": 1
     },
     \\"links\\": {
-        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
         \\"previous\\": null,
         \\"next\\": null
     },
@@ -1650,8 +1650,8 @@ exports[`remediations list filter filter matches on number 1`] = `
         \\"total\\": 1
     },
     \\"links\\": {
-        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
         \\"previous\\": null,
         \\"next\\": null
     },
@@ -1686,8 +1686,8 @@ exports[`remediations list list remediations 1`] = `
         \\"total\\": 4
     },
     \\"links\\": {
-        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
         \\"previous\\": null,
         \\"next\\": null
     },
@@ -1779,10 +1779,10 @@ exports[`remediations list pagination explicit offset 1`] = `
         \\"total\\": 4
     },
     \\"links\\": {
-        \\"first\\": \\"/api/remediations/v1/remediations?limit=2&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\",
+        \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\",
         \\"previous\\": null,
-        \\"next\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\"
+        \\"next\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\"
     },
     \\"data\\": [
         {
@@ -1834,10 +1834,10 @@ exports[`remediations list pagination offset 1 1`] = `
         \\"total\\": 4
     },
     \\"links\\": {
-        \\"first\\": \\"/api/remediations/v1/remediations?limit=2&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\",
-        \\"previous\\": \\"/api/remediations/v1/remediations?limit=2&offset=0\\",
-        \\"next\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\"
+        \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\",
+        \\"previous\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=0\\",
+        \\"next\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\"
     },
     \\"data\\": [
         {
@@ -1889,9 +1889,9 @@ exports[`remediations list pagination offset 2 1`] = `
         \\"total\\": 4
     },
     \\"links\\": {
-        \\"first\\": \\"/api/remediations/v1/remediations?limit=2&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\",
-        \\"previous\\": \\"/api/remediations/v1/remediations?limit=2&offset=0\\",
+        \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\",
+        \\"previous\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=0\\",
         \\"next\\": null
     },
     \\"data\\": [
@@ -1944,9 +1944,9 @@ exports[`remediations list pagination offset 3 1`] = `
         \\"total\\": 4
     },
     \\"links\\": {
-        \\"first\\": \\"/api/remediations/v1/remediations?limit=2&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\",
-        \\"previous\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\",
+        \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\",
+        \\"previous\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\",
         \\"next\\": null
     },
     \\"data\\": [
@@ -1980,10 +1980,10 @@ exports[`remediations list pagination tiny page 1`] = `
         \\"total\\": 4
     },
     \\"links\\": {
-        \\"first\\": \\"/api/remediations/v1/remediations?limit=2&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\",
+        \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\",
         \\"previous\\": null,
-        \\"next\\": \\"/api/remediations/v1/remediations?limit=2&offset=2\\"
+        \\"next\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\"
     },
     \\"data\\": [
         {
@@ -2035,8 +2035,8 @@ exports[`remediations list sorting default 1`] = `
         \\"total\\": 4
     },
     \\"links\\": {
-        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
         \\"previous\\": null,
         \\"next\\": null
     },
@@ -2128,8 +2128,8 @@ exports[`remediations list system filter filters out remediations not featuring 
         \\"total\\": 4
     },
     \\"links\\": {
-        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"first\\": \\"/api/remediations/v1/remediations?system=fc94beb8-21ee-403d-99b1-949ef7adb762&sort=-updated_at&limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?system=fc94beb8-21ee-403d-99b1-949ef7adb762&sort=-updated_at&limit=50&offset=0\\",
         \\"previous\\": null,
         \\"next\\": null
     },
@@ -2221,8 +2221,8 @@ exports[`remediations list system filter filters out remediations not featuring 
         \\"total\\": 2
     },
     \\"links\\": {
-        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"first\\": \\"/api/remediations/v1/remediations?system=1f12bdfc-8267-492d-a930-92f498fe65b9&sort=-updated_at&limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?system=1f12bdfc-8267-492d-a930-92f498fe65b9&sort=-updated_at&limit=50&offset=0\\",
         \\"previous\\": null,
         \\"next\\": null
     },
@@ -2276,8 +2276,8 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
         \\"total\\": 5
     },
     \\"links\\": {
-        \\"first\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?limit=50&offset=0\\",
+        \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
         \\"previous\\": null,
         \\"next\\": null
     },
