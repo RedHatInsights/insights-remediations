@@ -290,15 +290,5 @@ describe('remediations', function () {
 
             expect(text).toMatchSnapshot();
         });
-
-        test('remediation with no issues does not error out', async () => {
-            const {header} = reqId();
-            const {text} = await request
-            .get('/v1/remediations/256ab1d3-58cf-1292-35e6-1a49c8b122d3/playbook')
-            .set(header)
-            .expect(204);
-
-            expect(text).toMatchSnapshot();
-        });
     });
 });

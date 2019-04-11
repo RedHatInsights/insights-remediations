@@ -2475,5 +2475,3 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
     ]
 }"
 `;
-
-exports[`remediations missing remediation with no issues does not error out 1`] = `""`;

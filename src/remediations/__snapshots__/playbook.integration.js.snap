@@ -365,3 +365,5 @@ exports[`playbooks generates playbook with suppressed reboot 1`] = `
       command: insights-client
       changed_when: false"
 `;
+
+exports[`playbooks playbook for remediation with zero issues does not freak out 1`] = `""`;
