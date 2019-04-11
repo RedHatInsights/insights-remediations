@@ -49,6 +49,8 @@ Insights Remediations supports the following types of remediations:
 1. ```npm start```
 1. open http://localhost:9002
 
+To use the demo database seeder, prepend `DEMO_MODE=true ` to each of the above commands.
+
 ### Running tests
 
 To run the linter, unit and integration tests run:
@@ -64,6 +66,18 @@ npm test <path-to-test-file>
 ## Configuration
 
 Application configuration can be [changed using environmental variables](https://github.com/RedHatInsights/insights-remediations/blob/master/src/config/index.js).
+
+### Troubleshooting
+
+If your local database isn't updating, or it's not running as expected, run this command to remove old containers:
+```
+docker-compose -f build/docker-compose.yml rm -vf
+```
+
+Then, rebuild the image:
+```
+docker-compose -f build/docker-compose.yml build
+```
 
 ## Contact
 For questions or comments join **#insights-remediations** at ansible.slack.com or contact [Jozef Hartinger](https://github.com/jharting) directly.

@@ -45,6 +45,14 @@ exports.up = async q => {
         created_at: '2018-11-21T11:19:38.541Z',
         updated_by: created_by,
         updated_at: '2018-11-21T11:19:38.541Z'
+    }, {
+        id: '99999999-99d9-99e9-bfee-99ac9d9ea99f',
+        name: 'Remediation with no issues',
+        account_number,
+        created_by,
+        created_at: '2018-11-21T11:19:38.541Z',
+        updated_by: created_by,
+        updated_at: '2018-11-21T11:19:38.541Z'
     }], opts);
 
     const issues = await q.bulkInsert('remediation_issues', [{
