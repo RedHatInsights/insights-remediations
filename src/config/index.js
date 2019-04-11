@@ -153,7 +153,8 @@ const config = {
             charset: 'utf8',
             timestamps: false,
             underscored: true
-        }
+        },
+        dialectOptions: {}
     },
 
     redis: {
@@ -165,6 +166,13 @@ const config = {
 };
 
 config.path.base = `${config.path.prefix}/${config.path.app}`;
+
+if (env.DB_CA) {
+    config.db.ssl = true;
+    config.db.dialectOptions.ssl = {
+        ca: fs.readFileSync(env.DB_CA) // eslint-disable-line security/detect-non-literal-fs-filename
+    };
+}
 
 if (['development', 'production', 'test'].includes(config.env)) {
     if (fs.existsSync(path.join(__dirname, `${config.env}.js`))) { // eslint-disable-line security/detect-non-literal-fs-filename
