@@ -13,6 +13,7 @@ const generator = require('../generator/generator.controller');
 const users = require('../connectors/users');
 
 const notFound = res => res.status(404).json();
+const noContent = res => res.status(204).send();
 
 const catchErrorCode = (code, fn) => e => {
     if (e.error && e.error.code === code) {
@@ -189,6 +190,11 @@ exports.playbook = errors.async(async function (req, res) {
     }
 
     const issues = remediation.toJSON().issues;
+
+    if (issues.length === 0) {
+        return noContent(res);
+    }
+
     issues.forEach(issue => {
         issue.id = issue.issue_id;
         issue.systems = _.map(issue.systems, 'system_id');
