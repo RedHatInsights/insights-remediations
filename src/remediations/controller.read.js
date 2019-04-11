@@ -13,7 +13,7 @@ const generator = require('../generator/generator.controller');
 const users = require('../connectors/users');
 
 const notFound = res => res.status(404).json();
-const noContent = res => res.status(204).send();
+const noContent = res => res.sendStatus(204);
 
 const catchErrorCode = (code, fn) => e => {
     if (e.error && e.error.code === code) {
