@@ -1407,8 +1407,8 @@ exports[`remediations get get remediation with many systems 1`] = `
 exports[`remediations list filter basic filter 1`] = `
 "{
     \\"meta\\": {
-        \\"count\\": 3,
-        \\"total\\": 3
+        \\"count\\": 4,
+        \\"total\\": 4
     },
     \\"links\\": {
         \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
@@ -1417,6 +1417,25 @@ exports[`remediations list filter basic filter 1`] = `
         \\"next\\": null
     },
     \\"data\\": [
+        {
+            \\"id\\": \\"256ab1d3-58cf-1292-35e6-1a49c8b122d3\\",
+            \\"name\\": \\"Remediation with zero issues\\",
+            \\"created_by\\": {
+                \\"username\\": \\"tuser@redhat.com\\",
+                \\"first_name\\": \\"Test\\",
+                \\"last_name\\": \\"User\\"
+            },
+            \\"created_at\\": \\"2018-12-06T08:19:36.641Z\\",
+            \\"updated_by\\": {
+                \\"username\\": \\"tuser@redhat.com\\",
+                \\"first_name\\": \\"Test\\",
+                \\"last_name\\": \\"User\\"
+            },
+            \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
+            \\"needs_reboot\\": false,
+            \\"system_count\\": 0,
+            \\"issue_count\\": 0
+        },
         {
             \\"id\\": \\"178cf0c8-35dd-42a3-96d5-7b50f9d211f6\\",
             \\"name\\": \\"Remediation with suppressed reboot\\",
@@ -1481,8 +1500,8 @@ exports[`remediations list filter basic filter 1`] = `
 exports[`remediations list filter empty filter 1`] = `
 "{
     \\"meta\\": {
-        \\"count\\": 4,
-        \\"total\\": 4
+        \\"count\\": 5,
+        \\"total\\": 5
     },
     \\"links\\": {
         \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
@@ -1491,6 +1510,25 @@ exports[`remediations list filter empty filter 1`] = `
         \\"next\\": null
     },
     \\"data\\": [
+        {
+            \\"id\\": \\"256ab1d3-58cf-1292-35e6-1a49c8b122d3\\",
+            \\"name\\": \\"Remediation with zero issues\\",
+            \\"created_by\\": {
+                \\"username\\": \\"tuser@redhat.com\\",
+                \\"first_name\\": \\"Test\\",
+                \\"last_name\\": \\"User\\"
+            },
+            \\"created_at\\": \\"2018-12-06T08:19:36.641Z\\",
+            \\"updated_by\\": {
+                \\"username\\": \\"tuser@redhat.com\\",
+                \\"first_name\\": \\"Test\\",
+                \\"last_name\\": \\"User\\"
+            },
+            \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
+            \\"needs_reboot\\": false,
+            \\"system_count\\": 0,
+            \\"issue_count\\": 0
+        },
         {
             \\"id\\": \\"178cf0c8-35dd-42a3-96d5-7b50f9d211f6\\",
             \\"name\\": \\"Remediation with suppressed reboot\\",
@@ -1682,8 +1720,8 @@ exports[`remediations list filter filter matches on number 1`] = `
 exports[`remediations list list remediations 1`] = `
 "{
     \\"meta\\": {
-        \\"count\\": 4,
-        \\"total\\": 4
+        \\"count\\": 5,
+        \\"total\\": 5
     },
     \\"links\\": {
         \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
@@ -1692,6 +1730,25 @@ exports[`remediations list list remediations 1`] = `
         \\"next\\": null
     },
     \\"data\\": [
+        {
+            \\"id\\": \\"256ab1d3-58cf-1292-35e6-1a49c8b122d3\\",
+            \\"name\\": \\"Remediation with zero issues\\",
+            \\"created_by\\": {
+                \\"username\\": \\"tuser@redhat.com\\",
+                \\"first_name\\": \\"Test\\",
+                \\"last_name\\": \\"User\\"
+            },
+            \\"created_at\\": \\"2018-12-06T08:19:36.641Z\\",
+            \\"updated_by\\": {
+                \\"username\\": \\"tuser@redhat.com\\",
+                \\"first_name\\": \\"Test\\",
+                \\"last_name\\": \\"User\\"
+            },
+            \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
+            \\"needs_reboot\\": false,
+            \\"system_count\\": 0,
+            \\"issue_count\\": 0
+        },
         {
             \\"id\\": \\"178cf0c8-35dd-42a3-96d5-7b50f9d211f6\\",
             \\"name\\": \\"Remediation with suppressed reboot\\",
@@ -1776,12 +1833,67 @@ exports[`remediations list pagination explicit offset 1`] = `
 "{
     \\"meta\\": {
         \\"count\\": 2,
-        \\"total\\": 4
+        \\"total\\": 5
     },
     \\"links\\": {
         \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=4\\",
         \\"previous\\": null,
+        \\"next\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\"
+    },
+    \\"data\\": [
+        {
+            \\"id\\": \\"256ab1d3-58cf-1292-35e6-1a49c8b122d3\\",
+            \\"name\\": \\"Remediation with zero issues\\",
+            \\"created_by\\": {
+                \\"username\\": \\"tuser@redhat.com\\",
+                \\"first_name\\": \\"Test\\",
+                \\"last_name\\": \\"User\\"
+            },
+            \\"created_at\\": \\"2018-12-06T08:19:36.641Z\\",
+            \\"updated_by\\": {
+                \\"username\\": \\"tuser@redhat.com\\",
+                \\"first_name\\": \\"Test\\",
+                \\"last_name\\": \\"User\\"
+            },
+            \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
+            \\"needs_reboot\\": false,
+            \\"system_count\\": 0,
+            \\"issue_count\\": 0
+        },
+        {
+            \\"id\\": \\"178cf0c8-35dd-42a3-96d5-7b50f9d211f6\\",
+            \\"name\\": \\"Remediation with suppressed reboot\\",
+            \\"created_by\\": {
+                \\"username\\": \\"tuser@redhat.com\\",
+                \\"first_name\\": \\"Test\\",
+                \\"last_name\\": \\"User\\"
+            },
+            \\"created_at\\": \\"2018-12-05T08:19:36.641Z\\",
+            \\"updated_by\\": {
+                \\"username\\": \\"tuser@redhat.com\\",
+                \\"first_name\\": \\"Test\\",
+                \\"last_name\\": \\"User\\"
+            },
+            \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
+            \\"needs_reboot\\": true,
+            \\"system_count\\": 1,
+            \\"issue_count\\": 1
+        }
+    ]
+}"
+`;
+
+exports[`remediations list pagination offset 1 1`] = `
+"{
+    \\"meta\\": {
+        \\"count\\": 2,
+        \\"total\\": 5
+    },
+    \\"links\\": {
+        \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=0\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=4\\",
+        \\"previous\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=0\\",
         \\"next\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\"
     },
     \\"data\\": [
@@ -1827,17 +1939,17 @@ exports[`remediations list pagination explicit offset 1`] = `
 }"
 `;
 
-exports[`remediations list pagination offset 1 1`] = `
+exports[`remediations list pagination offset 2 1`] = `
 "{
     \\"meta\\": {
         \\"count\\": 2,
-        \\"total\\": 4
+        \\"total\\": 5
     },
     \\"links\\": {
         \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=4\\",
         \\"previous\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=0\\",
-        \\"next\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\"
+        \\"next\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=4\\"
     },
     \\"data\\": [
         {
@@ -1882,17 +1994,17 @@ exports[`remediations list pagination offset 1 1`] = `
 }"
 `;
 
-exports[`remediations list pagination offset 2 1`] = `
+exports[`remediations list pagination offset 3 1`] = `
 "{
     \\"meta\\": {
         \\"count\\": 2,
-        \\"total\\": 4
+        \\"total\\": 5
     },
     \\"links\\": {
         \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\",
-        \\"previous\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=0\\",
-        \\"next\\": null
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=4\\",
+        \\"previous\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\",
+        \\"next\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=4\\"
     },
     \\"data\\": [
         {
@@ -1914,42 +2026,6 @@ exports[`remediations list pagination offset 2 1`] = `
             \\"system_count\\": 1,
             \\"issue_count\\": 2
         },
-        {
-            \\"id\\": \\"66eec356-dd06-4c72-a3b6-ef27d1508a02\\",
-            \\"name\\": \\"remediation 1\\",
-            \\"created_by\\": {
-                \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
-            },
-            \\"created_at\\": \\"2018-10-04T08:19:36.641Z\\",
-            \\"updated_by\\": {
-                \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
-            },
-            \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
-            \\"needs_reboot\\": true,
-            \\"system_count\\": 2,
-            \\"issue_count\\": 5
-        }
-    ]
-}"
-`;
-
-exports[`remediations list pagination offset 3 1`] = `
-"{
-    \\"meta\\": {
-        \\"count\\": 1,
-        \\"total\\": 4
-    },
-    \\"links\\": {
-        \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\",
-        \\"previous\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\",
-        \\"next\\": null
-    },
-    \\"data\\": [
         {
             \\"id\\": \\"66eec356-dd06-4c72-a3b6-ef27d1508a02\\",
             \\"name\\": \\"remediation 1\\",
@@ -1977,15 +2053,34 @@ exports[`remediations list pagination tiny page 1`] = `
 "{
     \\"meta\\": {
         \\"count\\": 2,
-        \\"total\\": 4
+        \\"total\\": 5
     },
     \\"links\\": {
         \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=0\\",
-        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\",
+        \\"last\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=4\\",
         \\"previous\\": null,
         \\"next\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=2&offset=2\\"
     },
     \\"data\\": [
+        {
+            \\"id\\": \\"256ab1d3-58cf-1292-35e6-1a49c8b122d3\\",
+            \\"name\\": \\"Remediation with zero issues\\",
+            \\"created_by\\": {
+                \\"username\\": \\"tuser@redhat.com\\",
+                \\"first_name\\": \\"Test\\",
+                \\"last_name\\": \\"User\\"
+            },
+            \\"created_at\\": \\"2018-12-06T08:19:36.641Z\\",
+            \\"updated_by\\": {
+                \\"username\\": \\"tuser@redhat.com\\",
+                \\"first_name\\": \\"Test\\",
+                \\"last_name\\": \\"User\\"
+            },
+            \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
+            \\"needs_reboot\\": false,
+            \\"system_count\\": 0,
+            \\"issue_count\\": 0
+        },
         {
             \\"id\\": \\"178cf0c8-35dd-42a3-96d5-7b50f9d211f6\\",
             \\"name\\": \\"Remediation with suppressed reboot\\",
@@ -2004,25 +2099,6 @@ exports[`remediations list pagination tiny page 1`] = `
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
             \\"issue_count\\": 1
-        },
-        {
-            \\"id\\": \\"e809526c-56f5-4cd8-a809-93328436ea23\\",
-            \\"name\\": \\"Unnamed Playbook\\",
-            \\"created_by\\": {
-                \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
-            },
-            \\"created_at\\": \\"2018-12-04T08:19:36.641Z\\",
-            \\"updated_by\\": {
-                \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
-            },
-            \\"updated_at\\": \\"2018-12-04T08:19:36.641Z\\",
-            \\"needs_reboot\\": false,
-            \\"system_count\\": 2,
-            \\"issue_count\\": 1
         }
     ]
 }"
@@ -2031,8 +2107,8 @@ exports[`remediations list pagination tiny page 1`] = `
 exports[`remediations list sorting default 1`] = `
 "{
     \\"meta\\": {
-        \\"count\\": 4,
-        \\"total\\": 4
+        \\"count\\": 5,
+        \\"total\\": 5
     },
     \\"links\\": {
         \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
@@ -2041,6 +2117,25 @@ exports[`remediations list sorting default 1`] = `
         \\"next\\": null
     },
     \\"data\\": [
+        {
+            \\"id\\": \\"256ab1d3-58cf-1292-35e6-1a49c8b122d3\\",
+            \\"name\\": \\"Remediation with zero issues\\",
+            \\"created_by\\": {
+                \\"username\\": \\"tuser@redhat.com\\",
+                \\"first_name\\": \\"Test\\",
+                \\"last_name\\": \\"User\\"
+            },
+            \\"created_at\\": \\"2018-12-06T08:19:36.641Z\\",
+            \\"updated_by\\": {
+                \\"username\\": \\"tuser@redhat.com\\",
+                \\"first_name\\": \\"Test\\",
+                \\"last_name\\": \\"User\\"
+            },
+            \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
+            \\"needs_reboot\\": false,
+            \\"system_count\\": 0,
+            \\"issue_count\\": 0
+        },
         {
             \\"id\\": \\"178cf0c8-35dd-42a3-96d5-7b50f9d211f6\\",
             \\"name\\": \\"Remediation with suppressed reboot\\",
@@ -2380,3 +2475,5 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
     ]
 }"
 `;
+
+exports[`remediations missing remediation with no issues does not error out 1`] = `""`;
