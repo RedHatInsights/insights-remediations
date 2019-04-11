@@ -101,6 +101,11 @@ spec:
               key: password
               name: remediation-db
 
+{{ if .Values.remediations.db.ca }}
+        - name: DB_CA
+          value: /opt/certs/rds-cacert
+{{ end }}
+
         - name: DEMO_MODE
           value: "false"
 
@@ -161,6 +166,18 @@ spec:
           limits:
             cpu: 500m
             memory: 1Gi
+
+{{ if .Values.remediations.db.ca }}
+        volumeMounts:
+        - name: rds-cacert
+          mountPath: /opt/certs/
+          readOnly: true
+      volumes:
+      - name: rds-cacert
+        secret:
+          secretName: {{ .Values.remediations.db.ca }}
+{{ end }}
+
 
       dnsPolicy: ClusterFirst
       restartPolicy: Always

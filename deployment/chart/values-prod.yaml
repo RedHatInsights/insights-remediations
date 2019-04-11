@@ -21,6 +21,9 @@ remediations:
 
   pathPrefix: /api
 
+  db:
+    ca: rds-client-ca
+
   advisor:
     impl: impl
     host: http://insights-advisor-api.advisor-prod.svc.cluster.local:8000

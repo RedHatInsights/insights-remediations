@@ -20,6 +20,8 @@ remediations:
 
   pathPrefix: /api
 
+  db: {}
+
   advisor:
     impl: impl
     host: http://insights-advisor-api.advisor-qa.svc.cluster.local:8000
