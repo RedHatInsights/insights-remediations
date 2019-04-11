@@ -22,6 +22,10 @@ spec:
           - -c
           - {{ .Values.remediations.migrationCommand }}
           containerName: remediations
+{{ if .Values.remediations.db.ca }}
+          volumes:
+          - rds-cacert
+{{ end }}
         failurePolicy: Abort
     {{ end }}
     rollingParams:
@@ -38,6 +42,10 @@ spec:
           - -c
           - {{ .Values.remediations.migrationCommand }}
           containerName: remediations
+{{ if .Values.remediations.db.ca }}
+          volumes:
+          - rds-cacert
+{{ end }}
         failurePolicy: Abort
       {{ end }}
   template:
