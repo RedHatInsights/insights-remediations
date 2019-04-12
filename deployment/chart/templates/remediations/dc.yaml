@@ -205,4 +205,21 @@ spec:
         namespace: {{ .Values.imageNamespace }}
 {{ end }}
 
+{{ if .Values.remediations.autoscaling }}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  labels:
+    app: remediations
+  name: remediations
+spec:
+  scaleTargetRef:
+    kind: DeploymentConfig
+    name: remediations
+    apiVersion: v1
+  minReplicas: {{ .Values.remediations.autoscaling.min | default 2 }}
+  maxReplicas: {{ .Values.remediations.autoscaling.max | default 8 }}
+  targetCPUUtilizationPercentage: 80
+{{ end}}
+
 {{ end }}

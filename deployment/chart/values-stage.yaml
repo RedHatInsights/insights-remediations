@@ -17,6 +17,9 @@ remediations:
   strategy: Rolling
   imageChangeTrigger: true
   replicas: 1
+  autoscaling:
+    min: 1
+    max: 4
 
   logLevel: trace
 

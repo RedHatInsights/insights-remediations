@@ -16,6 +16,10 @@ remediations:
   imageChangeTrigger: true
   istag: prod
   replicas: 2
+  autoscaling:
+    min: 2
+    max: 8
+
 
   logLevel: trace
 
