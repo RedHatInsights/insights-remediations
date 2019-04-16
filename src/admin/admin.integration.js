@@ -29,7 +29,7 @@ describe('users', function () {
             .expect(200);
 
             body.should.eql([{
-                created_by: 'tuser@redhat.com',
+                username: 'tuser@redhat.com',
                 playbook_count: '5',
                 account_number: 'test'
             }]);
@@ -47,7 +47,14 @@ describe('users', function () {
             .get('/v1/admin/users?account_number=*')
             .set(auth.default)
             .expect(200);
-            expect(body).toMatchSnapshot();
+
+            body.map(user => user.username).should.eql([
+                'demoUser',
+                'testReadSingleUser',
+                'testStatus',
+                'testWriteUser',
+                'tuser@redhat.com'
+            ]);
         });
     });
 });

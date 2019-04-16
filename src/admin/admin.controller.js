@@ -12,7 +12,7 @@ exports.throw500 = errors.async(async function (req) {
 exports.users = errors.async(async function (req, res) {
     const query = {
         attributes: [
-            'created_by',
+            ['created_by', 'username'],
             [db.fn.COUNT('id'), 'playbook_count'],
             'account_number'
         ],
