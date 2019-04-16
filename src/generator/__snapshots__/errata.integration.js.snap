@@ -15,7 +15,7 @@ exports[`aggregates multiple errata into a single play 1`] = `
 #   - Upgrade packages affected by RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2017:1382,vulnerabilities:RHSA-2017:1852,vulnerabilities:RHSA-2017:2679,vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
-- name: upgrade packages affected by RHSA-2017:1382,RHSA-2017:1852,RHSA-2017:2679,RHSA-2018:0502
+- name: update vulnerable packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   tasks:
@@ -89,7 +89,7 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 #   - Upgrade packages affected by RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2017:1382,vulnerabilities:RHSA-2017:1852,vulnerabilities:RHSA-2017:2679,vulnerabilities:RHSA-2018:0502,fix)
 # Version: test-version
-- name: upgrade packages affected by RHSA-2017:1382,RHSA-2017:1852,RHSA-2017:2679,RHSA-2018:0502
+- name: update vulnerable packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   tasks:
@@ -116,7 +116,7 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 #   - Upgrade packages affected by CVE-2017-5715
 # Identifier: (vulnerabilities:CVE-2017-17712,vulnerabilities:CVE-2017-5715,fix)
 # Version: test-version
-- name: upgrade packages affected by CVE-2017-17712,CVE-2017-5715
+- name: update vulnerable packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   tasks:
@@ -186,7 +186,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 # Upgrade packages affected by RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
-- name: upgrade packages affected by RHSA-2018:0502
+- name: update vulnerable packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   tasks:
@@ -211,7 +211,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 # Upgrade packages affected by RHBA-2007:0331
 # Identifier: (vulnerabilities:RHBA-2007:0331,fix)
 # Version: unknown
-- name: upgrade packages affected by RHBA-2007:0331
+- name: update vulnerable packages
   hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com\\"
   become: true
   tasks:
@@ -236,7 +236,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 # Upgrade packages affected by CVE-2017-17712
 # Identifier: (vulnerabilities:CVE-2017-17712,fix)
 # Version: unknown
-- name: upgrade packages affected by CVE-2017-17712
+- name: update vulnerable packages
   hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com\\"
   become: true
   tasks:
@@ -306,7 +306,7 @@ exports[`generates a simple playbook with single CVE remediation 1`] = `
 # Upgrade packages affected by CVE-2017-17712
 # Identifier: (vulnerabilities:CVE-2017-17712,fix)
 # Version: test-version
-- name: upgrade packages affected by CVE-2017-17712
+- name: update vulnerable packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   tasks:
@@ -376,7 +376,7 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
 # Upgrade packages affected by RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
-- name: upgrade packages affected by RHSA-2018:0502
+- name: update vulnerable packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   tasks:

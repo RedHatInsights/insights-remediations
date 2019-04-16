@@ -106,7 +106,7 @@ exports[`adds diagnosis play 1`] = `
 # Upgrade packages affected by RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
-- name: upgrade packages affected by RHSA-2018:0502
+- name: update vulnerable packages
   hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   tasks:
@@ -299,7 +299,7 @@ exports[`generates an erratum-based playbook 1`] = `
 # Upgrade packages affected by RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
-- name: upgrade packages affected by RHSA-2018:0502
+- name: update vulnerable packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   tasks:
@@ -593,7 +593,7 @@ exports[`sorts the hosts line 1`] = `
 # Upgrade packages affected by RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
-- name: upgrade packages affected by RHSA-2018:0502
+- name: update vulnerable packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,d2c8db4e-bd6a-11e8-a355-529269fb1459\\"
   become: true
   tasks:

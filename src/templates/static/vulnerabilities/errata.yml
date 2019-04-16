@@ -1,4 +1,4 @@
-- name: upgrade packages affected by @@ISSUES@@
+- name: update vulnerable packages
   hosts: "@@HOSTS@@"
   become: true
   tasks:

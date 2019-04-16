@@ -160,7 +160,7 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
 # Upgrade packages affected by CVE-2017-5715
 # Identifier: (vulnerabilities:CVE-2017-5715,fix)
 # Version: unknown
-- name: upgrade packages affected by CVE-2017-5715
+- name: update vulnerable packages
   hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
   become: true
   tasks:
@@ -233,7 +233,7 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
 # Upgrade packages affected by RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: unknown
-- name: upgrade packages affected by RHSA-2018:0502
+- name: update vulnerable packages
   hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
   become: true
   tasks:
