@@ -13,10 +13,11 @@ const OpenAPIResponseValidator = require('openapi-response-validator').default;
 const spec = _.cloneDeep(require('../../api/openapi').spec);
 resolveRefs(spec);
 
+// Defaulting the error code as a workaround for https://github.com/kogosoftwarellc/open-api/issues/425
 const transformError = ({id}, status) => error => ({
     id,
     status,
-    code: error.errorCode,
+    code: error.errorCode || 'VALIDATION_ERROR',
     title: `${error.message} (location: ${error.location}, path: ${error.path})`
 });
 

@@ -49,6 +49,15 @@ module.exports = async function (app) {
     app.use(bodyParser.json({
         limit: config.bodyParserLimit
     }));
+    /*eslint-disable no-unused-vars*/
+    app.use((err, req, res, next) => {
+        if (err.type === 'entity.parse.failed') {
+            throw new errors.BadRequest('INVALID_CONTENT_TYPE', 'The request body must be in JSON format.');
+        } else {
+            throw err;
+        }
+    });
+    /*eslint-enable no-unused-vars*/
 
     app.use(httpContext.middleware);
     app.use(cls.middleware);
