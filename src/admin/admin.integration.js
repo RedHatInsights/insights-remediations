@@ -19,3 +19,35 @@ describe('admin', function () {
         });
     });
 });
+
+describe('users', function () {
+    describe('list users', function () {
+        test('internal', async () => {
+            const {body} = await request
+            .get('/v1/admin/users')
+            .set(auth.default)
+            .expect(200);
+
+            body.should.eql([{
+                created_by: 'tuser@redhat.com',
+                playbook_count: '5',
+                account_number: 'test'
+            }]);
+        });
+
+        test('customer', async () => {
+            await request
+            .get('/v1/admin/users')
+            .set(auth.testReadSingle)
+            .expect(404);
+        });
+
+        test('wildcard', async () => {
+            const {body} = await request
+            .get('/v1/admin/users?account_number=*')
+            .set(auth.default)
+            .expect(200);
+            expect(body).toMatchSnapshot();
+        });
+    });
+});
