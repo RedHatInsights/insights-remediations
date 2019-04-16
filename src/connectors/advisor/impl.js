@@ -46,7 +46,7 @@ module.exports = new class extends Connector {
     }
 
     async getDiagnosis (system) {
-        const uri = this.buildBaseUri(host, 'advisor', 'v1');
+        const uri = this.buildBaseUri();
         uri.segment('system');
         uri.segment(system);
         uri.segment('reports');
@@ -65,7 +65,7 @@ module.exports = new class extends Connector {
             return {};
         }
 
-        return _(data.active_reports)
+        return _(data)
         .keyBy('rule.rule_id')
         .mapValues(report => report.details)
         .pickBy()
