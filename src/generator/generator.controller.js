@@ -12,11 +12,23 @@ const format = require('./format');
 const identifiers = require('../util/identifiers');
 const erratumPlayAggregator = require('./erratumPlayAggregator');
 const issueManager = require('../issues');
+const log = require('../util/log');
 
-exports.playbookPipeline = async function ({issues, auto_reboot = true}, remediation = false) {
-    await resolveSystems(issues);
+exports.playbookPipeline = async function ({issues, auto_reboot = true}, remediation = false, filterIssues = false) {
+    await resolveSystems(issues, filterIssues);
     issues.forEach(issue => issue.id = identifiers.parse(issue.id));
-    issues = await P.map(issues, issue => issueManager.getPlayFactory(issue.id).createPlay(issue));
+
+    issues = await P.map(issues, issue => issueManager.getPlayFactory(issue.id).createPlay(issue).catch((e) => {
+        if (filterIssues) {
+            log.warn(e);
+        } else {
+            throw e;
+        }
+    })).filter(issue => issue);
+
+    if (issues.length === 0) {
+        return;
+    }
 
     issues = erratumPlayAggregator.process(issues);
     issues = addRebootPlay(issues, auto_reboot);
@@ -35,11 +47,18 @@ exports.generate = errors.async(async function (req, res) {
     return exports.send(req, res, playbook);
 });
 
-async function resolveSystems (issues) {
+async function resolveSystems (issues, filter = false) {
     const systemIds = _(issues).flatMap('systems').uniq().value();
 
     // bypass cache as ansible_host may change so we want to grab the latest one
     const systems = await inventory.getSystemDetailsBatch(systemIds, true);
+
+    if (filter) {
+        issues.forEach(issue => issue.systems = issue.systems.filter((id) => {
+            // eslint-disable-next-line security/detect-object-injection
+            return (systems.hasOwnProperty(id));
+        }));
+    }
 
     issues.forEach(issue => issue.hosts = issue.systems.map(id => {
         if (!systems.hasOwnProperty(id)) {
@@ -51,6 +70,10 @@ async function resolveSystems (issues) {
         const system = systems[id];
         return system.display_name || system.hostname || system.id;
     }));
+
+    if (filter) {
+        issues = issues.filter((issue) => (issue.systems.length > 0));
+    }
 
     return issues;
 }

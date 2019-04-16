@@ -215,7 +215,11 @@ exports.playbook = errors.async(async function (req, res) {
     const playbook = await generator.playbookPipeline({
         issues,
         auto_reboot: remediation.auto_reboot
-    }, remediation);
+    }, remediation, true);
+
+    if (!playbook) {
+        return noContent(res);
+    }
 
     generator.send(req, res, playbook, format.playbookName(remediation));
 });
