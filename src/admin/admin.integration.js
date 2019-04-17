@@ -44,7 +44,7 @@ describe('users', function () {
 
         test('wildcard', async () => {
             const {body} = await request
-            .get('/v1/admin/users?account_number=*')
+            .get('/v1/admin/users?account=*')
             .set(auth.default)
             .expect(200);
 

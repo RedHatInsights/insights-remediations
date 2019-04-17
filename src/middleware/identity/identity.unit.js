@@ -40,7 +40,7 @@ describe('identity', () => {
 
     test('account number switcher', async () => {
         const {body} = await request
-        .get('/v1/whoami?account_number=foo')
+        .get('/v1/whoami?account=foo')
         .set(auth.emptyInternal)
         .expect(200);
 
@@ -52,7 +52,7 @@ describe('identity', () => {
 
     test('only internal users can switch accounts', async () => {
         const {body} = await request
-        .get('/v1/whoami?account_number=foo&username=200')
+        .get('/v1/whoami?account=foo&username=200')
         .set(auth.emptyCustomer)
         .expect(200);
 

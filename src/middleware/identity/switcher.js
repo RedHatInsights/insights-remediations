@@ -9,8 +9,8 @@ module.exports = function (req, res, next) {
         req.user.username = req.query.username;
     }
 
-    if (req.query.account_number) {
-        req.user.account_number = req.query.account_number;
+    if (req.query.account) {
+        req.user.account_number = req.query.account;
     }
 
     next();
