@@ -31,7 +31,7 @@ function loadModels (sequelize, dir) {
 
 exports.connect = async function () {
     if (config.logging === true) {
-        config.logging = msg => log.debug({log: 'db'}, msg);
+        config.logging = (msg, duration) => log.debug({log: 'db', duration}, msg);
     }
 
     exports.s = new Sequelize(config.database, config.username, config.password, config);
