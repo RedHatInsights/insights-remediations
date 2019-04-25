@@ -107,8 +107,8 @@ exports.list = errors.async(async function (req, res) {
     }
 
     await P.all([
-        await resolveResolutions(...remediations),
-        await resolveUsers(...remediations)
+        resolveResolutions(...remediations),
+        resolveUsers(...remediations)
     ]);
 
     remediations.forEach(remediation => {
