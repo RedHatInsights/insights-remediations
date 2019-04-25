@@ -63,7 +63,7 @@ exports.up = async q => {
         issue_id: 'vulnerabilities:CVE-2017-5715'
     }, {
         remediation_id: remediations[0].id,
-        issue_id: 'vulnerabilities:RHSA-2018:0502'
+        issue_id: 'vulnerabilities:CVE-2017-17712'
     }, {
         remediation_id: remediations[1].id,
         issue_id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'
