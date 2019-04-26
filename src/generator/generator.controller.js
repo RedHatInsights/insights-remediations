@@ -14,16 +14,16 @@ const erratumPlayAggregator = require('./erratumPlayAggregator');
 const issueManager = require('../issues');
 const log = require('../util/log');
 
-exports.playbookPipeline = async function ({issues, auto_reboot = true}, remediation = false, filterIssues = false) {
-    await resolveSystems(issues, filterIssues);
+exports.playbookPipeline = async function ({issues, auto_reboot = true}, remediation = false, strict = true) {
+    await resolveSystems(issues, strict);
     issues.forEach(issue => issue.id = identifiers.parse(issue.id));
 
-    issues = await P.map(issues, issue => issueManager.getPlayFactory(issue.id).createPlay(issue).catch((e) => {
-        if (filterIssues) {
-            log.warn(e);
-        } else {
+    issues = await P.map(issues, issue => issueManager.getPlayFactory(issue.id).createPlay(issue, strict).catch((e) => {
+        if (strict) {
             throw e;
         }
+
+        log.warn(e, `Skipping unknown issue: ${issue.id}`);
     })).filter(issue => issue);
 
     if (issues.length === 0) {
@@ -47,13 +47,13 @@ exports.generate = errors.async(async function (req, res) {
     return exports.send(req, res, playbook);
 });
 
-async function resolveSystems (issues, filter = false) {
+async function resolveSystems (issues, strict = true) {
     const systemIds = _(issues).flatMap('systems').uniq().value();
 
     // bypass cache as ansible_host may change so we want to grab the latest one
     const systems = await inventory.getSystemDetailsBatch(systemIds, true);
 
-    if (filter) {
+    if (!strict) {
         issues.forEach(issue => issue.systems = issue.systems.filter((id) => {
             // eslint-disable-next-line security/detect-object-injection
             return (systems.hasOwnProperty(id));
@@ -71,7 +71,7 @@ async function resolveSystems (issues, filter = false) {
         return system.display_name || system.hostname || system.id;
     }));
 
-    if (filter) {
+    if (!strict) {
         issues = issues.filter((issue) => (issue.systems.length > 0));
     }
 

@@ -7,7 +7,7 @@ const Factory = require('./Factory');
 
 module.exports = class CVEFactory extends Factory {
 
-    async createPlay ({id, hosts, resolution}) {
+    async createPlay ({id, hosts, resolution}, strict = true) {
         const resolver = issues.getHandler(id).getResolutionResolver();
         const resolutions = await resolver.resolveResolutions(id);
 
@@ -15,7 +15,7 @@ module.exports = class CVEFactory extends Factory {
             throw errors.unknownIssue(id);
         }
 
-        const disambiguatedResolution = this.disambiguate(resolutions, resolution, id);
+        const disambiguatedResolution = this.disambiguate(resolutions, resolution, id, strict);
         return new ErratumPlay(id, hosts, disambiguatedResolution, disambiguatedResolution.description);
     }
 };

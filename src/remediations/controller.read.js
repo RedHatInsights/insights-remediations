@@ -215,7 +215,7 @@ exports.playbook = errors.async(async function (req, res) {
     const playbook = await generator.playbookPipeline({
         issues,
         auto_reboot: remediation.auto_reboot
-    }, remediation, true);
+    }, remediation, false);
 
     if (!playbook) {
         return noContent(res);

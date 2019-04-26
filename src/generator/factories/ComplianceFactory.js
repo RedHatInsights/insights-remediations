@@ -7,7 +7,7 @@ const Factory = require('./Factory');
 
 module.exports = class ComplianceFactory extends Factory {
 
-    async createPlay ({id, hosts, resolution}) {
+    async createPlay ({id, hosts, resolution}, strict = true) {
         const handler = issues.getHandler(id);
 
         const [resolutions, rule] = await P.all([
@@ -15,7 +15,7 @@ module.exports = class ComplianceFactory extends Factory {
             handler.getIssueDetails(id)
         ]);
 
-        const disambiguatedResolution = this.disambiguate(resolutions, resolution, id);
+        const disambiguatedResolution = this.disambiguate(resolutions, resolution, id, strict);
         return new ResolutionPlay(id, hosts, disambiguatedResolution, rule.description);
     }
 };

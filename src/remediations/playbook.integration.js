@@ -98,7 +98,7 @@ describe('playbooks', function () {
             const {text} = await request
             .get('/v1/remediations/ea5b1507-4cd3-4c87-aa5a-6c755d32a7bd/playbook')
             .set(auth.testReadSingle)
-            .expect(204);
+            .expect(200);
 
             expect(text).toMatchSnapshot();
         });
