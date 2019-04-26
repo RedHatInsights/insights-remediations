@@ -416,7 +416,7 @@ components:
 
     IssueId:
       type: string
-      pattern: ^(advisor|vulnerabilities|compliance|ssg|test):[\w\d-_|:\.]+$
+      pattern: ^(advisor|vulnerabilities|compliance|ssg|test):[\w\d_|:\.-]+$
       example: vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
 
     RemediationAutoReboot:
