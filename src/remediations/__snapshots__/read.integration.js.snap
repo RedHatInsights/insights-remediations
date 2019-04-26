@@ -2450,8 +2450,8 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             },
             \\"updated_at\\": \\"2018-11-04T05:19:36.641Z\\",
             \\"needs_reboot\\": false,
-            \\"system_count\\": 0,
-            \\"issue_count\\": 0
+            \\"system_count\\": 1,
+            \\"issue_count\\": 4
         },
         {
             \\"id\\": \\"c3f9f751-4bcc-4222-9b83-77f5e6e603da\\",

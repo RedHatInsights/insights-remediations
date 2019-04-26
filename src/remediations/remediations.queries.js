@@ -2,6 +2,7 @@
 
 const db = require('../db');
 const {NULL_NAME_VALUE} = require('./models/remediation');
+const _ = require('lodash');
 
 const REMEDIATION_ATTRIBUTES = [
     'id',
@@ -37,17 +38,30 @@ function systemSubquery (system_id) {
     return literal(`(${sql})`);
 }
 
-exports.list = function (account_number, created_by, system = false, primaryOrder = 'updated_at', asc = true, filter = false) {
-    const {Op, s: {literal, where}} = db;
+exports.list = function (
+    account_number,
+    created_by,
+    system = false,
+    primaryOrder = 'updated_at',
+    asc = true,
+    filter = false,
+    limit,
+    offset) {
+
+    const {Op, s: {literal, where, col, cast}, fn: { DISTINCT, COUNT}} = db;
 
     const query = {
-        attributes: REMEDIATION_ATTRIBUTES,
+        attributes: [
+            'id',
+            [cast(COUNT(DISTINCT(col('issues.id'))), 'int'), 'issue_count'],
+            [cast(COUNT(DISTINCT(col('issues->systems.system_id'))), 'int'), 'system_count']
+        ],
         include: [{
-            attributes: ISSUE_ATTRIBUTES,
+            attributes: [],
             model: db.issue,
             required: false,
             include: [{
-                attributes: ['system_id'],
+                attributes: [],
                 association: db.issue.associations.systems,
                 required: true
             }]
@@ -56,10 +70,15 @@ exports.list = function (account_number, created_by, system = false, primaryOrde
             account_number,
             created_by
         },
+        group: ['remediation.id'],
         order: [
-            [primaryOrder, asc ? 'ASC' : 'DESC'],
+            [col(primaryOrder), asc ? 'ASC' : 'DESC'],
             ['id', 'ASC']
-        ]
+        ],
+        subQuery: false,
+        limit,
+        offset,
+        raw: true
     };
 
     if (system) {
@@ -85,7 +104,37 @@ exports.list = function (account_number, created_by, system = false, primaryOrde
         }];
     }
 
-    return db.remediation.findAll(query);
+    return db.remediation.findAndCountAll(query);
+};
+
+exports.loadDetails = async function (account_number, created_by, rows) {
+    const {Op} = db;
+
+    const query = {
+        attributes: REMEDIATION_ATTRIBUTES,
+        include: [{
+            attributes: ISSUE_ATTRIBUTES,
+            model: db.issue,
+            required: false,
+            include: [{
+                attributes: ['system_id'],
+                association: db.issue.associations.systems,
+                required: true
+            }]
+        }],
+        where: {
+            account_number,
+            created_by,
+            id: {
+                [Op.in]: _.map(rows, 'id')
+            }
+        }
+    };
+
+    const results = await db.remediation.findAll(query);
+    const byId = _.keyBy(results, 'id');
+
+    return rows.map(row => _.assign(byId[row.id].toJSON(), row));
 };
 
 exports.get = function (id, account_number, created_by) {

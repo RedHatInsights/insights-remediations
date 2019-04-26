@@ -101,21 +101,25 @@ exports.list = errors.async(async function (req, res) {
     const {column, asc} = parseSort(req.query.sort);
     const {limit, offset} = req.query;
 
-    // updated_at, name are sorted on the db level
-    // issue_count, system_count on the app level below
-    const dbColumn = ['updated_at', 'name'].includes(column) ? column : undefined;
-
-    let remediations = await queries.list(
+    const {count, rows} = await queries.list(
         req.user.account_number,
         req.user.username,
         req.query.system,
-        dbColumn,
+        column,
         asc,
-        req.query.filter)
-    .map(r => r.toJSON());
+        req.query.filter,
+        limit,
+        offset);
 
-    if (offset >= Math.max(remediations.length, 1)) {
-        throw errors.invalidOffset(offset, remediations.length - 1);
+    if (offset >= Math.max(count.length, 1)) {
+        throw errors.invalidOffset(offset, count.length - 1);
+    }
+
+    let remediations = await queries.loadDetails(req.user.account_number, req.user.username, rows);
+
+    if (column === 'name') {
+        // if sorting by name re-order as db does not order null names (Unnamed playbook) properly
+        remediations = _.orderBy(remediations, [r => (r.name || '').toLowerCase()], [asc ? 'asc' : 'desc']);
     }
 
     await P.all([
@@ -126,23 +130,10 @@ exports.list = errors.async(async function (req, res) {
     remediations.forEach(remediation => {
         // filter out issues with 0 systems and unknown issues
         remediation.issues = remediation.issues.filter(issue => issue.systems.length && issue.resolution);
-
         remediation.needs_reboot = inferNeedsReboot(remediation);
-        remediation.system_count = _(remediation.issues).flatMap('systems').uniqBy('system_id').size();
-        remediation.issue_count = remediation.issues.length;
     });
 
-    // TODO: it should be possible to move this down to db level using group_by after Sequelize is fixed
-    if (dbColumn === undefined) {
-        remediations = _.orderBy(remediations, [column, 'name'], [asc ? 'asc' : 'desc', 'asc']);
-    }
-
-    const total = remediations.length;
-
-    // TODO: ideally we should page on db level
-    remediations = remediations.slice(offset, offset + limit);
-
-    res.json(format.list(remediations, total, limit, offset, req.query.sort, req.query.system));
+    res.json(format.list(remediations, count.length, limit, offset, req.query.sort, req.query.system));
 });
 
 async function resolveSystems (remediation) {
