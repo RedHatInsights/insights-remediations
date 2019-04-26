@@ -8,14 +8,14 @@ exports[`remediations get get remediation 1`] = `
     \\"auto_reboot\\": true,
     \\"created_by\\": {
         \\"username\\": \\"tuser@redhat.com\\",
-        \\"first_name\\": \\"Test\\",
-        \\"last_name\\": \\"User\\"
+        \\"first_name\\": \\"test\\",
+        \\"last_name\\": \\"user\\"
     },
     \\"created_at\\": \\"2018-10-04T08:19:36.641Z\\",
     \\"updated_by\\": {
         \\"username\\": \\"tuser@redhat.com\\",
-        \\"first_name\\": \\"Test\\",
-        \\"last_name\\": \\"User\\"
+        \\"first_name\\": \\"test\\",
+        \\"last_name\\": \\"user\\"
     },
     \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
     \\"issues\\": [
@@ -126,14 +126,14 @@ exports[`remediations get get remediation with many systems 1`] = `
     \\"auto_reboot\\": true,
     \\"created_by\\": {
         \\"username\\": \\"testReadSingleUser\\",
-        \\"first_name\\": \\"Test\\",
-        \\"last_name\\": \\"Single\\"
+        \\"first_name\\": \\"test\\",
+        \\"last_name\\": \\"user\\"
     },
     \\"created_at\\": \\"2018-11-04T04:19:36.641Z\\",
     \\"updated_by\\": {
         \\"username\\": \\"testReadSingleUser\\",
-        \\"first_name\\": \\"Test\\",
-        \\"last_name\\": \\"Single\\"
+        \\"first_name\\": \\"test\\",
+        \\"last_name\\": \\"user\\"
     },
     \\"updated_at\\": \\"2018-11-04T04:19:36.641Z\\",
     \\"issues\\": [
@@ -1422,14 +1422,14 @@ exports[`remediations list filter basic filter 1`] = `
             \\"name\\": \\"Remediation with zero issues\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
@@ -1441,14 +1441,14 @@ exports[`remediations list filter basic filter 1`] = `
             \\"name\\": \\"Remediation with suppressed reboot\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -1460,14 +1460,14 @@ exports[`remediations list filter basic filter 1`] = `
             \\"name\\": \\"remediation 2\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -1479,14 +1479,14 @@ exports[`remediations list filter basic filter 1`] = `
             \\"name\\": \\"remediation 1\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -1515,14 +1515,14 @@ exports[`remediations list filter empty filter 1`] = `
             \\"name\\": \\"Remediation with zero issues\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
@@ -1534,14 +1534,14 @@ exports[`remediations list filter empty filter 1`] = `
             \\"name\\": \\"Remediation with suppressed reboot\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -1553,14 +1553,14 @@ exports[`remediations list filter empty filter 1`] = `
             \\"name\\": \\"Unnamed Playbook\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
@@ -1572,14 +1572,14 @@ exports[`remediations list filter empty filter 1`] = `
             \\"name\\": \\"remediation 2\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -1591,14 +1591,14 @@ exports[`remediations list filter empty filter 1`] = `
             \\"name\\": \\"remediation 1\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -1627,14 +1627,14 @@ exports[`remediations list filter filter case does not matter 1`] = `
             \\"name\\": \\"Remediation with suppressed reboot\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -1663,14 +1663,14 @@ exports[`remediations list filter filter matches on default name 1`] = `
             \\"name\\": \\"Unnamed Playbook\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
@@ -1699,14 +1699,14 @@ exports[`remediations list filter filter matches on number 1`] = `
             \\"name\\": \\"remediation 2\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -1735,14 +1735,14 @@ exports[`remediations list list remediations 1`] = `
             \\"name\\": \\"Remediation with zero issues\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
@@ -1754,14 +1754,14 @@ exports[`remediations list list remediations 1`] = `
             \\"name\\": \\"Remediation with suppressed reboot\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -1773,14 +1773,14 @@ exports[`remediations list list remediations 1`] = `
             \\"name\\": \\"Unnamed Playbook\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
@@ -1792,14 +1792,14 @@ exports[`remediations list list remediations 1`] = `
             \\"name\\": \\"remediation 2\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -1811,14 +1811,14 @@ exports[`remediations list list remediations 1`] = `
             \\"name\\": \\"remediation 1\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -1847,14 +1847,14 @@ exports[`remediations list pagination explicit offset 1`] = `
             \\"name\\": \\"Remediation with zero issues\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
@@ -1866,14 +1866,14 @@ exports[`remediations list pagination explicit offset 1`] = `
             \\"name\\": \\"Remediation with suppressed reboot\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -1902,14 +1902,14 @@ exports[`remediations list pagination offset 1 1`] = `
             \\"name\\": \\"Remediation with suppressed reboot\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -1921,14 +1921,14 @@ exports[`remediations list pagination offset 1 1`] = `
             \\"name\\": \\"Unnamed Playbook\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
@@ -1957,14 +1957,14 @@ exports[`remediations list pagination offset 2 1`] = `
             \\"name\\": \\"Unnamed Playbook\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
@@ -1976,14 +1976,14 @@ exports[`remediations list pagination offset 2 1`] = `
             \\"name\\": \\"remediation 2\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -2012,14 +2012,14 @@ exports[`remediations list pagination offset 3 1`] = `
             \\"name\\": \\"remediation 2\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -2031,14 +2031,14 @@ exports[`remediations list pagination offset 3 1`] = `
             \\"name\\": \\"remediation 1\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -2067,14 +2067,14 @@ exports[`remediations list pagination tiny page 1`] = `
             \\"name\\": \\"Remediation with zero issues\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
@@ -2086,14 +2086,14 @@ exports[`remediations list pagination tiny page 1`] = `
             \\"name\\": \\"Remediation with suppressed reboot\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -2122,14 +2122,14 @@ exports[`remediations list sorting default 1`] = `
             \\"name\\": \\"Remediation with zero issues\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
@@ -2141,14 +2141,14 @@ exports[`remediations list sorting default 1`] = `
             \\"name\\": \\"Remediation with suppressed reboot\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -2160,14 +2160,14 @@ exports[`remediations list sorting default 1`] = `
             \\"name\\": \\"Unnamed Playbook\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
@@ -2179,14 +2179,14 @@ exports[`remediations list sorting default 1`] = `
             \\"name\\": \\"remediation 2\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -2198,14 +2198,14 @@ exports[`remediations list sorting default 1`] = `
             \\"name\\": \\"remediation 1\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -2234,14 +2234,14 @@ exports[`remediations list system filter filters out remediations not featuring 
             \\"name\\": \\"Remediation with suppressed reboot\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -2253,14 +2253,14 @@ exports[`remediations list system filter filters out remediations not featuring 
             \\"name\\": \\"Unnamed Playbook\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
@@ -2272,14 +2272,14 @@ exports[`remediations list system filter filters out remediations not featuring 
             \\"name\\": \\"remediation 2\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -2291,14 +2291,14 @@ exports[`remediations list system filter filters out remediations not featuring 
             \\"name\\": \\"remediation 1\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -2327,14 +2327,14 @@ exports[`remediations list system filter filters out remediations not featuring 
             \\"name\\": \\"Unnamed Playbook\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
@@ -2346,14 +2346,14 @@ exports[`remediations list system filter filters out remediations not featuring 
             \\"name\\": \\"remediation 1\\",
             \\"created_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"tuser@redhat.com\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"User\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -2382,14 +2382,14 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             \\"name\\": \\"missing system 1\\",
             \\"created_by\\": {
                 \\"username\\": \\"testReadSingleUser\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"Single\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"testReadSingleUser\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"Single\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -2401,14 +2401,14 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             \\"name\\": \\"missing system 2\\",
             \\"created_by\\": {
                 \\"username\\": \\"testReadSingleUser\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"Single\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-11-04T07:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"testReadSingleUser\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"Single\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-11-04T07:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -2420,14 +2420,14 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             \\"name\\": \\"unknown resolution\\",
             \\"created_by\\": {
                 \\"username\\": \\"testReadSingleUser\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"Single\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-11-04T06:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"testReadSingleUser\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"Single\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-11-04T06:19:36.641Z\\",
             \\"needs_reboot\\": true,
@@ -2439,14 +2439,14 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             \\"name\\": \\"unknown issues\\",
             \\"created_by\\": {
                 \\"username\\": \\"testReadSingleUser\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"Single\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-11-04T05:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"testReadSingleUser\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"Single\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-11-04T05:19:36.641Z\\",
             \\"needs_reboot\\": false,
@@ -2458,14 +2458,14 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             \\"name\\": \\"many systems\\",
             \\"created_by\\": {
                 \\"username\\": \\"testReadSingleUser\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"Single\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"created_at\\": \\"2018-11-04T04:19:36.641Z\\",
             \\"updated_by\\": {
                 \\"username\\": \\"testReadSingleUser\\",
-                \\"first_name\\": \\"Test\\",
-                \\"last_name\\": \\"Single\\"
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-11-04T04:19:36.641Z\\",
             \\"needs_reboot\\": true,

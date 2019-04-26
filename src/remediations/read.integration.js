@@ -196,14 +196,14 @@ describe('remediations', function () {
                 auto_reboot: false,
                 created_by: {
                     username: 'tuser@redhat.com',
-                    first_name: 'Test',
-                    last_name: 'User'
+                    first_name: 'test',
+                    last_name: 'user'
                 },
                 created_at: '2018-12-04T08:19:36.641Z',
                 updated_by: {
                     username: 'tuser@redhat.com',
-                    first_name: 'Test',
-                    last_name: 'User'
+                    first_name: 'test',
+                    last_name: 'user'
                 },
                 updated_at: '2018-12-04T08:19:36.641Z',
                 issues: [{

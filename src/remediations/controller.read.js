@@ -38,10 +38,22 @@ function resolveResolutions (...remediations) {
     }).value());
 }
 
-async function resolveUsers (...remediations) {
-    const usernames = _(remediations).flatMap(({created_by, updated_by}) => [created_by, updated_by]).uniq().value();
+async function getUsers (req, usernames) {
+    // if the only user is the currently logged-in user then bypass users connector
+    if (usernames.length === 1 && req.identity.user && req.identity.user.username === usernames[0]) {
+        const { username, first_name, last_name } = req.identity.user;
+        return {
+            [username]: { username, first_name, last_name }
+        };
+    }
+
     const resolvedUsers = await P.map(usernames, username => users.getUser(username));
-    const resolvedUsersById = _.keyBy(resolvedUsers, 'username');
+    return _.keyBy(resolvedUsers, 'username');
+}
+
+async function resolveUsers (req, ...remediations) {
+    const usernames = _(remediations).flatMap(({created_by, updated_by}) => [created_by, updated_by]).uniq().value();
+    const resolvedUsersById = await getUsers(req, usernames);
 
     function getUser (username) {
         if (_.has(resolvedUsersById, username)) {
@@ -108,7 +120,7 @@ exports.list = errors.async(async function (req, res) {
 
     await P.all([
         resolveResolutions(...remediations),
-        resolveUsers(...remediations)
+        resolveUsers(req, ...remediations)
     ]);
 
     remediations.forEach(remediation => {
@@ -171,7 +183,7 @@ exports.get = errors.async(async function (req, res) {
         resolveSystems(remediation),
         resolveResolutions(remediation),
         resolveIssues(remediation),
-        resolveUsers(remediation)
+        resolveUsers(req, remediation)
     ]);
 
     // filter out issues with 0 systems or missing issue details
