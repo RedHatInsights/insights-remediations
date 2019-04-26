@@ -37,7 +37,9 @@ exports.generate = errors.async(async function (req, res) {
 
 async function resolveSystems (issues) {
     const systemIds = _(issues).flatMap('systems').uniq().value();
-    const systems = await inventory.getSystemDetailsBatch(systemIds);
+
+    // bypass cache as ansible_host may change so we want to grab the latest one
+    const systems = await inventory.getSystemDetailsBatch(systemIds, true);
 
     issues.forEach(issue => issue.hosts = issue.systems.map(id => {
         if (!systems.hasOwnProperty(id)) {
