@@ -20,6 +20,86 @@ const systems = [
     '9da41b6e-f77e-430a-9022-4ac1ffab288a'
 ];
 
+const cves = [
+    'CVE-2015-9262',
+    'CVE-2016-9396',
+    'CVE-2017-1000050',
+    'CVE-2017-10268',
+    'CVE-2017-10378',
+    'CVE-2017-10379',
+    'CVE-2017-10384',
+    'CVE-2017-18267',
+    'CVE-2017-3636',
+    'CVE-2017-3641',
+    'CVE-2017-3651',
+    'CVE-2017-3653',
+    'CVE-2017-3735',
+    'CVE-2018-0494',
+    'CVE-2018-0495',
+    'CVE-2018-0732',
+    'CVE-2018-0737',
+    'CVE-2018-0739',
+    'CVE-2018-1000007',
+    'CVE-2018-1000120',
+    'CVE-2018-1000121',
+    'CVE-2018-1000122',
+    'CVE-2018-1000156',
+    'CVE-2018-1000301',
+    'CVE-2018-10372',
+    'CVE-2018-10373',
+    'CVE-2018-10534',
+    'CVE-2018-10535',
+    'CVE-2018-10733',
+    'CVE-2018-10767',
+    'CVE-2018-10768',
+    'CVE-2018-10844',
+    'CVE-2018-10845',
+    'CVE-2018-10846',
+    'CVE-2018-10897',
+    'CVE-2018-1113',
+    'CVE-2018-11235',
+    'CVE-2018-1124',
+    'CVE-2018-1126',
+    'CVE-2018-12020',
+    'CVE-2018-12384',
+    'CVE-2018-12910',
+    'CVE-2018-13033',
+    'CVE-2018-13988',
+    'CVE-2018-14526',
+    'CVE-2018-17456',
+    'CVE-2018-18311',
+    'CVE-2018-2562',
+    'CVE-2018-2622',
+    'CVE-2018-2640',
+    'CVE-2018-2665',
+    'CVE-2018-2668',
+    'CVE-2018-2755',
+    'CVE-2018-2761',
+    'CVE-2018-2767',
+    'CVE-2018-2771',
+    'CVE-2018-2781',
+    'CVE-2018-2813',
+    'CVE-2018-2817',
+    'CVE-2018-2819',
+    'CVE-2018-3133',
+    'CVE-2018-5407',
+    'CVE-2018-5729',
+    'CVE-2018-5730',
+    'CVE-2018-5740',
+    'CVE-2018-5742',
+    'CVE-2018-7208',
+    'CVE-2018-7568',
+    'CVE-2018-7569',
+    'CVE-2018-7642',
+    'CVE-2018-7643',
+    'CVE-2018-8945',
+    'CVE-2019-3855',
+    'CVE-2019-3856',
+    'CVE-2019-3857',
+    'CVE-2019-3863',
+    'CVE-2019-6133'
+];
+
 exports.up = async q => {
     const remediations = await q.bulkInsert('remediations', [{
         id: '9939e04a-a936-482d-a317-008c058f7918',
@@ -53,6 +133,14 @@ exports.up = async q => {
         created_at: '2018-11-21T11:19:38.541Z',
         updated_by: created_by,
         updated_at: '2018-11-21T11:19:38.541Z'
+    }, {
+        id: '10b533ec-ff1c-4643-8f45-aa0f4a26987a',
+        name: 'Vulnerability',
+        account_number,
+        created_by,
+        created_at: '2018-11-21T13:19:38.541Z',
+        updated_by: created_by,
+        updated_at: '2018-11-21T13:19:38.541Z'
     }], opts);
 
     const issues = await q.bulkInsert('remediation_issues', [{
@@ -70,7 +158,12 @@ exports.up = async q => {
     }, {
         remediation_id: remediations[1].id,
         issue_id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled'
-    }], opts);
+    },
+    ...cves.map(cve => ({
+        remediation_id: remediations[4].id,
+        issue_id: `vulnerabilities:${cve}`
+    }))
+    ], opts);
 
     issues.forEach(issue => {
         const systemSlice = (issue.remediation_id === remediations[0].id) ? systems.slice(0, 2) : systems.slice(2, 4);
