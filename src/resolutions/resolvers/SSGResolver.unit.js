@@ -11,7 +11,7 @@ describe('SSGResolved', function () {
         const resolutions = (await resolver.resolveResolutions(id));
         resolutions.should.be.empty();
 
-        const template = await ssg.getTemplate(id);
+        const template = await ssg.getTemplate('rhel7', 'pci-dss', 'disable_prelink-unresolved');
         expect(() => resolver.parseResolution(template)).toThrow('Unresolved interpolation placeholder @RULE_TITLE@');
     });
 
@@ -27,6 +27,19 @@ describe('SSGResolved', function () {
         const resolutions = (await resolver.resolveResolutions(id));
         resolutions.should.have.size(1);
         resolutions[0].description.should.equal('Disable the Automounter');
+    });
+
+    test('falls back to all profile if the rule does not belong to the spefified profile', async () => {
+        const id = identifiers.parse('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_disable_prelink');
+        const resolutions = (await resolver.resolveResolutions(id));
+        resolutions.should.have.size(1);
+        resolutions[0].description.should.equal('Disable Prelinking');
+    });
+
+    test('returns 0 if the rule does not exist at all', async () => {
+        const id = identifiers.parse('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_this_is_nonsense');
+        const resolutions = (await resolver.resolveResolutions(id));
+        resolutions.should.have.size(0);
     });
 });
 

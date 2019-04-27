@@ -6,7 +6,6 @@ const impl = require('./impl');
 const base = require('../../test');
 const { mockRequest } = require('../testUtils');
 const request = require('../../util/request');
-const identifiers = require('../../util/identifiers');
 
 describe('ssg impl', function () {
     beforeEach(mockRequest);
@@ -21,8 +20,7 @@ describe('ssg impl', function () {
             headers: {}
         });
 
-        const id = identifiers.parse('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
-        await expect(impl.getTemplate(id)).resolves.toMatchSnapshot();
+        await expect(impl.getTemplate('rhel7', 'standard', 'sshd_disable_root_login')).resolves.toMatchSnapshot();
         http.callCount.should.equal(1);
     });
 });

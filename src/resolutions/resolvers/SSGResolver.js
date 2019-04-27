@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const P = require('bluebird');
 const assert = require('assert');
 const ssg = require('../../connectors/ssg');
 const Resolver = require('./Resolver');
@@ -10,11 +11,13 @@ const yamlUtils = require('../../util/yaml');
 const yaml = require('js-yaml');
 const log = require('../../util/log');
 const templates = require('../../templates/static');
+const identifiers = require('../../util/identifiers');
 
 const PLACEHOLDER_REGEX = /(@([A-Z_])+@)/;
 
 const rebootHandler = yaml.safeLoad(templates.special.rebootHandler.data);
 const HANDLER_ID = 'insights_reboot_handler';
+const FALLBACK_PROFILE = 'all';
 
 function testPlaceholders (raw) {
     const result = PLACEHOLDER_REGEX.exec(raw.replace('@@HOSTS@@', 'hosts'));
@@ -48,7 +51,14 @@ function processPlay (parsed) {
 
 module.exports = class SSGResolver extends Resolver {
     async resolveResolutions (id) {
-        const raw = await ssg.getTemplate(id);
+        const {platform, profile, rule} = identifiers.parseSSG(id);
+
+        const [primary, fallback] = await P.all([
+            ssg.getTemplate(platform, profile, rule),
+            ssg.getTemplate(platform, FALLBACK_PROFILE, rule)
+        ]);
+
+        const raw = primary || fallback;
 
         if (!raw) {
             return [];

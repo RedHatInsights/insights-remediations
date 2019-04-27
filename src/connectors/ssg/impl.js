@@ -4,7 +4,6 @@ const URI = require('urijs');
 const Connector = require('../Connector');
 const metrics = require('../metrics');
 const assert = require('assert');
-const identifiers = require('../../util/identifiers');
 
 const {host} = require('../../config').ssg;
 
@@ -14,8 +13,7 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    getTemplate (id) {
-        const {platform, profile, rule} = identifiers.parseSSG(id);
+    getTemplate (platform, profile, rule) {
         const uri = new URI(host);
         uri.segment('/playbooks');
         uri.segment(platform);
