@@ -25,47 +25,42 @@ exports[`generates a playbook with block 1`] = `
     - mount_option_dev_shm_nodev
     - no_reboot_needed
   tasks:
-    - name: get back device associated to mountpoint
-      shell: mount | grep ' /dev/shm ' |cut -d ' ' -f 1
-      args:
-        warn: false
+    - name: get back mount information associated to mountpoint
+      command: findmnt --fstab '/dev/shm'
       register: device_name
-      check_mode: false
+      failed_when: device_name.rc > 1
       changed_when: false
       when: >-
         ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
         \\"docker\\"
       notify: insights_reboot_handler
-    - block:
-        - name: get back device previous mount option
-          shell: 'mount | grep '' /dev/shm '' | sed -re ''s:.*\\\\((.*)\\\\):\\\\1:'''
-          args:
-            warn: false
-          register: device_cur_mountoption
-          check_mode: false
-          changed_when: false
-          notify: insights_reboot_handler
-        - name: get back device fstype
-          shell: mount | grep ' /dev/shm ' | cut -d ' ' -f 5
-          args:
-            warn: false
-          register: device_fstype
-          check_mode: false
-          changed_when: false
-          notify: insights_reboot_handler
-        - name: Ensure permission nodev are set on /dev/shm
-          mount:
-            path: /dev/shm
-            src: '{{ device_name.stdout }}'
-            opts: '{{ device_cur_mountoption.stdout }},nodev'
-            state: mounted
-            fstype: '{{ device_fstype.stdout }}'
-          notify: insights_reboot_handler
+    - name: create mount_info dictionary variable
+      set_fact:
+        mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
+      with_together:
+        - '{{ device_name.stdout_lines[0].split() | list | lower }}'
+        - '{{ device_name.stdout_lines[1].split() | list }}'
       when:
+        - device_name.stdout_lines is defined
         - (device_name.stdout | length > 0)
         - >-
           ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
           != \\"docker\\"
+      notify: insights_reboot_handler
+    - name: Ensure permission nodev are set on /dev/shm
+      mount:
+        path: /dev/shm
+        src: '{{ mount_info.source }}'
+        opts: '{{ mount_info.options }},nodev'
+        state: mounted
+        fstype: '{{ mount_info.fstype }}'
+      when:
+        - device_name.stdout is defined
+        - (device_name.stdout | length > 0)
+        - >-
+          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
+          != \\"docker\\"
+      notify: insights_reboot_handler
   handlers:
     - name: insights_reboot_handler
       set_fact:
