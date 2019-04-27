@@ -55,8 +55,9 @@ node ('openscap') {
         }
 
         stage('fetch content') {
-            sh 'curl -s -L "https://github.com/ComplianceAsCode/content/tarball/${REVISION}" --output - | tar xz;'
-            sh 'mv ComplianceAsCode-content-* source'
+            sh 'mkdir content'
+            sh 'curl -s -L "https://github.com/${REPOSITORY}/tarball/${REVISION}" --output - | tar xz -C content;'
+            sh 'mv content/* source'
         }
 
         stage('build remediations') {
