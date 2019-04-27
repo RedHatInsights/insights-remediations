@@ -22,7 +22,7 @@ def notifyOnFailure(Closure step) {
 }
 
 def resolveRevision (branch) {
-    def content = sh(returnStdout: true, script: "curl https://api.github.com/repos/ComplianceAsCode/content/commits/${REVISION}").trim()
+    def content = sh(returnStdout: true, script: "curl https://api.github.com/repos/${REPOSITORY}/commits/${REVISION}").trim()
     return new JsonSlurper().parseText(content).sha
 }
 
