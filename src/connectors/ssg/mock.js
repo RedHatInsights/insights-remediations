@@ -5,8 +5,11 @@ const path = require('path');
 const Connector = require('../Connector');
 
 function read (dir, file) {
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
-    return fs.readFileSync(path.join(__dirname, 'mock', dir, `${file}.yml`), 'utf-8');
+    return {
+        // eslint-disable-next-line security/detect-non-literal-fs-filename
+        template: fs.readFileSync(path.join(__dirname, 'mock', dir, `${file}.yml`), 'utf-8'),
+        version: 'mock'
+    };
 }
 
 module.exports = new class extends Connector {

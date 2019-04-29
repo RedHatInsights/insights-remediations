@@ -11,10 +11,10 @@ spec:
     dockerfile: |-
       FROM registry.access.redhat.com/rhscl/nginx-114-rhel7
       COPY playbooks /opt/app-root/src/playbooks
+      COPY default.conf /opt/app-root/etc/nginx.default.d/default.conf
 
       RUN set -eux; \
-          rmdir /opt/app-root/src/nginx-start; \
-          echo "location /playbooks { autoindex on; disable_symlinks on; }" > /opt/app-root/etc/nginx.default.d/default.conf
+          rmdir /opt/app-root/src/nginx-start;
 
       CMD ["/usr/libexec/s2i/run"]
 

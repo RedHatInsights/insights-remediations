@@ -72,20 +72,28 @@ module.exports = class SSGResolver extends Resolver {
         }
     }
 
-    parseResolution (raw) {
-        raw = yamlUtils.removeDocumentMarkers(raw);
-        const parsed = yaml.safeLoad(raw);
+    parseResolution ({ version, template }) {
+        template = yamlUtils.removeDocumentMarkers(template);
+        version = version || 'unknown';
+        const parsed = yaml.safeLoad(template);
 
-        testPlaceholders(raw);
+        testPlaceholders(template);
 
         if (parsed.length !== 1) {
             throw new Error(`Unexpected number of plays: ${parsed.length}`);
         }
 
         const name = parsed[0].name;
-        const template = new Template(yaml.safeDump(processPlay(parsed)));
 
-        return new Resolution(template, 'fix', name, true);
+        return new Resolution(
+            new Template(yaml.safeDump(processPlay(parsed))),
+            'fix',
+            name,
+            true,
+            false,
+            -1,
+            version
+        );
     }
 };
 

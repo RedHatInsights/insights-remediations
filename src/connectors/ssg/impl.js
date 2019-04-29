@@ -6,6 +6,7 @@ const metrics = require('../metrics');
 const assert = require('assert');
 
 const {host} = require('../../config').ssg;
+const VERSION_HEADER = 'x-ssg-version';
 
 module.exports = new class extends Connector {
     constructor () {
@@ -21,7 +22,13 @@ module.exports = new class extends Connector {
         uri.segment(profile);
         uri.segment(`${rule}.yml`);
 
-        return this.doHttp({ uri: uri.toString() }, false, this.metrics);
+        return this.doHttp(
+            { uri: uri.toString() },
+            false,
+            this.metrics,
+            // eslint-disable-next-line security/detect-object-injection
+            res => res === null ? null : ({template: res.body, version: res.headers[VERSION_HEADER]})
+        );
     }
 
     async ping () {

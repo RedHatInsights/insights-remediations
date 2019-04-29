@@ -17,10 +17,14 @@ describe('ssg impl', function () {
         const http = base.getSandbox().stub(request, 'run').resolves({
             statusCode: 200,
             body: data,
-            headers: {}
+            headers: {
+                'x-ssg-version': 'unit'
+            }
         });
 
-        await expect(impl.getTemplate('rhel7', 'standard', 'sshd_disable_root_login')).resolves.toMatchSnapshot();
+        const { template, version } = await impl.getTemplate('rhel7', 'standard', 'sshd_disable_root_login');
+        version.should.equal('unit');
+        expect(template).toMatchSnapshot();
         http.callCount.should.equal(1);
     });
 });

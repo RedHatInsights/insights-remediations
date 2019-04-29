@@ -10,7 +10,7 @@ exports[`generates a playbook with block 1`] = `
 
 # Add nodev Option to &#x2F;dev&#x2F;shm
 # Identifier: (ssg:rhel7|ospp42|xccdf_org.ssgproject.content_rule_mount_option_dev_shm_nodev,fix)
-# Version: unknown
+# Version: NORMALIZED_PLACEHOLDER
 - name: Add nodev Option to /dev/shm
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
@@ -114,7 +114,7 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
 
 # Disable Prelinking
 # Identifier: (ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink,fix)
-# Version: unknown
+# Version: NORMALIZED_PLACEHOLDER
 - name: Disable Prelinking
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
@@ -156,7 +156,7 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
 
 # Enable rsyslog Service
 # Identifier: (ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled,fix)
-# Version: unknown
+# Version: NORMALIZED_PLACEHOLDER
 - name: Enable rsyslog Service
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
@@ -233,7 +233,7 @@ exports[`generates a simple playbook with single compliance remediation 1`] = `
 
 # Disable Prelinking
 # Identifier: (ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink,fix)
-# Version: unknown
+# Version: NORMALIZED_PLACEHOLDER
 - name: Disable Prelinking
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true

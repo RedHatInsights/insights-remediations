@@ -86,7 +86,7 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
 
 # Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)
 # Identifier: (advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,kernel_update)
-# Version: 3f74744ce9b66c20b55f6dd4e580d77d7e7039b1
+# Version: NORMALIZED_PLACEHOLDER
 - name: Update system to the latest kernel and reboot
   hosts: \\"1f12bdfc-8267-492d-a930-92f498fe65b9.example.com,fc94beb8-21ee-403d-99b1-949ef7adb762\\"
   become: true
@@ -134,7 +134,7 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
 
 # Bonding will not fail over to the backup link when bonding options are partially read
 # Identifier: (advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE,fix)
-# Version: a0e934f07d8167073546cbc5108c4345f92559a5
+# Version: NORMALIZED_PLACEHOLDER
 - name: Correct Bonding Config Items
   hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
   become: true
@@ -160,7 +160,7 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
 
 # Disable the Automounter
 # Identifier: (ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled,fix)
-# Version: unknown
+# Version: NORMALIZED_PLACEHOLDER
 - name: Disable the Automounter
   hosts: 'fc94beb8-21ee-403d-99b1-949ef7adb762'
   become: true

@@ -92,3 +92,9 @@ exports.mockRequestError = function (options = {}, response = {}) {
 exports.mockRequestStatusCode = function (statusCode = 500) {
     exports.sandbox.stub(request, 'run').resolves({ statusCode });
 };
+
+exports.normalizePlaybookVersionForSnapshot = function (text) {
+    text = text.replace(/^# Version: [0-9a-f]{40}$/mg, '# Version: NORMALIZED_PLACEHOLDER');
+    text = text.replace(/^# Version: mock$/mg, '# Version: NORMALIZED_PLACEHOLDER');
+    return text;
+};

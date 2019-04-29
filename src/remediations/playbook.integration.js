@@ -1,6 +1,6 @@
 'use strict';
 
-const { request, auth, mockDate } = require('../test');
+const { request, auth, mockDate, normalizePlaybookVersionForSnapshot } = require('../test');
 
 describe('playbooks', function () {
     test('generates playbook with pydata and playbook support', async () => {
@@ -10,7 +10,7 @@ describe('playbooks', function () {
         .expect(200);
 
         headers['content-disposition'].should.match(/^attachment;filename="remediation-1-[0-9]+\.yml"$/);
-        expect(text).toMatchSnapshot();
+        expect(normalizePlaybookVersionForSnapshot(text)).toMatchSnapshot();
     });
 
     test('generates playbook that does not need reboot', async () => {

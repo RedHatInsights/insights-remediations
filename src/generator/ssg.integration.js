@@ -1,6 +1,6 @@
 'use strict';
 
-const { request, reqId } = require('../test');
+const { request, reqId, normalizePlaybookVersionForSnapshot } = require('../test');
 
 test('generates a simple playbook with single compliance remediation', async () => {
     const data = {
@@ -14,7 +14,7 @@ test('generates a simple playbook with single compliance remediation', async () 
     .post('/v1/playbook')
     .send(data)
     .expect(200);
-    expect(res.text).toMatchSnapshot();
+    expect(normalizePlaybookVersionForSnapshot(res.text)).toMatchSnapshot();
 });
 
 test('generates a simple playbook with multiple compliance remediation', async () => {
@@ -32,7 +32,7 @@ test('generates a simple playbook with multiple compliance remediation', async (
     .post('/v1/playbook')
     .send(data)
     .expect(200);
-    expect(res.text).toMatchSnapshot();
+    expect(normalizePlaybookVersionForSnapshot(res.text)).toMatchSnapshot();
 });
 
 test('400s on unknown issue id', () => {
@@ -95,6 +95,6 @@ test('generates a playbook with block', async () => {
     .post('/v1/playbook')
     .send(data)
     .expect(200);
-    expect(res.text).toMatchSnapshot();
+    expect(normalizePlaybookVersionForSnapshot(res.text)).toMatchSnapshot();
 });
 

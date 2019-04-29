@@ -61,10 +61,10 @@ function saveCachedEntry (redis, key, etag, body) {
     }));
 }
 
-async function run (options, useCache = false, metrics = false) {
+async function run (options, useCache = false, metrics = false, responseTransformer = res => res === null ? null : res.body) {
     if (!useCache || !config.redis.enabled || cache.get().status !== 'ready') {
         metrics && metrics.miss.inc();
-        return doHttp(options, false, metrics).then(res => (res === null ? null : res.body));
+        return doHttp(options, false, metrics).then(responseTransformer);
     }
 
     const uri = notNil(options.uri);
@@ -109,7 +109,7 @@ async function run (options, useCache = false, metrics = false) {
 
     log.trace({key}, 'saved to cache');
     saveCachedEntry(cache.get(), key, res.headers.etag, res.body);
-    return res.body;
+    return responseTransformer(res);
 }
 
 module.exports.request = run;

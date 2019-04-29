@@ -77,6 +77,10 @@ node ('openscap') {
             sh "node src/validateTemplate.js \$(find artifacts/playbooks/ -path '*/playbooks/*/*.yml')"
         }
 
+        stage('build Nginx configuration') {
+            sh "echo 'location /playbooks { autoindex on; disable_symlinks on; add_header X-SSG-VERSION ${REVISION}; }' > artifacts/default.conf"
+        }
+
         stage('build Nginx image') {
             sh 'ls -l artifacts/playbooks'
             sh "oc start-build playbooks-ssg -n buildfactory --from-dir=artifacts --follow -w"
