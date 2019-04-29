@@ -15,10 +15,10 @@ if (program.args.length === 0) {
 let code = 0;
 
 function run (filepath) {
-    const file = fs.readFileSync(filepath, 'utf-8'); // eslint-disable-line security/detect-non-literal-fs-filename
+    const template = fs.readFileSync(filepath, 'utf-8'); // eslint-disable-line security/detect-non-literal-fs-filename
 
     try {
-        resolver.parseResolution(file);
+        resolver.parseResolution({template, version: 'unknown'});
     } catch (e) {
         // eslint-disable-next-line no-console
         console.log(`Template validation failed: ${e.message}: ${filepath}`);
