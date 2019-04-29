@@ -1,7 +1,6 @@
 deploy:
   redis: true
   postgres: true
-  cac: true
   remediations: true
   ssg: true
 
@@ -33,9 +32,6 @@ remediations:
   compliance:
     impl: impl
     host: http://compliance-backend.compliance-qa.svc.cluster.local:3000
-  cac:
-    impl: impl
-    host: http://playbooks-cac:8080
   inventory:
     impl: impl
     host: http://insights-inventory.platform-qa.svc.cluster.local:8080

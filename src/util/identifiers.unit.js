@@ -31,9 +31,9 @@ test('parses a vulnerabilities (erratum) id', () => {
     parsed.should.have.property('full', 'vulnerabilities:RHBA-2007:0331');
 });
 
-test('parses a compliance id', () => {
-    const parsed = identifiers.parse('compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
-    parsed.should.have.property('app', 'compliance');
-    parsed.should.have.property('issue', 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
-    parsed.should.have.property('full', 'compliance:xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
+test('parses a ssg id', () => {
+    const parsed = identifiers.parse('ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
+    parsed.should.have.property('app', 'ssg');
+    parsed.should.have.property('issue', 'rhel7|pci-dss|xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
+    parsed.should.have.property('full', 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
 });

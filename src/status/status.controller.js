@@ -13,7 +13,6 @@ const ERROR = 'error';
 
 const CONNECTORS = _([
     'advisor',
-    'cac',
     'compliance',
     'contentServer',
     'inventory',

@@ -12,10 +12,6 @@ test('provides status information', async () => {
             status: 'ok',
             impl: 'mock'
         },
-        cac: {
-            status: 'ok',
-            impl: 'impl'
-        },
         compliance: {
             status: 'ok',
             impl: 'mock'

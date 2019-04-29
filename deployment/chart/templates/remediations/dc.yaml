@@ -140,11 +140,6 @@ spec:
               key: password
               name: redis
 
-        - name: CAC_IMPL
-          value: {{ .Values.remediations.cac.impl }}
-        - name: CAC_HOST
-          value: {{ .Values.remediations.cac.host }}
-
         - name: SSG_IMPL
           value: {{ .Values.remediations.ssg.impl }}
         - name: SSG_HOST

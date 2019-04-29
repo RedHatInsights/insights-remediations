@@ -82,7 +82,7 @@ exports.up = async q => {
         issue_id: 'vulnerabilities:non-existent-issue'
     }, {
         remediation_id: remediations[3].id,
-        issue_id: 'compliance:non-existent-issue'
+        issue_id: 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_non-existent-issue'
     }, {
         remediation_id: remediations[4].id,
         issue_id: 'vulnerabilities:CVE-2017-5715'

@@ -1,7 +1,6 @@
 deploy:
   redis: false
   postgres: true
-  cac: true
   remediations: false
   ssg: true
 
