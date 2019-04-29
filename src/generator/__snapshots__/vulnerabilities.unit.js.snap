@@ -9,7 +9,7 @@ exports[`generates a rule-based playbook 1`] = `
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
 # Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)
-# Identifier: (vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,kernel_update)
+# Identifier: (advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,kernel_update)
 # Version: 3f74744ce9b66c20b55f6dd4e580d77d7e7039b1
 - name: Update system to the latest kernel and reboot
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
@@ -114,7 +114,7 @@ exports[`generates a rule-based playbook with resolution preference 1`] = `
       set_fact: insights_report={{ insights_result.stdout }}
 
 # Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)
-# Identifier: (vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,selinux_mitigate)
+# Identifier: (advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,selinux_mitigate)
 # Version: 3f74744ce9b66c20b55f6dd4e580d77d7e7039b1
 - name: Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"

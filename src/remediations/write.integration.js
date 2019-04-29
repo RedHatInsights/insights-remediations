@@ -88,7 +88,7 @@ describe('remediations', function () {
                 name,
                 add: {
                     issues: [{
-                        id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+                        id: 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
                         resolution: 'selinux_mitigate'
                     }, {
                         id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'
@@ -116,7 +116,7 @@ describe('remediations', function () {
             r2.body.should.have.property('name', name);
             r2.body.issues.should.have.length(2);
 
-            testIssue(r2.body, 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074', 'selinux_mitigate', systems);
+            testIssue(r2.body, 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074', 'selinux_mitigate', systems);
             testIssue(r2.body, 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE', 'fix', systems);
         });
 
@@ -190,7 +190,7 @@ describe('remediations', function () {
                 .send({
                     add: {
                         issues: [{
-                            id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+                            id: 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
                             resolution: 'selinux_mitigate'
                         }, {
                             id: 'vulnerabilities:CVE-2017-15126',
@@ -208,7 +208,7 @@ describe('remediations', function () {
                 .expect(200);
 
                 body.issues.should.have.length(2);
-                testIssue(body, 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074', 'selinux_mitigate', systems);
+                testIssue(body, 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074', 'selinux_mitigate', systems);
                 testIssue(body, 'vulnerabilities:CVE-2017-15126', 'fix', ['9611764a-8346-4b4c-a0da-2764553f8448']);
             });
 
@@ -222,7 +222,7 @@ describe('remediations', function () {
                 .send({
                     add: {
                         issues: [{
-                            id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+                            id: 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
                             resolution: 'selinux_mitigate'
                         }, {
                             id: 'vulnerabilities:CVE-2017-5715',
@@ -243,7 +243,7 @@ describe('remediations', function () {
                 .expect(200);
 
                 body.issues.should.have.length(3);
-                testIssue(body, 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074', 'selinux_mitigate', [
+                testIssue(body, 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074', 'selinux_mitigate', [
                     ...systems,
                     ...defaultSystems
                 ]);
@@ -451,7 +451,7 @@ describe('remediations', function () {
         describe('issue', function () {
             test('resolution', async () => {
                 const id = '/v1/remediations/022e01be-74f1-4893-b48c-df429fe7d09f' +
-                    '/issues/vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074';
+                    '/issues/advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074';
 
                 await request
                 .patch(id)
@@ -466,7 +466,7 @@ describe('remediations', function () {
                 .set(auth.testWrite)
                 .expect(200);
 
-                const issue = _.find(body.issues, { id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074' });
+                const issue = _.find(body.issues, { id: 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074' });
                 issue.resolution.should.have.property('id', 'selinux_mitigate');
             });
 

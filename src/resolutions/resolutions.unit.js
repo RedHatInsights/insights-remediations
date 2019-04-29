@@ -80,11 +80,11 @@ describe('resolve vulnerabilities resolutions', function () {
 
     test('rule-based resolution info', async () => {
         const {body} = await request
-        .get('/v1/resolutions/vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074')
+        .get('/v1/resolutions/advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074')
         .expect(200);
 
         body.should.eql({
-            id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+            id: 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
             resolution_risk: 3,
             resolutions: [{
                 description: 'Update system to the latest kernel and reboot',
@@ -159,7 +159,7 @@ describe('batch', function () {
             issues: [
                 'test:ping',
                 'vulnerabilities:CVE-2017-15126',
-                'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+                'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
                 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
                 'advisor:non-existent-issue'
             ]

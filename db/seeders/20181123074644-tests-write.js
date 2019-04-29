@@ -62,7 +62,7 @@ exports.up = async q => {
 
     const issues = await q.bulkInsert('remediation_issues', _.flatMap(remediations, remediation => [{
         remediation_id: remediation.id,
-        issue_id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'
+        issue_id: 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'
     }, {
         remediation_id: remediation.id,
         issue_id: 'vulnerabilities:CVE-2017-5715'

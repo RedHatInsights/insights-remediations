@@ -60,10 +60,10 @@ exports.up = async q => {
 
     const issues = await q.bulkInsert('remediation_issues', [{
         remediation_id: remediations[0].id,
-        issue_id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'
+        issue_id: 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'
     }, {
         remediation_id: remediations[1].id,
-        issue_id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'
+        issue_id: 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'
     }, {
         remediation_id: remediations[1].id,
         issue_id: 'vulnerabilities:CVE-2017-5715'
@@ -79,7 +79,7 @@ exports.up = async q => {
         issue_id: 'vulnerabilities:CVE-2000-17713'
     }, {
         remediation_id: remediations[3].id,
-        issue_id: 'vulnerabilities:non-existent-issue'
+        issue_id: 'advisor:non-existent-issue2'
     }, {
         remediation_id: remediations[3].id,
         issue_id: 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_non-existent-issue'

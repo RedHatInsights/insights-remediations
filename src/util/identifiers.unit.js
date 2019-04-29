@@ -18,10 +18,10 @@ test('parses an advisor id', () => {
 });
 
 test('parses a vulnerabilities id', () => {
-    const parsed = identifiers.parse('vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074');
+    const parsed = identifiers.parse('vulnerabilities:CVE-2017-5715');
     parsed.should.have.property('app', 'vulnerabilities');
-    parsed.should.have.property('issue', 'CVE_2017_6074_kernel|KERNEL_CVE_2017_6074');
-    parsed.should.have.property('full', 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074');
+    parsed.should.have.property('issue', 'CVE-2017-5715');
+    parsed.should.have.property('full', 'vulnerabilities:CVE-2017-5715');
 });
 
 test('parses a vulnerabilities (erratum) id', () => {

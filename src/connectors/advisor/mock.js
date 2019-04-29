@@ -17,6 +17,11 @@ const DATA = {
     'bond_config_issue|NO_QUOTES': {
         id: 'bond_config_issue|NO_QUOTES',
         description: 'Unexpected bonding behavior with incorrect syntax in bond configuration files'
+    },
+
+    'CVE_2017_6074_kernel|KERNEL_CVE_2017_6074': {
+        id: 'CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+        description: 'Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)'
     }
 };
 

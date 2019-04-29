@@ -90,7 +90,7 @@ test('adds diagnosis play', () => {
 
     const data = {
         issues: [{
-            id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+            id: 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
             resolution: 'selinux_mitigate'
         }, {

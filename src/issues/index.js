@@ -7,7 +7,6 @@ const ERRATUM_PATTERN = /^RH[SBE]A-20[\d]{2}:[\d]{4,5}/;
 const CVE_PATTERN = /^CVE-20[\d]{2}-[\d]{4,}$/;
 
 const advisorHandler = new(require('./AdvisorHandler'))();
-const vulnerabilityHandler = new(require('./VulnerabilityHandler'))();
 const cveHandler = new(require('./CVEHandler'))();
 const erratumHandler = new(require('./ErratumHandler'))();
 const ssgHandler = new(require('./SSGHandler'))();
@@ -27,7 +26,7 @@ function getHandler (id) {
                 return erratumHandler;
             }
 
-            return vulnerabilityHandler;
+            throw errors.unknownIssue(id);
         case 'test':
             if (config.env !== 'production') { // disable test handler in prod
                 return testHandler;

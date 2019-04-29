@@ -258,7 +258,7 @@ describe('remediations', function () {
             .expect(200);
 
             body.issues.should.have.length(1);
-            body.issues[0].should.have.property('id', 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074');
+            body.issues[0].should.have.property('id', 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074');
             body.issues[0].systems.should.have.length(1);
             body.issues[0].systems[0].should.have.property('id', '1040856f-b772-44c7-83a9-eea4813c4be8');
         });

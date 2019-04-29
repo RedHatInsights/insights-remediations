@@ -340,7 +340,7 @@ components:
     IssueId:
       in: path
       name: issue
-      description: Issue identifier (e.g. `vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074`)
+      description: Issue identifier (e.g. `advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074`)
       required: true
       schema:
         $ref: '#/components/schemas/IssueId'
@@ -417,7 +417,7 @@ components:
     IssueId:
       type: string
       pattern: ^(advisor|vulnerabilities|ssg|test):[\w\d_|:\.-]+$
-      example: vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+      example: advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
 
     RemediationAutoReboot:
       type: boolean
@@ -481,7 +481,7 @@ components:
               systems:
                 - a8799a02-8be9-11e8-9eb6-529269fb1459
                 - 736ef48c-8f05-11e8-9eb6-529269fb1459
-            - id: vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+            - id: advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
               systems:
                 - a8799a02-8be9-11e8-9eb6-529269fb1459
                 - 736ef48c-8f05-11e8-9eb6-529269fb1459
@@ -532,7 +532,7 @@ components:
       example:
         issues:
           - vulnerabilities:CVE-2018-1087
-          - vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074377300
+          - advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074377300
           - advisor:non-existent-issue
 
     RemediationInput:
@@ -571,7 +571,7 @@ components:
                 $ref: '#/components/schemas/SystemId'
           example:
             issues:
-              - id: vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+              - id: advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
                 resolution: mitigate
                 systems:
                   - a8799a02-8be9-11e8-9eb6-529269fb1459
@@ -659,8 +659,8 @@ components:
               id: fix
               needs_reboot: true
               resolution_risk: -1
-        vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074:
-          id: vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+        advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074:
+          id: advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
           resolution_risk: 3
           resolutions:
             - description: Update system to the latest kernel and reboot
