@@ -10,9 +10,13 @@ const config = require('../config');
 exports.mockRequest = function (headers = {
     'x-rh-identity': 'identity',
     'x-rh-insights-request-id': 'request-id'
+}, user = {
+    username: 'test',
+    account_number: 'test'
 }) {
     base.getSandbox().stub(cls, 'getReq').returns({
-        headers
+        headers,
+        user
     });
 };
 
