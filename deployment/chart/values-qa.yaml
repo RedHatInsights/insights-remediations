@@ -17,6 +17,8 @@ remediations:
   logLevel: trace
   imageChangeTrigger: true
 
+  replicas: 2
+
   pathPrefix: /api
 
   db: {}
