@@ -24,6 +24,8 @@ const commit = getCommit();
 if (commit) {
     exports.commit = commit;
     exports.short = commit.substring(0, 7);
+} else if (['development', 'test'].includes(config.env)) {
+    exports.commit = exports.short = config.env;
 } else {
     exports.commit = exports.short = 'unknown';
 }
