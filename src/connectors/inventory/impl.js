@@ -8,6 +8,7 @@ const config = require('../../config');
 
 const Connector = require('../Connector');
 const metrics = require('../metrics');
+const log = require('../../util/log');
 
 function validateHost (host) {
     assert(_.has(host, 'id'), 'id missing for host');
@@ -36,7 +37,7 @@ module.exports = new class extends Connector {
         return this.buildUri(host, 'inventory', 'api', 'v1', 'hosts');
     }
 
-    async getSystemDetailsBatch (ids = [], refresh = false) {
+    async getSystemDetailsBatch (ids = [], refresh = false, retries = 2) {
         if (ids.length === 0) {
             return {};
         }
@@ -53,20 +54,31 @@ module.exports = new class extends Connector {
         uri.segment(ids.join());
         uri.addQuery('per_page', String(pageSize));
 
-        const response = await this.doHttp({
-            uri: uri.toString(),
-            method: 'GET',
-            json: true,
-            rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders()
-        },
-        {
-            key: `remediations|http-cache|inventory|${ids.join()}`,
-            refresh,
-            revalidationInterval,
-            cacheable: body => body.count > 0 // only cache responses with at least 1 record
-        },
-        this.metrics);
+        let response = null;
+
+        try {
+            response = await this.doHttp({
+                uri: uri.toString(),
+                method: 'GET',
+                json: true,
+                rejectUnauthorized: !insecure,
+                headers: this.getForwardedHeaders()
+            },
+            {
+                key: `remediations|http-cache|inventory|${ids.join()}`,
+                refresh,
+                revalidationInterval,
+                cacheable: body => body.count > 0 // only cache responses with at least 1 record
+            },
+            this.metrics);
+        } catch (e) {
+            if (retries > 0) {
+                log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
+                return this.getSystemDetailsBatch(ids, true, retries - 1);
+            }
+
+            throw e;
+        }
 
         const transformed = _(response.results)
         .keyBy('id')
