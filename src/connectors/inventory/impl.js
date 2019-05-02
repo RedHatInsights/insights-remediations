@@ -82,7 +82,7 @@ module.exports = new class extends Connector {
 
         const transformed = _(response.results)
         .keyBy('id')
-        .mapValues(({id, display_name, fqdn: hostname}) => ({id, display_name, hostname}))
+        .mapValues(({id, display_name, fqdn: hostname, ansible_host}) => ({id, display_name, hostname, ansible_host}))
         .value();
 
         return validate(transformed);
@@ -104,8 +104,8 @@ module.exports = new class extends Connector {
         assert(response.total <= pageSize, `results exceed page (${response.total})`);
 
         const transformed = _(response.results)
-        .map(({id, insights_id, display_name, fqdn: hostname, account, updated}) =>
-            ({id, insights_id, display_name, hostname, account, updated}))
+        .map(({id, insights_id, display_name, fqdn: hostname, account, updated, ansible_host}) =>
+            ({id, insights_id, display_name, hostname, account, updated, ansible_host}))
         .value();
 
         transformed.forEach(validateHost);

@@ -68,7 +68,7 @@ async function resolveSystems (issues, strict = true) {
         // validated by openapi middleware and also above
         // eslint-disable-next-line security/detect-object-injection
         const system = systems[id];
-        return system.display_name || system.hostname || system.id;
+        return system.ansible_host || system.hostname || system.id;
     }));
 
     if (!strict) {

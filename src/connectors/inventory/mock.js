@@ -28,13 +28,14 @@ function generateSystem (id) {
 
     if (SYSTEMS.hasOwnProperty(id)) {
         // eslint-disable-next-line security/detect-object-injection
-        return Object.assign({ id, display_name: null, hostname: null}, SYSTEMS[id]);
+        return Object.assign({ id, display_name: null, hostname: null, ansible_host: null}, SYSTEMS[id]);
     }
 
     return {
         id,
         hostname: (/^[0-8]/.test(id) ? `${id}.example.com` : id),
-        display_name: (id.startsWith('9') ? `${id}-system` : null)
+        display_name: (id.startsWith('9') ? `${id}-system` : null),
+        ansible_host: ((id.startsWith('9') || id.startsWith('1')) ? `${id}.ansible.example.com` : null)
     };
 }
 

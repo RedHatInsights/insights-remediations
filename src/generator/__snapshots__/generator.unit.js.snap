@@ -107,7 +107,7 @@ exports[`adds diagnosis play 1`] = `
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: test
 - name: update vulnerable packages
-  hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.ansible.example.com\\"
   become: true
   tasks:
     - name: check for update
@@ -131,7 +131,7 @@ exports[`adds diagnosis play 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.ansible.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -156,7 +156,7 @@ exports[`adds diagnosis play 1`] = `
           become: false
 
 - name: run insights
-  hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.example.com,4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.ansible.example.com,4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -203,7 +203,7 @@ exports[`generates a simple playbook with reboot 1`] = `
 # Identifier: (test:reboot,fix)
 # Version: unknown
 - name: Trigger reboot
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
 
   tasks:
     - name: Trigger reboot
@@ -213,7 +213,7 @@ exports[`generates a simple playbook with reboot 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -238,7 +238,7 @@ exports[`generates a simple playbook with reboot 1`] = `
           become: false
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -259,7 +259,7 @@ exports[`generates a simple playbook with suppressed reboot 1`] = `
 # Identifier: (test:reboot,fix)
 # Version: unknown
 - name: Trigger reboot
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
 
   tasks:
     - name: Trigger reboot
@@ -269,7 +269,7 @@ exports[`generates a simple playbook with suppressed reboot 1`] = `
 # Automatic system reboot was suppressed for this playbook.
 # This play lists the systems that need to be rebooted manually for the changes to take effect.
 - name: Reboot reminder
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
   gather_facts: False
   tasks:
     - debug:
@@ -279,7 +279,7 @@ exports[`generates a simple playbook with suppressed reboot 1`] = `
         - insights_needs_reboot
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459-system\\"
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
   become: True
   gather_facts: False
   tasks:
