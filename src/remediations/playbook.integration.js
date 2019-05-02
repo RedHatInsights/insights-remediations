@@ -1,6 +1,8 @@
 'use strict';
 
 const { request, auth, mockDate, normalizePlaybookVersionForSnapshot } = require('../test');
+const db = require('../db');
+const P = require('bluebird');
 
 describe('playbooks', function () {
     test('generates playbook with pydata and playbook support', async () => {
@@ -112,5 +114,31 @@ describe('playbooks', function () {
 
             expect(text).toMatchSnapshot();
         });
+    });
+
+    test('stores generated playbooks', async () => {
+        await request
+        .get('/v1/remediations/c3f9f751-4bcc-4222-9b83-77f5e6e603da/playbook')
+        .set(auth.testReadSingle)
+        .expect(200);
+
+        await P.delay(500);
+
+        const entries = await db.PlaybookArchive.findAll({
+            raw: true,
+            where: {
+                account_number: 'testReadSingle',
+                filename: {
+                    [db.Op.like]: 'many-systems-%'
+                }
+            }
+        });
+
+        entries.should.have.length(1);
+        const { id, username, account_number, filename, created_at, definition } = entries [0];
+        expect(id).not.toBeNull();
+        expect(created_at).not.toBeNull();
+        expect(filename).not.toBeNull();
+        expect({ username, account_number, definition }).toMatchSnapshot();
     });
 });
