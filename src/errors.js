@@ -75,6 +75,12 @@ function mapValidationError ({id}, {code, message: title}) {
     return { id, status: 400, code, title };
 }
 
+function errorResponse ({id}, res, status, code, title) {
+    res.status(status).json({
+        errors: [{id, status, code, title}]
+    });
+}
+
 exports.handler = (error, req, res, next) => {
     if (res.headersSent) {
         return next(error);
@@ -103,6 +109,10 @@ exports.handler = (error, req, res, next) => {
         });
     }
 
+    if (error.type === 'entity.too.large') {
+        return errorResponse(req, res, 413, error.type, 'Entity too large');
+    }
+
     if (error instanceof exports.DependencyError) {
         log.error(error, 'rejecting request due to DependencyError');
         return error.writeResponse(res);
@@ -117,15 +127,7 @@ exports.handler = (error, req, res, next) => {
     }
 
     log.error(error, 'caught internal error');
-
-    res.status(500).json({
-        errors: [{
-            id: req.id,
-            status: 500,
-            code: 'INTERNAL_ERROR',
-            title: 'Internal Server Error'
-        }]
-    });
+    errorResponse(req, res, 500, 'INTERNAL_ERROR', 'Internal Server Error');
 };
 
 exports.async = fn => (req, res, next) => {
