@@ -16,8 +16,8 @@ remediations:
   istag: prod
   replicas: 2
   autoscaling:
-    min: 4
-    max: 10
+    min: 2
+    max: 5
 
 
   logLevel: trace

@@ -164,10 +164,10 @@ spec:
 
         resources:
           requests:
-            cpu: 250m
+            cpu: 500m
             memory: 512Mi
           limits:
-            cpu: 500m
+            cpu: '1'
             memory: 1Gi
 
 {{ if .Values.remediations.db.ca }}
