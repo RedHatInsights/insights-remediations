@@ -108,7 +108,7 @@ exports.list = function (
 };
 
 exports.loadDetails = async function (account_number, created_by, rows) {
-    const {Op} = db;
+    const {Op, s: {literal}} = db;
 
     const query = {
         attributes: REMEDIATION_ATTRIBUTES,
@@ -116,11 +116,11 @@ exports.loadDetails = async function (account_number, created_by, rows) {
             attributes: ISSUE_ATTRIBUTES,
             model: db.issue,
             required: false,
-            include: [{
-                attributes: ['system_id'],
-                association: db.issue.associations.systems,
-                required: true
-            }]
+            where: literal(
+                // exclude issues with 0 systems
+                // eslint-disable-next-line max-len
+                'EXISTS (SELECT * FROM "remediation_issue_systems" WHERE "remediation_issue_systems"."remediation_issue_id" = "issues"."id")'
+            )
         }],
         where: {
             account_number,

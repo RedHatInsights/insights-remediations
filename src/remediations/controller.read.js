@@ -129,7 +129,7 @@ exports.list = errors.async(async function (req, res) {
 
     remediations.forEach(remediation => {
         // filter out issues with 0 systems and unknown issues
-        remediation.issues = remediation.issues.filter(issue => issue.systems.length && issue.resolution);
+        remediation.issues = remediation.issues.filter(issue => issue.resolution);
         remediation.needs_reboot = inferNeedsReboot(remediation);
     });
 
