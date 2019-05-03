@@ -290,5 +290,16 @@ describe('remediations', function () {
 
             expect(text).toMatchSnapshot();
         });
+
+        test('in the list remediation with 0 systems appears as having 0 issues also', async () => {
+            const {body} = await request
+            .get('/v1/remediations?pretty')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            const remediation = _.find(body.data, {id: 'd1b070b5-1db8-4dac-8ecf-891dc1e9225f'});
+            remediation.should.have.property('system_count', 0);
+            remediation.should.have.property('issue_count', 0);
+        });
     });
 });

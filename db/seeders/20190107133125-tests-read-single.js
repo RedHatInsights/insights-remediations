@@ -56,6 +56,15 @@ exports.up = async q => {
         created_at: '2018-11-04T04:19:36.641Z',
         updated_by: created_by,
         updated_at: '2018-11-04T04:19:36.641Z'
+    }, {
+        id: 'd1b070b5-1db8-4dac-8ecf-891dc1e9225f',
+        name: 'no systems',
+        auto_reboot: true,
+        account_number,
+        created_by,
+        created_at: '2018-11-04T03:19:36.641Z',
+        updated_by: created_by,
+        updated_at: '2018-11-04T03:19:36.641Z'
     }], opts);
 
     const issues = await q.bulkInsert('remediation_issues', [{
@@ -86,6 +95,15 @@ exports.up = async q => {
     }, {
         remediation_id: remediations[4].id,
         issue_id: 'vulnerabilities:CVE-2017-5715'
+    }, {
+        remediation_id: remediations[5].id,
+        issue_id: 'vulnerabilities:CVE-2019-6133'
+    }, {
+        remediation_id: remediations[5].id,
+        issue_id: 'vulnerabilities:CVE-2019-3863'
+    }, {
+        remediation_id: remediations[5].id,
+        issue_id: 'vulnerabilities:CVE-2019-3857'
     }], opts);
 
     await q.bulkInsert('remediation_issue_systems', [

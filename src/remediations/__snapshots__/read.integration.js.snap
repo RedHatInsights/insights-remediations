@@ -2367,8 +2367,8 @@ exports[`remediations list system filter filters out remediations not featuring 
 exports[`remediations missing listing of remediations does not blow up 1`] = `
 "{
     \\"meta\\": {
-        \\"count\\": 5,
-        \\"total\\": 5
+        \\"count\\": 6,
+        \\"total\\": 6
     },
     \\"links\\": {
         \\"first\\": \\"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0\\",
@@ -2471,6 +2471,25 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             \\"needs_reboot\\": true,
             \\"system_count\\": 250,
             \\"issue_count\\": 1
+        },
+        {
+            \\"id\\": \\"d1b070b5-1db8-4dac-8ecf-891dc1e9225f\\",
+            \\"name\\": \\"no systems\\",
+            \\"created_by\\": {
+                \\"username\\": \\"testReadSingleUser\\",
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
+            },
+            \\"created_at\\": \\"2018-11-04T03:19:36.641Z\\",
+            \\"updated_by\\": {
+                \\"username\\": \\"testReadSingleUser\\",
+                \\"first_name\\": \\"test\\",
+                \\"last_name\\": \\"user\\"
+            },
+            \\"updated_at\\": \\"2018-11-04T03:19:36.641Z\\",
+            \\"needs_reboot\\": false,
+            \\"system_count\\": 0,
+            \\"issue_count\\": 0
         }
     ]
 }"
