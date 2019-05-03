@@ -164,7 +164,7 @@ spec:
 
         resources:
           requests:
-            cpu: 100m
+            cpu: 250m
             memory: 512Mi
           limits:
             cpu: 500m
@@ -201,6 +201,7 @@ spec:
 {{ end }}
 
 {{ if .Values.remediations.autoscaling }}
+---
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:

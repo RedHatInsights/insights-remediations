@@ -17,7 +17,7 @@ remediations:
   replicas: 2
   autoscaling:
     min: 4
-    max: 16
+    max: 10
 
 
   logLevel: trace
