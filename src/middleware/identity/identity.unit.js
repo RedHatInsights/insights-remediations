@@ -27,6 +27,18 @@ describe('identity', () => {
         });
     });
 
+    test('header parsing (utf8)', async () => {
+        const {body} = await request
+        .get('/v1/whoami')
+        .set(auth.emptyInternalUtf8)
+        .expect(200);
+
+        body.should.containEql({
+            username: 'test03User',
+            account_number: 'test03'
+        });
+    });
+
     test('id switcher', async () => {
         const {body} = await request
         .get('/v1/whoami?username=500')

@@ -45,9 +45,9 @@ afterAll(async () => {
 exports.request = supertest.agent(`http://localhost:${config.port}${config.path.base}`);
 exports.requestLegacy = supertest.agent(`http://localhost:${config.port}/r/insights/platform/remediations`);
 
-function createHeader (id, account_number, internal) {
+function createHeader (id, account_number, internal, fn) {
     return {
-        [identityUtils.IDENTITY_HEADER]: identityUtils.createIdentityHeader(String(id), account_number, internal)
+        [identityUtils.IDENTITY_HEADER]: identityUtils.createIdentityHeader(String(id), account_number, internal, fn)
     };
 }
 
@@ -60,7 +60,12 @@ exports.auth = Object.freeze({
     testStatus: createHeader(USERS.testStatus.username, USERS.testStatus.account_number, false),
     cert01: {
         [identityUtils.IDENTITY_HEADER]: identityUtils.createCertIdentityHeader('diagnosis01')
-    }
+    },
+    emptyInternalUtf8: createHeader('test03User', 'test03', false, id => {
+        id.identity.user.first_name = 'Řehoř';
+        id.identity.user.last_name = 'Samsa';
+        return id;
+    })
 });
 
 exports.mockVmaas = function () {
