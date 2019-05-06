@@ -31,6 +31,7 @@ const config = {
      * Server configuration
      */
     env: env.NODE_ENV || 'development',
+    namespace: env.NAMESPACE || 'unknown',
     port: (env.NODE_ENV === 'test') ? 9003 : 9002,
     commit: env.OPENSHIFT_BUILD_COMMIT,
     demo: (env.DEMO_MODE === 'true') ? true : false,
@@ -49,7 +50,18 @@ const config = {
 
     logging: {
         level: env.LOG_LEVEL || ((env.NODE_ENV === 'test') ? 'error' : 'debug'),
-        pretty: (env.NODE_ENV !== 'production')
+        pretty: (env.NODE_ENV !== 'production'),
+        cloudwatch: {
+            enabled: env.LOG_CW_ENABLED === 'true',
+            options: {
+                group: env.NAMESPACE || 'remediations-local',
+                prefix: env.LOG_CW_PREFIX || 'remediations-',
+                interval: parseIntEnv('LOG_CW_INTERVAL', 1000), // 1000 ms
+                aws_access_key_id: env.LOG_CW_KEY,
+                aws_secret_access_key: env.LOG_CW_SECRET,
+                aws_region: env.LOG_CW_REGION || 'us-east-1'
+            }
+        }
     },
 
     metrics: {

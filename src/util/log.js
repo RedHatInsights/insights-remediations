@@ -2,8 +2,10 @@
 
 const _ = require('lodash');
 const pino = require('pino');
+const pinoms = require('pino-multi-stream');
 const config = require('../config');
 const cls = require('./cls');
+const pinoCloudWatch = require('pino-cloudwatch');
 
 // avoid writting down the entire response buffer
 function errorSerializer (e) {
@@ -34,6 +36,18 @@ function headersSerializer (headers) {
     return _.omit(headers, ['cookie']);
 }
 
+function buildDestination () {
+    if (!config.logging.cloudwatch.enabled) {
+        return pino.destination(1); // stdout
+    }
+
+    return pinoms.multistream([{
+        stream: pino.destination(1)
+    }, {
+        stream: pinoCloudWatch({ ...config.logging.cloudwatch.options })
+    }]);
+}
+
 const serializers = {
     req: value => {
         const result = pino.stdSerializers.req(value);
@@ -53,7 +67,11 @@ const logger = pino({
     prettyPrint: config.logging.pretty ? {
         errorProps: '*'
     } : false
-});
+}, buildDestination());
+
+if (config.logging.cloudwatch.enabled) {
+    logger.info({group: config.logging.cloudwatch.options.group}, 'CloudWatch enabled');
+}
 
 function getLogger () {
     const req = cls.getReq();
