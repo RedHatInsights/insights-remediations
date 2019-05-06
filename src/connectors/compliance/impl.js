@@ -3,6 +3,7 @@
 const assert = require('assert');
 const _ = require('lodash');
 const cls = require('../../util/cls');
+const log = require('../../util/log');
 const {host, insecure, revalidationInterval} = require('../../config').compliance;
 
 const Connector = require('../Connector');
@@ -14,29 +15,39 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    async getRule (id, refresh = false) {
+    async getRule (id, refresh = false, retries = 2) {
         id = id.replace(/\./g, '-'); // compliance API limitation
 
         const req = cls.getReq();
 
         const uri = this.buildUri(host, 'compliance', 'rules', id);
-        const result = await this.doHttp({
-            uri: uri.toString(),
-            method: 'GET',
-            json: true,
-            rejectUnauthorized: !insecure,
-            headers: {
-                ...this.getForwardedHeaders()
-            }
-        },
-        {
-            key: `remediations|http-cache|compliance|${req.user.account_number}|${id}`,
-            refresh,
-            revalidationInterval
-        },
-        this.metrics);
 
-        return _.get(result, 'data.attributes', null);
+        try {
+            const result = await this.doHttp({
+                uri: uri.toString(),
+                method: 'GET',
+                json: true,
+                rejectUnauthorized: !insecure,
+                headers: {
+                    ...this.getForwardedHeaders()
+                }
+            },
+            {
+                key: `remediations|http-cache|compliance|${req.user.account_number}|${id}`,
+                refresh,
+                revalidationInterval
+            },
+            this.metrics);
+
+            return _.get(result, 'data.attributes', null);
+        } catch (e) {
+            if (retries > 0) {
+                log.warn({ error: e, id, retries }, 'Compliance fetch failed. Retrying');
+                return this.getRule(id, true, retries - 1);
+            }
+
+            throw e;
+        }
     }
 
     async ping () {
