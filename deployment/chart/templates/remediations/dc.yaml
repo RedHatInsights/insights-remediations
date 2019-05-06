@@ -125,6 +125,26 @@ spec:
         - name: LOG_LEVEL
           value: {{ .Values.remediations.logLevel }}
 
+{{ if .Values.remediations.cloudwatch }}
+        - name: LOG_CW_ENABLED
+          value: 'true'
+        - name: LOG_CW_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aws
+              key: aws_access_key_id
+        - name: LOG_CW_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: aws
+              key: aws_secret_access_key
+{{ end }}
+
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+
         - name: PATH_PREFIX
           value: {{ .Values.remediations.pathPrefix | default "/api" }}
 

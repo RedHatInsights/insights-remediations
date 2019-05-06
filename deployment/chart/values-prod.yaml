@@ -21,6 +21,7 @@ remediations:
 
 
   logLevel: trace
+  cloudwatch: true
 
   pathPrefix: /api
 
