@@ -2,8 +2,8 @@
 
 const config = require('../../config');
 
-if (config.advisor.impl === 'mock' || config.env === 'test' || config.env === 'development') {
-    module.exports = require('./mock');
-} else {
+if (config.advisor.impl === 'impl') {
     module.exports = require('./impl');
+} else {
+    module.exports = require('./mock');
 }

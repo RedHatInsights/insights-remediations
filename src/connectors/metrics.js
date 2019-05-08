@@ -32,5 +32,12 @@ const prototype = {
 };
 
 exports.createConnectorMetric = function (name, method = 'default') {
-    return _.mapValues(prototype, value => value.labels(name, method));
+    return _.mapValues(prototype, value => {
+        const result = value.labels(name, method);
+        if (result.inc) {
+            result.inc(0); // https://www.robustperception.io/existential-issues-with-metrics
+        }
+
+        return result;
+    });
 };
