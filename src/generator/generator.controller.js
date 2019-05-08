@@ -15,6 +15,7 @@ const issueManager = require('../issues');
 const log = require('../util/log');
 const db = require('../db');
 const probes = require('../probes');
+const { commit } = require('../util/version');
 
 exports.playbookPipeline = async function ({issues, auto_reboot = true}, remediation = false, strict = true) {
     await resolveSystems(issues, strict);
@@ -34,6 +35,7 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
 
     // canonical playbook definition allows us to reconstruct the playbook some time later
     const definition = {
+        version: commit,
         auto_reboot,
         issues: issues.map(({id, resolution, hosts}) => ({
             id: id.full,
