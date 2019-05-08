@@ -14,6 +14,7 @@ const erratumPlayAggregator = require('./erratumPlayAggregator');
 const issueManager = require('../issues');
 const log = require('../util/log');
 const db = require('../db');
+const probes = require('../probes');
 
 exports.playbookPipeline = async function ({issues, auto_reboot = true}, remediation = false, strict = true) {
     await resolveSystems(issues, strict);
@@ -129,6 +130,7 @@ exports.send = function (req, res, {yaml, definition}, attachment = false) {
 
     if (req.stale) {
         res.send(yaml).end();
+        probes.playbookGenerated(req, definition, attachment);
         storePlaybookDefinition(req, definition, attachment);
     } else {
         res.status(304).end();
