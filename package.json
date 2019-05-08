@@ -38,7 +38,7 @@
     "express-pino-logger": "^4.0.0",
     "express-prom-bundle": "^5.1.0",
     "ioredis": "^4.9.0",
-    "js-yaml": "^3.13.0",
+    "js-yaml": "^3.13.1",
     "lodash": "^4.17.11",
     "mustache": "^3.0.1",
     "openapi-default-setter": "^2.0.4",
