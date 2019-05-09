@@ -29,21 +29,20 @@ def scale (count) {
 
     // wait for dependencies
     waitFor(count, 'postgres')
+    waitFor(count, 'playbooks-ssg')
 }
 
 def waitFor (count, resource) {
     println "waiting for ${resource} to scale to ${count}"
 
-    openshift.withCluster() {
-        openshift.withProject(TESTNS) {
-            timeout(2) {
-                def latestDeploymentVersion = openshift.selector('dc', resource).object().status.latestVersion
-                def rc = openshift.selector('rc', "${resource}-${latestDeploymentVersion}")
-                rc.untilEach(1) {
-                    def rcMap = it.object()
-                    def ready = rcMap.status.readyReplicas == null ? 0 : rcMap.status.readyReplicas
-                    return (rcMap.status.replicas.equals(ready))
-                }
+    openshift.withProject(TESTNS) {
+        timeout(2) {
+            def latestDeploymentVersion = openshift.selector('dc', resource).object().status.latestVersion
+            def rc = openshift.selector('rc', "${resource}-${latestDeploymentVersion}")
+            rc.untilEach(1) {
+                def rcMap = it.object()
+                def ready = rcMap.status.readyReplicas == null ? 0 : rcMap.status.readyReplicas
+                return (rcMap.status.replicas.equals(ready))
             }
         }
     }
@@ -68,35 +67,47 @@ node {
             sh "node src/validateTemplate.js src/connectors/ssg/mock/standard/*"
         }
 
-        stage('verify') {
-            env.DB_HOST="postgres.${TESTNS}.svc"
-            env.DB_DATABASE='remediationstest'
-            env.SSG_IMPL='impl'
-            env.SSG_HOST="http://playbooks-ssg.${TESTNS}.svc:8080"
+        openshift.withCluster() {
 
-            lock(TESTNS) {
-                scale(1)
-                sh "oc get pods --namespace ${TESTNS}"
+            stage('verify') {
+                env.DB_HOST="postgres.${TESTNS}.svc"
+                env.DB_DATABASE='remediationstest'
+                env.SSG_IMPL='impl'
+                env.SSG_HOST="http://playbooks-ssg.${TESTNS}.svc:8080"
 
-                try {
-                    sh 'npm run verify'
-                    sh 'npm run db:migrate'
-                    sh 'npm run db:migrate:undo:all'
-                } finally {
-                    scale(0)
+                lock(TESTNS) {
+                    scale(1)
                     sh "oc get pods --namespace ${TESTNS}"
+
+                    try {
+                        sh 'npm run verify'
+                        sh 'npm run db:migrate'
+                        sh 'npm run db:migrate:undo:all'
+                    } finally {
+                        scale(0)
+                        sh "oc get pods --namespace ${TESTNS}"
+                    }
                 }
             }
-        }
 
-        stage('build image') {
-            openshiftBuild(buildConfig: "remediations", showBuildLogs: "true", namespace: 'buildfactory')
-        }
+            stage('build image') {
+                timeout (10) {
+                    openshift.withProject('buildfactory') {
+                        def build = openshift.selector('bc', 'remediations').startBuild()
+                        build.logs('-f')
+                    }
+                }
+            }
 
-        stage('deploy') {
-            openshiftDeploy(deploymentConfig: "remediations", namespace: NS)
-            sh "oc rollout status --namespace=${NS} dc/remediations"
-            notify("[${env.JOB_NAME.split('/')[-1]}] Deployment finished", null, "good")
+            stage('deploy') {
+                timeout (2) {
+                    openshift.withProject(NS) {
+                        def dc = openshift.selector('dc', 'remediations')
+                        dc.rollout().latest()
+                        dc.rollout().status() // wait for rollout to reach desired replica count
+                    }
+                }
+            }
         }
 
         stage('push image to stage') {
@@ -110,6 +121,8 @@ node {
                     dstSaTokenCredentialsId: "remediations-image-sync"
                 )
             }
+
+            notify("[${env.JOB_NAME.split('/')[-1]}] Build finished", null, "good")
         }
     }
 }
