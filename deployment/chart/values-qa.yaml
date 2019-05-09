@@ -18,7 +18,7 @@ remediations:
   cloudwatch: true
   imageChangeTrigger: true
 
-  replicas: 2
+  replicas: 1
 
   pathPrefix: /api
 
