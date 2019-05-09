@@ -6,6 +6,8 @@ const config = require('../config').db;
 const log = require('../util/log');
 const fs = require('fs');
 const path = require('path');
+const client = require('prom-client');
+const {prefix} = require('../config').metrics;
 
 exports.Sequelize = Sequelize;
 
@@ -15,6 +17,12 @@ exports.fn = _(['COALESCE', 'COUNT', 'DISTINCT', 'NULLIF', 'SUM'])
 .value();
 
 exports.Op = Sequelize.Op;
+
+const dbQueryHistogram = new client.Histogram({
+    name: `${prefix}db_histogram`,
+    help: `Histogram for database query times`,
+    buckets: [10, 50, 100, 500, 1000, 5000, 10000]
+});
 
 function loadModels (sequelize, dir) {
     // eslint-disable-next-line security/detect-non-literal-fs-filename
@@ -31,7 +39,10 @@ function loadModels (sequelize, dir) {
 
 exports.connect = async function () {
     if (config.logging === true) {
-        config.logging = (msg, duration) => log.debug({log: 'db', duration}, msg);
+        config.logging = (msg, duration) => {
+            dbQueryHistogram.observe(duration);
+            log.debug({log: 'db', duration}, msg);
+        };
     }
 
     exports.s = new Sequelize(config.database, config.username, config.password, config);
