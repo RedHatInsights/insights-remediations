@@ -152,7 +152,6 @@ const config = {
         dialect: 'postgres',
         benchmark: true,
         logging: true,
-        operatorsAliases: false,
         pool: {
             min: 5,
             max: 50

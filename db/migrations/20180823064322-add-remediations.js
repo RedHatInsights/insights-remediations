@@ -65,8 +65,8 @@ module.exports = {
         });
 
         await q.addIndex('remediation_issues', ['remediation_id', 'issue_id'], {
-            indexName: 'remediation_issue',
-            indicesType: 'UNIQUE'
+            name: 'remediation_issue',
+            type: 'UNIQUE'
         });
     },
 

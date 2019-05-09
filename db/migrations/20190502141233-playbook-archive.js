@@ -32,7 +32,7 @@ module.exports = {
         });
 
         await q.addIndex('playbook_archive', ['account_number'], {
-            indexName: 'playbook_archive_account_number'
+            name: 'playbook_archive_account_number'
         });
     },
 
