@@ -30,6 +30,7 @@ function doHttp (options, cached, metrics) {
         switch (res.statusCode) {
             case 200:
             case 304: return res;
+            case 403:
             case 404: return null;
             default: throw new StatusCodeError(res.statusCode, opts, res.body);
         }

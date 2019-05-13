@@ -119,4 +119,9 @@ describe('compliance impl', function () {
         base.mockRequestStatusCode();
         await expect(impl.getRule('unknown-rule')).rejects.toThrow(errors.DependencyError);
     });
+
+    test('403 response handling', async function () {
+        base.mockRequestStatusCode(403);
+        await expect(impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login')).resolves.toBeNull();
+    });
 });
