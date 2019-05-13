@@ -48,6 +48,20 @@ def waitFor (count, resource) {
     }
 }
 
+def withScaledEnv(Closure step) {
+    lock(TESTNS) {
+        scale(1)
+        sh "oc get pods --namespace ${TESTNS}"
+
+        try {
+            step()
+        } finally {
+            scale(0)
+            sh "oc get pods --namespace ${TESTNS}"
+        }
+    }
+}
+
 node {
     notifyOnFailure {
         notify("[${env.JOB_NAME.split('/')[-1]}] Build started", null, "#439FE0")
@@ -69,24 +83,28 @@ node {
 
         openshift.withCluster() {
 
-            stage('verify') {
+            withScaledEnv {
+
                 env.DB_HOST="postgres.${TESTNS}.svc"
                 env.DB_DATABASE='remediationstest'
-                env.SSG_IMPL='impl'
-                env.SSG_HOST="http://playbooks-ssg.${TESTNS}.svc:8080"
 
-                lock(TESTNS) {
-                    scale(1)
-                    sh "oc get pods --namespace ${TESTNS}"
+                stage('verify') {
+                    env.VMAAS_IMPL='mock'
 
-                    try {
-                        sh 'npm run verify'
-                        sh 'npm run db:migrate'
-                        sh 'npm run db:migrate:undo:all'
-                    } finally {
-                        scale(0)
-                        sh "oc get pods --namespace ${TESTNS}"
-                    }
+                    sh 'npm run verify'
+                }
+
+                stage('migration') {
+                    sh 'npm run db:migrate'
+                    sh 'npm run db:migrate:undo:all'
+                }
+
+                stage('contract tests') {
+                    env.VMAAS_IMPL='impl'
+                    env.SSG_IMPL='impl'
+                    env.SSG_HOST="http://playbooks-ssg.${NS}.svc:8080"
+
+                    sh 'npm run test'
                 }
             }
 

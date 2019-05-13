@@ -29,6 +29,20 @@ def waitFor (count, resource) {
     }
 }
 
+def withScaledEnv(Closure step) {
+    lock(NS) {
+        scale(1)
+        sh "oc get pods --namespace ${NS}"
+
+        try {
+            step()
+        } finally {
+            scale(0)
+            sh "oc get pods --namespace ${NS}"
+        }
+    }
+}
+
 node {
     env.NODEJS_HOME = "${tool 'node-10'}"
     env.PATH="${env.NODEJS_HOME}/bin:${env.PATH}"
@@ -45,24 +59,28 @@ node {
         sh "node src/validateTemplate.js src/connectors/ssg/mock/standard/*"
     }
 
-    stage('verify') {
+    withScaledEnv {
+
         env.DB_HOST="postgres.${NS}.svc"
         env.DB_DATABASE='remediationstest'
-        env.SSG_IMPL='impl'
-        env.SSG_HOST="http://playbooks-ssg.${NS}.svc:8080"
 
-        lock(NS) {
-            scale(1)
-            sh "oc get pods --namespace ${NS}"
+        stage('verify') {
+            env.VMAAS_IMPL='mock'
 
-            try {
-                sh 'npm run verify'
-                sh 'npm run db:migrate'
-                sh 'npm run db:migrate:undo:all'
-            } finally {
-                scale(0)
-                sh "oc get pods --namespace ${NS}"
-            }
+            sh 'npm run verify'
+        }
+
+        stage('migration') {
+            sh 'npm run db:migrate'
+            sh 'npm run db:migrate:undo:all'
+        }
+
+        stage('contract tests') {
+            env.VMAAS_IMPL='impl'
+            env.SSG_IMPL='impl'
+            env.SSG_HOST="http://playbooks-ssg.${NS}.svc:8080"
+
+            sh 'npm run test'
         }
     }
 }
