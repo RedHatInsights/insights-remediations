@@ -53,6 +53,7 @@ const config = {
         pretty: (env.NODE_ENV !== 'production'),
         cloudwatch: {
             enabled: env.LOG_CW_ENABLED === 'true',
+            level: env.LOG_CW_LEVEL || env.LOG_LEVEL || 'debug',
             options: {
                 group: env.NAMESPACE || 'remediations-local',
                 prefix: env.LOG_CW_PREFIX || 'remediations-',

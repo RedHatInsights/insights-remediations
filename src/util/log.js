@@ -42,9 +42,11 @@ function buildDestination () {
     }
 
     return pinoms.multistream([{
-        stream: pino.destination(1)
+        stream: pino.destination(1),
+        level: config.logging.level
     }, {
-        stream: pinoCloudWatch({ ...config.logging.cloudwatch.options })
+        stream: pinoCloudWatch({ ...config.logging.cloudwatch.options }),
+        level: config.logging.cloudwatch.level
     }]);
 }
 
