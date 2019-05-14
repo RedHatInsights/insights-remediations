@@ -2,24 +2,46 @@
 
 const config = require('../config');
 const log = require('./log');
+const http = require('http');
 
 const base = require('request-promise').defaults({
     timeout: config.requestTimeout
 });
 
+function getStatus (result) {
+    if (result instanceof Error) {
+        return result.message;
+    }
+
+    if (result instanceof http.IncomingMessage) {
+        return result.statusCode;
+    }
+
+    return 'error';
+}
+
+const logger = (options) => {
+    const before = new Date();
+    return result => {
+        log.debug({
+            uri: options.uri,
+            method: options.method,
+            responseTime: new Date() - before,
+            status: getStatus(result)
+        }, 'outbound HTTP request finished');
+    };
+};
+
 function wrap (request) {
     const wrapper = options => {
         log.debug({uri: options.uri, method: options.method}, 'outbound HTTP request');
-        const before = new Date();
+        const finished = logger(options);
         return request(options).catch(e => {
             e.options = options;
             throw e;
-        }).finally(() =>
-            log.debug({
-                uri: options.uri,
-                method: options.method,
-                responseTime: new Date() - before
-            }, 'outbound HTTP request finished'));
+        })
+        .tap(finished)
+        .tapCatch(finished);
     };
 
     wrapper.unwrap = () => request;
