@@ -1,9 +1,10 @@
 'use strict';
 
+const { useMock } = require('../common');
 const config = require('../../config');
 
-if (config.advisor.impl === 'impl') {
-    module.exports = require('./impl');
-} else {
+if (useMock(config.advisor.impl)) {
     module.exports = require('./mock');
+} else {
+    module.exports = require('./impl');
 }

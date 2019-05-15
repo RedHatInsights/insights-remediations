@@ -1,0 +1,52 @@
+#!/usr/bin/env groovy
+
+NS='remediations-pr'
+
+node {
+    env.NODEJS_HOME = "${tool 'node-10'}"
+    env.PATH="${env.NODEJS_HOME}/bin:${env.PATH}"
+
+    checkout scm
+
+    def utils = load "./build/utils.groovy"
+
+    sh 'git rev-parse HEAD'
+
+    stage('build') {
+        sh 'npm ci'
+    }
+
+    utils.withScaledEnv(NS) {
+
+        env.DB_HOST="postgres.${NS}.svc"
+        env.DB_DATABASE='remediationstest'
+
+        stage('integration tests against VMaaS') {
+            env.VMAAS_IMPL='impl'
+            env.SSG_IMPL='impl'
+            env.SSG_HOST="http://playbooks-ssg.${NS}.svc:8080"
+
+            sh 'npm run test'
+        }
+
+        stage('contract tests') {
+            env.VMAAS_IMPL='impl'
+            env.SSG_IMPL='impl'
+            env.SSG_HOST="http://playbooks-ssg.${NS}.svc:8080"
+
+            env.ADVISOR_IMPL='impl'
+            env.ADVISOR_HOST='http://insights-advisor-api.advisor-ci.svc.cluster.local:8000'
+            env.COMPLIANCE_IMPL='impl'
+            env.COMPLIANCE_HOST='http://compliance-backend.compliance-ci.svc.cluster.local:3000'
+            env.CONTENT_SERVER_IMPL='impl'
+            env.CONTENT_SERVER_HOST='http://content-server.advisor-ci.svc.cluster.local:8080'
+            env.INVENTORY_IMPL='impl'
+            env.INVENTORY_HOST='http://insights-inventory.platform-ci.svc.cluster.local:8080'
+            env.SSG_IMPL='impl'
+            env.SSG_HOST='http://playbooks-ssg.remediations-ci.svc.cluster.local:8080'
+            env.VMAAS_IMPL='vmaas'
+
+            sh 'npm run test:contract'
+        }
+    }
+}

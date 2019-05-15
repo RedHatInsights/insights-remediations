@@ -1,0 +1,39 @@
+#!/usr/bin/env groovy
+
+NS='remediations-pr'
+
+node {
+    env.NODEJS_HOME = "${tool 'node-10'}"
+    env.PATH="${env.NODEJS_HOME}/bin:${env.PATH}"
+
+    checkout scm
+
+    def utils = load "./build/utils.groovy"
+
+    sh 'git rev-parse HEAD'
+
+    stage('build') {
+        sh 'npm ci'
+    }
+
+    stage('cross-check ssg template validator') {
+        sh "node src/validateTemplate.js src/connectors/ssg/mock/standard/*"
+    }
+
+    utils.withScaledEnv(NS) {
+
+        env.DB_HOST="postgres.${NS}.svc"
+        env.DB_DATABASE='remediationstest'
+
+        stage('verify') {
+            env.VMAAS_IMPL='mock'
+
+            sh 'npm run verify'
+        }
+
+        stage('migration') {
+            sh 'npm run db:migrate'
+            sh 'npm run db:migrate:undo:all'
+        }
+    }
+}

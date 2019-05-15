@@ -23,6 +23,7 @@
     "start": "NODE_ENV=development nodemon --watch src  -e js,yaml src/app.js",
     "test": "NODE_ENV=test npm run db:ims && jest -i",
     "test:unit": "NODE_ENV=test jest -i --testMatch='**/?(*.)+(unit).js'",
+    "test:contract": "NODE_ENV=test jest -i --testMatch='**/?(*.)+(contract).js'",
     "verify": "npm-run-all lint coverage"
   },
   "author": "Jozef Hartinger",

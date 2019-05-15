@@ -61,6 +61,44 @@ exports.auth = Object.freeze({
     cert01: {
         [identityUtils.IDENTITY_HEADER]: identityUtils.createCertIdentityHeader('diagnosis01')
     },
+    jharting: createHeader(null, null, null, () => ({
+        entitlements: {
+            insights: {
+                is_entitled: true
+            },
+            openshift: {
+                is_entitled: true
+            },
+            smart_management: {
+                is_entitled: true
+            },
+            hybrid_cloud: {
+                is_entitled: true
+            }
+        },
+        identity: {
+            internal: {
+                auth_time: 0,
+                auth_type: 'jwt-auth',
+                org_id: '5318290'
+            },
+            account_number: '901578',
+            user: {
+                first_name: 'Jozef',
+                is_active: true,
+                is_internal: true,
+                last_name: 'Hartinger',
+                locale: 'en_US',
+                is_org_admin: true,
+                username: '***REMOVED***',
+                email: 'jharting@redhat.com'
+            },
+            type: 'User'
+        }
+    })),
+    jhartingCert: {
+        [identityUtils.IDENTITY_HEADER]: identityUtils.createCertIdentityHeader('901578')
+    },
     emptyInternalUtf8: createHeader('test03User', 'test03', false, id => {
         id.identity.user.first_name = 'Řehoř';
         id.identity.user.last_name = 'Samsa';

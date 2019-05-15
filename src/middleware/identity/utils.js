@@ -43,8 +43,28 @@ exports.createIdentityHeader = function (
 
 exports.createCertIdentityHeader = function (account_number, transform = f=>f) {
     const data = {
+        entitlements: {
+            insights: {
+                is_entitled: true
+            },
+            openshift: {
+                is_entitled: true
+            },
+            smart_management: {
+                is_entitled: true
+            },
+            hybrid_cloud: {
+                is_entitled: true
+            }
+        },
         identity: {
+            internal: {
+                auth_time: 5700,
+                auth_type: 'cert-auth',
+                org_id: 5318290
+            },
             account_number,
+            system: {},
             type: 'System'
         }
     };

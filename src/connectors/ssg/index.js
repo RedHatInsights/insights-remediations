@@ -1,9 +1,10 @@
 'use strict';
 
-const impl = require('../../config').ssg.impl;
+const { useMock } = require('../common');
+const config = require('../../config');
 
-if (impl === 'impl') {
-    module.exports = require('./impl');
-} else {
+if (useMock(config.ssg.impl)) {
     module.exports = require('./mock');
+} else {
+    module.exports = require('./impl');
 }
