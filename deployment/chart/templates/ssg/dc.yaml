@@ -41,10 +41,10 @@ spec:
           failureThreshold: 2
         resources:
           requests:
-            cpu: 100m
+            cpu: {{ .Values.ssg.requestsCPU | default "250m" }}
             memory: 256Mi
           limits:
-            cpu: 200m
+            cpu: {{ .Values.ssg.limitsCPU | default "1" }}
             memory: 512Mi
 
       dnsPolicy: ClusterFirst

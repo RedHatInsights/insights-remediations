@@ -45,7 +45,9 @@ remediations:
     impl: impl
     host: http://playbooks-ssg:8080
 
-ssg: {}
+ssg:
+  requestsCPU: 100m
+  limitsCPU: 250m
 
 secrets:
   backoffice: false
