@@ -23,4 +23,8 @@ module.exports = class CVEResolver extends Resolver {
 
         return [this.build(id, entity)];
     }
+
+    isRebootNeeded () {
+        return true; // right now the CVE template requires reboot always
+    }
 };

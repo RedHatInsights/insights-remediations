@@ -38,6 +38,19 @@ function resolveResolutions (...remediations) {
     }).value());
 }
 
+function resolveResolutionsNeedReboot (...remediations) {
+    return P.all(_(remediations).flatMap('issues').map(async issue => {
+        const id = identifiers.parse(issue.issue_id);
+        const needsReboot = await issues.getHandler(id).getResolutionResolver().isRebootNeeded(id, issue.resolution);
+
+        if (needsReboot !== null) {
+            issue.resolution = { needsReboot };
+        } else {
+            issue.resolution = false;
+        }
+    }).value());
+}
+
 async function getUsers (req, usernames) {
     // if the only user is the currently logged-in user then bypass users connector
     if (usernames.length === 1 && req.identity.user && req.identity.user.username === usernames[0]) {
@@ -123,7 +136,7 @@ exports.list = errors.async(async function (req, res) {
     }
 
     await P.all([
-        resolveResolutions(...remediations),
+        resolveResolutionsNeedReboot(...remediations),
         resolveUsers(req, ...remediations)
     ]);
 

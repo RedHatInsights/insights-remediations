@@ -95,6 +95,8 @@ module.exports = class SSGResolver extends Resolver {
             version
         );
     }
-};
 
-// TODO: reboot support
+    isRebootNeeded () {
+        return true; // right now all SSG templates require reboot
+    }
+};

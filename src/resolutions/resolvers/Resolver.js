@@ -1,5 +1,7 @@
 'use strict';
 
+const disambiguator = require('../disambiguator');
+
 module.exports = class Resolver {
 
     /**
@@ -7,5 +9,16 @@ module.exports = class Resolver {
      */
     resolveResolutions () {
         throw new Error('not implemented');
+    }
+
+    async isRebootNeeded (id, resolutionId) {
+        const resolutions = await this.resolveResolutions(id);
+        const resolution = disambiguator.disambiguate(resolutions, resolutionId, id, false, false);
+
+        if (resolution) {
+            return resolution.needsReboot;
+        }
+
+        return null;
     }
 };
