@@ -23,45 +23,6 @@ def notifyOnFailure(Closure step) {
     }
 }
 
-def scale (count) {
-    sh "oc scale --replicas=${count} --namespace=${TESTNS} dc/postgres"
-    sh "oc scale --replicas=${count} --namespace=${TESTNS} dc/playbooks-ssg"
-
-    // wait for dependencies
-    waitFor(count, 'postgres')
-    waitFor(count, 'playbooks-ssg')
-}
-
-def waitFor (count, resource) {
-    println "waiting for ${resource} to scale to ${count}"
-
-    openshift.withProject(TESTNS) {
-        timeout(2) {
-            def latestDeploymentVersion = openshift.selector('dc', resource).object().status.latestVersion
-            def rc = openshift.selector('rc', "${resource}-${latestDeploymentVersion}")
-            rc.untilEach(1) {
-                def rcMap = it.object()
-                def ready = rcMap.status.readyReplicas == null ? 0 : rcMap.status.readyReplicas
-                return (rcMap.status.replicas.equals(ready))
-            }
-        }
-    }
-}
-
-def withScaledEnv(Closure step) {
-    lock(TESTNS) {
-        scale(1)
-        sh "oc get pods --namespace ${TESTNS}"
-
-        try {
-            step()
-        } finally {
-            scale(0)
-            sh "oc get pods --namespace ${TESTNS}"
-        }
-    }
-}
-
 node {
     notifyOnFailure {
         notify("[${env.JOB_NAME.split('/')[-1]}] Build started", null, "#439FE0")
@@ -70,6 +31,34 @@ node {
         env.PATH="${env.NODEJS_HOME}/bin:${env.PATH}"
 
         checkout scm
+
+        def utils = load "./build/utils.groovy"
+
+        def deploy = { namespace ->
+            timeout (5) {
+                openshift.withProject(namespace) {
+                    try {
+                        sh "oc scale --replicas=0 --namespace=${namespace} dc/remediations"
+                        // need to bring down consumer also so that the database can be recreated
+                        sh "oc scale --replicas=0 --namespace=${namespace} dc/remediations-consumer"
+
+                        utils.waitFor(namespace, 0, 'remediations')
+                        utils.waitFor(namespace, 0, 'remediations-consumer')
+
+                        def dc = openshift.selector('dc', 'remediations')
+                        dc.rollout().latest()
+                        dc.rollout().status() // wait for rollout to reach desired replica count
+                        // this recreates database and runs migrations
+                    } finally {
+                        sh "oc scale --replicas=1 --namespace=${namespace} dc/remediations"
+                        utils.waitFor(namespace, 1, 'remediations')
+
+                        sh "oc scale --replicas=1 --namespace=${namespace} dc/remediations-consumer"
+                        utils.waitFor(namespace, 1, 'remediations-consumer')
+                    }
+                }
+            }
+        }
 
         sh 'git rev-parse HEAD'
 
@@ -83,7 +72,7 @@ node {
 
         openshift.withCluster() {
 
-            withScaledEnv {
+            utils.withScaledEnv(TESTNS) {
 
                 env.DB_HOST="postgres.${TESTNS}.svc"
                 env.DB_DATABASE='remediationstest'
@@ -117,14 +106,12 @@ node {
                 }
             }
 
-            stage('deploy') {
-                timeout (2) {
-                    openshift.withProject(NS) {
-                        def dc = openshift.selector('dc', 'remediations')
-                        dc.rollout().latest()
-                        dc.rollout().status() // wait for rollout to reach desired replica count
-                    }
-                }
+            stage('deploy to CI') {
+                deploy('remediations-ci')
+            }
+
+            stage('deploy to QA') {
+                deploy('remediations-qa')
             }
         }
 

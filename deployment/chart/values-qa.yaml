@@ -16,7 +16,7 @@ remediations:
 
   logLevel: trace
   cloudwatch: true
-  imageChangeTrigger: true
+  imageChangeTrigger: false
 
   replicas: 1
 
