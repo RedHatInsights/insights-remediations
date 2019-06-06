@@ -75,3 +75,16 @@ test('puts quotes around hosts list', async () => {
 
     expect(text).toMatchSnapshot();
 });
+
+test('does not mind extra whitespace in HOSTS variable declaration', async () => {
+    const {text} = await request
+    .post('/v1/playbook')
+    .send({
+        issues: [{
+            id: 'advisor:bond_config_issue|EXTRA_WHITESPACE',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    }).expect(200);
+
+    expect(text).toMatchSnapshot();
+});

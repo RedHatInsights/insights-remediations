@@ -19,7 +19,9 @@ module.exports = class ContentServerResolver extends Resolver {
 
 function parseResolution (response) {
     // adds quotes around the placeholder regardless of whether the original template uses quotes or not
-    let template = response.play.replace(/["]?{{HOSTS}}["]?/, `"${Template.HOSTS_PLACEHOLDER}"`);
+    // eslint rule suppressed because the input (playbook template) never comes from users
+    // eslint-disable-next-line security/detect-unsafe-regex
+    let template = response.play.replace(/("\s*)?{{\s*HOSTS\s*}}(\s*")?/, `"${Template.HOSTS_PLACEHOLDER}"`);
 
     template = yaml.removeDocumentMarkers(template);
 
