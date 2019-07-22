@@ -142,6 +142,23 @@ describe('resolve ssg resolutions', function () {
             }]
         });
     });
+
+    test('resolution info (2)', async () => {
+        const {body} = await request
+        .get('/v1/resolutions/ssg:rhel7|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth')
+        .expect(200);
+
+        body.should.eql({
+            id: 'ssg:rhel7|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth',
+            resolution_risk: -1,
+            resolutions: [{
+                description: 'Disable Host-Based Authentication',
+                id: 'fix',
+                needs_reboot: true,
+                resolution_risk: -1
+            }]
+        });
+    });
 });
 
 describe('batch', function () {

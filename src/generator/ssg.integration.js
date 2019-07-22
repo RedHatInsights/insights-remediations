@@ -98,3 +98,18 @@ test('generates a playbook with block', async () => {
     expect(normalizePlaybookVersionForSnapshot(res.text)).toMatchSnapshot();
 });
 
+test('generates a simple playbook with uppercase profile name', async () => {
+    const data = {
+        issues: [{
+            id: 'ssg:rhel7|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    const res = await request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200);
+    expect(normalizePlaybookVersionForSnapshot(res.text)).toMatchSnapshot();
+});
+

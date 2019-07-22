@@ -64,6 +64,10 @@ const DATA = Object.freeze({
 
     'xccdf_org.ssgproject.content_rule_mount_option_dev_shm_nodev': {
         title: 'Add nodev Option to /dev/shm'
+    },
+
+    'xccdf_org.ssgproject.content_rule_disable_host_auth': {
+        title: 'Disable Host-Based Authentication'
     }
 });
 
