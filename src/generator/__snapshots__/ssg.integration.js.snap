@@ -41,7 +41,7 @@ exports[`generates a playbook with block 1`] = `
         - '{{ device_name.stdout_lines[0].split() | list | lower }}'
         - '{{ device_name.stdout_lines[1].split() | list }}'
       when:
-        - device_name.stdout_lines is defined
+        - device_name.stdout is defined and device_name.stdout_lines is defined
         - (device_name.stdout | length > 0)
         - >-
           ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
@@ -340,15 +340,26 @@ exports[`generates a simple playbook with uppercase profile name 1`] = `
     - restrict_strategy
   tasks:
     - name: Disable Host-Based Authentication
-      lineinfile:
-        create: true
-        dest: /etc/ssh/sshd_config
-        regexp: ^HostbasedAuthentication
-        line: HostbasedAuthentication no
+      block:
+        - name: Deduplicate values from /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: false
+            regexp: (?i)^\\\\s*HostbasedAuthentication\\\\s+
+            state: absent
+          notify: insights_reboot_handler
+        - name: Insert correct line to /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: true
+            line: HostbasedAuthentication no
+            state: present
+            insertbefore: ^Match
+            validate: /usr/sbin/sshd -t -f %s
+          notify: insights_reboot_handler
       when: >-
         ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
         \\"docker\\"
-      notify: insights_reboot_handler
   handlers:
     - name: insights_reboot_handler
       set_fact:
