@@ -4,6 +4,7 @@
   tasks:
     - name: check for update
       shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory @@ISSUES@@"
+      check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
       args:
