@@ -220,6 +220,7 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
   tasks:
     - name: check for update
       shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve CVE-2017-5715\\"
+      check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
       args:
@@ -245,6 +246,7 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
   tasks:
     - name: check for update
       shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHSA-2018:0502\\"
+      check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
       args:
@@ -597,6 +599,7 @@ exports[`playbooks missing get remediation with unknown resolution 1`] = `
   tasks:
     - name: check for update
       shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve CVE-2017-5715\\"
+      check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
       args:

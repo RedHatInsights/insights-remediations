@@ -112,6 +112,7 @@ exports[`adds diagnosis play 1`] = `
   tasks:
     - name: check for update
       shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHSA-2018:0502\\"
+      check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
       args:
@@ -305,6 +306,7 @@ exports[`generates an erratum-based playbook 1`] = `
   tasks:
     - name: check for update
       shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHSA-2018:0502\\"
+      check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
       args:
@@ -599,6 +601,7 @@ exports[`sorts the hosts line 1`] = `
   tasks:
     - name: check for update
       shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHSA-2018:0502\\"
+      check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
       args:
