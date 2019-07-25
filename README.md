@@ -52,6 +52,11 @@ To use the demo database seeder, prepend `DEMO_MODE=true ` to each of the above 
 
 ### Running tests
 
+Database container has to be running as a prerequisite for tests:
+```
+docker-compose -f build/docker-compose.yml up db
+```
+
 To run the linter, unit and integration tests run:
 ```
 npm run verify
