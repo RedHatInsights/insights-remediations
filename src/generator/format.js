@@ -8,10 +8,16 @@ const i = require('dedent-js');
 const DOCUMENT_PREFIX = '---';
 
 exports.render = function (plays, remediation) {
-    return [
-        createHeader(remediation),
-        ...plays.map(play => play.render())
-    ].join('\n\n');
+
+    try {
+        return [
+            createHeader(remediation),
+            ...plays.map(play => play.render())
+        ].join('\n\n');
+    } catch (e) {
+        let template = plays[0].id.full;
+        throw errors.internal.playbookRenderingFailed(e, template);
+    }
 };
 
 exports.validate = function (playbook) {

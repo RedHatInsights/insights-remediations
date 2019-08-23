@@ -170,6 +170,10 @@ exports.internal = {
         return new InternalError('PLAYBOOK_VALIDATION_FAILED', 'Playbook output validation failed', {cause: e, playbook});
     },
 
+    playbookRenderingFailed (e, template) {
+        return new InternalError('PLAYBOOK_RENDERING_FAILED', `Playbook rendering failed for template ${template}`, {cause: e});
+    },
+
     dependencyError (e, connector) {
         return new exports.DependencyError(e, connector);
     },
