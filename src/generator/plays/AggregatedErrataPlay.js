@@ -15,6 +15,10 @@ module.exports = class MergedPlay extends Play {
         super(plays[0].id, plays[0].hosts);
         this.plays = _.sortBy(plays, 'erratum');
         this.issues = _.map(this.plays, 'erratum');
+        if (!plays[0].isAdvisory) {
+            this.issues = _.join(this.issues, ' --cve ');
+        }
+
         this.template = plays[0].isAdvisory ? ERRATA_TEMPLATE : CVES_TEMPLATE;
     }
 
