@@ -20,20 +20,22 @@ node('nodejs') {
         sh "node src/validateTemplate.js src/connectors/ssg/mock/standard/*"
     }
 
-    utils.withScaledEnv(NS) {
+    openshift.withCluster() {
+        utils.withScaledEnv(NS) {
 
-        env.DB_HOST="postgres.${NS}.svc"
-        env.DB_DATABASE='remediationstest'
+            env.DB_HOST="postgres.${NS}.svc"
+            env.DB_DATABASE='remediationstest'
 
-        stage('verify') {
-            env.VMAAS_IMPL='mock'
+            stage('verify') {
+                env.VMAAS_IMPL='mock'
 
-            sh 'npm run verify'
-        }
+                sh 'npm run verify'
+            }
 
-        stage('migration') {
-            sh 'npm run db:migrate'
-            sh 'npm run db:migrate:undo:all'
+            stage('migration') {
+                sh 'npm run db:migrate'
+                sh 'npm run db:migrate:undo:all'
+            }
         }
     }
 }
