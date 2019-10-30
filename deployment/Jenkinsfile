@@ -116,7 +116,7 @@ node {
         }
 
         stage('push image to stage') {
-            openShift.withNode(image: "jenkins-deploy-slave:latest") {
+            openShiftUtils.withNode(image: "jenkins-deploy-slave:latest") {
                 deployUtils.promoteImages(
                     srcImages: [
                         "remediations:latest"
