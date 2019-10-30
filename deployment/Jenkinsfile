@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-@Library("github.com/RedHatInsights/insights-pipeline-lib")
+@Library("github.com/RedHatInsights/insights-pipeline-lib@v3")
 
 NS = 'remediations-ci'
 TESTNS = 'remediations-pr'
@@ -116,8 +116,8 @@ node {
         }
 
         stage('push image to stage') {
-            openShift.withNode(defaults: true) {
-                promoteImages(
+            openShift.withNode(image: "jenkins-deploy-slave:latest") {
+                deployUtils.promoteImages(
                     srcImages: [
                         "remediations:latest"
                     ],
