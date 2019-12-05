@@ -25,7 +25,8 @@ function validate (result) {
 module.exports = new class extends Connector {
     constructor () {
         super(module);
-        this.metrics = metrics.createConnectorMetric(this.getName(), 'getSystemDetails');
+        this.detailsMetrics = metrics.createConnectorMetric(this.getName(), 'getSystemDetails');
+        this.tagsMetrics = metrics.createConnectorMetric(this.getName(), 'getTagsByIds');
     }
 
     buildHostsUri () {
@@ -70,7 +71,7 @@ module.exports = new class extends Connector {
                 revalidationInterval,
                 cacheable: body => body.count > 0 // only cache responses with at least 1 record
             },
-            this.metrics);
+            this.detailsMetrics);
         } catch (e) {
             if (retries > 0) {
                 log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
@@ -112,6 +113,55 @@ module.exports = new class extends Connector {
         return transformed;
     }
 
+    async getTagsByIds (ids = [], refresh = false, retries = 2) {
+        if (ids.length === 0) {
+            return {};
+        }
+
+        ids = _.sortBy(ids);
+
+        if (ids.length > pageSize) {
+            const chunks = _.chunk(ids, pageSize);
+            const results = await P.map(chunks, chunk => this.getTagsByIds(chunk, refresh));
+            return _.assign({}, ...results);
+        }
+
+        const uri = this.buildHostsUri();
+        uri.segment(ids.join());
+        uri.segment('tags');
+        uri.addQuery('per_page', String(pageSize));
+
+        let response = null;
+
+        try {
+            response = await this.doHttp({
+                uri: uri.toString(),
+                method: 'GET',
+                json: true,
+                rejectUnauthorized: !insecure,
+                headers: this.getForwardedHeaders()
+            },
+            {
+                key: `remediations|http-cache|inventory|tags|${ids.join()}`,
+                refresh,
+                revalidationInterval,
+                cacheable: body => body.count > 0 // only cache responses with at least 1 record
+            },
+            this.tagsMetrics);
+        } catch (e) {
+            if (retries > 0) {
+                log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
+                return this.getTagsByIds(ids, true, retries - 1);
+            }
+
+            throw e;
+        }
+
+        const transformed = response.results;
+
+        return transformed;
+    }
+
     async ping () {
         const uri = this.buildHostsUri();
         uri.addQuery('per_page', String(1));
@@ -127,4 +177,3 @@ module.exports = new class extends Connector {
         assert(Array.isArray(response.results));
     }
 }();
-

@@ -39,6 +39,25 @@ function generateSystem (id) {
     };
 }
 
+function generateTags (id) {
+    if (id === NON_EXISTENT_SYSTEM) {
+        return null;
+    }
+
+    if (SYSTEMS.hasOwnProperty(id)) {
+        // eslint-disable-next-line security/detect-object-injection
+        return Object.assign({tags: null});
+    }
+
+    return [
+        {
+            key: 'string',
+            namespace: 'string',
+            value: 'string'
+        }
+    ];
+}
+
 module.exports = new class extends Connector {
     constructor () {
         super(module);
@@ -79,6 +98,14 @@ module.exports = new class extends Connector {
             hostname: 'jozef-cert01',
             updated: '2018-12-19T15:59:47.954018Z'
         }];
+    }
+
+    getTagsByIds (systems) {
+        return Promise.resolve(_(systems)
+        .keyBy()
+        .mapValues(generateTags)
+        .pickBy()
+        .value());
     }
 
     ping () {}

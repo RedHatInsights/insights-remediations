@@ -243,4 +243,95 @@ describe('inventory impl', function () {
             result[1].should.have.property('insights_id', '3ecd82fb-abdd-471c-9ca2-249c055644b8');
         });
     });
+
+    describe('getTagsByIds', function () {
+        test('obtains tag info', async function () {
+            const cache = mockCache();
+            const http = base.getSandbox().stub(request, 'run').resolves({
+                statusCode: 200,
+                body: {
+                    count: 1,
+                    page: 1,
+                    per_page: 50,
+                    results: {
+                        '3ecd82fb-abdd-471c-9ca2-249c055644b8': [
+                            {
+                                key: 'string',
+                                namespace: 'string',
+                                value: 'string'
+                            }
+                        ]
+                    },
+                    total: 1
+                },
+                headers: {}
+            });
+
+            const results = await impl.getTagsByIds(['id']);
+            results.should.have.size(1);
+            results.should.have.property('3ecd82fb-abdd-471c-9ca2-249c055644b8');
+            const result = results['3ecd82fb-abdd-471c-9ca2-249c055644b8'];
+            result[0].should.have.property('key', 'string');
+            result[0].should.have.property('namespace', 'string');
+            result[0].should.have.property('value', 'string');
+
+            http.callCount.should.equal(1);
+            const options = http.args[0][0];
+            options.headers.should.have.size(2);
+            options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
+            options.headers.should.have.property('x-rh-identity', 'identity');
+            cache.get.callCount.should.equal(1);
+            cache.setex.callCount.should.equal(1);
+
+            await impl.getTagsByIds(['id']);
+            cache.get.callCount.should.equal(2);
+            cache.setex.callCount.should.equal(1);
+        });
+
+        test('retries on failure', async function () {
+            const cache = mockCache();
+            const http = base.getSandbox().stub(request, 'run');
+            http.onFirstCall().rejects(new RequestError('Error: socket hang up'));
+            http.onSecondCall().rejects(new RequestError('Error: socket hang up'));
+            http.resolves({
+                statusCode: 200,
+                body: {
+                    count: 1,
+                    page: 1,
+                    per_page: 50,
+                    results: {
+                        '3ecd82fb-abdd-471c-9ca2-249c055644b8': [
+                            {
+                                key: 'string',
+                                namespace: 'string',
+                                value: 'string'
+                            }
+                        ]
+                    },
+                    total: 1
+                },
+                headers: {}
+            });
+
+            const results = await impl.getTagsByIds(['id']);
+            results.should.have.size(1);
+            results.should.have.property('3ecd82fb-abdd-471c-9ca2-249c055644b8');
+            const result = results['3ecd82fb-abdd-471c-9ca2-249c055644b8'];
+            result[0].should.have.property('key', 'string');
+            result[0].should.have.property('namespace', 'string');
+            result[0].should.have.property('value', 'string');
+
+            http.callCount.should.equal(3);
+            const options = http.args[0][0];
+            options.headers.should.have.size(2);
+            options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
+            options.headers.should.have.property('x-rh-identity', 'identity');
+            cache.get.callCount.should.equal(3);
+            cache.setex.callCount.should.equal(1);
+
+            await impl.getTagsByIds(['id']);
+            cache.get.callCount.should.equal(4);
+            cache.setex.callCount.should.equal(1);
+        });
+    });
 });
