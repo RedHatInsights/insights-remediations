@@ -198,6 +198,26 @@ paths:
         404:
           $ref: '#/components/responses/NotFound'
 
+  /remediations/{id}/connection_status:
+    get:
+      tags:
+        - remediations
+      summary: Pre-flight check
+      description: Get satellite connection status for a given host
+      operationId: getRemediationConnectionStatus
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemediationConnectionDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /resolutions/{issue}:
     get:
@@ -810,6 +830,34 @@ components:
           type: integer
         needs_reboot:
           $ref: '#/components/schemas/RemediationNeedsReboot'
+          
+    RemediationConnectionDetails:
+      type: array
+      items:
+        $ref: '#/components/schemas/RemediationConnectionStatus'
+
+    RemediationConnectionStatus:
+      type: object
+      additionalProperties: false
+      required:
+        - executor_type
+        - executor_name
+        - system_count
+        - connection_status
+      properties:
+        executor_type:
+          type: string
+          example: satellite
+        executor_name:
+          type: string
+          example: Satellite 11234
+        system_count:
+          type: integer
+          example: 12
+        connection_status:
+          type: string
+          example: ready
+          enum: ["connected", "disconnected", "not_configured"]
 
     SystemOut:
       type: object

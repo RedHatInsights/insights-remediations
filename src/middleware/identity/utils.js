@@ -27,6 +27,20 @@ exports.createIdentityHeader = function (
     transform = f => f) {
 
     const data = {
+        entitlements: {
+            insights: {
+                is_entitled: true
+            },
+            openshift: {
+                is_entitled: true
+            },
+            smart_management: {
+                is_entitled: true
+            },
+            hybrid_cloud: {
+                is_entitled: true
+            }
+        },
         identity: {
             account_number,
             type: DEFAULTS.type,

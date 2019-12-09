@@ -1,5 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`remediations get get connection status (no content resp) 1`] = `""`;
+
 exports[`remediations get get remediation 1`] = `
 "{
     \\"id\\": \\"66eec356-dd06-4c72-a3b6-ef27d1508a02\\",

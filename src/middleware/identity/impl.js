@@ -16,8 +16,12 @@ module.exports = function (req, res, next) {
 
     try {
         const value = Buffer.from(raw, 'base64').toString('utf8');
-        req.identity = JSON.parse(value).identity;
-        log.trace({identity: req.identity, reqId}, 'parsed identity header');
+        const idHeader = JSON.parse(value);
+        req.identity = idHeader.identity;
+        req.entitlements = idHeader.entitlements;
+        log.debug({identity: req.identity,
+            entitlements: req.entitlements,
+            reqId}, 'parsed identity header');
 
         if (!req.identity.account_number) {
             return next(new errors.Unauthorized());

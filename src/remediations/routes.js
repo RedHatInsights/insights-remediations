@@ -4,6 +4,7 @@ const read = require('./controller.read');
 const write = require('./controller.write');
 const status = require('./controller.status');
 const openapi = require('../middleware/openapi');
+const smartManagement = require('../middleware/identity/smartManagement');
 
 module.exports = function (router) {
     router.get('/remediations', openapi('getRemediations'), read.list);
@@ -23,4 +24,9 @@ module.exports = function (router) {
         '/remediations/:id/issues/:issue/systems/:system',
         openapi('deleteRemediationIssueSystem'),
         write.removeIssueSystem);
+
+    router.get('/remediations/:id/connection_status',
+        openapi('getRemediationConnectionStatus'),
+        smartManagement,
+        read.connection_status);
 };

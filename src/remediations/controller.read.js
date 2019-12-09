@@ -227,3 +227,8 @@ exports.playbook = errors.async(async function (req, res) {
 
     generator.send(req, res, playbook, format.playbookName(remediation));
 });
+
+exports.connection_status = errors.async(async function (req, res) {
+    // For now this just returns a static empty response
+    return noContent(res);
+});
