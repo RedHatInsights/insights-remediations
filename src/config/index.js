@@ -114,6 +114,11 @@ const config = {
         pageSize: parseIntEnv('INVENTORY_PAGE_SIZE', 100)
     },
 
+    receptor: {
+        impl: env.RECEPTOR_IMPL,
+        host: env.RECEPTOR_HOST || 'http://localhost:9090'
+    },
+
     sources: {
         impl: env.SOURCES_IMPL,
         host: env.SOURCES_HOST || 'http://localhost:8080'
