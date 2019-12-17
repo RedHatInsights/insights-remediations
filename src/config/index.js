@@ -114,6 +114,11 @@ const config = {
         pageSize: parseIntEnv('INVENTORY_PAGE_SIZE', 100)
     },
 
+    sources: {
+        impl: env.SOURCES_IMPL,
+        host: env.SOURCES_HOST || 'http://localhost:8080'
+    },
+
     ssg: {
         impl: env.SSG_IMPL,
         host: env.SSG_HOST || 'http://localhost:8090'
