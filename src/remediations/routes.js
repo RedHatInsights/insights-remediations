@@ -2,6 +2,7 @@
 
 const read = require('./controller.read');
 const write = require('./controller.write');
+const fifi = require('./controller.fifi');
 const status = require('./controller.status');
 const openapi = require('../middleware/openapi');
 const smartManagement = require('../middleware/identity/smartManagement');
@@ -28,5 +29,5 @@ module.exports = function (router) {
     router.get('/remediations/:id/connection_status',
         openapi('getRemediationConnectionStatus'),
         smartManagement,
-        read.connection_status);
+        fifi.connection_status);
 };

@@ -2,7 +2,6 @@
 
 const _ = require('lodash');
 const { request, auth, reqId } = require('../test');
-const utils = require('../middleware/identity/utils');
 
 function test400 (name, url, code, title) {
     test(name, async () => {
@@ -238,31 +237,6 @@ describe('remediations', function () {
 
             body.issues[0].systems.should.have.length(250);
             expect(text).toMatchSnapshot();
-        });
-
-        // This test will be changed when content is added to this method
-        test('get connection status (no content resp)', async () => {
-            const {text} = await request
-            .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02/connection_status')
-            .expect(204);
-
-            expect(text).toMatchSnapshot();
-        });
-
-        test('400 get connection status', async () => {
-            await request
-            .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d150000/connection_status')
-            .expect(400);
-        });
-
-        test('get connection status with false smartManagement', async () => {
-            await request
-            .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02/connection_status')
-            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, true, data => {
-                data.entitlements.smart_management = false;
-                return data;
-            }))
-            .expect(403);
         });
     });
 

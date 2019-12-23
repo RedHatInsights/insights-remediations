@@ -9,7 +9,11 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    async getConnectionStatus () {
+    async getConnectionStatus (account, id) {
+        if (id === '098764') {
+            return {status: 'disconnected'};
+        }
+
         return CONNECTION_STATUS;
     }
 

@@ -103,7 +103,8 @@ exports.auth = Object.freeze({
         id.identity.user.first_name = 'Řehoř';
         id.identity.user.last_name = 'Samsa';
         return id;
-    })
+    }),
+    fifi: createHeader(USERS.fifi.username, USERS.fifi.account_number, false)
 });
 
 exports.mockVmaas = function () {

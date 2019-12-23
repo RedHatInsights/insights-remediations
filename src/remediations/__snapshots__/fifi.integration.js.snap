@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FiFi connection status obtains connection status 1`] = `
+"[
+    {
+        \\"executor_type\\": \\"satellite\\",
+        \\"executor_name\\": \\"Satellite 01bf542e-6092-485c-ba04-c656d77f988a\\",
+        \\"system_count\\": 4,
+        \\"connection_status\\": \\"no_source\\"
+    },
+    {
+        \\"executor_type\\": \\"satellite\\",
+        \\"executor_name\\": \\"Satellite 1 (connected)\\",
+        \\"system_count\\": 3,
+        \\"connection_status\\": \\"connected\\"
+    },
+    {
+        \\"executor_type\\": \\"satellite\\",
+        \\"executor_name\\": \\"Satellite 2 (disconnected)\\",
+        \\"system_count\\": 6,
+        \\"connection_status\\": \\"disconnected\\"
+    },
+    {
+        \\"executor_type\\": \\"satellite\\",
+        \\"executor_name\\": \\"Satellite 3 (no receptor configured)\\",
+        \\"system_count\\": 5,
+        \\"connection_status\\": \\"no_receptor\\"
+    },
+    {
+        \\"executor_type\\": \\"satellite\\",
+        \\"executor_name\\": \\"Satellite 4 (connected)\\",
+        \\"system_count\\": 1,
+        \\"connection_status\\": \\"connected\\"
+    },
+    {
+        \\"executor_type\\": null,
+        \\"executor_name\\": null,
+        \\"system_count\\": 2,
+        \\"connection_status\\": \\"no_executor\\"
+    }
+]"
+`;

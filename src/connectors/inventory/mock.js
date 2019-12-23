@@ -21,6 +21,15 @@ const SYSTEMS = {
     }
 };
 
+const SATELLITES = [
+    '722ec903-f4b5-4b1f-9c2f-23fc7b0ba390', // connected
+    '409dd231-6297-43a6-a726-5ce56923d624', // disconnected
+    '72f44b25-64a7-4ee7-a94e-3beed9393972', // no_receptor
+    '01bf542e-6092-485c-ba04-c656d77f988a', // no_source
+    null, // no_executor,
+    '63142926-46a5-498b-9614-01f2f66fd40b' // connected
+];
+
 function generateSystem (id) {
     if (id === NON_EXISTENT_SYSTEM) {
         return null;
@@ -46,16 +55,20 @@ function generateTags (id) {
 
     if (SYSTEMS.hasOwnProperty(id)) {
         // eslint-disable-next-line security/detect-object-injection
-        return Object.assign({tags: null});
+        return [];
     }
 
-    return [
-        {
-            key: 'string',
-            namespace: 'string',
-            value: 'string'
-        }
-    ];
+    const satelliteIndex = parseInt(id[id.length - 1], 16) % SATELLITES.length;
+
+    return [{
+        namespace: 'Satellite',
+        key: 'instance_id',
+        value: _.get(SATELLITES, satelliteIndex)
+    }, {
+        namespace: 'insights-client',
+        key: 'env',
+        value: 'test'
+    }];
 }
 
 module.exports = new class extends Connector {

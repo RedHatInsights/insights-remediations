@@ -107,3 +107,15 @@ exports.playbookName = function (remediation) {
     // my-remediation-1462522068064.yml
     return `${fileName.join('-')}.${PLAYBOOK_SUFFIX}`;
 };
+
+exports.connectionStatus = function (executors) {
+    return _(executors)
+    .sortBy('name')
+    .map(executor => ({
+        executor_type: executor.type,
+        executor_name: executor.name,
+        system_count: executor.systems.length,
+        connection_status: executor.status
+    }))
+    .value();
+};

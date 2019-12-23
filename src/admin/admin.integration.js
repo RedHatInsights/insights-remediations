@@ -50,6 +50,7 @@ describe('users', function () {
 
             body.map(user => user.username).should.eql([
                 'demoUser',
+                'fifi',
                 'testReadSingleUser',
                 'testStatus',
                 'testWriteUser',

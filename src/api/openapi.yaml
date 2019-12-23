@@ -830,7 +830,7 @@ components:
           type: integer
         needs_reboot:
           $ref: '#/components/schemas/RemediationNeedsReboot'
-          
+
     RemediationConnectionDetails:
       type: array
       items:
@@ -847,9 +847,11 @@ components:
       properties:
         executor_type:
           type: string
+          nullable: true
           example: satellite
         executor_name:
           type: string
+          nullable: true
           example: Satellite 11234
         system_count:
           type: integer
@@ -857,7 +859,12 @@ components:
         connection_status:
           type: string
           example: ready
-          enum: ["connected", "disconnected", "not_configured"]
+          enum:
+            - connected
+            - disconnected
+            - no_executor
+            - no_source
+            - no_receptor
 
     SystemOut:
       type: object
