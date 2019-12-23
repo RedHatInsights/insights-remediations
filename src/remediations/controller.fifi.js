@@ -1,5 +1,7 @@
 'use strict';
 
+const etag = require('etag');
+
 const errors = require('../errors');
 const queries = require('./remediations.queries');
 const format = require('./remediations.format');
@@ -13,5 +15,7 @@ exports.connection_status = errors.async(async function (req, res) {
     }
 
     const status = await fifi.getConnectionStatus(remediation, req.identity.account_number);
+
+    res.set('etag', etag(JSON.stringify(status)));
     res.json(format.connectionStatus(status));
 });

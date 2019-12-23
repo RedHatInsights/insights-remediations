@@ -39,5 +39,22 @@ describe('FiFi', function () {
             }))
             .expect(403);
         });
+
+        test('sets ETag', async () => {
+            const {headers} = await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
+            .set(auth.fifi)
+            .expect(200);
+
+            headers.etag.should.equal('"1062-Pl88DazTBuJo//SQVNUn6pZAllk"');
+        });
+
+        test('304s on ETag match', async () => {
+            await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
+            .set(auth.fifi)
+            .set('if-none-match', '"1062-Pl88DazTBuJo//SQVNUn6pZAllk"')
+            .expect(304);
+        });
     });
 });
