@@ -112,6 +112,7 @@ exports.connectionStatus = function (executors) {
     return _(executors)
     .sortBy('name')
     .map(executor => ({
+        executor_id: executor.satId || null,
         executor_type: executor.type,
         executor_name: executor.name,
         system_count: executor.systems.length,

@@ -3,36 +3,42 @@
 exports[`FiFi connection status obtains connection status 1`] = `
 "[
     {
+        \\"executor_id\\": \\"01bf542e-6092-485c-ba04-c656d77f988a\\",
         \\"executor_type\\": \\"satellite\\",
         \\"executor_name\\": \\"Satellite 01bf542e-6092-485c-ba04-c656d77f988a\\",
         \\"system_count\\": 4,
         \\"connection_status\\": \\"no_source\\"
     },
     {
+        \\"executor_id\\": \\"722ec903-f4b5-4b1f-9c2f-23fc7b0ba390\\",
         \\"executor_type\\": \\"satellite\\",
         \\"executor_name\\": \\"Satellite 1 (connected)\\",
         \\"system_count\\": 3,
         \\"connection_status\\": \\"connected\\"
     },
     {
+        \\"executor_id\\": \\"409dd231-6297-43a6-a726-5ce56923d624\\",
         \\"executor_type\\": \\"satellite\\",
         \\"executor_name\\": \\"Satellite 2 (disconnected)\\",
         \\"system_count\\": 6,
         \\"connection_status\\": \\"disconnected\\"
     },
     {
+        \\"executor_id\\": \\"72f44b25-64a7-4ee7-a94e-3beed9393972\\",
         \\"executor_type\\": \\"satellite\\",
         \\"executor_name\\": \\"Satellite 3 (no receptor configured)\\",
         \\"system_count\\": 5,
         \\"connection_status\\": \\"no_receptor\\"
     },
     {
+        \\"executor_id\\": \\"63142926-46a5-498b-9614-01f2f66fd40b\\",
         \\"executor_type\\": \\"satellite\\",
         \\"executor_name\\": \\"Satellite 4 (connected)\\",
         \\"system_count\\": 1,
         \\"connection_status\\": \\"connected\\"
     },
     {
+        \\"executor_id\\": null,
         \\"executor_type\\": null,
         \\"executor_name\\": null,
         \\"system_count\\": 2,

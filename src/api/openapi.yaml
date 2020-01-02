@@ -840,11 +840,16 @@ components:
       type: object
       additionalProperties: false
       required:
+        - executor_id
         - executor_type
         - executor_name
         - system_count
         - connection_status
       properties:
+        executor_id:
+          type: string
+          nullable: true
+          example: f1795406-9483-43e2-ac38-44274d93fe7b
         executor_type:
           type: string
           nullable: true
