@@ -109,7 +109,7 @@ exports.playbookName = function (remediation) {
 };
 
 exports.connectionStatus = function (executors) {
-    return _(executors)
+    const data = _(executors)
     .sortBy('name')
     .map(executor => ({
         executor_id: executor.satId || null,
@@ -119,4 +119,12 @@ exports.connectionStatus = function (executors) {
         connection_status: executor.status
     }))
     .value();
+
+    return {
+        meta: {
+            count: data.length,
+            total: data.length
+        },
+        data
+    };
 };

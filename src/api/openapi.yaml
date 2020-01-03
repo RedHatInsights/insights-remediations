@@ -213,7 +213,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RemediationConnectionDetails'
+                $ref: '#/components/schemas/RemediationConnectionStatus'
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
@@ -634,6 +634,20 @@ components:
               details:
                 type: object
 
+    Meta:
+      type: object
+      additionalProperties: false
+      required: [count, total]
+      properties:
+        count:
+          type: number
+          description: number of results returned
+          example: 50
+        total:
+          type: number
+          description: total number of results matching the query
+          example: 114
+
     # Resolution specific types
     Resolutions:
       type: object
@@ -773,18 +787,7 @@ components:
           items:
             $ref: '#/components/schemas/RemediationListItem'
         meta:
-          type: object
-          additionalProperties: false
-          required: [count, total]
-          properties:
-            count:
-              type: number
-              description: number of results returned
-              example: 50
-            total:
-              type: number
-              description: total number of results matching the query
-              example: 114
+            $ref: '#/components/schemas/Meta'
         links:
           type: object
           additionalProperties: false
@@ -831,12 +834,21 @@ components:
         needs_reboot:
           $ref: '#/components/schemas/RemediationNeedsReboot'
 
-    RemediationConnectionDetails:
-      type: array
-      items:
-        $ref: '#/components/schemas/RemediationConnectionStatus'
-
     RemediationConnectionStatus:
+      type: object
+      additionalProperties: false
+      required:
+        - meta
+        - data
+      properties:
+        meta:
+          $ref: '#/components/schemas/Meta'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaybookExecutorStatus'
+
+    PlaybookExecutorStatus:
       type: object
       additionalProperties: false
       required:

@@ -20,7 +20,9 @@ describe('FiFi', function () {
             .set(auth.fifi)
             .expect(200);
 
-            body.should.eql([]);
+            body.meta.count.should.eql(0);
+            body.meta.total.should.eql(0);
+            body.data.should.eql([]);
         });
 
         test('400 get connection status', async () => {
