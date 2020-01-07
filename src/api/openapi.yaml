@@ -239,6 +239,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
 
   /resolutions/{issue}:
     get:
@@ -999,6 +1001,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/RequestError'
+    Conflict:
+      description: Request Conflict
 
   examples:
     RemediationLinks:

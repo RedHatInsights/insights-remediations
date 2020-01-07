@@ -65,6 +65,7 @@ describe('FiFi', function () {
             await request
             .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
             .set(auth.fifi)
+            .set('if-none-match', '"1062-Pl88DazTBuJo//SQVNUn6pZAllk"')
             .expect(204);
         });
 
@@ -76,6 +77,43 @@ describe('FiFi', function () {
                 return data;
             }))
             .expect(403);
+        });
+
+        // This will NOT return 204 once fully implemented
+        test('sets ETag', async () => {
+            const {headers} = await request
+            .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs?pretty')
+            .set(auth.fifi)
+            .set('if-none-match', '"1062-Pl88DazTBuJo//SQVNUn6pZAllk"')
+            .expect(204);
+
+            headers.etag.should.equal('"1062-Pl88DazTBuJo//SQVNUn6pZAllk"');
+        });
+
+        // This will NOT return 204 once fully implemented
+        test('304s on ETag match', async () => {
+            await request
+            .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
+            .set(auth.fifi)
+            .set('if-none-match', '"1062-Pl88DazTBuJo//SQVNUn6pZAllk"')
+            .expect(204);
+        });
+
+        test('returns 409 if ETags not match', async () => {
+            const {headers} = await request
+            .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
+            .set(auth.fifi)
+            .set('if-none-match', '"1062-Pl88DazTBuJo//SQVNUn6pZAlmk"')
+            .expect(409);
+
+            headers.etag.should.equal('"1062-Pl88DazTBuJo//SQVNUn6pZAllk"');
+        });
+
+        test('if if-none-match is not present, proceed', async () => {
+            await request
+            .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
+            .set(auth.fifi)
+            .expect(204);
         });
     });
 });
