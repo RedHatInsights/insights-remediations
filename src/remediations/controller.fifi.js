@@ -8,6 +8,8 @@ const format = require('./remediations.format');
 
 const fifi = require('./fifi');
 
+const noContent = res => res.sendStatus(204);
+
 exports.connection_status = errors.async(async function (req, res) {
     const remediation = await queries.get(req.params.id, req.user.account_number, req.user.username);
     if (!remediation) {
@@ -18,4 +20,8 @@ exports.connection_status = errors.async(async function (req, res) {
 
     res.set('etag', etag(JSON.stringify(status)));
     res.json(format.connectionStatus(status));
+});
+
+exports.executePlaybookRuns = errors.async(async function (req, res) {
+    return noContent(res);
 });

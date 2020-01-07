@@ -30,4 +30,9 @@ module.exports = function (router) {
         openapi('getRemediationConnectionStatus'),
         smartManagement,
         fifi.connection_status);
+
+    router.post('/remediations/:id/playbook_runs',
+        openapi('runRemediation'),
+        smartManagement,
+        fifi.executePlaybookRuns);
 };

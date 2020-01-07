@@ -219,6 +219,27 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /remediations/{id}/playbook_runs:
+    post:
+      tags:
+        - remediations
+      summary: Execute remediation
+      description: Execute remediation
+      operationId: runRemediation
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecuteRemediation'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /resolutions/{issue}:
     get:
       tags:
@@ -409,6 +430,13 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/SystemId'
+    PlaybookRunId:
+      in: path
+      name: playbook_run_id
+      description: 'Playbook run identifier (UUID)'
+      required: true
+      schema:
+        $ref: '#/components/schemas/PlaybookRunId'
 
 
   requestBodies:
@@ -460,6 +488,11 @@ components:
     RemediationNeedsReboot:
       type: boolean
       description: Indicates whether any of the issues contained in the remediation require system reboot
+
+    PlaybookRunId:
+      type: string
+      format: uuid
+      example: a8799a02-8be9-11e8-9eb6-529269fb1459
 
     ResolutionNeedsReboot:
       type: boolean
@@ -647,6 +680,16 @@ components:
           type: number
           description: total number of results matching the query
           example: 114
+          
+    ExecuteRemediation:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          example: a8799a02-8be9-11e8-9eb6-529269fb1459
 
     # Resolution specific types
     Resolutions:

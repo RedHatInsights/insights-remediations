@@ -59,4 +59,23 @@ describe('FiFi', function () {
             .expect(304);
         });
     });
+
+    describe('playbook run', function () {
+        test('execute playbook run', async () => {
+            await request
+            .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
+            .set(auth.fifi)
+            .expect(204);
+        });
+
+        test('execute playbook run with false smartManagement', async () => {
+            await request
+            .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
+            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
+                data.entitlements.smart_management = false;
+                return data;
+            }))
+            .expect(403);
+        });
+    });
 });
