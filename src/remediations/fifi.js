@@ -7,8 +7,7 @@ const inventory = require('../connectors/inventory');
 const sources = require('../connectors/sources');
 const receptorConnector = require('../connectors/receptor');
 
-// TODO: subject to change
-const SATELLITE_TAG = Object.freeze({namespace: 'Satellite', key: 'instance_id'});
+const SATELLITE_TAG = Object.freeze({namespace: 'satellite', key: 'satellite_id'});
 const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_name']);
 
 async function fetchSystems (ids) {

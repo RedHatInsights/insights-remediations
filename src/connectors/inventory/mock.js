@@ -61,8 +61,8 @@ function generateTags (id) {
     const satelliteIndex = parseInt(id[id.length - 1], 16) % SATELLITES.length;
 
     return [{
-        namespace: 'Satellite',
-        key: 'instance_id',
+        namespace: 'satellite',
+        key: 'satellite_id',
         value: _.get(SATELLITES, satelliteIndex)
     }, {
         namespace: 'insights-client',
