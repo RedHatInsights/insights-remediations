@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 import groovy.json.JsonSlurper
-@Library("github.com/RedHatInsights/insights-pipeline-lib")
+@Library("github.com/RedHatInsights/insights-pipeline-lib@v3")
 
 def notify(subject, body, color) {
     message = subject
@@ -87,8 +87,8 @@ node ('openscap') {
         }
 
         stage('push image to stage') {
-            openShift.withNode(defaults: true) {
-                promoteImages(
+            openShiftUtils.withNode(image: "jenkins-deploy-slave:latest") {
+                deployUtils.promoteImages(
                     srcImages: [
                         "playbooks-ssg:latest"
                     ],
