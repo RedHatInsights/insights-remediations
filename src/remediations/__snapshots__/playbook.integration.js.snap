@@ -179,31 +179,47 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
     - no_reboot_needed
     - service_autofs_disabled
   tasks:
-    - name: Disable service autofs
-      service:
-        name: autofs
-        enabled: 'no'
-        state: stopped
-      register: service_result
-      failed_when: >-
-        service_result is failed and ('Could not find the requested service' not
-        in service_result.msg)
+    - name: Unit Service Exists - autofs.service
+      command: systemctl list-unit-files autofs.service
+      register: service_file_exists
+      changed_when: false
+      ignore_errors: true
       when: >-
         ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
         \\"docker\\"
       notify: insights_reboot_handler
-    - name: Disable socket of service autofs if applicable
-      service:
-        name: autofs.socket
+    - name: Disable service autofs
+      systemd:
+        name: autofs.service
         enabled: 'no'
         state: stopped
-      register: socket_result
-      failed_when: >-
-        socket_result is failed and ('Could not find the requested service' not
-        in socket_result.msg)
+        masked: 'yes'
+      when:
+        - '\\"autofs.service\\" in service_file_exists.stdout_lines[1]'
+        - >-
+          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
+          != \\"docker\\"
+      notify: insights_reboot_handler
+    - name: Unit Socket Exists - autofs.socket
+      command: systemctl list-unit-files autofs.socket
+      register: socket_file_exists
+      changed_when: false
+      ignore_errors: true
       when: >-
         ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
         \\"docker\\"
+      notify: insights_reboot_handler
+    - name: Disable socket autofs
+      systemd:
+        name: autofs.socket
+        enabled: 'no'
+        state: stopped
+        masked: 'yes'
+      when:
+        - '\\"autofs.socket\\" in socket_file_exists.stdout_lines[1]'
+        - >-
+          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
+          != \\"docker\\"
       notify: insights_reboot_handler
   handlers:
     - name: insights_reboot_handler

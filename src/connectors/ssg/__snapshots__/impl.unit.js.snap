@@ -22,10 +22,19 @@ exports[`ssg impl returns template 1`] = `
   tasks:
 
     - name: Enable service rsyslog
-      service:
-        name: rsyslog
-        enabled: 'yes'
-        state: started
+      block:
+
+        - name: Gather the package facts
+          package_facts:
+            manager: auto
+
+        - name: Enable service rsyslog
+          service:
+            name: rsyslog
+            enabled: 'yes'
+            state: started
+          when:
+            - '\\"rsyslog\\" in ansible_facts.packages'
       when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
         != \\"docker\\"
 "

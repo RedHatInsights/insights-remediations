@@ -11,7 +11,7 @@
     - CJIS-5.5.6
     - DISA-STIG-RHEL-07-010470
     - NIST-800-171-3.1.12
-    - NIST-800-53-AC-17
+    - NIST-800-53-AC-17(a)
     - NIST-800-53-AC-3
     - NIST-800-53-CM-6(b)
     - disable_host_auth
@@ -38,7 +38,7 @@
             create: true
             line: HostbasedAuthentication no
             state: present
-            insertbefore: ^Match
+            insertbefore: ^[#\s]*Match
             validate: /usr/sbin/sshd -t -f %s
       when: ansible_virtualization_role != "guest" or ansible_virtualization_type
         != "docker"
