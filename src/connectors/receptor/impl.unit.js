@@ -7,42 +7,97 @@ const { mockRequest } = require('../testUtils');
 const request = require('../../util/request');
 const errors = require('../../errors');
 
+const PLAYBOOKRUNREQUEST = {
+    remediation_id: '355986a3-5f37-40f7-8f36-c3ac928ce190',
+    playbook_run_id: '355986a3-5f37-40f7-8f36-c3ac928ce222',
+    account: '540155',
+    hosts: 'host1, host2',
+    playbook: 'some playbook',
+    config: {
+        text_updates: true,
+        text_update_interval: 5000,
+        text_update_full: true
+    }
+};
+
+const RECEPTORWORKREQUEST = {
+    account: '540155',
+    recipient: 'node-a',
+    payload: PLAYBOOKRUNREQUEST,
+    directive: 'receptor_satellite:execute'
+};
+
 describe('receptor impl', function () {
     beforeEach(mockRequest);
 
-    test('get connection status', async function () {
-        const http = base.getSandbox().stub(request, 'run').resolves({
-            statusCode: 200,
-            body: {status: 'connected'},
-            headers: {}
+    describe('connection status', function () {
+        test('get connection status', async function () {
+            const http = base.getSandbox().stub(request, 'run').resolves({
+                statusCode: 200,
+                body: {status: 'connected'},
+                headers: {}
+            });
+
+            const result = await impl.getConnectionStatus('540155', 'node-a');
+            result.should.have.property('status', 'connected');
+
+            const options = http.args[0][0];
+            options.headers.should.have.size(2);
+            options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
+            options.headers.should.have.property('x-rh-identity', 'identity');
         });
 
-        const result = await impl.getConnectionStatus('540155', 'node-a');
-        result.should.have.property('status', 'connected');
+        test('returns null when account or node is incorrect', async function () {
+            base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
+            await expect(impl.getConnectionStatus('540155', 'node-a')).resolves.toBeNull();
+        });
 
-        const options = http.args[0][0];
-        options.headers.should.have.size(2);
-        options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-        options.headers.should.have.property('x-rh-identity', 'identity');
+        test('ping', async function () {
+            base.getSandbox().stub(Connector.prototype, 'doHttp').resolves({status: 'connected'});
+            await impl.ping();
+        });
+
+        test('connection error handling', async function () {
+            base.mockRequestError();
+            expect(impl.getConnectionStatus('540155', 'node-a')).rejects.toThrow(errors.DependencyError);
+        });
+
+        test('status code handling', async function () {
+            base.mockRequestStatusCode();
+            expect(impl.getConnectionStatus('540155', 'node-a')).rejects.toThrow(errors.DependencyError);
+        });
     });
 
-    test('returns null when account or node is incorrect', async function () {
-        base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
-        await expect(impl.getConnectionStatus('540155', 'node-a')).resolves.toBeNull();
-    });
+    describe('initial work request', function () {
+        test('post receptor work request', async function () {
+            const http = base.getSandbox().stub(request, 'run').resolves({
+                statusCode: 200,
+                body: {id: '355986a3-5f37-40f7-8f36-c3ac928ce190'},
+                headers: {}
+            });
 
-    test('ping', async function () {
-        base.getSandbox().stub(Connector.prototype, 'doHttp').resolves({status: 'connected'});
-        await impl.ping();
-    });
+            const result = await impl.postInitialRequest(RECEPTORWORKREQUEST);
+            result.should.have.property('id', '355986a3-5f37-40f7-8f36-c3ac928ce190');
 
-    test('connection error handling', async function () {
-        base.mockRequestError();
-        expect(impl.getConnectionStatus('540155', 'node-a')).rejects.toThrow(errors.DependencyError);
-    });
+            const options = http.args[0][0];
+            options.headers.should.have.size(2);
+            options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
+            options.headers.should.have.property('x-rh-identity', 'identity');
+        });
 
-    test('status code handling', async function () {
-        base.mockRequestStatusCode();
-        expect(impl.getConnectionStatus('540155', 'node-a')).rejects.toThrow(errors.DependencyError);
+        test('returns null receptorWorkRequest is incorrect', async function () {
+            base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
+            await expect(impl.postInitialRequest(RECEPTORWORKREQUEST)).resolves.toBeNull();
+        });
+
+        test('connection error handling receptorWorkRequest', async function () {
+            base.mockRequestError();
+            expect(impl.postInitialRequest(RECEPTORWORKREQUEST)).rejects.toThrow(errors.DependencyError);
+        });
+
+        test('status code handling receptorWorkRequest', async function () {
+            base.mockRequestStatusCode();
+            expect(impl.postInitialRequest(RECEPTORWORKREQUEST)).rejects.toThrow(errors.DependencyError);
+        });
     });
 });

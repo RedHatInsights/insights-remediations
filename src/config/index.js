@@ -192,6 +192,13 @@ const config = {
         host: env.REDIS_HOST || 'localhost',
         port: parseIntEnv('REDIS_PORT', 6379),
         password: env.REDIS_PASSWORD || undefined
+    },
+
+    // responses
+    fifi: {
+        text_updates: env.FIFI_TEXT_UPDATES === 'false' ? false : true,
+        text_update_interval: parseIntEnv('FIFI_TEXT_UPDATE_INTERVAL', 5000),
+        text_update_full: env.FIFI_TEXT_UPDATE_FULL === 'false' ? false : true
     }
 };
 

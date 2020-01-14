@@ -12,6 +12,7 @@ module.exports = new class extends Connector {
     constructor () {
         super(module);
         this.statusMetrics = metrics.createConnectorMetric(this.getName, 'getConnectionStatus');
+        this.statusMetrics = metrics.createConnectorMetric(this.getName, 'postInitialRequest');
     }
 
     async getConnectionStatus (account_num, node) {
@@ -27,6 +28,28 @@ module.exports = new class extends Connector {
             body: {
                 account: account_num,
                 node_id: node
+            }
+        }, this.statusMetrics);
+
+        if (_.isEmpty(result)) {
+            return null;
+        }
+
+        return result;
+    }
+
+    async postInitialRequest (receptorWorkRequest) {
+        const uri = new URI(host);
+        uri.path('/job');
+
+        const result = await this.doHttp ({
+            uri: uri.toString(),
+            method: 'POST',
+            json: true,
+            rejectUnauthorized: !insecure,
+            headers: this.getForwardedHeaders(),
+            body: {
+                receptorWorkRequest
             }
         }, this.statusMetrics);
 

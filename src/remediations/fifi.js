@@ -2,10 +2,14 @@
 
 const _ = require('lodash');
 const P = require('bluebird');
+const uuid = require('uuid/v4');
 
+const format = require('./remediations.format');
+const generator = require('../generator/generator.controller');
 const inventory = require('../connectors/inventory');
 const sources = require('../connectors/sources');
 const receptorConnector = require('../connectors/receptor');
+const log = require('../util/log');
 
 const SATELLITE_TAG = Object.freeze({namespace: 'satellite', key: 'satellite_id'});
 const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_name']);
@@ -91,6 +95,10 @@ function normalize (satellites) {
     }));
 }
 
+exports.generatePlaybookRunId = function () {
+    return uuid();
+};
+
 exports.getConnectionStatus = async function (remediation, account) {
     const systemsIds = _(remediation.issues).flatMap('systems').map('system_id').uniq().sort().value();
     const systems = await fetchSystems(systemsIds);
@@ -127,4 +135,48 @@ exports.filterIssuesPerExecutor = async function (systems, remediationIssues) {
     .value();
 
     return filtered;
+};
+
+exports.sendInitialRequest = async function (status, remediation, account) {
+    const playbook_run_id = exports.generatePlaybookRunId();
+    const executors = _.filter(status, {status: 'connected'});
+    const remediationIssues = remediation.toJSON().issues;
+
+    if (_.isEmpty(executors)) {
+        return null;
+    }
+
+    try {
+        await P.mapSeries(executors, async (executor, index) => {
+            const filteredIssues = generator.normalizeIssues(
+                await exports.filterIssuesPerExecutor(executor.systems, remediationIssues)
+            );
+
+            const playbook = await generator.playbookPipeline ({
+                issues: filteredIssues,
+                auto_reboot: remediation.auto_reboot
+            }, remediation, false);
+
+            const resolvedIssues = await generator.resolveSystems(filteredIssues);
+            const receptorWorkRequest = format.receptorWorkRequest(format.playbookRunRequest(
+                remediation,
+                resolvedIssues,
+                playbook,
+                playbook_run_id), account, executor.receptorId);
+
+            const result = await receptorConnector.postInitialRequest(receptorWorkRequest);
+
+            if (index === 0 && _.isError(result)) {
+                throw result;
+            }
+
+            if (!index === 0 && _.isError(result)) {
+                log.error('ERROR: Receptor Connecter failed to post a work request');
+            }
+        });
+    } catch (e) {
+        return e;
+    }
+
+    return {id: playbook_run_id};
 };

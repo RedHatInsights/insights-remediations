@@ -128,3 +128,34 @@ exports.connectionStatus = function (executors) {
         data
     };
 };
+
+function getUniqueHosts (issues) {
+    return _(issues).flatMap('hosts').uniq().sort().value();
+}
+
+exports.playbookRunRequest = function (remediation, issues, playbook, playbookRunId) {
+    const uniqueHosts = getUniqueHosts(issues);
+
+    return {
+        remediation_id: remediation.id,
+        playbook_run_id: playbookRunId,
+        remediation_name: remediation.name,
+        account: remediation.account_number,
+        hosts: uniqueHosts,
+        playbook: playbook.yaml,
+        config: {
+            fifi_text_updates: config.fifi.text_updates,
+            fifi_text_update_interval: config.fifi.text_update_interval,
+            fifi_text_update_full: config.fifi.text_update_full
+        }
+    };
+};
+
+exports.receptorWorkRequest = function (playbookRunRequest, account_number, receptor_id) {
+    return {
+        account: account_number,
+        recipient: receptor_id,
+        payload: playbookRunRequest,
+        directive: 'receptor_satellite:execute'
+    };
+};

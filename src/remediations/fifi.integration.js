@@ -1,7 +1,11 @@
 'use strict';
 
-const { request, auth } = require('../test');
+const { request, auth, mockDate, mockPlaybookRunId } = require('../test');
 const utils = require('../middleware/identity/utils');
+const receptor = require('../connectors/receptor');
+const fifi = require('../remediations/fifi');
+const base = require('../test');
+const errors = require('../errors');
 
 describe('FiFi', function () {
     describe('connection status', function () {
@@ -66,7 +70,14 @@ describe('FiFi', function () {
             .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
             .set(auth.fifi)
             .set('if-match', '"1062-Pl88DazTBuJo//SQVNUn6pZAllk"')
-            .expect(204);
+            .expect(201);
+        });
+
+        test('400 post playbook run', async () => {
+            await request
+            .set(auth.fifi)
+            .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d150000/connection_status')
+            .expect(400);
         });
 
         test('execute playbook run with false smartManagement', async () => {
@@ -79,24 +90,22 @@ describe('FiFi', function () {
             .expect(403);
         });
 
-        // This will NOT return 204 once fully implemented
         test('sets ETag', async () => {
             const {headers} = await request
             .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs?pretty')
             .set(auth.fifi)
             .set('if-match', '"1062-Pl88DazTBuJo//SQVNUn6pZAllk"')
-            .expect(204);
+            .expect(201);
 
             headers.etag.should.equal('"1062-Pl88DazTBuJo//SQVNUn6pZAllk"');
         });
 
-        // This will NOT return 204 once fully implemented
         test('304s on ETag match', async () => {
             await request
             .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
             .set(auth.fifi)
             .set('if-match', '"1062-Pl88DazTBuJo//SQVNUn6pZAllk"')
-            .expect(204);
+            .expect(201);
         });
 
         test('returns 412 if ETags not match', async () => {
@@ -113,7 +122,52 @@ describe('FiFi', function () {
             await request
             .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
             .set(auth.fifi)
-            .expect(204);
+            .expect(201);
+        });
+
+        test('check object being send to receptor connector', async function () {
+            mockDate();
+            mockPlaybookRunId();
+
+            const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
+
+            await request
+            .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
+            .set(auth.fifi)
+            .expect(201);
+
+            spy.callCount.should.equal(2);
+            expect(spy.args[0]).toMatchSnapshot();
+            expect(spy.args[1]).toMatchSnapshot();
+        });
+
+        test('if no executors are send to postInitialRequest', async function () {
+            base.getSandbox().stub(fifi, 'sendInitialRequest').resolves(null);
+
+            await request
+            .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
+            .set(auth.fifi)
+            .expect(400);
+        });
+
+        test('if 1st executor result from receptor connector is request error', async function () {
+            base.getSandbox().stub(receptor, 'postInitialRequest').rejects(new errors.DependencyError('bad request', receptor));
+
+            await request
+            .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
+            .set(auth.fifi)
+            .expect(503);
+        });
+
+        test('if 2nd executor result from receptor is request error', async function () {
+            base.getSandbox().stub(receptor, 'postInitialRequest')
+            .onCall(2)
+            .rejects(new errors.DependencyError('bad request', receptor));
+
+            await request
+            .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
+            .set(auth.fifi)
+            .expect(201);
         });
     });
 });

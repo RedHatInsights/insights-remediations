@@ -7,6 +7,7 @@ const uuid = require('uuid');
 
 const app = require('../app');
 const config = require('../config');
+const fifi = require('../remediations/fifi');
 const vmaas = require('../connectors/vmaas');
 const identityUtils = require('../middleware/identity/utils');
 const USERS = require('../../src/connectors/users/mock').MOCK_USERS;
@@ -142,3 +143,7 @@ exports.normalizePlaybookVersionForSnapshot = function (text) {
     text = text.replace(/^# Version: mock$/mg, '# Version: NORMALIZED_PLACEHOLDER');
     return text;
 };
+
+exports.mockPlaybookRunId = () => exports.sandbox.stub(
+    fifi, 'generatePlaybookRunId').returns('249f142c-2ae3-4c3f-b2ec-c8c588999999'
+);

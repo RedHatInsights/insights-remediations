@@ -229,8 +229,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/RemediationId'
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Created
           content:
             application/json:
               schema:

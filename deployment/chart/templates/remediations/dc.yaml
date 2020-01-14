@@ -185,6 +185,13 @@ spec:
         - name: SSG_HOST
           value: {{ .Values.remediations.ssg.host }}
 
+        - name: FIFI_TEXT_UPDATES
+          value: "true"
+        - name: FIFI_TEXT_UPDATE_INTERVAL
+          value: "5000"
+        - name: FIFI_TEXT_UPDATE_FULL
+          vaalue: "true"
+
         - name: USERS_IMPL
           value: {{ .Values.remediations.users.impl }}
         - name: USERS_HOST

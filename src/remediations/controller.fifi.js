@@ -1,19 +1,17 @@
 'use strict';
 
 const _ = require('lodash');
-const P = require('bluebird');
 const etag = require('etag');
 
 const errors = require('../errors');
 const queries = require('./remediations.queries');
 const format = require('./remediations.format');
-const generator = require('../generator/generator.controller');
 
 const fifi = require('./fifi');
 
-const noContent = res => res.sendStatus(204);
 const notMatching = res => res.sendStatus(412);
 const notFound = res => res.status(404).json();
+const badRequest = res => res.sendStatus(400);
 
 exports.connection_status = errors.async(async function (req, res) {
     const remediation = await queries.get(req.params.id, req.user.account_number, req.user.username);
@@ -29,7 +27,6 @@ exports.connection_status = errors.async(async function (req, res) {
 
 exports.executePlaybookRuns = errors.async(async function (req, res) {
     const remediation = await queries.get(req.params.id, req.user.account_number, req.user.username);
-    const remediationIssues = remediation.toJSON().issues;
 
     if (!remediation) {
         return notFound(res);
@@ -44,19 +41,15 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
         return notMatching(res);
     }
 
-    const executors = _.filter(status, {status: 'connected'});
+    const result = await fifi.sendInitialRequest(status, remediation, req.identity.account_number);
 
-    await P.map(executors, async executor => {
-        const filteredIssues = generator.normalizeIssues(
-            await fifi.filterIssuesPerExecutor(executor.systems, remediationIssues)
-        );
-        // add playbook variable later
-        await generator.playbookPipeline ({
-            issues: filteredIssues,
-            auto_reboot: remediation.auto_reboot
-        }, remediation, false);
-    });
+    if (_.isNull(result)) {
+        return badRequest(res);
+    }
 
-    // This will be changed later
-    return noContent(res);
+    if (_.isError(result)) {
+        res.status(result.error.status).send(result.error.title);
+    }
+
+    res.status(201).send(result);
 });

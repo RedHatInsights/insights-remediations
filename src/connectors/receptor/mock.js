@@ -3,6 +3,7 @@
 const Connector = require('../Connector');
 
 const CONNECTION_STATUS = {status: 'connected'};
+const WORK_RESPONSE = {id: '355986a3-5f37-40f7-8f36-c3ac928ce190'};
 
 module.exports = new class extends Connector {
     constructor () {
@@ -15,6 +16,10 @@ module.exports = new class extends Connector {
         }
 
         return CONNECTION_STATUS;
+    }
+
+    async postInitialRequest () {
+        return WORK_RESPONSE;
     }
 
     async ping () {

@@ -27,7 +27,7 @@ exports.normalizeIssues = function (issues) {
 };
 
 exports.playbookPipeline = async function ({issues, auto_reboot = true}, remediation = false, strict = true) {
-    await resolveSystems(issues, strict);
+    await exports.resolveSystems(issues, strict);
     issues.forEach(issue => issue.id = identifiers.parse(issue.id));
 
     issues = await P.map(issues, issue => issueManager.getPlayFactory(issue.id).createPlay(issue, strict).catch((e) => {
@@ -70,7 +70,7 @@ exports.generate = errors.async(async function (req, res) {
     return exports.send(req, res, playbook);
 });
 
-async function resolveSystems (issues, strict = true) {
+exports.resolveSystems = async function (issues, strict = true) {
     const systemIds = _(issues).flatMap('systems').uniq().value();
 
     // bypass cache as ansible_host may change so we want to grab the latest one
@@ -99,7 +99,7 @@ async function resolveSystems (issues, strict = true) {
     }
 
     return issues;
-}
+};
 
 function addRebootPlay (plays, autoReboot = true) {
     const rebootRequiringPlays = _.filter(plays, play => play.needsReboot());
