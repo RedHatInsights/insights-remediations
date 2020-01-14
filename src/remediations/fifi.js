@@ -115,3 +115,16 @@ exports.getConnectionStatus = async function (remediation, account) {
 
     return normalize(satellites);
 };
+
+exports.filterIssuesPerExecutor = async function (systems, remediationIssues) {
+    const executorSystemsById = _.keyBy(systems, 'id');
+    const filtered = _(_.cloneDeep(remediationIssues))
+    .map(issue => ({
+        ...issue,
+        systems: _.filter(issue.systems, system => _.has(executorSystemsById, system.system_id))
+    }))
+    .filter(issue => issue.systems.length)
+    .value();
+
+    return filtered;
+};

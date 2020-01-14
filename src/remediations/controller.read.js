@@ -211,13 +211,10 @@ exports.playbook = errors.async(async function (req, res) {
         return noContent(res);
     }
 
-    issues.forEach(issue => {
-        issue.id = issue.issue_id;
-        issue.systems = _.map(issue.systems, 'system_id');
-    });
+    const normalizedIssues = generator.normalizeIssues(issues);
 
     const playbook = await generator.playbookPipeline({
-        issues,
+        issues: normalizedIssues,
         auto_reboot: remediation.auto_reboot
     }, remediation, false);
 

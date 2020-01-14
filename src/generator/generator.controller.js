@@ -17,6 +17,15 @@ const db = require('../db');
 const probes = require('../probes');
 const { commit } = require('../util/version');
 
+exports.normalizeIssues = function (issues) {
+    issues.forEach(issue => {
+        issue.id = issue.issue_id;
+        issue.systems = _.map(issue.systems, 'system_id');
+    });
+
+    return issues;
+};
+
 exports.playbookPipeline = async function ({issues, auto_reboot = true}, remediation = false, strict = true) {
     await resolveSystems(issues, strict);
     issues.forEach(issue => issue.id = identifiers.parse(issue.id));
