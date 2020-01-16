@@ -35,7 +35,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
 
     res.set('etag', currentEtag);
 
-    if (req.headers['if-none-match'] && currentEtag !== req.headers['if-none-match']) {
+    if (req.headers['if-match'] && currentEtag !== req.headers['if-match']) {
         return notMatching(res);
     }
 
