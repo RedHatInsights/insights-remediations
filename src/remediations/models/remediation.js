@@ -45,6 +45,10 @@ module.exports = (sequelize, {BOOLEAN, STRING, UUID}) => {
         Remediation.hasMany(models.issue, {
             foreignKey: 'remediation_id'
         });
+
+        Remediation.hasMany(models.playbook_runs, {
+            foreignKey: 'remediation_id'
+        });
     };
 
     return Remediation;
