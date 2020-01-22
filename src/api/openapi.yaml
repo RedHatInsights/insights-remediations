@@ -239,8 +239,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
 
   /resolutions/{issue}:
     get:
@@ -682,7 +682,7 @@ components:
           type: number
           description: total number of results matching the query
           example: 114
-          
+
     ExecuteRemediation:
       type: object
       additionalProperties: false
@@ -1001,8 +1001,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/RequestError'
-    Conflict:
-      description: Request Conflict
+    PreconditionFailed:
+      description: One or more conditions given in the request header fields evaluated to false
 
   examples:
     RemediationLinks:

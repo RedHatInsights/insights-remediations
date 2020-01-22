@@ -99,12 +99,12 @@ describe('FiFi', function () {
             .expect(204);
         });
 
-        test('returns 409 if ETags not match', async () => {
+        test('returns 412 if ETags not match', async () => {
             const {headers} = await request
             .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
             .set(auth.fifi)
             .set('if-match', '"1062-Pl88DazTBuJo//SQVNUn6pZAlmk"')
-            .expect(409);
+            .expect(412);
 
             headers.etag.should.equal('"1062-Pl88DazTBuJo//SQVNUn6pZAllk"');
         });

@@ -12,7 +12,7 @@ const generator = require('../generator/generator.controller');
 const fifi = require('./fifi');
 
 const noContent = res => res.sendStatus(204);
-const notMatching = res => res.sendStatus(409);
+const notMatching = res => res.sendStatus(412);
 const notFound = res => res.status(404).json();
 
 exports.connection_status = errors.async(async function (req, res) {
