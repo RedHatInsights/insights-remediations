@@ -1,7 +1,7 @@
 'use strict';
 
 const errors = require('../errors');
-const PATTERN = /^(advisor|vulnerabilities|ssg|test):([\w\d_|:\\.-]+)$/;
+const PATTERN = /^(advisor|vulnerabilities|ssg|test|patch-advisory):([\w\d_|:\\.-]+)$/;
 const SSG_PATTERN = /^([\w-]+)\|([\w-]+)\|xccdf_org\.ssgproject\.content_rule_([\w\d-_:\\.]+)$/;
 
 function match (id) {

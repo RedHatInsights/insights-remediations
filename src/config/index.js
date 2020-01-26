@@ -114,6 +114,12 @@ const config = {
         pageSize: parseIntEnv('INVENTORY_PAGE_SIZE', 100)
     },
 
+    patchman: {
+        impl: env.PATCHMAN_IMPL,
+        host: env.PATCHMAN_HOST || 'http://localhost:8080',
+        revalidationInterval: parseIntEnv('PATCHMAN_REVALIDATION_INVERVAL', 60 * 60 * 12) // 12 hours
+    },
+
     receptor: {
         impl: env.RECEPTOR_IMPL,
         host: env.RECEPTOR_HOST || 'http://localhost:9090'
