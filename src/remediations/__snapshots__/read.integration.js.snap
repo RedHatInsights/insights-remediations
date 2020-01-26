@@ -101,7 +101,7 @@ exports[`remediations get get remediation 1`] = `
             \\"description\\": \\"RHSA-2018:0502\\",
             \\"resolution\\": {
                 \\"id\\": \\"fix\\",
-                \\"description\\": \\"Upgrade packages affected by RHSA-2018:0502\\",
+                \\"description\\": \\"Apply RHSA-2018:0502\\",
                 \\"resolution_risk\\": -1,
                 \\"needs_reboot\\": true
             },

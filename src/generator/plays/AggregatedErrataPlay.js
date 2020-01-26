@@ -4,7 +4,7 @@ const _ = require('lodash');
 const Play = require('./Play');
 const version = require('../../util/version');
 const {nonEmptyArray} = require('../../util/preconditions');
-const ERRATA_TEMPLATE = require('../../templates/static').vulnerabilities.errata;
+const ERRATA_TEMPLATE = require('../../templates/static').patchman.errata;
 const CVES_TEMPLATE = require('../../templates/static').vulnerabilities.cves;
 const HEADER_TEMPLATE = require('../../templates/static').special.headerMulti;
 

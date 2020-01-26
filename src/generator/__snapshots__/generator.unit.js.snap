@@ -103,7 +103,7 @@ exports[`adds diagnosis play 1`] = `
           with_dict: \\"{{ pydata.bond_config }}\\"
 
 
-# Upgrade packages affected by RHSA-2018:0502
+# Apply RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: test
 - name: update vulnerable packages
@@ -297,7 +297,7 @@ exports[`generates an erratum-based playbook 1`] = `
 # they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
-# Upgrade packages affected by RHSA-2018:0502
+# Apply RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: test
 - name: update vulnerable packages
@@ -592,7 +592,7 @@ exports[`sorts the hosts line 1`] = `
 # they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
-# Upgrade packages affected by RHSA-2018:0502
+# Apply RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: test
 - name: update vulnerable packages

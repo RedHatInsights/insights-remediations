@@ -253,7 +253,7 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
       set_fact:
         insights_needs_reboot: True
 
-# Upgrade packages affected by RHSA-2018:0502
+# Apply RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: test
 - name: update vulnerable packages

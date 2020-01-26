@@ -9,10 +9,10 @@ exports[`aggregates multiple errata into a single play 1`] = `
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
 # Upgrade the following packages:
-#   - Upgrade packages affected by RHSA-2017:1382
-#   - Upgrade packages affected by RHSA-2017:1852
-#   - Upgrade packages affected by RHSA-2017:2679
-#   - Upgrade packages affected by RHSA-2018:0502
+#   - Apply RHSA-2017:1382
+#   - Apply RHSA-2017:1852
+#   - Apply RHSA-2017:2679
+#   - Apply RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2017:1382,vulnerabilities:RHSA-2017:1852,vulnerabilities:RHSA-2017:2679,vulnerabilities:RHSA-2018:0502,fix)
 # Version: test
 - name: update vulnerable packages
@@ -84,10 +84,10 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
 # Upgrade the following packages:
-#   - Upgrade packages affected by RHSA-2017:1382
-#   - Upgrade packages affected by RHSA-2017:1852
-#   - Upgrade packages affected by RHSA-2017:2679
-#   - Upgrade packages affected by RHSA-2018:0502
+#   - Apply RHSA-2017:1382
+#   - Apply RHSA-2017:1852
+#   - Apply RHSA-2017:2679
+#   - Apply RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2017:1382,vulnerabilities:RHSA-2017:1852,vulnerabilities:RHSA-2017:2679,vulnerabilities:RHSA-2018:0502,fix)
 # Version: test-version
 - name: update vulnerable packages
@@ -186,7 +186,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 # they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
-# Upgrade packages affected by RHSA-2018:0502
+# Apply RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: test
 - name: update vulnerable packages
@@ -212,7 +212,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
       set_fact:
         insights_needs_reboot: True
 
-# Upgrade packages affected by RHBA-2007:0331
+# Apply RHBA-2007:0331
 # Identifier: (vulnerabilities:RHBA-2007:0331,fix)
 # Version: test
 - name: update vulnerable packages
@@ -380,7 +380,7 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
 # they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
-# Upgrade packages affected by RHSA-2018:0502
+# Apply RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: test
 - name: update vulnerable packages
