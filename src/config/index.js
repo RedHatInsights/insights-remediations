@@ -123,7 +123,8 @@ const config = {
     rbac: {
         impl: env.RBAC_IMPL,
         host: env.RBAC_HOST || 'http://localhost:8080',
-        insecure: (env.RBAC_INSECURE === 'true') ? true : false
+        insecure: (env.RBAC_INSECURE === 'true') ? true : false,
+        enforce: env.RBAC_ENFORCE === 'false' ? false : true
     },
 
     receptor: {

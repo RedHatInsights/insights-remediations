@@ -1,11 +1,12 @@
 'use strict';
 
-const { request, auth, mockDate, mockPlaybookRunId } = require('../test');
+const { request, auth, mockDate, mockPlaybookRunId, buildRbacResponse } = require('../test');
 const utils = require('../middleware/identity/utils');
 const receptor = require('../connectors/receptor');
 const fifi = require('../remediations/fifi');
 const base = require('../test');
 const errors = require('../errors');
+const rbac = require('../connectors/rbac');
 
 describe('FiFi', function () {
     describe('connection status', function () {
@@ -179,6 +180,43 @@ describe('FiFi', function () {
             .expect(201);
 
             body.should.have.property('id');
+        });
+    });
+
+    describe('fifi RBAC', function () {
+        test('if user has correct RBAC permissions', async function () {
+            base.getSandbox().stub(rbac, 'getRemediationsAccess').resolves(buildRbacResponse('remediations:*:*'));
+
+            await request
+            .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
+            .set(auth.fifi)
+            .expect(201);
+        });
+
+        test('if user does not have correct RBAC permissions', async function () {
+            base.getSandbox().stub(rbac, 'getRemediationsAccess').resolves(buildRbacResponse('remediations:remediation:read'));
+
+            const {body} = await request
+            .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
+            .set(auth.fifi)
+            .expect(403);
+
+            body.errors[0].details.message.should.equal(
+                'Permission remediations:remediation:execute is required for this operation'
+            );
+        });
+
+        test('if RBAC connector returns no permissions at all', async function () {
+            base.getSandbox().stub(rbac, 'getRemediationsAccess').resolves([]);
+
+            const {body} = await request
+            .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
+            .set(auth.fifi)
+            .expect(403);
+
+            body.errors[0].details.message.should.equal(
+                'Permission remediations:remediation:execute is required for this operation'
+            );
         });
     });
 });

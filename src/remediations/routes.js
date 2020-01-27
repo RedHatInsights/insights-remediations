@@ -6,33 +6,55 @@ const fifi = require('./controller.fifi');
 const status = require('./controller.status');
 const openapi = require('../middleware/openapi');
 const smartManagement = require('../middleware/identity/smartManagement');
+const rbac = require('../middleware/rbac');
+
+const rbacRead = rbac('remediations:remediation:read');
+const rbacWrite = rbac('remediations:remediation:write');
+const rbacExecute = rbac('remediations:remediation:execute');
 
 module.exports = function (router) {
-    router.get('/remediations', openapi('getRemediations'), read.list);
-    router.post('/remediations', openapi('createRemediation'), write.create);
+    router.get('/remediations', openapi('getRemediations'), rbacRead, read.list);
+    router.post('/remediations', openapi('createRemediation'), rbacWrite, write.create);
 
-    router.get('/remediations/:id', openapi('getRemediation'), read.get);
-    router.patch('/remediations/:id', openapi('updateRemediation'), write.patch);
-    router.delete('/remediations/:id', openapi('deleteRemediation'), write.remove);
+    router.get('/remediations/:id', openapi('getRemediation'), rbacRead, read.get);
+    router.patch('/remediations/:id', openapi('updateRemediation'), rbacWrite, write.patch);
+    router.delete('/remediations/:id', openapi('deleteRemediation'), rbacWrite, write.remove);
 
-    router.get('/remediations/:id/playbook', openapi('getRemediationPlaybook'), read.playbook);
-    router.get('/remediations/:id/status', status.status); // TODO: openapi mw
+    router.get(
+        '/remediations/:id/playbook',
+        openapi('getRemediationPlaybook'),
+        rbacRead,
+        read.playbook);
 
-    router.patch('/remediations/:id/issues/:issue', openapi('updateRemediationIssue'), write.patchIssue);
-    router.delete('/remediations/:id/issues/:issue', openapi('deleteRemediationIssue'), write.removeIssue);
+    router.get('/remediations/:id/status', rbacRead, status.status); // TODO: openapi mw
+
+    router.patch(
+        '/remediations/:id/issues/:issue',
+        openapi('updateRemediationIssue'),
+        rbacWrite,
+        write.patchIssue);
+
+    router.delete(
+        '/remediations/:id/issues/:issue',
+        openapi('deleteRemediationIssue'),
+        rbacWrite,
+        write.removeIssue);
 
     router.delete(
         '/remediations/:id/issues/:issue/systems/:system',
         openapi('deleteRemediationIssueSystem'),
+        rbacWrite,
         write.removeIssueSystem);
 
     router.get('/remediations/:id/connection_status',
         openapi('getRemediationConnectionStatus'),
+        rbacExecute,
         smartManagement,
         fifi.connection_status);
 
     router.post('/remediations/:id/playbook_runs',
         openapi('runRemediation'),
+        rbacExecute,
         smartManagement,
         fifi.executePlaybookRuns);
 };

@@ -108,6 +108,28 @@ exports.auth = Object.freeze({
     fifi: createHeader(USERS.fifi.username, USERS.fifi.account_number, false)
 });
 
+exports.buildRbacResponse = function (accessedPermission) {
+    return {
+        meta: {
+            count: 1,
+            limit: 10,
+            offset: 0
+        },
+        links: {
+            first: '/api/rbac/v1/access/?application=remediations&limit=10&offset=0',
+            next: null,
+            previous: null,
+            last: '/api/rbac/v1/access/?application=remediations&limit=10&offset=0'
+        },
+        data: [
+            {
+                permission: accessedPermission,
+                resourceDefinitions: []
+            }
+        ]
+    };
+};
+
 exports.mockVmaas = function () {
     exports.sandbox.stub(vmaas, 'getErratum').callsFake(() => ({ synopsis: 'mock synopsis' }));
 };

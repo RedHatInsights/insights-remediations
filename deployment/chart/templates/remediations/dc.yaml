@@ -157,6 +157,8 @@ spec:
           value: {{ .Values.remediations.rbac.impl | default "mock" }}
         - name: RBAC_HOST
           value: {{ .Values.remediations.rbac.host }}
+        - name: RBAC_ENFORCE
+          value: "true"
 
         - name: RECEPTOR_IMPL
           value: {{ .Values.remediations.receptor.impl | default "mock" }}

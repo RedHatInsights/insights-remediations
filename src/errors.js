@@ -56,8 +56,8 @@ exports.Unauthorized = class Unauthorized extends HttpError {
 };
 
 exports.Forbidden = class Forbidden extends HttpError {
-    constructor () {
-        super(403, 'FORBIDDEN', 'Access forbidden');
+    constructor (message) {
+        super(403, 'FORBIDDEN', 'Access forbidden', {message});
     }
 };
 

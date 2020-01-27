@@ -2,7 +2,8 @@
 
 const _ = require('lodash');
 const config = require('../config');
-const { request, reqId, auth } = require('../test');
+const rbac = require('../connectors/rbac');
+const { request, reqId, auth, getSandbox, buildRbacResponse } = require('../test');
 const { NON_EXISTENT_SYSTEM } = require('../connectors/inventory/mock');
 
 function testIssue (remediation, id, resolution, systems) {
@@ -567,6 +568,56 @@ describe('remediations', function () {
             const issue = _.find(body.issues, {id: 'vulnerabilities:CVE-2017-5715'});
             issue.systems.should.have.length(1);
             issue.systems[0].id.should.equal('6749b8cf-1955-42c1-9b48-afc6a0374cd6');
+        });
+    });
+
+    describe('remediations write RBAC', function () {
+        test('permission = remediations:*:read does not allow POST /v1/remediations to run', async () => {
+            getSandbox().stub(rbac, 'getRemediationsAccess').resolves(buildRbacResponse('remediations:*:read'));
+
+            const name = 'remediation';
+
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({name})
+            .expect(403);
+
+            body.errors[0].details.message.should.equal(
+                'Permission remediations:remediation:write is required for this operation'
+            );
+        });
+
+        test('permission = remediations:resolution:* does not allow POST /v1/remediations to run', async () => {
+            getSandbox().stub(rbac, 'getRemediationsAccess').resolves(buildRbacResponse('remediations:resolution:*'));
+
+            const name = 'remediation';
+
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({name})
+            .expect(403);
+
+            body.errors[0].details.message.should.equal(
+                'Permission remediations:remediation:write is required for this operation'
+            );
+        });
+
+        test('permission = [] does not allow POST /v1/remediations to be read', async () => {
+            getSandbox().stub(rbac, 'getRemediationsAccess').resolves([]);
+
+            const name = 'remediation';
+
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({name})
+            .expect(403);
+
+            body.errors[0].details.message.should.equal(
+                'Permission remediations:remediation:write is required for this operation'
+            );
         });
     });
 });

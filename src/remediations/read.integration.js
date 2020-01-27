@@ -1,7 +1,8 @@
 'use strict';
 
 const _ = require('lodash');
-const { request, auth, reqId } = require('../test');
+const { request, auth, reqId, buildRbacResponse, getSandbox } = require('../test');
+const rbac = require('../connectors/rbac');
 
 function test400 (name, url, code, title) {
     test(name, async () => {
@@ -310,6 +311,44 @@ describe('remediations', function () {
             const remediation = _.find(body.data, {id: 'd1b070b5-1db8-4dac-8ecf-891dc1e9225f'});
             remediation.should.have.property('system_count', 0);
             remediation.should.have.property('issue_count', 0);
+        });
+    });
+
+    describe('remediations read RBAC', function () {
+        test('permission = remediations:*:write does not allow GET /v1/remediations to be read', async () => {
+            getSandbox().stub(rbac, 'getRemediationsAccess').resolves(buildRbacResponse('remediations:*:write'));
+
+            const {body} = await request
+            .get('/v1/remediations?pretty')
+            .expect(403);
+
+            body.errors[0].details.message.should.equal(
+                'Permission remediations:remediation:read is required for this operation'
+            );
+        });
+
+        test('permission = remediations:resolution:* does not allow GET /v1/remediations to be read', async () => {
+            getSandbox().stub(rbac, 'getRemediationsAccess').resolves(buildRbacResponse('remediations:resolution:*'));
+
+            const {body} = await request
+            .get('/v1/remediations?pretty')
+            .expect(403);
+
+            body.errors[0].details.message.should.equal(
+                'Permission remediations:remediation:read is required for this operation'
+            );
+        });
+
+        test('permission = [] does not allow GET /v1/remediations to be read', async () => {
+            getSandbox().stub(rbac, 'getRemediationsAccess').resolves([]);
+
+            const {body} = await request
+            .get('/v1/remediations?pretty')
+            .expect(403);
+
+            body.errors[0].details.message.should.equal(
+                'Permission remediations:remediation:read is required for this operation'
+            );
         });
     });
 });
