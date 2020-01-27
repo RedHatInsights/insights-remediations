@@ -4,6 +4,7 @@ const _ = require('lodash');
 
 const config = require('../config');
 const errors = require('../errors');
+const probes = require('../probes');
 const rbacConnector = require('../connectors/rbac');
 
 module.exports = function (permission) {
@@ -21,6 +22,8 @@ module.exports = function (permission) {
                 _.includes(accessPermissions, `remediations:*:${srcPermission.resourceType}`)) {
                 return next();
             }
+
+            probes.rbacErrorCount(permission);
 
             return next(new errors.Forbidden(
                 `Permission remediations:${srcPermission.resource}:${srcPermission.resourceType} is required for this operation`
