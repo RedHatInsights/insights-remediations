@@ -120,6 +120,12 @@ const config = {
         revalidationInterval: parseIntEnv('PATCHMAN_REVALIDATION_INVERVAL', 60 * 60 * 12) // 12 hours
     },
 
+    rbac: {
+        impl: env.RBAC_IMPL,
+        host: env.RBAC_HOST || 'http://localhost:8080',
+        insecure: (env.RBAC_INSECURE === 'true') ? true : false
+    },
+
     receptor: {
         impl: env.RECEPTOR_IMPL,
         host: env.RECEPTOR_HOST || 'http://localhost:9090'
