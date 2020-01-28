@@ -17,6 +17,11 @@ Insights Remediations supports the following types of remediations:
     This remediation type is used by the Vulnerability application.
     A single [generic template](https://github.com/RedHatInsights/insights-remediations/blob/master/src/templates/static/vulnerabilities/cves.yml), which remediates the given set of CVEs by upgrading relevant packages, is used.
 
+1. Erratum-based
+
+    This remediation type is used by the System Patch Manager application.
+    A single [generic template](https://github.com/RedHatInsights/insights-remediations/blob/master/src/templates/static/patchman/errata.yml), which remediates the given set of erratum by upgrading relevant packages, is used.
+
 1. SCAP Security Guide (SSG)
 
     This remediation type is used by the Compliance application.

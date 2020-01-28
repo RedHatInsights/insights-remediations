@@ -161,6 +161,25 @@ describe('resolve ssg resolutions', function () {
     });
 });
 
+describe('resolve patchman resolutions', function () {
+    test('resolution info', async () => {
+        const {body} = await request
+        .get('/v1/resolutions/patch-advisory:RHBA-2019:4105')
+        .expect(200);
+
+        body.should.eql({
+            id: 'patch-advisory:RHBA-2019:4105',
+            resolution_risk: -1,
+            resolutions: [{
+                description: 'Apply RHBA-2019:4105',
+                id: 'fix',
+                needs_reboot: true,
+                resolution_risk: -1
+            }]
+        });
+    });
+});
+
 describe('batch', function () {
     test('400s on empty list', async () => {
         await request

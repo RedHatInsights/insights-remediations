@@ -13,8 +13,4 @@ module.exports = class ErratumResolver extends CVEResolver {
     build(id, entity) {
         return ErratumResolution.forAdvisory(id, entity);
     }
-
-    resolveResolutions (id) {
-        return super.resolveResolutions(id);
-    }
 };
