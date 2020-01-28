@@ -1,6 +1,5 @@
 'use strict';
 
-const config = require('../config');
 const errors = require('../errors');
 
 const ERRATUM_PATTERN = /^RH[SBE]A-20[\d]{2}:[\d]{4,5}/;
@@ -28,11 +27,8 @@ function getHandler (id) {
             }
 
             throw errors.unknownIssue(id);
-        case 'test':
-            if (config.env !== 'production') { // disable test handler in prod
-                return testHandler;
-            }
 
+        case 'test': return testHandler;
         case 'patch-advisory': return patchmanHandler;
         default:
             throw errors.unknownIssue(id);
