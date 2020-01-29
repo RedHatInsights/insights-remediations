@@ -32,7 +32,7 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        const result = await this.getTemplate('rhel7', 'pci-dss', 'xccdf_org.ssgproject.content_rule_file_owner_etc_passwd');
+        const result = await this.getTemplate('rhel7', 'pci-dss', 'file_owner_etc_passwd');
         assert(result !== null);
     }
 }();
