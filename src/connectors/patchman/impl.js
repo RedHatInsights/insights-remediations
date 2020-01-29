@@ -33,7 +33,7 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        const result = await this.getCve('RHBA-2019:0689', true);
-        assert(result.synopsis === 'RHBA-2019:0689');
+        const result = await this.getErratum('RHBA-2019:0689', true);
+        assert(result.id === 'RHBA-2019:0689');
     }
 }();
