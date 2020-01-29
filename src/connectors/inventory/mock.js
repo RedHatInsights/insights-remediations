@@ -31,6 +31,8 @@ const SATELLITES = [
 ];
 
 function generateSystem (id) {
+    const satelliteIndex = parseInt(id[id.length - 1], 16) % SATELLITES.length;
+
     if (id === NON_EXISTENT_SYSTEM) {
         return null;
     }
@@ -44,31 +46,16 @@ function generateSystem (id) {
         id,
         hostname: (/^[0-8]/.test(id) ? `${id}.example.com` : id),
         display_name: (id.startsWith('9') ? `${id}-system` : null),
-        ansible_host: ((id.startsWith('9') || id.startsWith('1')) ? `${id}.ansible.example.com` : null)
+        ansible_host: ((id.startsWith('9') || id.startsWith('1')) ? `${id}.ansible.example.com` : null),
+        facts: [
+            {
+                namespace: 'satellite',
+                facts: {
+                    satellite_instance_id: _.get(SATELLITES, satelliteIndex)
+                }
+            }
+        ]
     };
-}
-
-function generateTags (id) {
-    if (id === NON_EXISTENT_SYSTEM) {
-        return null;
-    }
-
-    if (SYSTEMS.hasOwnProperty(id)) {
-        // eslint-disable-next-line security/detect-object-injection
-        return [];
-    }
-
-    const satelliteIndex = parseInt(id[id.length - 1], 16) % SATELLITES.length;
-
-    return [{
-        namespace: 'satellite',
-        key: 'satellite_id',
-        value: _.get(SATELLITES, satelliteIndex)
-    }, {
-        namespace: 'insights-client',
-        key: 'env',
-        value: 'test'
-    }];
 }
 
 module.exports = new class extends Connector {
@@ -111,14 +98,6 @@ module.exports = new class extends Connector {
             hostname: 'jozef-cert01',
             updated: '2018-12-19T15:59:47.954018Z'
         }];
-    }
-
-    getTagsByIds (systems) {
-        return Promise.resolve(_(systems)
-        .keyBy()
-        .mapValues(generateTags)
-        .pickBy()
-        .value());
     }
 
     ping () {}

@@ -11,25 +11,22 @@ const sources = require('../connectors/sources');
 const receptorConnector = require('../connectors/receptor');
 const log = require('../util/log');
 
-const SATELLITE_TAG = Object.freeze({namespace: 'satellite', key: 'satellite_id'});
+const SATELLITE_NAMESPACE = Object.freeze({namespace: 'satellite'});
 const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_name']);
 
 async function fetchSystems (ids) {
-    const [systemDetails, systemTags] = await P.all([
-        inventory.getSystemDetailsBatch(ids),
-        inventory.getTagsByIds(ids)
-    ]);
+    const systemDetails = await inventory.getSystemDetailsBatch(ids);
 
     return _(ids).map(id => _.get(systemDetails, id)).filter().map(system => {
-        system.tags = _.get(systemTags, system.id, []);
         return system;
     }).value();
 }
 
-function getSatelliteId (tags) {
-    const tag = _.find(tags, SATELLITE_TAG);
-    if (tag) {
-        return tag.value;
+function getSatelliteId (facts) {
+    const satelliteFacts = _.find(facts, SATELLITE_NAMESPACE);
+
+    if (satelliteFacts) {
+        return satelliteFacts.facts.satellite_instance_id;
     }
 
     return null;
@@ -103,7 +100,7 @@ exports.getConnectionStatus = async function (remediation, account) {
     const systemsIds = _(remediation.issues).flatMap('systems').map('system_id').uniq().sort().value();
     const systems = await fetchSystems(systemsIds);
 
-    _.forEach(systems, system => system.satelliteId = getSatelliteId(system.tags));
+    _.forEach(systems, system => system.satelliteId = getSatelliteId(system.facts));
 
     const satellites = _(systems).groupBy('satelliteId').mapValues(systems => ({
         id: systems[0].satelliteId,

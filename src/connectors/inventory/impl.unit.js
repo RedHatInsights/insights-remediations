@@ -53,7 +53,14 @@ describe('inventory impl', function () {
                         bios_uuid: 'B2BC4439-2ACA-474A-8904-98F9708428AC',
                         created: '2018-12-19T14:59:47.954014Z',
                         display_name: null,
-                        facts: [],
+                        facts: [
+                            {
+                                namespace: 'satellite',
+                                facts: {
+                                    satellite_instance_id: '3ec37799-a5b9-418f-a763-9d2e0ccf1fff'
+                                }
+                            }
+                        ],
                         fqdn: 'packer-rhel7',
                         id: '9615dda7-5868-4957-88ba-c3064c86d332',
                         insights_id: '3ec37799-a5b9-418f-a763-9d2e0ccf1ff7',
@@ -82,6 +89,7 @@ describe('inventory impl', function () {
         result.should.have.property('id', '9615dda7-5868-4957-88ba-c3064c86d332');
         result.should.have.property('hostname', 'packer-rhel7');
         result.should.have.property('display_name', null);
+        result.facts[0].facts.should.have.property('satellite_instance_id', '3ec37799-a5b9-418f-a763-9d2e0ccf1fff');
 
         http.callCount.should.equal(1);
         const options = http.args[0][0];
@@ -241,97 +249,6 @@ describe('inventory impl', function () {
             result.should.has.size(2);
             result[0].should.have.property('insights_id', '3ecd82fb-abdd-471c-9ca2-249c055644b8');
             result[1].should.have.property('insights_id', '3ecd82fb-abdd-471c-9ca2-249c055644b8');
-        });
-    });
-
-    describe('getTagsByIds', function () {
-        test('obtains tag info', async function () {
-            const cache = mockCache();
-            const http = base.getSandbox().stub(request, 'run').resolves({
-                statusCode: 200,
-                body: {
-                    count: 1,
-                    page: 1,
-                    per_page: 50,
-                    results: {
-                        '3ecd82fb-abdd-471c-9ca2-249c055644b8': [
-                            {
-                                key: 'string',
-                                namespace: 'string',
-                                value: 'string'
-                            }
-                        ]
-                    },
-                    total: 1
-                },
-                headers: {}
-            });
-
-            const results = await impl.getTagsByIds(['id']);
-            results.should.have.size(1);
-            results.should.have.property('3ecd82fb-abdd-471c-9ca2-249c055644b8');
-            const result = results['3ecd82fb-abdd-471c-9ca2-249c055644b8'];
-            result[0].should.have.property('key', 'string');
-            result[0].should.have.property('namespace', 'string');
-            result[0].should.have.property('value', 'string');
-
-            http.callCount.should.equal(1);
-            const options = http.args[0][0];
-            options.headers.should.have.size(2);
-            options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-            options.headers.should.have.property('x-rh-identity', 'identity');
-            cache.get.callCount.should.equal(1);
-            cache.setex.callCount.should.equal(1);
-
-            await impl.getTagsByIds(['id']);
-            cache.get.callCount.should.equal(2);
-            cache.setex.callCount.should.equal(1);
-        });
-
-        test('retries on failure', async function () {
-            const cache = mockCache();
-            const http = base.getSandbox().stub(request, 'run');
-            http.onFirstCall().rejects(new RequestError('Error: socket hang up'));
-            http.onSecondCall().rejects(new RequestError('Error: socket hang up'));
-            http.resolves({
-                statusCode: 200,
-                body: {
-                    count: 1,
-                    page: 1,
-                    per_page: 50,
-                    results: {
-                        '3ecd82fb-abdd-471c-9ca2-249c055644b8': [
-                            {
-                                key: 'string',
-                                namespace: 'string',
-                                value: 'string'
-                            }
-                        ]
-                    },
-                    total: 1
-                },
-                headers: {}
-            });
-
-            const results = await impl.getTagsByIds(['id']);
-            results.should.have.size(1);
-            results.should.have.property('3ecd82fb-abdd-471c-9ca2-249c055644b8');
-            const result = results['3ecd82fb-abdd-471c-9ca2-249c055644b8'];
-            result[0].should.have.property('key', 'string');
-            result[0].should.have.property('namespace', 'string');
-            result[0].should.have.property('value', 'string');
-
-            http.callCount.should.equal(3);
-            const options = http.args[0][0];
-            options.headers.should.have.size(2);
-            options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-            options.headers.should.have.property('x-rh-identity', 'identity');
-            cache.get.callCount.should.equal(3);
-            cache.setex.callCount.should.equal(1);
-
-            await impl.getTagsByIds(['id']);
-            cache.get.callCount.should.equal(4);
-            cache.setex.callCount.should.equal(1);
         });
     });
 });
