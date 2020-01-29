@@ -53,7 +53,7 @@ describe('rbac impl', function () {
         result.data[0].should.have.property('resourceDefinitions', []);
 
         const options = http.args[0][0];
-        options.uri.should.equal('http://localhost:8080/api/rbac/v1/access?application=remediations')
+        options.uri.should.equal('http://localhost:8080/api/rbac/v1/access?application=remediations');
         options.headers.should.have.size(2);
         options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
         options.headers.should.have.property('x-rh-identity', 'identity');
