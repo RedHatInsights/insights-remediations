@@ -44,6 +44,9 @@ remediations:
   ssg:
     impl: impl
     host: http://playbooks-ssg:8080
+  rbac:
+    impl: impl
+    host: http://rbac.rbac-qa.svc.cluster.local:8080
 
 ssg:
   requestsCPU: 100m

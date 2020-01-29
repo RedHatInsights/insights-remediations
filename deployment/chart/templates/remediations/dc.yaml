@@ -153,6 +153,11 @@ spec:
         - name: PATH_PREFIX
           value: {{ .Values.remediations.pathPrefix | default "/api" }}
 
+        - name: RBAC_IMPL
+          value: {{ .Values.remediations.rbac.impl | default "mock" }}
+        - name: RBAC_HOST
+          value: {{ .Values.remediations.rbac.host }}
+
         - name: REDIS_ENABLED
           value: "true"
         - name: REDIS_HOST
