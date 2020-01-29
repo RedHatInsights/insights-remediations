@@ -45,8 +45,9 @@ describe('patchman impl', function () {
 
         http.callCount.should.equal(1);
         const options = http.args[0][0];
-        options.headers.should.have.size(1);
+        options.headers.should.have.size(2);
         options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
+        options.headers.should.have.property('x-rh-identity', 'identity');
         cache.get.callCount.should.equal(1);
         cache.setex.callCount.should.equal(1);
 

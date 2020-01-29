@@ -30,7 +30,7 @@ module.exports = new class extends Connector {
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders(false)
+            headers: this.getForwardedHeaders()
         }, false, this.sourcesMetrics);
 
         assert(result.meta.count <= result.meta.limit);

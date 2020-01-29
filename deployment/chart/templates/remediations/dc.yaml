@@ -145,6 +145,11 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
 
+        - name: PATCHMAN_IMPL
+          value: {{ .Values.remediations.patchman.impl | default "mock" }}
+        - name: PATCHMAN_HOST
+          value: {{ .Values.remediations.patchman.host }}
+
         - name: PATH_PREFIX
           value: {{ .Values.remediations.pathPrefix | default "/api" }}
 

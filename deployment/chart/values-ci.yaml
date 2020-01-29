@@ -42,6 +42,9 @@ remediations:
   ssg:
     impl: impl
     host: http://playbooks-ssg:8080
+  patchman:
+    impl: impl
+    host: http://patchman-engine-manager.patchman-engine-ci.svc.cluster.local:8080
 
 ssg:
   requestsCPU: 100m

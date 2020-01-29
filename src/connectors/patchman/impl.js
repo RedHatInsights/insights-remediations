@@ -22,7 +22,7 @@ module.exports = new class extends Connector {
             uri: uri.toString(),
             method: 'GET',
             json: true,
-            headers: this.getForwardedHeaders(false)
+            headers: this.getForwardedHeaders()
         },
         {
             refresh,
