@@ -238,6 +238,16 @@ describe('remediations', function () {
             body.issues[0].systems.should.have.length(250);
             expect(text).toMatchSnapshot();
         });
+
+        test('get remediation with test namespace resolutions', async () => {
+            const {body, text} = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4?pretty')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.issues.should.have.length(2);
+            expect(text).toMatchSnapshot();
+        });
     });
 
     describe('missing', function () {

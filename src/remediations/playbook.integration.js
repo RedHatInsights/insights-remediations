@@ -44,7 +44,7 @@ describe('playbooks', function () {
     });
 
     describe('caching', function () {
-        async function testCaching (desc, id, etag) {
+        function testCaching (desc, id, etag) {
             test (desc, async () => {
                 const {headers} = await request
                 .get(`/v1/remediations/${id}/playbook`)
@@ -140,5 +140,15 @@ describe('playbooks', function () {
         expect(created_at).not.toBeNull();
         expect(filename).not.toBeNull();
         expect({ username, account_number, definition }).toMatchSnapshot();
+    });
+
+    test('playbook for remediation with test namespace', async () => {
+        mockDate();
+        const {text} = await request
+        .set(auth.testReadSingle)
+        .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/playbook')
+        .expect(200);
+
+        expect(text).toMatchSnapshot();
     });
 });

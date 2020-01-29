@@ -12,7 +12,7 @@ describe('resolve test resolutions', function () {
             id: 'test:ping',
             resolution_risk: -1,
             resolutions: [{
-                description: 'Ping',
+                description: 'Run Ansible ping module',
                 id: 'fix',
                 needs_reboot: false,
                 resolution_risk: -1

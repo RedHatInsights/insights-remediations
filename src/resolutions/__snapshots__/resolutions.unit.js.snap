@@ -44,7 +44,7 @@ Object {
     "resolution_risk": -1,
     "resolutions": Array [
       Object {
-        "description": "Ping",
+        "description": "Run Ansible ping module",
         "id": "fix",
         "needs_reboot": false,
         "resolution_risk": -1,
