@@ -1,15 +1,10 @@
 'use strict';
 
+const { useMock } = require('../common');
 const config = require('../../config');
 
-exports.useMock = function (impl) {
-    if (impl === 'mock') {
-        return true;
-    }
-
-    if (impl === undefined && ['development', 'test'].includes(config.env)) {
-        return true;
-    }
-
-    return false;
-};
+if (useMock(config.rbac.impl)) {
+    module.exports = require('./mock');
+} else {
+    module.exports = require('./impl');
+}
