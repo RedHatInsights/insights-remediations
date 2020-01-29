@@ -16,7 +16,7 @@ module.exports = new class extends Connector {
 
     async getRemediationsAccess () {
         const uri = new URI(host);
-        uri.path('/api/rbac/v1/access');
+        uri.path('/api/rbac/v1/access/');
         uri.query({application: 'remediations'});
 
         const result = await this.doHttp ({
