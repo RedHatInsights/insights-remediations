@@ -43,17 +43,14 @@ module.exports = new class extends Connector {
     }
 
     async getEndoints (id) {
-        const uri = new URI(host);
-        uri.path('/api/sources/v1.0/sources');
-        uri.segment(id);
-        uri.segment('endpoints');
+        const uri = this.buildUri(host, 'sources', 'v1.0', 'sources', String(id), 'endpoints');
 
         const result = await this.doHttp({
             uri: uri.toString(),
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders(false)
+            headers: this.getForwardedHeaders()
         }, false, this.endpointMetrics);
 
         if (!result) {

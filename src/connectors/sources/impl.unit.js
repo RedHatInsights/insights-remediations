@@ -10,7 +10,7 @@ describe('sources impl', function () {
 
     describe('findSources', function () {
         test('obtains a list of sources by source_ref', async function () {
-            base.getSandbox().stub(request, 'run').resolves({
+            const http = base.getSandbox().stub(request, 'run').resolves({
                 statusCode: 200,
                 body: {
                     meta: {
@@ -49,12 +49,19 @@ describe('sources impl', function () {
             results['72e67490-010a-4c69-a445-97017ef2a696'].should.have.property('id', '1231');
             results.should.have.property('de91d755-e1da-4ae2-b173-7d56f5df7c86');
             results['de91d755-e1da-4ae2-b173-7d56f5df7c86'].should.have.property('id', '1232');
+
+            const options = http.args[0][0];
+            // eslint-disable-next-line max-len
+            options.uri.should.equal('http://localhost:8080/api/sources/v1.0/sources?filter%5Bsource_ref%5D%5Beq%5D%5B%5D=72e67490-010a-4c69-a445-97017ef2a696&filter%5Bsource_ref%5D%5Beq%5D%5B%5D=de91d755-e1da-4ae2-b173-7d56f5df7c86');
+            options.headers.should.have.size(2);
+            options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
+            options.headers.should.have.property('x-rh-identity', 'identity');
         });
     });
 
     describe('getEndoints', function () {
         test('obtains endpoints for a given sources id', async function () {
-            base.getSandbox().stub(request, 'run').resolves({
+            const http = base.getSandbox().stub(request, 'run').resolves({
                 statusCode: 200,
                 body: {
                     meta: {
@@ -79,6 +86,12 @@ describe('sources impl', function () {
             const results = await impl.getEndoints(['1231']);
             results.should.have.size(1);
             results[0].should.have.property('receptor_node', 'dsasd');
+
+            const options = http.args[0][0];
+            options.uri.should.equal('http://localhost:8080/api/sources/v1.0/sources/1231/endpoints');
+            options.headers.should.have.size(2);
+            options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
+            options.headers.should.have.property('x-rh-identity', 'identity');
         });
 
         test('returns null on 404', async function () {
