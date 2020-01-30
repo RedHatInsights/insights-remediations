@@ -27,26 +27,34 @@ remediations:
   advisor:
     impl: impl
     host: http://insights-advisor-api.advisor-qa.svc.cluster.local:8000
-  contentServer:
-    host: http://content-server.advisor-qa.svc.cluster.local:8080
-  vulnerabilities:
-    impl: impl
-    host: http://vulnerability-engine-manager.vulnerability-engine-qa.svc.cluster.local:8443
   compliance:
     impl: impl
     host: http://compliance-backend.compliance-qa.svc.cluster.local:3000
+  contentServer:
+    host: http://content-server.advisor-qa.svc.cluster.local:8080
   inventory:
     impl: impl
     host: http://insights-inventory.platform-qa.svc.cluster.local:8080
-  users:
-    impl: impl
-    host: https://backoffice-proxy-insights-services.ext.us-east.dc.prod.paas.redhat.com
-  ssg:
-    impl: impl
-    host: http://playbooks-ssg:8080
+  patchman:
+    impl: mock
   rbac:
     impl: impl
     host: http://rbac.rbac-qa.svc.cluster.local:8080
+  receptor:
+    impl: impl
+    host: http://receptor-controller.platform-qa.svc.cluster.local:9090
+  sources:
+    impl: impl
+    host: http://sources-api.sources-qa.svc.cluster.local:8080
+  ssg:
+    impl: impl
+    host: http://playbooks-ssg:8080
+  users:
+    impl: impl
+    host: https://backoffice-proxy-insights-services.ext.us-east.dc.prod.paas.redhat.com
+  vulnerabilities:
+    impl: impl
+    host: http://vulnerability-engine-manager.vulnerability-engine-qa.svc.cluster.local:8443
 
 ssg:
   requestsCPU: 100m

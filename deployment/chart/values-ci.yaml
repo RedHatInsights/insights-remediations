@@ -25,29 +25,35 @@ remediations:
   advisor:
     impl: impl
     host: http://insights-advisor-api.advisor-ci.svc.cluster.local:8000
-  contentServer:
-    host: http://content-server.advisor-ci.svc.cluster.local:8080
-  vulnerabilities:
-    impl: impl
-    host: http://vulnerability-engine-manager.vulnerability-engine-ci.svc.cluster.local:8443
   compliance:
     impl: impl
     host: http://compliance-backend.compliance-ci.svc.cluster.local:3000
+  contentServer:
+    host: http://content-server.advisor-ci.svc.cluster.local:8080
   inventory:
     impl: impl
     host: http://insights-inventory.platform-ci.svc.cluster.local:8080
-  users:
-    impl: impl
-    host: https://backoffice-proxy-insights-services.ext.us-east.dc.prod.paas.redhat.com
-  ssg:
-    impl: impl
-    host: http://playbooks-ssg:8080
   patchman:
     impl: impl
     host: http://patchman-engine-manager.patchman-engine-ci.svc.cluster.local:8080
   rbac:
     impl: impl
     host: http://rbac.rbac-ci.svc.cluster.local:8080
+  receptor:
+    impl: impl
+    host: http://receptor-controller.platform-ci.svc.cluster.local:9090
+  sources:
+    impl: impl
+    host: http://sources-api.sources-ci.svc.cluster.local:8080
+  ssg:
+    impl: impl
+    host: http://playbooks-ssg:8080
+  users:
+    impl: impl
+    host: https://backoffice-proxy-insights-services.ext.us-east.dc.prod.paas.redhat.com
+  vulnerabilities:
+    impl: impl
+    host: http://vulnerability-engine-manager.vulnerability-engine-ci.svc.cluster.local:8443
 
 ssg:
   requestsCPU: 100m

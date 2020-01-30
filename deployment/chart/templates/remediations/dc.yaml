@@ -158,6 +158,11 @@ spec:
         - name: RBAC_HOST
           value: {{ .Values.remediations.rbac.host }}
 
+        - name: RECEPTOR_IMPL
+          value: {{ .Values.remediations.receptor.impl | default "mock" }}
+        - name: RECEPTOR_HOST
+          value: {{ .Values.remediations.receptor.host }}
+
         - name: REDIS_ENABLED
           value: "true"
         - name: REDIS_HOST
@@ -169,6 +174,11 @@ spec:
             secretKeyRef:
               key: password
               name: redis
+
+        - name: SOURCES_IMPL
+          value: {{ .Values.remediations.sources.impl }}
+        - name: SOURCES_HOST
+          value: {{ .Values.remediations.sources.host }}
 
         - name: SSG_IMPL
           value: {{ .Values.remediations.ssg.impl }}
