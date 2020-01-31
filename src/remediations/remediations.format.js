@@ -155,7 +155,7 @@ exports.receptorWorkRequest = function (playbookRunRequest, account_number, rece
     return {
         account: account_number,
         recipient: receptor_id,
-        payload: playbookRunRequest,
+        payload: JSON.stringify(playbookRunRequest),
         directive: 'receptor_satellite:execute'
     };
 };
