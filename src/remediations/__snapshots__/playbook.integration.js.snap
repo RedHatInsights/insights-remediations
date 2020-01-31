@@ -687,7 +687,7 @@ exports[`playbooks playbook for remediation with test namespace 1`] = `
 - name: ping
   hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com\\"
   tasks:
-    - ping
+    - ping:
 
 # Fixes test:reboot
 # Identifier: (test:reboot,fix)

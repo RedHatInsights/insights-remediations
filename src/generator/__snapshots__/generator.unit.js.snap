@@ -180,7 +180,7 @@ exports[`generates a simple playbook 1`] = `
 - name: ping
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   tasks:
-    - ping
+    - ping:
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
