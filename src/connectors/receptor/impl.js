@@ -17,7 +17,7 @@ module.exports = new class extends Connector {
 
     async getConnectionStatus (account_num, node) {
         const uri = new URI(host);
-        uri.path('/management/connection_status');
+        uri.path('/connection/status');
 
         const result = await this.doHttp ({
             uri: uri.toString(),

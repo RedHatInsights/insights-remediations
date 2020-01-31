@@ -42,6 +42,12 @@ describe('receptor impl', function () {
             result.should.have.property('status', 'connected');
 
             const options = http.args[0][0];
+            options.should.have.property('uri', 'http://localhost:9090/connection/status');
+            options.body.should.eql({
+                account: '540155',
+                node_id: 'node-a'
+            });
+
             options.headers.should.have.size(2);
             options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
             options.headers.should.have.property('x-rh-identity', 'identity');
@@ -80,6 +86,7 @@ describe('receptor impl', function () {
             result.should.have.property('id', '355986a3-5f37-40f7-8f36-c3ac928ce190');
 
             const options = http.args[0][0];
+            options.should.have.property('uri', 'http://localhost:9090/job');
             options.headers.should.have.size(2);
             options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
             options.headers.should.have.property('x-rh-identity', 'identity');
