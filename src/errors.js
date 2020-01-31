@@ -11,7 +11,7 @@ class HttpError extends Error {
         const req = cls.getReq();
         this.name = this.constructor.name;
         this.error = {
-            id: req ? req.id : undefined,
+            id: req ? req.id : 'unknown',
             status,
             code,
             title
@@ -156,6 +156,9 @@ exports.invalidIssueId = (id) => new exports.BadRequest('INVALID_ISSUE_IDENTIFIE
 
 exports.invalidOffset = (offset, max) =>
     new exports.BadRequest('INVALID_OFFSET', `Requested starting offset ${offset} out of range: [0, ${max}]`);
+
+exports.noExecutors = remediation =>
+    new exports.BadRequest('NO_EXECUTORS', `No executors available for Playbook "${remediation.name}" (${remediation.id})`);
 
 exports.internal = {
     invalidTemplate (msg) {

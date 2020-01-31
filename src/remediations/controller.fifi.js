@@ -11,7 +11,6 @@ const fifi = require('./fifi');
 
 const notMatching = res => res.sendStatus(412);
 const notFound = res => res.status(404).json();
-const badRequest = res => res.sendStatus(400);
 
 exports.connection_status = errors.async(async function (req, res) {
     const remediation = await queries.get(req.params.id, req.user.account_number, req.user.username);
@@ -44,12 +43,8 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
     const result = await fifi.sendInitialRequest(status, remediation, req.identity.account_number);
 
     if (_.isNull(result)) {
-        return badRequest(res);
+        throw errors.noExecutors(remediation);
     }
 
-    if (_.isError(result)) {
-        res.status(result.error.status).send(result.error.title);
-    }
-
-    res.status(201).send(result);
+    res.status(201).send({id: result});
 });

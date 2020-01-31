@@ -144,30 +144,41 @@ describe('FiFi', function () {
         test('if no executors are send to postInitialRequest', async function () {
             base.getSandbox().stub(fifi, 'sendInitialRequest').resolves(null);
 
-            await request
+            const {body} = await request
             .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
             .set(auth.fifi)
             .expect(400);
+
+            body.errors[0].should.have.property('code', 'NO_EXECUTORS');
+            body.errors[0].should.have.property('title',
+                'No executors available for Playbook "FiFI playbook 3" (249f142c-2ae3-4c3f-b2ec-c8c5881f8561)');
         });
 
         test('if 1st executor result from receptor connector is request error', async function () {
-            base.getSandbox().stub(receptor, 'postInitialRequest').rejects(new errors.DependencyError('bad request', receptor));
+            base.getSandbox().stub(receptor, 'postInitialRequest')
+            .rejects(errors.internal.dependencyError(new Error('receptor down'), receptor));
 
-            await request
+            const {body} = await request
             .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
             .set(auth.fifi)
             .expect(503);
+
+            body.errors[0].should.have.property('code', 'DEPENDENCY_UNAVAILABLE');
+            body.errors[0].details.should.have.property('name', 'receptor');
+            body.errors[0].details.should.have.property('impl', 'mock');
         });
 
         test('if 2nd executor result from receptor is request error', async function () {
             base.getSandbox().stub(receptor, 'postInitialRequest')
             .onCall(2)
-            .rejects(new errors.DependencyError('bad request', receptor));
+            .rejects(errors.internal.dependencyError(new Error('receptor down'), receptor));
 
-            await request
+            const {body} =  await request
             .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
             .set(auth.fifi)
             .expect(201);
+
+            body.should.have.property('id');
         });
     });
 });

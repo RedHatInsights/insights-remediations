@@ -153,6 +153,7 @@ describe('remediations', function () {
             .expect(400);
 
             body.errors.should.eql([{
+                id: 'unknown',
                 status: 400,
                 code: 'INVALID_CONTENT_TYPE',
                 title: 'The request body must be in JSON format.'

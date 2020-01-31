@@ -146,8 +146,8 @@ exports.sendInitialRequest = async function (status, remediation, account) {
         return null;
     }
 
-    try {
-        await P.mapSeries(executors, async (executor, index) => {
+    await P.mapSeries(executors, async (executor, index) => {
+        try {
             const filteredIssues = generator.normalizeIssues(
                 await exports.filterIssuesPerExecutor(executor.systems, remediationIssues)
             );
@@ -164,19 +164,16 @@ exports.sendInitialRequest = async function (status, remediation, account) {
                 playbook,
                 playbook_run_id), account, executor.receptorId);
 
-            const result = await receptorConnector.postInitialRequest(receptorWorkRequest);
-
-            if (index === 0 && _.isError(result)) {
-                throw result;
+            return await receptorConnector.postInitialRequest(receptorWorkRequest);
+        } catch (e) {
+            if (index !== 0) {
+                log.error({executor: executor.id, error: e}, 'error sending Playbook to executor');
+                return null;
             }
 
-            if (!index === 0 && _.isError(result)) {
-                log.error('ERROR: Receptor Connecter failed to post a work request');
-            }
-        });
-    } catch (e) {
-        return e;
-    }
+            throw e;
+        }
+    });
 
-    return {id: playbook_run_id};
+    return playbook_run_id;
 };
