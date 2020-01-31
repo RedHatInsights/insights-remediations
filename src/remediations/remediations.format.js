@@ -138,15 +138,15 @@ exports.playbookRunRequest = function (remediation, issues, playbook, playbookRu
 
     return {
         remediation_id: remediation.id,
-        playbook_run_id: playbookRunId,
         remediation_name: remediation.name,
+        playbook_run_id: playbookRunId,
         account: remediation.account_number,
         hosts: uniqueHosts,
         playbook: playbook.yaml,
         config: {
-            fifi_text_updates: config.fifi.text_updates,
-            fifi_text_update_interval: config.fifi.text_update_interval,
-            fifi_text_update_full: config.fifi.text_update_full
+            text_updates: config.fifi.text_updates,
+            text_update_interval: config.fifi.text_update_interval,
+            text_update_full: config.fifi.text_update_full
         }
     };
 };

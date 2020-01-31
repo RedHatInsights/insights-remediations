@@ -9,9 +9,10 @@ const errors = require('../../errors');
 
 const PLAYBOOKRUNREQUEST = {
     remediation_id: '355986a3-5f37-40f7-8f36-c3ac928ce190',
+    remediation_name: 'Fix high severity CVEs',
     playbook_run_id: '355986a3-5f37-40f7-8f36-c3ac928ce222',
     account: '540155',
-    hosts: 'host1, host2',
+    hosts: ['host1', 'host2'],
     playbook: 'some playbook',
     config: {
         text_updates: true,
@@ -90,6 +91,24 @@ describe('receptor impl', function () {
             options.headers.should.have.size(2);
             options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
             options.headers.should.have.property('x-rh-identity', 'identity');
+            options.body.should.eql({
+                account: '540155',
+                recipient: 'node-a',
+                payload: {
+                    remediation_id: '355986a3-5f37-40f7-8f36-c3ac928ce190',
+                    remediation_name: 'Fix high severity CVEs',
+                    playbook_run_id: '355986a3-5f37-40f7-8f36-c3ac928ce222',
+                    account: '540155',
+                    hosts: ['host1', 'host2'],
+                    playbook: 'some playbook',
+                    config: {
+                        text_updates: true,
+                        text_update_interval: 5000,
+                        text_update_full: true
+                    }
+                },
+                directive: 'receptor_satellite:execute'
+            });
         });
 
         test('returns null receptorWorkRequest is incorrect', async function () {

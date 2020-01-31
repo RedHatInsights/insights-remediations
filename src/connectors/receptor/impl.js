@@ -29,7 +29,7 @@ module.exports = new class extends Connector {
                 account: account_num,
                 node_id: node
             }
-        }, this.statusMetrics);
+        }, false, this.statusMetrics);
 
         if (_.isEmpty(result)) {
             return null;
@@ -48,10 +48,8 @@ module.exports = new class extends Connector {
             json: true,
             rejectUnauthorized: !insecure,
             headers: this.getForwardedHeaders(),
-            body: {
-                receptorWorkRequest
-            }
-        }, this.statusMetrics);
+            body: receptorWorkRequest
+        }, false, this.statusMetrics);
 
         if (_.isEmpty(result)) {
             return null;

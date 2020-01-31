@@ -61,9 +61,9 @@ Array [
     "payload": Object {
       "account": "fifi",
       "config": Object {
-        "fifi_text_update_full": true,
-        "fifi_text_update_interval": 5000,
-        "fifi_text_updates": true,
+        "text_update_full": true,
+        "text_update_interval": 5000,
+        "text_updates": true,
       },
       "hosts": Array [
         "355986a3-5f37-40f7-8f36-c3ac928ce190.example.com",
@@ -114,9 +114,9 @@ Array [
     "payload": Object {
       "account": "fifi",
       "config": Object {
-        "fifi_text_update_full": true,
-        "fifi_text_update_interval": 5000,
-        "fifi_text_updates": true,
+        "text_update_full": true,
+        "text_update_interval": 5000,
+        "text_updates": true,
       },
       "hosts": Array [
         "35e9b452-e405-499c-9c6e-120010b7b465.example.com",

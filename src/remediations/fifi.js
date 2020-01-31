@@ -164,6 +164,7 @@ exports.sendInitialRequest = async function (status, remediation, account) {
                 playbook,
                 playbook_run_id), account, executor.receptorId);
 
+            log.info({job: receptorWorkRequest}, 'sending receptor job request');
             return await receptorConnector.postInitialRequest(receptorWorkRequest);
         } catch (e) {
             if (index !== 0) {
