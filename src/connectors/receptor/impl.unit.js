@@ -33,7 +33,7 @@ describe('receptor impl', function () {
     describe('connection status', function () {
         test('get connection status', async function () {
             const http = base.getSandbox().stub(request, 'run').resolves({
-                statusCode: 200,
+                statusCode: 201,
                 body: {status: 'connected'},
                 headers: {}
             });
@@ -77,7 +77,7 @@ describe('receptor impl', function () {
     describe('initial work request', function () {
         test('post receptor work request', async function () {
             const http = base.getSandbox().stub(request, 'run').resolves({
-                statusCode: 200,
+                statusCode: 201,
                 body: {id: '355986a3-5f37-40f7-8f36-c3ac928ce190'},
                 headers: {}
             });

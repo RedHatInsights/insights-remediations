@@ -29,6 +29,7 @@ function doHttp (options, cached, metrics) {
         metrics && metrics.duration.observe(new Date() - before);
         switch (res.statusCode) {
             case 200:
+            case 201:
             case 304: return res;
             case 403:
             case 404: return null;
