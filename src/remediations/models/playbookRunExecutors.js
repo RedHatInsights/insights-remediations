@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (sequelize, {STRING, UUID, ENUM, DATE, TEXT}) => {
-    const RunExecutor = sequelize.define('playbook_run_executors', {
+    const RunExecutors = sequelize.define('playbook_run_executors', {
         id: {
             type: UUID,
             primaryKey: true,
@@ -46,15 +46,16 @@ module.exports = (sequelize, {STRING, UUID, ENUM, DATE, TEXT}) => {
         updatedAt: 'updated_at'
     });
 
-    RunExecutor.associate = models => {
-        RunExecutor.belongsTo(models.playbook_runs, {
-            foreignKey: 'id'
+    RunExecutors.associate = models => {
+        RunExecutors.belongsTo(models.playbook_runs, {
+            foreignKey: 'playbook_run_id'
         });
 
-        RunExecutor.hasMany(models.playbook_run_systems, {
-            foreignKey: 'playbook_run_executor_id'
+        RunExecutors.hasMany(models.playbook_run_systems, {
+            foreignKey: 'playbook_run_executor_id',
+            as: 'systems'
         });
     };
 
-    return RunExecutor;
+    return RunExecutors;
 };

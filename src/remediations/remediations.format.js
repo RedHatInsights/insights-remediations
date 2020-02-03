@@ -4,6 +4,7 @@ const _ = require('lodash');
 const URI = require('urijs');
 
 const DEFAULT_REMEDIATION_NAME = 'unnamed-playbook';
+const USER = ['username', 'first_name', 'last_name'];
 const PLAYBOOK_SUFFIX = 'yml';
 const config = require('../config');
 
@@ -36,9 +37,9 @@ exports.list = function (remediations, total, limit, offset, sort, system) {
         ({id, name, needs_reboot, created_by, created_at, updated_by, updated_at, system_count, issue_count}) => ({
             id,
             name,
-            created_by: _.pick(created_by, ['username', 'first_name', 'last_name']),
+            created_by: _.pick(created_by, USER),
             created_at: created_at.toISOString(),
-            updated_by: _.pick(updated_by, ['username', 'first_name', 'last_name']),
+            updated_by: _.pick(updated_by, USER),
             updated_at: updated_at.toISOString(),
             needs_reboot,
             system_count,
@@ -62,9 +63,9 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
         name,
         needs_reboot,
         auto_reboot,
-        created_by: _.pick(created_by, ['username', 'first_name', 'last_name']),
+        created_by: _.pick(created_by, USER),
         created_at: created_at.toISOString(),
-        updated_by: _.pick(updated_by, ['username', 'first_name', 'last_name']),
+        updated_by: _.pick(updated_by, USER),
         updated_at: updated_at.toISOString(),
         issues: _.map(issues, ({issue_id, resolution, details, systems, resolutionsAvailable }) => ({
             id: issue_id,
@@ -158,4 +159,83 @@ exports.receptorWorkRequest = function (playbookRunRequest, account_number, rece
         payload: JSON.stringify(playbookRunRequest),
         directive: 'receptor_satellite:execute'
     };
+};
+
+exports.playbookRuns = function (playbook_runs) {
+    const formatted = playbook_runs.map(run => ({
+        id: run.id,
+        status: run.status,
+        remediation_id: run.remediation_id,
+        created_by: _.pick(run.created_by, USER),
+        created_at: run.created_at.toISOString(),
+        updated_at: run.updated_at.toISOString(),
+        executors: run.executors.map(executor => ({
+            executor_id: executor.executor_id,
+            executor_name: executor.executor_name,
+            system_count: executor.get('system_count')
+        }))
+    }));
+
+    return {
+        meta: {
+            count: playbook_runs.length,
+            total: playbook_runs.length
+        },
+        data: formatted
+    };
+};
+
+exports.playbookRunDetails = function (playbook_runs) {
+    const formatted = playbook_runs.map(run => ({
+        id: run.id,
+        status: run.status,
+        remediation_id: run.remediation_id,
+        created_by: _.pick(run.created_by, USER),
+        created_at: run.created_at.toISOString(),
+        updated_at: run.updated_at.toISOString(),
+        executors: run.executors.map(executor => ({
+            executor_id: executor.executor_id,
+            executor_name: executor.executor_name,
+            updated_at: executor.updated_at.toISOString(),
+            playbook: executor.playbook,
+            playbook_run_id: executor.playbook_run_id,
+            status: executor.status,
+            system_count: executor.get('system_count')
+        }))
+    }));
+
+    return formatted[0];
+};
+
+exports.playbookSystems = function (systems) {
+    const formatted = systems.map(system => ({
+        id: system.id,
+        system_id: system.system_id,
+        system_name: system.system_name,
+        status: system.status,
+        updated_at: system.updated_at.toISOString(),
+        playbook_run_executor_id: system.playbook_run_executor_id
+    }));
+
+    return {
+        meta: {
+            count: formatted.length,
+            total: formatted.length
+        },
+        data: formatted
+    };
+};
+
+exports.playbookSystemDetails = function (system) {
+    const formatted = {
+        id: system.id,
+        system_id: system.system_id,
+        system_name: system.system_name,
+        status: system.status,
+        console: system.console,
+        updated_at: system.updated_at.toISOString(),
+        playbook_run_executor_id: system.get('executor_id')
+    };
+
+    return formatted;
 };

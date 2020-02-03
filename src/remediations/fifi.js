@@ -11,6 +11,7 @@ const sources = require('../connectors/sources');
 const receptorConnector = require('../connectors/receptor');
 const log = require('../util/log');
 const probes = require('../probes');
+const read = require('./controller.read');
 
 const SATELLITE_NAMESPACE = Object.freeze({namespace: 'satellite'});
 const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_name']);
@@ -90,6 +91,19 @@ function normalize (satellites) {
         status: getStatus(satellite)
     }));
 }
+
+exports.resolveUsers = async function (req, remediation) {
+    const usernames = remediation.playbook_runs.map(run => {
+        return run.created_by;
+    });
+    const resolvedUsersById = await read.getUsers(req, usernames);
+
+    remediation.playbook_runs.forEach(run => {
+        run.created_by = read.getUser(resolvedUsersById, run.created_by);
+    });
+
+    return remediation;
+};
 
 exports.generatePlaybookRunId = function () {
     return uuid();

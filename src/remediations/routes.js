@@ -52,9 +52,32 @@ module.exports = function (router) {
         smartManagement,
         fifi.connection_status);
 
+    router.get('/remediations/:id/playbook_runs',
+        openapi('listPlaybookRuns'),
+        smartManagement,
+        rbacRead,
+        fifi.listPlaybookRuns);
     router.post('/remediations/:id/playbook_runs',
         openapi('runRemediation'),
         rbacExecute,
         smartManagement,
         fifi.executePlaybookRuns);
+
+    router.get('/remediations/:id/playbook_runs/:playbook_run_id',
+        openapi('getPlaybookRunDetails'),
+        rbacRead,
+        smartManagement,
+        fifi.getRunDetails);
+
+    router.get('/remediations/:id/playbook_runs/:playbook_run_id/systems',
+        openapi('getPlaybookRunSystems'),
+        rbacRead,
+        smartManagement,
+        fifi.getSystems);
+
+    router.get('/remediations/:id/playbook_runs/:playbook_run_id/systems/:system',
+        openapi('getPlaybookRunSystemDetails'),
+        rbacRead,
+        smartManagement,
+        fifi.getSystemDetails);
 };

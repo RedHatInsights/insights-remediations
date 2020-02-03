@@ -51,7 +51,7 @@ function resolveResolutionsNeedReboot (...remediations) {
     }).value());
 }
 
-async function getUsers (req, usernames) {
+exports.getUsers = async function (req, usernames) {
     // if the only user is the currently logged-in user then bypass users connector
     if (usernames.length === 1 && req.identity.user && req.identity.user.username === usernames[0]) {
         const { username, first_name, last_name } = req.identity.user;
@@ -62,29 +62,29 @@ async function getUsers (req, usernames) {
 
     const resolvedUsers = await P.map(usernames, username => users.getUser(username));
     return _.keyBy(resolvedUsers, 'username');
-}
+};
+
+exports.getUser = function (resolvedUsersById, username) {
+    if (_.has(resolvedUsersById, username)) {
+        // validated above
+        // eslint-disable-next-line security/detect-object-injection
+        return resolvedUsersById[username];
+    }
+
+    return {
+        username,
+        first_name: 'Unknown',
+        last_name: 'User'
+    };
+};
 
 async function resolveUsers (req, ...remediations) {
     const usernames = _(remediations).flatMap(({created_by, updated_by}) => [created_by, updated_by]).uniq().value();
-    const resolvedUsersById = await getUsers(req, usernames);
-
-    function getUser (username) {
-        if (_.has(resolvedUsersById, username)) {
-            // validated above
-            // eslint-disable-next-line security/detect-object-injection
-            return resolvedUsersById[username];
-        }
-
-        return {
-            username,
-            first_name: 'Unknown',
-            last_name: 'User'
-        };
-    }
+    const resolvedUsersById = await exports.getUsers(req, usernames);
 
     remediations.forEach(remediation => {
-        remediation.created_by = getUser(remediation.created_by);
-        remediation.updated_by = getUser(remediation.updated_by);
+        remediation.created_by = exports.getUser(resolvedUsersById, remediation.created_by);
+        remediation.updated_by = exports.getUser(resolvedUsersById, remediation.updated_by);
     });
 }
 

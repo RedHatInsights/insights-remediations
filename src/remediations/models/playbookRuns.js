@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (sequelize, {STRING, UUID, ENUM, DATE}) => {
-    const RemediationRuns = sequelize.define('playbook_runs', {
+    const PlaybookRuns = sequelize.define('playbook_runs', {
         id: {
             type: UUID,
             primaryKey: true
@@ -34,15 +34,16 @@ module.exports = (sequelize, {STRING, UUID, ENUM, DATE}) => {
         updatedAt: 'updated_at'
     });
 
-    RemediationRuns.associate = models => {
-        RemediationRuns.belongsTo(models.remediation, {
-            foreignKey: 'id'
+    PlaybookRuns.associate = models => {
+        PlaybookRuns.belongsTo(models.remediation, {
+            foreignKey: 'remediation_id'
         });
 
-        RemediationRuns.hasMany(models.playbook_run_executors, {
-            foreignKey: 'playbook_run_id'
+        PlaybookRuns.hasMany(models.playbook_run_executors, {
+            foreignKey: 'playbook_run_id',
+            as: 'executors'
         });
     };
 
-    return RemediationRuns;
+    return PlaybookRuns;
 };

@@ -220,6 +220,25 @@ paths:
           $ref: '#/components/responses/NotFound'
 
   /remediations/{id}/playbook_runs:
+    get:
+      tags:
+        - remediations
+      summary: List of executions of this remediation
+      description: List of executions of this remediation
+      operationId: listPlaybookRuns
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaybookRunsList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
     post:
       tags:
         - remediations
@@ -241,6 +260,73 @@ paths:
           $ref: '#/components/responses/NotFound'
         '412':
           $ref: '#/components/responses/PreconditionFailed'
+
+  /remediations/{id}/playbook_runs/{playbook_run_id}:
+    get:
+      tags:
+        - remediations
+      summary: Get details on execution of the rememdiation
+      description: Get details on execution of the rememdiation
+      operationId: getPlaybookRunDetails
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/PlaybookRunId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaybookRunExecutorDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /remediations/{id}/playbook_runs/{playbook_run_id}/systems:
+    get:
+      tags:
+        - remediations
+      summary: Get details on systems being executed on in specific playbook run
+      description: Get details on systems being executed on in specific playbook run
+      operationId: getPlaybookRunSystems
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/PlaybookRunId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaybookRunSystemList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /remediations/{id}/playbook_runs/{playbook_run_id}/systems/{system}:
+    get:
+      tags:
+        - remediations
+      summary: Get details and updated log of system being executed on in specific playbook run
+      description: Get details and updated log of system being executed on in specific playbook run
+      operationId: getPlaybookRunSystemDetails
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/PlaybookRunId'
+        - $ref: '#/components/parameters/SystemId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaybookRunSystemDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: RemediationId, PlaybookRunId, or SystemId not available.
 
   /resolutions/{issue}:
     get:
@@ -480,20 +566,61 @@ components:
       format: uuid
       example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
 
+    Playbook:
+      type: string
+      description: Playbook created for the playbook run executor.
+
+    ExecutorId:
+      type: string
+      format: uuid
+      example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
+
+    ExecutorName:
+      type: string
+      example: Executor Name
+
     RemediationName:
       type: string
       nullable: true
       pattern: ^$|^.*[\w\d]+.*$  # empty string or anything that contains at least one character
       example: Fix Critical CVEs
 
+    SystemName:
+      type: string
+      example: redhat-213
+
+    SystemLog:
+      type: string
+      description: Current formatted system log from playbook run system.
+
     RemediationNeedsReboot:
       type: boolean
       description: Indicates whether any of the issues contained in the remediation require system reboot
+    
+    PlaybookRunStatus:
+      type: string
+      example: "pending"
+      enum: ["pending", "acked", "running", "success", "failure", "canceled"]
+
+    PlaybookRunSystemStatus:
+      type: string
+      example: "pending"
+      enum: ["pending", "running", "success", "failure", "canceled"]
 
     PlaybookRunId:
       type: string
       format: uuid
       example: a8799a02-8be9-11e8-9eb6-529269fb1459
+    
+    PlaybookRunExecutorId:
+      type: string
+      format: uuid
+      example: b6279a02-8be9-11e8-9eb6-529269fb1459
+
+    PlaybookRunSystemId:
+      type: string
+      format: uuid
+      example: a8c4bbeb-dbcf-4fdb-94bc-19e45e961cb1
 
     ResolutionNeedsReboot:
       type: boolean
@@ -517,6 +644,7 @@ components:
       type: string
       format: uuid
       example: a8799a02-8be9-11e8-9eb6-529269fb1459
+
 
 
     #
@@ -691,6 +819,186 @@ components:
         id:
           type: string
           example: a8799a02-8be9-11e8-9eb6-529269fb1459
+
+    PlaybookRunsList:
+      type: object
+      additionalProperties: false
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaybookRunDetails'
+        meta:
+            $ref: '#/components/schemas/Meta'
+    
+    PlaybookRunSystemList:
+      type: object
+      additionalProperties: false
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaybookRunSystems'
+        meta:
+            $ref: '#/components/schemas/Meta'
+    
+    ExecutorList:
+      type: array
+      items:
+        $ref: '#/components/schemas/PlaybookExecutors'
+
+    ExecutorDetails:
+      type: array
+      items:
+        $ref: '#/components/schemas/PlaybookExecutorDetails'
+
+    PlaybookRunExecutorDetails:
+      type: object
+      additionalProperties: false
+      required:
+        - executors
+        - remediation_id
+        - created_by
+        - created_at
+        - updated_at
+        - status
+      properties:
+        id:
+          $ref: '#/components/schemas/PlaybookRunId'
+        executors:
+          $ref: '#/components/schemas/ExecutorDetails'
+        remediation_id:
+          $ref: '#/components/schemas/RemediationId'
+        created_by:
+          $ref: '#/components/schemas/UserOut'
+        created_at:
+          $ref: '#/components/schemas/DateTime'
+        updated_at:
+          $ref: '#/components/schemas/DateTime'
+        status:
+          $ref: '#/components/schemas/PlaybookRunStatus'
+          
+    PlaybookRunDetails:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - executors
+        - remediation_id
+        - created_by
+        - created_at
+        - updated_at
+        - status
+      properties:
+        id:
+          $ref: '#/components/schemas/PlaybookRunId'
+        executors:
+          $ref: '#/components/schemas/ExecutorList'
+        remediation_id:
+          $ref: '#/components/schemas/RemediationId'
+        created_by:
+          $ref: '#/components/schemas/UserOut'
+        created_at:
+          $ref: '#/components/schemas/DateTime'
+        updated_at:
+          $ref: '#/components/schemas/DateTime'
+        status:
+          $ref: '#/components/schemas/PlaybookRunStatus'
+    
+    PlaybookRunSystems:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - system_id
+        - system_name
+        - status
+        - updated_at
+        - playbook_run_executor_id
+      properties:
+        id:
+          $ref: '#/components/schemas/PlaybookRunSystemId'
+        system_id:
+          $ref: '#/components/schemas/SystemId'
+        system_name:
+          $ref: '#/components/schemas/SystemName'
+        status:
+          $ref: '#/components/schemas/PlaybookRunSystemStatus'
+        updated_at:
+          $ref: '#/components/schemas/DateTime'
+        playbook_run_executor_id:
+          $ref: '#/components/schemas/PlaybookRunId'
+
+    PlaybookRunSystemDetails:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - system_id
+        - system_name
+        - status
+        - console
+        - playbook_run_executor_id
+        - updated_at
+      properties:
+        id:
+          $ref: '#/components/schemas/PlaybookRunSystemId'
+        system_id:
+          $ref: '#/components/schemas/SystemId'
+        system_name:
+          $ref: '#/components/schemas/SystemName'
+        status:
+          $ref: '#/components/schemas/PlaybookRunSystemStatus'
+        console:
+          $ref: '#/components/schemas/SystemLog'
+        playbook_run_executor_id:
+          $ref: '#/components/schemas/PlaybookRunExecutorId'
+        updated_at:
+          $ref: '#/components/schemas/DateTime'
+    
+    PlaybookExecutors:
+      type: object
+      additionalProperties: false
+      required:
+        - executor_id
+        - executor_name
+        - system_count
+      properties:
+        executor_id:
+          $ref: '#/components/schemas/ExecutorId'
+        executor_name:
+          $ref: '#/components/schemas/ExecutorName'
+        system_count:
+          type: integer
+    
+    PlaybookExecutorDetails:
+      type: object
+      additionalProperties: false
+      required:
+        - executor_id
+        - executor_name
+        - updated_at
+        - playbook
+        - playbook_run_id
+        - system_count
+        - status
+      properties:
+        executor_id:
+          $ref: '#/components/schemas/ExecutorId'
+        executor_name:
+          $ref: '#/components/schemas/ExecutorName'
+        updated_at:
+          $ref: '#/components/schemas/DateTime'
+        playbook:
+          $ref: '#/components/schemas/Playbook'
+        playbook_run_id:
+          $ref: '#/components/schemas/PlaybookRunId'
+        system_count:
+          type: integer
+        status:
+          $ref: '#/components/schemas/PlaybookRunSystemStatus'
 
     # Resolution specific types
     Resolutions:
