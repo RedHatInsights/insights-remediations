@@ -17,9 +17,7 @@ const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_
 async function fetchSystems (ids) {
     const systemDetails = await inventory.getSystemDetailsBatch(ids);
 
-    return _(ids).map(id => _.get(systemDetails, id)).filter().map(system => {
-        return system;
-    }).value();
+    return _(ids).map(id => _.get(systemDetails, id)).filter().value();
 }
 
 function getSatelliteId (facts) {
