@@ -1,9 +1,17 @@
 'use strict';
 
+require('lodash');
 const client = require('prom-client');
 
 const log = require('./util/log');
 const { prefix } = require('./config').metrics;
+
+const ETAG_STATES = ['matched', 'mismatch', 'check_skipped'];
+const PERMISSIONS = [
+    'remediations:remediation:read',
+    'remediations:remediation:write',
+    'remediations:remediation:execute'
+];
 
 const playbookCounter = new client.Counter({
     name: `${prefix}playbooks_generated`,
@@ -16,13 +24,19 @@ const rbacCounter = new client.Counter({
     labelNames: ['rbacPermission']
 });
 
-const PERMISSIONS = [
-    'remediations:remediation:read',
-    'remediations:remediation:write',
-    'remediations:remediation:execute'
-];
+const etagErrorCounter = new client.Counter({
+    name: `${prefix}fifi_etag_checks`,
+    help: `Counter of etag optimistic lock checks`,
+    labelNames: ['status']
+});
+
+const playbookExecutionCounter = new client.Counter({
+    name: `${prefix}playbooks_executed`,
+    help: `Counter of Playbooks to be executed`
+});
 
 // https://www.robustperception.io/existential-issues-with-metrics
+ETAG_STATES.forEach(value => etagErrorCounter.labels(value).inc(0));
 PERMISSIONS.forEach(value => rbacCounter.labels(value).inc(0));
 
 /*
@@ -48,4 +62,39 @@ exports.rbacErrorCount = function (permission, availablePermissions) {
         rbac_permission: permission,
         available_permissions: availablePermissions
     }, 'Rejecting access due to missing RBAC permission');
+};
+
+exports.optimisticLockCheck = function (oldEtag, newEtag, accountNumber) {
+    if (!oldEtag) {
+        etagErrorCounter.labels('check_skipped').inc();
+    }
+
+    if (oldEtag && oldEtag !== newEtag) {
+        etagErrorCounter.labels('mismatch').inc();
+        log.info({
+            account_number: accountNumber,
+            previousEtag: oldEtag,
+            currentEtag: newEtag
+        }, 'Etag Verification Failure');
+    }
+
+    if (oldEtag && oldEtag === newEtag) {
+        etagErrorCounter.labels('matched').inc();
+    }
+};
+
+exports.splitPlaybookPerSatId = function (receptorWorkRequest, satId) {
+    playbookExecutionCounter.inc();
+    log.info({
+        account: receptorWorkRequest.account,
+        recipient: receptorWorkRequest.recipient,
+        satelite_id: satId,
+        remediation_id: receptorWorkRequest.payload.remediation_id,
+        remediation_name: receptorWorkRequest.payload.remediation_name,
+        playbook_run_id: receptorWorkRequest.payload.playbook_run_id
+    }, 'Playbook before being sent to receptor controller');
+    log.debug({
+        job: receptorWorkRequest,
+        satelite_id: satId
+    }, 'Full Contents of Work Request before being sent to receptor controller');
 };

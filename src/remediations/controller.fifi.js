@@ -6,6 +6,7 @@ const etag = require('etag');
 const errors = require('../errors');
 const queries = require('./remediations.queries');
 const format = require('./remediations.format');
+const probes = require('../probes');
 
 const fifi = require('./fifi');
 
@@ -36,6 +37,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
 
     res.set('etag', currentEtag);
 
+    probes.optimisticLockCheck(req.headers['if-match'], currentEtag, req.identity.account_number);
     if (req.headers['if-match'] && currentEtag !== req.headers['if-match']) {
         return notMatching(res);
     }

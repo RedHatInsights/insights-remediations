@@ -10,6 +10,7 @@ const inventory = require('../connectors/inventory');
 const sources = require('../connectors/sources');
 const receptorConnector = require('../connectors/receptor');
 const log = require('../util/log');
+const probes = require('../probes');
 
 const SATELLITE_NAMESPACE = Object.freeze({namespace: 'satellite'});
 const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_name']);
@@ -159,7 +160,7 @@ exports.sendInitialRequest = async function (status, remediation, account) {
                 playbook,
                 playbook_run_id), account, executor.receptorId);
 
-            log.info({job: receptorWorkRequest}, 'sending receptor job request');
+            probes.splitPlaybookPerSatId(receptorWorkRequest, executor.satId);
             return await receptorConnector.postInitialRequest(receptorWorkRequest);
         } catch (e) {
             if (index !== 0) {
