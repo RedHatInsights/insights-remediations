@@ -30,7 +30,7 @@ paths:
       tags:
         - remediations
       summary: List Remediations
-      description: Provides information about Remediations
+      description: Provides information about Remediations, RBAC permission {remediations:remediation:read}
       operationId: getRemediations
       parameters:
         - $ref: '#/components/parameters/RemediationSort'
@@ -51,7 +51,7 @@ paths:
       tags:
         - remediations
       summary: Create Remediation
-      description: Creates a new Remediation based on given information
+      description: Creates a new Remediation based on given information, RBAC permission {remediations:remediation:write}
       operationId: createRemediation
       requestBody:
         $ref: '#/components/requestBodies/RemediationInput'
@@ -70,7 +70,7 @@ paths:
       tags:
         - remediations
       summary: Get Remediation
-      description: Provides information about the given Remediation
+      description: Provides information about the given Remediation, RBAC permission {remediations:remediation:read}
       operationId: getRemediation
       parameters:
         - $ref: '#/components/parameters/RemediationId'
@@ -89,7 +89,7 @@ paths:
       tags:
         - remediations
       summary: Update Remediation
-      description: Updates the given Remediation
+      description: Updates the given Remediation, RBAC permission {remediations:remediation:write}
       operationId: updateRemediation
       parameters:
         - $ref: '#/components/parameters/RemediationId'
@@ -106,7 +106,7 @@ paths:
       tags:
         - remediations
       summary: Remove Remediation
-      description: Removes the given Remediation
+      description: Removes the given Remediation, RBAC permission {remediations:remediation:write}
       operationId: deleteRemediation
       parameters:
         - $ref: '#/components/parameters/RemediationId'
@@ -123,7 +123,7 @@ paths:
       tags:
         - remediations
       summary: Get Remediation Playbook
-      description: Provides Ansible Playbook
+      description: Provides Ansible Playbook, RBAC permission {remediations:remediation:read}
       operationId: getRemediationPlaybook
       parameters:
         - $ref: '#/components/parameters/RemediationId'
@@ -144,7 +144,7 @@ paths:
       tags:
         - remediations
       summary: Update Remediation Issue
-      description: Updates the given Remediation Issue
+      description: Updates the given Remediation Issue, RBAC permission {remediations:remediation:write}
       operationId: updateRemediationIssue
       parameters:
         - $ref: '#/components/parameters/RemediationId'
@@ -166,7 +166,7 @@ paths:
       tags:
         - remediations
       summary: Remove Remediation Issue
-      description: Removes the given Issue from the Remediation
+      description: Removes the given Issue from the Remediation, RBAC permission {remediations:remediation:write}
       operationId: deleteRemediationIssue
       parameters:
         - $ref: '#/components/parameters/RemediationId'
@@ -184,7 +184,7 @@ paths:
       tags:
         - remediations
       summary: Remove Remediation Issue System
-      description: Removes the given System from the Issue Remediation
+      description: Removes the given System from the Issue Remediation, RBAC permission {remediations:remediation:write}
       operationId: deleteRemediationIssueSystem
       parameters:
         - $ref: '#/components/parameters/RemediationId'
@@ -203,7 +203,7 @@ paths:
       tags:
         - remediations
       summary: Pre-flight check
-      description: Get satellite connection status for a given host
+      description: Get satellite connection status for a given host, RBAC permission {remediations:remediation:execute}
       operationId: getRemediationConnectionStatus
       parameters:
         - $ref: '#/components/parameters/RemediationId'
@@ -224,7 +224,7 @@ paths:
       tags:
         - remediations
       summary: Execute remediation
-      description: Execute remediation
+      description: Execute remediation, RBAC permission {remediations:remediation:execute}
       operationId: runRemediation
       parameters:
         - $ref: '#/components/parameters/RemediationId'
@@ -247,7 +247,7 @@ paths:
       tags:
         - resolutions
       summary: Resolution metadata
-      description: Provides information about resolutions available for the given issue
+      description: Provides information about resolutions available for the given issue, RBAC permission {remediations:resolution:read}
       operationId: getResolutionsForIssue
       parameters:
         - $ref: '#/components/parameters/IssueId'
@@ -268,7 +268,7 @@ paths:
       tags:
         - resolutions
       summary: Resolution metadata (batch)
-      description: Provides information about resolutions available for the given issues
+      description: Provides information about resolutions available for the given issues, RBAC permission {remediations:resolution:read}
       operationId: getResolutionsForIssues
       requestBody:
         required: true
@@ -315,7 +315,7 @@ paths:
       tags:
         - generator
       summary: Generate an Ansible Playbook
-      description: Generates an Ansible Playbook based on input parameters
+      description: Generates an Ansible Playbook based on input parameters, RBAC permission {remediations:resolution:read}
       operationId: generate
       requestBody:
         required: true
