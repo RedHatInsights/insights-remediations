@@ -247,7 +247,7 @@ paths:
       tags:
         - resolutions
       summary: Resolution metadata
-      description: Provides information about resolutions available for the given issue, RBAC permission {remediations:resolution:read}
+      description: Provides information about resolutions available for the given issue
       operationId: getResolutionsForIssue
       parameters:
         - $ref: '#/components/parameters/IssueId'
@@ -268,7 +268,7 @@ paths:
       tags:
         - resolutions
       summary: Resolution metadata (batch)
-      description: Provides information about resolutions available for the given issues, RBAC permission {remediations:resolution:read}
+      description: Provides information about resolutions available for the given issues
       operationId: getResolutionsForIssues
       requestBody:
         required: true
@@ -315,7 +315,7 @@ paths:
       tags:
         - generator
       summary: Generate an Ansible Playbook
-      description: Generates an Ansible Playbook based on input parameters, RBAC permission {remediations:resolution:read}
+      description: Generates an Ansible Playbook based on input parameters
       operationId: generate
       requestBody:
         required: true

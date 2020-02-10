@@ -19,7 +19,6 @@ const rbacCounter = new client.Counter({
 const PERMISSIONS = [
     'remediations:remediation:read',
     'remediations:remediation:write',
-    'remediations:resolution:read',
     'remediations:remediation:execute'
 ];
 

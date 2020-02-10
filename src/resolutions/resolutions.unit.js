@@ -1,7 +1,6 @@
 'use strict';
 
-const { request, reqId, buildRbacResponse, getSandbox } = require('../test');
-const rbac = require('../connectors/rbac');
+const { request, reqId } = require('../test');
 
 describe('resolve test resolutions', function () {
     test('resolution info (1)', async () => {
@@ -245,69 +244,5 @@ describe('batch', function () {
             code: 'INVALID_ISSUE_IDENTIFIER',
             title: '"ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink|test" is not a valid issue identifier.'
         }]);
-    });
-});
-
-describe('resolutions RBAC', function () {
-    test('permission = remediations:*:write doesnt let resolutions to read', async () => {
-        getSandbox().stub(rbac, 'getRemediationsAccess').resolves(buildRbacResponse('remediations:*:write'));
-
-        const {body} = await request
-        .post('/v1/resolutions')
-        .send({
-            issues: [
-                'test:ping',
-                'vulnerabilities:CVE-2017-15126',
-                'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
-                'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
-                'advisor:non-existent-issue'
-            ]
-        })
-        .expect(403);
-
-        body.errors[0].details.message.should.equal(
-            'Permission remediations:resolution:read is required for this operation'
-        );
-    });
-
-    test('permission = remediations:resolutions:* allows POST /v1/resolutions to read', async () => {
-        getSandbox().stub(rbac, 'getRemediationsAccess').resolves(buildRbacResponse('remediations:resolution:*'));
-
-        await request
-        .post('/v1/resolutions')
-        .send({
-            issues: [
-                'test:ping',
-                'vulnerabilities:CVE-2017-15126',
-                'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
-                'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
-                'advisor:non-existent-issue'
-            ]
-        })
-        .expect(200);
-    });
-
-    test('permission = remediations:remediation:* does not allow GET /v1/resolutions to read', async () => {
-        getSandbox().stub(rbac, 'getRemediationsAccess').resolves(buildRbacResponse('remediations:remediation:*'));
-
-        const {body} = await request
-        .get('/v1/resolutions/ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink')
-        .expect(403);
-
-        body.errors[0].details.message.should.equal(
-            'Permission remediations:resolution:read is required for this operation'
-        );
-    });
-
-    test('permission = [] does not allow GET /v1/resolutions to read', async () => {
-        getSandbox().stub(rbac, 'getRemediationsAccess').resolves([]);
-
-        const {body} = await request
-        .get('/v1/resolutions/ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink')
-        .expect(403);
-
-        body.errors[0].details.message.should.equal(
-            'Permission remediations:resolution:read is required for this operation'
-        );
     });
 });
