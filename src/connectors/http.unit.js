@@ -174,12 +174,9 @@ describe('connector caching', function () {
         });
         base.sandbox.stub(MOCK_CACHE, 'setex').resolves(null);
 
-        const expected = expect(http.request({
+        await expect(http.request({
             uri: 'https://example.com'
-        }, true)).rejects;
-
-        await expected.toThrowError(StatusCodeError);
-        await expected.toHaveProperty('statusCode', 500);
+        }, true)).rejects.toThrow(StatusCodeError);
 
         MOCK_CACHE.get.callCount.should.equal(1);
         request.run.callCount.should.equal(1);
@@ -191,11 +188,9 @@ describe('connector caching', function () {
         base.sandbox.stub(request, 'run').rejects(new Error('socket timeout'));
         base.sandbox.stub(MOCK_CACHE, 'setex').resolves(null);
 
-        const expected = expect(http.request({
+        await expect(http.request({
             uri: 'https://example.com'
-        }, true)).rejects;
-
-        await expected.toThrowError('socket timeout');
+        }, true)).rejects.toThrow('socket timeout');
 
         MOCK_CACHE.get.callCount.should.equal(1);
         request.run.callCount.should.equal(1);

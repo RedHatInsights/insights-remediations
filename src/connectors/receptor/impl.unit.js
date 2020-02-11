@@ -52,12 +52,12 @@ describe('receptor impl', function () {
 
         test('connection error handling', async function () {
             base.mockRequestError();
-            expect(impl.getConnectionStatus('540155', 'node-a')).rejects.toThrow(errors.DependencyError);
+            await expect(impl.getConnectionStatus('540155', 'node-a')).rejects.toThrow(errors.DependencyError);
         });
 
         test('status code handling', async function () {
             base.mockRequestStatusCode();
-            expect(impl.getConnectionStatus('540155', 'node-a')).rejects.toThrow(errors.DependencyError);
+            await expect(impl.getConnectionStatus('540155', 'node-a')).rejects.toThrow(errors.DependencyError);
         });
     });
 
@@ -92,12 +92,12 @@ describe('receptor impl', function () {
 
         test('connection error handling receptorWorkRequest', async function () {
             base.mockRequestError();
-            expect(impl.postInitialRequest(RECEPTORWORKREQUEST)).rejects.toThrow(errors.DependencyError);
+            await expect(impl.postInitialRequest(RECEPTORWORKREQUEST)).rejects.toThrow(errors.DependencyError);
         });
 
         test('status code handling receptorWorkRequest', async function () {
             base.mockRequestStatusCode();
-            expect(impl.postInitialRequest(RECEPTORWORKREQUEST)).rejects.toThrow(errors.DependencyError);
+            await expect(impl.postInitialRequest(RECEPTORWORKREQUEST)).rejects.toThrow(errors.DependencyError);
         });
     });
 });

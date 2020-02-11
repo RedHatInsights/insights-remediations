@@ -96,11 +96,11 @@ describe('rbac impl', function () {
 
     test('access error handling', async function () {
         base.mockRequestError();
-        expect(impl.getRemediationsAccess()).rejects.toThrow(errors.DependencyError);
+        await expect(impl.getRemediationsAccess()).rejects.toThrow(errors.DependencyError);
     });
 
     test('status code handling', async function () {
         base.mockRequestStatusCode();
-        expect(impl.getRemediationsAccess()).rejects.toThrow(errors.DependencyError);
+        await expect(impl.getRemediationsAccess()).rejects.toThrow(errors.DependencyError);
     });
 });

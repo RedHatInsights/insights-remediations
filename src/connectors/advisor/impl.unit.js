@@ -104,7 +104,7 @@ describe('advisor impl', function () {
 
         test('status code handling', async function () {
             base.mockRequestStatusCode();
-            expect(impl.getRule('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE')).rejects.toThrow(errors.DependencyError);
+            await expect(impl.getRule('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE')).rejects.toThrow(errors.DependencyError);
         });
     });
 

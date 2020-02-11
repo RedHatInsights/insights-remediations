@@ -97,11 +97,11 @@ describe('users impl', function () {
 
     test('connection error handling', async function () {
         base.mockRequestError();
-        expect(impl.getUser('***REMOVED***')).rejects.toThrow(errors.DependencyError);
+        await expect(impl.getUser('***REMOVED***')).rejects.toThrow(errors.DependencyError);
     });
 
     test('status code handling', async function () {
         base.mockRequestStatusCode();
-        expect(impl.getUser('***REMOVED***')).rejects.toThrow(errors.DependencyError);
+        await expect(impl.getUser('***REMOVED***')).rejects.toThrow(errors.DependencyError);
     });
 });

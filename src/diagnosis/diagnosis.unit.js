@@ -4,6 +4,7 @@ const { request, requestLegacy, auth, reqId } = require('../test');
 const mockInventory = require('../connectors/inventory/mock');
 
 [request, requestLegacy].forEach((req, index) => {
+    // eslint-disable-next-line jest/valid-describe
     describe(`diagnosis${index === 1 ? ' (legacy path)' : ''}`, function () {
         test('returns all details information for the given system', async () => {
             const {body} = await req

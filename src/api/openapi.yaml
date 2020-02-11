@@ -471,7 +471,6 @@ components:
 
     RemediationAutoReboot:
       type: boolean
-      default: true
       description: >
         Indicates whether systems that require reboot for the remediation to be properly applied should be
         rebooted automatically or not
