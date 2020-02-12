@@ -3,7 +3,7 @@
 const impl = require('./impl');
 const base = require('../../test');
 const Connector = require('../Connector');
-const { mockRequest } = require('../testUtils');
+const { mockRequest, mockCache } = require('../testUtils');
 const request = require('../../util/request');
 const errors = require('../../errors');
 
@@ -11,6 +11,7 @@ describe('rbac impl', function () {
     beforeEach(mockRequest);
 
     test('get remediations access', async function () {
+        const cache = mockCache();
         const http = base.getSandbox().stub(request, 'run').resolves({
             statusCode: 200,
             body: {
@@ -57,6 +58,9 @@ describe('rbac impl', function () {
         options.headers.should.have.size(2);
         options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
         options.headers.should.have.property('x-rh-identity', 'identity');
+
+        cache.get.callCount.should.equal(0);
+        cache.setex.callCount.should.equal(0);
     });
 
     test('returns null when operation failed', async function () {

@@ -23,7 +23,7 @@ module.exports = function (permission) {
                 return next();
             }
 
-            probes.rbacErrorCount(permission);
+            probes.rbacErrorCount(permission, accessPermissions);
 
             return next(new errors.Forbidden(
                 `Permission remediations:${srcPermission.resource}:${srcPermission.resourceType} is required for this operation`

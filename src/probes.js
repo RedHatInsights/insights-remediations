@@ -42,9 +42,10 @@ exports.playbookGenerated = function (req, {auto_reboot, issues}, name) {
     }, 'playbook generated');
 };
 
-exports.rbacErrorCount = function (permission) {
+exports.rbacErrorCount = function (permission, availablePermissions) {
     rbacCounter.labels(permission).inc();
     log.info({
-        rbac_permission: permission
+        rbac_permission: permission,
+        available_permissions: availablePermissions
     }, 'Rejecting access due to missing RBAC permission');
 };

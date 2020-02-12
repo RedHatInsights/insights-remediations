@@ -25,7 +25,7 @@ module.exports = new class extends Connector {
             json: true,
             rejectUnauthorized: !insecure,
             headers: this.getForwardedHeaders()
-        }, this.accessMetrics);
+        }, false, this.accessMetrics);
 
         if (_.isEmpty(result)) {
             return null;
