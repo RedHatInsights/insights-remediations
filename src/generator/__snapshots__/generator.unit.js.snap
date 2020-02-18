@@ -166,6 +166,69 @@ exports[`adds diagnosis play 1`] = `
       changed_when: false"
 `;
 
+exports[`generates a simple alwaysFail playbook 1`] = `
+"---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
+# Fixes test:alwaysFail
+# Identifier: (test:alwaysFail,fix)
+# Version: unknown
+- name: Always fail
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+
+  tasks:
+    - name: Fail  now
+      fail:
+        msg: Always fail
+
+- name: run insights
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
+`;
+
+exports[`generates a simple failHalfTheTime  playbook 1`] = `
+"---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
+# Fixes test:failHalfTheTime
+# Identifier: (test:failHalfTheTime,fix)
+# Version: unknown
+- name: Sometimes fail
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+
+  tasks:
+  - name: Should we fail?
+    set_fact:
+      # with {{[True, False]| random}} i observed always true 
+      i_should_fail: '{{(100|random) < 50}}'
+  - name: Fail in case
+    fail:
+      msg: Sometimes Fail
+    when: i_should_fail
+
+- name: run insights
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
+`;
+
 exports[`generates a simple playbook 1`] = `
 "---
 # Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you

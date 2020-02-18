@@ -19,6 +19,36 @@ test('generates a simple playbook', () => {
     .then(res => expect(res.text).toMatchSnapshot());
 });
 
+test('generates a simple alwaysFail playbook', () => {
+    const data = {
+        issues: [{
+            id: 'test:alwaysFail',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200)
+    .then(res => expect(res.text).toMatchSnapshot());
+});
+
+test('generates a simple failHalfTheTime  playbook', () => {
+    const data = {
+        issues: [{
+            id: 'test:failHalfTheTime',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200)
+    .then(res => expect(res.text).toMatchSnapshot());
+});
+
 test('generates a simple playbook with reboot', () => {
     const data = {
         issues: [{

@@ -6,6 +6,8 @@ const templates = require('../../templates/static');
 
 const RESOLUTIONS = Object.freeze({
     ping: [new Resolution(templates.test.ping, 'fix', 'Run Ansible ping module')],
+    alwaysFail: [new Resolution(templates.test.alwaysFail, 'fix', 'Always fail')],
+    failHalfTheTime: [new Resolution(templates.test.failHalfTheTime, 'fix', 'fail half the time')],
     reboot: [new Resolution(templates.test.rebootTrigger, 'fix', 'Reboot system', true, false, 4)],
     missingVariable: [new Resolution(templates.test.missingVariable, 'fix')],
     debug: [

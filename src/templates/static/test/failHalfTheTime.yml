@@ -1,0 +1,12 @@
+- name: Sometimes fail
+  hosts: "@@HOSTS@@"
+
+  tasks:
+  - name: Should we fail?
+    set_fact:
+      # with {{[True, False]| random}} i observed always true 
+      i_should_fail: '{{(100|random) < 50}}'
+  - name: Fail in case
+    fail:
+      msg: Sometimes Fail
+    when: i_should_fail

@@ -1,0 +1,7 @@
+- name: Always fail
+  hosts: "@@HOSTS@@"
+
+  tasks:
+    - name: Fail  now
+      fail:
+        msg: Always fail
