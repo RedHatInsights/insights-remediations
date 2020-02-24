@@ -19,7 +19,7 @@ exports[`patchman aggregates multiple advisories into a single play 1`] = `
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHBA-2019:0689,RHBA-2019:2871,RHBA-2019:4105\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHBA-2019:0689 --advisory RHBA-2019:2871 --advisory RHBA-2019:4105\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -28,7 +28,7 @@ exports[`patchman aggregates multiple advisories into a single play 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHBA-2019:0689,RHBA-2019:2871,RHBA-2019:4105\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHBA-2019:0689 --advisory RHBA-2019:2871 --advisory RHBA-2019:4105\\"
       args:
         warn: false
 
@@ -118,7 +118,7 @@ exports[`patchman generates a simple playbook with multiple patchman advisory re
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHBA-2019:0689,RHBA-2019:2871\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHBA-2019:0689 --advisory RHBA-2019:2871\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -127,7 +127,7 @@ exports[`patchman generates a simple playbook with multiple patchman advisory re
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHBA-2019:0689,RHBA-2019:2871\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHBA-2019:0689 --advisory RHBA-2019:2871\\"
       args:
         warn: false
 
