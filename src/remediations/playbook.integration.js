@@ -60,10 +60,10 @@ describe('playbooks', function () {
             });
         }
 
-        testCaching('pydata playbook', '66eec356-dd06-4c72-a3b6-ef27d1508a02', 'W/"221d-+SxCR9xoInXIYkZURcsyHuhYtOY"');
-        testCaching('no reboot playbook', 'e809526c-56f5-4cd8-a809-93328436ea23', 'W/"95c-eJj0zN5n1vLF4J0fIvQgnFWbRKU"');
+        testCaching('pydata playbook', '66eec356-dd06-4c72-a3b6-ef27d1508a02', 'W/"223b-cSjiir7HylCBJX0fd6UuAG998NQ"');
+        testCaching('no reboot playbook', 'e809526c-56f5-4cd8-a809-93328436ea23', 'W/"97a-Zq9+S7vcVqNvtRUrhlKycwr7ztU"');
         testCaching('playbook with suppressed reboot', '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
-            'W/"bd9-QIh7Uaga60+AwjNBKMyUE3DLzq0"');
+            'W/"bf7-azfJ3D6l+oCLg9DJyyMdOezRh/I"');
 
         test('pydata playbook caching with stale data', async () => {
             await request
