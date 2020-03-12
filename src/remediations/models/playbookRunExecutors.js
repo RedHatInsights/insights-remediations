@@ -16,11 +16,11 @@ module.exports = (sequelize, {STRING, UUID, ENUM, DATE, TEXT}) => {
             allowNull: false
         },
         receptor_node_id: {
-            type: UUID,
+            type: String,
             allowNull: false
         },
         receptor_job_id: {
-            type: STRING,
+            type: UUID,
             allowNull: false
         },
         status: {
