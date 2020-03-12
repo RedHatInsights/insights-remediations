@@ -283,7 +283,7 @@ exports.getSystems = function (remediation_id, playbook_run_id, account, usernam
     });
 };
 
-exports.getSystemDetails = function (id, playbook_run_id, system, account_number, created_by) {
+exports.getSystemDetails = function (id, playbook_run_id, system_id, account_number, created_by) {
     return db.playbook_run_systems.findOne({
         attributes: [
             'id',
@@ -314,7 +314,7 @@ exports.getSystemDetails = function (id, playbook_run_id, system, account_number
             }]
         }],
         where: {
-            id: system
+            system_id
         }
     });
 };

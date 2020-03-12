@@ -209,7 +209,6 @@ exports.playbookRunDetails = function (playbook_runs) {
 
 exports.playbookSystems = function (systems) {
     const formatted = systems.map(system => ({
-        id: system.id,
         system_id: system.system_id,
         system_name: system.system_name,
         status: system.status,
@@ -228,7 +227,6 @@ exports.playbookSystems = function (systems) {
 
 exports.playbookSystemDetails = function (system) {
     const formatted = {
-        id: system.id,
         system_id: system.system_id,
         system_name: system.system_name,
         status: system.status,

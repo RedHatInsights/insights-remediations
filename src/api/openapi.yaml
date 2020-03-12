@@ -596,7 +596,7 @@ components:
     RemediationNeedsReboot:
       type: boolean
       description: Indicates whether any of the issues contained in the remediation require system reboot
-    
+
     PlaybookRunStatus:
       type: string
       example: "pending"
@@ -611,16 +611,11 @@ components:
       type: string
       format: uuid
       example: a8799a02-8be9-11e8-9eb6-529269fb1459
-    
+
     PlaybookRunExecutorId:
       type: string
       format: uuid
       example: b6279a02-8be9-11e8-9eb6-529269fb1459
-
-    PlaybookRunSystemId:
-      type: string
-      format: uuid
-      example: a8c4bbeb-dbcf-4fdb-94bc-19e45e961cb1
 
     ResolutionNeedsReboot:
       type: boolean
@@ -831,7 +826,7 @@ components:
             $ref: '#/components/schemas/PlaybookRunDetails'
         meta:
             $ref: '#/components/schemas/Meta'
-    
+
     PlaybookRunSystemList:
       type: object
       additionalProperties: false
@@ -843,7 +838,7 @@ components:
             $ref: '#/components/schemas/PlaybookRunSystems'
         meta:
             $ref: '#/components/schemas/Meta'
-    
+
     ExecutorList:
       type: array
       items:
@@ -879,7 +874,7 @@ components:
           $ref: '#/components/schemas/DateTime'
         status:
           $ref: '#/components/schemas/PlaybookRunStatus'
-          
+
     PlaybookRunDetails:
       type: object
       additionalProperties: false
@@ -906,20 +901,17 @@ components:
           $ref: '#/components/schemas/DateTime'
         status:
           $ref: '#/components/schemas/PlaybookRunStatus'
-    
+
     PlaybookRunSystems:
       type: object
       additionalProperties: false
       required:
-        - id
         - system_id
         - system_name
         - status
         - updated_at
         - playbook_run_executor_id
       properties:
-        id:
-          $ref: '#/components/schemas/PlaybookRunSystemId'
         system_id:
           $ref: '#/components/schemas/SystemId'
         system_name:
@@ -935,7 +927,6 @@ components:
       type: object
       additionalProperties: false
       required:
-        - id
         - system_id
         - system_name
         - status
@@ -943,8 +934,6 @@ components:
         - playbook_run_executor_id
         - updated_at
       properties:
-        id:
-          $ref: '#/components/schemas/PlaybookRunSystemId'
         system_id:
           $ref: '#/components/schemas/SystemId'
         system_name:
@@ -957,7 +946,7 @@ components:
           $ref: '#/components/schemas/PlaybookRunExecutorId'
         updated_at:
           $ref: '#/components/schemas/DateTime'
-    
+
     PlaybookExecutors:
       type: object
       additionalProperties: false
@@ -972,7 +961,7 @@ components:
           $ref: '#/components/schemas/ExecutorName'
         system_count:
           type: integer
-    
+
     PlaybookExecutorDetails:
       type: object
       additionalProperties: false
