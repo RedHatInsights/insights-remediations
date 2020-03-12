@@ -23,23 +23,25 @@ module.exports = (sequelize, {UUID, ENUM, STRING, DATE, TEXT, INTEGER}) => {
         sequence: {
             type: INTEGER,
             allowNull: false,
-            defaultVaule: -1
+            defaultValue: -1
         },
         console: {
             type: TEXT,
-            allowNull: false
+            allowNull: false,
+            defaultValue: ''
         },
         updated_at: {
             type: DATE,
             allwoNull: false
         },
-        run_executor_id: {
+        playbook_run_executor_id: {
             type: UUID,
             allowNull: false
         }
     }, {
         timestamps: true,
-        updatedAt: 'updated_at'
+        updatedAt: 'updated_at',
+        createdAt: false
     });
 
     RunSystems.associate = models => {

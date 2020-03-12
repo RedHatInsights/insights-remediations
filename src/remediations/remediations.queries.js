@@ -242,6 +242,9 @@ exports.getRunDetails = function (id, playbook_run_id, account_number, created_b
             'remediation.id',
             'playbook_runs.id',
             'playbook_runs->executors.id'
+        ],
+        order: [
+            [db.remediation.associations.playbook_runs, db.playbook_runs.associations.executors, 'executor_name', 'ASC']
         ]
     });
 };
@@ -278,7 +281,7 @@ exports.getSystems = function (remediation_id, playbook_run_id, account, usernam
             }]
         }],
         order: [
-            ['system_name', 'DESC']
+            ['system_name', 'ASC']
         ]
     });
 };
@@ -341,5 +344,13 @@ exports.getPlaybookRunId = function (playbook_run_id, id, account_number, create
         where: {
             id, account_number, created_by
         }
+    });
+};
+
+exports.insertPlaybookRun = async function (run, executors, systems) {
+    await db.s.transaction(async transaction => {
+        await db.playbook_runs.create(run, {transaction});
+        await db.playbook_run_executors.bulkCreate(executors, {transaction});
+        await db.playbook_run_systems.bulkCreate(systems, {transaction});
     });
 };

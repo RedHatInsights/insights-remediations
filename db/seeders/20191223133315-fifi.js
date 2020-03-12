@@ -72,6 +72,24 @@ exports.up = async q => {
         created_at: '2020-01-23T18:19:36.641Z',
         updated_by: created_by,
         updated_at: '2020-01-23T18:19:36.641Z'
+    }, {
+        id: 'd12efef0-9580-4c82-b604-9888e2269c5a',
+        name: 'FiFI playbook 4',
+        auto_reboot: true,
+        account_number,
+        created_by,
+        created_at: '2020-01-23T18:19:36.641Z',
+        updated_by: created_by,
+        updated_at: '2020-01-23T18:19:36.641Z'
+    }, {
+        id: '63d92aeb-9351-4216-8d7c-044d171337bc',
+        name: 'FiFI playbook 5',
+        auto_reboot: true,
+        account_number,
+        created_by,
+        created_at: '2020-01-23T18:19:36.641Z',
+        updated_by: created_by,
+        updated_at: '2020-01-23T18:19:36.641Z'
     }], opts);
 
     const issues = await q.bulkInsert('remediation_issues', [{
@@ -85,6 +103,12 @@ exports.up = async q => {
         issue_id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled'
     }, {
         remediation_id: remediations[2].id,
+        issue_id: 'test:ping'
+    }, {
+        remediation_id: remediations[3].id,
+        issue_id: 'test:ping'
+    }, {
+        remediation_id: remediations[4].id,
         issue_id: 'test:ping'
     }], opts);
 

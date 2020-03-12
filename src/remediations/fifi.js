@@ -12,9 +12,13 @@ const receptorConnector = require('../connectors/receptor');
 const log = require('../util/log');
 const probes = require('../probes');
 const read = require('./controller.read');
+const queries = require('./remediations.queries');
 
 const SATELLITE_NAMESPACE = Object.freeze({namespace: 'satellite'});
 const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_name']);
+
+const PENDING = 'pending';
+const FAILURE = 'failure';
 
 async function fetchSystems (ids) {
     const systemDetails = await inventory.getSystemDetailsBatch(ids);
@@ -167,7 +171,7 @@ async function prepareReceptorRequest (executor, remediation, remediationIssues,
         playbook,
         playbook_run_id), remediation.account_number, executor.receptorId);
 
-    return { executor, receptorWorkRequest};
+    return { executor, receptorWorkRequest, playbook};
 }
 
 function dispatchReceptorRequests (requests, remediation, playbook_run_id) {
@@ -188,7 +192,44 @@ function dispatchReceptorRequests (requests, remediation, playbook_run_id) {
     });
 }
 
-exports.createPlaybookRun = async function (status, remediation) {
+async function storePlaybookRun (remediation, playbook_run_id, requests, responses, username) {
+    requests.forEach(({executor}, index) => {
+        executor.id = uuid.v4();
+        // eslint-disable-next-line security/detect-object-injection
+        executor.response = responses[index];
+        // eslint-disable-next-line security/detect-object-injection
+        executor.dispatched = (responses[index] !== null);
+    });
+
+    const run = {
+        id: playbook_run_id,
+        remediation_id: remediation.id,
+        created_by: username
+    };
+
+    const executors = requests.map(({executor, playbook}) => ({
+        id: executor.id,
+        executor_id: executor.satId,
+        executor_name: executor.name,
+        receptor_node_id: executor.receptorId,
+        status: executor.dispatched ? PENDING : FAILURE,
+        receptor_job_id: executor.dispatched ? executor.response.id : '974f49ed-6954-4ea4-9677-6064264ee5dd', // TODO
+        playbook: playbook.yaml,
+        playbook_run_id
+    }));
+
+    const systems = _.flatMap(requests, ({executor}) => executor.systems.map(system => ({
+        id: uuid.v4(),
+        system_id: system.id,
+        system_name: generator.systemToHost(system),
+        status: executor.dispatched ? PENDING : FAILURE,
+        playbook_run_executor_id: executor.id
+    })));
+
+    await queries.insertPlaybookRun(run, executors, systems);
+}
+
+exports.createPlaybookRun = async function (status, remediation, username) {
     const playbook_run_id = exports.generatePlaybookRunId();
     const executors = _.filter(status, {status: 'connected'});
     const remediationIssues = remediation.toJSON().issues;
@@ -200,7 +241,9 @@ exports.createPlaybookRun = async function (status, remediation) {
     const requests = await P.map(executors,
         executor => prepareReceptorRequest(executor, remediation, remediationIssues, playbook_run_id));
 
-    await dispatchReceptorRequests(requests, remediation, playbook_run_id);
+    const responses = await dispatchReceptorRequests(requests, remediation, playbook_run_id);
+
+    await storePlaybookRun(remediation, playbook_run_id, requests, responses, username);
 
     return playbook_run_id;
 };

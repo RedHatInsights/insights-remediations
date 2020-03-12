@@ -21,7 +21,7 @@ module.exports = (sequelize, {STRING, UUID, ENUM, DATE, TEXT}) => {
         },
         receptor_job_id: {
             type: UUID,
-            allowNull: false
+            allowNull: true
         },
         status: {
             type: ENUM,
@@ -43,7 +43,8 @@ module.exports = (sequelize, {STRING, UUID, ENUM, DATE, TEXT}) => {
         }
     }, {
         timestamps: true,
-        updatedAt: 'updated_at'
+        updatedAt: 'updated_at',
+        createdAt: false
     });
 
     RunExecutors.associate = models => {
