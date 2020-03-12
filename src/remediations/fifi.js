@@ -156,26 +156,34 @@ exports.sendInitialRequest = async function (status, remediation, account) {
         return null;
     }
 
-    await P.mapSeries(executors, async (executor, index) => {
+    // prepare everything that we need to dispatch work requests to receptor
+    const requests = await P.map(executors, async executor => {
+        const filteredIssues = generator.normalizeIssues(
+            await exports.filterIssuesPerExecutor(executor.systems, remediationIssues)
+        );
+
+        const playbook = await generator.playbookPipeline ({
+            issues: filteredIssues,
+            auto_reboot: remediation.auto_reboot
+        }, remediation, false);
+
+        const resolvedIssues = await generator.resolveSystems(filteredIssues);
+        const receptorWorkRequest = format.receptorWorkRequest(format.playbookRunRequest(
+            remediation,
+            resolvedIssues,
+            playbook,
+            playbook_run_id), account, executor.receptorId);
+
+        return { executor, receptorWorkRequest};
+    });
+
+    // dispatch work requests to receptor
+    await P.mapSeries(requests, async ({ executor, receptorWorkRequest }, index) => {
         try {
-            const filteredIssues = generator.normalizeIssues(
-                await exports.filterIssuesPerExecutor(executor.systems, remediationIssues)
-            );
-
-            const playbook = await generator.playbookPipeline ({
-                issues: filteredIssues,
-                auto_reboot: remediation.auto_reboot
-            }, remediation, false);
-
-            const resolvedIssues = await generator.resolveSystems(filteredIssues);
-            const receptorWorkRequest = format.receptorWorkRequest(format.playbookRunRequest(
-                remediation,
-                resolvedIssues,
-                playbook,
-                playbook_run_id), account, executor.receptorId);
-
-            probes.splitPlaybookPerSatId(receptorWorkRequest, executor.satId);
-            return await receptorConnector.postInitialRequest(receptorWorkRequest);
+            probes.splitPlaybookPerSatId(receptorWorkRequest, executor.satId, remediation, playbook_run_id);
+            const response = await receptorConnector.postInitialRequest(receptorWorkRequest);
+            probes.receptorJobDispatched(receptorWorkRequest, executor, response, remediation, playbook_run_id);
+            return response;
         } catch (e) {
             if (index !== 0) {
                 log.error({executor: executor.id, error: e}, 'error sending Playbook to executor');

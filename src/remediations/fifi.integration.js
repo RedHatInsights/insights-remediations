@@ -423,9 +423,10 @@ describe('FiFi', function () {
             });
 
             test('if 2nd executor result from receptor is request error', async function () {
-                base.getSandbox().stub(receptor, 'postInitialRequest')
-                .onCall(2)
+                const stub = base.getSandbox().stub(receptor, 'postInitialRequest');
+                stub.onCall(2)
                 .rejects(errors.internal.dependencyError(new Error('receptor down'), receptor));
+                stub.callThrough();
 
                 const {body} =  await request
                 .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
