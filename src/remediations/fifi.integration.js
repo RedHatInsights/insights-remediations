@@ -429,9 +429,8 @@ describe('FiFi', function () {
 
             test('if 2nd executor result from receptor is request error', async function () {
                 const stub = base.getSandbox().stub(receptor, 'postInitialRequest');
-                stub.onCall(2)
-                .rejects(errors.internal.dependencyError(new Error('receptor down'), receptor));
                 stub.callThrough();
+                stub.onSecondCall().rejects(errors.internal.dependencyError(new Error('receptor down'), receptor));
 
                 const {body} =  await request
                 .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
@@ -583,6 +582,46 @@ describe('FiFi', function () {
             system3.should.have.property('status', 'pending');
             system3.should.have.property('console', '');
             system3.should.have.properties('updated_at', 'playbook_run_executor_id');
+        });
+
+        test('create playbook run (with 2nd executor failing)', async () => {
+            const stub = base.getSandbox().stub(receptor, 'postInitialRequest');
+            stub.callThrough();
+            stub.onSecondCall().rejects(errors.internal.dependencyError(new Error('receptor down'), receptor));
+
+            const {body: post} = await request
+            .post('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs')
+            .set(auth.fifi)
+            .expect(201);
+
+            stub.callCount.should.equal(2);
+
+            const {body: run} = await request
+            .get(`/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/${post.id}`)
+            .set(auth.fifi)
+            .expect(200);
+
+            run.should.have.property('status', 'pending');
+            run.executors.should.have.length(2);
+
+            run.executors[0].should.have.property('executor_id', '722ec903-f4b5-4b1f-9c2f-23fc7b0ba390');
+            run.executors[0].should.have.property('status', 'pending');
+            run.executors[0].should.have.property('system_count', 3);
+
+            run.executors[1].should.have.property('executor_id', '63142926-46a5-498b-9614-01f2f66fd40b');
+            run.executors[1].should.have.property('status', 'failure');
+            run.executors[1].should.have.property('system_count', 1);
+
+            const {body: systems} = await request
+            .get(`/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/${post.id}/systems`)
+            .set(auth.fifi)
+            .expect(200);
+
+            systems.data.should.have.length(4);
+            systems.data[0].should.have.property('status', 'pending');
+            systems.data[1].should.have.property('status', 'failure');
+            systems.data[2].should.have.property('status', 'pending');
+            systems.data[3].should.have.property('status', 'pending');
         });
     });
 });
