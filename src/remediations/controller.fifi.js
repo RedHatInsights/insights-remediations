@@ -43,7 +43,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
         return notMatching(res);
     }
 
-    const result = await fifi.sendInitialRequest(status, remediation, req.identity.account_number);
+    const result = await fifi.createPlaybookRun(status, remediation);
 
     if (_.isNull(result)) {
         throw errors.noExecutors(remediation);

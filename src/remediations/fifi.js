@@ -149,38 +149,29 @@ exports.filterIssuesPerExecutor = async function (systems, remediationIssues) {
     return filtered;
 };
 
-exports.sendInitialRequest = async function (status, remediation, account) {
-    const playbook_run_id = exports.generatePlaybookRunId();
-    const executors = _.filter(status, {status: 'connected'});
-    const remediationIssues = remediation.toJSON().issues;
+// prepare everything that we need to dispatch work requests to receptor
+async function prepareReceptorRequest (executor, remediation, remediationIssues, playbook_run_id) {
+    const filteredIssues = generator.normalizeIssues(
+        await exports.filterIssuesPerExecutor(executor.systems, remediationIssues)
+    );
 
-    if (_.isEmpty(executors)) {
-        return null;
-    }
+    const playbook = await generator.playbookPipeline ({
+        issues: filteredIssues,
+        auto_reboot: remediation.auto_reboot
+    }, remediation, false);
 
-    // prepare everything that we need to dispatch work requests to receptor
-    const requests = await P.map(executors, async executor => {
-        const filteredIssues = generator.normalizeIssues(
-            await exports.filterIssuesPerExecutor(executor.systems, remediationIssues)
-        );
+    const resolvedIssues = await generator.resolveSystems(filteredIssues);
+    const receptorWorkRequest = format.receptorWorkRequest(format.playbookRunRequest(
+        remediation,
+        resolvedIssues,
+        playbook,
+        playbook_run_id), remediation.account_number, executor.receptorId);
 
-        const playbook = await generator.playbookPipeline ({
-            issues: filteredIssues,
-            auto_reboot: remediation.auto_reboot
-        }, remediation, false);
+    return { executor, receptorWorkRequest};
+}
 
-        const resolvedIssues = await generator.resolveSystems(filteredIssues);
-        const receptorWorkRequest = format.receptorWorkRequest(format.playbookRunRequest(
-            remediation,
-            resolvedIssues,
-            playbook,
-            playbook_run_id), account, executor.receptorId);
-
-        return { executor, receptorWorkRequest};
-    });
-
-    // dispatch work requests to receptor
-    await P.mapSeries(requests, async ({ executor, receptorWorkRequest }, index) => {
+function dispatchReceptorRequests (requests, remediation, playbook_run_id) {
+    return P.mapSeries(requests, async ({ executor, receptorWorkRequest }, index) => {
         try {
             probes.splitPlaybookPerSatId(receptorWorkRequest, executor.satId, remediation, playbook_run_id);
             const response = await receptorConnector.postInitialRequest(receptorWorkRequest);
@@ -195,6 +186,21 @@ exports.sendInitialRequest = async function (status, remediation, account) {
             throw e;
         }
     });
+}
+
+exports.createPlaybookRun = async function (status, remediation) {
+    const playbook_run_id = exports.generatePlaybookRunId();
+    const executors = _.filter(status, {status: 'connected'});
+    const remediationIssues = remediation.toJSON().issues;
+
+    if (_.isEmpty(executors)) {
+        return null;
+    }
+
+    const requests = await P.map(executors,
+        executor => prepareReceptorRequest(executor, remediation, remediationIssues, playbook_run_id));
+
+    await dispatchReceptorRequests(requests, remediation, playbook_run_id);
 
     return playbook_run_id;
 };

@@ -395,8 +395,8 @@ describe('FiFi', function () {
                 expect(spy.args[1]).toMatchSnapshot();
             });
 
-            test('if no executors are send to postInitialRequest', async function () {
-                base.getSandbox().stub(fifi, 'sendInitialRequest').resolves(null);
+            test('if no executors are send to createPlaybookRun', async function () {
+                base.getSandbox().stub(fifi, 'createPlaybookRun').resolves(null);
 
                 const {body} = await request
                 .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
