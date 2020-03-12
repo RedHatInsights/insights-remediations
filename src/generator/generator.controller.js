@@ -70,6 +70,10 @@ exports.generate = errors.async(async function (req, res) {
     return exports.send(req, res, playbook);
 });
 
+exports.systemToHost = function (system) {
+    return system.ansible_host || system.hostname || system.id;
+};
+
 exports.resolveSystems = async function (issues, strict = true) {
     const systemIds = _(issues).flatMap('systems').uniq().value();
 
@@ -91,7 +95,7 @@ exports.resolveSystems = async function (issues, strict = true) {
         // validated by openapi middleware and also above
         // eslint-disable-next-line security/detect-object-injection
         const system = systems[id];
-        return system.ansible_host || system.hostname || system.id;
+        return exports.systemToHost(system);
     }));
 
     if (!strict) {

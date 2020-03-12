@@ -39,7 +39,9 @@ const systems = [
     '750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4',
 
     // connected
-    '35e9b452-e405-499c-9c6e-120010b7b465'
+    // these two systems have the same ansible_host - only one of them should show up
+    '35e9b452-e405-499c-9c6e-120010b7b465',
+    '35f36364-6007-4ecc-9666-c4f8d354be9f'
 ];
 
 exports.up = async q => {

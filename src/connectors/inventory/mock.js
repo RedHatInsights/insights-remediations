@@ -5,6 +5,15 @@ const Connector = require('../Connector');
 
 const NON_EXISTENT_SYSTEM = '1040856f-b772-44c7-83a9-eeeeeeeeeeee';
 
+const SATELLITES = [
+    '722ec903-f4b5-4b1f-9c2f-23fc7b0ba390', // connected
+    '409dd231-6297-43a6-a726-5ce56923d624', // disconnected
+    '72f44b25-64a7-4ee7-a94e-3beed9393972', // no_receptor
+    '01bf542e-6092-485c-ba04-c656d77f988a', // no_source
+    null, // no_executor,
+    '63142926-46a5-498b-9614-01f2f66fd40b' // connected
+];
+
 const SYSTEMS = {
     'fc94beb8-21ee-403d-99b1-949ef7adb762': {},
     '1040856f-b772-44c7-83a9-eeeeeeeeee01': {
@@ -18,17 +27,23 @@ const SYSTEMS = {
     },
     '1040856f-b772-44c7-83a9-eeeeeeeeee04': {
         hostname: '  foo.  example.com'
+    },
+    // this one mimics 35e9b452-e405-499c-9c6e-120010b7b465 in the context of ansible identity (ansible_host, hostname, id)
+    '35f36364-6007-4ecc-9666-c4f8d354be9f': {
+        hostname: '35e9b452-e405-499c-9c6e-120010b7b465.example.com',
+        facts: [
+            {
+                namespace: 'satellite',
+                facts: {
+                    satellite_instance_id: _.get(SATELLITES, parseInt(
+                        '35e9b452-e405-499c-9c6e-120010b7b465'['35e9b452-e405-499c-9c6e-120010b7b465'.length - 1],
+                        16
+                    ) % SATELLITES.length)
+                }
+            }
+        ]
     }
 };
-
-const SATELLITES = [
-    '722ec903-f4b5-4b1f-9c2f-23fc7b0ba390', // connected
-    '409dd231-6297-43a6-a726-5ce56923d624', // disconnected
-    '72f44b25-64a7-4ee7-a94e-3beed9393972', // no_receptor
-    '01bf542e-6092-485c-ba04-c656d77f988a', // no_source
-    null, // no_executor,
-    '63142926-46a5-498b-9614-01f2f66fd40b' // connected
-];
 
 function generateSystem (id) {
     const satelliteIndex = parseInt(id[id.length - 1], 16) % SATELLITES.length;

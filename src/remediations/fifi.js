@@ -117,7 +117,9 @@ exports.getConnectionStatus = async function (remediation, account) {
 
     const satellites = _(systems).groupBy('satelliteId').mapValues(systems => ({
         id: systems[0].satelliteId,
-        systems
+        // unique by ansible host i.e. if there are two systems with the same ansible identifier then
+        // only pick on one of them as we wouldn't be able to tell them apart based on responses from Satellite
+        systems: _(systems).sortBy('id').uniqBy(generator.systemToHost).value()
     })).values().value();
 
     const sourceInfo = await sources.getSourceInfo(_(satellites).map('id').filter().value());
