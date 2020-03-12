@@ -322,31 +322,6 @@ exports.getSystemDetails = function (id, playbook_run_id, system_id, account_num
     });
 };
 
-exports.getRemediation = function (id, account_number, created_by) {
-    return db.remediation.findOne({
-        attributes: ['id'],
-        where: {
-            id, account_number, created_by
-        }
-    });
-};
-
-exports.getPlaybookRunId = function (playbook_run_id, id, account_number, created_by) {
-    return db.remediation.findOne({
-        attributes: [],
-        include: [{
-            attributes: ['id'],
-            model: db.playbook_runs,
-            where: {
-                id: playbook_run_id
-            }
-        }],
-        where: {
-            id, account_number, created_by
-        }
-    });
-};
-
 exports.insertPlaybookRun = async function (run, executors, systems) {
     await db.s.transaction(async transaction => {
         await db.playbook_runs.create(run, {transaction});
