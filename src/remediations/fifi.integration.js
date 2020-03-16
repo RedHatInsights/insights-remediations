@@ -32,6 +32,13 @@ describe('FiFi', function () {
             body.data.should.eql([]);
         });
 
+        test('404 on empty query', async () => {
+            await request
+            .get('/v1/remediations/b0dd77e5-b7aa-4752-aa66-f79f7a7705b8/connection_status?pretty')
+            .set(auth.fifi)
+            .expect(404);
+        });
+
         test('400 get connection status', async () => {
             await request
             .set(auth.fifi)
@@ -337,6 +344,13 @@ describe('FiFi', function () {
                 .expect(400);
             });
 
+            test('404 on empty query playbook_runs', async () => {
+                await request
+                .post('/v1/remediations/b0dd77e5-b7aa-4752-aa66-f79f7a7705b8/playbook_runs')
+                .set(auth.fifi)
+                .expect(404);
+            });
+
             test('execute playbook run with false smartManagement', async () => {
                 await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
@@ -401,7 +415,14 @@ describe('FiFi', function () {
             });
 
             test('if no executors are send to createPlaybookRun', async function () {
-                base.getSandbox().stub(fifi, 'createPlaybookRun').resolves(null);
+                base.getSandbox().stub(fifi, 'getConnectionStatus').resolves([{
+                    satId: '5f673055-a9a9-4352-a7b6-8ff42e01db96',
+                    receptorId: '5f673055-a9a9-4352-a7b6-8ff42e01db96',
+                    systems: ['5f673055-a9a9-4352-a7b6-8ff42e01db96'],
+                    type: 'Satellite',
+                    name: 'Satellite-1',
+                    status: 'disconnected'
+                }]);
 
                 const {body} = await request
                 .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')

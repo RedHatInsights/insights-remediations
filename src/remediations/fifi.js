@@ -26,7 +26,7 @@ async function fetchSystems (ids) {
     return _(ids).map(id => _.get(systemDetails, id)).filter().value();
 }
 
-function getSatelliteId (facts) {
+exports.getSatelliteId = function (facts) {
     const satelliteFacts = _.find(facts, SATELLITE_NAMESPACE);
 
     if (satelliteFacts) {
@@ -34,7 +34,7 @@ function getSatelliteId (facts) {
     }
 
     return null;
-}
+};
 
 function getReceptor (source) {
     if (!source) {
@@ -117,7 +117,7 @@ exports.getConnectionStatus = async function (remediation, account) {
     const systemsIds = _(remediation.issues).flatMap('systems').map('system_id').uniq().sort().value();
     const systems = await fetchSystems(systemsIds);
 
-    _.forEach(systems, system => system.satelliteId = getSatelliteId(system.facts));
+    _.forEach(systems, system => system.satelliteId = exports.getSatelliteId(system.facts));
 
     const satellites = _(systems).groupBy('satelliteId').mapValues(systems => ({
         id: systems[0].satelliteId,
