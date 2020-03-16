@@ -89,6 +89,7 @@ exports.getSystems = errors.async(async function (req, res) {
     const systems = await queries.getSystems(
         req.params.id,
         req.params.playbook_run_id,
+        req.query.executor,
         req.user.account_number,
         req.user.username
     );

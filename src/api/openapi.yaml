@@ -293,6 +293,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/RemediationId'
         - $ref: '#/components/parameters/PlaybookRunId'
+        - $ref: '#/components/parameters/ExecutorId'
       responses:
         '200':
           description: OK
@@ -525,6 +526,13 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/PlaybookRunId'
+    ExecutorId:
+      in: query
+      name: executor
+      description: 'Playbook run executor identifier (UUID)'
+      required: false
+      schema:
+        $ref: '#/components/schemas/ExecutorId'
 
 
   requestBodies:

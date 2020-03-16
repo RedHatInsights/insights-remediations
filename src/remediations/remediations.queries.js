@@ -249,8 +249,8 @@ exports.getRunDetails = function (id, playbook_run_id, account_number, created_b
     });
 };
 
-exports.getSystems = function (remediation_id, playbook_run_id, account, username) {
-    return db.playbook_run_systems.findAll({
+exports.getSystems = function (remediation_id, playbook_run_id, executor_id = null, account, username) {
+    const query = {
         attributes: [
             'id',
             'system_id',
@@ -283,7 +283,15 @@ exports.getSystems = function (remediation_id, playbook_run_id, account, usernam
         order: [
             ['system_name', 'ASC']
         ]
-    });
+    };
+
+    if (executor_id) {
+        query.include[0].where = {
+            executor_id
+        };
+    }
+
+    return db.playbook_run_systems.findAll(query);
 };
 
 exports.getSystemDetails = function (id, playbook_run_id, system_id, account_number, created_by) {
