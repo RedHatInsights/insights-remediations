@@ -59,7 +59,6 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        const result = await this.getConnectionStatus('540155', 'node-a');
-        result.should.have.property('status', 'connected');
+        await this.getConnectionStatus('540155', 'node-a');
     }
 }();
