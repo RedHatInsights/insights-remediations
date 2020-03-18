@@ -205,7 +205,7 @@ const config = {
 
 config.path.base = `${config.path.prefix}/${config.path.app}`;
 
-if (env.DB_CA) {
+if (env.DB_SSL_ENABLED !== 'false' && env.DB_CA) {
     config.db.ssl = true;
     config.db.dialectOptions.ssl = {
         ca: fs.readFileSync(env.DB_CA) // eslint-disable-line security/detect-non-literal-fs-filename
