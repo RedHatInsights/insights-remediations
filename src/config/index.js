@@ -55,7 +55,7 @@ const config = {
             enabled: env.LOG_CW_ENABLED === 'true',
             level: env.LOG_CW_LEVEL || env.LOG_LEVEL || 'debug',
             options: {
-                group: env.NAMESPACE || 'remediations-local',
+                group: env.LOG_CW_GROUP || env.NAMESPACE || 'remediations-local',
                 prefix: env.LOG_CW_PREFIX || 'remediations-',
                 interval: parseIntEnv('LOG_CW_INTERVAL', 1000), // 1000 ms
                 aws_access_key_id: env.LOG_CW_KEY,
