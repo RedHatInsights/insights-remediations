@@ -86,8 +86,8 @@ node ('openscap') {
             sh "oc start-build playbooks-ssg -n buildfactory --from-dir=artifacts --follow -w"
         }
 
-        stage('push image to stage') {
-            openShiftUtils.withNode(image: "jenkins-deploy-slave:latest") {
+        openShiftUtils.withJnlpNode(image: "jenkins-deploy-jnlp:latest") {
+            stage('push image to stage') {
                 deployUtils.promoteImages(
                     srcImages: [
                         "playbooks-ssg:latest"
@@ -96,6 +96,35 @@ node ('openscap') {
                     dstSaUsername: "image-sync",
                     dstSaTokenCredentialsId: "remediations-image-sync"
                 )
+            }
+
+            stage('push image to quay.io') {
+                def srcNamespace = "buildfactory"
+                def srcBaseUri = "docker://registry.insights-dev.openshift.com/" + srcNamespace + "/"
+                def dstBaseUri = "docker://quay.io/cloudservices/"
+                def srcTokenId = "buildfactoryDeployerToken"
+                def dstUser = "cloudservices+push"
+                def dstTokenId = "quay-cloudservices-push-token"
+                // trim commit hash to 7 chars
+                def commitId = REVISION[0..6]
+                sh "oc tag playbooks-ssg:latest playbooks-ssg:${commitId} -n ${srcNamespace}"
+                // TODO: when a stable branch exists, copy qa from that one instead of 'latest'
+                def tags = ["latest", commitId, "qa"]
+                tags.each { t ->
+                    deployUtils.skopeoCopy(
+                        srcUri: srcBaseUri + "playbooks-ssg:${t}",
+                        dstUri: dstBaseUri + "playbooks-ssg:${t}",
+                        srcUser: "na",
+                        srcTokenId: srcTokenId,
+                        dstUser: dstUser,
+                        dstTokenId: dstTokenId
+                    )
+                }
+
+            }
+
+            stage('import the qa image in the qa namespace') {
+                sh 'oc tag -n remediations-qa quay.io/cloudservices/playbooks-ssg:qa playbooks-ssg:qa'
             }
 
             notify("[${env.JOB_NAME.split('/')[-1]}] Built and promoted to stage", null, "good")
