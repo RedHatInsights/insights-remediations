@@ -497,7 +497,7 @@ describe('FiFi', function () {
         });
     });
 
-    describe('fifi RBAC', function () {
+    describe('RBAC', function () {
         test('if user has correct RBAC permissions', async function () {
             base.getSandbox().stub(rbac, 'getRemediationsAccess').resolves(buildRbacResponse('remediations:*:*'));
 
@@ -531,6 +531,20 @@ describe('FiFi', function () {
             body.errors[0].details.message.should.equal(
                 'Permission remediations:remediation:execute is required for this operation'
             );
+        });
+
+        test('if RBAC connector fails a dependency error is returned', async function () {
+            base.getSandbox().stub(rbac, 'getRemediationsAccess')
+            .rejects(errors.internal.dependencyError(new Error('rbac down'), rbac));
+
+            const {body} = await request
+            .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
+            .set(auth.fifi)
+            .expect(503);
+
+            body.errors[0].should.have.property('code', 'DEPENDENCY_UNAVAILABLE');
+            body.errors[0].details.should.have.property('name', 'rbac');
+            body.errors[0].details.should.have.property('impl', 'mock');
         });
     });
 
