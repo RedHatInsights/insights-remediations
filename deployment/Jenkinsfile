@@ -110,23 +110,6 @@ node {
                 deploy('remediations-ci')
             }
 
-            stage('deploy to QA') {
-                deploy('remediations-qa')
-            }
-        }
-
-        stage('push image to stage') {
-            openShiftUtils.withNode(image: "jenkins-deploy-slave:latest") {
-                deployUtils.promoteImages(
-                    srcImages: [
-                        "remediations:latest"
-                    ],
-                    dstProject: "remediations-stage",
-                    dstSaUsername: "image-sync",
-                    dstSaTokenCredentialsId: "remediations-image-sync"
-                )
-            }
-
             notify("[${env.JOB_NAME.split('/')[-1]}] Build finished", null, "good")
         }
     }
