@@ -200,7 +200,7 @@ exports.getPlaybookRuns = function (id, account_number, created_by) {
             'playbook_runs->executors.id'
         ],
         order: [
-            [db.playbook_runs, 'created_by', 'DESC']
+            [db.playbook_runs, 'created_at', 'DESC']
         ]
     });
 };
