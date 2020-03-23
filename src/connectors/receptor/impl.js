@@ -11,8 +11,8 @@ const metrics = require('../metrics');
 module.exports = new class extends Connector {
     constructor () {
         super(module);
-        this.statusMetrics = metrics.createConnectorMetric(this.getName, 'getConnectionStatus');
-        this.statusMetrics = metrics.createConnectorMetric(this.getName, 'postInitialRequest');
+        this.statusMetrics = metrics.createConnectorMetric(this.getName(), 'getConnectionStatus');
+        this.statusMetrics = metrics.createConnectorMetric(this.getName(), 'postInitialRequest');
     }
 
     async getConnectionStatus (account_num, node) {

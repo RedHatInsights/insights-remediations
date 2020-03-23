@@ -11,7 +11,7 @@ const metrics = require('../metrics');
 module.exports = new class extends Connector {
     constructor () {
         super(module);
-        this.accessMetrics = metrics.createConnectorMetric(this.getName, 'getRemediationsAccess');
+        this.accessMetrics = metrics.createConnectorMetric(this.getName(), 'getRemediationsAccess');
     }
 
     async getRemediationsAccess () {
