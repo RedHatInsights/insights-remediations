@@ -213,7 +213,7 @@ async function storePlaybookRun (remediation, playbook_run_id, requests, respons
         executor_name: executor.name,
         receptor_node_id: executor.receptorId,
         status: executor.dispatched ? PENDING : FAILURE,
-        receptor_job_id: executor.dispatched ? executor.response.id : '974f49ed-6954-4ea4-9677-6064264ee5dd', // TODO
+        receptor_job_id: executor.dispatched ? executor.response.id : uuid(),
         playbook: playbook.yaml,
         playbook_run_id
     }));

@@ -1,9 +1,9 @@
 'use strict';
 
 const Connector = require('../Connector');
+const uuid = require('uuid');
 
 const CONNECTION_STATUS = {status: 'connected'};
-const WORK_RESPONSE = {id: '355986a3-5f37-40f7-8f36-c3ac928ce190'};
 
 module.exports = new class extends Connector {
     constructor () {
@@ -19,7 +19,7 @@ module.exports = new class extends Connector {
     }
 
     async postInitialRequest () {
-        return WORK_RESPONSE;
+        return {id: uuid.v4()};
     }
 
     async ping () {
