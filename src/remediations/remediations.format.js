@@ -172,7 +172,14 @@ exports.playbookRuns = function (playbook_runs, total) {
         executors: run.executors.map(executor => ({
             executor_id: executor.executor_id,
             executor_name: executor.executor_name,
-            system_count: executor.get('system_count')
+            system_count: executor.get('system_count'),
+            counts: {
+                pending: executor.get('count_pending'),
+                running: executor.get('count_running'),
+                success: executor.get('count_success'),
+                failure: executor.get('count_failure'),
+                canceled: executor.get('count_canceled')
+            }
         }))
     }));
 
@@ -200,7 +207,14 @@ exports.playbookRunDetails = function (playbook_runs) {
             playbook: executor.playbook,
             playbook_run_id: executor.playbook_run_id,
             status: executor.status,
-            system_count: executor.get('system_count')
+            system_count: executor.get('system_count'),
+            counts: {
+                pending: executor.get('count_pending'),
+                running: executor.get('count_running'),
+                success: executor.get('count_success'),
+                failure: executor.get('count_failure'),
+                canceled: executor.get('count_canceled')
+            }
         }))
     }));
 

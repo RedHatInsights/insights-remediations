@@ -90,11 +90,16 @@ describe('FiFi', function () {
 
                 body.data[0].executors[0].should.have.property('executor_id', '21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd');
                 body.data[0].executors[0].should.have.property('executor_name', 'executor-2');
-                body.data[0].executors[0].should.have.property('system_count', 1);
+                body.data[0].executors[0].should.have.property('system_count', 5);
+                body.data[0].executors[0].counts.should.have.property('failure', 3);
+                body.data[0].executors[0].counts.should.have.property('canceled', 2);
 
                 body.data[0].executors[1].should.have.property('executor_id', '77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd');
                 body.data[0].executors[1].should.have.property('executor_name', 'executor-1');
-                body.data[0].executors[1].should.have.property('system_count', 2);
+                body.data[0].executors[1].should.have.property('system_count', 6);
+                body.data[0].executors[1].counts.should.have.property('running', 1);
+                body.data[0].executors[1].counts.should.have.property('success', 3);
+                body.data[0].executors[1].counts.should.have.property('pending', 2);
                 expect(text).toMatchSnapshot();
             });
 
@@ -117,10 +122,12 @@ describe('FiFi', function () {
                 body.data[0].executors[0].should.have.property('executor_id', '99c0ba73-1015-4e7d-a6d6-4b530cbfb7bd');
                 body.data[0].executors[0].should.have.property('executor_name', 'executor-9');
                 body.data[0].executors[0].should.have.property('system_count', 1);
+                body.data[0].executors[0].counts.should.have.property('pending', 1);
 
                 body.data[1].executors[0].should.have.property('executor_id', '77c0ba73-1015-4e7d-a6d6-4b530cbfb7bd');
                 body.data[1].executors[0].should.have.property('executor_name', 'executor-3');
                 body.data[1].executors[0].should.have.property('system_count', 1);
+                body.data[1].executors[0].counts.should.have.property('pending', 1);
                 expect(text).toMatchSnapshot();
             });
 
@@ -139,6 +146,7 @@ describe('FiFi', function () {
                 body.data[0].executors[0].should.have.property('executor_id', '99c0ba73-1015-4e7d-a6d6-4b530cbfb7bd');
                 body.data[0].executors[0].should.have.property('executor_name', 'executor-9');
                 body.data[0].executors[0].should.have.property('system_count', 1);
+                body.data[0].executors[0].counts.should.have.property('pending', 1);
                 expect(text).toMatchSnapshot();
             });
 
@@ -157,6 +165,7 @@ describe('FiFi', function () {
                 body.data[0].executors[0].should.have.property('executor_id', '77c0ba73-1015-4e7d-a6d6-4b530cbfb7bd');
                 body.data[0].executors[0].should.have.property('executor_name', 'executor-3');
                 body.data[0].executors[0].should.have.property('system_count', 1);
+                body.data[0].executors[0].counts.should.have.property('pending', 1);
                 expect(text).toMatchSnapshot();
             });
 
@@ -173,108 +182,113 @@ describe('FiFi', function () {
                 body.executors[0].should.have.property('executor_id', '77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd');
                 body.executors[0].should.have.property('executor_name', 'executor-1');
                 body.executors[0].should.have.property('status', 'running');
-                body.executors[0].should.have.property('system_count', 2);
+                body.executors[0].should.have.property('system_count', 6);
+                body.executors[0].counts.should.have.property('running', 1);
+                body.executors[0].counts.should.have.property('success', 3);
+                body.executors[0].counts.should.have.property('pending', 2);
 
                 body.executors[1].should.have.property('executor_id', '21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd');
                 body.executors[1].should.have.property('executor_name', 'executor-2');
+                body.executors[1].should.have.property('system_count', 5);
                 body.executors[1].should.have.property('status', 'running');
-                body.executors[1].should.have.property('system_count', 1);
+                body.executors[1].counts.should.have.property('failure', 3);
+                body.executors[1].counts.should.have.property('canceled', 2);
 
                 expect(text).toMatchSnapshot();
             });
 
             test('playbook_runs/:playbook_run_id/systems', async () => {
                 const {body, text} = await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems')
+                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems')
                 .set(auth.fifi)
                 .expect(200);
 
                 body.meta.count.should.equal(3);
                 body.meta.total.should.equal(3);
                 body.data.should.have.length(3);
-                body.data[0].should.have.property('system_id', '7b136dd2-4824-43cf-af6c-ad0ee42f9f97');
-                body.data[0].should.have.property('system_name', 'system-1');
-                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
+                body.data[0].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f');
+                body.data[0].should.have.property('system_name', 'system-22');
+                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
 
-                body.data[1].should.have.property('system_id', '3590ba1a-e0df-4092-9c23-bca863b28573');
-                body.data[1].should.have.property('system_name', 'system-2');
-                body.data[1].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
+                body.data[1].should.have.property('system_id', '6e64bc58-09be-4f49-b717-c1d469d1ae9c');
+                body.data[1].should.have.property('system_name', 'system-23');
+                body.data[1].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
 
-                body.data[2].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b16f');
-                body.data[2].should.have.property('system_name', 'system-3');
-                body.data[2].should.have.property('playbook_run_executor_id', '55c0ba73-0215-4e7d-a6d6-4b530cbfb5bd');
+                body.data[2].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f');
+                body.data[2].should.have.property('system_name', 'system-24');
+                body.data[2].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd');
 
                 expect(text).toMatchSnapshot();
             });
 
             test('pagination playbook_runs/:playbook_run_id/systems?limit=2', async () => {
                 const {body, text} = await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?limit=2')
+                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?limit=2')
                 .set(auth.fifi)
                 .expect(200);
 
                 body.meta.count.should.equal(2);
                 body.meta.total.should.equal(3);
                 body.data.should.have.length(2);
-                body.data[0].should.have.property('system_id', '7b136dd2-4824-43cf-af6c-ad0ee42f9f97');
-                body.data[0].should.have.property('system_name', 'system-1');
-                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
+                body.data[0].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f');
+                body.data[0].should.have.property('system_name', 'system-22');
+                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
 
-                body.data[1].should.have.property('system_id', '3590ba1a-e0df-4092-9c23-bca863b28573');
-                body.data[1].should.have.property('system_name', 'system-2');
-                body.data[1].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
+                body.data[1].should.have.property('system_id', '6e64bc58-09be-4f49-b717-c1d469d1ae9c');
+                body.data[1].should.have.property('system_name', 'system-23');
+                body.data[1].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
 
                 expect(text).toMatchSnapshot();
             });
 
             test('pagination playbook_runs/:playbook_run_id/systems?limit=1&offset=1', async () => {
                 const {body, text} = await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?limit=1&offset=1')
+                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?limit=1&offset=1')
                 .set(auth.fifi)
                 .expect(200);
 
                 body.meta.count.should.equal(1);
                 body.meta.total.should.equal(3);
                 body.data.should.have.length(1);
-                body.data[0].should.have.property('system_id', '3590ba1a-e0df-4092-9c23-bca863b28573');
-                body.data[0].should.have.property('system_name', 'system-2');
-                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
+                body.data[0].should.have.property('system_id', '6e64bc58-09be-4f49-b717-c1d469d1ae9c');
+                body.data[0].should.have.property('system_name', 'system-23');
+                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
 
                 expect(text).toMatchSnapshot();
             });
 
             test('pagination playbook_runs/:playbook_run_id/systems?limit=1&offset=2', async () => {
                 const {body, text} = await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?limit=1&offset=2')
+                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?limit=1&offset=2')
                 .set(auth.fifi)
                 .expect(200);
 
                 body.meta.count.should.equal(1);
                 body.meta.total.should.equal(3);
                 body.data.should.have.length(1);
-                body.data[0].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b16f');
-                body.data[0].should.have.property('system_name', 'system-3');
-                body.data[0].should.have.property('playbook_run_executor_id', '55c0ba73-0215-4e7d-a6d6-4b530cbfb5bd');
+                body.data[0].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f');
+                body.data[0].should.have.property('system_name', 'system-24');
+                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd');
 
                 expect(text).toMatchSnapshot();
             });
 
             test('playbook_runs/:playbook_run_id/systems?:executor', async () => {
                 const {body, text} = await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?executor=77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd')
+                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?executor=77c0ba73-1015-4e7d-a6d6-4b530cbfb6bd')
                 .set(auth.fifi)
                 .expect(200);
 
                 body.meta.count.should.equal(2);
                 body.meta.total.should.equal(2);
                 body.data.should.have.length(2);
-                body.data[0].should.have.property('system_id', '7b136dd2-4824-43cf-af6c-ad0ee42f9f97');
-                body.data[0].should.have.property('system_name', 'system-1');
-                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
+                body.data[0].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f');
+                body.data[0].should.have.property('system_name', 'system-22');
+                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
 
-                body.data[1].should.have.property('system_id', '3590ba1a-e0df-4092-9c23-bca863b28573');
-                body.data[1].should.have.property('system_name', 'system-2');
-                body.data[1].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
+                body.data[1].should.have.property('system_id', '6e64bc58-09be-4f49-b717-c1d469d1ae9c');
+                body.data[1].should.have.property('system_name', 'system-23');
+                body.data[1].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
 
                 expect(text).toMatchSnapshot();
             });

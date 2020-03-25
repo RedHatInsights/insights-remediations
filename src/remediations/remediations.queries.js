@@ -1,5 +1,7 @@
 'use strict';
 
+/*eslint-disable max-len*/
+
 const db = require('../db');
 const {NULL_NAME_VALUE} = require('./models/remediation');
 const _ = require('lodash');
@@ -169,7 +171,7 @@ exports.get = function (id, account_number, created_by) {
 };
 
 exports.getPlaybookRuns = function (id, account_number, created_by) {
-    const {s: {col, cast}, fn: {DISTINCT, COUNT}} = db;
+    const {s: {col, cast, where}, fn: {DISTINCT, COUNT, SUM}} = db;
 
     return db.remediation.findOne({
         attributes: [],
@@ -180,8 +182,13 @@ exports.getPlaybookRuns = function (id, account_number, created_by) {
                 attributes: [
                     'executor_id',
                     'executor_name',
-                    [cast(COUNT(DISTINCT(col('playbook_runs->executors->systems.id'))), 'int'),
-                        'system_count']],
+                    [cast(COUNT(DISTINCT(col('playbook_runs->executors->systems.id'))), 'int'), 'system_count'],
+                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'pending'), 'int')), 'int'), 'count_pending'],
+                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'success'), 'int')), 'int'), 'count_success'],
+                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'running'), 'int')), 'int'), 'count_running'],
+                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'failure'), 'int')), 'int'), 'count_failure'],
+                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'canceled'), 'int')), 'int'), 'count_canceled']
+                ],
                 model: db.playbook_run_executors,
                 as: 'executors',
                 include: [{
@@ -206,7 +213,7 @@ exports.getPlaybookRuns = function (id, account_number, created_by) {
 };
 
 exports.getRunDetails = function (id, playbook_run_id, account_number, created_by) {
-    const {s: {col, cast}, fn: {DISTINCT, COUNT}} = db;
+    const {s: {col, cast, where}, fn: {DISTINCT, COUNT, SUM}} = db;
 
     return db.remediation.findOne({
         attributes: [],
@@ -224,8 +231,13 @@ exports.getRunDetails = function (id, playbook_run_id, account_number, created_b
                     'updated_at',
                     'playbook',
                     'playbook_run_id',
-                    [cast(COUNT(DISTINCT(col('playbook_runs->executors->systems.id'))), 'int'),
-                        'system_count']],
+                    [cast(COUNT(DISTINCT(col('playbook_runs->executors->systems.id'))), 'int'), 'system_count'],
+                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'pending'), 'int')), 'int'), 'count_pending'],
+                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'success'), 'int')), 'int'), 'count_success'],
+                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'running'), 'int')), 'int'), 'count_running'],
+                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'failure'), 'int')), 'int'), 'count_failure'],
+                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'canceled'), 'int')), 'int'), 'count_canceled']
+                ],
                 model: db.playbook_run_executors,
                 as: 'executors',
                 include: [{

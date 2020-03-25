@@ -378,7 +378,43 @@ exports.up = async q => {
         id: 'efe54a46-9b23-478e-977c-a5553742e725',
         system_id: '3590ba1a-e0df-4092-9c23-bca863b28573',
         system_name: 'system-2',
-        status: 'running',
+        status: 'success',
+        sequence: 13,
+        console: 'These are the logs for console-6',
+        updated_at: '2019-12-23T18:19:36.641Z',
+        playbook_run_executor_id: playbook_run_executors[0].id
+    }, {
+        id: 'a5bca160-f2d8-40b1-a856-8370067f47cd',
+        system_id: '6d08f590-dff9-473b-88d4-45316cbf5545',
+        system_name: 'system-3',
+        status: 'success',
+        sequence: 13,
+        console: 'These are the logs for console-6',
+        updated_at: '2019-12-23T18:19:36.641Z',
+        playbook_run_executor_id: playbook_run_executors[0].id
+    }, {
+        id: '6d08f590-dff9-473b-88d4-45316cbf5545',
+        system_id: '5969570e-3185-4070-92be-7b4c49974da6',
+        system_name: 'system-4',
+        status: 'success',
+        sequence: 13,
+        console: 'These are the logs for console-6',
+        updated_at: '2019-12-23T18:19:36.641Z',
+        playbook_run_executor_id: playbook_run_executors[0].id
+    }, {
+        id: '5969570e-3185-4070-92be-7b4c49974da6',
+        system_id: '4da7a4ac-2945-4e41-911a-c1f25d8137af',
+        system_name: 'system-5',
+        status: 'pending',
+        sequence: 13,
+        console: 'These are the logs for console-6',
+        updated_at: '2019-12-23T18:19:36.641Z',
+        playbook_run_executor_id: playbook_run_executors[0].id
+    }, {
+        id: 'e9442a53-b59f-42b8-bf9c-0fe6a69cae57',
+        system_id: '3abc1295-6326-46bb-9b6c-c8ac1bc1cbd9',
+        system_name: 'system-6',
+        status: 'pending',
         sequence: 13,
         console: 'These are the logs for console-6',
         updated_at: '2019-12-23T18:19:36.641Z',
@@ -386,8 +422,44 @@ exports.up = async q => {
     }, {
         id: 'c35e6a09-520f-4326-85bd-aaf595b822c5',
         system_id: 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b16f',
-        system_name: 'system-3',
-        status: 'running',
+        system_name: 'system-7',
+        status: 'failure',
+        sequence: 267,
+        console: 'These are the logs for console-7',
+        updated_at: '2019-12-23T18:19:36.641Z',
+        playbook_run_executor_id: playbook_run_executors[1].id
+    }, {
+        id: 'eec5a6bf-e8ed-427f-b964-5a63846d5131',
+        system_id: '29f94400-012e-4222-90d3-f6a040c5b89e',
+        system_name: 'system-8',
+        status: 'canceled',
+        sequence: 267,
+        console: 'These are the logs for console-7',
+        updated_at: '2019-12-23T18:19:36.641Z',
+        playbook_run_executor_id: playbook_run_executors[1].id
+    }, {
+        id: '181d3c55-e535-4482-bb3f-9d165bafab4a',
+        system_id: '3f39215e-a463-464e-a987-aaab0e50349a',
+        system_name: 'system-9',
+        status: 'canceled',
+        sequence: 267,
+        console: 'These are the logs for console-7',
+        updated_at: '2019-12-23T18:19:36.641Z',
+        playbook_run_executor_id: playbook_run_executors[1].id
+    }, {
+        id: 'c4cd7cee-43cf-41bb-b700-aceeab4850ba',
+        system_id: 'd6306be7-57eb-4734-8f27-9faf0186bc06',
+        system_name: 'system-28',
+        status: 'failure',
+        sequence: 267,
+        console: 'These are the logs for console-7',
+        updated_at: '2019-12-23T18:19:36.641Z',
+        playbook_run_executor_id: playbook_run_executors[1].id
+    }, {
+        id: 'e194188d-c567-4b82-a0bc-da3aac37d520',
+        system_id: 'f33a7ff9-bbad-4660-90c2-d0964c581bfe',
+        system_name: 'system-29',
+        status: 'failure',
         sequence: 267,
         console: 'These are the logs for console-7',
         updated_at: '2019-12-23T18:19:36.641Z',
@@ -395,8 +467,17 @@ exports.up = async q => {
     }, {
         id: 'c45e6a09-520f-4326-85bd-aaf595b822c5',
         system_id: 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f',
-        system_name: 'system-4',
+        system_name: 'system-22',
         status: 'pending',
+        sequence: 268,
+        console: 'These are the logs for console-7',
+        updated_at: '2019-12-23T18:19:36.641Z',
+        playbook_run_executor_id: playbook_run_executors[2].id
+    }, {
+        id: 'fcb08807-c807-496c-85ec-e82a933e4adf',
+        system_id: '6e64bc58-09be-4f49-b717-c1d469d1ae9c',
+        system_name: 'system-23',
+        status: 'running',
         sequence: 268,
         console: 'These are the logs for console-7',
         updated_at: '2019-12-23T18:19:36.641Z',
@@ -404,7 +485,7 @@ exports.up = async q => {
     }, {
         id: 'c55e6a09-520f-4326-85bd-aaf595b822c5',
         system_id: 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f',
-        system_name: 'system-5',
+        system_name: 'system-24',
         status: 'pending',
         sequence: 269,
         console: 'These are the logs for console-7',

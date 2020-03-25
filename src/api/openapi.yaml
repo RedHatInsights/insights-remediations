@@ -847,6 +847,22 @@ components:
         meta:
             $ref: '#/components/schemas/Meta'
 
+    Counts:
+      type: object
+      additionalProperties: false
+      required: [pending, running, success, failure, canceled]
+      properties:
+        pending:
+          type: integer
+        running:
+          type: integer
+        success:
+          type: integer
+        failure:
+          type: integer
+        canceled:
+          type: integer
+
     PlaybookRunSystemList:
       type: object
       additionalProperties: false
@@ -974,6 +990,7 @@ components:
         - executor_id
         - executor_name
         - system_count
+        - counts
       properties:
         executor_id:
           $ref: '#/components/schemas/ExecutorId'
@@ -981,6 +998,8 @@ components:
           $ref: '#/components/schemas/ExecutorName'
         system_count:
           type: integer
+        counts:
+          $ref: '#/components/schemas/Counts'
 
     PlaybookExecutorDetails:
       type: object
@@ -1006,6 +1025,8 @@ components:
           $ref: '#/components/schemas/PlaybookRunId'
         system_count:
           type: integer
+        counts:
+          $ref: '#/components/schemas/Counts'
         status:
           $ref: '#/components/schemas/PlaybookRunSystemStatus'
 
