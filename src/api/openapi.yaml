@@ -4,7 +4,7 @@ openapi: 3.0.0
 info:
   title: Insights Remediations
   description: Insights Remediations Service
-  version: 1.0.0
+  version: 1.0.1
   contact:
     email: jozef@redhat.com
 
@@ -296,6 +296,7 @@ paths:
         - $ref: '#/components/parameters/ExecutorId'
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/SystemName'
       responses:
         '200':
           description: OK
@@ -535,6 +536,13 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/ExecutorId'
+    SystemName:
+      in: query
+      name: ansible_host
+      description: 'System Name (STRING)'
+      required: false
+      schema:
+        $ref: '#/components/schemas/SystemName'
 
 
   requestBodies:

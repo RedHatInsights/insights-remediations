@@ -249,7 +249,9 @@ exports.getRunDetails = function (id, playbook_run_id, account_number, created_b
     });
 };
 
-exports.getSystems = function (remediation_id, playbook_run_id, executor_id = null, limit, offset, account, username) {
+// eslint-disable-next-line max-len
+exports.getSystems = function (remediation_id, playbook_run_id, executor_id = null, ansible_host = null, limit, offset, account, username) {
+    const { Op } = db;
     const query = {
         attributes: [
             'id',
@@ -290,6 +292,14 @@ exports.getSystems = function (remediation_id, playbook_run_id, executor_id = nu
     if (executor_id) {
         query.include[0].where = {
             executor_id
+        };
+    }
+
+    if (ansible_host) {
+        query.where = {
+            system_name: {
+                [Op.substring]: ansible_host
+            }
         };
     }
 

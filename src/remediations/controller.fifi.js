@@ -91,6 +91,7 @@ exports.getSystems = errors.async(async function (req, res) {
         req.params.id,
         req.params.playbook_run_id,
         req.query.executor,
+        req.query.ansible_host,
         limit,
         offset,
         req.user.account_number,
