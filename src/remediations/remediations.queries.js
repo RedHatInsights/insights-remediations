@@ -249,7 +249,7 @@ exports.getRunDetails = function (id, playbook_run_id, account_number, created_b
     });
 };
 
-exports.getSystems = function (remediation_id, playbook_run_id, executor_id = null, account, username) {
+exports.getSystems = function (remediation_id, playbook_run_id, executor_id = null, limit, offset, account, username) {
     const query = {
         attributes: [
             'id',
@@ -282,7 +282,9 @@ exports.getSystems = function (remediation_id, playbook_run_id, executor_id = nu
         }],
         order: [
             ['system_name', 'ASC']
-        ]
+        ],
+        limit,
+        offset
     };
 
     if (executor_id) {
@@ -291,7 +293,7 @@ exports.getSystems = function (remediation_id, playbook_run_id, executor_id = nu
         };
     }
 
-    return db.playbook_run_systems.findAll(query);
+    return db.playbook_run_systems.findAndCountAll(query);
 };
 
 exports.getSystemDetails = function (id, playbook_run_id, system_id, account_number, created_by) {

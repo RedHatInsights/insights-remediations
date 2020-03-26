@@ -207,7 +207,7 @@ exports.playbookRunDetails = function (playbook_runs) {
     return formatted[0];
 };
 
-exports.playbookSystems = function (systems) {
+exports.playbookSystems = function (systems, total) {
     const formatted = systems.map(system => ({
         system_id: system.system_id,
         system_name: system.system_name,
@@ -219,7 +219,7 @@ exports.playbookSystems = function (systems) {
     return {
         meta: {
             count: formatted.length,
-            total: formatted.length
+            total
         },
         data: formatted
     };

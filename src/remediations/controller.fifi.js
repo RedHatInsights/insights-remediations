@@ -86,19 +86,28 @@ exports.getRunDetails = errors.async(async function (req, res) {
 });
 
 exports.getSystems = errors.async(async function (req, res) {
-    const systems = await queries.getSystems(
+    const {limit, offset} = req.query;
+    const {count, rows} = await queries.getSystems(
         req.params.id,
         req.params.playbook_run_id,
         req.query.executor,
+        limit,
+        offset,
         req.user.account_number,
         req.user.username
     );
+
+    const systems = rows;
+
+    if (offset >= Math.max(count, 1)) {
+        throw errors.invalidOffset(offset, count);
+    }
 
     if (_.isEmpty(systems)) {
         return notFound(res);
     }
 
-    const formatted = format.playbookSystems(systems);
+    const formatted = format.playbookSystems(systems, count);
 
     res.status(200).send(formatted);
 });

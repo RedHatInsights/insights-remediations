@@ -294,6 +294,8 @@ paths:
         - $ref: '#/components/parameters/RemediationId'
         - $ref: '#/components/parameters/PlaybookRunId'
         - $ref: '#/components/parameters/ExecutorId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
       responses:
         '200':
           description: OK
