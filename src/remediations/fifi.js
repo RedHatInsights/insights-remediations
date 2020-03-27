@@ -213,7 +213,9 @@ async function storePlaybookRun (remediation, playbook_run_id, requests, respons
         executor_name: executor.name,
         receptor_node_id: executor.receptorId,
         status: executor.dispatched ? PENDING : FAILURE,
-        receptor_job_id: executor.dispatched ? executor.response.id : uuid(),
+        // null means we wanted to run this but dispatching of the receptor-controller job request failed
+        // we still record the entry but mark the executor and systems as FAILURE instantly
+        receptor_job_id: executor.dispatched ? executor.response.id : null,
         playbook: playbook.yaml,
         playbook_run_id
     }));
