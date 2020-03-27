@@ -161,7 +161,7 @@ exports.receptorWorkRequest = function (playbookRunRequest, account_number, rece
     };
 };
 
-exports.playbookRuns = function (playbook_runs) {
+exports.playbookRuns = function (playbook_runs, total) {
     const formatted = playbook_runs.map(run => ({
         id: run.id,
         status: run.status,
@@ -179,7 +179,7 @@ exports.playbookRuns = function (playbook_runs) {
     return {
         meta: {
             count: playbook_runs.length,
-            total: playbook_runs.length
+            total
         },
         data: formatted
     };

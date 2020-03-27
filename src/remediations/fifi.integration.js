@@ -83,6 +83,7 @@ describe('FiFi', function () {
                 .expect(200);
 
                 body.meta.count.should.equal(1);
+                body.meta.total.should.equal(1);
                 body.data[0].should.have.property('id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
                 body.data[0].should.have.property('status', 'running');
                 body.data[0].should.have.property('created_at', '2019-12-23T08:19:36.641Z');
@@ -94,6 +95,68 @@ describe('FiFi', function () {
                 body.data[0].executors[1].should.have.property('executor_id', '77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd');
                 body.data[0].executors[1].should.have.property('executor_name', 'executor-1');
                 body.data[0].executors[1].should.have.property('system_count', 2);
+                expect(text).toMatchSnapshot();
+            });
+
+            test('pagination playbook_runs?limit=2', async () => {
+                const {body, text} = await request
+                .get('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs?limit=2')
+                .set(auth.fifi)
+                .expect(200);
+
+                body.meta.count.should.equal(2);
+                body.meta.total.should.equal(2);
+                body.data[0].should.have.property('id', '55d0ba73-0015-4e7d-a6d6-4b530cbfb6de');
+                body.data[0].should.have.property('status', 'running');
+                body.data[0].should.have.property('created_at', '2019-12-23T08:19:36.641Z');
+
+                body.data[1].should.have.property('id', '99d0ba73-0015-4e7d-a6d6-4b530cbfb6de');
+                body.data[1].should.have.property('status', 'running');
+                body.data[1].should.have.property('created_at', '2019-12-23T08:19:36.641Z');
+
+                body.data[0].executors[0].should.have.property('executor_id', '99c0ba73-1015-4e7d-a6d6-4b530cbfb7bd');
+                body.data[0].executors[0].should.have.property('executor_name', 'executor-9');
+                body.data[0].executors[0].should.have.property('system_count', 1);
+
+                body.data[1].executors[0].should.have.property('executor_id', '77c0ba73-1015-4e7d-a6d6-4b530cbfb7bd');
+                body.data[1].executors[0].should.have.property('executor_name', 'executor-3');
+                body.data[1].executors[0].should.have.property('system_count', 1);
+                expect(text).toMatchSnapshot();
+            });
+
+            test('pagination playbook_runs?limit=1', async () => {
+                const {body, text} = await request
+                .get('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs?limit=1')
+                .set(auth.fifi)
+                .expect(200);
+
+                body.meta.count.should.equal(1);
+                body.meta.total.should.equal(2);
+                body.data[0].should.have.property('id', '55d0ba73-0015-4e7d-a6d6-4b530cbfb6de');
+                body.data[0].should.have.property('status', 'running');
+                body.data[0].should.have.property('created_at', '2019-12-23T08:19:36.641Z');
+
+                body.data[0].executors[0].should.have.property('executor_id', '99c0ba73-1015-4e7d-a6d6-4b530cbfb7bd');
+                body.data[0].executors[0].should.have.property('executor_name', 'executor-9');
+                body.data[0].executors[0].should.have.property('system_count', 1);
+                expect(text).toMatchSnapshot();
+            });
+
+            test('pagination playbook_runs?offset=1', async () => {
+                const {body, text} = await request
+                .get('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs?offset=1')
+                .set(auth.fifi)
+                .expect(200);
+
+                body.meta.count.should.equal(1);
+                body.meta.total.should.equal(2);
+                body.data[0].should.have.property('id', '99d0ba73-0015-4e7d-a6d6-4b530cbfb6de');
+                body.data[0].should.have.property('status', 'running');
+                body.data[0].should.have.property('created_at', '2019-12-23T08:19:36.641Z');
+
+                body.data[0].executors[0].should.have.property('executor_id', '77c0ba73-1015-4e7d-a6d6-4b530cbfb7bd');
+                body.data[0].executors[0].should.have.property('executor_name', 'executor-3');
+                body.data[0].executors[0].should.have.property('system_count', 1);
                 expect(text).toMatchSnapshot();
             });
 
@@ -267,6 +330,41 @@ describe('FiFi', function () {
                 await request
                 .set(auth.fifi)
                 .get('/v1/remediations/249f142c-2ae3-4c3f-81f8111/playbook_runs')
+                .expect(400);
+            });
+
+            test('400 on bad limit playbook_runs?limit=fifi', async () => {
+                await request
+                .set(auth.fifi)
+                .get('/v1/remediations/249f142c-2ae3-4c3f-81f8111/playbook_runs?limit=fifi')
+                .expect(400);
+            });
+
+            test('400 on 0 limit playbook_runs?limit=0', async () => {
+                await request
+                .set(auth.fifi)
+                .get('/v1/remediations/249f142c-2ae3-4c3f-81f8111/playbook_runs?limit=0')
+                .expect(400);
+            });
+
+            test('400 on bad offset playbook_runs?offset=fifi', async () => {
+                await request
+                .set(auth.fifi)
+                .get('/v1/remediations/249f142c-2ae3-4c3f-81f8111/playbook_runs?offset=fifi')
+                .expect(400);
+            });
+
+            test('400 on large limit playbook_runs?limit=12000000000', async () => {
+                await request
+                .set(auth.fifi)
+                .get('/v1/remediations/249f142c-2ae3-4c3f-81f8111/playbook_runs?limit=12000000000')
+                .expect(400);
+            });
+
+            test('400 on large limit playbook_runs?offset=12000000000', async () => {
+                await request
+                .set(auth.fifi)
+                .get('/v1/remediations/249f142c-2ae3-4c3f-81f8111/playbook_runs?offset=12000000000')
                 .expect(400);
             });
 

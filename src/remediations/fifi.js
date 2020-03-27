@@ -96,6 +96,20 @@ function normalize (satellites) {
     }));
 }
 
+exports.getPlaybookRunsSize = function (remediation) {
+    return _.size(remediation.playbook_runs);
+};
+
+exports.pagination = function (remediation, total, limit, offset) {
+    if (offset >= Math.max(total, 1)) {
+        return null;
+    }
+
+    remediation.playbook_runs = remediation.playbook_runs.slice(offset, offset + limit);
+
+    return remediation;
+};
+
 exports.resolveUsers = async function (req, remediation) {
     const usernames = remediation.playbook_runs.map(run => {
         return run.created_by;

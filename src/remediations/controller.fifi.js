@@ -53,15 +53,24 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
 });
 
 exports.listPlaybookRuns = errors.async(async function (req, res) {
+    const {limit, offset} = req.query;
     let remediation = await queries.getPlaybookRuns(req.params.id, req.user.account_number, req.user.username);
 
     if (!remediation) {
         return notFound(res);
     }
 
+    const total = fifi.getPlaybookRunsSize(remediation);
+
+    remediation = await fifi.pagination(remediation, total, limit, offset);
+
+    if (_.isNull(remediation)) {
+        throw errors.invalidOffset(offset, total);
+    }
+
     remediation = await fifi.resolveUsers(req, remediation);
 
-    const formated = format.playbookRuns(remediation.playbook_runs);
+    const formated = format.playbookRuns(remediation.playbook_runs, total);
 
     res.status(200).send(formated);
 });

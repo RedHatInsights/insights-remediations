@@ -228,6 +228,8 @@ paths:
       operationId: listPlaybookRuns
       parameters:
         - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
       responses:
         '200':
           description: OK
