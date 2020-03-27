@@ -18,6 +18,10 @@ module.exports = new class extends Connector {
     }
 
     async findSources (ids) {
+        if (ids.length === 0) {
+            return {};
+        }
+
         const uri = new URI(host);
         uri.path('/api/sources/v1.0/sources');
 

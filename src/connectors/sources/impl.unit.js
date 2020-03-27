@@ -181,5 +181,13 @@ describe('sources impl', function () {
             second.should.have.property('endpoints');
             (second.endpoints === null).should.be.true();
         });
+
+        test('does not call anything on an empty list', async function () {
+            const spy = base.getSandbox().spy(request, 'run');
+
+            const results = await impl.getSourceInfo([]);
+            results.should.be.empty();
+            spy.callCount.should.equal(0);
+        });
     });
 });
