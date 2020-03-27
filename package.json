@@ -14,6 +14,7 @@
     "db:drop": "sequelize db:drop",
     "db:init": "sequelize db:drop; sequelize db:create",
     "db:migrate": "sequelize db:migrate",
+    "db:migrate:undo": "sequelize db:migrate:undo",
     "db:migrate:undo:all": "sequelize db:migrate:undo:all",
     "db:seed": "sequelize db:seed:all",
     "lint": "npm-run-all lint:js lint:openapi",
