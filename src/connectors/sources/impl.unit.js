@@ -25,8 +25,7 @@ describe('sources impl', function () {
                         source_ref: '72e67490-010a-4c69-a445-97017ef2a696',
                         source_type_id: '9',
                         uid: '49cd4278-3be8-4862-944f-17187c3b568e',
-                        updated_at: '2019-12-13T11:47:00Z',
-                        tenant: '6089719'
+                        updated_at: '2019-12-13T11:47:00Z'
                     }, {
                         created_at: '2019-12-13T11:51:51Z',
                         id: '1232',
@@ -34,8 +33,7 @@ describe('sources impl', function () {
                         source_ref: 'de91d755-e1da-4ae2-b173-7d56f5df7c86',
                         source_type_id: '9',
                         uid: 'd6f76802-5a47-42bc-b89a-f1abf17b5f2c',
-                        updated_at: '2019-12-13T11:51:51Z',
-                        tenant: '6089719'
+                        updated_at: '2019-12-13T11:51:51Z'
                     }]
                 },
                 headers: {}
@@ -52,7 +50,7 @@ describe('sources impl', function () {
 
             const options = http.args[0][0];
             // eslint-disable-next-line max-len
-            options.uri.should.equal('http://localhost:8080/api/sources/v1.0/sources?filter%5Bsource_ref%5D%5Beq%5D%5B%5D=72e67490-010a-4c69-a445-97017ef2a696&filter%5Bsource_ref%5D%5Beq%5D%5B%5D=de91d755-e1da-4ae2-b173-7d56f5df7c86');
+            options.uri.should.equal('http://localhost:8080/api/sources/v2.0/sources?filter%5Bsource_ref%5D%5Beq%5D%5B%5D=72e67490-010a-4c69-a445-97017ef2a696&filter%5Bsource_ref%5D%5Beq%5D%5B%5D=de91d755-e1da-4ae2-b173-7d56f5df7c86');
             options.headers.should.have.size(2);
             options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
             options.headers.should.have.property('x-rh-identity', 'identity');
@@ -76,8 +74,7 @@ describe('sources impl', function () {
                         receptor_node: 'dsasd',
                         role: 'sattelite',
                         source_id: '1231',
-                        updated_at: '2019-12-13T11:47:01Z',
-                        tenant: '6089719'
+                        updated_at: '2019-12-13T11:47:01Z'
                     }]
                 },
                 headers: {}
@@ -88,7 +85,7 @@ describe('sources impl', function () {
             results[0].should.have.property('receptor_node', 'dsasd');
 
             const options = http.args[0][0];
-            options.uri.should.equal('http://localhost:8080/api/sources/v1.0/sources/1231/endpoints');
+            options.uri.should.equal('http://localhost:8080/api/sources/v2.0/sources/1231/endpoints');
             options.headers.should.have.size(2);
             options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
             options.headers.should.have.property('x-rh-identity', 'identity');

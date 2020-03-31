@@ -12,7 +12,6 @@ const SOURCES = {
         source_type_id: '9',
         uid: '49cd4278-3be8-4862-944f-17187c3b568e',
         updated_at: '2019-12-13T11:47:00Z',
-        tenant: '6089719',
         endpoints: [{
             created_at: '2019-12-13T11:47:01Z',
             default: true,
@@ -20,8 +19,7 @@ const SOURCES = {
             receptor_node: '098765',
             role: 'sattelite',
             source_id: '123',
-            updated_at: '2019-12-13T11:47:01Z',
-            tenant: '6089719'
+            updated_at: '2019-12-13T11:47:01Z'
         }]
     },
     '409dd231-6297-43a6-a726-5ce56923d624': {
@@ -32,7 +30,6 @@ const SOURCES = {
         source_type_id: '9',
         uid: '49cd4278-3be8-4862-944f-17187c3b568e',
         updated_at: '2019-12-13T11:47:00Z',
-        tenant: '6089719',
         endpoints: [{
             created_at: '2019-12-13T11:47:01Z',
             default: true,
@@ -40,8 +37,7 @@ const SOURCES = {
             receptor_node: '098764',
             role: 'sattelite',
             source_id: '124',
-            updated_at: '2019-12-13T11:47:01Z',
-            tenant: '6089719'
+            updated_at: '2019-12-13T11:47:01Z'
         }]
     },
     '72f44b25-64a7-4ee7-a94e-3beed9393972': {
@@ -52,7 +48,6 @@ const SOURCES = {
         source_type_id: '9',
         uid: '49cd4278-3be8-4862-944f-17187c3b568e',
         updated_at: '2019-12-13T11:47:00Z',
-        tenant: '6089719',
         endpoints: []
     },
     '63142926-46a5-498b-9614-01f2f66fd40b': {
@@ -63,7 +58,6 @@ const SOURCES = {
         source_type_id: '9',
         uid: '49cd4278-3be8-4862-944f-17187c3b568e',
         updated_at: '2019-12-13T11:47:00Z',
-        tenant: '6089719',
         endpoints: [{
             created_at: '2019-12-13T11:47:01Z',
             default: true,
@@ -71,8 +65,7 @@ const SOURCES = {
             receptor_node: '098768',
             role: 'sattelite',
             source_id: '126',
-            updated_at: '2019-12-13T11:47:01Z',
-            tenant: '6089719'
+            updated_at: '2019-12-13T11:47:01Z'
         }]
     }
 };
