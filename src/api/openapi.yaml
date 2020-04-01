@@ -15,14 +15,14 @@ servers:
     description: relative path
 
 tags:
-  - name: remediations
-    description: Ansible Playbook Builder
-  - name: generator
-    description: Ansible Playbook Generator
-  - name: resolutions
-    description: Information about available Ansible resolutions
   - name: diagnosis
     description: Host-specific detailed diagnosis information
+  - name: generator
+    description: Ansible Playbook Generator
+  - name: remediations
+    description: Ansible Playbook Builder
+  - name: resolutions
+    description: Information about available Ansible resolutions
 
 paths:
   /remediations:

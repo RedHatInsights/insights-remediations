@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const P = require('bluebird');
-const uuid = require('uuid/v4');
+const {v4: uuidv4} = require('uuid');
 
 const format = require('./remediations.format');
 const generator = require('../generator/generator.controller');
@@ -124,7 +124,7 @@ exports.resolveUsers = async function (req, remediation) {
 };
 
 exports.generatePlaybookRunId = function () {
-    return uuid();
+    return uuidv4();
 };
 
 exports.getConnectionStatus = async function (remediation, account) {
@@ -227,7 +227,7 @@ function dispatchCancelRequests (requests, playbook_run_id) {
 
 async function storePlaybookRun (remediation, playbook_run_id, requests, responses, username) {
     requests.forEach(({executor}, index) => {
-        executor.id = uuid.v4();
+        executor.id = uuidv4();
         // eslint-disable-next-line security/detect-object-injection
         executor.response = responses[index];
         // eslint-disable-next-line security/detect-object-injection
@@ -254,7 +254,7 @@ async function storePlaybookRun (remediation, playbook_run_id, requests, respons
     }));
 
     const systems = _.flatMap(requests, ({executor}) => executor.systems.map(system => ({
-        id: uuid.v4(),
+        id: uuidv4(),
         system_id: system.id,
         system_name: generator.systemToHost(system),
         status: executor.dispatched ? PENDING : FAILURE,
