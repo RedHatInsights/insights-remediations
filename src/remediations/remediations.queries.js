@@ -182,6 +182,7 @@ exports.getPlaybookRuns = function (id, account_number, created_by) {
                 attributes: [
                     'executor_id',
                     'executor_name',
+                    'status',
                     [cast(COUNT(DISTINCT(col('playbook_runs->executors->systems.id'))), 'int'), 'system_count'],
                     [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'pending'), 'int')), 'int'), 'count_pending'],
                     [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'success'), 'int')), 'int'), 'count_success'],

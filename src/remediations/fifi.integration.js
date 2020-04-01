@@ -90,12 +90,14 @@ describe('FiFi', function () {
 
                 body.data[0].executors[0].should.have.property('executor_id', '21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd');
                 body.data[0].executors[0].should.have.property('executor_name', 'executor-2');
+                body.data[0].executors[0].should.have.property('status', 'running');
                 body.data[0].executors[0].should.have.property('system_count', 5);
                 body.data[0].executors[0].counts.should.have.property('failure', 3);
                 body.data[0].executors[0].counts.should.have.property('canceled', 2);
 
                 body.data[0].executors[1].should.have.property('executor_id', '77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd');
                 body.data[0].executors[1].should.have.property('executor_name', 'executor-1');
+                body.data[0].executors[1].should.have.property('status', 'running');
                 body.data[0].executors[1].should.have.property('system_count', 6);
                 body.data[0].executors[1].counts.should.have.property('running', 1);
                 body.data[0].executors[1].counts.should.have.property('success', 3);
@@ -121,11 +123,13 @@ describe('FiFi', function () {
 
                 body.data[0].executors[0].should.have.property('executor_id', '99c0ba73-1015-4e7d-a6d6-4b530cbfb7bd');
                 body.data[0].executors[0].should.have.property('executor_name', 'executor-9');
+                body.data[0].executors[0].should.have.property('status', 'running');
                 body.data[0].executors[0].should.have.property('system_count', 1);
                 body.data[0].executors[0].counts.should.have.property('pending', 1);
 
                 body.data[1].executors[0].should.have.property('executor_id', '77c0ba73-1015-4e7d-a6d6-4b530cbfb7bd');
                 body.data[1].executors[0].should.have.property('executor_name', 'executor-3');
+                body.data[1].executors[0].should.have.property('status', 'running');
                 body.data[1].executors[0].should.have.property('system_count', 1);
                 body.data[1].executors[0].counts.should.have.property('pending', 1);
                 expect(text).toMatchSnapshot();
@@ -145,6 +149,7 @@ describe('FiFi', function () {
 
                 body.data[0].executors[0].should.have.property('executor_id', '99c0ba73-1015-4e7d-a6d6-4b530cbfb7bd');
                 body.data[0].executors[0].should.have.property('executor_name', 'executor-9');
+                body.data[0].executors[0].should.have.property('status', 'running');
                 body.data[0].executors[0].should.have.property('system_count', 1);
                 body.data[0].executors[0].counts.should.have.property('pending', 1);
                 expect(text).toMatchSnapshot();
@@ -164,6 +169,7 @@ describe('FiFi', function () {
 
                 body.data[0].executors[0].should.have.property('executor_id', '77c0ba73-1015-4e7d-a6d6-4b530cbfb7bd');
                 body.data[0].executors[0].should.have.property('executor_name', 'executor-3');
+                body.data[0].executors[0].should.have.property('status', 'running');
                 body.data[0].executors[0].should.have.property('system_count', 1);
                 body.data[0].executors[0].counts.should.have.property('pending', 1);
                 expect(text).toMatchSnapshot();

@@ -172,6 +172,7 @@ exports.playbookRuns = function (playbook_runs, total) {
         executors: run.executors.map(executor => ({
             executor_id: executor.executor_id,
             executor_name: executor.executor_name,
+            status: executor.status,
             system_count: executor.get('system_count'),
             counts: {
                 pending: executor.get('count_pending'),

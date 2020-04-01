@@ -620,6 +620,11 @@ components:
     PlaybookRunStatus:
       type: string
       example: "pending"
+      enum: ["pending", "running", "success", "failure", "canceled"]
+
+    PlaybookRunExecutorStatus:
+      type: string
+      example: "pending"
       enum: ["pending", "acked", "running", "success", "failure", "canceled"]
 
     PlaybookRunSystemStatus:
@@ -989,6 +994,7 @@ components:
       required:
         - executor_id
         - executor_name
+        - status
         - system_count
         - counts
       properties:
@@ -996,6 +1002,8 @@ components:
           $ref: '#/components/schemas/ExecutorId'
         executor_name:
           $ref: '#/components/schemas/ExecutorName'
+        status:
+          $ref: '#/components/schemas/PlaybookRunExecutorStatus'
         system_count:
           type: integer
         counts:
@@ -1028,7 +1036,7 @@ components:
         counts:
           $ref: '#/components/schemas/Counts'
         status:
-          $ref: '#/components/schemas/PlaybookRunSystemStatus'
+          $ref: '#/components/schemas/PlaybookRunExecutorStatus'
 
     # Resolution specific types
     Resolutions:
