@@ -161,6 +161,22 @@ exports.receptorWorkRequest = function (playbookRunRequest, account_number, rece
     };
 };
 
+exports.playbookCancelRequest = function (playbookRunId) {
+    return {
+        type: 'playbook_run_cancel',
+        playbook_run_id: playbookRunId
+    };
+};
+
+exports.receptorCancelRequest = function (playbookCancelRequest, account_number, receptor_id) {
+    return {
+        account: account_number,
+        recipient: receptor_id,
+        payload: JSON.stringify(playbookCancelRequest),
+        directive: 'receptor_satellite:cancel'
+    };
+};
+
 exports.playbookRuns = function (playbook_runs, total) {
     const formatted = playbook_runs.map(run => ({
         id: run.id,

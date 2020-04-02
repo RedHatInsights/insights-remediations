@@ -267,8 +267,8 @@ paths:
     get:
       tags:
         - remediations
-      summary: Get details on execution of the rememdiation
-      description: Get details on execution of the rememdiation
+      summary: Get details on execution of the remediation
+      description: Get details on execution of the remediation
       operationId: getPlaybookRunDetails
       parameters:
         - $ref: '#/components/parameters/RemediationId'
@@ -280,6 +280,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PlaybookRunExecutorDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /remediations/{id}/playbook_runs/{playbook_run_id}/cancel:
+    post:
+      tags:
+        - remediations
+      summary: Cancel execution of the remediation
+      description: Cancel execution of the remediation
+      operationId: cancelPlaybookRuns
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/PlaybookRunId'
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: object
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':

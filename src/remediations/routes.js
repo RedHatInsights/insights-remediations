@@ -69,6 +69,12 @@ module.exports = function (router) {
         smartManagement,
         fifi.getRunDetails);
 
+    router.post('/remediations/:id/playbook_runs/:playbook_run_id/cancel',
+        openapi('cancelPlaybookRuns'),
+        rbacExecute,
+        smartManagement,
+        fifi.cancelPlaybookRuns);
+
     router.get('/remediations/:id/playbook_runs/:playbook_run_id/systems',
         openapi('getPlaybookRunSystems'),
         rbacRead,

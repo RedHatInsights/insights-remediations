@@ -262,6 +262,46 @@ exports.getRunDetails = function (id, playbook_run_id, account_number, created_b
     });
 };
 
+exports.getRunningExecutors = function (remediation_id, playbook_run_id, account, username) {
+    const { Op } = db;
+    const query = {
+        attributes: [
+            'id',
+            'executor_id',
+            'executor_name',
+            'status',
+            'updated_at',
+            'playbook_run_id'
+        ],
+        include: [{
+            attributes: ['id'],
+            model: db.playbook_runs,
+            include: [{
+                attributes: ['id'],
+                model: db.remediation,
+                where: {
+                    id: remediation_id,
+                    account_number: account,
+                    created_by: username
+                }
+            }],
+            where: {
+                id: playbook_run_id
+            }
+        }],
+        where: {
+            status: {
+                [Op.or]: ['pending', 'acked', 'running']
+            }
+        },
+        order: [
+            ['executor_name', 'ASC']
+        ]
+    };
+
+    return db.playbook_run_executors.findAll(query);
+};
+
 // eslint-disable-next-line max-len
 exports.getSystems = function (remediation_id, playbook_run_id, executor_id = null, ansible_host = null, limit, offset, account, username) {
     const { Op } = db;

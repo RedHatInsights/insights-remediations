@@ -35,6 +35,11 @@ const playbookExecutionCounter = new client.Counter({
     help: `Counter of Playbooks to be executed`
 });
 
+const playbookCancelCounter = new client.Counter({
+    name: `${prefix}playbooks_canceled`,
+    help: `Counter of Playbook Runs to be canceled`
+});
+
 // https://www.robustperception.io/existential-issues-with-metrics
 ETAG_STATES.forEach(value => etagErrorCounter.labels(value).inc(0));
 PERMISSIONS.forEach(value => rbacCounter.labels(value).inc(0));
@@ -109,4 +114,15 @@ exports.receptorJobDispatched = function (receptorWorkRequest, executor, respons
         remediation_name: remediation.name,
         playbook_run_id: playbookRunId
     }, 'receptor work request sent');
+};
+
+exports.receptorCancelDispatched = function (receptorCancelRequest, executor, response, playbookRunId) {
+    playbookCancelCounter.inc();
+    log.info({
+        account: receptorCancelRequest.account,
+        job_id: response.id,
+        recipient: receptorCancelRequest.recipient,
+        satelite_id: executor.satId,
+        playbook_run_id: playbookRunId
+    }, 'receptor cancel request sent');
 };

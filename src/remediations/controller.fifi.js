@@ -52,6 +52,19 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
     res.status(201).send({id: result});
 });
 
+exports.cancelPlaybookRuns = errors.async(async function (req, res) {
+    const executors = await queries.getRunningExecutors(
+        req.params.id, req.params.playbook_run_id, req.user.account_number, req.user.username);
+
+    if (_.isEmpty(executors)) {
+        return notFound(res);
+    }
+
+    await fifi.cancelPlaybookRun(req.user.account_number, req.params.playbook_run_id, executors);
+
+    res.status(202).send({});
+});
+
 exports.listPlaybookRuns = errors.async(async function (req, res) {
     const {limit, offset} = req.query;
     let remediation = await queries.getPlaybookRuns(req.params.id, req.user.account_number, req.user.username);

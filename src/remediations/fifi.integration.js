@@ -745,6 +745,36 @@ describe('FiFi', function () {
 
                 body.should.have.property('id');
             });
+
+            test('cancel playbook when 2 of 2 executors are still running', async () => {
+                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
+                await request
+                .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/cancel')
+                .set(auth.fifi)
+                .expect(202);
+
+                spy.callCount.should.equal(2);
+            });
+
+            test('cancel playbook when no executors are still running', async () => {
+                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
+                await request
+                .post('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb7bc/cancel')
+                .set(auth.fifi)
+                .expect(404);
+
+                spy.callCount.should.equal(0);
+            });
+
+            test('cancel playbook when 2 of 3 executors are still running', async () => {
+                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
+                await request
+                .post('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/cancel')
+                .set(auth.fifi)
+                .expect(202);
+
+                spy.callCount.should.equal(2);
+            });
         });
     });
 

@@ -206,6 +206,25 @@ function dispatchReceptorRequests (requests, remediation, playbook_run_id) {
     });
 }
 
+function prepareCancelRequest (account_number, executor, playbook_run_id) {
+    const receptorCancelRequest = format.receptorCancelRequest(format.playbookCancelRequest(
+        playbook_run_id), account_number, executor.receptorId);
+
+    return { executor, receptorCancelRequest };
+}
+
+function dispatchCancelRequests (requests, playbook_run_id) {
+    return P.mapSeries(requests, async ({ executor, receptorCancelRequest }) => {
+        try {
+            const response = await receptorConnector.postInitialRequest(receptorCancelRequest);
+            probes.receptorCancelDispatched(receptorCancelRequest, executor, response, playbook_run_id);
+            return response;
+        } catch (e) {
+            log.error({executor: executor.id, error: e}, 'error sending cancel request to executor');
+        }
+    });
+}
+
 async function storePlaybookRun (remediation, playbook_run_id, requests, responses, username) {
     requests.forEach(({executor}, index) => {
         executor.id = uuid.v4();
@@ -262,4 +281,10 @@ exports.createPlaybookRun = async function (status, remediation, username) {
     await storePlaybookRun(remediation, playbook_run_id, requests, responses, username);
 
     return playbook_run_id;
+};
+
+exports.cancelPlaybookRun = async function (account_number, playbook_run_id, executors) {
+    const requests = executors.map(executor => prepareCancelRequest(account_number, executor, playbook_run_id));
+
+    await dispatchCancelRequests(requests, playbook_run_id);
 };
