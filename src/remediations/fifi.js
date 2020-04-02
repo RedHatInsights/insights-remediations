@@ -115,18 +115,18 @@ function normalize (satellites) {
     }));
 }
 
-exports.getPlaybookRunsSize = function (remediation) {
-    return _.size(remediation.playbook_runs);
+exports.getListSize = function (list) {
+    return _.size(list);
 };
 
-exports.pagination = function (remediation, total, limit, offset) {
+exports.pagination = function (list, total, limit, offset) {
     if (offset >= Math.max(total, 1)) {
         return null;
     }
 
-    remediation.playbook_runs = remediation.playbook_runs.slice(offset, offset + limit);
+    list = list.slice(offset, offset + limit);
 
-    return remediation;
+    return list;
 };
 
 exports.resolveUsers = async function (req, remediation) {

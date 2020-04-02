@@ -170,6 +170,32 @@ exports.get = function (id, account_number, created_by) {
     });
 };
 
+exports.getIssueSystems = function (id, account_number, created_by, issueId) {
+    return db.remediation.findOne({
+        attributes: ['id'],
+        include: [{
+            attributes: ['issue_id'],
+            model: db.issue,
+            include: {
+                attributes: ['system_id'],
+                association: db.issue.associations.systems,
+                required: true
+            },
+            where: {
+                issue_id: issueId
+            }
+        }],
+        where: {
+            id, account_number, created_by
+        },
+        order: [
+            ['id'],
+            [db.issue, 'issue_id'],
+            [db.issue, db.issue.associations.systems, 'system_id']
+        ]
+    });
+};
+
 exports.getPlaybookRuns = function (id, account_number, created_by, primaryOrder = 'updated_at', asc = false) {
     const {s: {col, cast, where}, fn: {DISTINCT, COUNT, SUM}} = db;
 

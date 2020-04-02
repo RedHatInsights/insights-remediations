@@ -692,7 +692,7 @@ exports[`playbooks playbook for remediation with test namespace 1`] = `
 # Identifier: (test:ping,fix)
 # Version: unknown
 - name: ping
-  hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com\\"
+  hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com,9dae9304-86a8-4f66-baa3-a1b27dfdd479.ansible.example.com\\"
   tasks:
     - ping:
 
@@ -720,7 +720,7 @@ exports[`playbooks playbook for remediation with test namespace 1`] = `
         - insights_needs_reboot
 
 - name: run insights
-  hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com\\"
+  hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com,9dae9304-86a8-4f66-baa3-a1b27dfdd479.ansible.example.com\\"
   become: True
   gather_facts: False
   tasks:

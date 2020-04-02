@@ -4,6 +4,7 @@ const { account_number, username: created_by } = require('../../src/connectors/u
 
 const { NON_EXISTENT_SYSTEM } = require('../../src/connectors/inventory/mock');
 const SYSTEM = '1040856f-b772-44c7-83a9-eea4813c4be8';
+const SYSTEM2 = '9dae9304-86a8-4f66-baa3-a1b27dfdd479';
 
 const opts = {
     returning: true
@@ -133,6 +134,10 @@ exports.up = async q => {
         ...Array(250).fill(0).map((value, key) => ({
             remediation_issue_id: issues[8].id,
             system_id: `84762eb3-0bbb-4bd8-ab11-f420c50e9${String(key).padStart(3, '0')}`
-        }))
+        })),
+        {
+            remediation_issue_id: issues[12].id,
+            system_id: SYSTEM2
+        }
     ]);
 };

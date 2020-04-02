@@ -1,8 +1,10 @@
+/* eslint-disable max-len */
 'use strict';
 
 const _ = require('lodash');
 const { request, auth, reqId, buildRbacResponse, getSandbox } = require('../test');
 const rbac = require('../connectors/rbac');
+const inventory = require('../connectors/inventory');
 
 function test400 (name, url, code, title) {
     test(name, async () => {
@@ -312,6 +314,217 @@ describe('remediations', function () {
             remediation.should.have.property('system_count', 0);
             remediation.should.have.property('issue_count', 0);
         });
+    });
+
+    describe('remediation issue systems', function () {
+        test('gets list of hosts', async () => {
+            const {text, body} = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:ping/systems')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.meta.count.should.eql(2);
+            body.meta.total.should.eql(2);
+            body.data[0].should.have.property('id', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            body.data[0].should.have.property('hostname', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            body.data[0].should.have.property('display_name', '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system');
+
+            body.data[1].should.have.property('id', '1040856f-b772-44c7-83a9-eea4813c4be8');
+            body.data[1].should.have.property('hostname', '1040856f-b772-44c7-83a9-eea4813c4be8.example.com');
+            body.data[1].should.have.property('display_name', null);
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('gets list of hosts with same display name', async () => {
+            getSandbox().stub(inventory, 'getSystemDetailsBatch').resolves({
+                '1040856f-b772-44c7-83a9-eea4813c4be8': {
+                    id: '1040856f-b772-44c7-83a9-eea4813c4be8',
+                    hostname: '1040856f-b772-44c7-83a9-eea4813c4be8.example.com',
+                    display_name: '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system',
+                    ansible_host: '1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com',
+                    facts: [
+                        {
+                            namespace: 'satellite',
+                            facts: { satellite_instance_id: '72f44b25-64a7-4ee7-a94e-3beed9393972' }
+                        }
+                    ]
+                },
+                '9dae9304-86a8-4f66-baa3-a1b27dfdd479': {
+                    id: '9dae9304-86a8-4f66-baa3-a1b27dfdd479',
+                    hostname: '9dae9304-86a8-4f66-baa3-a1b27dfdd479',
+                    display_name: '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system',
+                    ansible_host: '9dae9304-86a8-4f66-baa3-a1b27dfdd479.ansible.example.com',
+                    facts: [
+                        {
+                            namespace: 'satellite',
+                            facts: { satellite_instance_id: '01bf542e-6092-485c-ba04-c656d77f988a' }
+                        }
+                    ]
+                }
+            });
+
+            const {text, body} = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:ping/systems')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.meta.count.should.eql(2);
+            body.meta.total.should.eql(2);
+            body.data[0].should.have.property('id', '1040856f-b772-44c7-83a9-eea4813c4be8');
+            body.data[0].should.have.property('hostname', '1040856f-b772-44c7-83a9-eea4813c4be8.example.com');
+            body.data[0].should.have.property('display_name', '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system');
+
+            body.data[1].should.have.property('id', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            body.data[1].should.have.property('hostname', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            body.data[1].should.have.property('display_name', '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system');
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('sort list ascending', async () => {
+            const {text, body} = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:ping/systems?sort=display_name')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.meta.count.should.eql(2);
+            body.meta.total.should.eql(2);
+            body.data[0].should.have.property('id', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            body.data[0].should.have.property('hostname', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            body.data[0].should.have.property('display_name', '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system');
+
+            body.data[1].should.have.property('id', '1040856f-b772-44c7-83a9-eea4813c4be8');
+            body.data[1].should.have.property('hostname', '1040856f-b772-44c7-83a9-eea4813c4be8.example.com');
+            body.data[1].should.have.property('display_name', null);
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('sort list descending', async () => {
+            const {text, body} = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:ping/systems?sort=-display_name')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.meta.count.should.eql(2);
+            body.meta.total.should.eql(2);
+
+            body.data[0].should.have.property('id', '1040856f-b772-44c7-83a9-eea4813c4be8');
+            body.data[0].should.have.property('hostname', '1040856f-b772-44c7-83a9-eea4813c4be8.example.com');
+            body.data[0].should.have.property('display_name', null);
+
+            body.data[1].should.have.property('id', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            body.data[1].should.have.property('hostname', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            body.data[1].should.have.property('display_name', '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system');
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('set limit = 1', async () => {
+            const {text, body} = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:ping/systems?limit=1')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.meta.count.should.eql(1);
+            body.meta.total.should.eql(2);
+
+            body.data[0].should.have.property('id', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            body.data[0].should.have.property('hostname', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            body.data[0].should.have.property('display_name', '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system');
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('set offset = 1', async () => {
+            const {text, body} = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:ping/systems?offset=1')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.meta.count.should.eql(1);
+            body.meta.total.should.eql(2);
+
+            body.data[0].should.have.property('id', '1040856f-b772-44c7-83a9-eea4813c4be8');
+            body.data[0].should.have.property('hostname', '1040856f-b772-44c7-83a9-eea4813c4be8.example.com');
+            body.data[0].should.have.property('display_name', null);
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('404 on unknown remediation_id', async () => {
+            await request
+            .get('/v1/remediations/f7ee704e-4d66-49c8-849a-d236e9d554e2/issues/test:ping/systems')
+            .set(auth.testReadSingle)
+            .expect(404);
+        });
+
+        test('404 on unknown issue_id', async () => {
+            await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074/systems')
+            .set(auth.testReadSingle)
+            .expect(404);
+        });
+
+        test('404 on issue with no systems', async () => {
+            await request
+            .get('/v1/remediations/d1b070b5-1db8-4dac-8ecf-891dc1e9225f/issues/vulnerabilities:CVE-2019-6133/systems')
+            .set(auth.testReadSingle)
+            .expect(404);
+        });
+
+        test('400 on giant offset', async () => {
+            const {body} = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:ping/systems?offset=1000000000')
+            .set(auth.testReadSingle)
+            .expect(400);
+
+            body.errors[0].code.should.eql('INVALID_OFFSET');
+            body.errors[0].title.should.eql('Requested starting offset 1000000000 out of range: [0, 2]');
+        });
+
+        test400(
+            '400 on giant limit',
+            '/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:ping/systems?limit=2000000000000000',
+            'maximum.openapi.validation',
+            'should be <= 200 (location: query, path: limit)'
+        );
+
+        test400(
+            '400 on bad remediation_id',
+            '/v1/remediations/f7ee704e-4d66-49c8-849a-d2/issues/test:ping/systems',
+            'format.openapi.validation',
+            'should match format "uuid" (location: path, path: id)'
+        );
+
+        test400(
+            '400 on bad issue_id',
+            '/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:/systems',
+            'pattern.openapi.validation',
+            'should match pattern "^(advisor|vulnerabilities|ssg|test|patch-advisory):[\\w\\d_|:\\.-]+$" (location: path, path: issue)'
+        );
+
+        test400(
+            '400 when limit=0',
+            '/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:ping/systems?limit=0',
+            'minimum.openapi.validation',
+            'should be >= 1 (location: query, path: limit)'
+        );
+
+        test400(
+            '400 on bad limit',
+            '/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:ping/systems?limit=egg',
+            'type.openapi.validation',
+            'should be number (location: query, path: limit)'
+        );
+
+        test400(
+            '400 on bad offset',
+            '/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:ping/systems?offset=salad',
+            'type.openapi.validation',
+            'should be number (location: query, path: offset)'
+        );
     });
 
     describe('remediations read RBAC', function () {

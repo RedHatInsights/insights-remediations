@@ -40,6 +40,12 @@ module.exports = function (router) {
         rbacWrite,
         write.removeIssue);
 
+    router.get(
+        '/remediations/:id/issues/:issue/systems',
+        openapi('getRemediationIssueSystems'),
+        rbacRead,
+        read.getIssueSystems);
+
     router.delete(
         '/remediations/:id/issues/:issue/systems/:system',
         openapi('deleteRemediationIssueSystem'),
@@ -57,6 +63,7 @@ module.exports = function (router) {
         smartManagement,
         rbacRead,
         fifi.listPlaybookRuns);
+
     router.post('/remediations/:id/playbook_runs',
         openapi('runRemediation'),
         rbacExecute,

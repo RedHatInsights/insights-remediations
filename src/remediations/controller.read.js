@@ -11,6 +11,7 @@ const inventory = require('../connectors/inventory');
 const identifiers = require('../util/identifiers');
 const generator = require('../generator/generator.controller');
 const users = require('../connectors/users');
+const fifi = require('./fifi');
 
 const notFound = res => res.status(404).json();
 const noContent = res => res.sendStatus(204);
@@ -156,6 +157,10 @@ function resolveIssues (remediation) {
     });
 }
 
+function orderSystems (systems, column, asc = true) {
+    return _.orderBy(systems, [column, 'id'], [asc ? 'asc' : 'desc']);
+}
+
 exports.get = errors.async(async function (req, res) {
     let remediation = await queries.get(req.params.id, req.user.account_number, req.user.username);
 
@@ -207,3 +212,36 @@ exports.playbook = errors.async(async function (req, res) {
     generator.send(req, res, playbook, format.playbookName(remediation));
 });
 
+exports.getIssueSystems = errors.async(async function (req, res) {
+    const {id, issue} = req.params;
+    const {column, asc} = format.parseSort(req.query.sort);
+    const {account_number, username} = req.user;
+    const {limit, offset} = req.query;
+
+    const remediation = await queries.getIssueSystems(id, account_number, username, issue);
+
+    if (!remediation) {
+        return notFound(res);
+    }
+
+    await resolveSystems(remediation);
+
+    // filter out issues with 0 systems
+    remediation.issues = remediation.issues.filter(issue => issue.systems.length);
+
+    if (_.isEmpty(remediation.issues)) {
+        return notFound(res);
+    }
+
+    remediation.issues[0].systems = orderSystems(remediation.issues[0].systems, column, asc);
+
+    const total = fifi.getListSize(remediation.issues[0].systems);
+
+    remediation.issues[0].systems = await fifi.pagination(remediation.issues[0].systems, total, limit, offset);
+
+    if (_.isNull(remediation.issues[0].systems)) {
+        throw errors.invalidOffset(offset, total);
+    }
+
+    res.json(format.issueSystems(remediation.issues[0], total));
+});

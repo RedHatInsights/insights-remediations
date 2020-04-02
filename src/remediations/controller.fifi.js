@@ -74,9 +74,9 @@ exports.listPlaybookRuns = errors.async(async function (req, res) {
         return notFound(res);
     }
 
-    const total = fifi.getPlaybookRunsSize(remediation);
+    const total = fifi.getListSize(remediation.playbook_runs);
 
-    remediation = await fifi.pagination(remediation, total, limit, offset);
+    remediation.playbook_runs = await fifi.pagination(remediation.playbook_runs, total, limit, offset);
 
     if (_.isNull(remediation)) {
         throw errors.invalidOffset(offset, total);

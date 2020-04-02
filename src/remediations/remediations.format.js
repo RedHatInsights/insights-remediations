@@ -287,3 +287,19 @@ exports.playbookSystemDetails = function (system) {
 
     return formatted;
 };
+
+exports.issueSystems = function (issue, total) {
+    const formatted = issue.systems.map(system => ({
+        id: system.system_id,
+        hostname: system.hostname,
+        display_name: system.display_name
+    }));
+
+    return {
+        meta: {
+            count: formatted.length,
+            total
+        },
+        data: formatted
+    };
+};
