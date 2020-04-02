@@ -66,8 +66,9 @@ exports.cancelPlaybookRuns = errors.async(async function (req, res) {
 });
 
 exports.listPlaybookRuns = errors.async(async function (req, res) {
+    const {column, asc} = format.parseSort(req.query.sort);
     const {limit, offset} = req.query;
-    let remediation = await queries.getPlaybookRuns(req.params.id, req.user.account_number, req.user.username);
+    let remediation = await queries.getPlaybookRuns(req.params.id, req.user.account_number, req.user.username, column, asc);
 
     if (!remediation) {
         return notFound(res);

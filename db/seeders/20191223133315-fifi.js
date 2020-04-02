@@ -152,6 +152,13 @@ exports.up = async q => {
         created_by,
         created_at: '2019-12-23T08:19:36.641Z',
         updated_at: '2019-12-23T08:19:36.641Z'
+    }, {
+        id: '31a70e85-378a-4436-96e9-677cd6fba660',
+        status: 'pending',
+        remediation_id: remediations[2].id,
+        created_by,
+        created_at: '2020-02-23T06:19:36.641Z',
+        updated_at: '2020-02-23T06:19:36.641Z'
     }], opts);
 
     const playbook_run_executors = await q.bulkInsert('playbook_run_executors', [{
@@ -371,12 +378,12 @@ exports.up = async q => {
         '      changed_when: false',
         playbook_run_id: playbook_runs[3].id
     }, {
-        id: '66d0ba73-0015-4e7d-a6d6-4b530cbfb8bd',
-        executor_id: '77c0ba73-1015-4e7d-a6d6-4b530cbfb8bd',
-        executor_name: 'executor-4',
-        receptor_node_id: 'Job-4',
+        id: 'bfda961e-3847-4a84-b660-59e63f874a12',
+        executor_id: '3ee8f640-ec08-46eb-be77-b80785c476d9',
+        executor_name: 'executor-25',
+        receptor_node_id: 'Job-11',
         receptor_job_id: null,
-        status: 'success',
+        status: 'pending',
         updated_at: '2019-12-23T08:20:36.641Z',
         playbook: '---\n' +
         '# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you\n' +
@@ -405,7 +412,7 @@ exports.up = async q => {
         '    - name: run insights\n' +
         '      command: insights-client\n' +
         '      changed_when: false',
-        playbook_run_id: playbook_runs[4].id
+        playbook_run_id: playbook_runs[5].id
     }, {
         id: '66d0ba73-0015-4e7d-a6d6-4b530cbfb9bd',
         executor_id: '77c0ba73-1015-4e7d-a6d6-4b530cbfb9bd',
@@ -588,5 +595,14 @@ exports.up = async q => {
         console: 'These are the logs for console-7',
         updated_at: '2019-12-23T18:19:36.641Z',
         playbook_run_executor_id: playbook_run_executors[5].id
+    }, {
+        id: '467bbe40-0c7c-40ea-a5f6-5709fa429547',
+        system_id: '371c8b75-6d07-478e-873f-ed5291da7b9d',
+        system_name: 'system-5',
+        status: 'pending',
+        sequence: 272,
+        console: 'These are the logs for console-7',
+        updated_at: '2019-12-23T18:19:36.641Z',
+        playbook_run_executor_id: playbook_run_executors[6].id
     }], opts);
 };

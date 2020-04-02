@@ -230,6 +230,7 @@ paths:
         - $ref: '#/components/parameters/RemediationId'
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/PlaybookRunSort'
       responses:
         '200':
           description: OK
@@ -554,6 +555,13 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/PlaybookRunId'
+    PlaybookRunSort:
+      in: query
+      name: sort
+      description: Sort Order for Playbook Run
+      required: false
+      schema:
+        $ref: '#/components/schemas/PlaybookRunSort'
     ExecutorId:
       in: query
       name: executor
@@ -671,6 +679,11 @@ components:
       type: string
       format: uuid
       example: a8799a02-8be9-11e8-9eb6-529269fb1459
+
+    PlaybookRunSort:
+      type: string
+      enum: [updated_at, -updated_at]
+      default: -updated_at
 
     PlaybookRunExecutorId:
       type: string

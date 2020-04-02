@@ -82,26 +82,36 @@ describe('FiFi', function () {
                 .set(auth.fifi)
                 .expect(200);
 
-                body.meta.count.should.equal(1);
-                body.meta.total.should.equal(1);
-                body.data[0].should.have.property('id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
-                body.data[0].should.have.property('status', 'running');
-                body.data[0].should.have.property('created_at', '2019-12-23T08:19:36.641Z');
+                body.meta.count.should.equal(2);
+                body.meta.total.should.equal(2);
+                body.data[0].should.have.property('id', '31a70e85-378a-4436-96e9-677cd6fba660');
+                body.data[0].should.have.property('status', 'pending');
+                body.data[0].should.have.property('created_at', '2020-02-23T06:19:36.641Z');
 
-                body.data[0].executors[0].should.have.property('executor_id', '21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd');
-                body.data[0].executors[0].should.have.property('executor_name', 'executor-2');
-                body.data[0].executors[0].should.have.property('status', 'running');
-                body.data[0].executors[0].should.have.property('system_count', 5);
-                body.data[0].executors[0].counts.should.have.property('failure', 3);
-                body.data[0].executors[0].counts.should.have.property('canceled', 2);
+                body.data[1].should.have.property('id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
+                body.data[1].should.have.property('status', 'running');
+                body.data[1].should.have.property('created_at', '2019-12-23T08:19:36.641Z');
 
-                body.data[0].executors[1].should.have.property('executor_id', '77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd');
-                body.data[0].executors[1].should.have.property('executor_name', 'executor-1');
-                body.data[0].executors[1].should.have.property('status', 'running');
-                body.data[0].executors[1].should.have.property('system_count', 6);
-                body.data[0].executors[1].counts.should.have.property('running', 1);
-                body.data[0].executors[1].counts.should.have.property('success', 3);
-                body.data[0].executors[1].counts.should.have.property('pending', 2);
+                body.data[0].executors[0].should.have.property('executor_id', '3ee8f640-ec08-46eb-be77-b80785c476d9');
+                body.data[0].executors[0].should.have.property('executor_name', 'executor-25');
+                body.data[0].executors[0].should.have.property('status', 'pending');
+                body.data[0].executors[0].should.have.property('system_count', 1);
+                body.data[0].executors[0].counts.should.have.property('pending', 1);
+
+                body.data[1].executors[0].should.have.property('executor_id', '21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd');
+                body.data[1].executors[0].should.have.property('executor_name', 'executor-2');
+                body.data[1].executors[0].should.have.property('status', 'running');
+                body.data[1].executors[0].should.have.property('system_count', 5);
+                body.data[1].executors[0].counts.should.have.property('failure', 3);
+                body.data[1].executors[0].counts.should.have.property('canceled', 2);
+
+                body.data[1].executors[1].should.have.property('executor_id', '77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd');
+                body.data[1].executors[1].should.have.property('executor_name', 'executor-1');
+                body.data[1].executors[1].should.have.property('status', 'running');
+                body.data[1].executors[1].should.have.property('system_count', 6);
+                body.data[1].executors[1].counts.should.have.property('running', 1);
+                body.data[1].executors[1].counts.should.have.property('success', 3);
+                body.data[1].executors[1].counts.should.have.property('pending', 2);
                 expect(text).toMatchSnapshot();
             });
 
@@ -172,6 +182,84 @@ describe('FiFi', function () {
                 body.data[0].executors[0].should.have.property('status', 'running');
                 body.data[0].executors[0].should.have.property('system_count', 1);
                 body.data[0].executors[0].counts.should.have.property('pending', 1);
+                expect(text).toMatchSnapshot();
+            });
+
+            test('sort playbook_runs?sort=-updated_at', async() => {
+                const {body, text} = await request
+                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs?sort=-updated_at')
+                .set(auth.fifi)
+                .expect(200);
+
+                body.meta.count.should.equal(2);
+                body.meta.total.should.equal(2);
+                body.data[0].should.have.property('id', '31a70e85-378a-4436-96e9-677cd6fba660');
+                body.data[0].should.have.property('status', 'pending');
+                body.data[0].should.have.property('created_at', '2020-02-23T06:19:36.641Z');
+
+                body.data[1].should.have.property('id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
+                body.data[1].should.have.property('status', 'running');
+                body.data[1].should.have.property('created_at', '2019-12-23T08:19:36.641Z');
+
+                body.data[0].executors[0].should.have.property('executor_id', '3ee8f640-ec08-46eb-be77-b80785c476d9');
+                body.data[0].executors[0].should.have.property('executor_name', 'executor-25');
+                body.data[0].executors[0].should.have.property('status', 'pending');
+                body.data[0].executors[0].should.have.property('system_count', 1);
+                body.data[0].executors[0].counts.should.have.property('pending', 1);
+
+                body.data[1].executors[0].should.have.property('executor_id', '21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd');
+                body.data[1].executors[0].should.have.property('executor_name', 'executor-2');
+                body.data[1].executors[0].should.have.property('status', 'running');
+                body.data[1].executors[0].should.have.property('system_count', 5);
+                body.data[1].executors[0].counts.should.have.property('failure', 3);
+                body.data[1].executors[0].counts.should.have.property('canceled', 2);
+
+                body.data[1].executors[1].should.have.property('executor_id', '77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd');
+                body.data[1].executors[1].should.have.property('executor_name', 'executor-1');
+                body.data[1].executors[1].should.have.property('status', 'running');
+                body.data[1].executors[1].should.have.property('system_count', 6);
+                body.data[1].executors[1].counts.should.have.property('running', 1);
+                body.data[1].executors[1].counts.should.have.property('success', 3);
+                body.data[1].executors[1].counts.should.have.property('pending', 2);
+                expect(text).toMatchSnapshot();
+            });
+
+            test('sort playbook_runs?sort=updated_at', async() => {
+                const {body, text} = await request
+                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs?sort=updated_at')
+                .set(auth.fifi)
+                .expect(200);
+
+                body.meta.count.should.equal(2);
+                body.meta.total.should.equal(2);
+                body.data[0].should.have.property('id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
+                body.data[0].should.have.property('status', 'running');
+                body.data[0].should.have.property('created_at', '2019-12-23T08:19:36.641Z');
+
+                body.data[1].should.have.property('id', '31a70e85-378a-4436-96e9-677cd6fba660');
+                body.data[1].should.have.property('status', 'pending');
+                body.data[1].should.have.property('created_at', '2020-02-23T06:19:36.641Z');
+
+                body.data[0].executors[0].should.have.property('executor_id', '21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd');
+                body.data[0].executors[0].should.have.property('executor_name', 'executor-2');
+                body.data[0].executors[0].should.have.property('status', 'running');
+                body.data[0].executors[0].should.have.property('system_count', 5);
+                body.data[0].executors[0].counts.should.have.property('failure', 3);
+                body.data[0].executors[0].counts.should.have.property('canceled', 2);
+
+                body.data[0].executors[1].should.have.property('executor_id', '77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd');
+                body.data[0].executors[1].should.have.property('executor_name', 'executor-1');
+                body.data[0].executors[1].should.have.property('status', 'running');
+                body.data[0].executors[1].should.have.property('system_count', 6);
+                body.data[0].executors[1].counts.should.have.property('running', 1);
+                body.data[0].executors[1].counts.should.have.property('success', 3);
+                body.data[0].executors[1].counts.should.have.property('pending', 2);
+
+                body.data[1].executors[0].should.have.property('executor_id', '3ee8f640-ec08-46eb-be77-b80785c476d9');
+                body.data[1].executors[0].should.have.property('executor_name', 'executor-25');
+                body.data[1].executors[0].should.have.property('status', 'pending');
+                body.data[1].executors[0].should.have.property('system_count', 1);
+                body.data[1].executors[0].counts.should.have.property('pending', 1);
                 expect(text).toMatchSnapshot();
             });
 
@@ -433,6 +521,13 @@ describe('FiFi', function () {
                 await request
                 .set(auth.fifi)
                 .get('/v1/remediations/249f142c-2ae3-4c3f-81f8111/playbook_runs?offset=12000000000')
+                .expect(400);
+            });
+
+            test('400 on wrong sort playbook_runs?sort=FIFI', async () => {
+                await request
+                .set(auth.fifi)
+                .get('/v1/remediations/249f142c-2ae3-4c3f-81f8111/playbook_runs?sort=FIFI')
                 .expect(400);
             });
 

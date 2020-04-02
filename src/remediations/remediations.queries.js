@@ -170,7 +170,7 @@ exports.get = function (id, account_number, created_by) {
     });
 };
 
-exports.getPlaybookRuns = function (id, account_number, created_by) {
+exports.getPlaybookRuns = function (id, account_number, created_by, primaryOrder = 'updated_at', asc = false) {
     const {s: {col, cast, where}, fn: {DISTINCT, COUNT, SUM}} = db;
 
     return db.remediation.findOne({
@@ -208,7 +208,7 @@ exports.getPlaybookRuns = function (id, account_number, created_by) {
             'playbook_runs->executors.id'
         ],
         order: [
-            [db.playbook_runs, 'created_at', 'DESC']
+            [db.playbook_runs, col(primaryOrder), asc ? 'ASC' : 'DESC']
         ]
     });
 };
