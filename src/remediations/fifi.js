@@ -21,7 +21,7 @@ const PENDING = 'pending';
 const FAILURE = 'failure';
 
 async function fetchSystems (ids) {
-    const systemDetails = await inventory.getSystemDetailsBatch(ids);
+    const systemDetails = await inventory.getSystemDetailsBatch(ids, true);
 
     return _(ids).map(id => _.get(systemDetails, id)).filter().value();
 }
