@@ -32,6 +32,24 @@ function buildListLinks (total, limit, offset, sort, system) {
     return links;
 }
 
+exports.parseSort = function (param) {
+    if (!param) {
+        throw new Error(`Invalid sort param value ${param}`);
+    }
+
+    if (param.startsWith('-')) {
+        return {
+            column: param.substring(1),
+            asc: false
+        };
+    }
+
+    return {
+        column: param,
+        asc: true
+    };
+};
+
 exports.list = function (remediations, total, limit, offset, sort, system) {
     const formatted = _.map(remediations,
         ({id, name, needs_reboot, created_by, created_at, updated_by, updated_at, system_count, issue_count}) => ({

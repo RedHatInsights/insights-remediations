@@ -321,6 +321,7 @@ paths:
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/SystemName'
+        - $ref: '#/components/parameters/PlaybookRunSystemSort'
       responses:
         '200':
           description: OK
@@ -567,6 +568,13 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/SystemName'
+    PlaybookRunSystemSort:
+      in: query
+      name: sort
+      description: Playbook run systems sort order by ASC or DESC
+      required: false
+      schema:
+        $ref: '#/components/schemas/PlaybookRunSystemSort'
 
 
   requestBodies:
@@ -653,6 +661,11 @@ components:
       type: string
       example: "pending"
       enum: ["pending", "running", "success", "failure", "canceled"]
+
+    PlaybookRunSystemSort:
+      type: string
+      enum: [system_name, -system_name]
+      default: system_name
 
     PlaybookRunId:
       type: string

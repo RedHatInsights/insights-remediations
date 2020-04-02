@@ -331,6 +331,54 @@ describe('FiFi', function () {
                 expect(text).toMatchSnapshot();
             });
 
+            test('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?sort=system_name', async () => {
+                const {body, text} = await request
+                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?sort=system_name')
+                .set(auth.fifi)
+                .expect(200);
+
+                body.meta.count.should.equal(3);
+                body.meta.total.should.equal(3);
+                body.data.should.have.length(3);
+                body.data[0].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f');
+                body.data[0].should.have.property('system_name', 'system-22');
+                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
+
+                body.data[1].should.have.property('system_id', '6e64bc58-09be-4f49-b717-c1d469d1ae9c');
+                body.data[1].should.have.property('system_name', 'system-23');
+                body.data[1].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
+
+                body.data[2].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f');
+                body.data[2].should.have.property('system_name', 'system-24');
+                body.data[2].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd');
+
+                expect(text).toMatchSnapshot();
+            });
+
+            test('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?sort=-system_name', async () => {
+                const {body, text} = await request
+                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?sort=-system_name')
+                .set(auth.fifi)
+                .expect(200);
+
+                body.meta.count.should.equal(3);
+                body.meta.total.should.equal(3);
+                body.data.should.have.length(3);
+                body.data[0].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f');
+                body.data[0].should.have.property('system_name', 'system-24');
+                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd');
+
+                body.data[1].should.have.property('system_id', '6e64bc58-09be-4f49-b717-c1d469d1ae9c');
+                body.data[1].should.have.property('system_name', 'system-23');
+                body.data[1].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
+
+                body.data[2].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f');
+                body.data[2].should.have.property('system_name', 'system-22');
+                body.data[2].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
+
+                expect(text).toMatchSnapshot();
+            });
+
             test('playbook_runs/:playbook_run_id/systems/:system', async () => {
                 const {body, text} = await request
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems/7b136dd2-4824-43cf-af6c-ad0ee42f9f97')
@@ -462,6 +510,13 @@ describe('FiFi', function () {
                 await request
                 .set(auth.fifi)
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a4b530cbfb111/systems?ansible_host=249f142c-2ae3-4c3f-b2ec-c8c5881')
+                .expect(400);
+            });
+
+            test('400 on bad sort playbook_runs/:playbook_run_id/systems?sort=FIFI', async () => {
+                await request
+                .set(auth.fifi)
+                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a4b530cbfb111/systems?sort=FIFI')
                 .expect(400);
             });
 

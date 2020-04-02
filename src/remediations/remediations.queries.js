@@ -304,8 +304,8 @@ exports.getRunningExecutors = function (remediation_id, playbook_run_id, account
 };
 
 // eslint-disable-next-line max-len
-exports.getSystems = function (remediation_id, playbook_run_id, executor_id = null, ansible_host = null, limit, offset, account, username) {
-    const { Op } = db;
+exports.getSystems = function (remediation_id, playbook_run_id, executor_id = null, ansible_host = null, primaryOrder = 'system_name', asc = true, limit, offset, account, username) {
+    const { s: {col}, Op } = db;
     const query = {
         attributes: [
             'id',
@@ -337,7 +337,7 @@ exports.getSystems = function (remediation_id, playbook_run_id, executor_id = nu
             }]
         }],
         order: [
-            ['system_name', 'ASC']
+            [col(primaryOrder), asc ? 'ASC' : 'DESC']
         ],
         limit,
         offset

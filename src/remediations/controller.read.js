@@ -88,30 +88,12 @@ async function resolveUsers (req, ...remediations) {
     });
 }
 
-function parseSort (param) {
-    if (!param) {
-        throw new Error(`Invalid sort param value ${param}`);
-    }
-
-    if (param.startsWith('-')) {
-        return {
-            column: param.substring(1),
-            asc: false
-        };
-    }
-
-    return {
-        column: param,
-        asc: true
-    };
-}
-
 function inferNeedsReboot (remediation) {
     return _.some(remediation.issues, 'resolution.needsReboot');
 }
 
 exports.list = errors.async(async function (req, res) {
-    const {column, asc} = parseSort(req.query.sort);
+    const {column, asc} = format.parseSort(req.query.sort);
     const {limit, offset} = req.query;
 
     const {count, rows} = await queries.list(

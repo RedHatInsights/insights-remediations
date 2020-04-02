@@ -108,12 +108,15 @@ exports.getRunDetails = errors.async(async function (req, res) {
 });
 
 exports.getSystems = errors.async(async function (req, res) {
+    const {column, asc} = format.parseSort(req.query.sort);
     const {limit, offset} = req.query;
     const {count, rows} = await queries.getSystems(
         req.params.id,
         req.params.playbook_run_id,
         req.query.executor,
         req.query.ansible_host,
+        column,
+        asc,
         limit,
         offset,
         req.user.account_number,
