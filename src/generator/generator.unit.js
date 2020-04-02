@@ -49,6 +49,23 @@ test('generates a simple failHalfTheTime  playbook', () => {
     .then(res => expect(res.text).toMatchSnapshot());
 });
 
+['1m', '5m', '15m', '1h', '6h', 'Random15m'].forEach(delay =>
+    test(`generates a pause playbook (${delay})`, () => {
+        const data = {
+            issues: [{
+                id: `test:pause${delay}`,
+                systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+            }]
+        };
+
+        return request
+        .post('/v1/playbook')
+        .send(data)
+        .expect(200)
+        .then(res => expect(res.text).toMatchSnapshot());
+    })
+);
+
 test('generates a simple playbook with reboot', () => {
     const data = {
         issues: [{

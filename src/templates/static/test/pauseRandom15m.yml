@@ -1,0 +1,12 @@
+- name: pause
+  hosts: "@@HOSTS@@"
+  tasks:
+    - pause:
+        minutes: "{{ item }}"
+      with_random_choice:
+        - 1
+        - 2
+        - 3
+        - 5
+        - 8
+        - 13

@@ -13,7 +13,17 @@ const RESOLUTIONS = Object.freeze({
     debug: [
         new Resolution(templates.test.ping, 'alternative', 'Ping twice', false, false, 2),
         new Resolution(templates.test.ping, 'fix', 'Ping once', false, false, 1)
-    ]
+    ],
+    pause1m: [new Resolution(templates.test.pause1m, 'fix', 'Run Ansible pause module waiting 1 minute')],
+    pause5m: [new Resolution(templates.test.pause5m, 'fix', 'Run Ansible pause module waiting 5 minutes')],
+    pause15m: [new Resolution(templates.test.pause15m, 'fix', 'Run Ansible pause module waiting 15 minutes')],
+    pause1h: [new Resolution(templates.test.pause1h, 'fix', 'Run Ansible pause module waiting 1 hour')],
+    pause6h: [new Resolution(templates.test.pause6h, 'fix', 'Run Ansible pause module waiting 6 hours')],
+    pauseRandom15m: [new Resolution(
+        templates.test.pauseRandom15m,
+        'fix',
+        'Run Ansible pause module waiting a random delay (up to 15 minutes)'
+    )]
 });
 
 module.exports = class TestResolver extends Resolver {

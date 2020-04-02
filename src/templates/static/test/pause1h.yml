@@ -1,0 +1,6 @@
+- name: pause
+  hosts: "@@HOSTS@@"
+  tasks:
+    - pause:
+        minutes: 1
+      with_sequence: start=0 end=60

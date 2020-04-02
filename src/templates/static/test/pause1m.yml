@@ -1,0 +1,5 @@
+- name: pause
+  hosts: "@@HOSTS@@"
+  tasks:
+    - pause:
+        minutes: 1
