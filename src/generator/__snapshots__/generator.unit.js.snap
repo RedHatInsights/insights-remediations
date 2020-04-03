@@ -221,6 +221,34 @@ exports[`generates a pause playbook (1m) 1`] = `
       changed_when: false"
 `;
 
+exports[`generates a pause playbook (5m verbose) 1`] = `
+"---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
+# Fixes test:pause5m
+# Identifier: (test:pause5m,verbose)
+# Version: unknown
+- name: pause
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  tasks:
+    - pause:
+        seconds: 3
+      with_sequence: start=0 end=100
+
+- name: run insights
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
+`;
+
 exports[`generates a pause playbook (5m) 1`] = `
 "---
 # Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you

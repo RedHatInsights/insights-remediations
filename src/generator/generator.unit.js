@@ -66,6 +66,22 @@ test('generates a simple failHalfTheTime  playbook', () => {
     })
 );
 
+test('generates a pause playbook (5m verbose)', () => {
+    const data = {
+        issues: [{
+            id: `test:pause5m`,
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
+            resolution: 'verbose'
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200)
+    .then(res => expect(res.text).toMatchSnapshot());
+});
+
 test('generates a simple playbook with reboot', () => {
     const data = {
         issues: [{

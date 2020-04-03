@@ -7,10 +7,12 @@ const Factory = require('./Factory');
 
 module.exports = class TestFactory extends Factory {
 
-    async createPlay ({id, hosts}) {
+    async createPlay ({id, resolution, hosts}) {
         const resolutions = await testResolver.resolveResolutions(id);
-        if (resolutions.length === 1) {
-            return new ResolutionPlay(id, hosts, resolutions[0]);
+
+        const disambiguatedResolution = this.disambiguate(resolutions, resolution, id, true);
+        if (disambiguatedResolution) {
+            return new ResolutionPlay(id, hosts, disambiguatedResolution);
         }
 
         throw errors.unsupportedIssue(id);

@@ -15,7 +15,14 @@ const RESOLUTIONS = Object.freeze({
         new Resolution(templates.test.ping, 'fix', 'Ping once', false, false, 1)
     ],
     pause1m: [new Resolution(templates.test.pause1m, 'fix', 'Run Ansible pause module waiting 1 minute')],
-    pause5m: [new Resolution(templates.test.pause5m, 'fix', 'Run Ansible pause module waiting 5 minutes')],
+    pause5m: [
+        new Resolution(templates.test.pause5m, 'fix', 'Run Ansible pause module waiting 5 minutes'),
+        new Resolution(
+            templates.test.pauseVerbose5m,
+            'verbose',
+            'Run Ansible pause module waiting 5 minutes (3sec iterations)'
+        )
+    ],
     pause15m: [new Resolution(templates.test.pause15m, 'fix', 'Run Ansible pause module waiting 15 minutes')],
     pause1h: [new Resolution(templates.test.pause1h, 'fix', 'Run Ansible pause module waiting 1 hour')],
     pause6h: [new Resolution(templates.test.pause6h, 'fix', 'Run Ansible pause module waiting 6 hours')],
