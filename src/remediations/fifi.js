@@ -208,7 +208,7 @@ function dispatchReceptorRequests (requests, remediation, playbook_run_id) {
 
 function prepareCancelRequest (account_number, executor, playbook_run_id) {
     const receptorCancelRequest = format.receptorCancelRequest(format.playbookCancelRequest(
-        playbook_run_id), account_number, executor.receptorId);
+        playbook_run_id), account_number, executor.get('receptor_node_id'));
 
     return { executor, receptorCancelRequest };
 }

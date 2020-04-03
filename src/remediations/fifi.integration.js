@@ -754,6 +754,19 @@ describe('FiFi', function () {
                 .expect(202);
 
                 spy.callCount.should.equal(2);
+                spy.firstCall.args[0].should.eql({
+                    account: 'fifi',
+                    recipient: 'Job-1',
+                    payload: '{"type":"playbook_run_cancel","playbook_run_id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc"}',
+                    directive: 'receptor_satellite:cancel'
+                });
+
+                spy.secondCall.args[0].should.eql({
+                    account: 'fifi',
+                    recipient: 'Job-2',
+                    payload: '{"type":"playbook_run_cancel","playbook_run_id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc"}',
+                    directive: 'receptor_satellite:cancel'
+                });
             });
 
             test('cancel playbook when no executors are still running', async () => {

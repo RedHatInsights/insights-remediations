@@ -271,7 +271,8 @@ exports.getRunningExecutors = function (remediation_id, playbook_run_id, account
             'executor_name',
             'status',
             'updated_at',
-            'playbook_run_id'
+            'playbook_run_id',
+            'receptor_node_id'
         ],
         include: [{
             attributes: ['id'],
