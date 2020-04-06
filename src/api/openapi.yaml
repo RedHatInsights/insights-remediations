@@ -561,7 +561,9 @@ components:
       description: Sort Order for Playbook Run
       required: false
       schema:
-        $ref: '#/components/schemas/PlaybookRunSort'
+        type: string
+        enum: [updated_at, -updated_at]
+        default: -updated_at
     ExecutorId:
       in: query
       name: executor
@@ -582,7 +584,9 @@ components:
       description: Playbook run systems sort order by ASC or DESC
       required: false
       schema:
-        $ref: '#/components/schemas/PlaybookRunSystemSort'
+        type: string
+        enum: [system_name, -system_name]
+        default: system_name
 
 
   requestBodies:
@@ -670,20 +674,10 @@ components:
       example: "pending"
       enum: ["pending", "running", "success", "failure", "canceled"]
 
-    PlaybookRunSystemSort:
-      type: string
-      enum: [system_name, -system_name]
-      default: system_name
-
     PlaybookRunId:
       type: string
       format: uuid
       example: a8799a02-8be9-11e8-9eb6-529269fb1459
-
-    PlaybookRunSort:
-      type: string
-      enum: [updated_at, -updated_at]
-      default: -updated_at
 
     PlaybookRunExecutorId:
       type: string
