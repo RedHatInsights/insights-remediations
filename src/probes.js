@@ -40,6 +40,11 @@ const playbookCancelCounter = new client.Counter({
     help: `Counter of Playbook Runs to be canceled`
 });
 
+const excludedExecutorsCounter = new client.Counter({
+    name: `${prefix}executors_excluded`,
+    help: `Counter of Playbook Runs where executors have been excluded`
+});
+
 // https://www.robustperception.io/existential-issues-with-metrics
 ETAG_STATES.forEach(value => etagErrorCounter.labels(value).inc(0));
 PERMISSIONS.forEach(value => rbacCounter.labels(value).inc(0));
@@ -125,4 +130,9 @@ exports.receptorCancelDispatched = function (receptorCancelRequest, executor, re
         satelite_id: executor.satId,
         playbook_run_id: playbookRunId
     }, 'receptor cancel request sent');
+};
+
+exports.excludedExecutors = function (excluded) {
+    excludedExecutorsCounter.inc();
+    log.info({excluded}, 'executors excluded from playbook run');
 };

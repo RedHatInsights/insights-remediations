@@ -4,6 +4,7 @@ const _ = require('lodash');
 const P = require('bluebird');
 const {v4: uuidv4} = require('uuid');
 
+const errors = require('../errors');
 const format = require('./remediations.format');
 const generator = require('../generator/generator.controller');
 const inventory = require('../connectors/inventory');
@@ -35,6 +36,23 @@ exports.getSatelliteId = function (facts) {
 
     return null;
 };
+
+function filterExecutors (status, excludes = null) {
+    if (excludes) {
+        // If any of the given excludes isn't in  throw error
+        const unknownExcludes = _.difference(excludes, _.filter(excludes, exclude_id =>
+            _.find(status, executor => executor.satId === exclude_id)));
+
+        if (!_.isEmpty(unknownExcludes)) {
+            throw errors.unknownExclude(unknownExcludes);
+        }
+
+        probes.excludedExecutors(excludes);
+        status = _.filter(status, executor => !_.includes(excludes, executor.satId));
+    }
+
+    return _.filter(status, {status: 'connected'});
+}
 
 function getReceptor (source) {
     if (!source) {
@@ -265,9 +283,9 @@ async function storePlaybookRun (remediation, playbook_run_id, requests, respons
     await queries.insertPlaybookRun(run, executors, systems);
 }
 
-exports.createPlaybookRun = async function (status, remediation, username) {
+exports.createPlaybookRun = async function (status, remediation, username, excludes) {
     const playbook_run_id = exports.generatePlaybookRunId();
-    const executors = _.filter(status, {status: 'connected'});
+    const executors = filterExecutors(status, excludes);
     const remediationIssues = remediation.toJSON().issues;
 
     if (_.isEmpty(executors)) {

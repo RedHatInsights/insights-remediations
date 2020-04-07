@@ -250,6 +250,8 @@ paths:
       operationId: runRemediation
       parameters:
         - $ref: '#/components/parameters/RemediationId'
+      requestBody:
+        $ref: '#/components/requestBodies/ExcludeExecutors'
       responses:
         '201':
           description: Created
@@ -571,6 +573,7 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/ExecutorId'
+
     SystemName:
       in: query
       name: ansible_host
@@ -596,6 +599,22 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/RemediationInput'
+    ExcludeExecutors:
+      description: 'Excluded executors from playbook run'
+      required: false
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [exclude]
+            properties:
+              exclude:
+                type: array
+                items:
+                  type: string
+                  format: uuid
+                  example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
 
 
   schemas:

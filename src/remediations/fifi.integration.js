@@ -869,6 +869,62 @@ describe('FiFi', function () {
                     'No executors available for Playbook "FiFI playbook 5" (63d92aeb-9351-4216-8d7c-044d171337bc)');
             });
 
+            test('exclude one of the two connected executors', async function () {
+                mockDate();
+                mockPlaybookRunId();
+                // do not create db record
+                base.getSandbox().stub(queries, 'insertPlaybookRun').returns();
+
+                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
+
+                await request
+                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
+                .send({exclude: ['722ec903-f4b5-4b1f-9c2f-23fc7b0ba390']})
+                .set(auth.fifi)
+                .expect(201);
+
+                spy.callCount.should.equal(1);
+
+                const payload = JSON.parse(spy.firstCall.args[0].payload);
+                payload.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
+                payload.should.have.property('playbook_run_id', '249f142c-2ae3-4c3f-b2ec-c8c588999999');
+                payload.hosts[0].should.have.equal('35e9b452-e405-499c-9c6e-120010b7b465.example.com');
+
+                expect(spy.args[0]).toMatchSnapshot();
+            });
+
+            test('exclude both connected connectors and return 400 NO_EXECUTORS', async function () {
+                const {body} = await request
+                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
+                .send({exclude: ['722ec903-f4b5-4b1f-9c2f-23fc7b0ba390', '63142926-46a5-498b-9614-01f2f66fd40b']})
+                .set(auth.fifi)
+                .expect(400);
+
+                body.errors[0].should.have.property('code', 'NO_EXECUTORS');
+                body.errors[0].should.have.property('title',
+                    'No executors available for Playbook "FiFI playbook 5" (63d92aeb-9351-4216-8d7c-044d171337bc)');
+            });
+
+            test('post playbook_runs with wrong exclude statment', async function () {
+                await request
+                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
+                .send({exclude: 'fifi'})
+                .set(auth.fifi)
+                .expect(400);
+            });
+
+            test('post playbook_runs with exclude statement that doesnt exist', async function () {
+                const {body} = await request
+                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
+                .send({exclude: ['722ec903-f4b5-4b1f-9c2f-23fc7b0ba380']})
+                .set(auth.fifi)
+                .expect(400);
+
+                body.errors[0].should.have.property('code', 'UNKNOWN_EXCLUDE');
+                body.errors[0].should.have.property('title',
+                    'Excluded Executor [722ec903-f4b5-4b1f-9c2f-23fc7b0ba380] not found in list of identified executors');
+            });
+
             test('if 1st executor result from receptor connector is request error', async function () {
                 base.getSandbox().stub(receptor, 'postInitialRequest')
                 .rejects(errors.internal.dependencyError(new Error('receptor down'), receptor));

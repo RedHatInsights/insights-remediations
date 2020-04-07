@@ -160,6 +160,9 @@ exports.invalidOffset = (offset, max) =>
 exports.noExecutors = remediation =>
     new exports.BadRequest('NO_EXECUTORS', `No executors available for Playbook "${remediation.name}" (${remediation.id})`);
 
+exports.unknownExclude = excluded =>
+    new exports.BadRequest('UNKNOWN_EXCLUDE', `Excluded Executor [${excluded}] not found in list of identified executors`);
+
 exports.internal = {
     invalidTemplate (msg) {
         return new InternalError('INVALID_TEMPLATE', msg);
