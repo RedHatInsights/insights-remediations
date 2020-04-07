@@ -89,6 +89,7 @@ function normalize (satellites) {
     return _.map(satellites, satellite => ({
         satId: satellite.id,
         receptorId: _.get(satellite.receptor, 'receptor_node', null),
+        endpointId: _.get(satellite.receptor, 'id', null),
         systems: _.map(satellite.systems, system => _.pick(system, SYSTEM_FIELDS)),
         type: satellite.id ? 'satellite' : null,
         name: getName(satellite),

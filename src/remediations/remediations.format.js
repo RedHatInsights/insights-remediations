@@ -131,6 +131,7 @@ exports.connectionStatus = function (executors) {
     const data = _(executors)
     .sortBy('name')
     .map(executor => ({
+        endpoint_id: executor.endpointId || null,
         executor_id: executor.satId || null,
         executor_type: executor.type,
         executor_name: executor.name,

@@ -1284,12 +1284,17 @@ components:
       type: object
       additionalProperties: false
       required:
+        - endpoint_id
         - executor_id
         - executor_type
         - executor_name
         - system_count
         - connection_status
       properties:
+        endpoint_id:
+          type: string
+          nullable: true
+          example: 806
         executor_id:
           type: string
           nullable: true
