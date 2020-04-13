@@ -43,7 +43,13 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
         return notMatching(res);
     }
 
-    const result = await fifi.createPlaybookRun(status, remediation, req.user.username, req.body.exclude);
+    const result = await fifi.createPlaybookRun(
+        status,
+        remediation,
+        req.user.username,
+        req.body.exclude,
+        req.body.response_mode
+    );
 
     if (_.isNull(result)) {
         throw errors.noExecutors(remediation);

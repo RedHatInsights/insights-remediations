@@ -12,7 +12,7 @@ function checkPropsStrict (ref, path) {
         return;
     }
 
-    if (_.has(ref, 'properties') && ref.additionalProperties !== false) {
+    if (_.has(ref, 'properties') && ref.additionalProperties !== false && ref['x-remediations-strict'] !== false) {
         /* eslint no-console: off */
         console.error(`ERROR: "additionalProperties: false" missing in ${path.join('-->')}`);
         code = 1;

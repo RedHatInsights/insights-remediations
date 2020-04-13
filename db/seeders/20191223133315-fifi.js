@@ -196,7 +196,8 @@ exports.up = async q => {
         '    - name: run insights\n' +
         '      command: insights-client\n' +
         '      changed_when: false',
-        playbook_run_id: playbook_runs[0].id
+        playbook_run_id: playbook_runs[0].id,
+        text_update_full: true
     }, {
         id: '55c0ba73-0215-4e7d-a6d6-4b530cbfb5bd',
         executor_id: '21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd',
@@ -232,7 +233,8 @@ exports.up = async q => {
         '    - name: run insights\n' +
         '      command: insights-client\n' +
         '      changed_when: false',
-        playbook_run_id: playbook_runs[0].id
+        playbook_run_id: playbook_runs[0].id,
+        text_update_full: true
     }, {
         id: '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd',
         executor_id: '77c0ba73-1015-4e7d-a6d6-4b530cbfb6bd',
@@ -268,7 +270,8 @@ exports.up = async q => {
         '    - name: run insights\n' +
         '      command: insights-client\n' +
         '      changed_when: false',
-        playbook_run_id: playbook_runs[1].id
+        playbook_run_id: playbook_runs[1].id,
+        text_update_full: false
     }, {
         id: '66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd',
         executor_id: '77c0ba73-1015-4e7d-a6d6-4b530cbfb7bd',
@@ -304,7 +307,8 @@ exports.up = async q => {
         '    - name: run insights\n' +
         '      command: insights-client\n' +
         '      changed_when: false',
-        playbook_run_id: playbook_runs[1].id
+        playbook_run_id: playbook_runs[1].id,
+        text_update_full: true
     }, {
         id: '88d0ba73-0015-4e7d-a6d6-4b530cbfb7ef',
         executor_id: '77c0ba73-1015-4e7d-a6d6-4b530cbfb7bd',
@@ -340,7 +344,8 @@ exports.up = async q => {
         '    - name: run insights\n' +
         '      command: insights-client\n' +
         '      changed_when: false',
-        playbook_run_id: playbook_runs[2].id
+        playbook_run_id: playbook_runs[2].id,
+        text_update_full: false
     }, {
         id: '34d0ba73-0015-4e7d-a6d6-4b530cbfb7ef',
         executor_id: '99c0ba73-1015-4e7d-a6d6-4b530cbfb7bd',
@@ -376,7 +381,8 @@ exports.up = async q => {
         '    - name: run insights\n' +
         '      command: insights-client\n' +
         '      changed_when: false',
-        playbook_run_id: playbook_runs[3].id
+        playbook_run_id: playbook_runs[3].id,
+        text_update_full: true
     }, {
         id: 'bfda961e-3847-4a84-b660-59e63f874a12',
         executor_id: '3ee8f640-ec08-46eb-be77-b80785c476d9',
@@ -412,7 +418,8 @@ exports.up = async q => {
         '    - name: run insights\n' +
         '      command: insights-client\n' +
         '      changed_when: false',
-        playbook_run_id: playbook_runs[5].id
+        playbook_run_id: playbook_runs[5].id,
+        text_update_full: false
     }, {
         id: '66d0ba73-0015-4e7d-a6d6-4b530cbfb9bd',
         executor_id: '77c0ba73-1015-4e7d-a6d6-4b530cbfb9bd',
@@ -448,7 +455,8 @@ exports.up = async q => {
         '    - name: run insights\n' +
         '      command: insights-client\n' +
         '      changed_when: false',
-        playbook_run_id: playbook_runs[1].id
+        playbook_run_id: playbook_runs[1].id,
+        text_update_full: true
     }], opts);
 
     await q.bulkInsert('playbook_run_systems', [{

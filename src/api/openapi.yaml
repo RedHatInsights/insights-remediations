@@ -276,7 +276,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/RemediationId'
       requestBody:
-        $ref: '#/components/requestBodies/ExcludeExecutors'
+        $ref: '#/components/requestBodies/PlaybookRunsInput'
       responses:
         '201':
           description: Created
@@ -633,22 +633,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/RemediationInput'
-    ExcludeExecutors:
-      description: 'Excluded executors from playbook run'
+    PlaybookRunsInput:
       required: false
       content:
         application/json:
           schema:
-            type: object
-            additionalProperties: false
-            required: [exclude]
-            properties:
-              exclude:
-                type: array
-                items:
-                  type: string
-                  format: uuid
-                  example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
+            anyOf:
+              - $ref: '#/components/schemas/ExcludeExecutors'
+              - $ref: '#/components/schemas/ResponseMode'
 
 
   schemas:
@@ -693,6 +685,18 @@ components:
     ExecutorName:
       type: string
       example: Executor Name
+    
+    ExcludeExecutors:
+      type: object
+      x-remediations-strict: false
+      required: [exclude]
+      properties:
+        exclude:
+          type: array
+          items:
+            type: string
+            format: uuid
+            example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
 
     RemediationName:
       type: string
@@ -707,6 +711,16 @@ components:
     SystemLog:
       type: string
       description: Current formatted system log from playbook run system.
+    
+    ResponseMode:
+      type: object
+      x-remediations-strict: false
+      required: [response_mode]
+      properties:
+        response_mode:
+          type: string
+          example: "diff"
+          enum: ["diff", "full"]
 
     RemediationNeedsReboot:
       type: boolean

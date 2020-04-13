@@ -153,7 +153,7 @@ function getUniqueHosts (issues) {
     return _(issues).flatMap('hosts').uniq().sort().value();
 }
 
-exports.playbookRunRequest = function (remediation, issues, playbook, playbookRunId) {
+exports.playbookRunRequest = function (remediation, issues, playbook, playbookRunId, text_update_full) {
     const uniqueHosts = getUniqueHosts(issues);
 
     return {
@@ -166,7 +166,7 @@ exports.playbookRunRequest = function (remediation, issues, playbook, playbookRu
         config: {
             text_updates: config.fifi.text_updates,
             text_update_interval: config.fifi.text_update_interval,
-            text_update_full: config.fifi.text_update_full
+            text_update_full
         }
     };
 };

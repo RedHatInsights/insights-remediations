@@ -4,6 +4,7 @@ const _ = require('lodash');
 const P = require('bluebird');
 const {v4: uuidv4} = require('uuid');
 
+const config = require('../config');
 const errors = require('../errors');
 const format = require('./remediations.format');
 const generator = require('../generator/generator.controller');
@@ -52,6 +53,20 @@ function filterExecutors (status, excludes = null) {
     }
 
     return _.filter(status, {status: 'connected'});
+}
+
+function findResponseMode (response_mode) {
+    let text_update_full = config.fifi.text_update_full;
+
+    if (response_mode) {
+        if (!['diff', 'full'].includes(response_mode)) {
+            throw new errors.BadRequest('UNKNOWN_RESPONSEMODE', `Response Mode "${response_mode}" does not exist`);
+        }
+
+        text_update_full = (response_mode === 'diff') ? false : true;
+    }
+
+    return text_update_full;
 }
 
 function getReceptor (source) {
@@ -187,7 +202,7 @@ exports.filterIssuesPerExecutor = async function (systems, remediationIssues) {
 };
 
 // prepare everything that we need to dispatch work requests to receptor
-async function prepareReceptorRequest (executor, remediation, remediationIssues, playbook_run_id) {
+async function prepareReceptorRequest (executor, remediation, remediationIssues, playbook_run_id, text_update_full) {
     const filteredIssues = generator.normalizeIssues(
         await exports.filterIssuesPerExecutor(executor.systems, remediationIssues)
     );
@@ -202,7 +217,8 @@ async function prepareReceptorRequest (executor, remediation, remediationIssues,
         remediation,
         resolvedIssues,
         playbook,
-        playbook_run_id), remediation.account_number, executor.receptorId);
+        playbook_run_id,
+        text_update_full), remediation.account_number, executor.receptorId);
 
     return { executor, receptorWorkRequest, playbook};
 }
@@ -244,7 +260,7 @@ function dispatchCancelRequests (requests, playbook_run_id) {
     });
 }
 
-async function storePlaybookRun (remediation, playbook_run_id, requests, responses, username) {
+async function storePlaybookRun (remediation, playbook_run_id, requests, responses, username, text_update_full) {
     requests.forEach(({executor}, index) => {
         executor.id = uuidv4();
         // eslint-disable-next-line security/detect-object-injection
@@ -269,6 +285,7 @@ async function storePlaybookRun (remediation, playbook_run_id, requests, respons
         // we still record the entry but mark the executor and systems as FAILURE instantly
         receptor_job_id: executor.dispatched ? executor.response.id : null,
         playbook: playbook.yaml,
+        text_update_full,
         playbook_run_id
     }));
 
@@ -283,21 +300,22 @@ async function storePlaybookRun (remediation, playbook_run_id, requests, respons
     await queries.insertPlaybookRun(run, executors, systems);
 }
 
-exports.createPlaybookRun = async function (status, remediation, username, excludes) {
+exports.createPlaybookRun = async function (status, remediation, username, excludes, response_mode) {
     const playbook_run_id = exports.generatePlaybookRunId();
     const executors = filterExecutors(status, excludes);
     const remediationIssues = remediation.toJSON().issues;
+    const text_update_full = findResponseMode(response_mode);
 
     if (_.isEmpty(executors)) {
         return null;
     }
 
     const requests = await P.map(executors,
-        executor => prepareReceptorRequest(executor, remediation, remediationIssues, playbook_run_id));
+        executor => prepareReceptorRequest(executor, remediation, remediationIssues, playbook_run_id, text_update_full));
 
     const responses = await dispatchReceptorRequests(requests, remediation, playbook_run_id);
 
-    await storePlaybookRun(remediation, playbook_run_id, requests, responses, username);
+    await storePlaybookRun(remediation, playbook_run_id, requests, responses, username, text_update_full);
 
     return playbook_run_id;
 };
