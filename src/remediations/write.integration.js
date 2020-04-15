@@ -5,6 +5,7 @@ const config = require('../config');
 const rbac = require('../connectors/rbac');
 const { request, reqId, auth, getSandbox, buildRbacResponse } = require('../test');
 const { NON_EXISTENT_SYSTEM } = require('../connectors/inventory/mock');
+const uuid = require('uuid');
 
 function testIssue (remediation, id, resolution, systems) {
     const issue = _.find(remediation.issues, {id});
@@ -119,6 +120,34 @@ describe('remediations', function () {
 
             testIssue(r2.body, 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074', 'selinux_mitigate', systems);
             testIssue(r2.body, 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE', 'fix', systems);
+        });
+
+        test('creates a new remediation with 20k systems', async () => {
+            const name = 'new remediation with issues';
+            const systems = _.times(20000, () => uuid.v4());
+
+            const {body: {id}} = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({
+                name,
+                add: {
+                    issues: [{
+                        id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'
+                    }],
+                    systems
+                }
+            })
+            .expect(201);
+
+            const {body} = await request
+            .get(`/v1/remediations`)
+            .set(auth.testWrite)
+            .expect(200);
+
+            const remediation = _.find(body.data, {id});
+            (remediation !== undefined).should.be.true();
+            remediation.system_count.should.equal(20000);
         });
 
         test('400s if unexpected property is provided', async () => {

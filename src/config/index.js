@@ -36,7 +36,7 @@ const config = {
     commit: env.OPENSHIFT_BUILD_COMMIT,
     demo: (env.DEMO_MODE === 'true') ? true : false,
 
-    bodyParserLimit: env.BODY_PARSER_LIMIT || '512kb',
+    bodyParserLimit: env.BODY_PARSER_LIMIT || '1mb',
 
     // by default enabled in non-prod
     validateResponseStrict: env.VALIDATE_RESPONSE_STRICT === undefined ?
