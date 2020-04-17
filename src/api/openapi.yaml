@@ -638,10 +638,15 @@ components:
       content:
         application/json:
           schema:
-            anyOf:
-              - $ref: '#/components/schemas/ExcludeExecutors'
-              - $ref: '#/components/schemas/ResponseMode'
-
+            type: object
+            x-remediations-strict: false
+            properties:
+              exclude:
+                type: array
+                items:
+                  type: string
+                  format: uuid
+                  example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
 
   schemas:
     #
@@ -685,18 +690,6 @@ components:
     ExecutorName:
       type: string
       example: Executor Name
-    
-    ExcludeExecutors:
-      type: object
-      x-remediations-strict: false
-      required: [exclude]
-      properties:
-        exclude:
-          type: array
-          items:
-            type: string
-            format: uuid
-            example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
 
     RemediationName:
       type: string
@@ -711,16 +704,6 @@ components:
     SystemLog:
       type: string
       description: Current formatted system log from playbook run system.
-    
-    ResponseMode:
-      type: object
-      x-remediations-strict: false
-      required: [response_mode]
-      properties:
-        response_mode:
-          type: string
-          example: "diff"
-          enum: ["diff", "full"]
 
     RemediationNeedsReboot:
       type: boolean

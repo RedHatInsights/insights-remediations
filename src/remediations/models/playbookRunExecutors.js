@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = (sequelize, {STRING, UUID, ENUM, DATE, TEXT}) => {
+module.exports = (sequelize, {STRING, UUID, ENUM, DATE, TEXT, BOOLEAN}) => {
     const RunExecutors = sequelize.define('playbook_run_executors', {
         id: {
             type: UUID,
@@ -40,6 +40,11 @@ module.exports = (sequelize, {STRING, UUID, ENUM, DATE, TEXT}) => {
         playbook_run_id: {
             type: UUID,
             allowNull: false
+        },
+        text_update_full: {
+            type: BOOLEAN,
+            allowNull: false,
+            defaultValue: true
         }
     }, {
         timestamps: true,

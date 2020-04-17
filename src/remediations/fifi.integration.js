@@ -9,6 +9,7 @@ const base = require('../test');
 const errors = require('../errors');
 const rbac = require('../connectors/rbac');
 const queries = require('./remediations.queries');
+const db = require('../db');
 
 describe('FiFi', function () {
     describe('connection status', function () {
@@ -927,13 +928,10 @@ describe('FiFi', function () {
 
             test('post playbook_runs with response_mode: diff', async function () {
                 mockDate();
-                mockPlaybookRunId();
-                // do not create db record
-                base.getSandbox().stub(queries, 'insertPlaybookRun').returns();
 
                 const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
 
-                await request
+                const {body: {id}} = await request
                 .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
                 .send({response_mode: 'diff'})
                 .set(auth.fifi)
@@ -943,28 +941,31 @@ describe('FiFi', function () {
 
                 const payload1 = JSON.parse(spy.firstCall.args[0].payload);
                 payload1.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
-                payload1.should.have.property('playbook_run_id', '249f142c-2ae3-4c3f-b2ec-c8c588999999');
+                payload1.should.have.property('playbook_run_id', id);
                 payload1.hosts[0].should.have.equal('355986a3-5f37-40f7-8f36-c3ac928ce190.example.com');
                 payload1.config.should.have.property('text_update_full', false);
 
                 const payload2 = JSON.parse(spy.secondCall.args[0].payload);
                 payload2.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
-                payload2.should.have.property('playbook_run_id', '249f142c-2ae3-4c3f-b2ec-c8c588999999');
+                payload2.should.have.property('playbook_run_id', id);
                 payload2.hosts[0].should.have.equal('35e9b452-e405-499c-9c6e-120010b7b465.example.com');
                 payload2.config.should.have.property('text_update_full', false);
 
-                expect(spy.args[0]).toMatchSnapshot();
+                const records = await db.playbook_run_executors.findAll({
+                    where: {
+                        playbook_run_id: id
+                    }
+                });
+
+                records.should.have.length(2);
+                records.forEach(record => record.text_update_full.should.be.false());
             });
 
             test('post playbook_runs with response_mode: full', async function () {
                 mockDate();
-                mockPlaybookRunId();
-                // do not create db record
-                base.getSandbox().stub(queries, 'insertPlaybookRun').returns();
-
                 const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
 
-                await request
+                const {body: {id}} = await request
                 .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
                 .send({response_mode: 'full'})
                 .set(auth.fifi)
@@ -974,17 +975,58 @@ describe('FiFi', function () {
 
                 const payload1 = JSON.parse(spy.firstCall.args[0].payload);
                 payload1.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
-                payload1.should.have.property('playbook_run_id', '249f142c-2ae3-4c3f-b2ec-c8c588999999');
+                payload1.should.have.property('playbook_run_id', id);
                 payload1.hosts[0].should.have.equal('355986a3-5f37-40f7-8f36-c3ac928ce190.example.com');
                 payload1.config.should.have.property('text_update_full', true);
 
                 const payload2 = JSON.parse(spy.secondCall.args[0].payload);
                 payload2.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
-                payload2.should.have.property('playbook_run_id', '249f142c-2ae3-4c3f-b2ec-c8c588999999');
+                payload2.should.have.property('playbook_run_id', id);
                 payload2.hosts[0].should.have.equal('35e9b452-e405-499c-9c6e-120010b7b465.example.com');
                 payload2.config.should.have.property('text_update_full', true);
 
-                expect(spy.args[0]).toMatchSnapshot();
+                const records = await db.playbook_run_executors.findAll({
+                    where: {
+                        playbook_run_id: id
+                    }
+                });
+
+                records.should.have.length(2);
+                records.forEach(record => record.text_update_full.should.be.true());
+            });
+
+            test('post playbook_runs with (default response mode)', async function () {
+                mockDate();
+                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
+
+                const {body: {id}} = await request
+                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
+                .send({response_mode: 'full'})
+                .set(auth.fifi)
+                .expect(201);
+
+                spy.callCount.should.equal(2);
+
+                const payload1 = JSON.parse(spy.firstCall.args[0].payload);
+                payload1.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
+                payload1.should.have.property('playbook_run_id', id);
+                payload1.hosts[0].should.have.equal('355986a3-5f37-40f7-8f36-c3ac928ce190.example.com');
+                payload1.config.should.have.property('text_update_full', true);
+
+                const payload2 = JSON.parse(spy.secondCall.args[0].payload);
+                payload2.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
+                payload2.should.have.property('playbook_run_id', id);
+                payload2.hosts[0].should.have.equal('35e9b452-e405-499c-9c6e-120010b7b465.example.com');
+                payload2.config.should.have.property('text_update_full', true);
+
+                const records = await db.playbook_run_executors.findAll({
+                    where: {
+                        playbook_run_id: id
+                    }
+                });
+
+                records.should.have.length(2);
+                records.forEach(record => record.text_update_full.should.be.true());
             });
 
             test('post playbook_runs with response_mode: diff and exclude executors', async function () {

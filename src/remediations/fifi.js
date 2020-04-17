@@ -56,17 +56,15 @@ function filterExecutors (status, excludes = null) {
 }
 
 function findResponseMode (response_mode) {
-    let text_update_full = config.fifi.text_update_full;
-
     if (response_mode) {
         if (!['diff', 'full'].includes(response_mode)) {
             throw new errors.BadRequest('UNKNOWN_RESPONSEMODE', `Response Mode "${response_mode}" does not exist`);
         }
 
-        text_update_full = (response_mode === 'diff') ? false : true;
+        return (response_mode === 'diff') ? false : true;
     }
 
-    return text_update_full;
+    return config.fifi.text_update_full;
 }
 
 function getReceptor (source) {
