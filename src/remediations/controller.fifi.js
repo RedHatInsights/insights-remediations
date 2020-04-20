@@ -137,7 +137,16 @@ exports.getSystems = errors.async(async function (req, res) {
     }
 
     if (_.isEmpty(systems)) {
-        return notFound(res);
+        const remediation = await queries.getRunDetails(
+            req.params.id,
+            req.params.playbook_run_id,
+            req.user.account_number,
+            req.user.username
+        );
+
+        if (!remediation) {
+            return notFound(res);
+        }
     }
 
     const formatted = format.playbookSystems(systems, count);

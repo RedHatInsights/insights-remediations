@@ -388,6 +388,17 @@ describe('FiFi', function () {
                 expect(text).toMatchSnapshot();
             });
 
+            test('200s on executor search result that results in 0 systems?executor=88d0ba73-0015-4e7d-a6d6-4b530cbfb111', async () => {
+                const {body} = await request
+                .set(auth.fifi)
+                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?executor=88d0ba73-0015-4e7d-a6d6-4b530cbfb111')
+                .expect(200);
+
+                body.meta.count.should.equal(0);
+                body.meta.total.should.equal(0);
+                body.data.should.have.length(0);
+            });
+
             test('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?ansible_host=system-1', async () => {
                 const {body, text} = await request
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?ansible_host=system-1')
@@ -402,6 +413,17 @@ describe('FiFi', function () {
                 body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
 
                 expect(text).toMatchSnapshot();
+            });
+
+            test('200s on ansible_host search result that results in 0 systems?ansible_host=system_7896', async () => {
+                const {body} = await request
+                .set(auth.fifi)
+                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?ansible_host=system_7896')
+                .expect(200);
+
+                body.meta.count.should.equal(0);
+                body.meta.total.should.equal(0);
+                body.data.should.have.length(0);
             });
 
             test('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?ansible_host=1', async () => {
@@ -669,20 +691,6 @@ describe('FiFi', function () {
                 await request
                 .set(auth.fifi)
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb111/systems')
-                .expect(404);
-            });
-
-            test('404 on unknown playbook_run_id playbook_runs/:playbook_run_id/systems?executor=88d0ba73-0015-4e7d-a6d6-4b530cbfb111', async () => {
-                await request
-                .set(auth.fifi)
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb111/systems?executor=88d0ba73-0015-4e7d-a6d6-4b530cbfb111')
-                .expect(404);
-            });
-
-            test('404 on unknown playbook_run_id playbook_runs/:playbook_run_id/systems?ansible_host=system-5', async () => {
-                await request
-                .set(auth.fifi)
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb111/systems?ansible_host=system-5')
                 .expect(404);
             });
 
