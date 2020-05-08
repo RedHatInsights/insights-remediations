@@ -1,4 +1,4 @@
-- name: update vulnerable packages
+- name: update packages
   hosts: "@@HOSTS@@"
   become: true
   tasks:

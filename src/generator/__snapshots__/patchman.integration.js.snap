@@ -14,7 +14,7 @@ exports[`patchman aggregates multiple advisories into a single play 1`] = `
 #   - Apply RHBA-2019:4105
 # Identifier: (patch-advisory:RHBA-2019:0689,patch-advisory:RHBA-2019:2871,patch-advisory:RHBA-2019:4105,fix)
 # Version: test
-- name: update vulnerable packages
+- name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   tasks:
@@ -85,7 +85,7 @@ exports[`patchman generates a simple playbook with multiple patchman advisory re
 # Apply RHBA-2019:4105
 # Identifier: (patch-advisory:RHBA-2019:4105,fix)
 # Version: test
-- name: update vulnerable packages
+- name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   tasks:
@@ -113,7 +113,7 @@ exports[`patchman generates a simple playbook with multiple patchman advisory re
 #   - Apply RHBA-2019:2871
 # Identifier: (patch-advisory:RHBA-2019:0689,patch-advisory:RHBA-2019:2871,fix)
 # Version: test
-- name: update vulnerable packages
+- name: update packages
   hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com\\"
   become: true
   tasks:
@@ -184,7 +184,7 @@ exports[`patchman generates a simple playbook with single patchman advisory reme
 # Apply RHBA-2019:4105
 # Identifier: (patch-advisory:RHBA-2019:4105,fix)
 # Version: test
-- name: update vulnerable packages
+- name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   tasks:
