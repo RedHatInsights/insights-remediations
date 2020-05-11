@@ -40,6 +40,7 @@
     "express-http-context": "^1.2.3",
     "express-pino-logger": "^4.0.0",
     "express-prom-bundle": "^5.1.5",
+    "graphql-request": "^1.8.2",
     "ioredis": "^4.16.1",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",

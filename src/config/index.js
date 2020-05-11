@@ -111,7 +111,8 @@ const config = {
         host: env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080',
         insecure: (env.INVENTORY_INSECURE === 'true') ? true : false,
         revalidationInterval: parseIntEnv('INVENTORY_REVALIDATION_INVERVAL', 60 * 60), // 1 hour
-        pageSize: parseIntEnv('INVENTORY_PAGE_SIZE', 100)
+        pageSize: parseIntEnv('INVENTORY_PAGE_SIZE', 100),
+        xjoinHost: env.XJOIN_SEARCH_URL || 'http://localhost:4000/graphql'
     },
 
     patchman: {
