@@ -12,7 +12,7 @@
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --cve @@ISSUES@@"
+      shell: "{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve @@ISSUES@@"
       args:
         warn: false
 

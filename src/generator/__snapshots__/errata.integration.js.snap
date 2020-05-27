@@ -132,7 +132,7 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --cve CVE-2017-17712 --cve CVE-2017-5715\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve CVE-2017-17712 --cve CVE-2017-5715\\"
       args:
         warn: false
 
@@ -255,7 +255,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --cve CVE-2017-17712\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve CVE-2017-17712\\"
       args:
         warn: false
 
@@ -326,7 +326,7 @@ exports[`generates a simple playbook with single CVE remediation 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --cve CVE-2017-17712\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve CVE-2017-17712\\"
       args:
         warn: false
 
