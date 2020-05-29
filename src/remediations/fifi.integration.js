@@ -9,6 +9,7 @@ const base = require('../test');
 const errors = require('../errors');
 const rbac = require('../connectors/rbac');
 const queries = require('./remediations.queries');
+const config = require('../config');
 const db = require('../db');
 
 describe('FiFi', function () {
@@ -952,12 +953,14 @@ describe('FiFi', function () {
                 payload1.should.have.property('playbook_run_id', id);
                 payload1.hosts[0].should.have.equal('355986a3-5f37-40f7-8f36-c3ac928ce190.example.com');
                 payload1.config.should.have.property('text_update_full', false);
+                payload1.config.should.have.property('text_update_interval', 5000);
 
                 const payload2 = JSON.parse(spy.secondCall.args[0].payload);
                 payload2.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
                 payload2.should.have.property('playbook_run_id', id);
                 payload2.hosts[0].should.have.equal('35e9b452-e405-499c-9c6e-120010b7b465.example.com');
                 payload2.config.should.have.property('text_update_full', false);
+                payload2.config.should.have.property('text_update_interval', 5000);
 
                 const records = await db.playbook_run_executors.findAll({
                     where: {
@@ -986,12 +989,14 @@ describe('FiFi', function () {
                 payload1.should.have.property('playbook_run_id', id);
                 payload1.hosts[0].should.have.equal('355986a3-5f37-40f7-8f36-c3ac928ce190.example.com');
                 payload1.config.should.have.property('text_update_full', true);
+                payload1.config.should.have.property('text_update_interval', 5000);
 
                 const payload2 = JSON.parse(spy.secondCall.args[0].payload);
                 payload2.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
                 payload2.should.have.property('playbook_run_id', id);
                 payload2.hosts[0].should.have.equal('35e9b452-e405-499c-9c6e-120010b7b465.example.com');
                 payload2.config.should.have.property('text_update_full', true);
+                payload2.config.should.have.property('text_update_interval', 5000);
 
                 const records = await db.playbook_run_executors.findAll({
                     where: {
@@ -1020,12 +1025,14 @@ describe('FiFi', function () {
                 payload1.should.have.property('playbook_run_id', id);
                 payload1.hosts[0].should.have.equal('355986a3-5f37-40f7-8f36-c3ac928ce190.example.com');
                 payload1.config.should.have.property('text_update_full', true);
+                payload1.config.should.have.property('text_update_interval', 5000);
 
                 const payload2 = JSON.parse(spy.secondCall.args[0].payload);
                 payload2.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
                 payload2.should.have.property('playbook_run_id', id);
                 payload2.hosts[0].should.have.equal('35e9b452-e405-499c-9c6e-120010b7b465.example.com');
                 payload2.config.should.have.property('text_update_full', true);
+                payload2.config.should.have.property('text_update_interval', 5000);
 
                 const records = await db.playbook_run_executors.findAll({
                     where: {
@@ -1058,8 +1065,123 @@ describe('FiFi', function () {
                 payload.should.have.property('playbook_run_id', '249f142c-2ae3-4c3f-b2ec-c8c588999999');
                 payload.hosts[0].should.have.equal('35e9b452-e405-499c-9c6e-120010b7b465.example.com');
                 payload.config.should.have.property('text_update_full', false);
+                payload.config.should.have.property('text_update_interval', 5000);
 
                 expect(spy.args[0]).toMatchSnapshot();
+            });
+
+            test('dynamic post playbook_runs with < 200 executors', async function () {
+                mockDate();
+                mockPlaybookRunId();
+
+                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
+                base.getSandbox().stub(config.fifi, 'text_update_full').value(false);
+                base.getSandbox().stub(queries, 'insertPlaybookRun').returns();
+                base.getSandbox().stub(fifi, 'getConnectionStatus').returns([
+                    ...Array(150).fill(0).map((value, key) => ({
+                        satId: `84762eb3-0bbb-4bd8-ab11-f420c50e9${String(key).padStart(3, '0')}`,
+                        receptorId: `d0e7a384-7f8e-4c40-8394-627004225${String(key).padStart(3, '0')}`,
+                        endpointId: `${String(key).padStart(3, '0')}`,
+                        systems: [
+                            {
+                                id: '35e9b452-e405-499c-9c6e-120010b7b465',
+                                ansible_host: null,
+                                hostname: '35e9b452-e405-499c-9c6e-120010b7b465.example.com',
+                                display_name: null
+                            }
+                        ],
+                        type: 'Satellite',
+                        name: 'Dynamic Satellite',
+                        status: 'connected'
+                    }))
+                ]);
+
+                await request
+                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
+                .set(auth.fifi)
+                .expect(201);
+
+                spy.callCount.should.equal(150);
+
+                const payload = JSON.parse(spy.firstCall.args[0].payload);
+                payload.config.text_update_full.should.be.true();
+                payload.config.text_update_interval.should.equal(5000);
+            });
+
+            test('dynamic post playbook_runs with < 400 executors', async function () {
+                mockDate();
+                mockPlaybookRunId();
+
+                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
+                base.getSandbox().stub(config.fifi, 'text_update_full').value(false);
+                base.getSandbox().stub(queries, 'insertPlaybookRun').returns();
+                base.getSandbox().stub(fifi, 'getConnectionStatus').returns([
+                    ...Array(300).fill(0).map((value, key) => ({
+                        satId: `84762eb3-0bbb-4bd8-ab11-f420c50e9${String(key).padStart(3, '0')}`,
+                        receptorId: `d0e7a384-7f8e-4c40-8394-627004225${String(key).padStart(3, '0')}`,
+                        endpointId: `${String(key).padStart(3, '0')}`,
+                        systems: [
+                            {
+                                id: '35e9b452-e405-499c-9c6e-120010b7b465',
+                                ansible_host: null,
+                                hostname: '35e9b452-e405-499c-9c6e-120010b7b465.example.com',
+                                display_name: null
+                            }
+                        ],
+                        type: 'Satellite',
+                        name: 'Dynamic Satellite',
+                        status: 'connected'
+                    }))
+                ]);
+
+                await request
+                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
+                .set(auth.fifi)
+                .expect(201);
+
+                spy.callCount.should.equal(300);
+
+                const payload = JSON.parse(spy.firstCall.args[0].payload);
+                payload.config.text_update_full.should.be.false();
+                payload.config.text_update_interval.should.equal(30000);
+            });
+
+            test('dynamic post playbook_runs with >= 400 executors', async function () {
+                mockDate();
+                mockPlaybookRunId();
+
+                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
+                base.getSandbox().stub(config.fifi, 'text_update_full').value(false);
+                base.getSandbox().stub(queries, 'insertPlaybookRun').returns();
+                base.getSandbox().stub(fifi, 'getConnectionStatus').returns([
+                    ...Array(500).fill(0).map((value, key) => ({
+                        satId: `84762eb3-0bbb-4bd8-ab11-f420c50e9${String(key).padStart(3, '0')}`,
+                        receptorId: `d0e7a384-7f8e-4c40-8394-627004225${String(key).padStart(3, '0')}`,
+                        endpointId: `${String(key).padStart(3, '0')}`,
+                        systems: [
+                            {
+                                id: '35e9b452-e405-499c-9c6e-120010b7b465',
+                                ansible_host: null,
+                                hostname: '35e9b452-e405-499c-9c6e-120010b7b465.example.com',
+                                display_name: null
+                            }
+                        ],
+                        type: 'Satellite',
+                        name: 'Dynamic Satellite',
+                        status: 'connected'
+                    }))
+                ]);
+
+                await request
+                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
+                .set(auth.fifi)
+                .expect(201);
+
+                spy.callCount.should.equal(500);
+
+                const payload = JSON.parse(spy.firstCall.args[0].payload);
+                payload.config.text_update_full.should.be.false();
+                payload.config.text_update_interval.should.equal(60000);
             });
 
             test('400 if response_mode is wrong', async function () {

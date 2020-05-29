@@ -19,6 +19,9 @@ const queries = require('./remediations.queries');
 const SATELLITE_NAMESPACE = Object.freeze({namespace: 'satellite'});
 const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_name']);
 
+const DIFF_MODE = false;
+const FULL_MODE = true;
+
 const PENDING = 'pending';
 const FAILURE = 'failure';
 
@@ -55,16 +58,39 @@ function filterExecutors (status, excludes = null) {
     return _.filter(status, {status: 'connected'});
 }
 
-function findResponseMode (response_mode) {
+function findResponseMode (response_mode, executors) {
     if (response_mode) {
         if (!['diff', 'full'].includes(response_mode)) {
             throw new errors.BadRequest('UNKNOWN_RESPONSEMODE', `Response Mode "${response_mode}" does not exist`);
         }
 
-        return (response_mode === 'diff') ? false : true;
+        return (response_mode === 'diff') ? DIFF_MODE : FULL_MODE;
+    }
+
+    if (config.fifi.text_update_full === DIFF_MODE) {
+        if (_.size(executors) < 200) {
+            return FULL_MODE;
+        }
+
+        return DIFF_MODE;
     }
 
     return config.fifi.text_update_full;
+}
+
+function findResponseInterval (executors) {
+    if (config.fifi.text_update_full === DIFF_MODE) {
+        // if in DIFF mode use dynamic config
+        if (_.size(executors) < 200) {
+            return 5000;
+        } else if (_.size(executors) < 400) {
+            return 30000;
+        } else if (_.size(executors) >= 400) {
+            return 60000;
+        }
+    }
+
+    return config.fifi.text_update_interval;
 }
 
 function getReceptor (source) {
@@ -200,7 +226,14 @@ exports.filterIssuesPerExecutor = async function (systems, remediationIssues) {
 };
 
 // prepare everything that we need to dispatch work requests to receptor
-async function prepareReceptorRequest (executor, remediation, remediationIssues, playbook_run_id, text_update_full) {
+async function prepareReceptorRequest (
+    executor,
+    remediation,
+    remediationIssues,
+    playbook_run_id,
+    text_update_full,
+    text_update_interval) {
+
     const filteredIssues = generator.normalizeIssues(
         await exports.filterIssuesPerExecutor(executor.systems, remediationIssues)
     );
@@ -216,7 +249,8 @@ async function prepareReceptorRequest (executor, remediation, remediationIssues,
         resolvedIssues,
         playbook,
         playbook_run_id,
-        text_update_full), remediation.account_number, executor.receptorId);
+        text_update_full,
+        text_update_interval), remediation.account_number, executor.receptorId);
 
     return { executor, receptorWorkRequest, playbook};
 }
@@ -302,14 +336,21 @@ exports.createPlaybookRun = async function (status, remediation, username, exclu
     const playbook_run_id = exports.generatePlaybookRunId();
     const executors = filterExecutors(status, excludes);
     const remediationIssues = remediation.toJSON().issues;
-    const text_update_full = findResponseMode(response_mode);
+    const text_update_full = findResponseMode(response_mode, executors);
+    const text_update_interval = findResponseInterval(executors);
 
     if (_.isEmpty(executors)) {
         return null;
     }
 
     const requests = await P.map(executors,
-        executor => prepareReceptorRequest(executor, remediation, remediationIssues, playbook_run_id, text_update_full));
+        executor => prepareReceptorRequest(
+            executor,
+            remediation,
+            remediationIssues,
+            playbook_run_id,
+            text_update_full,
+            text_update_interval));
 
     const responses = await dispatchReceptorRequests(requests, remediation, playbook_run_id);
 
