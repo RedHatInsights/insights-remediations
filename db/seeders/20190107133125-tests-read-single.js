@@ -125,19 +125,23 @@ exports.up = async q => {
     await q.bulkInsert('remediation_issue_systems', [
         ...[0, 1, 3, 4, 5, 6, 7, 12, 13].map(i => ({
             remediation_issue_id: issues[i].id,
-            system_id: SYSTEM
+            system_id: SYSTEM,
+            resolved: false
         })),
         ...[0, 2].map(i => ({
             remediation_issue_id: issues[i].id,
-            system_id: NON_EXISTENT_SYSTEM
+            system_id: NON_EXISTENT_SYSTEM,
+            resolved: false
         })),
         ...Array(250).fill(0).map((value, key) => ({
             remediation_issue_id: issues[8].id,
-            system_id: `84762eb3-0bbb-4bd8-ab11-f420c50e9${String(key).padStart(3, '0')}`
+            system_id: `84762eb3-0bbb-4bd8-ab11-f420c50e9${String(key).padStart(3, '0')}`,
+            resolved: false
         })),
         {
             remediation_issue_id: issues[12].id,
-            system_id: SYSTEM2
+            system_id: SYSTEM2,
+            resolved: false
         }
     ]);
 };

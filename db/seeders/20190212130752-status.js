@@ -39,6 +39,7 @@ exports.up = async q => {
 
     await q.bulkInsert('remediation_issue_systems', _.flatMap(systems, system_id => issues.map(({ id }) => ({
         system_id,
-        remediation_issue_id: id
+        remediation_issue_id: id,
+        resolved: false
     }))));
 };

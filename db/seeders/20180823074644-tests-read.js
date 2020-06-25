@@ -90,36 +90,47 @@ exports.up = async q => {
 
     await q.bulkInsert('remediation_issue_systems', [{
         system_id: systems[0],
-        remediation_issue_id: issues[0].id
+        remediation_issue_id: issues[0].id,
+        resolved: false
     }, {
         system_id: systems[0],
-        remediation_issue_id: issues[1].id
+        remediation_issue_id: issues[1].id,
+        resolved: false
     }, {
         system_id: systems[0],
-        remediation_issue_id: issues[2].id
+        remediation_issue_id: issues[2].id,
+        resolved: false
     }, {
         system_id: systems[0],
-        remediation_issue_id: issues[3].id
+        remediation_issue_id: issues[3].id,
+        resolved: false
     }, {
         system_id: systems[0],
-        remediation_issue_id: issues[4].id
+        remediation_issue_id: issues[4].id,
+        resolved: false
     }, {
         system_id: systems[1],
-        remediation_issue_id: issues[0].id
+        remediation_issue_id: issues[0].id,
+        resolved: false
     }, {
         remediation_issue_id: issues[5].id,
-        system_id: systems[0]
+        system_id: systems[0],
+        resolved: false
     }, {
         remediation_issue_id: issues[6].id,
-        system_id: systems[0]
+        system_id: systems[0],
+        resolved: false
     }, {
         remediation_issue_id: issues[7].id,
-        system_id: systems[0]
+        system_id: systems[0],
+        resolved: false
     }, {
         remediation_issue_id: issues[7].id,
-        system_id: systems[1]
+        system_id: systems[1],
+        resolved: false
     }, {
         remediation_issue_id: issues[8].id,
-        system_id: systems[0]
+        system_id: systems[0],
+        resolved: false
     }]);
 };

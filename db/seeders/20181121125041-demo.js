@@ -170,7 +170,8 @@ exports.up = async q => {
 
         q.bulkInsert('remediation_issue_systems', systemSlice.map(system => ({
             remediation_issue_id: issue.id,
-            system_id: system
+            system_id: system,
+            resolved: false
         })));
     });
 
@@ -189,7 +190,8 @@ exports.up = async q => {
         const index = i * 3;
         return systems.slice(index, index + 3).map(system => ({
             remediation_issue_id: issue.id,
-            system_id: system
+            system_id: system,
+            resolved: false
         }));
     }));
 };
