@@ -5,6 +5,7 @@ const Play = require('./Play');
 const version = require('../../util/version');
 const {nonEmptyArray} = require('../../util/preconditions');
 const ERRATA_TEMPLATE = require('../../templates/static').patchman.errata;
+const PACKAGE_TEMPLATE = require('../../templates/static').patchman.packages;
 const CVES_TEMPLATE = require('../../templates/static').vulnerabilities.cves;
 const HEADER_TEMPLATE = require('../../templates/static').special.headerMulti;
 
@@ -15,10 +16,19 @@ module.exports = class MergedPlay extends Play {
         super(plays[0].id, plays[0].hosts);
         this.plays = _.sortBy(plays, 'erratum');
         this.issues = _.map(this.plays, 'erratum');
-        const switchStr = plays[0].isAdvisory ? ' --advisory ' : ' --cve ';
-        this.issues = _.join(this.issues, switchStr);
-
-        this.template = plays[0].isAdvisory ? ERRATA_TEMPLATE : CVES_TEMPLATE;
+        switch (plays[0].issueType) {
+            case 'erratum':
+                this.template = ERRATA_TEMPLATE;
+                this.issues = _.join(this.issues, ' --advisory ');
+                break;
+            case 'cve':
+                this.template = CVES_TEMPLATE;
+                this.issues = _.join(this.issues, ' --cve ');
+                break;
+            default:
+                this.template = PACKAGE_TEMPLATE;
+                this.issues = _.join(this.issues, ' ');
+        }
     }
 
     generateHeader () {

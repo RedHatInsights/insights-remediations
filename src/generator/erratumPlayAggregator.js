@@ -7,7 +7,7 @@ const AggregatedErratumPlay = require('./plays/AggregatedErrataPlay');
 exports.process = function (plays) {
     const erratumPlaysByType = _(plays)
     .filter(play => play instanceof ErratumPlay)
-    .partition(play => play.isAdvisory === false)
+    .partition(play => play.issueType === 'cve')
     .value();
 
     const mergedPlays = _.assign(..._.map(erratumPlaysByType, plays =>

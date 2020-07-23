@@ -44,6 +44,15 @@ const CVES = {
 
 };
 
+const PACKAGES = {
+    'kernel-4.18.0': {
+        description: 'The Linux kernel.'
+    },
+    'systemd-239': {
+        description: 'systemd is a system and service manager that runs as PID 1 and starts.'
+    }
+};
+
 module.exports = new class extends Connector {
     constructor () {
         super(module);
@@ -55,6 +64,10 @@ module.exports = new class extends Connector {
 
     getCve (id) {
         return P.resolve(CVES[id]);
+    }
+
+    getPackage (id) {
+        return P.resolve(PACKAGES[id]);
     }
 
     ping () {

@@ -11,6 +11,7 @@ const erratumHandler = new(require('./ErratumHandler'))();
 const ssgHandler = new(require('./SSGHandler'))();
 const testHandler = new(require('./TestHandler'))();
 const patchmanHandler = new(require('./PatchmanHandler'))();
+const packageHandler = new(require('./PackageHandler'))();
 
 /* eslint no-fallthrough: off */
 function getHandler (id) {
@@ -29,7 +30,12 @@ function getHandler (id) {
             throw errors.unknownIssue(id);
 
         case 'test': return testHandler;
-        case 'patch-advisory': return patchmanHandler;
+        case 'patch-advisory':
+            if (ERRATUM_PATTERN.test(id.issue)) {
+                return patchmanHandler;
+            }
+
+            return packageHandler;
         default:
             throw errors.unknownIssue(id);
     }
