@@ -47,7 +47,7 @@ describe('patchman - package', function () {
         .set(header)
         .send({
             issues: [{
-                id: 'patch-advisory:unknown-1.2.3',
+                id: 'patch-advisory:something-1.2.3',
                 systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
             }]
         })
@@ -57,7 +57,7 @@ describe('patchman - package', function () {
             id,
             status: 400,
             code: 'UNKNOWN_ISSUE',
-            title: 'Unknown issue identifier "patch-advisory:unknown-1.2.3"'
+            title: 'Unknown issue identifier "patch-advisory:something-1.2.3"'
         }]);
     });
 });
