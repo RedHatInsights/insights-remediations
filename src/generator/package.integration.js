@@ -38,26 +38,4 @@ describe('patchman - package', function () {
 
         expect(res.text).toMatchSnapshot();
     });
-
-    test('400s on unknown issue', async () => {
-        const {id, header} = base.reqId();
-
-        const {body} = await request
-        .post('/v1/playbook')
-        .set(header)
-        .send({
-            issues: [{
-                id: 'patch-advisory:something-1.2.3',
-                systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
-            }]
-        })
-        .expect(400);
-
-        body.errors.should.eql([{
-            id,
-            status: 400,
-            code: 'UNKNOWN_ISSUE',
-            title: 'Unknown issue identifier "patch-advisory:something-1.2.3"'
-        }]);
-    });
 });
