@@ -166,6 +166,118 @@ exports[`adds diagnosis play 1`] = `
       changed_when: false"
 `;
 
+exports[`generates a CSAW playbook (rule only) 1`] = `
+"---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
+- name: run insights to obtain latest diagnosis info
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  tasks:
+    - name: obtain diagnosis info
+      shell: 'insights-client --diagnosis'
+      register: insights_result
+      changed_when: false
+      check_mode: false
+    - name: register insights report as fact for use by other plays
+      set_fact: insights_report={{ insights_result.stdout }}
+
+# Bonding will not fail over to the backup link when bonding options are partially read
+# Identifier: (vulnerabilities:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE,fix)
+# Version: a0e934f07d8167073546cbc5108c4345f92559a5
+- name: Correct Bonding Config Items
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  vars:
+    pydata: \\"{{ insights_report.details['network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'] }}\\"
+
+  tasks:
+    - when:
+       - pydata.bond_config is defined
+      block:
+        - name: Add quotes around bonding options
+          lineinfile:
+            dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
+            regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
+            backrefs: yes
+            line: '\\\\1\\"\\\\2\\"'
+          with_dict: \\"{{ pydata.bond_config }}\\"
+
+        - name: Restart Network Interfaces
+          shell: ifdown {{item.key}}  && ifup {{item.key}}
+          with_dict: \\"{{ pydata.bond_config }}\\"
+
+
+- name: run insights
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
+`;
+
+exports[`generates a CSAW playbook full id 1`] = `
+"---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
+- name: run insights to obtain latest diagnosis info
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  tasks:
+    - name: obtain diagnosis info
+      shell: 'insights-client --diagnosis'
+      register: insights_result
+      changed_when: false
+      check_mode: false
+    - name: register insights report as fact for use by other plays
+      set_fact: insights_report={{ insights_result.stdout }}
+
+# Bonding will not fail over to the backup link when bonding options are partially read
+# Identifier: (vulnerabilities:CVE-2017-17712:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE,fix)
+# Version: a0e934f07d8167073546cbc5108c4345f92559a5
+- name: Correct Bonding Config Items
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  vars:
+    pydata: \\"{{ insights_report.details['network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'] }}\\"
+
+  tasks:
+    - when:
+       - pydata.bond_config is defined
+      block:
+        - name: Add quotes around bonding options
+          lineinfile:
+            dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
+            regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
+            backrefs: yes
+            line: '\\\\1\\"\\\\2\\"'
+          with_dict: \\"{{ pydata.bond_config }}\\"
+
+        - name: Restart Network Interfaces
+          shell: ifdown {{item.key}}  && ifup {{item.key}}
+          with_dict: \\"{{ pydata.bond_config }}\\"
+
+
+- name: run insights
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
+`;
+
 exports[`generates a pause playbook (1h) 1`] = `
 "---
 # Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you

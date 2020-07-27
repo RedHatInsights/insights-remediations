@@ -3,7 +3,9 @@
 const errors = require('../errors');
 
 const ERRATUM_PATTERN = /^RH[SBE]A-20[\d]{2}:[\d]{4,5}/;
-const CVE_PATTERN = /^CVE-20[\d]{2}-[\d]{4,}$/;
+const CSAW_PATTERN = /^CVE-20[\d]{2}-[\d]{4,}:(([a-z_])+\|([A-Z_])+)/;
+const ADVISOR_PATTERN = /([a-z_])+\|([A-Z_])+/;
+const CVE_PATTERN = /^CVE-20[\d]{2}-[\d]{4,}/;
 
 const advisorHandler = new(require('./AdvisorHandler'))();
 const cveHandler = new(require('./CVEHandler'))();
@@ -12,6 +14,7 @@ const ssgHandler = new(require('./SSGHandler'))();
 const testHandler = new(require('./TestHandler'))();
 const patchmanHandler = new(require('./PatchmanHandler'))();
 const packageHandler = new(require('./PackageHandler'))();
+const csawHandler = new(require('./CSAWHandler'))();
 
 /* eslint no-fallthrough: off */
 function getHandler (id) {
@@ -19,8 +22,16 @@ function getHandler (id) {
         case 'advisor': return advisorHandler;
         case 'ssg': return ssgHandler;
         case 'vulnerabilities':
+            if (CSAW_PATTERN.test(id.issue)) {
+                return csawHandler;
+            }
+
             if (CVE_PATTERN.test(id.issue)) {
                 return cveHandler;
+            }
+
+            if (ADVISOR_PATTERN.test(id.issue)) {
+                return advisorHandler;
             }
 
             if (ERRATUM_PATTERN.test(id.issue)) {

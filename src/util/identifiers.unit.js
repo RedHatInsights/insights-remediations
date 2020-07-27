@@ -1,4 +1,5 @@
 'use strict';
+/*eslint-disable max-len*/
 
 require('../test');
 const identifiers = require('./identifiers');
@@ -29,6 +30,13 @@ test('parses a vulnerabilities (erratum) id', () => {
     parsed.should.have.property('app', 'vulnerabilities');
     parsed.should.have.property('issue', 'RHBA-2007:0331');
     parsed.should.have.property('full', 'vulnerabilities:RHBA-2007:0331');
+});
+
+test('parses a vulnerabilities (csaw) id', () => {
+    const parsed = identifiers.parse('vulnerabilities:CVE-2017-5715:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+    parsed.should.have.property('app', 'vulnerabilities');
+    parsed.should.have.property('issue', 'CVE-2017-5715:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+    parsed.should.have.property('full', 'vulnerabilities:CVE-2017-5715:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
 });
 
 test('parses a ssg id', () => {

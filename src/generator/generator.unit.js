@@ -1,4 +1,5 @@
 'use strict';
+/* eslint-disable max-len */
 
 const errors = require('../errors');
 const { request, mockVmaas, getSandbox, reqId } = require('../test');
@@ -120,6 +121,40 @@ test('generates an erratum-based playbook', () => {
     const data = {
         issues: [{
             id: 'vulnerabilities:RHSA-2018:0502',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200)
+    .then(res => expect(res.text).toMatchSnapshot());
+});
+
+test('generates a CSAW playbook full id', () => {
+    mockVmaas();
+
+    const data = {
+        issues: [{
+            id: 'vulnerabilities:CVE-2017-17712:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200)
+    .then(res => expect(res.text).toMatchSnapshot());
+});
+
+test('generates a CSAW playbook (rule only)', () => {
+    mockVmaas();
+
+    const data = {
+        issues: [{
+            id: 'vulnerabilities:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
