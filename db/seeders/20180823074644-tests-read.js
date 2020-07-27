@@ -95,11 +95,11 @@ exports.up = async q => {
     }, {
         system_id: systems[0],
         remediation_issue_id: issues[1].id,
-        resolved: false
+        resolved: true
     }, {
         system_id: systems[0],
         remediation_issue_id: issues[2].id,
-        resolved: false
+        resolved: true
     }, {
         system_id: systems[0],
         remediation_issue_id: issues[3].id,
@@ -123,7 +123,7 @@ exports.up = async q => {
     }, {
         remediation_issue_id: issues[7].id,
         system_id: systems[0],
-        resolved: false
+        resolved: true
     }, {
         remediation_issue_id: issues[7].id,
         system_id: systems[1],

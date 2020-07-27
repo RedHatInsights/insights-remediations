@@ -4,7 +4,7 @@ openapi: 3.0.0
 info:
   title: Insights Remediations
   description: Insights Remediations Service
-  version: 1.0.1
+  version: 1.1.1
   contact:
     email: jozef@redhat.com
 
@@ -757,6 +757,9 @@ components:
       format: uuid
       example: a8799a02-8be9-11e8-9eb6-529269fb1459
 
+    ResolvedCount:
+      type: integer
+      example: 27
 
 
     #
@@ -1218,7 +1221,7 @@ components:
     RemediationDetails:
       type: object
       additionalProperties: false
-      required: [id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at, issues]
+      required: [id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at, resolved_count, issues]
       properties:
         id:
           $ref: '#/components/schemas/RemediationId'
@@ -1236,6 +1239,8 @@ components:
           $ref: '#/components/schemas/UserOut'
         updated_at:
           $ref: '#/components/schemas/DateTime'
+        resolved_count:
+          $ref: '#/components/schemas/ResolvedCount'
         issues:
           type: array
           items:
@@ -1307,7 +1312,7 @@ components:
     RemediationListItem:
       type: object
       additionalProperties: false
-      required: [id, name, created_by, created_at, updated_by, updated_at, issue_count, system_count, needs_reboot]
+      required: [id, name, created_by, created_at, updated_by, updated_at, issue_count, system_count, resolved_count, needs_reboot]
       properties:
         id:
           $ref: '#/components/schemas/RemediationId'
@@ -1325,6 +1330,8 @@ components:
           type: integer
         system_count:
           type: integer
+        resolved_count:
+          $ref: '#/components/schemas/ResolvedCount'
         needs_reboot:
           $ref: '#/components/schemas/RemediationNeedsReboot'
 

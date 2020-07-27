@@ -58,13 +58,14 @@ exports.list = function (
     limit,
     offset) {
 
-    const {Op, s: {literal, where, col, cast}, fn: { DISTINCT, COUNT}} = db;
+    const {Op, s: {literal, where, col, cast}, fn: { DISTINCT, COUNT, SUM }} = db;
 
     const query = {
         attributes: [
             'id',
             [cast(COUNT(DISTINCT(col('issues.id'))), 'int'), 'issue_count'],
-            [cast(COUNT(DISTINCT(col('issues->systems.system_id'))), 'int'), 'system_count']
+            [cast(COUNT(DISTINCT(col('issues->systems.system_id'))), 'int'), 'system_count'],
+            [cast(SUM(cast(where(col('issues->systems.resolved'), 'true'), 'int')), 'int'), 'resolved_count']
         ],
         include: [{
             attributes: [],
@@ -148,8 +149,13 @@ exports.loadDetails = async function (account_number, created_by, rows) {
 };
 
 exports.get = function (id, account_number, created_by) {
+    const {s: {where, col, cast}, fn: { SUM }} = db;
+
     return db.remediation.findOne({
-        attributes: REMEDIATION_ATTRIBUTES,
+        attributes: [
+            ...REMEDIATION_ATTRIBUTES,
+            [cast(SUM(cast(where(col('issues->systems.resolved'), 'true'), 'int')), 'int'), 'resolved_count']
+        ],
         include: [{
             attributes: ISSUE_ATTRIBUTES,
             model: db.issue,
@@ -162,6 +168,12 @@ exports.get = function (id, account_number, created_by) {
         where: {
             id, account_number, created_by
         },
+        group: [
+            'remediation.id',
+            'issues.id',
+            'issues->systems.remediation_issue_id',
+            'issues->systems.system_id'
+        ],
         order: [
             ['id'],
             [db.issue, 'issue_id'],

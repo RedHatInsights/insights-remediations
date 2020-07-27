@@ -18,6 +18,7 @@ exports[`remediations get get remediation 1`] = `
         \\"last_name\\": \\"user\\"
     },
     \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
+    \\"resolved_count\\": 0,
     \\"issues\\": [
         {
             \\"id\\": \\"advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074\\",
@@ -136,6 +137,7 @@ exports[`remediations get get remediation with many systems 1`] = `
         \\"last_name\\": \\"user\\"
     },
     \\"updated_at\\": \\"2018-11-04T04:19:36.641Z\\",
+    \\"resolved_count\\": 0,
     \\"issues\\": [
         {
             \\"id\\": \\"vulnerabilities:CVE-2017-5715\\",
@@ -1422,6 +1424,7 @@ exports[`remediations get get remediation with test namespace resolutions 1`] = 
         \\"last_name\\": \\"user\\"
     },
     \\"updated_at\\": \\"2018-11-04T03:19:36.641Z\\",
+    \\"resolved_count\\": 0,
     \\"issues\\": [
         {
             \\"id\\": \\"test:ping\\",
@@ -1498,7 +1501,8 @@ exports[`remediations list filter basic filter 1`] = `
             \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
             \\"system_count\\": 0,
-            \\"issue_count\\": 0
+            \\"issue_count\\": 0,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"178cf0c8-35dd-42a3-96d5-7b50f9d211f6\\",
@@ -1517,7 +1521,8 @@ exports[`remediations list filter basic filter 1`] = `
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"cbc782e4-e8ae-4807-82ab-505387981d2e\\",
@@ -1536,7 +1541,8 @@ exports[`remediations list filter basic filter 1`] = `
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 2
+            \\"issue_count\\": 2,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"66eec356-dd06-4c72-a3b6-ef27d1508a02\\",
@@ -1555,7 +1561,8 @@ exports[`remediations list filter basic filter 1`] = `
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 5
+            \\"issue_count\\": 5,
+            \\"resolved_count\\": 2
         }
     ]
 }"
@@ -1591,7 +1598,8 @@ exports[`remediations list filter empty filter 1`] = `
             \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
             \\"system_count\\": 0,
-            \\"issue_count\\": 0
+            \\"issue_count\\": 0,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"178cf0c8-35dd-42a3-96d5-7b50f9d211f6\\",
@@ -1610,7 +1618,8 @@ exports[`remediations list filter empty filter 1`] = `
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"e809526c-56f5-4cd8-a809-93328436ea23\\",
@@ -1629,7 +1638,8 @@ exports[`remediations list filter empty filter 1`] = `
             \\"updated_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
             \\"system_count\\": 2,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 1
         },
         {
             \\"id\\": \\"cbc782e4-e8ae-4807-82ab-505387981d2e\\",
@@ -1648,7 +1658,8 @@ exports[`remediations list filter empty filter 1`] = `
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 2
+            \\"issue_count\\": 2,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"66eec356-dd06-4c72-a3b6-ef27d1508a02\\",
@@ -1667,7 +1678,8 @@ exports[`remediations list filter empty filter 1`] = `
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 5
+            \\"issue_count\\": 5,
+            \\"resolved_count\\": 2
         }
     ]
 }"
@@ -1703,7 +1715,8 @@ exports[`remediations list filter filter case does not matter 1`] = `
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 0
         }
     ]
 }"
@@ -1739,7 +1752,8 @@ exports[`remediations list filter filter matches on default name 1`] = `
             \\"updated_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
             \\"system_count\\": 2,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 1
         }
     ]
 }"
@@ -1775,7 +1789,8 @@ exports[`remediations list filter filter matches on number 1`] = `
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 2
+            \\"issue_count\\": 2,
+            \\"resolved_count\\": 0
         }
     ]
 }"
@@ -1811,7 +1826,8 @@ exports[`remediations list list remediations 1`] = `
             \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
             \\"system_count\\": 0,
-            \\"issue_count\\": 0
+            \\"issue_count\\": 0,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"178cf0c8-35dd-42a3-96d5-7b50f9d211f6\\",
@@ -1830,7 +1846,8 @@ exports[`remediations list list remediations 1`] = `
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"e809526c-56f5-4cd8-a809-93328436ea23\\",
@@ -1849,7 +1866,8 @@ exports[`remediations list list remediations 1`] = `
             \\"updated_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
             \\"system_count\\": 2,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 1
         },
         {
             \\"id\\": \\"cbc782e4-e8ae-4807-82ab-505387981d2e\\",
@@ -1868,7 +1886,8 @@ exports[`remediations list list remediations 1`] = `
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 2
+            \\"issue_count\\": 2,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"66eec356-dd06-4c72-a3b6-ef27d1508a02\\",
@@ -1887,7 +1906,8 @@ exports[`remediations list list remediations 1`] = `
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 5
+            \\"issue_count\\": 5,
+            \\"resolved_count\\": 2
         }
     ]
 }"
@@ -1923,7 +1943,8 @@ exports[`remediations list pagination explicit offset 1`] = `
             \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
             \\"system_count\\": 0,
-            \\"issue_count\\": 0
+            \\"issue_count\\": 0,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"178cf0c8-35dd-42a3-96d5-7b50f9d211f6\\",
@@ -1942,7 +1963,8 @@ exports[`remediations list pagination explicit offset 1`] = `
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 0
         }
     ]
 }"
@@ -1978,7 +2000,8 @@ exports[`remediations list pagination offset 1 1`] = `
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"e809526c-56f5-4cd8-a809-93328436ea23\\",
@@ -1997,7 +2020,8 @@ exports[`remediations list pagination offset 1 1`] = `
             \\"updated_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
             \\"system_count\\": 2,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 1
         }
     ]
 }"
@@ -2033,7 +2057,8 @@ exports[`remediations list pagination offset 2 1`] = `
             \\"updated_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
             \\"system_count\\": 2,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 1
         },
         {
             \\"id\\": \\"cbc782e4-e8ae-4807-82ab-505387981d2e\\",
@@ -2052,7 +2077,8 @@ exports[`remediations list pagination offset 2 1`] = `
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 2
+            \\"issue_count\\": 2,
+            \\"resolved_count\\": 0
         }
     ]
 }"
@@ -2088,7 +2114,8 @@ exports[`remediations list pagination offset 3 1`] = `
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 2
+            \\"issue_count\\": 2,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"66eec356-dd06-4c72-a3b6-ef27d1508a02\\",
@@ -2107,7 +2134,8 @@ exports[`remediations list pagination offset 3 1`] = `
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 5
+            \\"issue_count\\": 5,
+            \\"resolved_count\\": 2
         }
     ]
 }"
@@ -2143,7 +2171,8 @@ exports[`remediations list pagination tiny page 1`] = `
             \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
             \\"system_count\\": 0,
-            \\"issue_count\\": 0
+            \\"issue_count\\": 0,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"178cf0c8-35dd-42a3-96d5-7b50f9d211f6\\",
@@ -2162,7 +2191,8 @@ exports[`remediations list pagination tiny page 1`] = `
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 0
         }
     ]
 }"
@@ -2198,7 +2228,8 @@ exports[`remediations list sorting default 1`] = `
             \\"updated_at\\": \\"2018-12-06T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
             \\"system_count\\": 0,
-            \\"issue_count\\": 0
+            \\"issue_count\\": 0,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"178cf0c8-35dd-42a3-96d5-7b50f9d211f6\\",
@@ -2217,7 +2248,8 @@ exports[`remediations list sorting default 1`] = `
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"e809526c-56f5-4cd8-a809-93328436ea23\\",
@@ -2236,7 +2268,8 @@ exports[`remediations list sorting default 1`] = `
             \\"updated_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
             \\"system_count\\": 2,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 1
         },
         {
             \\"id\\": \\"cbc782e4-e8ae-4807-82ab-505387981d2e\\",
@@ -2255,7 +2288,8 @@ exports[`remediations list sorting default 1`] = `
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 2
+            \\"issue_count\\": 2,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"66eec356-dd06-4c72-a3b6-ef27d1508a02\\",
@@ -2274,7 +2308,8 @@ exports[`remediations list sorting default 1`] = `
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 5
+            \\"issue_count\\": 5,
+            \\"resolved_count\\": 2
         }
     ]
 }"
@@ -2310,7 +2345,8 @@ exports[`remediations list system filter filters out remediations not featuring 
             \\"updated_at\\": \\"2018-12-05T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"e809526c-56f5-4cd8-a809-93328436ea23\\",
@@ -2329,7 +2365,8 @@ exports[`remediations list system filter filters out remediations not featuring 
             \\"updated_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
             \\"system_count\\": 2,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 1
         },
         {
             \\"id\\": \\"cbc782e4-e8ae-4807-82ab-505387981d2e\\",
@@ -2348,7 +2385,8 @@ exports[`remediations list system filter filters out remediations not featuring 
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 2
+            \\"issue_count\\": 2,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"66eec356-dd06-4c72-a3b6-ef27d1508a02\\",
@@ -2367,7 +2405,8 @@ exports[`remediations list system filter filters out remediations not featuring 
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 5
+            \\"issue_count\\": 5,
+            \\"resolved_count\\": 2
         }
     ]
 }"
@@ -2403,7 +2442,8 @@ exports[`remediations list system filter filters out remediations not featuring 
             \\"updated_at\\": \\"2018-12-04T08:19:36.641Z\\",
             \\"needs_reboot\\": false,
             \\"system_count\\": 2,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 1
         },
         {
             \\"id\\": \\"66eec356-dd06-4c72-a3b6-ef27d1508a02\\",
@@ -2422,7 +2462,8 @@ exports[`remediations list system filter filters out remediations not featuring 
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 5
+            \\"issue_count\\": 5,
+            \\"resolved_count\\": 2
         }
     ]
 }"
@@ -2458,7 +2499,8 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             \\"updated_at\\": \\"2018-11-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"27e36e14-e1c2-4b5a-9382-ec80ca9a6c1a\\",
@@ -2477,7 +2519,8 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             \\"updated_at\\": \\"2018-11-04T07:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 2
+            \\"issue_count\\": 2,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"ea5b1507-4cd3-4c87-aa5a-6c755d32a7bd\\",
@@ -2496,7 +2539,8 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             \\"updated_at\\": \\"2018-11-04T06:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"62c95092-ac83-4025-a676-362a67e68579\\",
@@ -2515,7 +2559,8 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             \\"updated_at\\": \\"2018-11-04T05:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 1,
-            \\"issue_count\\": 4
+            \\"issue_count\\": 4,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"c3f9f751-4bcc-4222-9b83-77f5e6e603da\\",
@@ -2534,7 +2579,8 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             \\"updated_at\\": \\"2018-11-04T04:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 250,
-            \\"issue_count\\": 1
+            \\"issue_count\\": 1,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"5e6d136e-ea32-46e4-a350-325ef41790f4\\",
@@ -2553,7 +2599,8 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             \\"updated_at\\": \\"2018-11-04T03:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 2
+            \\"issue_count\\": 2,
+            \\"resolved_count\\": 0
         },
         {
             \\"id\\": \\"d1b070b5-1db8-4dac-8ecf-891dc1e9225f\\",
@@ -2572,7 +2619,8 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             \\"updated_at\\": \\"2018-11-04T03:19:36.641Z\\",
             \\"needs_reboot\\": false,
             \\"system_count\\": 0,
-            \\"issue_count\\": 0
+            \\"issue_count\\": 0,
+            \\"resolved_count\\": 0
         }
     ]
 }"

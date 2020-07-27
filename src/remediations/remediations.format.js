@@ -1,4 +1,5 @@
 'use strict';
+/* eslint-disable max-len */
 
 const _ = require('lodash');
 const URI = require('urijs');
@@ -52,7 +53,7 @@ exports.parseSort = function (param) {
 
 exports.list = function (remediations, total, limit, offset, sort, system) {
     const formatted = _.map(remediations,
-        ({id, name, needs_reboot, created_by, created_at, updated_by, updated_at, system_count, issue_count}) => ({
+        ({id, name, needs_reboot, created_by, created_at, updated_by, updated_at, system_count, issue_count, resolved_count}) => ({
             id,
             name,
             created_by: _.pick(created_by, USER),
@@ -61,7 +62,8 @@ exports.list = function (remediations, total, limit, offset, sort, system) {
             updated_at: updated_at.toISOString(),
             needs_reboot,
             system_count,
-            issue_count
+            issue_count,
+            resolved_count: (resolved_count === null) ? 0 : resolved_count
         })
     );
 
@@ -75,7 +77,7 @@ exports.list = function (remediations, total, limit, offset, sort, system) {
     };
 };
 
-exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at, issues}) {
+exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at, issues, resolved_count}) {
     return {
         id,
         name,
@@ -85,6 +87,7 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
         created_at: created_at.toISOString(),
         updated_by: _.pick(updated_by, USER),
         updated_at: updated_at.toISOString(),
+        resolved_count: (resolved_count === null) ? 0 : resolved_count,
         issues: _.map(issues, ({issue_id, resolution, details, systems, resolutionsAvailable }) => ({
             id: issue_id,
             description: details.description,
