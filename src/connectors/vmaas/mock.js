@@ -45,10 +45,10 @@ const CVES = {
 };
 
 const PACKAGES = {
-    'kernel-4.18.0': {
-        description: 'The Linux kernel.'
+    'rpm-4.14.2-37.el8.x86_64': {
+        description: 'RPM package manager.'
     },
-    'systemd-239': {
+    'systemd-239-13.el8_0.5.x86_64': {
         description: 'systemd is a system and service manager that runs as PID 1 and starts.'
     }
 };
@@ -67,7 +67,8 @@ module.exports = new class extends Connector {
     }
 
     getPackage (id) {
-        return P.resolve(PACKAGES[id]);
+        const ret = PACKAGES[id] || {};
+        return P.resolve(ret);
     }
 
     ping () {

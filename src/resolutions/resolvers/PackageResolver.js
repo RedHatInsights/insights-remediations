@@ -13,4 +13,14 @@ module.exports = class PackageResolver extends CVEResolver {
     build(id, entity) {
         return ErratumResolution.forPackage(id, entity);
     }
+
+    async resolveResolutions (id) {
+        const entity = await this.fetch(id);
+
+        if (Object.keys(entity).length === 0) {
+            return [];
+        }
+
+        return [this.build(id, entity)];
+    }
 };

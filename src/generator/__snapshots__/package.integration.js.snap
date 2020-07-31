@@ -9,16 +9,16 @@ exports[`patchman - package generates a playbook with multiple packages to upgra
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
 # Upgrade the following packages:
-#   - Upgrade packages kernel-4.18.0
-#   - Upgrade packages systemd-239
-# Identifier: (patch-advisory:kernel-4.18.0,patch-advisory:systemd-239,fix)
+#   - Upgrade packages rpm-4.14.2-37.el8.x86_64
+#   - Upgrade packages systemd-239-13.el8_0.5.x86_64
+# Identifier: (patch-advisory:rpm-4.14.2-37.el8.x86_64,patch-advisory:systemd-239-13.el8_0.5.x86_64,fix)
 # Version: test
 - name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q kernel-4.18.0 systemd-239\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q rpm-4.14.2-37.el8.x86_64 systemd-239-13.el8_0.5.x86_64\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -27,7 +27,7 @@ exports[`patchman - package generates a playbook with multiple packages to upgra
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y kernel-4.18.0 systemd-239\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y rpm-4.14.2-37.el8.x86_64 systemd-239-13.el8_0.5.x86_64\\"
       args:
         warn: false
 
@@ -81,15 +81,15 @@ exports[`patchman - package generates a simple playbook with single patch packag
 # they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
-# Upgrade packages kernel-4.18.0
-# Identifier: (patch-advisory:kernel-4.18.0,fix)
+# Upgrade packages rpm-4.14.2-37.el8.x86_64
+# Identifier: (patch-advisory:rpm-4.14.2-37.el8.x86_64,fix)
 # Version: test
 - name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q kernel-4.18.0\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q rpm-4.14.2-37.el8.x86_64\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -98,7 +98,7 @@ exports[`patchman - package generates a simple playbook with single patch packag
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y kernel-4.18.0\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y rpm-4.14.2-37.el8.x86_64\\"
       args:
         warn: false
 
