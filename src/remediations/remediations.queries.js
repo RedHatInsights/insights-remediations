@@ -10,6 +10,7 @@ const REMEDIATION_ATTRIBUTES = [
     'id',
     'name',
     'auto_reboot',
+    'archived',
     'account_number',
     'created_by',
     'created_at',

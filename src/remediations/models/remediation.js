@@ -36,6 +36,11 @@ module.exports = (sequelize, {BOOLEAN, STRING, UUID}) => {
             type: BOOLEAN,
             allowNull: false,
             defaultValue: true
+        },
+        archived: {
+            type: BOOLEAN,
+            allowNull: false,
+            defaultValue: false
         }
     }, {
         timestamps: true

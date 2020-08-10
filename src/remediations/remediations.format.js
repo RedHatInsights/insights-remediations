@@ -53,7 +53,7 @@ exports.parseSort = function (param) {
 
 exports.list = function (remediations, total, limit, offset, sort, system) {
     const formatted = _.map(remediations,
-        ({id, name, needs_reboot, created_by, created_at, updated_by, updated_at, system_count, issue_count, resolved_count}) => ({
+        ({id, name, needs_reboot, created_by, created_at, updated_by, updated_at, system_count, issue_count, resolved_count, archived}) => ({
             id,
             name,
             created_by: _.pick(created_by, USER),
@@ -63,7 +63,8 @@ exports.list = function (remediations, total, limit, offset, sort, system) {
             needs_reboot,
             system_count,
             issue_count,
-            resolved_count: (resolved_count === null) ? 0 : resolved_count
+            resolved_count: (resolved_count === null) ? 0 : resolved_count,
+            archived
         })
     );
 
@@ -77,12 +78,13 @@ exports.list = function (remediations, total, limit, offset, sort, system) {
     };
 };
 
-exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at, issues, resolved_count}) {
+exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at, issues, resolved_count, archived}) {
     return {
         id,
         name,
         needs_reboot,
         auto_reboot,
+        archived,
         created_by: _.pick(created_by, USER),
         created_at: created_at.toISOString(),
         updated_by: _.pick(updated_by, USER),

@@ -196,6 +196,7 @@ describe('remediations', function () {
                 id: 'e809526c-56f5-4cd8-a809-93328436ea23',
                 name: 'Unnamed Playbook',
                 needs_reboot: false,
+                archived: false,
                 auto_reboot: false,
                 created_by: {
                     username: 'tuser@redhat.com',

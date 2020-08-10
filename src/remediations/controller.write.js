@@ -137,10 +137,11 @@ exports.create = errors.async(async function (req, res) {
 exports.patch = errors.async(async function (req, res) {
     const id = req.params.id;
     const {account_number, username} = req.user;
-    const {add, name, auto_reboot} = req.body;
+    const {add, name, auto_reboot, archived} = req.body;
 
-    if (_.isUndefined(add) && _.isUndefined(name) && _.isUndefined(auto_reboot)) {
-        throw new errors.BadRequest('EMPTY_REQUEST', 'At least one of "add", "name", "auto_reboot" needs to be specified');
+    if (_.isUndefined(add) && _.isUndefined(name) && _.isUndefined(auto_reboot) && _.isUndefined(archived)) {
+        // eslint-disable-next-line max-len
+        throw new errors.BadRequest('EMPTY_REQUEST', 'At least one of "add", "name", "auto_reboot", "archived" needs to be specified');
     }
 
     if (add) {
@@ -173,6 +174,10 @@ exports.patch = errors.async(async function (req, res) {
 
         if (auto_reboot !== undefined) {
             remediation.auto_reboot = auto_reboot;
+        }
+
+        if (archived !== undefined) {
+            remediation.archived = archived;
         }
 
         remediation.updated_by = username;

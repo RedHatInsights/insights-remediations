@@ -4,7 +4,7 @@ openapi: 3.0.0
 info:
   title: Insights Remediations
   description: Insights Remediations Service
-  version: 1.1.1
+  version: 1.2.1
   contact:
     email: jozef@redhat.com
 
@@ -697,6 +697,10 @@ components:
       pattern: ^$|^.*[\w\d]+.*$  # empty string or anything that contains at least one character
       example: Fix Critical CVEs
 
+    RemediationArchived:
+      type: boolean
+      description: Indicates whether a remediation has been marked as archived
+
     SystemName:
       type: string
       example: redhat-213
@@ -839,6 +843,8 @@ components:
       properties:
         name:
           $ref: '#/components/schemas/RemediationName'
+        archived:
+          $ref: '#/components/schemas/RemediationArchived'
         auto_reboot:
           $ref: '#/components/schemas/RemediationAutoReboot'
         add:
@@ -1221,7 +1227,7 @@ components:
     RemediationDetails:
       type: object
       additionalProperties: false
-      required: [id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at, resolved_count, issues]
+      required: [id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at, resolved_count, issues, archived]
       properties:
         id:
           $ref: '#/components/schemas/RemediationId'
@@ -1229,6 +1235,8 @@ components:
           $ref: '#/components/schemas/RemediationName'
         needs_reboot:
           $ref: '#/components/schemas/RemediationNeedsReboot'
+        archived:
+          $ref: '#/components/schemas/RemediationArchived'
         auto_reboot:
           $ref: '#/components/schemas/RemediationAutoReboot'
         created_by:
@@ -1312,7 +1320,7 @@ components:
     RemediationListItem:
       type: object
       additionalProperties: false
-      required: [id, name, created_by, created_at, updated_by, updated_at, issue_count, system_count, resolved_count, needs_reboot]
+      required: [id, name, created_by, created_at, updated_by, updated_at, issue_count, system_count, resolved_count, needs_reboot, archived]
       properties:
         id:
           $ref: '#/components/schemas/RemediationId'
@@ -1334,6 +1342,8 @@ components:
           $ref: '#/components/schemas/ResolvedCount'
         needs_reboot:
           $ref: '#/components/schemas/RemediationNeedsReboot'
+        archived:
+          $ref: '#/components/schemas/RemediationArchived'
 
     RemediationConnectionStatus:
       type: object

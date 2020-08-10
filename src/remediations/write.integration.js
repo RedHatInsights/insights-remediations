@@ -452,19 +452,19 @@ describe('remediations', function () {
                         id,
                         status: 400,
                         code: 'EMPTY_REQUEST',
-                        title: 'At least one of "add", "name", "auto_reboot" needs to be specified'
+                        title: 'At least one of "add", "name", "auto_reboot", "archived" needs to be specified'
                     }]);
                 });
             });
 
             describe('properties', function () {
-                test('give new name and suppress auto reboot for remediation', async () => {
+                test('give new name, suppress auto reboot, and set archived for remediation', async () => {
                     const url = '/v1/remediations/8b427145-ac9f-4727-9543-76eb140222cd';
                     const name = 'renamed remediation';
 
                     await request
                     .patch(url)
-                    .send({name, auto_reboot: false})
+                    .send({name, auto_reboot: false, archived: true})
                     .set(auth.testWrite)
                     .expect(200);
 
@@ -475,6 +475,7 @@ describe('remediations', function () {
 
                     body.name.should.equal(name);
                     body.auto_reboot.should.equal(false);
+                    body.archived.should.equal(true);
                 });
             });
         });
