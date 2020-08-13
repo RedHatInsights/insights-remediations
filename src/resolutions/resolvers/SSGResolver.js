@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const P = require('bluebird');
 const assert = require('assert');
+const config = require('../../config');
 const ssg = require('../../connectors/ssg');
 const Resolver = require('./Resolver');
 const Resolution = require('../Resolution');
@@ -52,13 +53,18 @@ function processPlay (parsed) {
 module.exports = class SSGResolver extends Resolver {
     async resolveResolutions (id) {
         const {platform, profile, rule} = identifiers.parseSSG(id);
+        let raw = {};
 
-        const [primary, fallback] = await P.all([
-            ssg.getTemplate(platform, profile, rule),
-            ssg.getTemplate(platform, FALLBACK_PROFILE, rule)
-        ]);
+        if (config.ssg.impl === 'compliance') {
+            raw = await ssg.getTemplate(id.issue);
+        } else {
+            const [primary, fallback] = await P.all([
+                ssg.getTemplate(platform, profile, rule),
+                ssg.getTemplate(platform, FALLBACK_PROFILE, rule)
+            ]);
 
-        const raw = primary || fallback;
+            raw = primary || fallback;
+        }
 
         if (!raw) {
             return [];
