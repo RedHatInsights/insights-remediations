@@ -210,7 +210,7 @@ describe('remediations', function () {
                     last_name: 'user'
                 },
                 updated_at: '2018-12-04T08:19:36.641Z',
-                resolved_count: 0,
+                resolved_count: 1,
                 issues: [{
                     id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
                     description: 'Bonding will not fail over to the backup link when bonding options are partially read',

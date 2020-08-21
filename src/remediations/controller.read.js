@@ -127,6 +127,11 @@ exports.list = errors.async(async function (req, res) {
         // filter out issues with 0 systems and unknown issues
         remediation.issues = remediation.issues.filter(issue => issue.resolution);
         remediation.needs_reboot = inferNeedsReboot(remediation);
+
+        // if system_count & issue_count = 0 set resolved_count to 0
+        if (remediation.system_count === 0 && remediation.issue_count === 0) {
+            remediation.resolved_count = 0;
+        }
     });
 
     res.json(format.list(remediations, count.length, limit, offset, req.query.sort, req.query.system));

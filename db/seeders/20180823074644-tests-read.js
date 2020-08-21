@@ -127,7 +127,7 @@ exports.up = async q => {
     }, {
         remediation_issue_id: issues[7].id,
         system_id: systems[1],
-        resolved: false
+        resolved: true
     }, {
         remediation_issue_id: issues[8].id,
         system_id: systems[0],

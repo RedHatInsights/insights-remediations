@@ -19,7 +19,7 @@ exports[`remediations get get remediation 1`] = `
         \\"last_name\\": \\"user\\"
     },
     \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
-    \\"resolved_count\\": 0,
+    \\"resolved_count\\": 2,
     \\"issues\\": [
         {
             \\"id\\": \\"advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074\\",
