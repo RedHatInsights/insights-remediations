@@ -3,7 +3,7 @@
 const errors = require('../errors');
 const PATTERN = /^(advisor|vulnerabilities|ssg|test|patch-advisory):([\w\d_|:\\.-]+)$/;
 const SSG_PATTERN = /^([\w-]+)\|([\w-]+)\|xccdf_org\.ssgproject\.content_rule_([\w\d-_:\\.]+)$/;
-const CSAW_PATTERN = /^(CVE-20[\d]{2}-[\d]{4,}):(([a-z_])+\|([A-Z_])+)$/;
+const CSAW_PATTERN = /^(CVE-20[\d]{2}-[\d]{4,}):(\w+\|[A-Z\d_]+)$/;
 
 function match (id) {
     const match = PATTERN.exec(id);

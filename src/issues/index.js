@@ -3,8 +3,8 @@
 const errors = require('../errors');
 
 const ERRATUM_PATTERN = /^RH[SBE]A-20[\d]{2}:[\d]{4,5}/;
-const CSAW_PATTERN = /^CVE-20[\d]{2}-[\d]{4,}:(([a-z_])+\|([A-Z_])+)/;
-const ADVISOR_PATTERN = /([a-z_])+\|([A-Z_])+/;
+const CSAW_PATTERN = /^CVE-20[\d]{2}-[\d]{4,}:\w+\|[A-Z\d_]+$/;
+const ADVISOR_PATTERN = /^\w+\|[A-Z\d_]+$/;
 const CVE_PATTERN = /^CVE-20[\d]{2}-[\d]{4,}/;
 
 const advisorHandler = new(require('./AdvisorHandler'))();
