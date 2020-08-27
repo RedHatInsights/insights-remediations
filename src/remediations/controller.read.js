@@ -145,11 +145,11 @@ async function resolveSystems (remediation) {
 
     remediation.issues.forEach(issue => issue.systems = issue.systems
     .filter(({system_id}) => _.has(resolvedSystems, system_id)) // filter out systems not found in inventory
-    .map(({system_id}) => {
+    .map(({system_id, resolved}) => {
         // filtered above
         // eslint-disable-next-line security/detect-object-injection
         const { hostname, display_name } = resolvedSystems[system_id];
-        return { system_id, hostname, display_name };
+        return { system_id, hostname, display_name, resolved };
     }));
 }
 

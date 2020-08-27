@@ -224,11 +224,13 @@ describe('remediations', function () {
                     systems: [{
                         id: '1f12bdfc-8267-492d-a930-92f498fe65b9',
                         hostname: '1f12bdfc-8267-492d-a930-92f498fe65b9.example.com',
-                        display_name: null
+                        display_name: null,
+                        resolved: true
                     }, {
                         id: 'fc94beb8-21ee-403d-99b1-949ef7adb762',
                         hostname: null,
-                        display_name: null
+                        display_name: null,
+                        resolved: true
                     }]
                 }]
             });

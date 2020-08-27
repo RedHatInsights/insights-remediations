@@ -169,7 +169,7 @@ exports.get = function (id, account_number, created_by) {
             attributes: ISSUE_ATTRIBUTES,
             model: db.issue,
             include: {
-                attributes: ['system_id'],
+                attributes: ['system_id', 'resolved'],
                 association: db.issue.associations.systems,
                 required: true
             }

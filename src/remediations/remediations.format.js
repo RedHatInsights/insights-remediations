@@ -100,10 +100,11 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
                 needs_reboot: resolution.needsReboot
             },
             resolutions_available: resolutionsAvailable,
-            systems: systems.map(({system_id, hostname, display_name}) => ({
+            systems: systems.map(({system_id, hostname, display_name, resolved}) => ({
                 id: system_id,
                 hostname,
-                display_name
+                display_name,
+                resolved
             }))
         }))
     };
