@@ -13,7 +13,7 @@ exports[`adds diagnosis play 1`] = `
   become: True
   tasks:
     - name: obtain diagnosis info
-      shell: 'insights-client --diagnosis'
+      command: 'insights-client --diagnosis'
       register: insights_result
       changed_when: false
       check_mode: false
@@ -179,7 +179,7 @@ exports[`generates a CSAW playbook (rule only) 1`] = `
   become: True
   tasks:
     - name: obtain diagnosis info
-      shell: 'insights-client --diagnosis'
+      command: 'insights-client --diagnosis'
       register: insights_result
       changed_when: false
       check_mode: false
@@ -235,7 +235,7 @@ exports[`generates a CSAW playbook full id 1`] = `
   become: True
   tasks:
     - name: obtain diagnosis info
-      shell: 'insights-client --diagnosis'
+      command: 'insights-client --diagnosis'
       register: insights_result
       changed_when: false
       check_mode: false
