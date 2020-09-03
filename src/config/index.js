@@ -155,7 +155,7 @@ const config = {
 
     vmaas: {
         impl: env.VMAAS_IMPL,
-        host: env.VMAAS_HOST || 'https://webapp-vmaas-stable.1b13.insights.openshiftapps.com',
+        host: env.VMAAS_HOST || 'https://webapp-vmaas-prod.apps.crcp01ue1.o9m8.p1.openshiftapps.com',
         revalidationInterval: parseIntEnv('VMAAS_REVALIDATION_INVERVAL', 60 * 60 * 12) // 12 hours
     },
 
