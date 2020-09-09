@@ -245,4 +245,17 @@ describe('batch', function () {
             title: '"ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink|test" is not a valid issue identifier.'
         }]);
     });
+
+    test('csaw id validation (full and rule)', async () => {
+        const { body } = await request
+        .post('/v1/resolutions')
+        .send({
+            issues: [
+                'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+                'vulnerabilities:CVE-2017-6074:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'
+            ]
+        })
+        .expect(200);
+        expect(body).toMatchSnapshot();
+    });
 });

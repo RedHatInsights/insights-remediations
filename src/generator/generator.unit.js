@@ -137,7 +137,7 @@ test('generates a CSAW playbook full id', () => {
 
     const data = {
         issues: [{
-            id: 'vulnerabilities:CVE-2017-17712:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
+            id: 'vulnerabilities:CVE-2017-6074:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
@@ -154,7 +154,24 @@ test('generates a CSAW playbook (rule only)', () => {
 
     const data = {
         issues: [{
-            id: 'vulnerabilities:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
+            id: 'vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200)
+    .then(res => expect(res.text).toMatchSnapshot());
+});
+
+test('generates a CVE playbook if CSAW rule is not found', () => {
+    mockVmaas();
+
+    const data = {
+        issues: [{
+            id: 'vulnerabilities:CVE-2017-17712:CVE_2017_6075_kernel|UNDEFINED',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
@@ -330,6 +347,52 @@ test('400s on unknown issue id', () => {
             status: 400,
             code: 'UNSUPPORTED_ISSUE',
             title: 'Issue "test:nonExistentId" does not have Ansible support'
+        }]);
+    });
+});
+
+test('400s on unknown CVE id and CSAW id', () => {
+    const {id, header} = reqId();
+
+    return request
+    .post('/v1/playbook')
+    .set(header)
+    .send({
+        issues: [{
+            id: 'vulnerabilities:CVE-2020-20202:CVE_2020_20202|NOTREAL',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    })
+    .expect(400)
+    .then(({ body }) => {
+        body.errors.should.eql([{
+            id,
+            status: 400,
+            code: 'UNKNOWN_ISSUE',
+            title: 'Unknown issue identifier "vulnerabilities:CVE-2020-20202:CVE_2020_20202|NOTREAL"'
+        }]);
+    });
+});
+
+test('400s on unknown CSAW id with no default CVE given', () => {
+    const {id, header} = reqId();
+
+    return request
+    .post('/v1/playbook')
+    .set(header)
+    .send({
+        issues: [{
+            id: 'vulnerabilities:CVE_2020_20202|NOTREAL',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    })
+    .expect(400)
+    .then(({ body }) => {
+        body.errors.should.eql([{
+            id,
+            status: 400,
+            code: 'UNKNOWN_CSAW_RULE_ID',
+            title: 'Unknown CSAW rule_id "CVE_2020_20202|NOTREAL"'
         }]);
     });
 });

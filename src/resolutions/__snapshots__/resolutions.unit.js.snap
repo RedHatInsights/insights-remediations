@@ -1,5 +1,34 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`batch csaw id validation (full and rule) 1`] = `
+Object {
+  "vulnerabilities:CVE-2017-6074:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074": Object {
+    "id": "vulnerabilities:CVE-2017-6074:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+    "resolution_risk": -1,
+    "resolutions": Array [
+      Object {
+        "description": "Fix Issues caused by [CVE_2017_6074_kernel|KERNEL_CVE_2017_6074]",
+        "id": "fix",
+        "needs_reboot": false,
+        "resolution_risk": -1,
+      },
+    ],
+  },
+  "vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074": Object {
+    "id": "vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+    "resolution_risk": -1,
+    "resolutions": Array [
+      Object {
+        "description": "Fix Issues caused by [CVE_2017_6074_kernel|KERNEL_CVE_2017_6074]",
+        "id": "fix",
+        "needs_reboot": false,
+        "resolution_risk": -1,
+      },
+    ],
+  },
+}
+`;
+
 exports[`batch template batch resource 1`] = `
 Object {
   "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074": Object {
