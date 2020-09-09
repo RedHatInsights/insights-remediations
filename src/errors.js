@@ -163,6 +163,9 @@ exports.noExecutors = remediation =>
 exports.unknownExclude = excluded =>
     new exports.BadRequest('UNKNOWN_EXCLUDE', `Excluded Executor [${excluded}] not found in list of identified executors`);
 
+exports.unknownCSAWRuleId = id =>
+    new exports.BadRequest('UNKNOWN_CSAW_RULE_ID', `Unknown CSAW rule_id "${id}"`);
+
 exports.internal = {
     invalidTemplate (msg) {
         return new InternalError('INVALID_TEMPLATE', msg);

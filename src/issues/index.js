@@ -22,16 +22,12 @@ function getHandler (id) {
         case 'advisor': return advisorHandler;
         case 'ssg': return ssgHandler;
         case 'vulnerabilities':
-            if (CSAW_PATTERN.test(id.issue)) {
+            if (CSAW_PATTERN.test(id.issue) || ADVISOR_PATTERN.test(id.issue)) {
                 return csawHandler;
             }
 
             if (CVE_PATTERN.test(id.issue)) {
                 return cveHandler;
-            }
-
-            if (ADVISOR_PATTERN.test(id.issue)) {
-                return advisorHandler;
             }
 
             if (ERRATUM_PATTERN.test(id.issue)) {

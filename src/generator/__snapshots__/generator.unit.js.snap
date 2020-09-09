@@ -186,14 +186,14 @@ exports[`generates a CSAW playbook (rule only) 1`] = `
     - name: register insights report as fact for use by other plays
       set_fact: insights_report={{ insights_result.stdout }}
 
-# Bonding will not fail over to the backup link when bonding options are partially read
-# Identifier: (vulnerabilities:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE,fix)
-# Version: a0e934f07d8167073546cbc5108c4345f92559a5
+# Fixes vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+# Identifier: (vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,fix)
+# Version: unknown
 - name: Correct Bonding Config Items
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:
-    pydata: \\"{{ insights_report.details['network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'] }}\\"
+    pydata: \\"{{ insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'] }}\\"
 
   tasks:
     - when:
@@ -242,14 +242,14 @@ exports[`generates a CSAW playbook full id 1`] = `
     - name: register insights report as fact for use by other plays
       set_fact: insights_report={{ insights_result.stdout }}
 
-# Bonding will not fail over to the backup link when bonding options are partially read
-# Identifier: (vulnerabilities:CVE-2017-17712:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE,fix)
-# Version: a0e934f07d8167073546cbc5108c4345f92559a5
+# Fixes vulnerabilities:CVE-2017-6074:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+# Identifier: (vulnerabilities:CVE-2017-6074:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,fix)
+# Version: unknown
 - name: Correct Bonding Config Items
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   become: true
   vars:
-    pydata: \\"{{ insights_report.details['network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'] }}\\"
+    pydata: \\"{{ insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'] }}\\"
 
   tasks:
     - when:
@@ -267,6 +267,77 @@ exports[`generates a CSAW playbook full id 1`] = `
           shell: ifdown {{item.key}}  && ifup {{item.key}}
           with_dict: \\"{{ pydata.bond_config }}\\"
 
+
+- name: run insights
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
+`;
+
+exports[`generates a CVE playbook if CSAW rule is not found 1`] = `
+"---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
+# Upgrade packages affected by CVE-2017-17712
+# Identifier: (vulnerabilities:CVE-2017-17712:CVE_2017_6075_kernel|UNDEFINED,fix)
+# Version: test
+- name: update vulnerable packages
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  tasks:
+    - name: check for update
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve CVE-2017-17712\\"
+      check_mode: no
+      register: check_out
+      failed_when: check_out.rc != 0 and check_out.rc != 100
+      args:
+        warn: false
+
+    - when: check_out.rc == 100
+      name: upgrade package
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve CVE-2017-17712\\"
+      args:
+        warn: false
+
+    - when: check_out.rc == 100
+      name: set reboot fact
+      set_fact:
+        insights_needs_reboot: True
+
+# Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
+# The variable can be overridden to suppress this behavior.
+- name: Reboot system (if applicable)
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - when:
+        - insights_needs_reboot is defined
+        - insights_needs_reboot
+      block:
+        - name: Reboot system
+          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          async: 1
+          poll: 0
+          ignore_errors: true
+
+        - name: Wait for system to boot up
+          local_action:
+            module: wait_for
+            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
+            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            delay: 15
+            search_regex: OpenSSH
+            timeout: 300
+          become: false
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
