@@ -11,6 +11,7 @@ module.exports = new class extends Connector {
     constructor () {
         super(module);
         this.systemsMetrics = metrics.createConnectorMetric(this.getName(), 'getSystems');
+        this.resolutionsMetrics = metrics.createConnectorMetric(this.getName(), 'getResolutions');
     }
 
     getRule () {
@@ -38,6 +39,31 @@ module.exports = new class extends Connector {
         assert(data.meta.total_items < 10000);
 
         return _.map(data.data, 'id');
+    }
+
+    async getResolutions (issue) {
+        const uri = this.buildUri(host, 'vulnerability', 'v1', 'playbooks', 'templates', issue);
+
+        const resolutions = await this.doHttp({
+            uri: uri.toString(),
+            method: 'GET',
+            json: true,
+            rejectUnauthorized: !insecure,
+            headers: this.getForwardedHeaders()
+        },
+        false,
+        this.systemsMetrics);
+
+        return _.map(resolutions.data, resolution =>
+            _(resolution)
+            .pick(['description', 'play', 'resolution_type', 'resolution_risk', 'version'])
+            .defaults({
+                resolution_risk: -1,
+                version: 'unknown',
+                resolution_type: 'fix'
+            })
+            .value()
+        );
     }
 
     async ping () {

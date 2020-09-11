@@ -4,6 +4,7 @@ const errors = require('../errors');
 const PATTERN = /^(advisor|vulnerabilities|ssg|test|patch-advisory):([\w\d_|:\\.-]+)$/;
 const SSG_PATTERN = /^([\w-]+)\|([\w-]+)\|xccdf_org\.ssgproject\.content_rule_([\w\d-_:\\.]+)$/;
 const CSAW_PATTERN = /^(CVE-20[\d]{2}-[\d]{4,}):(\w+\|[A-Z\d_]+)$/;
+const CSAW_RULE_PATTERN = /^(\w+\|[A-Z\d_]+)$/;
 
 function match (id) {
     const match = PATTERN.exec(id);
@@ -40,15 +41,20 @@ exports.parseCSAW = function (id) {
     }
 
     const csawResult = CSAW_PATTERN.exec(id.issue);
+    const csawRuleResult = CSAW_RULE_PATTERN.exec(id.issue);
 
-    if (!csawResult) {
-        throw errors.invalidIssueId(id);
+    if (!csawResult && csawRuleResult) {
+        return {
+            csaw: csawRuleResult[1]
+        };
+    } else if (csawResult && !csawRuleResult) {
+        return {
+            csaw: csawResult[2],
+            cve: csawResult[1]
+        };
     }
 
-    return {
-        csaw: csawResult[2],
-        cve: csawResult[1]
-    };
+    throw errors.invalidIssueId(id);
 };
 
 exports.parseSSG = function (id) {
