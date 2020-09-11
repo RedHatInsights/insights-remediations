@@ -106,7 +106,7 @@ exports[`generates a rule-based playbook with resolution preference 1`] = `
   become: True
   tasks:
     - name: obtain diagnosis info
-      shell: 'insights-client --diagnosis'
+      command: 'insights-client --diagnosis'
       register: insights_result
       changed_when: false
       check_mode: false
