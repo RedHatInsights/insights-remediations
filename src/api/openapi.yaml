@@ -4,7 +4,7 @@ openapi: 3.0.0
 info:
   title: Insights Remediations
   description: Insights Remediations Service
-  version: 1.3.1
+  version: 1.3.2
   contact:
     email: jozef@redhat.com
 
@@ -38,6 +38,7 @@ paths:
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/RemediationSystem'
+        - $ref: '#/components/parameters/HideArchived'
       responses:
         200:
           description: OK
@@ -598,6 +599,14 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/ExecutorId'
+    HideArchived:
+      in: query
+      name: hide_archived
+      description: 'Hide archived playbooks'
+      required: false
+      schema:
+        type: boolean
+        default: false
 
     IssueSystemsSort:
       in: query

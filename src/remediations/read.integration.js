@@ -176,6 +176,11 @@ describe('remediations', function () {
                 'Requested starting offset 123456 out of range: [0, 4]'
             );
         });
+
+        describe('hide archived', function () {
+            testList('no query', '/v1/remediations?pretty', r256, r178, re80, rcbc, r66e);
+            testList('hide_archived', '/v1/remediations?hide_archived', r256, re80, rcbc);
+        });
     });
 
     describe('get', function () {

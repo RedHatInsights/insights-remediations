@@ -66,6 +66,7 @@ exports.list = function (
     primaryOrder = 'updated_at',
     asc = true,
     filter = false,
+    hide_archived,
     limit,
     offset) {
 
@@ -106,6 +107,12 @@ exports.list = function (
     if (system) {
         query.where.id = {
             [Op.in]: systemSubquery(system)
+        };
+    }
+
+    if (hide_archived) {
+        query.where.archived = {
+            [Op.eq]: false
         };
     }
 

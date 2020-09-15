@@ -95,7 +95,7 @@ function inferNeedsReboot (remediation) {
 
 exports.list = errors.async(async function (req, res) {
     const {column, asc} = format.parseSort(req.query.sort);
-    const {limit, offset} = req.query;
+    const {limit, offset, hide_archived} = req.query;
 
     const {count, rows} = await queries.list(
         req.user.account_number,
@@ -104,6 +104,7 @@ exports.list = errors.async(async function (req, res) {
         column,
         asc,
         req.query.filter,
+        hide_archived,
         limit,
         offset);
 
