@@ -391,8 +391,8 @@ test('400s on unknown CSAW id with no default CVE given', () => {
         body.errors.should.eql([{
             id,
             status: 400,
-            code: 'UNKNOWN_CSAW_RULE_ID',
-            title: 'Unknown CSAW rule_id "CVE_2020_20202|NOTREAL"'
+            code: 'UNKNOWN_ISSUE',
+            title: 'Unknown issue identifier "vulnerabilities:CVE_2020_20202|NOTREAL"'
         }]);
     });
 });
