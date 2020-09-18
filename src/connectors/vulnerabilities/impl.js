@@ -54,10 +54,6 @@ module.exports = new class extends Connector {
         false,
         this.systemsMetrics);
 
-        if (!resolutions) {
-            return [];
-        }
-
         return _.map(resolutions.data, resolution =>
             _(resolution)
             .pick(['description', 'play', 'resolution_type', 'resolution_risk', 'version'])
