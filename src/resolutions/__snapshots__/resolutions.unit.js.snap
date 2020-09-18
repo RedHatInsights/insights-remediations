@@ -94,3 +94,32 @@ Object {
   },
 }
 `;
+
+exports[`batch uses default when csaw is incorrect 1`] = `
+Object {
+  "vulnerabilities:CVE-2017-15126": Object {
+    "id": "vulnerabilities:CVE-2017-15126",
+    "resolution_risk": -1,
+    "resolutions": Array [
+      Object {
+        "description": "Upgrade packages affected by CVE-2017-15126",
+        "id": "fix",
+        "needs_reboot": true,
+        "resolution_risk": -1,
+      },
+    ],
+  },
+  "vulnerabilities:CVE-2017-15126:CVE_2017_6074_kernel|NOTREAL": Object {
+    "id": "vulnerabilities:CVE-2017-15126:CVE_2017_6074_kernel|NOTREAL",
+    "resolution_risk": -1,
+    "resolutions": Array [
+      Object {
+        "description": "Upgrade packages affected by CVE-2017-15126",
+        "id": "fix",
+        "needs_reboot": true,
+        "resolution_risk": -1,
+      },
+    ],
+  },
+}
+`;

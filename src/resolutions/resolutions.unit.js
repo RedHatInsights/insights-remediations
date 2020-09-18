@@ -258,4 +258,17 @@ describe('batch', function () {
         .expect(200);
         expect(body).toMatchSnapshot();
     });
+
+    test('uses default when csaw is incorrect', async () => {
+        const { body } = await request
+        .post('/v1/resolutions')
+        .send({
+            issues: [
+                'vulnerabilities:CVE-2017-15126:CVE_2017_6074_kernel|NOTREAL',
+                'vulnerabilities:CVE-2017-15126'
+            ]
+        })
+        .expect(200);
+        expect(body).toMatchSnapshot();
+    });
 });

@@ -1,28 +1,27 @@
 'use strict';
 
-const errors = require('../../errors');
 const Resolver = require('./Resolver');
 const identifier = require('../../util/identifiers');
 const vulnerabilities = require('../../connectors/vulnerabilities');
+const cveResolver = new(require('./CVEResolver'))();
 const shared = require('./SharedFunctions');
 
 module.exports = class CVEResolver extends Resolver {
 
     async resolveResolutions (id) {
-        const ids = identifier.parseCSAW(id);
+        const parsed = identifier.parseCSAW(id);
+        id.issue = parsed.csaw;
+        const resolutions = await vulnerabilities.getResolutions(id.issue);
 
-        id.issue = ids.csaw;
-        const templates = await vulnerabilities.getResolutions(id.issue);
-
-        if (!templates) {
-            if (ids.cve) {
-                id.issue = ids.cve;
-                return null;
+        if (!resolutions) {
+            if (parsed.cve) {
+                id.issue = parsed.cve;
+                return await cveResolver.resolveResolutions(id);
             }
 
-            throw errors.unknownIssue(id);
+            return [];
         }
 
-        return templates.map(template => shared.parseResolution(template));
+        return resolutions.map(resolution => shared.parseResolution(resolution));
     }
 };

@@ -23,3 +23,5 @@ exports.forAdvisory = (id, details) =>
 
 exports.forPackage = (id, details) =>
     new ErratumResolution(id, details, 'package', PACKAGE_TEMPLATE, `Upgrade packages ${id.issue}`);
+
+exports.isErratumResolution = (resolution) => { return (resolution instanceof ErratumResolution); };
