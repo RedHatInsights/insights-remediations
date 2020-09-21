@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const Resolver = require('./Resolver');
 const identifier = require('../../util/identifiers');
 const vulnerabilities = require('../../connectors/vulnerabilities');
@@ -14,7 +15,7 @@ module.exports = class CVEResolver extends Resolver {
         const resolutions = await vulnerabilities.getResolutions(id.issue);
 
         if (!resolutions) {
-            if (parsed.cve) {
+            if (!_.isUndefined(parsed.cve)) {
                 id.issue = parsed.cve;
                 return await cveResolver.resolveResolutions(id);
             }

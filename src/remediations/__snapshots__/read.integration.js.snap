@@ -104,6 +104,25 @@ exports[`remediations get get remediation 1`] = `
             ]
         },
         {
+            \\"id\\": \\"vulnerabilities:CVE-2017-5715:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074\\",
+            \\"description\\": \\"CVE_2017_6074_kernel|KERNEL_CVE_2017_6074\\",
+            \\"resolution\\": {
+                \\"id\\": \\"fix\\",
+                \\"description\\": \\"Fix Issues caused by [CVE_2017_6074_kernel|KERNEL_CVE_2017_6074]\\",
+                \\"resolution_risk\\": -1,
+                \\"needs_reboot\\": false
+            },
+            \\"resolutions_available\\": 1,
+            \\"systems\\": [
+                {
+                    \\"id\\": \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\",
+                    \\"hostname\\": null,
+                    \\"display_name\\": null,
+                    \\"resolved\\": false
+                }
+            ]
+        },
+        {
             \\"id\\": \\"vulnerabilities:RHSA-2018:0502\\",
             \\"description\\": \\"RHSA-2018:0502\\",
             \\"resolution\\": {
@@ -1826,7 +1845,7 @@ exports[`remediations list filter basic filter 1`] = `
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 5,
+            \\"issue_count\\": 6,
             \\"resolved_count\\": 2,
             \\"archived\\": true
         }
@@ -1948,7 +1967,7 @@ exports[`remediations list filter empty filter 1`] = `
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 5,
+            \\"issue_count\\": 6,
             \\"resolved_count\\": 2,
             \\"archived\\": true
         }
@@ -2186,7 +2205,7 @@ exports[`remediations list hide archived no query 1`] = `
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 5,
+            \\"issue_count\\": 6,
             \\"resolved_count\\": 2,
             \\"archived\\": true
         }
@@ -2308,7 +2327,7 @@ exports[`remediations list list remediations 1`] = `
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 5,
+            \\"issue_count\\": 6,
             \\"resolved_count\\": 2,
             \\"archived\\": true
         }
@@ -2544,7 +2563,7 @@ exports[`remediations list pagination offset 3 1`] = `
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 5,
+            \\"issue_count\\": 6,
             \\"resolved_count\\": 2,
             \\"archived\\": true
         }
@@ -2725,7 +2744,7 @@ exports[`remediations list sorting default 1`] = `
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 5,
+            \\"issue_count\\": 6,
             \\"resolved_count\\": 2,
             \\"archived\\": true
         }
@@ -2826,7 +2845,7 @@ exports[`remediations list system filter filters out remediations not featuring 
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 5,
+            \\"issue_count\\": 6,
             \\"resolved_count\\": 2,
             \\"archived\\": true
         }
@@ -2885,7 +2904,7 @@ exports[`remediations list system filter filters out remediations not featuring 
             \\"updated_at\\": \\"2018-10-04T08:19:36.641Z\\",
             \\"needs_reboot\\": true,
             \\"system_count\\": 2,
-            \\"issue_count\\": 5,
+            \\"issue_count\\": 6,
             \\"resolved_count\\": 2,
             \\"archived\\": true
         }

@@ -255,6 +255,32 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
       set_fact:
         insights_needs_reboot: True
 
+# Fixes vulnerabilities:CVE-2017-5715:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+# Identifier: (vulnerabilities:CVE-2017-5715:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,fix)
+# Version: unknown
+- name: Correct Bonding Config Items
+  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  become: true
+  vars:
+    pydata: \\"{{ insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'] }}\\"
+
+  tasks:
+    - when:
+       - pydata.bond_config is defined
+      block:
+        - name: Add quotes around bonding options
+          lineinfile:
+            dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
+            regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
+            backrefs: yes
+            line: '\\\\1\\"\\\\2\\"'
+          with_dict: \\"{{ pydata.bond_config }}\\"
+
+        - name: Restart Network Interfaces
+          shell: ifdown {{item.key}}  && ifup {{item.key}}
+          with_dict: \\"{{ pydata.bond_config }}\\"
+
+
 # Apply RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: test

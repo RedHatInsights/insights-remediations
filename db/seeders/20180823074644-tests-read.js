@@ -91,6 +91,9 @@ exports.up = async q => {
     }, {
         remediation_id: remediations[3].id,
         issue_id: 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'
+    }, {
+        remediation_id: remediations[0].id,
+        issue_id: 'vulnerabilities:CVE-2017-5715:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'
     }], opts);
 
     await q.bulkInsert('remediation_issue_systems', [{
@@ -135,6 +138,10 @@ exports.up = async q => {
         resolved: true
     }, {
         remediation_issue_id: issues[8].id,
+        system_id: systems[0],
+        resolved: false
+    }, {
+        remediation_issue_id: issues[9].id,
         system_id: systems[0],
         resolved: false
     }]);
