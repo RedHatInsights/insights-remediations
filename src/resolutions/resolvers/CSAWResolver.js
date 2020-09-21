@@ -15,11 +15,11 @@ module.exports = class CVEResolver extends Resolver {
         id.issue = parsed.csaw;
         const resolutions = await vulnerabilities.getResolutions(id.issue);
 
-        log.debug('BEFORE FIST IF: ', resolutions);
+        log.debug(`BEFORE FIST IF: ${resolutions}`);
         if (!resolutions) {
-            log.debug('BEFORE CVE: ', parsed.cve);
+            log.debug(`BEFORE CVE: ${parsed.cve}`);
             if (!_.isUndefined(parsed.cve)) {
-                log.debug('AFTER CHECK BEFORE CALL: ', parsed.cve);
+                log.debug(`AFTER CHECK BEFORE CALL: ${parsed.cve}`);
                 id.issue = parsed.cve;
                 return await cveResolver.resolveResolutions(id);
             }
