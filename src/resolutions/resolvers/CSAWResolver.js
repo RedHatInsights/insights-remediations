@@ -14,7 +14,7 @@ module.exports = class CVEResolver extends Resolver {
         id.issue = parsed.csaw;
         const resolutions = await vulnerabilities.getResolutions(id.issue);
 
-        if (_.isNull(resolutions)) {
+        if (_.isEmpty(resolutions)) {
             if (!_.isUndefined(parsed.cve)) {
                 id.issue = parsed.cve;
                 return await cveResolver.resolveResolutions(id);
