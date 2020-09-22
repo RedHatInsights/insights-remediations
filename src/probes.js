@@ -18,6 +18,11 @@ const playbookCounter = new client.Counter({
     help: `Counter of generated Playbooks`
 });
 
+const failedPlaybookCounter = new client.Counter({
+    name: `${prefix}playbook_generations_failed`,
+    help: `Counter of failed playbook generations`
+});
+
 const rbacCounter = new client.Counter({
     name: `${prefix}rbac_errors_generated`,
     help: `Counter of rbac errors`,
@@ -64,6 +69,13 @@ exports.playbookGenerated = function (req, {auto_reboot, issues}, name) {
         issue_count: issues.length,
         digest: issues.map(issue => issue.hosts.length).join()
     }, 'playbook generated');
+};
+
+exports.failedGeneration = function (issue) {
+    failedPlaybookCounter.inc();
+    log.info({
+        issue_id: issue
+    }, 'playbook generation failed');
 };
 
 exports.rbacErrorCount = function (permission, availablePermissions) {

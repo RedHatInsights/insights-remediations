@@ -32,6 +32,7 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
 
     issues = await P.map(issues, issue => issueManager.getPlayFactory(issue.id).createPlay(issue, strict).catch((e) => {
         if (strict) {
+            probes.failedGeneration(issue.id);
             throw e;
         }
 
@@ -89,6 +90,7 @@ exports.resolveSystems = async function (issues, strict = true) {
 
     issues.forEach(issue => issue.hosts = issue.systems.map(id => {
         if (!systems.hasOwnProperty(id)) {
+            probes.failedGeneration(issue.id);
             throw errors.unknownSystem(id);
         }
 
