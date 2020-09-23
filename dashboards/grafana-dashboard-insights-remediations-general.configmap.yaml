@@ -1,6 +1,6 @@
 apiVersion: v1
 data:
-  Remediations-1599842325917.json: |-
+  Remediations-1600865176601.json: |-
     {
       "annotations": {
         "list": [
@@ -18,8 +18,8 @@ data:
       "editable": true,
       "gnetId": null,
       "graphTooltip": 0,
-      "id": 53,
-      "iteration": 1599836219854,
+      "id": 129,
+      "iteration": 1600865176601,
       "links": [],
       "panels": [
         {
@@ -1436,9 +1436,25 @@ data:
             "x": 9,
             "y": 5
           },
-          "id": 97,
+          "id": 100,
           "interval": null,
-          "links": [],
+          "links": [
+            {
+              "targetBlank": true,
+              "title": "all playbooks",
+              "url": "https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#logEventViewer:group=remediations-prod;filter=%257B%2524.msg%253D%2522playbook%2520generated%2522%257D;start=PT6H"
+            },
+            {
+              "targetBlank": true,
+              "title": "non-test playbooks",
+              "url": "dashboard/db/httpsconsoleawsamazoncomcloudwatchhomeregionuseast1logeventviewergroupremediationsprodfilter257b25202524msg253d2522playbook2520generated252225202526252625202524username25202521253d25202522ansibletesting2522257dstartp1d"
+            },
+            {
+              "targetBlank": true,
+              "title": "non-rh playbooks",
+              "url": "https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#logEventViewer:group=remediations-prod;filter=%257B%2520(%2524.msg%253D%2522playbook%2520generated%2522)%2520%2526%2526%2520(%2524.username%2520%2521%253D%2520%2522ansible-testing%2522)%2520%2526%2526%2520(%2524.email%2520%2521%253D%2520*redhat.com%2520)%257D;start=P1D"
+            }
+          ],
           "mappingType": 1,
           "mappingTypes": [
             {
@@ -1474,7 +1490,7 @@ data:
           "tableColumn": "",
           "targets": [
             {
-              "expr": "sum(increase(remediations_playbooks_executed{namespace=~\"remediations-.*\"}[$__range]))",
+              "expr": "sum(increase(remediations_playbook_generations_failed[$__range]))",
               "format": "time_series",
               "groupBy": [
                 {
@@ -1513,7 +1529,7 @@ data:
             }
           ],
           "thresholds": "",
-          "title": "Playbooks Executed",
+          "title": "Playbook Generation Failures",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -1643,7 +1659,7 @@ data:
           "datasource": "$datasource",
           "fontSize": "100%",
           "gridPos": {
-            "h": 8,
+            "h": 10,
             "w": 4,
             "x": 3,
             "y": 7
@@ -1751,7 +1767,7 @@ data:
           "datasource": "$datasource",
           "fontSize": "100%",
           "gridPos": {
-            "h": 8,
+            "h": 10,
             "w": 5,
             "x": 7,
             "y": 7
@@ -2012,6 +2028,120 @@ data:
             "x": 0,
             "y": 9
           },
+          "id": 97,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "options": {},
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "expr": "sum(increase(remediations_playbooks_executed{namespace=~\"remediations-.*\"}[$__range]))",
+              "format": "time_series",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "intervalFactor": 1,
+              "orderByTime": "ASC",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            }
+          ],
+          "thresholds": "",
+          "title": "Playbooks Executed",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "#299c46",
+            "rgba(237, 129, 40, 0.89)",
+            "#d44a3a"
+          ],
+          "datasource": "$datasource",
+          "decimals": 0,
+          "format": "short",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "gridPos": {
+            "h": 2,
+            "w": 3,
+            "x": 0,
+            "y": 11
+          },
           "id": 75,
           "interval": null,
           "links": [
@@ -2130,7 +2260,7 @@ data:
             "h": 2,
             "w": 3,
             "x": 0,
-            "y": 11
+            "y": 13
           },
           "id": 74,
           "interval": null,
@@ -2210,122 +2340,6 @@ data:
           ],
           "thresholds": "1,1",
           "title": "Message Errors",
-          "type": "singlestat",
-          "valueFontSize": "80%",
-          "valueMaps": [
-            {
-              "op": "=",
-              "text": "N/A",
-              "value": "null"
-            }
-          ],
-          "valueName": "current"
-        },
-        {
-          "cacheTimeout": null,
-          "colorBackground": true,
-          "colorPostfix": false,
-          "colorPrefix": false,
-          "colorValue": false,
-          "colors": [
-            "#299c46",
-            "rgba(237, 129, 40, 0.89)",
-            "#d44a3a"
-          ],
-          "datasource": "$datasource",
-          "format": "none",
-          "gauge": {
-            "maxValue": 100,
-            "minValue": 0,
-            "show": false,
-            "thresholdLabels": false,
-            "thresholdMarkers": true
-          },
-          "gridPos": {
-            "h": 2,
-            "w": 3,
-            "x": 0,
-            "y": 13
-          },
-          "id": 76,
-          "interval": null,
-          "links": [],
-          "mappingType": 1,
-          "mappingTypes": [
-            {
-              "name": "value to text",
-              "value": 1
-            },
-            {
-              "name": "range to text",
-              "value": 2
-            }
-          ],
-          "maxDataPoints": 100,
-          "nullPointMode": "connected",
-          "nullText": null,
-          "options": {},
-          "postfix": "",
-          "postfixFontSize": "50%",
-          "prefix": "",
-          "prefixFontSize": "50%",
-          "rangeMaps": [
-            {
-              "from": "null",
-              "text": "N/A",
-              "to": "null"
-            }
-          ],
-          "sparkline": {
-            "fillColor": "rgba(31, 118, 189, 0.18)",
-            "full": false,
-            "lineColor": "rgb(31, 120, 193)",
-            "show": false
-          },
-          "tableColumn": "",
-          "targets": [
-            {
-              "expr": "max(max_over_time(kafka_consumergroup_group_lag{namespace=~\"platform-mq-.*\", group=\"remediations-consumer\"}[$__range]))",
-              "format": "time_series",
-              "groupBy": [
-                {
-                  "params": [
-                    "$__interval"
-                  ],
-                  "type": "time"
-                },
-                {
-                  "params": [
-                    "null"
-                  ],
-                  "type": "fill"
-                }
-              ],
-              "instant": true,
-              "intervalFactor": 1,
-              "orderByTime": "ASC",
-              "policy": "default",
-              "refId": "A",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  },
-                  {
-                    "params": [],
-                    "type": "mean"
-                  }
-                ]
-              ],
-              "tags": []
-            }
-          ],
-          "thresholds": "5,30",
-          "title": "Max Consumer Lag",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -2440,6 +2454,122 @@ data:
           "yBucketSize": null
         },
         {
+          "cacheTimeout": null,
+          "colorBackground": true,
+          "colorPostfix": false,
+          "colorPrefix": false,
+          "colorValue": false,
+          "colors": [
+            "#299c46",
+            "rgba(237, 129, 40, 0.89)",
+            "#d44a3a"
+          ],
+          "datasource": "$datasource",
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "gridPos": {
+            "h": 2,
+            "w": 3,
+            "x": 0,
+            "y": 15
+          },
+          "id": 76,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "options": {},
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "expr": "max(max_over_time(kafka_consumergroup_group_lag{namespace=~\"platform-mq-.*\", group=\"remediations-consumer\"}[$__range]))",
+              "format": "time_series",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "instant": true,
+              "intervalFactor": 1,
+              "orderByTime": "ASC",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            }
+          ],
+          "thresholds": "5,30",
+          "title": "Max Consumer Lag",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
           "aliasColors": {},
           "bars": false,
           "dashLength": 10,
@@ -2448,10 +2578,10 @@ data:
           "fill": 1,
           "fillGradient": 0,
           "gridPos": {
-            "h": 7,
+            "h": 5,
             "w": 12,
             "x": 0,
-            "y": 15
+            "y": 17
           },
           "hiddenSeries": false,
           "id": 56,
