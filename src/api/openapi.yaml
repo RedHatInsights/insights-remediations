@@ -66,6 +66,28 @@ paths:
         400:
           $ref: '#/components/responses/BadRequest'
 
+  /remediations/download:
+    get:
+      tags:
+        - remediations
+      summary: Download Remediations
+      description: Downloads a zip file containing selected Remediations, RBAC permission {remediations:remediation:read}
+      operationId: downloadPlaybooks
+      parameters:
+        - $ref: '#/components/parameters/SelectedRemediations'
+      responses:
+        200:
+          description: OK
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+
   /remediations/{id}:
     get:
       tags:
@@ -607,6 +629,15 @@ components:
       schema:
         type: boolean
         default: false
+    SelectedRemediations:
+      in: query
+      name: selected_remediations
+      description: 'Selected Remediations for download'
+      required: false
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/RemediationId'
 
     IssueSystemsSort:
       in: query

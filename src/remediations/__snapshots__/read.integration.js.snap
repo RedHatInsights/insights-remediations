@@ -1,5 +1,424 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`remediations download remediations download zip and verify remediation content 1`] = `
+"---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+#
+# remediation 1
+# https://cloud.redhat.com/insights/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02
+
+# Created by tuser@redhat.com
+
+- name: run insights to obtain latest diagnosis info
+  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  become: True
+  tasks:
+    - name: obtain diagnosis info
+      command: 'insights-client --diagnosis 66eec356-dd06-4c72-a3b6-ef27d1508a02'
+      register: insights_result
+      changed_when: false
+      check_mode: false
+    - name: register insights report as fact for use by other plays
+      set_fact: insights_report={{ insights_result.stdout }}
+
+# Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)
+# Identifier: (advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,kernel_update)
+# Version: 3f74744ce9b66c20b55f6dd4e580d77d7e7039b1
+- name: Update system to the latest kernel and reboot
+  hosts: \\"1f12bdfc-8267-492d-a930-92f498fe65b9.ansible.example.com,fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  become: true
+  vars:
+    # determine if we need to update the 'kernel' package or 'kernel-rt' package
+    kernel_pkg: \\"{{'kernel-rt' if 'rt' in ansible_kernel else 'kernel'}}\\"
+
+  tasks:
+    - name: Update kernel
+      yum:
+        name: \\"{{kernel_pkg}}\\"
+        state: latest
+      register: yum
+
+    - when: yum|changed
+      name: set reboot fact
+      set_fact:
+        insights_needs_reboot: True
+
+    - when: not yum|changed
+      # The latest kernel is already installed so boot from it.  Sort the installed kernels
+      # by buildtime and select the one with the most recent build time
+      block:
+      - name: get latest installed {{kernel_pkg}} package version
+        shell: rpm -q {{kernel_pkg}} --queryformat=\\"%{buildtime}\\\\t%{version}-%{release}.%{arch}\\\\n\\" | sort -nr | head -1 | cut -f2
+        register: latest_kernel
+        check_mode: no
+
+      - name: get configured default kernel
+        command: /sbin/grubby --default-kernel
+        register: default_kernel
+        check_mode: no
+
+      - when: default_kernel.stdout.split('-', 1)[1] != latest_kernel.stdout
+        name: set the default kernel to the latest installed
+        command: /sbin/grubby --set-default /boot/vmlinuz-{{latest_kernel.stdout}}
+        register: grub_change
+        check_mode: no
+
+      - when: grub_change|changed
+        name: set reboot fact
+        set_fact:
+          insights_needs_reboot: True
+
+
+# Bonding will not fail over to the backup link when bonding options are partially read
+# Identifier: (advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE,fix)
+# Version: a0e934f07d8167073546cbc5108c4345f92559a5
+- name: Correct Bonding Config Items
+  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  become: true
+  vars:
+    pydata: \\"{{ insights_report.details['network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'] }}\\"
+
+  tasks:
+    - when:
+       - pydata.bond_config is defined
+      block:
+        - name: Add quotes around bonding options
+          lineinfile:
+            dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
+            regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
+            backrefs: yes
+            line: '\\\\1\\"\\\\2\\"'
+          with_dict: \\"{{ pydata.bond_config }}\\"
+
+        - name: Restart Network Interfaces
+          shell: ifdown {{item.key}}  && ifup {{item.key}}
+          with_dict: \\"{{ pydata.bond_config }}\\"
+
+
+# Disable the Automounter
+# Identifier: (ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled,fix)
+# Version: mock
+- name: Disable the Automounter
+  hosts: 'fc94beb8-21ee-403d-99b1-949ef7adb762'
+  become: true
+  tags:
+    - CCE-27498-5
+    - DISA-STIG-RHEL-07-020110
+    - NIST-800-171-3.4.6
+    - NIST-800-53-AC-19(a)
+    - NIST-800-53-AC-19(d)
+    - NIST-800-53-AC-19(e)
+    - NIST-800-53-IA-3
+    - disable_strategy
+    - low_complexity
+    - low_disruption
+    - medium_severity
+    - no_reboot_needed
+    - service_autofs_disabled
+  tasks:
+    - name: Unit Service Exists - autofs.service
+      command: systemctl list-unit-files autofs.service
+      register: service_file_exists
+      changed_when: false
+      ignore_errors: true
+      when: >-
+        ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+        \\"docker\\"
+      notify: insights_reboot_handler
+    - name: Disable service autofs
+      systemd:
+        name: autofs.service
+        enabled: 'no'
+        state: stopped
+        masked: 'yes'
+      when:
+        - '\\"autofs.service\\" in service_file_exists.stdout_lines[1]'
+        - >-
+          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
+          != \\"docker\\"
+      notify: insights_reboot_handler
+    - name: Unit Socket Exists - autofs.socket
+      command: systemctl list-unit-files autofs.socket
+      register: socket_file_exists
+      changed_when: false
+      ignore_errors: true
+      when: >-
+        ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+        \\"docker\\"
+      notify: insights_reboot_handler
+    - name: Disable socket autofs
+      systemd:
+        name: autofs.socket
+        enabled: 'no'
+        state: stopped
+        masked: 'yes'
+      when:
+        - '\\"autofs.socket\\" in socket_file_exists.stdout_lines[1]'
+        - >-
+          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
+          != \\"docker\\"
+      notify: insights_reboot_handler
+  handlers:
+    - name: insights_reboot_handler
+      set_fact:
+        insights_needs_reboot: true
+
+
+# Upgrade packages affected by CVE-2017-5715
+# Identifier: (vulnerabilities:CVE-2017-5715,fix)
+# Version: test
+- name: update vulnerable packages
+  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  become: true
+  tasks:
+    - name: check for update
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve CVE-2017-5715\\"
+      check_mode: no
+      register: check_out
+      failed_when: check_out.rc != 0 and check_out.rc != 100
+      args:
+        warn: false
+
+    - when: check_out.rc == 100
+      name: upgrade package
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve CVE-2017-5715\\"
+      args:
+        warn: false
+
+    - when: check_out.rc == 100
+      name: set reboot fact
+      set_fact:
+        insights_needs_reboot: True
+
+# Fixes vulnerabilities:CVE-2017-5715:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+# Identifier: (vulnerabilities:CVE-2017-5715:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,fix)
+# Version: unknown
+- name: Correct Bonding Config Items
+  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  become: true
+  vars:
+    pydata: \\"{{ insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'] }}\\"
+
+  tasks:
+    - when:
+       - pydata.bond_config is defined
+      block:
+        - name: Add quotes around bonding options
+          lineinfile:
+            dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
+            regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
+            backrefs: yes
+            line: '\\\\1\\"\\\\2\\"'
+          with_dict: \\"{{ pydata.bond_config }}\\"
+
+        - name: Restart Network Interfaces
+          shell: ifdown {{item.key}}  && ifup {{item.key}}
+          with_dict: \\"{{ pydata.bond_config }}\\"
+
+
+# Apply RHSA-2018:0502
+# Identifier: (vulnerabilities:RHSA-2018:0502,fix)
+# Version: test
+- name: update packages
+  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  become: true
+  tasks:
+    - name: check for update
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHSA-2018:0502\\"
+      check_mode: no
+      register: check_out
+      failed_when: check_out.rc != 0 and check_out.rc != 100
+      args:
+        warn: false
+
+    - when: check_out.rc == 100
+      name: upgrade package
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHSA-2018:0502\\"
+      args:
+        warn: false
+
+    - when: check_out.rc == 100
+      name: set reboot fact
+      set_fact:
+        insights_needs_reboot: True
+
+# Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
+# The variable can be overridden to suppress this behavior.
+- name: Reboot system (if applicable)
+  hosts: \\"1f12bdfc-8267-492d-a930-92f498fe65b9.ansible.example.com,fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - when:
+        - insights_needs_reboot is defined
+        - insights_needs_reboot
+      block:
+        - name: Reboot system
+          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          async: 1
+          poll: 0
+          ignore_errors: true
+
+        - name: Wait for system to boot up
+          local_action:
+            module: wait_for
+            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
+            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            delay: 15
+            search_regex: OpenSSH
+            timeout: 300
+          become: false
+
+- name: run insights
+  hosts: \\"1f12bdfc-8267-492d-a930-92f498fe65b9.ansible.example.com,fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
+`;
+
+exports[`remediations download remediations download zip with multiple remediations and verify number of files 1`] = `
+"---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+#
+# remediation 2
+# https://cloud.redhat.com/insights/remediations/cbc782e4-e8ae-4807-82ab-505387981d2e
+
+# Created by tuser@redhat.com
+
+- name: run insights to obtain latest diagnosis info
+  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  become: True
+  tasks:
+    - name: obtain diagnosis info
+      command: 'insights-client --diagnosis cbc782e4-e8ae-4807-82ab-505387981d2e'
+      register: insights_result
+      changed_when: false
+      check_mode: false
+    - name: register insights report as fact for use by other plays
+      set_fact: insights_report={{ insights_result.stdout }}
+
+# Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)
+# Identifier: (advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,kernel_update)
+# Version: 3f74744ce9b66c20b55f6dd4e580d77d7e7039b1
+- name: Update system to the latest kernel and reboot
+  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  become: true
+  vars:
+    # determine if we need to update the 'kernel' package or 'kernel-rt' package
+    kernel_pkg: \\"{{'kernel-rt' if 'rt' in ansible_kernel else 'kernel'}}\\"
+
+  tasks:
+    - name: Update kernel
+      yum:
+        name: \\"{{kernel_pkg}}\\"
+        state: latest
+      register: yum
+
+    - when: yum|changed
+      name: set reboot fact
+      set_fact:
+        insights_needs_reboot: True
+
+    - when: not yum|changed
+      # The latest kernel is already installed so boot from it.  Sort the installed kernels
+      # by buildtime and select the one with the most recent build time
+      block:
+      - name: get latest installed {{kernel_pkg}} package version
+        shell: rpm -q {{kernel_pkg}} --queryformat=\\"%{buildtime}\\\\t%{version}-%{release}.%{arch}\\\\n\\" | sort -nr | head -1 | cut -f2
+        register: latest_kernel
+        check_mode: no
+
+      - name: get configured default kernel
+        command: /sbin/grubby --default-kernel
+        register: default_kernel
+        check_mode: no
+
+      - when: default_kernel.stdout.split('-', 1)[1] != latest_kernel.stdout
+        name: set the default kernel to the latest installed
+        command: /sbin/grubby --set-default /boot/vmlinuz-{{latest_kernel.stdout}}
+        register: grub_change
+        check_mode: no
+
+      - when: grub_change|changed
+        name: set reboot fact
+        set_fact:
+          insights_needs_reboot: True
+
+
+# Bonding will not fail over to the backup link when bonding options are partially read
+# Identifier: (advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE,fix)
+# Version: a0e934f07d8167073546cbc5108c4345f92559a5
+- name: Correct Bonding Config Items
+  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  become: true
+  vars:
+    pydata: \\"{{ insights_report.details['network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'] }}\\"
+
+  tasks:
+    - when:
+       - pydata.bond_config is defined
+      block:
+        - name: Add quotes around bonding options
+          lineinfile:
+            dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
+            regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
+            backrefs: yes
+            line: '\\\\1\\"\\\\2\\"'
+          with_dict: \\"{{ pydata.bond_config }}\\"
+
+        - name: Restart Network Interfaces
+          shell: ifdown {{item.key}}  && ifup {{item.key}}
+          with_dict: \\"{{ pydata.bond_config }}\\"
+
+
+# Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
+# The variable can be overridden to suppress this behavior.
+- name: Reboot system (if applicable)
+  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - when:
+        - insights_needs_reboot is defined
+        - insights_needs_reboot
+      block:
+        - name: Reboot system
+          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          async: 1
+          poll: 0
+          ignore_errors: true
+
+        - name: Wait for system to boot up
+          local_action:
+            module: wait_for
+            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
+            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            delay: 15
+            search_regex: OpenSSH
+            timeout: 300
+          become: false
+
+- name: run insights
+  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
+`;
+
 exports[`remediations get get remediation 1`] = `
 "{
     \\"id\\": \\"66eec356-dd06-4c72-a3b6-ef27d1508a02\\",

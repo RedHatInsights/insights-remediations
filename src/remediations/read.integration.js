@@ -2,9 +2,10 @@
 'use strict';
 
 const _ = require('lodash');
-const { request, auth, reqId, buildRbacResponse, getSandbox } = require('../test');
+const { request, auth, reqId, buildRbacResponse, getSandbox, mockTime } = require('../test');
 const rbac = require('../connectors/rbac');
 const inventory = require('../connectors/inventory');
+const JSZip = require('jszip');
 
 function test400 (name, url, code, title) {
     test(name, async () => {
@@ -20,6 +21,17 @@ function test400 (name, url, code, title) {
             code,
             title
         }]);
+    });
+}
+
+function binaryParser (res, callback) {
+    res.setEncoding('binary');
+    res.data = '';
+    res.on('data', function (chunk) {
+        res.data += chunk;
+    });
+    res.on('end', function () {
+        callback(null, new Buffer.from(res.data, 'binary'));
     });
 }
 
@@ -571,6 +583,69 @@ describe('remediations', function () {
             body.errors[0].details.message.should.equal(
                 'Permission remediations:remediation:read is required for this operation'
             );
+        });
+    });
+
+    describe('download remediations', function () {
+        /* eslint-disable jest/valid-expect-in-promise */
+        test('download zip and verify remediation content', async () => {
+            mockTime();
+            const result = await request
+            .get('/v1/remediations/download?selected_remediations=66eec356-dd06-4c72-a3b6-ef27d1508a02')
+            .set('Accept', 'application/zip')
+            .expect('Content-Type', 'application/zip')
+            .expect(200)
+            .buffer()
+            .parse(binaryParser)
+            .then(function (res) {
+                const zip = new JSZip();
+                return zip.loadAsync(res.body).then(function (z) {
+                    expect(Object.keys(z.files).length).toBe(1);
+                    return z.file('remediation-1-1546071635.yml').async('string');
+                }).then(function (text) {
+                    return text.replace(/# Generated.+/, '');
+                });
+            });
+
+            expect(result).toMatchSnapshot();
+        });
+
+        test('download zip with multiple remediations and verify number of files', async () => {
+            mockTime();
+            const result = await request
+            .get('/v1/remediations/download?selected_remediations=66eec356-dd06-4c72-a3b6-ef27d1508a02,cbc782e4-e8ae-4807-82ab-505387981d2e')
+            .set('Accept', 'application/zip')
+            .expect('Content-Type', 'application/zip')
+            .expect(200)
+            .buffer()
+            .parse(binaryParser)
+            .then(function (res) {
+                const zip = new JSZip();
+                return zip.loadAsync(res.body).then(function (z) {
+                    expect(Object.keys(z.files).length).toBe(2);
+                    return z.file('remediation-2-1546071635.yml').async('string');
+                }).then(function (text) {
+                    return text.replace(/# Generated.+/, '');
+                });
+            });
+
+            expect(result).toMatchSnapshot();
+        });
+
+        test('with empty selected_remediations', async () => {
+            const {body} = await request
+            .get('/v1/remediations/download?selected_remediations=')
+            .expect(400);
+
+            body.errors[0].title.should.equal(
+                'should match format "uuid" (location: query, path: selected_remediations[0])'
+            );
+        });
+
+        test('with valid, but non existent remediationId', async () => {
+            await request
+            .get('/v1/remediations/download?selected_remediations=77eec356-dd06-4c72-a3b6-ef27d1508a02')
+            .expect(404);
         });
     });
 });

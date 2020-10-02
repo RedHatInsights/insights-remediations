@@ -2,6 +2,8 @@
 
 const _ = require('lodash');
 const P = require('bluebird');
+const etag = require('etag');
+const JSZip = require('jszip');
 const errors = require('../errors');
 const issues = require('../issues');
 const queries = require('./remediations.queries');
@@ -15,6 +17,7 @@ const fifi = require('./fifi');
 
 const notFound = res => res.status(404).json();
 const noContent = res => res.sendStatus(204);
+const badRequest = res => res.sendStatus(400);
 
 const catchErrorCode = (code, fn) => e => {
     if (e.error && e.error.code === code) {
@@ -216,6 +219,58 @@ exports.playbook = errors.async(async function (req, res) {
     }
 
     generator.send(req, res, playbook, format.playbookName(remediation));
+});
+
+exports.downloadPlaybooks = errors.async(async function (req, res) {
+    const zip = new JSZip();
+    let generateZip = true;
+
+    if (!req.query.selected_remediations) {
+        return badRequest(res);
+    }
+
+    await P.map(req.query.selected_remediations, async id => {
+        const remediation = await queries.get(id, req.user.account_number, req.user.username);
+
+        if (!remediation) {
+            generateZip = false;
+            return notFound(res);
+        }
+
+        const issues = remediation.toJSON().issues;
+
+        if (issues.length === 0) {
+            generateZip = false;
+            return noContent(res);
+        }
+
+        const normalizedIssues = generator.normalizeIssues(issues);
+
+        const playbook = await generator.playbookPipeline({
+            issues: normalizedIssues,
+            auto_reboot: remediation.auto_reboot
+        }, remediation, false);
+
+        if (!playbook) {
+            generateZip = false;
+            return noContent(res);
+        }
+
+        zip.file(format.playbookName(remediation), playbook.yaml);
+    });
+
+    if (generateZip) {
+        zip.generateAsync({type: 'nodebuffer'}).then(zipBuffer => {
+            res.set('Content-type', 'application/zip');
+            res.set('Content-disposition', 'attachment;filename=remediations.zip');
+            res.set('etag', etag(zipBuffer, { weak: true }));
+            if (req.stale) {
+                res.send(zipBuffer).end();
+            } else {
+                res.status(304).end();
+            }
+        });
+    }
 });
 
 exports.getIssueSystems = errors.async(async function (req, res) {
