@@ -591,8 +591,9 @@ describe('remediations', function () {
         test('download zip and verify remediation content', async () => {
             mockTime();
             const result = await request
-            .get('/v1/remediations/download?selected_remediations=66eec356-dd06-4c72-a3b6-ef27d1508a02')
+            .get('/v1/remediations/download?selected_remediations=c3f9f751-4bcc-4222-9b83-77f5e6e603da')
             .set('Accept', 'application/zip')
+            .set(auth.testReadSingle)
             .expect('Content-Type', 'application/zip')
             .expect(200)
             .buffer()
@@ -601,7 +602,7 @@ describe('remediations', function () {
                 const zip = new JSZip();
                 return zip.loadAsync(res.body).then(function (z) {
                     expect(Object.keys(z.files).length).toBe(1);
-                    return z.file('remediation-1-1546071635.yml').async('string');
+                    return z.file('many-systems-1546071635.yml').async('string');
                 }).then(function (text) {
                     return text.replace(/# Generated.+/, '');
                 });
@@ -613,8 +614,9 @@ describe('remediations', function () {
         test('download zip with multiple remediations and verify number of files', async () => {
             mockTime();
             const result = await request
-            .get('/v1/remediations/download?selected_remediations=66eec356-dd06-4c72-a3b6-ef27d1508a02,cbc782e4-e8ae-4807-82ab-505387981d2e')
+            .get('/v1/remediations/download?selected_remediations=c3f9f751-4bcc-4222-9b83-77f5e6e603da,82aeb63f-fc25-4eef-9333-4fa7e10f7217')
             .set('Accept', 'application/zip')
+            .set(auth.testReadSingle)
             .expect('Content-Type', 'application/zip')
             .expect(200)
             .buffer()
@@ -623,7 +625,7 @@ describe('remediations', function () {
                 const zip = new JSZip();
                 return zip.loadAsync(res.body).then(function (z) {
                     expect(Object.keys(z.files).length).toBe(2);
-                    return z.file('remediation-2-1546071635.yml').async('string');
+                    return z.file('missing-system-1-1546071635.yml').async('string');
                 }).then(function (text) {
                     return text.replace(/# Generated.+/, '');
                 });

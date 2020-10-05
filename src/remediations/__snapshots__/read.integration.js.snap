@@ -8,171 +8,16 @@ exports[`remediations download remediations download zip and verify remediation 
 # they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 #
-# remediation 1
-# https://cloud.redhat.com/insights/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02
+# many systems
+# https://cloud.redhat.com/insights/remediations/c3f9f751-4bcc-4222-9b83-77f5e6e603da
 
-# Created by tuser@redhat.com
-
-- name: run insights to obtain latest diagnosis info
-  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
-  become: True
-  tasks:
-    - name: obtain diagnosis info
-      command: 'insights-client --diagnosis 66eec356-dd06-4c72-a3b6-ef27d1508a02'
-      register: insights_result
-      changed_when: false
-      check_mode: false
-    - name: register insights report as fact for use by other plays
-      set_fact: insights_report={{ insights_result.stdout }}
-
-# Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)
-# Identifier: (advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,kernel_update)
-# Version: 3f74744ce9b66c20b55f6dd4e580d77d7e7039b1
-- name: Update system to the latest kernel and reboot
-  hosts: \\"1f12bdfc-8267-492d-a930-92f498fe65b9.ansible.example.com,fc94beb8-21ee-403d-99b1-949ef7adb762\\"
-  become: true
-  vars:
-    # determine if we need to update the 'kernel' package or 'kernel-rt' package
-    kernel_pkg: \\"{{'kernel-rt' if 'rt' in ansible_kernel else 'kernel'}}\\"
-
-  tasks:
-    - name: Update kernel
-      yum:
-        name: \\"{{kernel_pkg}}\\"
-        state: latest
-      register: yum
-
-    - when: yum|changed
-      name: set reboot fact
-      set_fact:
-        insights_needs_reboot: True
-
-    - when: not yum|changed
-      # The latest kernel is already installed so boot from it.  Sort the installed kernels
-      # by buildtime and select the one with the most recent build time
-      block:
-      - name: get latest installed {{kernel_pkg}} package version
-        shell: rpm -q {{kernel_pkg}} --queryformat=\\"%{buildtime}\\\\t%{version}-%{release}.%{arch}\\\\n\\" | sort -nr | head -1 | cut -f2
-        register: latest_kernel
-        check_mode: no
-
-      - name: get configured default kernel
-        command: /sbin/grubby --default-kernel
-        register: default_kernel
-        check_mode: no
-
-      - when: default_kernel.stdout.split('-', 1)[1] != latest_kernel.stdout
-        name: set the default kernel to the latest installed
-        command: /sbin/grubby --set-default /boot/vmlinuz-{{latest_kernel.stdout}}
-        register: grub_change
-        check_mode: no
-
-      - when: grub_change|changed
-        name: set reboot fact
-        set_fact:
-          insights_needs_reboot: True
-
-
-# Bonding will not fail over to the backup link when bonding options are partially read
-# Identifier: (advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE,fix)
-# Version: a0e934f07d8167073546cbc5108c4345f92559a5
-- name: Correct Bonding Config Items
-  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
-  become: true
-  vars:
-    pydata: \\"{{ insights_report.details['network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'] }}\\"
-
-  tasks:
-    - when:
-       - pydata.bond_config is defined
-      block:
-        - name: Add quotes around bonding options
-          lineinfile:
-            dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
-            regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
-            backrefs: yes
-            line: '\\\\1\\"\\\\2\\"'
-          with_dict: \\"{{ pydata.bond_config }}\\"
-
-        - name: Restart Network Interfaces
-          shell: ifdown {{item.key}}  && ifup {{item.key}}
-          with_dict: \\"{{ pydata.bond_config }}\\"
-
-
-# Disable the Automounter
-# Identifier: (ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled,fix)
-# Version: mock
-- name: Disable the Automounter
-  hosts: 'fc94beb8-21ee-403d-99b1-949ef7adb762'
-  become: true
-  tags:
-    - CCE-27498-5
-    - DISA-STIG-RHEL-07-020110
-    - NIST-800-171-3.4.6
-    - NIST-800-53-AC-19(a)
-    - NIST-800-53-AC-19(d)
-    - NIST-800-53-AC-19(e)
-    - NIST-800-53-IA-3
-    - disable_strategy
-    - low_complexity
-    - low_disruption
-    - medium_severity
-    - no_reboot_needed
-    - service_autofs_disabled
-  tasks:
-    - name: Unit Service Exists - autofs.service
-      command: systemctl list-unit-files autofs.service
-      register: service_file_exists
-      changed_when: false
-      ignore_errors: true
-      when: >-
-        ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-        \\"docker\\"
-      notify: insights_reboot_handler
-    - name: Disable service autofs
-      systemd:
-        name: autofs.service
-        enabled: 'no'
-        state: stopped
-        masked: 'yes'
-      when:
-        - '\\"autofs.service\\" in service_file_exists.stdout_lines[1]'
-        - >-
-          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-          != \\"docker\\"
-      notify: insights_reboot_handler
-    - name: Unit Socket Exists - autofs.socket
-      command: systemctl list-unit-files autofs.socket
-      register: socket_file_exists
-      changed_when: false
-      ignore_errors: true
-      when: >-
-        ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-        \\"docker\\"
-      notify: insights_reboot_handler
-    - name: Disable socket autofs
-      systemd:
-        name: autofs.socket
-        enabled: 'no'
-        state: stopped
-        masked: 'yes'
-      when:
-        - '\\"autofs.socket\\" in socket_file_exists.stdout_lines[1]'
-        - >-
-          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-          != \\"docker\\"
-      notify: insights_reboot_handler
-  handlers:
-    - name: insights_reboot_handler
-      set_fact:
-        insights_needs_reboot: true
-
+# Created by testReadSingleUser
 
 # Upgrade packages affected by CVE-2017-5715
 # Identifier: (vulnerabilities:CVE-2017-5715,fix)
 # Version: test
 - name: update vulnerable packages
-  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  hosts: \\"84762eb3-0bbb-4bd8-ab11-f420c50e9000.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9001.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9002.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9003.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9004.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9005.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9006.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9007.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9008.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9009.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9010.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9011.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9012.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9013.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9014.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9015.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9016.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9017.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9018.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9019.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9020.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9021.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9022.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9023.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9024.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9025.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9026.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9027.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9028.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9029.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9030.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9031.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9032.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9033.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9034.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9035.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9036.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9037.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9038.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9039.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9040.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9041.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9042.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9043.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9044.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9045.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9046.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9047.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9048.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9049.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9050.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9051.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9052.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9053.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9054.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9055.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9056.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9057.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9058.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9059.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9060.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9061.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9062.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9063.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9064.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9065.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9066.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9067.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9068.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9069.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9070.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9071.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9072.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9073.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9074.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9075.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9076.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9077.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9078.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9079.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9080.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9081.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9082.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9083.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9084.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9085.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9086.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9087.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9088.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9089.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9090.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9091.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9092.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9093.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9094.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9095.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9096.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9097.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9098.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9099.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9100.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9101.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9102.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9103.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9104.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9105.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9106.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9107.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9108.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9109.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9110.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9111.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9112.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9113.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9114.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9115.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9116.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9117.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9118.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9119.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9120.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9121.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9122.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9123.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9124.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9125.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9126.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9127.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9128.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9129.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9130.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9131.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9132.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9133.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9134.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9135.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9136.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9137.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9138.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9139.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9140.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9141.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9142.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9143.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9144.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9145.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9146.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9147.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9148.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9149.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9150.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9151.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9152.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9153.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9154.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9155.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9156.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9157.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9158.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9159.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9160.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9161.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9162.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9163.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9164.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9165.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9166.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9167.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9168.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9169.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9170.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9171.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9172.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9173.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9174.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9175.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9176.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9177.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9178.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9179.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9180.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9181.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9182.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9183.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9184.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9185.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9186.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9187.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9188.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9189.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9190.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9191.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9192.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9193.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9194.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9195.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9196.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9197.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9198.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9199.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9200.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9201.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9202.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9203.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9204.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9205.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9206.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9207.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9208.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9209.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9210.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9211.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9212.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9213.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9214.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9215.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9216.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9217.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9218.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9219.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9220.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9221.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9222.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9223.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9224.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9225.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9226.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9227.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9228.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9229.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9230.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9231.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9232.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9233.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9234.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9235.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9236.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9237.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9238.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9239.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9240.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9241.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9242.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9243.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9244.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9245.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9246.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9247.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9248.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9249.example.com\\"
   become: true
   tasks:
     - name: check for update
@@ -194,62 +39,10 @@ exports[`remediations download remediations download zip and verify remediation 
       set_fact:
         insights_needs_reboot: True
 
-# Fixes vulnerabilities:CVE-2017-5715:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
-# Identifier: (vulnerabilities:CVE-2017-5715:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,fix)
-# Version: unknown
-- name: Correct Bonding Config Items
-  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
-  become: true
-  vars:
-    pydata: \\"{{ insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'] }}\\"
-
-  tasks:
-    - when:
-       - pydata.bond_config is defined
-      block:
-        - name: Add quotes around bonding options
-          lineinfile:
-            dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
-            regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
-            backrefs: yes
-            line: '\\\\1\\"\\\\2\\"'
-          with_dict: \\"{{ pydata.bond_config }}\\"
-
-        - name: Restart Network Interfaces
-          shell: ifdown {{item.key}}  && ifup {{item.key}}
-          with_dict: \\"{{ pydata.bond_config }}\\"
-
-
-# Apply RHSA-2018:0502
-# Identifier: (vulnerabilities:RHSA-2018:0502,fix)
-# Version: test
-- name: update packages
-  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
-  become: true
-  tasks:
-    - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHSA-2018:0502\\"
-      check_mode: no
-      register: check_out
-      failed_when: check_out.rc != 0 and check_out.rc != 100
-      args:
-        warn: false
-
-    - when: check_out.rc == 100
-      name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHSA-2018:0502\\"
-      args:
-        warn: false
-
-    - when: check_out.rc == 100
-      name: set reboot fact
-      set_fact:
-        insights_needs_reboot: True
-
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"1f12bdfc-8267-492d-a930-92f498fe65b9.ansible.example.com,fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  hosts: \\"84762eb3-0bbb-4bd8-ab11-f420c50e9000.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9001.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9002.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9003.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9004.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9005.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9006.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9007.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9008.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9009.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9010.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9011.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9012.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9013.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9014.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9015.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9016.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9017.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9018.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9019.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9020.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9021.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9022.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9023.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9024.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9025.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9026.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9027.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9028.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9029.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9030.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9031.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9032.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9033.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9034.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9035.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9036.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9037.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9038.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9039.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9040.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9041.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9042.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9043.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9044.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9045.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9046.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9047.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9048.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9049.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9050.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9051.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9052.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9053.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9054.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9055.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9056.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9057.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9058.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9059.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9060.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9061.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9062.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9063.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9064.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9065.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9066.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9067.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9068.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9069.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9070.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9071.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9072.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9073.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9074.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9075.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9076.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9077.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9078.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9079.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9080.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9081.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9082.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9083.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9084.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9085.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9086.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9087.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9088.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9089.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9090.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9091.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9092.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9093.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9094.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9095.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9096.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9097.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9098.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9099.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9100.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9101.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9102.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9103.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9104.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9105.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9106.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9107.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9108.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9109.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9110.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9111.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9112.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9113.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9114.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9115.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9116.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9117.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9118.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9119.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9120.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9121.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9122.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9123.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9124.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9125.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9126.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9127.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9128.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9129.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9130.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9131.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9132.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9133.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9134.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9135.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9136.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9137.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9138.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9139.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9140.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9141.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9142.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9143.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9144.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9145.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9146.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9147.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9148.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9149.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9150.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9151.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9152.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9153.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9154.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9155.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9156.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9157.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9158.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9159.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9160.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9161.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9162.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9163.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9164.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9165.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9166.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9167.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9168.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9169.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9170.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9171.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9172.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9173.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9174.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9175.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9176.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9177.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9178.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9179.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9180.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9181.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9182.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9183.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9184.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9185.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9186.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9187.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9188.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9189.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9190.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9191.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9192.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9193.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9194.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9195.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9196.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9197.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9198.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9199.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9200.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9201.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9202.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9203.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9204.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9205.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9206.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9207.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9208.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9209.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9210.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9211.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9212.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9213.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9214.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9215.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9216.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9217.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9218.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9219.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9220.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9221.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9222.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9223.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9224.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9225.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9226.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9227.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9228.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9229.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9230.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9231.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9232.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9233.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9234.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9235.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9236.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9237.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9238.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9239.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9240.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9241.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9242.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9243.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9244.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9245.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9246.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9247.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9248.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9249.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -274,7 +67,7 @@ exports[`remediations download remediations download zip and verify remediation 
           become: false
 
 - name: run insights
-  hosts: \\"1f12bdfc-8267-492d-a930-92f498fe65b9.ansible.example.com,fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  hosts: \\"84762eb3-0bbb-4bd8-ab11-f420c50e9000.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9001.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9002.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9003.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9004.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9005.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9006.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9007.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9008.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9009.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9010.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9011.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9012.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9013.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9014.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9015.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9016.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9017.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9018.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9019.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9020.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9021.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9022.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9023.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9024.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9025.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9026.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9027.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9028.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9029.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9030.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9031.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9032.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9033.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9034.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9035.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9036.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9037.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9038.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9039.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9040.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9041.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9042.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9043.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9044.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9045.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9046.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9047.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9048.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9049.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9050.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9051.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9052.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9053.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9054.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9055.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9056.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9057.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9058.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9059.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9060.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9061.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9062.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9063.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9064.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9065.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9066.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9067.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9068.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9069.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9070.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9071.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9072.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9073.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9074.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9075.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9076.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9077.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9078.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9079.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9080.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9081.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9082.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9083.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9084.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9085.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9086.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9087.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9088.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9089.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9090.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9091.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9092.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9093.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9094.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9095.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9096.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9097.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9098.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9099.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9100.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9101.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9102.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9103.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9104.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9105.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9106.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9107.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9108.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9109.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9110.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9111.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9112.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9113.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9114.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9115.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9116.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9117.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9118.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9119.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9120.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9121.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9122.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9123.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9124.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9125.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9126.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9127.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9128.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9129.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9130.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9131.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9132.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9133.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9134.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9135.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9136.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9137.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9138.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9139.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9140.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9141.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9142.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9143.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9144.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9145.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9146.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9147.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9148.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9149.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9150.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9151.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9152.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9153.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9154.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9155.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9156.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9157.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9158.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9159.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9160.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9161.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9162.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9163.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9164.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9165.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9166.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9167.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9168.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9169.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9170.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9171.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9172.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9173.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9174.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9175.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9176.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9177.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9178.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9179.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9180.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9181.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9182.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9183.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9184.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9185.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9186.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9187.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9188.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9189.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9190.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9191.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9192.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9193.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9194.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9195.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9196.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9197.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9198.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9199.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9200.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9201.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9202.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9203.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9204.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9205.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9206.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9207.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9208.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9209.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9210.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9211.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9212.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9213.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9214.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9215.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9216.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9217.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9218.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9219.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9220.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9221.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9222.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9223.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9224.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9225.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9226.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9227.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9228.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9229.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9230.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9231.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9232.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9233.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9234.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9235.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9236.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9237.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9238.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9239.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9240.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9241.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9242.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9243.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9244.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9245.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9246.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9247.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9248.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9249.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -291,28 +84,16 @@ exports[`remediations download remediations download zip with multiple remediati
 # they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 #
-# remediation 2
-# https://cloud.redhat.com/insights/remediations/cbc782e4-e8ae-4807-82ab-505387981d2e
+# missing system 1
+# https://cloud.redhat.com/insights/remediations/82aeb63f-fc25-4eef-9333-4fa7e10f7217
 
-# Created by tuser@redhat.com
-
-- name: run insights to obtain latest diagnosis info
-  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
-  become: True
-  tasks:
-    - name: obtain diagnosis info
-      command: 'insights-client --diagnosis cbc782e4-e8ae-4807-82ab-505387981d2e'
-      register: insights_result
-      changed_when: false
-      check_mode: false
-    - name: register insights report as fact for use by other plays
-      set_fact: insights_report={{ insights_result.stdout }}
+# Created by testReadSingleUser
 
 # Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)
 # Identifier: (advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,kernel_update)
 # Version: 3f74744ce9b66c20b55f6dd4e580d77d7e7039b1
 - name: Update system to the latest kernel and reboot
-  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com\\"
   become: true
   vars:
     # determine if we need to update the 'kernel' package or 'kernel-rt' package
@@ -356,36 +137,10 @@ exports[`remediations download remediations download zip with multiple remediati
           insights_needs_reboot: True
 
 
-# Bonding will not fail over to the backup link when bonding options are partially read
-# Identifier: (advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE,fix)
-# Version: a0e934f07d8167073546cbc5108c4345f92559a5
-- name: Correct Bonding Config Items
-  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
-  become: true
-  vars:
-    pydata: \\"{{ insights_report.details['network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'] }}\\"
-
-  tasks:
-    - when:
-       - pydata.bond_config is defined
-      block:
-        - name: Add quotes around bonding options
-          lineinfile:
-            dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
-            regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
-            backrefs: yes
-            line: '\\\\1\\"\\\\2\\"'
-          with_dict: \\"{{ pydata.bond_config }}\\"
-
-        - name: Restart Network Interfaces
-          shell: ifdown {{item.key}}  && ifup {{item.key}}
-          with_dict: \\"{{ pydata.bond_config }}\\"
-
-
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com\\"
   become: True
   gather_facts: False
   tasks:
@@ -410,7 +165,7 @@ exports[`remediations download remediations download zip with multiple remediati
           become: false
 
 - name: run insights
-  hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com\\"
   become: True
   gather_facts: False
   tasks:
