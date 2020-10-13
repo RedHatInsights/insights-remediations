@@ -316,6 +316,16 @@ describe('remediations', function () {
             body.issues.should.have.length(0);
         });
 
+        test('get remediation with system-less issue', async () => {
+            const {body} = await request
+            .get('/v1/remediations/d1b070b5-1db8-4dac-8ecf-891dc1e9225f?pretty')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.issues.should.have.length(0);
+            body.resolved_count.should.equal(0);
+        });
+
         test('listing of remediations does not blow up', async () => {
             const {text} = await request
             .get('/v1/remediations?pretty')
@@ -334,6 +344,7 @@ describe('remediations', function () {
             const remediation = _.find(body.data, {id: 'd1b070b5-1db8-4dac-8ecf-891dc1e9225f'});
             remediation.should.have.property('system_count', 0);
             remediation.should.have.property('issue_count', 0);
+            remediation.should.have.property('resolved_count', 0);
         });
     });
 

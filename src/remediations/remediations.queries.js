@@ -56,7 +56,9 @@ function resolvedCountSubquery () {
     `WHERE NOT EXISTS(SELECT * FROM remediation_issue_systems ` +
     `WHERE remediation_issues.id = remediation_issue_systems.remediation_issue_id ` +
     `AND remediation_issue_systems.resolved = false) ` +
-    `AND remediation_issues.remediation_id = "remediation"."id")`);
+    `AND remediation_issues.remediation_id = "remediation"."id" ` +
+    `AND EXISTS(SELECT * FROM remediation_issue_systems ` +
+    `WHERE remediation_issues.id = remediation_issue_systems.remediation_issue_id))`);
 }
 
 exports.list = function (
