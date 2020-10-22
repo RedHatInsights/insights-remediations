@@ -189,8 +189,8 @@ exports.get = errors.async(async function (req, res) {
         resolveUsers(req, remediation)
     ]);
 
-    // filter out issues with 0 systems or missing issue details
-    remediation.issues = remediation.issues.filter(issue => issue.systems.length && issue.details && issue.resolution);
+    // filter out issues with 0 systems
+    remediation.issues = remediation.issues.filter(issue => issue.systems.length && issue.resolution);
 
     remediation.needs_reboot = inferNeedsReboot(remediation);
 
