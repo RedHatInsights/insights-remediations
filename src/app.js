@@ -2,6 +2,7 @@
 
 const http = require('http');
 const express = require('express');
+const assert = require('assert');
 const app = express();
 const { createTerminus } = require('@godaddy/terminus');
 const log = require('./util/log');
@@ -20,7 +21,17 @@ process.on('unhandledRejection', e => {
 });
 
 async function healthCheck() {
-    // TODO: nothing to check yet
+    try {
+        await db.s.authenticate();
+        if (config.redis.enabled) {
+            assert(redis.get().status, 'ready');
+        }
+
+        return Promise.resolve('Health Check Passes');
+    } catch (e) {
+        log.error(`Health Check failed due to error: ${e}`);
+        return Promise.reject(`Healthcheck Error ${e}`);
+    }
 }
 
 async function start () {
