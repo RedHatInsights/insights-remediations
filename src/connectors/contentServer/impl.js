@@ -16,6 +16,7 @@ module.exports = new class extends Connector {
 
     async getResolutions (id, refresh = false) {
         const uri = new URI(host);
+        uri.segment('private');
         uri.segment('playbooks');
         uri.segment(id);
 

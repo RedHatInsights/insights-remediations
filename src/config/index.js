@@ -100,8 +100,8 @@ const config = {
 
     contentServer: {
         impl: env.CONTENT_SERVER_IMPL,
-        host: env.CONTENT_SERVER_HOST || 'http://localhost:8080',
-        auth: env.CONTENT_SERVER_AUTH || null,
+        host: env.CONTENT_SERVER_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000',
+        auth: env.CONTENT_SERVER_AUTH || '',
         insecure: (env.CONTENT_SERVER_INSECURE === 'false') ? false : true,
         revalidationInterval: parseIntEnv('CONTENT_SERVER_REVALIDATION_INVERVAL', 60 * 60) // 1 hour
     },
