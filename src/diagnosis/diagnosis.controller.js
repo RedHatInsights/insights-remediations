@@ -12,6 +12,7 @@ const inventory = require('../connectors/inventory');
  */
 exports.getDiagnosis = errors.async(async function (req, res) {
     const insightsId = req.params.system;
+    const branchId = req.query.branch_id;
 
     // TODO:
     // 1) obtain system data from inventory
@@ -30,8 +31,7 @@ exports.getDiagnosis = errors.async(async function (req, res) {
     assert(system.account === req.identity.account_number);
     assert(system.insights_id === insightsId, system.insights_id);
 
-    const advisorDiagnosis = await advisor.getDiagnosis(system.id);
-
+    const advisorDiagnosis = await advisor.getDiagnosis(system.id, branchId);
     res.json({
         id: system.id,
         insights_id: system.insights_id,

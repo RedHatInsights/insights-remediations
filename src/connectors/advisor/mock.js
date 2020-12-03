@@ -67,8 +67,12 @@ module.exports = new class extends Connector {
         return null;
     }
 
-    async getDiagnosis (system) {
+    async getDiagnosis (system, branchId) {
         if (system === 'none') {
+            return {};
+        }
+
+        if (branchId === 'bad') {
             return {};
         }
 

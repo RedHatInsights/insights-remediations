@@ -45,11 +45,15 @@ module.exports = new class extends Connector {
         this.ruleMetrics);
     }
 
-    async getDiagnosis (system) {
+    async getDiagnosis (system, branchId = null) {
         const uri = this.buildBaseUri();
         uri.segment('system');
         uri.segment(system);
         uri.segment('reports');
+
+        if (branchId) {
+            uri.query({branchId});
+        }
 
         const data = await this.doHttp({
             uri: uri.toString(),

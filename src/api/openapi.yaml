@@ -463,6 +463,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/SystemId'
         - $ref: '#/components/parameters/RemediationIdQuery'
+        - $ref: '#/components/parameters/BranchId'
       responses:
         200:
           description: OK
@@ -638,6 +639,14 @@ components:
         type: array
         items:
           $ref: '#/components/schemas/RemediationId'
+    BranchId:
+      in: query
+      name: branch_id
+      description: 'Branch ID passed by satellite'
+      required: false
+      schema:
+        type: string
+        format: uuid
 
     IssueSystemsSort:
       in: query
