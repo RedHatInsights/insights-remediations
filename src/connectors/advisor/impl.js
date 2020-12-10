@@ -52,7 +52,8 @@ module.exports = new class extends Connector {
         uri.segment('reports');
 
         if (branchId) {
-            uri.query({branchId});
+            uri.segment('/'); // Quirk of the Advisor API
+            uri.query({branch_id: branchId});
         }
 
         const data = await this.doHttp({
