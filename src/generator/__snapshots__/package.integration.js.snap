@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`patchman - package generates a playbook with multiple packages to upgrade 1`] = `
+exports[`patchman - package using patch-advisory generates a playbook with multiple packages to upgrade 1`] = `
 "---
 # Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
 # deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
@@ -73,7 +73,7 @@ exports[`patchman - package generates a playbook with multiple packages to upgra
       changed_when: false"
 `;
 
-exports[`patchman - package generates a simple playbook with single patch package update remediation 1`] = `
+exports[`patchman - package using patch-advisory generates a simple playbook with single patch package update remediation 1`] = `
 "---
 # Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
 # deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
@@ -83,6 +83,150 @@ exports[`patchman - package generates a simple playbook with single patch packag
 
 # Upgrade packages rpm-4.14.2-37.el8.x86_64
 # Identifier: (patch-advisory:rpm-4.14.2-37.el8.x86_64,fix)
+# Version: test
+- name: update packages
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  tasks:
+    - name: check for update
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q rpm-4.14.2-37.el8.x86_64\\"
+      check_mode: no
+      register: check_out
+      failed_when: check_out.rc != 0 and check_out.rc != 100
+      args:
+        warn: false
+
+    - when: check_out.rc == 100
+      name: upgrade package
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y rpm-4.14.2-37.el8.x86_64\\"
+      args:
+        warn: false
+
+    - when: check_out.rc == 100
+      name: set reboot fact
+      set_fact:
+        insights_needs_reboot: True
+
+# Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
+# The variable can be overridden to suppress this behavior.
+- name: Reboot system (if applicable)
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - when:
+        - insights_needs_reboot is defined
+        - insights_needs_reboot
+      block:
+        - name: Reboot system
+          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          async: 1
+          poll: 0
+          ignore_errors: true
+
+        - name: Wait for system to boot up
+          local_action:
+            module: wait_for
+            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
+            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            delay: 15
+            search_regex: OpenSSH
+            timeout: 300
+          become: false
+
+- name: run insights
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
+`;
+
+exports[`patchman - package using patch-package generates a playbook with multiple packages to upgrade 1`] = `
+"---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
+# Upgrade the following packages:
+#   - Upgrade packages rpm-4.14.2-37.el8.x86_64
+#   - Upgrade packages systemd-239-13.el8_0.5.x86_64
+# Identifier: (patch-package:rpm-4.14.2-37.el8.x86_64,patch-package:systemd-239-13.el8_0.5.x86_64,fix)
+# Version: test
+- name: update packages
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  tasks:
+    - name: check for update
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q rpm-4.14.2-37.el8.x86_64 systemd-239-13.el8_0.5.x86_64\\"
+      check_mode: no
+      register: check_out
+      failed_when: check_out.rc != 0 and check_out.rc != 100
+      args:
+        warn: false
+
+    - when: check_out.rc == 100
+      name: upgrade package
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y rpm-4.14.2-37.el8.x86_64 systemd-239-13.el8_0.5.x86_64\\"
+      args:
+        warn: false
+
+    - when: check_out.rc == 100
+      name: set reboot fact
+      set_fact:
+        insights_needs_reboot: True
+
+# Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
+# The variable can be overridden to suppress this behavior.
+- name: Reboot system (if applicable)
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - when:
+        - insights_needs_reboot is defined
+        - insights_needs_reboot
+      block:
+        - name: Reboot system
+          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          async: 1
+          poll: 0
+          ignore_errors: true
+
+        - name: Wait for system to boot up
+          local_action:
+            module: wait_for
+            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
+            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            delay: 15
+            search_regex: OpenSSH
+            timeout: 300
+          become: false
+
+- name: run insights
+  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: True
+  gather_facts: False
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
+`;
+
+exports[`patchman - package using patch-package generates a simple playbook with single patch package update remediation 1`] = `
+"---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
+# Upgrade packages rpm-4.14.2-37.el8.x86_64
+# Identifier: (patch-package:rpm-4.14.2-37.el8.x86_64,fix)
 # Version: test
 - name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"

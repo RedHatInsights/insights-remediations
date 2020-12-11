@@ -534,7 +534,7 @@ describe('remediations', function () {
             '400 on bad issue_id',
             '/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:/systems',
             'pattern.openapi.validation',
-            'should match pattern "^(advisor|vulnerabilities|ssg|test|patch-advisory):[\\w\\d_|:\\.-]+$" (location: path, path: issue)'
+            'should match pattern "^(advisor|vulnerabilities|ssg|test|patch-advisory|patch-package):[\\w\\d_|:\\.-]+$" (location: path, path: issue)'
         );
 
         test400(

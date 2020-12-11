@@ -1,7 +1,7 @@
 'use strict';
 
 const errors = require('../errors');
-const PATTERN = /^(advisor|vulnerabilities|ssg|test|patch-advisory):([\w\d_|:\\.-]+)$/;
+const PATTERN = /^(advisor|vulnerabilities|ssg|test|patch-advisory|patch-package):([\w\d_|:\\.-]+)$/;
 const SSG_PATTERN = /^([\w-]+)\|([\w-]+)\|xccdf_org\.ssgproject\.content_rule_([\w\d-_:\\.]+)$/;
 const CSAW_PATTERN = /^(CVE-20[\d]{2}-[\d]{4,}):(\w+\|[A-Z\d_]+)$/;
 const CSAW_RULE_PATTERN = /^(\w+\|[A-Z\d_]+)$/;
