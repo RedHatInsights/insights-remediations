@@ -87,17 +87,6 @@ node ('openscap') {
         }
 
         openShiftUtils.withJnlpNode(image: "jenkins-deploy-jnlp:latest") {
-            stage('push image to stage') {
-                deployUtils.promoteImages(
-                    srcImages: [
-                        "playbooks-ssg:latest"
-                    ],
-                    dstProject: "remediations-stage",
-                    dstSaUsername: "image-sync",
-                    dstSaTokenCredentialsId: "remediations-image-sync"
-                )
-            }
-
             stage('push image to quay.io') {
                 def srcNamespace = "buildfactory"
                 def srcBaseUri = "docker://registry.insights-dev.openshift.com/" + srcNamespace + "/"
