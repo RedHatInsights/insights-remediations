@@ -194,10 +194,9 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
             masked: 'yes'
           when: '\\"autofs.service\\" in ansible_facts.services'
           notify: insights_reboot_handler
-      when:
-        - >-
-          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-          != \\"docker\\"
+      when: >-
+        ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+        \\"docker\\"
     - name: Unit Socket Exists - autofs.socket
       command: systemctl list-unit-files autofs.socket
       args:
@@ -206,10 +205,9 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
       changed_when: false
       ignore_errors: true
       check_mode: false
-      when:
-        - >-
-          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-          != \\"docker\\"
+      when: >-
+        ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+        \\"docker\\"
       notify: insights_reboot_handler
     - name: Disable socket autofs
       systemd:

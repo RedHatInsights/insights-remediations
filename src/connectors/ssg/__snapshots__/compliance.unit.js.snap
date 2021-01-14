@@ -37,9 +37,9 @@ exports[`compliance impl returns template 1`] = `
             state: stopped
             masked: 'yes'
           when: '\\"autofs.service\\" in ansible_facts.services'
-      when:
-          - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-            \\"docker\\"
+      when: 
+          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+          \\"docker\\"
 
     - name: Unit Socket Exists - autofs.socket
       command: systemctl list-unit-files autofs.socket
@@ -49,8 +49,8 @@ exports[`compliance impl returns template 1`] = `
       changed_when: false
       ignore_errors: true
       check_mode: false
-      when:
-        - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+      when: 
+          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
           \\"docker\\"
 
     - name: Disable socket autofs
@@ -103,9 +103,9 @@ exports[`compliance impl returns template for multiple issues 1`] = `
             state: stopped
             masked: 'yes'
           when: '\\"autofs.service\\" in ansible_facts.services'
-      when:
-          - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-            \\"docker\\"
+      when: 
+          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+          \\"docker\\"
 
     - name: Unit Socket Exists - autofs.socket
       command: systemctl list-unit-files autofs.socket
@@ -115,8 +115,8 @@ exports[`compliance impl returns template for multiple issues 1`] = `
       changed_when: false
       ignore_errors: true
       check_mode: false
-      when:
-        - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+      when: 
+          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
           \\"docker\\"
 
     - name: Disable socket autofs
