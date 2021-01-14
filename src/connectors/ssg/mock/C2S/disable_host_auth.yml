@@ -13,7 +13,9 @@
     - NIST-800-171-3.1.12
     - NIST-800-53-AC-17(a)
     - NIST-800-53-AC-3
-    - NIST-800-53-CM-6(b)
+    - NIST-800-53-CM-6(a)
+    - NIST-800-53-CM-7(a)
+    - NIST-800-53-CM-7(b)
     - disable_host_auth
     - low_complexity
     - low_disruption

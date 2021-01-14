@@ -16,8 +16,12 @@ exports[`generates a playbook with block 1`] = `
   become: true
   tags:
     - CCE-80152-2
-    - NIST-800-53-CM-7
-    - NIST-800-53-MP-2
+    - NIST-800-53-AC-6
+    - NIST-800-53-AC-6(1)
+    - NIST-800-53-CM-6(a)
+    - NIST-800-53-CM-7(a)
+    - NIST-800-53-CM-7(b)
+    - NIST-800-53-MP-7
     - configure_strategy
     - high_disruption
     - low_complexity
@@ -162,8 +166,8 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
   become: true
   tags:
     - CCE-80188-6
-    - NIST-800-53-AU-12
     - NIST-800-53-AU-4(1)
+    - NIST-800-53-CM-6(a)
     - enable_strategy
     - low_complexity
     - low_disruption
@@ -339,7 +343,9 @@ exports[`generates a simple playbook with uppercase profile name 1`] = `
     - NIST-800-171-3.1.12
     - NIST-800-53-AC-17(a)
     - NIST-800-53-AC-3
-    - NIST-800-53-CM-6(b)
+    - NIST-800-53-CM-6(a)
+    - NIST-800-53-CM-7(a)
+    - NIST-800-53-CM-7(b)
     - disable_host_auth
     - low_complexity
     - low_disruption
