@@ -16,10 +16,13 @@ exports[`patchman aggregates multiple advisories into a single play 1`] = `
 # Version: test
 - name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_issues: \\"RHBA-2019:0689 --advisory RHBA-2019:2871 --advisory RHBA-2019:4105\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHBA-2019:0689 --advisory RHBA-2019:2871 --advisory RHBA-2019:4105\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -28,7 +31,7 @@ exports[`patchman aggregates multiple advisories into a single play 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHBA-2019:0689 --advisory RHBA-2019:2871 --advisory RHBA-2019:4105\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       args:
         warn: false
 
@@ -41,6 +44,8 @@ exports[`patchman aggregates multiple advisories into a single play 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -66,6 +71,8 @@ exports[`patchman aggregates multiple advisories into a single play 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -87,10 +94,13 @@ exports[`patchman generates a simple playbook with multiple patchman advisory re
 # Version: test
 - name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_issues: \\"RHBA-2019:4105\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHBA-2019:4105\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -99,7 +109,7 @@ exports[`patchman generates a simple playbook with multiple patchman advisory re
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHBA-2019:4105\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       args:
         warn: false
 
@@ -115,10 +125,13 @@ exports[`patchman generates a simple playbook with multiple patchman advisory re
 # Version: test
 - name: update packages
   hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com\\"
+  vars:
+    insights_issues: \\"RHBA-2019:0689 --advisory RHBA-2019:2871\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHBA-2019:0689 --advisory RHBA-2019:2871\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -127,7 +140,7 @@ exports[`patchman generates a simple playbook with multiple patchman advisory re
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHBA-2019:0689 --advisory RHBA-2019:2871\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       args:
         warn: false
 
@@ -140,6 +153,8 @@ exports[`patchman generates a simple playbook with multiple patchman advisory re
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -165,6 +180,8 @@ exports[`patchman generates a simple playbook with multiple patchman advisory re
 
 - name: run insights
   hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -186,10 +203,13 @@ exports[`patchman generates a simple playbook with single patchman advisory reme
 # Version: test
 - name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_issues: \\"RHBA-2019:4105\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHBA-2019:4105\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -198,7 +218,7 @@ exports[`patchman generates a simple playbook with single patchman advisory reme
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHBA-2019:4105\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       args:
         warn: false
 
@@ -211,6 +231,8 @@ exports[`patchman generates a simple playbook with single patchman advisory reme
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -236,6 +258,8 @@ exports[`patchman generates a simple playbook with single patchman advisory reme
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:

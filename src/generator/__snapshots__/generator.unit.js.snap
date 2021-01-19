@@ -10,10 +10,13 @@ exports[`adds diagnosis play 1`] = `
 
 - name: run insights to obtain latest diagnosis info
   hosts: \\"4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_remediation: \\"\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_remediation\\"
   become: True
   tasks:
     - name: obtain diagnosis info
-      command: 'insights-client --diagnosis'
+      command: \\"insights-client --diagnosis{{ remediation | regex_search('[a-fA-F0-9]{8}[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
       register: insights_result
       changed_when: false
       check_mode: false
@@ -108,10 +111,13 @@ exports[`adds diagnosis play 1`] = `
 # Version: test
 - name: update packages
   hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.ansible.example.com\\"
+  vars:
+    insights_issues: \\"RHSA-2018:0502\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHSA-2018:0502\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -120,7 +126,7 @@ exports[`adds diagnosis play 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHSA-2018:0502\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       args:
         warn: false
 
@@ -133,6 +139,8 @@ exports[`adds diagnosis play 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.ansible.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -158,6 +166,8 @@ exports[`adds diagnosis play 1`] = `
 
 - name: run insights
   hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.ansible.example.com,4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -176,10 +186,13 @@ exports[`generates a CSAW playbook (rule only) 1`] = `
 
 - name: run insights to obtain latest diagnosis info
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_remediation: \\"\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_remediation\\"
   become: True
   tasks:
     - name: obtain diagnosis info
-      command: 'insights-client --diagnosis'
+      command: \\"insights-client --diagnosis{{ remediation | regex_search('[a-fA-F0-9]{8}[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
       register: insights_result
       changed_when: false
       check_mode: false
@@ -214,6 +227,8 @@ exports[`generates a CSAW playbook (rule only) 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -232,10 +247,13 @@ exports[`generates a CSAW playbook full id 1`] = `
 
 - name: run insights to obtain latest diagnosis info
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_remediation: \\"\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_remediation\\"
   become: True
   tasks:
     - name: obtain diagnosis info
-      command: 'insights-client --diagnosis'
+      command: \\"insights-client --diagnosis{{ remediation | regex_search('[a-fA-F0-9]{8}[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
       register: insights_result
       changed_when: false
       check_mode: false
@@ -270,6 +288,8 @@ exports[`generates a CSAW playbook full id 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -291,10 +311,13 @@ exports[`generates a CVE playbook if CSAW rule is not found 1`] = `
 # Version: test
 - name: update vulnerable packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_issues: \\"CVE-2017-17712\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve CVE-2017-17712\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -303,7 +326,7 @@ exports[`generates a CVE playbook if CSAW rule is not found 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve CVE-2017-17712\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
       args:
         warn: false
 
@@ -316,6 +339,8 @@ exports[`generates a CVE playbook if CSAW rule is not found 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -341,6 +366,8 @@ exports[`generates a CVE playbook if CSAW rule is not found 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -362,6 +389,8 @@ exports[`generates a pause playbook (1h) 1`] = `
 # Version: unknown
 - name: pause
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   tasks:
     - pause:
         minutes: 1
@@ -369,6 +398,8 @@ exports[`generates a pause playbook (1h) 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -390,12 +421,16 @@ exports[`generates a pause playbook (1m) 1`] = `
 # Version: unknown
 - name: pause
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   tasks:
     - pause:
         minutes: 1
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -417,6 +452,8 @@ exports[`generates a pause playbook (5m verbose) 1`] = `
 # Version: unknown
 - name: pause
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   tasks:
     - pause:
         seconds: 3
@@ -424,6 +461,8 @@ exports[`generates a pause playbook (5m verbose) 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -445,6 +484,8 @@ exports[`generates a pause playbook (5m) 1`] = `
 # Version: unknown
 - name: pause
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   tasks:
     - pause:
         minutes: 1
@@ -452,6 +493,8 @@ exports[`generates a pause playbook (5m) 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -473,6 +516,8 @@ exports[`generates a pause playbook (6h) 1`] = `
 # Version: unknown
 - name: pause
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   tasks:
     - pause:
         minutes: 1
@@ -480,6 +525,8 @@ exports[`generates a pause playbook (6h) 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -501,6 +548,8 @@ exports[`generates a pause playbook (15m) 1`] = `
 # Version: unknown
 - name: pause
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   tasks:
     - pause:
         minutes: 1
@@ -508,6 +557,8 @@ exports[`generates a pause playbook (15m) 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -529,6 +580,8 @@ exports[`generates a pause playbook (Random15m) 1`] = `
 # Version: unknown
 - name: pause
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   tasks:
     - pause:
         minutes: \\"{{ item }}\\"
@@ -542,6 +595,8 @@ exports[`generates a pause playbook (Random15m) 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -563,6 +618,8 @@ exports[`generates a simple alwaysFail playbook 1`] = `
 # Version: unknown
 - name: Always fail
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
 
   tasks:
     - name: Fail  now
@@ -571,6 +628,8 @@ exports[`generates a simple alwaysFail playbook 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -592,6 +651,8 @@ exports[`generates a simple failHalfTheTime  playbook 1`] = `
 # Version: unknown
 - name: Sometimes fail
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
 
   tasks:
   - name: Should we fail?
@@ -605,6 +666,8 @@ exports[`generates a simple failHalfTheTime  playbook 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -626,11 +689,15 @@ exports[`generates a simple playbook 1`] = `
 # Version: unknown
 - name: ping
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   tasks:
     - ping:
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -652,6 +719,8 @@ exports[`generates a simple playbook with reboot 1`] = `
 # Version: unknown
 - name: Trigger reboot
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
 
   tasks:
     - name: Trigger reboot
@@ -662,6 +731,8 @@ exports[`generates a simple playbook with reboot 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -687,6 +758,8 @@ exports[`generates a simple playbook with reboot 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -708,6 +781,8 @@ exports[`generates a simple playbook with suppressed reboot 1`] = `
 # Version: unknown
 - name: Trigger reboot
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
 
   tasks:
     - name: Trigger reboot
@@ -718,6 +793,8 @@ exports[`generates a simple playbook with suppressed reboot 1`] = `
 # This play lists the systems that need to be rebooted manually for the changes to take effect.
 - name: Reboot reminder
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   gather_facts: False
   tasks:
     - debug:
@@ -728,6 +805,8 @@ exports[`generates a simple playbook with suppressed reboot 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -749,10 +828,13 @@ exports[`generates an erratum-based playbook 1`] = `
 # Version: test
 - name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_issues: \\"RHSA-2018:0502\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHSA-2018:0502\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -761,7 +843,7 @@ exports[`generates an erratum-based playbook 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHSA-2018:0502\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       args:
         warn: false
 
@@ -774,6 +856,8 @@ exports[`generates an erratum-based playbook 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -799,6 +883,8 @@ exports[`generates an erratum-based playbook 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -820,6 +906,8 @@ exports[`host sanitation handles commas 1`] = `
 # Version: unknown
 - name: Trigger reboot
   hosts: \\"foobarexample.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
 
   tasks:
     - name: Trigger reboot
@@ -830,6 +918,8 @@ exports[`host sanitation handles commas 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"foobarexample.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -855,6 +945,8 @@ exports[`host sanitation handles commas 1`] = `
 
 - name: run insights
   hosts: \\"foobarexample.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -876,6 +968,8 @@ exports[`host sanitation handles newline 1`] = `
 # Version: unknown
 - name: Trigger reboot
   hosts: \\"foo.example.comabc\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
 
   tasks:
     - name: Trigger reboot
@@ -886,6 +980,8 @@ exports[`host sanitation handles newline 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"foo.example.comabc\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -911,6 +1007,8 @@ exports[`host sanitation handles newline 1`] = `
 
 - name: run insights
   hosts: \\"foo.example.comabc\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -932,6 +1030,8 @@ exports[`host sanitation handles quotes 1`] = `
 # Version: unknown
 - name: Trigger reboot
   hosts: \\"foo.example.com&quot;abc\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
 
   tasks:
     - name: Trigger reboot
@@ -942,6 +1042,8 @@ exports[`host sanitation handles quotes 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"foo.example.com&quot;abc\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -967,6 +1069,8 @@ exports[`host sanitation handles quotes 1`] = `
 
 - name: run insights
   hosts: \\"foo.example.com&quot;abc\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -988,6 +1092,8 @@ exports[`host sanitation handles whitespace 1`] = `
 # Version: unknown
 - name: Trigger reboot
   hosts: \\"foo.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
 
   tasks:
     - name: Trigger reboot
@@ -998,6 +1104,8 @@ exports[`host sanitation handles whitespace 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"foo.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -1023,6 +1131,8 @@ exports[`host sanitation handles whitespace 1`] = `
 
 - name: run insights
   hosts: \\"foo.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -1044,10 +1154,13 @@ exports[`sorts the hosts line 1`] = `
 # Version: test
 - name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,d2c8db4e-bd6a-11e8-a355-529269fb1459\\"
+  vars:
+    insights_issues: \\"RHSA-2018:0502\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHSA-2018:0502\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -1056,7 +1169,7 @@ exports[`sorts the hosts line 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHSA-2018:0502\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       args:
         warn: false
 
@@ -1069,6 +1182,8 @@ exports[`sorts the hosts line 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,d2c8db4e-bd6a-11e8-a355-529269fb1459\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -1094,6 +1209,8 @@ exports[`sorts the hosts line 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,d2c8db4e-bd6a-11e8-a355-529269fb1459\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:

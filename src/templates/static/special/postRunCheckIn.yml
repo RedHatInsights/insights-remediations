@@ -1,5 +1,7 @@
 - name: run insights
   hosts: "@@HOSTS@@"
+  vars:
+    insights_signature_exclude: "/hosts"
   become: True
   gather_facts: False
   tasks:

@@ -1,4 +1,6 @@
 - name: "@@MISSING@@"
   hosts: "@@HOSTS@@"
+  vars:
+    insights_signature_exclude: "/hosts"
   tasks:
     - ping

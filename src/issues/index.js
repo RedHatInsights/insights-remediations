@@ -7,7 +7,7 @@ const CSAW_PATTERN = /^CVE-20[\d]{2}-[\d]{4,}:\w+\|[A-Z\d_]+$/;
 const ADVISOR_PATTERN = /^\w+\|[A-Z\d_]+$/;
 const CVE_PATTERN = /^CVE-20[\d]{2}-[\d]{4,}/;
 // eslint-disable-next-line security/detect-unsafe-regex
-const PKG_PATTERN = /^([\d]+:)?[^:]+-([\d]+:)?[^-:]+-[^-:]+\.[a-z0-9_]+$/;
+const PKG_PATTERN = /^[a-z]+-(\d+:)?([\d]|\.)+-[a-z0-9._]+\.[a-z0-9_]+$/;
 
 const advisorHandler = new(require('./AdvisorHandler'))();
 const cveHandler = new(require('./CVEHandler'))();

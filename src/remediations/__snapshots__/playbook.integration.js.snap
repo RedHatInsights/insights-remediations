@@ -15,10 +15,13 @@ exports[`playbooks generates playbook that does not need reboot 1`] = `
 
 - name: run insights to obtain latest diagnosis info
   hosts: \\"1f12bdfc-8267-492d-a930-92f498fe65b9.ansible.example.com,fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  vars:
+    insights_remediation: \\" e809526c-56f5-4cd8-a809-93328436ea23\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_remediation\\"
   become: True
   tasks:
     - name: obtain diagnosis info
-      command: 'insights-client --diagnosis e809526c-56f5-4cd8-a809-93328436ea23'
+      command: \\"insights-client --diagnosis{{ remediation | regex_search('[a-fA-F0-9]{8}[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
       register: insights_result
       changed_when: false
       check_mode: false
@@ -53,6 +56,8 @@ exports[`playbooks generates playbook that does not need reboot 1`] = `
 
 - name: run insights
   hosts: \\"1f12bdfc-8267-492d-a930-92f498fe65b9.ansible.example.com,fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -76,10 +81,13 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
 
 - name: run insights to obtain latest diagnosis info
   hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  vars:
+    insights_remediation: \\" 66eec356-dd06-4c72-a3b6-ef27d1508a02\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_remediation\\"
   become: True
   tasks:
     - name: obtain diagnosis info
-      command: 'insights-client --diagnosis 66eec356-dd06-4c72-a3b6-ef27d1508a02'
+      command: \\"insights-client --diagnosis{{ remediation | regex_search('[a-fA-F0-9]{8}[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
       register: insights_result
       changed_when: false
       check_mode: false
@@ -232,10 +240,13 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
 # Version: test
 - name: update vulnerable packages
   hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  vars:
+    insights_issues: \\"CVE-2017-5715\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve CVE-2017-5715\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -244,7 +255,7 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve CVE-2017-5715\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
       args:
         warn: false
 
@@ -284,10 +295,13 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
 # Version: test
 - name: update packages
   hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  vars:
+    insights_issues: \\"RHSA-2018:0502\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHSA-2018:0502\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -296,7 +310,7 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHSA-2018:0502\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       args:
         warn: false
 
@@ -309,6 +323,8 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"1f12bdfc-8267-492d-a930-92f498fe65b9.ansible.example.com,fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -334,6 +350,8 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
 
 - name: run insights
   hosts: \\"1f12bdfc-8267-492d-a930-92f498fe65b9.ansible.example.com,fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -407,6 +425,8 @@ exports[`playbooks generates playbook with suppressed reboot 1`] = `
 # This play lists the systems that need to be rebooted manually for the changes to take effect.
 - name: Reboot reminder
   hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   gather_facts: False
   tasks:
     - debug:
@@ -417,6 +437,8 @@ exports[`playbooks generates playbook with suppressed reboot 1`] = `
 
 - name: run insights
   hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -490,6 +512,8 @@ exports[`playbooks missing get remediation with missing system 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -515,6 +539,8 @@ exports[`playbooks missing get remediation with missing system 1`] = `
 
 - name: run insights
   hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -588,6 +614,8 @@ exports[`playbooks missing get remediation with missing system causing an issue 
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -613,6 +641,8 @@ exports[`playbooks missing get remediation with missing system causing an issue 
 
 - name: run insights
   hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -641,10 +671,13 @@ exports[`playbooks missing get remediation with unknown resolution 1`] = `
 # Version: test
 - name: update vulnerable packages
   hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com\\"
+  vars:
+    insights_issues: \\"CVE-2017-5715\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve CVE-2017-5715\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -653,7 +686,7 @@ exports[`playbooks missing get remediation with unknown resolution 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve CVE-2017-5715\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
       args:
         warn: false
 
@@ -666,6 +699,8 @@ exports[`playbooks missing get remediation with unknown resolution 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -691,6 +726,8 @@ exports[`playbooks missing get remediation with unknown resolution 1`] = `
 
 - name: run insights
   hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -717,6 +754,8 @@ exports[`playbooks playbook for remediation with test namespace 1`] = `
 # Version: unknown
 - name: ping
   hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com,9dae9304-86a8-4f66-baa3-a1b27dfdd479.ansible.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   tasks:
     - ping:
 
@@ -725,6 +764,8 @@ exports[`playbooks playbook for remediation with test namespace 1`] = `
 # Version: unknown
 - name: Trigger reboot
   hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
 
   tasks:
     - name: Trigger reboot
@@ -735,6 +776,8 @@ exports[`playbooks playbook for remediation with test namespace 1`] = `
 # This play lists the systems that need to be rebooted manually for the changes to take effect.
 - name: Reboot reminder
   hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   gather_facts: False
   tasks:
     - debug:
@@ -745,6 +788,8 @@ exports[`playbooks playbook for remediation with test namespace 1`] = `
 
 - name: run insights
   hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com,9dae9304-86a8-4f66-baa3-a1b27dfdd479.ansible.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:

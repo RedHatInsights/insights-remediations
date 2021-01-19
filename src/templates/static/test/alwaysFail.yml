@@ -1,5 +1,7 @@
 - name: Always fail
   hosts: "@@HOSTS@@"
+  vars:
+    insights_signature_exclude: "/hosts"
 
   tasks:
     - name: Fail  now

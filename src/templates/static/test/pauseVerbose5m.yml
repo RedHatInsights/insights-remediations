@@ -1,5 +1,7 @@
 - name: pause
   hosts: "@@HOSTS@@"
+  vars:
+    insights_signature_exclude: "/hosts"
   tasks:
     - pause:
         seconds: 3

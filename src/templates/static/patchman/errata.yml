@@ -1,9 +1,12 @@
 - name: update packages
   hosts: "@@HOSTS@@"
+  vars:
+    insights_issues: "@@ISSUES@@"
+    insights_signature_exclude: "/hosts,/vars/insights_issues"
   become: true
   tasks:
     - name: check for update
-      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory @@ISSUES@@"
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\d]{2}:[\\d]{4,5}( --advisory RH[SBE]A-20[\\d]{2}:[\\d]{4,5})*') }}"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -12,7 +15,7 @@
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory @@ISSUES@@"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\d]{2}:[\\d]{4,5}( --advisory RH[SBE]A-20[\\d]{2}:[\\d]{4,5})*') }}"
       args:
         warn: false
 

@@ -10,10 +10,13 @@ exports[`does not mind extra whitespace in HOSTS variable declaration 1`] = `
 
 - name: run insights to obtain latest diagnosis info
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_remediation: \\"\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_remediation\\"
   become: True
   tasks:
     - name: obtain diagnosis info
-      command: 'insights-client --diagnosis'
+      command: \\"insights-client --diagnosis{{ remediation | regex_search('[a-fA-F0-9]{8}[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
       register: insights_result
       changed_when: false
       check_mode: false
@@ -55,6 +58,8 @@ exports[`does not mind extra whitespace in HOSTS variable declaration 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -73,10 +78,13 @@ exports[`generates a rule-based playbook 1`] = `
 
 - name: run insights to obtain latest diagnosis info
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_remediation: \\"\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_remediation\\"
   become: True
   tasks:
     - name: obtain diagnosis info
-      command: 'insights-client --diagnosis'
+      command: \\"insights-client --diagnosis{{ remediation | regex_search('[a-fA-F0-9]{8}[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
       register: insights_result
       changed_when: false
       check_mode: false
@@ -111,6 +119,8 @@ exports[`generates a rule-based playbook 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -129,10 +139,13 @@ exports[`puts quotes around hosts list 1`] = `
 
 - name: run insights to obtain latest diagnosis info
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_remediation: \\"\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_remediation\\"
   become: True
   tasks:
     - name: obtain diagnosis info
-      command: 'insights-client --diagnosis'
+      command: \\"insights-client --diagnosis{{ remediation | regex_search('[a-fA-F0-9]{8}[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
       register: insights_result
       changed_when: false
       check_mode: false
@@ -174,6 +187,8 @@ exports[`puts quotes around hosts list 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:

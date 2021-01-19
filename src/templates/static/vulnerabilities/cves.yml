@@ -1,9 +1,12 @@
 - name: update vulnerable packages
   hosts: "@@HOSTS@@"
+  vars:
+    insights_issues: "@@ISSUES@@"
+    insights_signature_exclude: "/hosts,/vars/insights_issues"
   become: true
   tasks:
     - name: check for update
-      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q --cve @@ISSUES@@"
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -12,7 +15,7 @@
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: "{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve @@ISSUES@@"
+      shell: "{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}"
       args:
         warn: false
 

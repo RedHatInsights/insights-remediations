@@ -2,6 +2,8 @@
 # This play lists the systems that need to be rebooted manually for the changes to take effect.
 - name: Reboot reminder
   hosts: "@@HOSTS@@"
+  vars:
+    insights_signature_exclude: "/hosts"
   gather_facts: False
   tasks:
     - debug:

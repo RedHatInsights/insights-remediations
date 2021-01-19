@@ -1,5 +1,7 @@
 - name: Sometimes fail
   hosts: "@@HOSTS@@"
+  vars:
+    insights_signature_exclude: "/hosts"
 
   tasks:
   - name: Should we fail?

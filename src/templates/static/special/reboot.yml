@@ -2,6 +2,8 @@
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: "@@HOSTS@@"
+  vars:
+    insights_signature_exclude: "/hosts"
   become: True
   gather_facts: False
   tasks:

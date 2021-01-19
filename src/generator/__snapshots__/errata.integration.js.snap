@@ -17,10 +17,13 @@ exports[`aggregates multiple errata into a single play 1`] = `
 # Version: test
 - name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_issues: \\"RHSA-2017:1382 --advisory RHSA-2017:1852 --advisory RHSA-2017:2679 --advisory RHSA-2018:0502\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHSA-2017:1382 --advisory RHSA-2017:1852 --advisory RHSA-2017:2679 --advisory RHSA-2018:0502\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -29,7 +32,7 @@ exports[`aggregates multiple errata into a single play 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHSA-2017:1382 --advisory RHSA-2017:1852 --advisory RHSA-2017:2679 --advisory RHSA-2018:0502\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       args:
         warn: false
 
@@ -42,6 +45,8 @@ exports[`aggregates multiple errata into a single play 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -67,6 +72,8 @@ exports[`aggregates multiple errata into a single play 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -92,10 +99,13 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 # Version: test-version
 - name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_issues: \\"RHSA-2017:1382 --advisory RHSA-2017:1852 --advisory RHSA-2017:2679 --advisory RHSA-2018:0502\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHSA-2017:1382 --advisory RHSA-2017:1852 --advisory RHSA-2017:2679 --advisory RHSA-2018:0502\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -104,7 +114,7 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHSA-2017:1382 --advisory RHSA-2017:1852 --advisory RHSA-2017:2679 --advisory RHSA-2018:0502\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       args:
         warn: false
 
@@ -120,10 +130,13 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 # Version: test-version
 - name: update vulnerable packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_issues: \\"CVE-2017-17712 --cve CVE-2017-5715\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve CVE-2017-17712 --cve CVE-2017-5715\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -132,7 +145,7 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve CVE-2017-17712 --cve CVE-2017-5715\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
       args:
         warn: false
 
@@ -145,6 +158,8 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -170,6 +185,8 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -191,10 +208,13 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 # Version: test
 - name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_issues: \\"RHSA-2018:0502\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHSA-2018:0502\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -203,7 +223,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHSA-2018:0502\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       args:
         warn: false
 
@@ -217,10 +237,13 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 # Version: test
 - name: update packages
   hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com\\"
+  vars:
+    insights_issues: \\"RHBA-2007:0331\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHBA-2007:0331\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -229,7 +252,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHBA-2007:0331\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       args:
         warn: false
 
@@ -243,10 +266,13 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 # Version: test
 - name: update vulnerable packages
   hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com\\"
+  vars:
+    insights_issues: \\"CVE-2017-17712\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve CVE-2017-17712\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -255,7 +281,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve CVE-2017-17712\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
       args:
         warn: false
 
@@ -268,6 +294,8 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -293,6 +321,8 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 
 - name: run insights
   hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -314,10 +344,13 @@ exports[`generates a simple playbook with single CVE remediation 1`] = `
 # Version: test-version
 - name: update vulnerable packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_issues: \\"CVE-2017-17712\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve CVE-2017-17712\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -326,7 +359,7 @@ exports[`generates a simple playbook with single CVE remediation 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve CVE-2017-17712\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
       args:
         warn: false
 
@@ -339,6 +372,8 @@ exports[`generates a simple playbook with single CVE remediation 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -364,6 +399,8 @@ exports[`generates a simple playbook with single CVE remediation 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -385,10 +422,13 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
 # Version: test
 - name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_issues: \\"RHSA-2018:0502\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory RHSA-2018:0502\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -397,7 +437,7 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory RHSA-2018:0502\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
       args:
         warn: false
 
@@ -410,6 +450,8 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -435,6 +477,8 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:

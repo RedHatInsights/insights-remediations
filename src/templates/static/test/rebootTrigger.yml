@@ -1,5 +1,7 @@
 - name: Trigger reboot
   hosts: "@@HOSTS@@"
+  vars:
+    insights_signature_exclude: "/hosts"
 
   tasks:
     - name: Trigger reboot

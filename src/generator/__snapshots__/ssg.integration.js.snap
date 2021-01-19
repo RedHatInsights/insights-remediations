@@ -75,6 +75,8 @@ exports[`generates a playbook with block 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -100,6 +102,8 @@ exports[`generates a playbook with block 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -198,6 +202,8 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -223,6 +229,8 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -281,6 +289,8 @@ exports[`generates a simple playbook with single compliance remediation 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -306,6 +316,8 @@ exports[`generates a simple playbook with single compliance remediation 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -376,6 +388,8 @@ exports[`generates a simple playbook with uppercase profile name 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:
@@ -401,6 +415,8 @@ exports[`generates a simple playbook with uppercase profile name 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  vars:
+    insights_signature_exclude: \\"/hosts\\"
   become: True
   gather_facts: False
   tasks:

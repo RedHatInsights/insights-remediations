@@ -1,4 +1,6 @@
 - name: This play does not define HOSTS placeholder
   hosts: "all"
+  vars:
+    insights_signature_exclude: "/hosts"
   tasks:
     - ping
