@@ -9,8 +9,8 @@ const errors = require('../../errors');
 
 const MOCK_USER = {
     org_id: '1979710',
-    username: '***REMOVED***',
-    account_number: '540155',
+    username: 'someUsername',
+    account_number: '8675309',
     is_active: true,
     locale: 'en_US',
     id: 7166102,
@@ -33,8 +33,8 @@ describe('users impl', function () {
             headers: {}
         });
 
-        const result = await impl.getUser('***REMOVED***');
-        result.should.have.property('username', '***REMOVED***');
+        const result = await impl.getUser('someUsername');
+        result.should.have.property('username', 'someUsername');
         result.should.have.property('first_name', 'Jozef');
         result.should.have.property('last_name', 'Hartinger');
 
@@ -49,7 +49,7 @@ describe('users impl', function () {
 
     test('returns null when user does not exist', async function () {
         base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
-        await expect(impl.getUser('***REMOVED***')).resolves.toBeNull();
+        await expect(impl.getUser('someUsername')).resolves.toBeNull();
     });
 
     test('ping', async function () {
@@ -66,16 +66,16 @@ describe('users impl', function () {
 
         const cache = mockCache();
 
-        await impl.getUser('***REMOVED***');
+        await impl.getUser('someUsername');
         http.callCount.should.equal(1);
         cache.get.callCount.should.equal(1);
-        cache.get.args[0][0].should.equal('remediations|http-cache|users|***REMOVED***');
+        cache.get.args[0][0].should.equal('remediations|http-cache|users|someUsername');
         cache.setex.callCount.should.equal(1);
 
-        await impl.getUser('***REMOVED***');
+        await impl.getUser('someUsername');
         http.callCount.should.equal(1);
         cache.get.callCount.should.equal(2);
-        cache.get.args[1][0].should.equal('remediations|http-cache|users|***REMOVED***');
+        cache.get.args[1][0].should.equal('remediations|http-cache|users|someUsername');
         cache.setex.callCount.should.equal(1);
     });
 
@@ -97,11 +97,11 @@ describe('users impl', function () {
 
     test('connection error handling', async function () {
         base.mockRequestError();
-        await expect(impl.getUser('***REMOVED***')).rejects.toThrow(errors.DependencyError);
+        await expect(impl.getUser('someUsername')).rejects.toThrow(errors.DependencyError);
     });
 
     test('status code handling', async function () {
         base.mockRequestStatusCode();
-        await expect(impl.getUser('***REMOVED***')).rejects.toThrow(errors.DependencyError);
+        await expect(impl.getUser('someUsername')).rejects.toThrow(errors.DependencyError);
     });
 });

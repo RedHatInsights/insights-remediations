@@ -92,7 +92,7 @@ exports.auth = Object.freeze({
                 last_name: 'Hartinger',
                 locale: 'en_US',
                 is_org_admin: true,
-                username: '***REMOVED***',
+                username: 'someUsername',
                 email: 'jharting@redhat.com'
             },
             type: 'User'

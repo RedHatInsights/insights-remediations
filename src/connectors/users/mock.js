@@ -26,8 +26,8 @@ const MOCK_USERS = _.keyBy([{
     first_name: 'Test',
     last_name: 'Single'
 }, {
-    username: '***REMOVED***',
-    account_number: '901578',
+    username: 'someUsername',
+    account_number: '8675309',
     first_name: 'Jozef',
     last_name: 'Hartinger'
 }, {
