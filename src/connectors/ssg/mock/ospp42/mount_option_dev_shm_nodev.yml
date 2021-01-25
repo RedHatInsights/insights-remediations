@@ -8,12 +8,8 @@
   become: true
   tags:
     - CCE-80152-2
-    - NIST-800-53-AC-6
-    - NIST-800-53-AC-6(1)
-    - NIST-800-53-CM-6(a)
-    - NIST-800-53-CM-7(a)
-    - NIST-800-53-CM-7(b)
-    - NIST-800-53-MP-7
+    - NIST-800-53-CM-7
+    - NIST-800-53-MP-2
     - configure_strategy
     - high_disruption
     - low_complexity

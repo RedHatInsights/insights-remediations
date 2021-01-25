@@ -11,8 +11,8 @@ exports[`ssg impl returns template 1`] = `
   become: true
   tags:
     - CCE-80188-6
+    - NIST-800-53-AU-12
     - NIST-800-53-AU-4(1)
-    - NIST-800-53-CM-6(a)
     - enable_strategy
     - low_complexity
     - low_disruption
