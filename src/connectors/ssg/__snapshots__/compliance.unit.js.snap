@@ -13,10 +13,10 @@ exports[`compliance impl returns template 1`] = `
     - CCE-27498-5
     - DISA-STIG-RHEL-07-020110
     - NIST-800-171-3.4.6
-    - NIST-800-53-CM-6(a)
-    - NIST-800-53-CM-7(a)
-    - NIST-800-53-CM-7(b)
-    - NIST-800-53-MP-7
+    - NIST-800-53-AC-19(a)
+    - NIST-800-53-AC-19(d)
+    - NIST-800-53-AC-19(e)
+    - NIST-800-53-IA-3
     - disable_strategy
     - low_complexity
     - low_disruption
@@ -24,32 +24,32 @@ exports[`compliance impl returns template 1`] = `
     - no_reboot_needed
     - service_autofs_disabled
   tasks:
+    - name: Unit Service Exists - autofs.service
+      command: systemctl list-unit-files autofs.service
+      register: service_file_exists
+      changed_when: false
+      ignore_errors: true
+      when:
+        ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+        \\"docker\\"
 
     - name: Disable service autofs
-      block:
-        - name: Gather the service facts
-          service_facts: null
-
-        - name: Disable service autofs
-          systemd:
-            name: autofs.service
-            enabled: 'no'
-            state: stopped
-            masked: 'yes'
-          when: '\\"autofs.service\\" in ansible_facts.services'
-      when: 
-          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+      systemd:
+        name: autofs.service
+        enabled: 'no'
+        state: stopped
+        masked: 'yes'
+      when:
+        - '\\"autofs.service\\" in service_file_exists.stdout_lines[1]'
+        - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
           \\"docker\\"
 
     - name: Unit Socket Exists - autofs.socket
       command: systemctl list-unit-files autofs.socket
-      args:
-        warn: false
       register: socket_file_exists
       changed_when: false
       ignore_errors: true
-      check_mode: false
-      when: 
+      when:
           ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
           \\"docker\\"
 
@@ -79,10 +79,10 @@ exports[`compliance impl returns template for multiple issues 1`] = `
     - CCE-27498-5
     - DISA-STIG-RHEL-07-020110
     - NIST-800-171-3.4.6
-    - NIST-800-53-CM-6(a)
-    - NIST-800-53-CM-7(a)
-    - NIST-800-53-CM-7(b)
-    - NIST-800-53-MP-7
+    - NIST-800-53-AC-19(a)
+    - NIST-800-53-AC-19(d)
+    - NIST-800-53-AC-19(e)
+    - NIST-800-53-IA-3
     - disable_strategy
     - low_complexity
     - low_disruption
@@ -90,32 +90,32 @@ exports[`compliance impl returns template for multiple issues 1`] = `
     - no_reboot_needed
     - service_autofs_disabled
   tasks:
+    - name: Unit Service Exists - autofs.service
+      command: systemctl list-unit-files autofs.service
+      register: service_file_exists
+      changed_when: false
+      ignore_errors: true
+      when:
+        ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+        \\"docker\\"
 
     - name: Disable service autofs
-      block:
-        - name: Gather the service facts
-          service_facts: null
-
-        - name: Disable service autofs
-          systemd:
-            name: autofs.service
-            enabled: 'no'
-            state: stopped
-            masked: 'yes'
-          when: '\\"autofs.service\\" in ansible_facts.services'
-      when: 
-          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+      systemd:
+        name: autofs.service
+        enabled: 'no'
+        state: stopped
+        masked: 'yes'
+      when:
+        - '\\"autofs.service\\" in service_file_exists.stdout_lines[1]'
+        - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
           \\"docker\\"
 
     - name: Unit Socket Exists - autofs.socket
       command: systemctl list-unit-files autofs.socket
-      args:
-        warn: false
       register: socket_file_exists
       changed_when: false
       ignore_errors: true
-      check_mode: false
-      when: 
+      when:
           ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
           \\"docker\\"
 
@@ -143,8 +143,8 @@ exports[`compliance impl returns template for multiple issues 2`] = `
   become: true
   tags:
     - CCE-80188-6
+    - NIST-800-53-AU-12
     - NIST-800-53-AU-4(1)
-    - NIST-800-53-CM-6(a)
     - enable_strategy
     - low_complexity
     - low_disruption
