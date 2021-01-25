@@ -1,4 +1,5 @@
-FROM registry.access.redhat.com/rhoar-nodejs/nodejs-10
+FROM registry.redhat.io/ubi8/nodejs-10
+
 
 WORKDIR /opt/app-root/src
 
