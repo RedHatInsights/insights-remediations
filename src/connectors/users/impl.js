@@ -6,7 +6,7 @@ const URI = require('urijs');
 const assert = require('assert');
 const Connector = require('../Connector');
 
-const {host, insecure, auth, env, clientId, revalidationInterval} = require('../../config').users;
+const {host, insecure, auth, env, clientId, revalidationInterval, testAccount} = require('../../config').users;
 
 /* eslint-disable security/detect-non-literal-fs-filename */
 const cert = fs.readFileSync(path.resolve(__dirname, '../../../certs/backoffice-proxy.crt'));
@@ -55,7 +55,7 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        const result = await this.getUser('***REMOVED***', true);
-        assert(result.username === '***REMOVED***');
+        const result = await this.getUser(testAccount, true);
+        assert(result.username === testAccount);
     }
 }();

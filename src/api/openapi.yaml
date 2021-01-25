@@ -6,7 +6,7 @@ info:
   description: Insights Remediations Service
   version: 1.3.2
   contact:
-    email: jozef@redhat.com
+    email: jharting@redhat.com
 
 servers:
   - url: https://cloud.redhat.com/api/remediations/v1
