@@ -28,10 +28,10 @@ describe('inventory xjoin', function () {
                         {
                             id: '22cd8e39-13bb-4d02-8316-84b850dc5136',
                             account: 'test',
-                            display_name: 'test02.rhel7.***REMOVED***.local',
+                            display_name: 'test02.rhel7.local',
                             facts: null,
                             canonical_facts: {
-                                fqdn: 'fqdn.test02.rhel7.***REMOVED***.local'
+                                fqdn: 'fqdn.test02.rhel7.local'
                             }
                         }
                     ]
@@ -56,10 +56,10 @@ describe('inventory xjoin', function () {
                         {
                             id: '22cd8e39-13bb-4d02-8316-84b850dc5136',
                             account: 'test',
-                            display_name: 'test02.rhel7.***REMOVED***.local',
+                            display_name: 'test02.rhel7.local',
                             facts: null,
                             canonical_facts: {
-                                fqdn: 'fqdn.test02.rhel7.***REMOVED***.local'
+                                fqdn: 'fqdn.test02.rhel7.local'
                             }
                         }
                     ]
@@ -72,8 +72,8 @@ describe('inventory xjoin', function () {
         results.should.have.property('22cd8e39-13bb-4d02-8316-84b850dc5136');
         const result = results['22cd8e39-13bb-4d02-8316-84b850dc5136'];
         result.should.have.property('id', '22cd8e39-13bb-4d02-8316-84b850dc5136');
-        result.should.have.property('hostname', 'fqdn.test02.rhel7.***REMOVED***.local');
-        result.should.have.property('display_name', 'test02.rhel7.***REMOVED***.local');
+        result.should.have.property('hostname', 'fqdn.test02.rhel7.local');
+        result.should.have.property('display_name', 'test02.rhel7.local');
         result.should.have.property('facts', null);
 
         http.callCount.should.equal(1);
@@ -93,10 +93,10 @@ describe('inventory xjoin', function () {
                         {
                             id: '22cd8e39-13bb-4d02-8316-84b850dc5136',
                             account: 'test',
-                            display_name: 'test02.rhel7.***REMOVED***.local',
+                            display_name: 'test02.rhel7.local',
                             facts: null,
                             canonical_facts: {
-                                fqdn: 'fqdn.test02.rhel7.***REMOVED***.local'
+                                fqdn: 'fqdn.test02.rhel7.local'
                             }
                         }
                     ]
@@ -109,8 +109,8 @@ describe('inventory xjoin', function () {
         results.should.have.property('22cd8e39-13bb-4d02-8316-84b850dc5136');
         const result = results['22cd8e39-13bb-4d02-8316-84b850dc5136'];
         result.should.have.property('id', '22cd8e39-13bb-4d02-8316-84b850dc5136');
-        result.should.have.property('hostname', 'fqdn.test02.rhel7.***REMOVED***.local');
-        result.should.have.property('display_name', 'test02.rhel7.***REMOVED***.local');
+        result.should.have.property('hostname', 'fqdn.test02.rhel7.local');
+        result.should.have.property('display_name', 'test02.rhel7.local');
         result.should.have.property('facts', null);
 
         http.callCount.should.equal(3);
@@ -170,18 +170,18 @@ describe('inventory xjoin', function () {
                             {
                                 id: '22cd8e39-13bb-4d02-8316-84b850dc5136',
                                 account: 'test',
-                                display_name: 'test02.rhel7.***REMOVED***.local',
+                                display_name: 'test02.rhel7.local',
                                 canonical_facts: {
-                                    fqdn: 'fqdn.test02.rhel7.***REMOVED***.local',
+                                    fqdn: 'fqdn.test02.rhel7.local',
                                     insights_id: 'd46c20e5-8f10-43ed-94e4-6c467a581ec7'
                                 }
                             },
                             {
                                 id: '146e1d6b-1013-430b-a29f-aaab6c0c2ec5',
                                 account: 'test',
-                                display_name: 'test03.rhel7.***REMOVED***.local',
+                                display_name: 'test03.rhel7.local',
                                 canonical_facts: {
-                                    fqdn: 'fqdn.test03.rhel7.***REMOVED***.local',
+                                    fqdn: 'fqdn.test03.rhel7.local',
                                     insights_id: 'd46c20e5-8f10-43ed-94e4-6c467a581ec7'
                                 }
                             }
@@ -194,14 +194,14 @@ describe('inventory xjoin', function () {
             result.should.has.size(2);
             result[0].should.have.property('id', '22cd8e39-13bb-4d02-8316-84b850dc5136');
             result[0].should.have.property('account', 'test');
-            result[0].should.have.property('hostname', 'fqdn.test02.rhel7.***REMOVED***.local');
-            result[0].should.have.property('display_name', 'test02.rhel7.***REMOVED***.local');
+            result[0].should.have.property('hostname', 'fqdn.test02.rhel7.local');
+            result[0].should.have.property('display_name', 'test02.rhel7.local');
             result[0].should.have.property('insights_id', 'd46c20e5-8f10-43ed-94e4-6c467a581ec7');
 
             result[1].should.have.property('id', '146e1d6b-1013-430b-a29f-aaab6c0c2ec5');
             result[1].should.have.property('account', 'test');
-            result[1].should.have.property('hostname', 'fqdn.test03.rhel7.***REMOVED***.local');
-            result[1].should.have.property('display_name', 'test03.rhel7.***REMOVED***.local');
+            result[1].should.have.property('hostname', 'fqdn.test03.rhel7.local');
+            result[1].should.have.property('display_name', 'test03.rhel7.local');
             result[1].should.have.property('insights_id', 'd46c20e5-8f10-43ed-94e4-6c467a581ec7');
         });
     });

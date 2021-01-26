@@ -16,7 +16,7 @@ def notifyOnFailure(Closure step) {
     try {
         step()
     } catch (e) {
-        notify("@***REMOVED*** [${env.JOB_NAME.split('/')[-1]}] Build failed", "See ${env.BUILD_URL}console", "danger")
+        notify("@Alec Cohan [${env.JOB_NAME.split('/')[-1]}] Build failed", "See ${env.BUILD_URL}console", "danger")
         throw e
     }
 }
