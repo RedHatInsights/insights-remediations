@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = (sequelize, {STRING, UUID, ENUM, DATE, TEXT, BOOLEAN}) => {
+module.exports = (sequelize, {STRING, UUID, ENUM, DATE, TEXT, BOOLEAN, INTEGER}) => {
     const RunExecutors = sequelize.define('playbook_run_executors', {
         id: {
             type: UUID,
@@ -45,6 +45,26 @@ module.exports = (sequelize, {STRING, UUID, ENUM, DATE, TEXT, BOOLEAN}) => {
             type: BOOLEAN,
             allowNull: false,
             defaultValue: true
+        },
+        satellite_connection_code: {
+            type: INTEGER,
+            allowNull: true,
+            defaultValue: null
+        },
+        satellite_infrastructure_code: {
+            type: INTEGER,
+            allowNull: true,
+            defaultValue: null
+        },
+        satellite_connection_error: {
+            type: STRING,
+            allowNull: true,
+            defaultValue: null
+        },
+        satellite_infrastructure_error: {
+            type: STRING,
+            allowNull: true,
+            defaultValue: null
         }
     }, {
         timestamps: true,
