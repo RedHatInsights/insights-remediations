@@ -96,4 +96,4 @@ This process is controlled by the [deployment Jenkinsfile](./deployment/Jenkinsf
 The image can then be promoted to production using a [Jenkins job](https://jenkins-insights-jenkins.1b13.insights.openshiftapps.com/job/remediations/job/remediations-release/). Use the git commit SHA as the REVISION when running the job.
 
 ## Contact
-For questions or comments join **#platform-automation-standup** at ansible.slack.com.
+For questions or comments join **#platform-data-pipeline-standup** at ansible.slack.com.
