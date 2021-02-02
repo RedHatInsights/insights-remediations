@@ -68,6 +68,10 @@ const DATA = Object.freeze({
 
     'xccdf_org.ssgproject.content_rule_disable_host_auth': {
         title: 'Disable Host-Based Authentication'
+    },
+
+    'xccdf_org.ssgproject.content_rule_rsyslog_remote_loghost': {
+        title: 'Ensure Logs Sent To Remote Host'
     }
 });
 

@@ -31,6 +31,8 @@ module.exports = new class extends Connector {
                 return read('standard', 'service_autofs_disabled');
             case 'rhel7|standard|service_rsyslog_enabled':
                 return read('standard', 'service_rsyslog_enabled');
+            case 'rhel7|standard|rsyslog_remote_loghost':
+                return read('standard', 'rsyslog_remote_loghost');
             case 'rhel7|ospp42|mount_option_dev_shm_nodev':
                 return read('ospp42', 'mount_option_dev_shm_nodev');
             case 'rhel7|C2S|disable_host_auth':
