@@ -1,4 +1,5 @@
 'use strict';
+/*eslint-disable max-len*/
 
 const { request, reqId, normalizePlaybookVersionForSnapshot } = require('../test');
 
@@ -24,24 +25,6 @@ test('generates a simple playbook with multiple compliance remediation', async (
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }, {
             id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled',
-            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
-        }]
-    };
-
-    const res = await request
-    .post('/v1/playbook')
-    .send(data)
-    .expect(200);
-    expect(normalizePlaybookVersionForSnapshot(res.text)).toMatchSnapshot();
-});
-
-test('ignores rsyslog_remote_loghost rules for compliance remediations', async () => {
-    const data = {
-        issues: [{
-            id: 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
-            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
-        }, {
-            id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_rsyslog_remote_loghost',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
@@ -97,6 +80,31 @@ test('400s on unknown resolution type other than fix', () => {
             code: 'UNKNOWN_RESOLUTION',
             title: 'Issue "ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink"' +
                 ' does not have Ansible resolution "non-existing-resolution"'
+        }]);
+    });
+});
+
+test('400s on rsyslog_remote_loghost rules for compliance remediations', async () => {
+    const {id, header} = reqId();
+
+    const data = {
+        issues: [{
+            id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_rsyslog_remote_loghost',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .set(header)
+    .send(data)
+    .expect(400)
+    .then(({ body }) => {
+        body.errors.should.eql([{
+            id,
+            status: 400,
+            code: 'UNSUPPORTED_ISSUE',
+            title: 'Issue "ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_rsyslog_remote_loghost" does not have Ansible support'
         }]);
     });
 });

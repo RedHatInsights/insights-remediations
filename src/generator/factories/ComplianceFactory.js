@@ -8,8 +8,6 @@ const Factory = require('./Factory');
 module.exports = class ComplianceFactory extends Factory {
 
     async createPlay ({id, hosts, resolution}, strict = true) {
-        if (id.issue.includes('rsyslog_remote_loghost')) { return null; }
-
         const handler = issues.getHandler(id);
 
         const [resolutions, rule] = await P.all([

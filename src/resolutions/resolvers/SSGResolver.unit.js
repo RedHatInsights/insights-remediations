@@ -42,6 +42,12 @@ describe('SSGResolved', function () {
             const resolutions = (await resolver.resolveResolutions(id));
             resolutions.should.have.size(0);
         });
+
+        test('returns 0 if the rule id is rsyslog_remote_loghost', async () => {
+            const id = identifiers.parse('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_rsyslog_remote_loghost');
+            const resolutions = (await resolver.resolveResolutions(id));
+            resolutions.should.have.size(0);
+        });
     });
 });
 

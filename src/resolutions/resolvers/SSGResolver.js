@@ -55,6 +55,9 @@ module.exports = class SSGResolver extends Resolver {
         const {platform, profile, rule} = identifiers.parseSSG(id);
         let raw = {};
 
+        // RHCLOUD-4280: disable rule "rsyslog_remote_loghost"
+        if (id.issue.includes('rsyslog_remote_loghost')) {return [];}
+
         if (config.ssg.impl === 'compliance') {
             raw = await ssg.getTemplate(id.issue);
         } else {
