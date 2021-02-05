@@ -1,47 +1,150 @@
 'use strict';
+/*eslint-disable max-len*/
 
 const { request, auth, mockDate, normalizePlaybookVersionForSnapshot, getSandbox, buildRbacResponse } = require('../test');
+const generator = require('../generator/generator.controller.js');
 const rbac = require('../connectors/rbac');
 const db = require('../db');
 const P = require('bluebird');
 
 describe('playbooks', function () {
-    test('generates playbook with pydata and playbook support', async () => {
-        mockDate();
-        const {text, headers} = await request
-        .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02/playbook')
-        .expect(200);
+    describe('generate', function () {
+        test('stores generated playbooks', async () => {
+            await request
+            .get('/v1/remediations/c3f9f751-4bcc-4222-9b83-77f5e6e603da/playbook')
+            .set(auth.testReadSingle)
+            .expect(200);
 
-        headers['content-disposition'].should.match(/^attachment;filename="remediation-1-[0-9]+\.yml"$/);
-        expect(normalizePlaybookVersionForSnapshot(text)).toMatchSnapshot();
-    });
+            await P.delay(500);
 
-    test('generates playbook that does not need reboot', async () => {
-        mockDate();
-        const {text, headers} = await request
-        .get('/v1/remediations/e809526c-56f5-4cd8-a809-93328436ea23/playbook')
-        .expect(200);
+            const entries = await db.PlaybookArchive.findAll({
+                raw: true,
+                where: {
+                    account_number: 'testReadSingle',
+                    filename: {
+                        [db.Op.like]: 'many-systems-%'
+                    }
+                }
+            });
 
-        headers['content-disposition'].should.match(/^attachment;filename="unnamed-playbook-[0-9]+\.yml"$/);
-        expect(text).toMatchSnapshot();
-    });
+            entries.should.have.length(1);
+            const { id, username, account_number, filename, created_at, definition } = entries [0];
+            expect(id).not.toBeNull();
+            expect(created_at).not.toBeNull();
+            expect(filename).not.toBeNull();
+            expect({ username, account_number, definition }).toMatchSnapshot();
+        });
 
-    test('generates playbook with suppressed reboot', async () => {
-        mockDate();
-        const {text, headers} = await request
-        .get('/v1/remediations/178cf0c8-35dd-42a3-96d5-7b50f9d211f6/playbook')
-        .expect(200);
+        test('playbook with pydata and playbook support', async () => {
+            mockDate();
+            const {text, headers} = await request
+            .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02/playbook')
+            .expect(200);
 
-        headers['content-disposition'].should.match(/^attachment;filename="remediation-with-suppressed-reboot-[0-9]+\.yml"$/);
-        expect(text).toMatchSnapshot();
-    });
+            headers['content-disposition'].should.match(/^attachment;filename="remediation-1-[0-9]+\.yml"$/);
+            expect(normalizePlaybookVersionForSnapshot(text)).toMatchSnapshot();
+        });
 
-    test('playbook for remediation with zero issues does not freak out', async () => {
-        const {text} = await request
-        .get('/v1/remediations/256ab1d3-58cf-1292-35e6-1a49c8b122d3/playbook')
-        .expect(204);
+        test('playbook that does not need reboot', async () => {
+            mockDate();
+            const {text, headers} = await request
+            .get('/v1/remediations/e809526c-56f5-4cd8-a809-93328436ea23/playbook')
+            .expect(200);
 
-        expect(text).toMatchSnapshot();
+            headers['content-disposition'].should.match(/^attachment;filename="unnamed-playbook-[0-9]+\.yml"$/);
+            expect(text).toMatchSnapshot();
+        });
+
+        test('playbook with suppressed reboot', async () => {
+            mockDate();
+            const {text, headers} = await request
+            .get('/v1/remediations/178cf0c8-35dd-42a3-96d5-7b50f9d211f6/playbook')
+            .expect(200);
+
+            headers['content-disposition'].should.match(/^attachment;filename="remediation-with-suppressed-reboot-[0-9]+\.yml"$/);
+            expect(text).toMatchSnapshot();
+        });
+
+        test('playbook with many hosts', async () => {
+            mockDate();
+            const {text} = await request
+            .get('/v1/remediations/c3f9f751-4bcc-4222-9b83-77f5e6e603da/playbook')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('playbook specifying only 1 of its hosts', async () => {
+            mockDate();
+            const {text} = await request
+            .get('/v1/remediations/c3f9f751-4bcc-4222-9b83-77f5e6e603da/playbook?hosts=84762eb3-0bbb-4bd8-ab11-f420c50e9000')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('playbook specifying 1 host, making some issues in the playbook hostless', async () => {
+            mockDate();
+            const {text} = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/playbook?hosts=9dae9304-86a8-4f66-baa3-a1b27dfdd479')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('playbook specifying 2 hosts, 1 included in the remediation and 1 not', async() => {
+            mockDate();
+            const {text} = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/playbook?hosts=9dae9304-86a8-4f66-baa3-a1b27dfdd479,non-existent-host')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('playbook for remediation with zero issues does not freak out', async () => {
+            const {text} = await request
+            .get('/v1/remediations/256ab1d3-58cf-1292-35e6-1a49c8b122d3/playbook')
+            .expect(204);
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('204 on generation that creates no playbook', async () => {
+            getSandbox().stub(generator, 'normalizeIssues').resolves([]);
+            mockDate();
+            await request
+            .get('/v1/remediations/c3f9f751-4bcc-4222-9b83-77f5e6e603da/playbook')
+            .set(auth.testReadSingle)
+            .expect(204);
+        });
+
+        test('404 on non-existent remediation', async () => {
+            mockDate();
+            await request
+            .get('/v1/remediations/c3f9f751-4bcc-4222-9b83-77f5e6e57d89/playbook')
+            .set(auth.testReadSingle)
+            .expect(404);
+        });
+
+        test('404 on host not associated with remediation', async () => {
+            mockDate();
+            await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/playbook?hosts=74862eb3-0bbb-4bd8-ab11-f420c50e9000')
+            .set(auth.testReadSingle)
+            .expect(404);
+        });
+
+        test('404 on non-existent host', async () => {
+            mockDate();
+            await request
+            .get('/v1/remediations/c3f9f751-4bcc-4222-9b83-77f5e6e603da/playbook?hosts=non-existent-host')
+            .set(auth.testReadSingle)
+            .expect(404);
+        });
     });
 
     describe('caching', function () {
@@ -115,32 +218,6 @@ describe('playbooks', function () {
 
             expect(text).toMatchSnapshot();
         });
-    });
-
-    test('stores generated playbooks', async () => {
-        await request
-        .get('/v1/remediations/c3f9f751-4bcc-4222-9b83-77f5e6e603da/playbook')
-        .set(auth.testReadSingle)
-        .expect(200);
-
-        await P.delay(500);
-
-        const entries = await db.PlaybookArchive.findAll({
-            raw: true,
-            where: {
-                account_number: 'testReadSingle',
-                filename: {
-                    [db.Op.like]: 'many-systems-%'
-                }
-            }
-        });
-
-        entries.should.have.length(1);
-        const { id, username, account_number, filename, created_at, definition } = entries [0];
-        expect(id).not.toBeNull();
-        expect(created_at).not.toBeNull();
-        expect(filename).not.toBeNull();
-        expect({ username, account_number, definition }).toMatchSnapshot();
     });
 
     test('playbook for remediation with test namespace', async () => {
