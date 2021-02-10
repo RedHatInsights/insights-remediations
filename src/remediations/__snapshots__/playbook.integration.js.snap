@@ -21,7 +21,7 @@ exports[`playbooks generates playbook that does not need reboot 1`] = `
   become: True
   tasks:
     - name: obtain diagnosis info
-      command: \\"insights-client --diagnosis{{ remediation | regex_search('[a-fA-F0-9]{8}[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
+      command: \\"insights-client --diagnosis{{ insights_remediation | regex_search('\\\\\\\\s[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
       register: insights_result
       changed_when: false
       check_mode: false
@@ -87,7 +87,7 @@ exports[`playbooks generates playbook with pydata and playbook support 1`] = `
   become: True
   tasks:
     - name: obtain diagnosis info
-      command: \\"insights-client --diagnosis{{ remediation | regex_search('[a-fA-F0-9]{8}[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
+      command: \\"insights-client --diagnosis{{ insights_remediation | regex_search('\\\\\\\\s[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
       register: insights_result
       changed_when: false
       check_mode: false
