@@ -32,6 +32,20 @@ test('parses a vulnerabilities (erratum) id', () => {
     parsed.should.have.property('full', 'vulnerabilities:RHBA-2007:0331');
 });
 
+test('parses patch (erratum) id', () => {
+    const parsed = identifiers.parse('patch-advisory:RHBA-2021:0439');
+    parsed.should.have.property('app', 'patch-advisory');
+    parsed.should.have.property('issue', 'RHBA-2021:0439');
+    parsed.should.have.property('full', 'patch-advisory:RHBA-2021:0439');
+});
+
+test('parses patch (package) id', () => {
+    const parsed = identifiers.parse('patch-package:libstdc++-8.3.1-5.1.el8.x86_64');
+    parsed.should.have.property('app', 'patch-package');
+    parsed.should.have.property('issue', 'libstdc++-8.3.1-5.1.el8.x86_64');
+    parsed.should.have.property('full', 'patch-package:libstdc++-8.3.1-5.1.el8.x86_64');
+});
+
 test('parses a vulnerabilities (csaw) id', () => {
     const parsed = identifiers.parse('vulnerabilities:CVE-2017-5715:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
     parsed.should.have.property('app', 'vulnerabilities');
