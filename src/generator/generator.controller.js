@@ -18,7 +18,7 @@ const probes = require('../probes');
 const { commit } = require('../util/version');
 
 exports.normalizeIssues = function (issues) {
-    issues.forEach(issue => {
+    _.forEach(issues, issue => {
         issue.id = issue.issue_id;
         issue.systems = _.map(issue.systems, 'system_id');
     });
@@ -28,7 +28,7 @@ exports.normalizeIssues = function (issues) {
 
 exports.playbookPipeline = async function ({issues, auto_reboot = true}, remediation = false, strict = true) {
     await exports.resolveSystems(issues, strict);
-    issues.forEach(issue => issue.id = identifiers.parse(issue.id));
+    _.forEach(issues, issue => issue.id = identifiers.parse(issue.id));
 
     issues = await P.map(issues, issue => issueManager.getPlayFactory(issue.id).createPlay(issue, strict).catch((e) => {
         if (strict) {
@@ -82,13 +82,13 @@ exports.resolveSystems = async function (issues, strict = true) {
     const systems = await inventory.getSystemDetailsBatch(systemIds, true);
 
     if (!strict) {
-        issues.forEach(issue => issue.systems = issue.systems.filter((id) => {
+        _.forEach(issues, issue => issue.systems = issue.systems.filter((id) => {
             // eslint-disable-next-line security/detect-object-injection
             return (systems.hasOwnProperty(id));
         }));
     }
 
-    issues.forEach(issue => issue.hosts = issue.systems.map(id => {
+    _.forEach(issues, issue => issue.hosts = issue.systems.map(id => {
         if (!systems.hasOwnProperty(id)) {
             probes.failedGeneration(issue.id);
             throw errors.unknownSystem(id);
@@ -101,7 +101,7 @@ exports.resolveSystems = async function (issues, strict = true) {
     }));
 
     if (!strict) {
-        issues = issues.filter((issue) => (issue.systems.length > 0));
+        issues = _.filter(issues, (issue) => (issue.systems.length > 0));
     }
 
     return issues;

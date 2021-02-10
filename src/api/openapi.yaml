@@ -150,6 +150,7 @@ paths:
       operationId: getRemediationPlaybook
       parameters:
         - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/SelectedHosts'
       responses:
         200:
           description: OK
@@ -630,6 +631,16 @@ components:
       schema:
         type: boolean
         default: false
+    SelectedHosts:
+      in: query
+      name: hosts
+      description: 'Selected hosts to be included in playbook'
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+
     SelectedRemediations:
       in: query
       name: selected_remediations

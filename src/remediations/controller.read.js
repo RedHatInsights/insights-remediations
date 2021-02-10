@@ -199,6 +199,7 @@ exports.get = errors.async(async function (req, res) {
 
 exports.playbook = errors.async(async function (req, res) {
     const remediation = await queries.get(req.params.id, req.user.account_number, req.user.username);
+    const selected_hosts = req.query.hosts;
 
     if (!remediation) {
         return notFound(res);
@@ -210,7 +211,20 @@ exports.playbook = errors.async(async function (req, res) {
         return noContent(res);
     }
 
-    const normalizedIssues = generator.normalizeIssues(issues);
+    let normalizedIssues = generator.normalizeIssues(issues);
+
+    if (selected_hosts) {
+        _.forEach(normalizedIssues, issue => {
+            issue.systems = _.filter(issue.systems, system => selected_hosts.includes(system));
+        });
+
+        // If any issues have 0 systems based on the changes above filter them out
+        normalizedIssues = _.filter(normalizedIssues, issue => !_.isEmpty(issue.systems));
+
+        if (_.isEmpty(normalizedIssues)) { // If all issues are filtered return 404
+            return notFound(res);
+        }
+    }
 
     const playbook = await generator.playbookPipeline({
         issues: normalizedIssues,
