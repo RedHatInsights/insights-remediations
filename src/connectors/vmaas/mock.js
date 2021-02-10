@@ -50,6 +50,15 @@ const PACKAGES = {
     },
     'systemd-239-13.el8_0.5.x86_64': {
         description: 'systemd is a system and service manager that runs as PID 1 and starts.'
+    },
+    'libstdc++-8.3.1-5.1.el8.x86_64': {
+        description: 'GNU Standard C++ Library'
+    },
+    'qemu-guest-agent-15:4.2.0-34.module+el8.3.0+8829+e7a0a3ea.1.x86_64': {
+        description: 'QEMU Guest Agent'
+    },
+    'some.my-odd_pkg-1000:11.23.444.5-8.1.el8.x86_64': {
+        description: 'Some testing rpm with weird package name'
     }
 };
 
