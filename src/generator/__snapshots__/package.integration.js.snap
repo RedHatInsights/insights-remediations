@@ -21,7 +21,7 @@ exports[`patchman - package using patch-advisory generates a playbook with multi
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z]+-(\\\\\\\\d+:)?([\\\\\\\\d]|\\\\\\\\.)+-[a-z0-9._]+\\\\\\\\.[a-z0-9_]+$') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z-._+]+-(\\\\\\\\d+:)?([\\\\\\\\d-]|\\\\\\\\.)+-[a-z0-9-._+]+\\\\\\\\.[a-z0-9-._+]+$') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -30,7 +30,7 @@ exports[`patchman - package using patch-advisory generates a playbook with multi
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z]+-(\\\\\\\\d+:)?([\\\\\\\\d]|\\\\\\\\.)+-[a-z0-9._]+\\\\\\\\.[a-z0-9_]+$') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z-._+]+-(\\\\\\\\d+:)?([\\\\\\\\d-]|\\\\\\\\.)+-[a-z0-9-._+]+\\\\\\\\.[a-z0-9-._+]+$') }}\\"
       args:
         warn: false
 
@@ -99,7 +99,7 @@ exports[`patchman - package using patch-advisory generates a simple playbook wit
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z]+-(\\\\\\\\d+:)?([\\\\\\\\d]|\\\\\\\\.)+-[a-z0-9._]+\\\\\\\\.[a-z0-9_]+$') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z-._+]+-(\\\\\\\\d+:)?([\\\\\\\\d-]|\\\\\\\\.)+-[a-z0-9-._+]+\\\\\\\\.[a-z0-9-._+]+$') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -108,7 +108,7 @@ exports[`patchman - package using patch-advisory generates a simple playbook wit
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z]+-(\\\\\\\\d+:)?([\\\\\\\\d]|\\\\\\\\.)+-[a-z0-9._]+\\\\\\\\.[a-z0-9_]+$') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z-._+]+-(\\\\\\\\d+:)?([\\\\\\\\d-]|\\\\\\\\.)+-[a-z0-9-._+]+\\\\\\\\.[a-z0-9-._+]+$') }}\\"
       args:
         warn: false
 
@@ -182,7 +182,7 @@ exports[`patchman - package using patch-package generates a playbook with multip
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z]+-(\\\\\\\\d+:)?([\\\\\\\\d]|\\\\\\\\.)+-[a-z0-9._]+\\\\\\\\.[a-z0-9_]+$') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z-._+]+-(\\\\\\\\d+:)?([\\\\\\\\d-]|\\\\\\\\.)+-[a-z0-9-._+]+\\\\\\\\.[a-z0-9-._+]+$') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -191,7 +191,7 @@ exports[`patchman - package using patch-package generates a playbook with multip
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z]+-(\\\\\\\\d+:)?([\\\\\\\\d]|\\\\\\\\.)+-[a-z0-9._]+\\\\\\\\.[a-z0-9_]+$') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z-._+]+-(\\\\\\\\d+:)?([\\\\\\\\d-]|\\\\\\\\.)+-[a-z0-9-._+]+\\\\\\\\.[a-z0-9-._+]+$') }}\\"
       args:
         warn: false
 
@@ -260,7 +260,7 @@ exports[`patchman - package using patch-package generates a simple playbook with
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z]+-(\\\\\\\\d+:)?([\\\\\\\\d]|\\\\\\\\.)+-[a-z0-9._]+\\\\\\\\.[a-z0-9_]+$') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z-._+]+-(\\\\\\\\d+:)?([\\\\\\\\d-]|\\\\\\\\.)+-[a-z0-9-._+]+\\\\\\\\.[a-z0-9-._+]+$') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -269,7 +269,7 @@ exports[`patchman - package using patch-package generates a simple playbook with
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z]+-(\\\\\\\\d+:)?([\\\\\\\\d]|\\\\\\\\.)+-[a-z0-9._]+\\\\\\\\.[a-z0-9_]+$') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z-._+]+-(\\\\\\\\d+:)?([\\\\\\\\d-]|\\\\\\\\.)+-[a-z0-9-._+]+\\\\\\\\.[a-z0-9-._+]+$') }}\\"
       args:
         warn: false
 

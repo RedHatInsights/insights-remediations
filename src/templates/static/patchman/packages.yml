@@ -6,7 +6,7 @@
   become: true
   tasks:
     - name: check for update
-      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z]+-(\\d+:)?([\\d]|\\.)+-[a-z0-9._]+\\.[a-z0-9_]+$') }}"
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z-._+]+-(\\d+:)?([\\d-]|\\.)+-[a-z0-9-._+]+\\.[a-z0-9-._+]+$') }}"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -15,7 +15,7 @@
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z]+-(\\d+:)?([\\d]|\\.)+-[a-z0-9._]+\\.[a-z0-9_]+$') }}"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z-._+]+-(\\d+:)?([\\d-]|\\.)+-[a-z0-9-._+]+\\.[a-z0-9-._+]+$') }}"
       args:
         warn: false
 
