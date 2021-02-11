@@ -21,7 +21,7 @@ exports[`patchman - package using patch-advisory generates a playbook with multi
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z]+-(\\\\\\\\d+:)?([\\\\\\\\d]|\\\\\\\\.)+-[a-z0-9._]+\\\\\\\\.[a-z0-9_]+$') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z-._+]+-(\\\\\\\\d+:)?([\\\\\\\\d-]|\\\\\\\\.)+-[a-z0-9-._+]+\\\\\\\\.[a-z0-9-._+]+$') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -30,7 +30,7 @@ exports[`patchman - package using patch-advisory generates a playbook with multi
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z]+-(\\\\\\\\d+:)?([\\\\\\\\d]|\\\\\\\\.)+-[a-z0-9._]+\\\\\\\\.[a-z0-9_]+$') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z-._+]+-(\\\\\\\\d+:)?([\\\\\\\\d-]|\\\\\\\\.)+-[a-z0-9-._+]+\\\\\\\\.[a-z0-9-._+]+$') }}\\"
       args:
         warn: false
 
@@ -99,7 +99,7 @@ exports[`patchman - package using patch-advisory generates a simple playbook wit
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z]+-(\\\\\\\\d+:)?([\\\\\\\\d]|\\\\\\\\.)+-[a-z0-9._]+\\\\\\\\.[a-z0-9_]+$') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z-._+]+-(\\\\\\\\d+:)?([\\\\\\\\d-]|\\\\\\\\.)+-[a-z0-9-._+]+\\\\\\\\.[a-z0-9-._+]+$') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -108,7 +108,7 @@ exports[`patchman - package using patch-advisory generates a simple playbook wit
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z]+-(\\\\\\\\d+:)?([\\\\\\\\d]|\\\\\\\\.)+-[a-z0-9._]+\\\\\\\\.[a-z0-9_]+$') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z-._+]+-(\\\\\\\\d+:)?([\\\\\\\\d-]|\\\\\\\\.)+-[a-z0-9-._+]+\\\\\\\\.[a-z0-9-._+]+$') }}\\"
       args:
         warn: false
 
@@ -167,19 +167,22 @@ exports[`patchman - package using patch-package generates a playbook with multip
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
 # Upgrade the following packages:
+#   - Upgrade packages libstdc++-8.3.1-5.1.el8.x86_64
+#   - Upgrade packages qemu-guest-agent-15:4.2.0-34.module+el8.3.0+8829+e7a0a3ea.1.x86_64
 #   - Upgrade packages rpm-4.14.2-37.el8.x86_64
+#   - Upgrade packages some.my-odd_pkg-1000:11.23.444.5-8.1.el8.x86_64
 #   - Upgrade packages systemd-239-13.el8_0.5.x86_64
-# Identifier: (patch-package:rpm-4.14.2-37.el8.x86_64,patch-package:systemd-239-13.el8_0.5.x86_64,fix)
+# Identifier: (patch-package:libstdc++-8.3.1-5.1.el8.x86_64,patch-package:qemu-guest-agent-15:4.2.0-34.module+el8.3.0+8829+e7a0a3ea.1.x86_64,patch-package:rpm-4.14.2-37.el8.x86_64,patch-package:some.my-odd_pkg-1000:11.23.444.5-8.1.el8.x86_64,patch-package:systemd-239-13.el8_0.5.x86_64,fix)
 # Version: test
 - name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   vars:
-    insights_issues: \\"rpm-4.14.2-37.el8.x86_64 systemd-239-13.el8_0.5.x86_64\\"
+    insights_issues: \\"libstdc++-8.3.1-5.1.el8.x86_64 qemu-guest-agent-15:4.2.0-34.module+el8.3.0+8829+e7a0a3ea.1.x86_64 rpm-4.14.2-37.el8.x86_64 some.my-odd_pkg-1000:11.23.444.5-8.1.el8.x86_64 systemd-239-13.el8_0.5.x86_64\\"
     insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z]+-(\\\\\\\\d+:)?([\\\\\\\\d]|\\\\\\\\.)+-[a-z0-9._]+\\\\\\\\.[a-z0-9_]+$') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z-._+]+-(\\\\\\\\d+:)?([\\\\\\\\d-]|\\\\\\\\.)+-[a-z0-9-._+]+\\\\\\\\.[a-z0-9-._+]+$') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -188,7 +191,7 @@ exports[`patchman - package using patch-package generates a playbook with multip
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z]+-(\\\\\\\\d+:)?([\\\\\\\\d]|\\\\\\\\.)+-[a-z0-9._]+\\\\\\\\.[a-z0-9_]+$') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z-._+]+-(\\\\\\\\d+:)?([\\\\\\\\d-]|\\\\\\\\.)+-[a-z0-9-._+]+\\\\\\\\.[a-z0-9-._+]+$') }}\\"
       args:
         warn: false
 
@@ -257,7 +260,7 @@ exports[`patchman - package using patch-package generates a simple playbook with
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z]+-(\\\\\\\\d+:)?([\\\\\\\\d]|\\\\\\\\.)+-[a-z0-9._]+\\\\\\\\.[a-z0-9_]+$') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-z-._+]+-(\\\\\\\\d+:)?([\\\\\\\\d-]|\\\\\\\\.)+-[a-z0-9-._+]+\\\\\\\\.[a-z0-9-._+]+$') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -266,7 +269,7 @@ exports[`patchman - package using patch-package generates a simple playbook with
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z]+-(\\\\\\\\d+:)?([\\\\\\\\d]|\\\\\\\\.)+-[a-z0-9._]+\\\\\\\\.[a-z0-9_]+$') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^[a-z-._+]+-(\\\\\\\\d+:)?([\\\\\\\\d-]|\\\\\\\\.)+-[a-z0-9-._+]+\\\\\\\\.[a-z0-9-._+]+$') }}\\"
       args:
         warn: false
 
