@@ -1,0 +1,20 @@
+# Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
+# The variable can be overridden to suppress this behavior.
+- name: Reboot localhost
+  hosts: "@@HOSTS@@"
+  vars:
+    insights_signature_exclude: "/hosts"
+  become: True
+  gather_facts: False
+  tasks:
+    - when:
+        - insights_needs_reboot is defined
+        - insights_needs_reboot
+      block:
+        - name: Schedule insights-client after boot
+          file:
+            path: "/etc/insights-client/.run_insights_client_next_boot"
+            state: touch
+        - name: Reboot system
+          shell: sleep 2 && shutdown -r +1 now "Ansible triggered reboot"
+          ignore_errors: true

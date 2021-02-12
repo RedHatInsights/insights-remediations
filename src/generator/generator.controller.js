@@ -26,7 +26,7 @@ exports.normalizeIssues = function (issues) {
     return issues;
 };
 
-exports.playbookPipeline = async function ({issues, auto_reboot = true}, remediation = false, strict = true) {
+exports.playbookPipeline = async function ({issues, auto_reboot = true}, remediation = false, strict = true, localhost = false) {
     await exports.resolveSystems(issues, strict);
     _.forEach(issues, issue => issue.id = identifiers.parse(issue.id));
 
@@ -43,6 +43,12 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
         return;
     }
 
+    if (localhost) {
+        issues.forEach(issue => {
+            issue.hosts = ['localhost'];
+        });
+    }
+
     // canonical playbook definition allows us to reconstruct the playbook some time later
     const definition = {
         version: commit,
@@ -55,8 +61,12 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
     };
 
     issues = erratumPlayAggregator.process(issues);
-    issues = addRebootPlay(issues, auto_reboot);
-    issues = addPostRunCheckIn(issues);
+    issues = addRebootPlay(issues, auto_reboot, localhost);
+
+    if (!localhost) {
+        issues = addPostRunCheckIn(issues);
+    }
+
     issues = addDiagnosisPlay(issues, remediation);
 
     const yaml = format.render(issues, remediation);
@@ -107,13 +117,22 @@ exports.resolveSystems = async function (issues, strict = true) {
     return issues;
 };
 
-function addRebootPlay (plays, autoReboot = true) {
+function addRebootPlay (plays, autoReboot = true, localhost = false) {
     const rebootRequiringPlays = _.filter(plays, play => play.needsReboot());
     if (rebootRequiringPlays.length === 0) {
         return plays;
     }
 
     const hosts = _(rebootRequiringPlays).flatMap('hosts').uniq().sort().value();
+
+    if (localhost) {
+        return [
+            ...plays,
+            // eslint-disable-next-line max-len
+            new SpecialPlay('special:reboot', hosts, autoReboot ? templates.special.rebootLocalHost : templates.special.rebootSuppressed)
+        ];
+    }
+
     return [
         ...plays,
         new SpecialPlay('special:reboot', hosts, autoReboot ? templates.special.reboot : templates.special.rebootSuppressed)

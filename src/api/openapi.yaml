@@ -151,6 +151,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/RemediationId'
         - $ref: '#/components/parameters/SelectedHosts'
+        - $ref: '#/components/parameters/LocalHost'
       responses:
         200:
           description: OK
@@ -640,6 +641,14 @@ components:
         type: array
         items:
           type: string
+    LocalHost:
+      in: query
+      name: localhost
+      description: 'Flag for localhost playbook generation'
+      required: false
+      schema:
+        type: boolean
+        default: false
 
     SelectedRemediations:
       in: query

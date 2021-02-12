@@ -105,6 +105,36 @@ describe('playbooks', function () {
             expect(text).toMatchSnapshot();
         });
 
+        test('playbook specifying 1 host and using localhost flag', async() => {
+            mockDate();
+            const {text} = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/playbook?hosts=9dae9304-86a8-4f66-baa3-a1b27dfdd479&localhost')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('playbook with localhost flag', async () => {
+            mockDate();
+            const {text} = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/playbook?localhost')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('playbook with localhost flag and reboot', async () => {
+            mockDate();
+            const {text} = await request
+            .get('/v1/remediations/c3f9f751-4bcc-4222-9b83-77f5e6e603da/playbook?localhost')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            expect(text).toMatchSnapshot();
+        });
+
         test('playbook for remediation with zero issues does not freak out', async () => {
             const {text} = await request
             .get('/v1/remediations/256ab1d3-58cf-1292-35e6-1a49c8b122d3/playbook')
@@ -118,6 +148,22 @@ describe('playbooks', function () {
             mockDate();
             await request
             .get('/v1/remediations/c3f9f751-4bcc-4222-9b83-77f5e6e603da/playbook')
+            .set(auth.testReadSingle)
+            .expect(204);
+        });
+
+        test('204 on remediation with no hosts', async () =>{
+            mockDate();
+            await request
+            .get('/v1/remediations/d1b070b5-1db8-4dac-8ecf-891dc1e9225f/playbook')
+            .set(auth.testReadSingle)
+            .expect(204);
+        });
+
+        test('204 on remediation with no hosts & localhost', async () =>{
+            mockDate();
+            await request
+            .get('/v1/remediations/d1b070b5-1db8-4dac-8ecf-891dc1e9225f/playbook?localhost')
             .set(auth.testReadSingle)
             .expect(204);
         });
