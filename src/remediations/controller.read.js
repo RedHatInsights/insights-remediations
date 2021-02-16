@@ -200,6 +200,7 @@ exports.get = errors.async(async function (req, res) {
 exports.playbook = errors.async(async function (req, res) {
     const remediation = await queries.get(req.params.id, req.user.account_number, req.user.username);
     const selected_hosts = req.query.hosts;
+    const localhost = req.query.localhost;
 
     if (!remediation) {
         return notFound(res);
@@ -229,7 +230,7 @@ exports.playbook = errors.async(async function (req, res) {
     const playbook = await generator.playbookPipeline({
         issues: normalizedIssues,
         auto_reboot: remediation.auto_reboot
-    }, remediation, false);
+    }, remediation, false, localhost);
 
     if (!playbook) {
         return noContent(res);
