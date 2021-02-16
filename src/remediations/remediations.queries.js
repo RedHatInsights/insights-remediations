@@ -168,8 +168,8 @@ exports.loadDetails = async function (account_number, created_by, rows) {
     return rows.map(row => _.assign(byId[row.id].toJSON(), row));
 };
 
-exports.get = function (id, account_number, created_by) {
-    return db.remediation.findOne({
+exports.get = function (id, account_number, created_by = null) {
+    const query = {
         attributes: [
             ...REMEDIATION_ATTRIBUTES,
             [resolvedCountSubquery(), 'resolved_count']
@@ -184,7 +184,7 @@ exports.get = function (id, account_number, created_by) {
             }
         }],
         where: {
-            id, account_number, created_by
+            id, account_number
         },
         group: [
             'remediation.id',
@@ -197,7 +197,13 @@ exports.get = function (id, account_number, created_by) {
             [db.issue, 'issue_id'],
             [db.issue, db.issue.associations.systems, 'system_id']
         ]
-    });
+    };
+
+    if (created_by) {
+        query.where.created_by = created_by;
+    }
+
+    return db.remediation.findOne(query);
 };
 
 exports.getIssueSystems = function (id, account_number, created_by, issueId) {

@@ -27,6 +27,36 @@ const catchErrorCode = (code, fn) => e => {
     throw e;
 };
 
+async function fetchRemediation (req, res) {
+    const id = req.params.id;
+    const hosts = req.query.hosts;
+
+    if (_.isUndefined(req.user)) {
+        // TODO: Add check here to get host that matches owner_id from inventory once generalized
+        //       filtering has been implemented.
+
+        const batchProfileInfo = await inventory.getSystemProfileBatch(hosts);
+
+        if (_.isEmpty(batchProfileInfo)) {
+            throw notFound(res);
+        }
+
+        hosts.forEach(host => {
+            if (_.has(batchProfileInfo, host)) {
+                // eslint-disable-next-line security/detect-object-injection
+                const ownerId = batchProfileInfo[host].system_profile.owner_id;
+                if (!_.isEqual(req.identity.system.cn, ownerId)) {
+                    throw errors.unauthorizedGeneration(req.identity.system.cn);
+                }
+            }
+        });
+
+        return queries.get(id, req.identity.account_number);
+    }
+
+    return queries.get(id, req.user.account_number, req.user.username);
+}
+
 function resolveResolutions (...remediations) {
     return P.all(_(remediations).flatMap('issues').map(async issue => {
         const id = identifiers.parse(issue.issue_id);
@@ -198,9 +228,11 @@ exports.get = errors.async(async function (req, res) {
 });
 
 exports.playbook = errors.async(async function (req, res) {
-    const remediation = await queries.get(req.params.id, req.user.account_number, req.user.username);
     const selected_hosts = req.query.hosts;
     const localhost = req.query.localhost;
+
+    // If /playbook is called with cert-auth go through additional host validation check before querying remediation
+    const remediation = await fetchRemediation(req, res);
 
     if (!remediation) {
         return notFound(res);
