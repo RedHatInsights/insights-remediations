@@ -159,6 +159,116 @@ describe('inventory xjoin', function () {
         ids.forEach(id => _.has(result, id).should.be.true());
     });
 
+    describe('getSystemProfileBatch', function () {
+        test('does not make a call for empty list', async function () {
+            const spy = base.getSandbox().spy(queries, 'runQuery');
+            const result = await xjoin.getSystemProfileBatch([]);
+
+            result.should.be.empty();
+            spy.called.should.be.false();
+        });
+
+        test('forwards request headers', async function () {
+            const spy = base.getSandbox().stub(queries, 'runQuery').resolves({
+                status: 200,
+                headers: {},
+                data: {
+                    hosts: {
+                        data: [
+                            {
+                                id: '9dae9304-86a8-4f66-baa3-a1b27dfdd479',
+                                system_profile_facts: {
+                                    owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
+                                }
+                            }
+                        ]
+                    }
+                }
+            });
+
+            await xjoin.getSystemProfileBatch(['9dae9304-86a8-4f66-baa3-a1b27dfdd479']);
+            const headers = spy.args[0][2];
+            headers.should.have.size(2);
+            headers.should.have.property('x-rh-identity', 'identity');
+            headers.should.have.property('x-rh-insights-request-id', 'request-id');
+        });
+
+        test('obtains system profile details', async function () {
+            const http = base.getSandbox().stub(queries, 'runQuery').resolves({
+                status: 200,
+                headers: {},
+                data: {
+                    hosts: {
+                        data: [
+                            {
+                                id: '9dae9304-86a8-4f66-baa3-a1b27dfdd479',
+                                system_profile_facts: {
+                                    owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
+                                }
+                            }
+                        ]
+                    }
+                }
+            });
+
+            const results = await xjoin.getSystemProfileBatch(['9dae9304-86a8-4f66-baa3-a1b27dfdd479']);
+            results.should.have.size(1);
+            results.should.have.property('9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            const result = results['9dae9304-86a8-4f66-baa3-a1b27dfdd479'];
+            result.should.have.property('id', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            result.system_profile.should.have.property('owner_id', '81390ad6-ce49-4c8f-aa64-729d374ee65c');
+
+            http.callCount.should.equal(1);
+        });
+
+        test('retries on failure', async function () {
+            const http = base.getSandbox().stub(queries, 'runQuery');
+
+            http.onFirstCall().rejects(new RequestError('Error: socket hang up'));
+            http.onSecondCall().rejects(new RequestError('Error: socket hang up'));
+            http.resolves({
+                status: 200,
+                headers: {},
+                data: {
+                    hosts: {
+                        data: [
+                            {
+                                id: '9dae9304-86a8-4f66-baa3-a1b27dfdd479',
+                                system_profile_facts: {
+                                    owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
+                                }
+                            }
+                        ]
+                    }
+                }
+            });
+
+            const results = await xjoin.getSystemProfileBatch(['9dae9304-86a8-4f66-baa3-a1b27dfdd479']);
+            results.should.have.size(1);
+            results.should.have.property('9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            const result = results['9dae9304-86a8-4f66-baa3-a1b27dfdd479'];
+            result.should.have.property('id', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            result.system_profile.should.have.property('owner_id', '81390ad6-ce49-4c8f-aa64-729d374ee65c');
+
+            http.callCount.should.equal(3);
+        });
+
+        test('returns empty object unknown systems', async function () {
+            const http = base.getSandbox().stub(queries, 'runQuery').resolves({
+                status: 200,
+                headers: {},
+                data: {
+                    hosts: {
+                        data: []
+                    }
+                }
+            });
+
+            await expect(xjoin.getSystemProfileBatch(['9dae9304-86a8-4f66-baa3-a1b27dfdd479'])).resolves.toEqual({});
+            http.callCount.should.equal(1);
+        });
+    });
+
     describe('getSystemsByInsightsId', function () {
         test('new', async function () {
             base.getSandbox().stub(queries, 'runQuery').resolves({

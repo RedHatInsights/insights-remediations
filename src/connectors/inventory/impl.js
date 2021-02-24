@@ -26,6 +26,7 @@ module.exports = new class extends Connector {
     constructor () {
         super(module);
         this.detailsMetrics = metrics.createConnectorMetric(this.getName(), 'getSystemDetails');
+        this.profileMetrics = metrics.createConnectorMetric(this.getName(), 'getSystemProfileBatch');
         this.tagsMetrics = metrics.createConnectorMetric(this.getName(), 'getTagsByIds');
     }
 
@@ -88,6 +89,58 @@ module.exports = new class extends Connector {
         .value();
 
         return validate(transformed);
+    }
+
+    async getSystemProfileBatch (ids = [], refresh = false, retries = 2) {
+        if (ids.length === 0) {
+            return {};
+        }
+
+        ids = _.sortBy(ids);
+
+        if (ids.length > pageSize) {
+            const chunks = _.chunk(ids, pageSize);
+            const results = await P.map(chunks, chunk => this.getSystemProfileBatch(chunk, refresh));
+            return _.assign({}, ...results);
+        }
+
+        const uri = this.buildHostsUri();
+        uri.segment(ids.join());
+        uri.segment('system_profile');
+        uri.addQuery('per_page', String(pageSize));
+        uri.addQuery('fields[system_profile]', 'owner_id');
+
+        let response = null;
+
+        try {
+            response = await this.doHttp({
+                uri: uri.toString(),
+                method: 'GET',
+                json: true,
+                rejectUnauthorized: !insecure,
+                headers: this.getForwardedHeaders()
+            },
+            {
+                key: `remediations|http-cache|inventory|system_profile|${ids.join()}`,
+                refresh,
+                revalidationInterval,
+                cacheable: body => body.count > 0 // only cache responses with at least 1 record
+            },
+            this.profileMetrics);
+        } catch (e) {
+            if (retries > 0) {
+                log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
+                return this.getSystemProfileBatch(ids, true, retries - 1);
+            }
+
+            throw e;
+        }
+
+        const transformed = _(response.results)
+        .keyBy('id')
+        .value();
+
+        return transformed;
     }
 
     async getSystemsByInsightsId (id) {

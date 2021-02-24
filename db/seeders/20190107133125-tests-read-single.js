@@ -5,6 +5,7 @@ const { account_number, username: created_by } = require('../../src/connectors/u
 const { NON_EXISTENT_SYSTEM } = require('../../src/connectors/inventory/mock');
 const SYSTEM = '1040856f-b772-44c7-83a9-eea4813c4be8';
 const SYSTEM2 = '9dae9304-86a8-4f66-baa3-a1b27dfdd479';
+const SYSTEM3 = '4bb19a8a-0c07-4ee6-a78c-504dab783cc8';
 
 const opts = {
     returning: true
@@ -75,6 +76,15 @@ exports.up = async q => {
         created_at: '2018-11-04T03:19:36.641Z',
         updated_by: created_by,
         updated_at: '2018-11-04T03:19:36.641Z'
+    }, {
+        id: '7d727f9c-7d9e-458d-a128-a9ffae1802ab',
+        name: 'system profile test',
+        auto_reboot: false,
+        account_number,
+        created_by,
+        created_at: '2018-11-04T03:19:36.641Z',
+        updated_by: created_by,
+        updated_at: '2018-11-04T03:19:36.641Z'
     }], opts);
 
     const issues = await q.bulkInsert('remediation_issues', [{
@@ -120,6 +130,9 @@ exports.up = async q => {
     }, {
         remediation_id: remediations[6].id,
         issue_id: 'test:reboot'
+    }, {
+        remediation_id: remediations[7].id,
+        issue_id: 'test:reboot'
     }], opts);
 
     await q.bulkInsert('remediation_issue_systems', [
@@ -141,6 +154,11 @@ exports.up = async q => {
         {
             remediation_issue_id: issues[12].id,
             system_id: SYSTEM2,
+            resolved: false
+        },
+        {
+            remediation_issue_id: issues[14].id,
+            system_id: SYSTEM3,
             resolved: false
         }
     ]);

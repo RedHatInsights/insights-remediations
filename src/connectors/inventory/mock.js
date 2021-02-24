@@ -16,6 +16,7 @@ const SATELLITES = [
 
 const SYSTEMS = {
     'fc94beb8-21ee-403d-99b1-949ef7adb762': {},
+    '4bb19a8a-0c07-4ee6-a78c-504dab783cc8': {},
     '1040856f-b772-44c7-83a9-eeeeeeeeee01': {
         hostname: 'foo,bar,example.com'
     },
@@ -44,6 +45,22 @@ const SYSTEMS = {
         ]
     }
 };
+
+function generateSystemProfile (id) {
+    if (id === NON_EXISTENT_SYSTEM) {
+        return null;
+    }
+
+    // eslint-disable-next-line security/detect-object-injection
+    return [
+        {
+            id,
+            system_profile: {
+                owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
+            }
+        }
+    ];
+}
 
 function generateSystem (id) {
     const satelliteIndex = parseInt(id[id.length - 1], 16) % SATELLITES.length;
@@ -82,6 +99,14 @@ module.exports = new class extends Connector {
         return Promise.resolve(_(systems)
         .keyBy()
         .mapValues(generateSystem)
+        .pickBy()
+        .value());
+    }
+
+    getSystemProfileBatch (systems) {
+        return Promise.resolve(_(systems)
+        .keyBy()
+        .mapValues(generateSystemProfile)
         .pickBy()
         .value());
     }
