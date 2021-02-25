@@ -63,6 +63,9 @@ exports.auth = Object.freeze({
     cert01: {
         [identityUtils.IDENTITY_HEADER]: identityUtils.createCertIdentityHeader('diagnosis01')
     },
+    cert02: {
+        [identityUtils.IDENTITY_HEADER]: identityUtils.createCertIdentityHeader(USERS.testReadSingleUser.account_number)
+    },
     jharting: createHeader(null, null, null, () => ({
         entitlements: {
             insights: {

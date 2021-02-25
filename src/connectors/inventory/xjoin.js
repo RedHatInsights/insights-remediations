@@ -7,7 +7,7 @@ const assert = require('assert');
 const metrics = require('../metrics');
 const queries = require('./xjoin.queries');
 const { pageSize } = require('../../config').inventory;
-const { BATCH_DETAILS_QUERY, INSIGHTS_ID_QUERY} = require('./xjoin.queries');
+const { BATCH_DETAILS_QUERY, INSIGHTS_ID_QUERY, BATCH_PROFILE_QUERY} = require('./xjoin.queries');
 
 const Connector = require('../Connector');
 const log = require('../../util/log');
@@ -27,6 +27,7 @@ module.exports = new class extends Connector {
     constructor () {
         super(module);
         this.xjoinDetailsMetrics = metrics.createConnectorMetric(this.getName(), 'getSystemDetailsBatch');
+        this.xjoinSystemProfileMetrics = metrics.createConnectorMetric(this.getName(), 'getSystemProfileBatch');
         this.xjoinInsightsIdMetrics = metrics.createConnectorMetric(this.getName(), 'getSystemsByInsightsId');
     }
 
@@ -68,6 +69,46 @@ module.exports = new class extends Connector {
         .value();
 
         return validate(transformed);
+    }
+
+    async getSystemProfileBatch(ids = [], refresh = false, retries = 2) {
+        if (ids.length === 0) {
+            return {};
+        }
+
+        if (ids.length > pageSize) {
+            const chunks = _.chunk(ids, pageSize);
+            const results = await P.map(chunks, chunk => this.getSystemProfileBatch(chunk, refresh));
+            return _.assign({}, ...results);
+        }
+
+        let response = null;
+        const queryIds = ids.map(identifier => ({id: {eq: identifier}}));
+
+        try {
+            response = await queries.runQuery(BATCH_PROFILE_QUERY, {
+                filter: {OR: queryIds},
+                order_by: 'display_name',
+                order_how: 'ASC',
+                limit: pageSize,
+                offset: 0
+            }, this.getForwardedHeaders(), this.xjoinSystemProfileMetrics);
+        } catch (e) {
+            if (retries > 0) {
+                log.warn({ error: e, ids, retries }, 'Xjoin fetch failed. Retrying');
+                return this.getSystemProfileBatch(ids, true, retries - 1);
+            }
+
+            throw e;
+        }
+
+        const transformed = _(response.data.hosts.data)
+        .keyBy('id')
+        .mapValues(({id, system_profile_facts}) =>
+            ({id, system_profile: system_profile_facts}))
+        .value();
+
+        return transformed;
     }
 
     async getSystemsByInsightsId (id) {

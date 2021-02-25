@@ -34,6 +34,29 @@ exports.BATCH_DETAILS_QUERY = `
     }
 `;
 
+exports.BATCH_PROFILE_QUERY = `
+    query hosts (
+        $filter: HostFilter,
+        $order_by: HOSTS_ORDER_BY,
+        $order_how: ORDER_DIR,
+        $limit: Int,
+        $offset: Int) {
+        hosts (
+            filter: $filter
+            order_by: $order_by,
+            order_how: $order_how,
+            limit: $limit,
+            offset: $offset
+        )
+        {
+            data {
+                id
+                system_profile_facts (filter: ["owner_id"])
+            }
+        }
+    }
+`;
+
 exports.INSIGHTS_ID_QUERY = `
     query hosts ($insights_id: String) {
         hosts (filter: {insights_id: {eq: $insights_id}})
@@ -49,7 +72,7 @@ exports.INSIGHTS_ID_QUERY = `
     }
 `;
 
-exports.runQuery = async function (query, variables, headers = { [IDENTITY_HEADER]: createIdentityHeader()}, metrics = false) {
+exports.runQuery = async function (query, variables, headers = {[IDENTITY_HEADER]: createIdentityHeader()}, metrics = false) {
     try {
         const client = new GraphQLClient(xjoinHost, { headers });
         const before = new Date();
