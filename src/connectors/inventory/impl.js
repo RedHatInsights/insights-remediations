@@ -138,6 +138,8 @@ module.exports = new class extends Connector {
 
         const transformed = _(response.results)
         .keyBy('id')
+        .mapValues(({id, system_profile}) =>
+            ({id, system_profile}))
         .value();
 
         return transformed;
