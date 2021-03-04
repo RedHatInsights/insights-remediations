@@ -20,6 +20,12 @@ exports.connection_status = errors.async(async function (req, res) {
         return notFound(res);
     }
 
+    const smartManagement = await fifi.checkSmartManagement(remediation, req.entitlements.smart_management);
+
+    if (!smartManagement) {
+        throw new errors.Forbidden();
+    }
+
     const status = await fifi.getConnectionStatus(remediation, req.identity.account_number);
 
     res.set('etag', etag(JSON.stringify(status)));
@@ -31,6 +37,12 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
 
     if (!remediation) {
         return notFound(res);
+    }
+
+    const smartManagement = await fifi.checkSmartManagement(remediation, req.entitlements.smart_management);
+
+    if (!smartManagement) {
+        throw new errors.Forbidden();
     }
 
     const status = await fifi.getConnectionStatus(remediation, req.identity.account_number);

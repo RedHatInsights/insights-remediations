@@ -36,6 +36,7 @@ const config = {
     commit: env.OPENSHIFT_BUILD_COMMIT,
     demo: (env.DEMO_MODE === 'true') ? true : false,
     platformHostname: env.PLATFORM_HOSTNAME || 'hostname',
+    isMarketplace: (env.MARKETPLACE_CHECK === 'true') ? true : false,
 
     bodyParserLimit: env.BODY_PARSER_LIMIT || '1mb',
 
