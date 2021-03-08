@@ -714,8 +714,7 @@ components:
                 type: array
                 items:
                   type: string
-                  format: uuid
-                  example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
+                  example: 9197ba55-0abc-4028-9bbe-269e530f8bd5 or "RHC"
 
   schemas:
     #

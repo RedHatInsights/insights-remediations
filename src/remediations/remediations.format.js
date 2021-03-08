@@ -33,6 +33,10 @@ function buildListLinks (total, limit, offset, sort, system) {
     return links;
 }
 
+function buildRHCUrl (remediation_id, system_id) {
+    return `https://${config.platformHostname}${config.path.prefix}/${config.path.app}/v1/${config.path.app}/${remediation_id}/playbook?hosts=${system_id}`;
+}
+
 exports.parseSort = function (param) {
     if (!param) {
         throw new Error(`Invalid sort param value ${param}`);
@@ -183,6 +187,15 @@ exports.receptorWorkRequest = function (playbookRunRequest, account_number, rece
         recipient: receptor_id,
         payload: JSON.stringify(playbookRunRequest),
         directive: 'receptor_satellite:execute'
+    };
+};
+
+exports.rhcWorkRequest = function (rhc_client_id, account_number, remediation_id, system_id, playbook_run_id) {
+    return {
+        recipient: rhc_client_id,
+        account: account_number,
+        url: buildRHCUrl(remediation_id, system_id),
+        labels: { 'playbook-run': playbook_run_id }
     };
 };
 
