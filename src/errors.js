@@ -163,6 +163,9 @@ exports.noExecutors = remediation =>
 exports.unknownExclude = excluded =>
     new exports.BadRequest('UNKNOWN_EXCLUDE', `Excluded Executor [${excluded}] not found in list of identified executors`);
 
+exports.unauthorizedGeneration = cn =>
+    new exports.Forbidden(`Host certificate ${cn} is unauthorized to access this playbook`);
+
 exports.internal = {
     invalidTemplate (msg) {
         return new InternalError('INVALID_TEMPLATE', msg);

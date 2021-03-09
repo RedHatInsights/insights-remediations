@@ -1,6 +1,6 @@
 'use strict';
 
-const { request, auth } = require('../test');
+const { request, auth } = require('../../test');
 
 const SYSTEMS = [
     'aab9caf3-7bcb-40ed-bcb1-92fc6360a47d',

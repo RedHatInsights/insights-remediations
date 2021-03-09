@@ -106,6 +106,14 @@ const config = {
         revalidationInterval: parseIntEnv('CONTENT_SERVER_REVALIDATION_INVERVAL', 60 * 60) // 1 hour
     },
 
+    dispatcher: {
+        impl: env.PlAYBOOK_DISPATCHER_IMPL,
+        host: env.PLAYBOOK_DISPATCHER_HOST || 'http://playbook-dispatcher.dispatcher-ci.svc.cluster.loacl:8000',
+        auth: env.PLAYBOOK_DISPATCHER_AUTH || '',
+        insecure: (env.PLAYBOOK_DISPATCHER_INSECURE === 'true') ? true : false,
+        revalidationInterval: parseIntEnv('PLAYBOOK_DISPATCHER_REVALIDATION_INTERVAL', 60 * 60) // 1 hour
+    },
+
     inventory: {
         impl: env.INVENTORY_IMPL,
         host: env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080',

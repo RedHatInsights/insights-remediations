@@ -68,8 +68,9 @@ module.exports = async function (app) {
     require('./diagnosis/routes')(v1);
     require('./diagnosis/routes')(legacy);
     require('./whoami/routes')(v1);
+    require('./remediations/playbook/routes')(v1);
 
-    // diagnosis and whoami are the only path that accepts cert auth
+    // diagnosis, whoami, and remediations/playbooks are the only path that accepts cert auth
     v1.use(userIdentity);
 
     [

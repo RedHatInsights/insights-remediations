@@ -21,12 +21,6 @@ module.exports = function (router) {
     router.patch('/remediations/:id', openapi('updateRemediation'), rbacWrite, write.patch);
     router.delete('/remediations/:id', openapi('deleteRemediation'), rbacWrite, write.remove);
 
-    router.get(
-        '/remediations/:id/playbook',
-        openapi('getRemediationPlaybook'),
-        rbacRead,
-        read.playbook);
-
     router.get('/remediations/:id/status', rbacRead, status.status); // TODO: openapi mw
 
     router.patch(

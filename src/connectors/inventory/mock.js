@@ -52,14 +52,12 @@ function generateSystemProfile (id) {
     }
 
     // eslint-disable-next-line security/detect-object-injection
-    return [
-        {
-            id,
-            system_profile: {
-                owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
-            }
+    return {
+        id,
+        system_profile: {
+            owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
         }
-    ];
+    };
 }
 
 function generateSystem (id) {

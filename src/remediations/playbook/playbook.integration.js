@@ -1,10 +1,11 @@
 'use strict';
 /*eslint-disable max-len*/
 
-const { request, auth, mockDate, normalizePlaybookVersionForSnapshot, getSandbox, buildRbacResponse } = require('../test');
-const generator = require('../generator/generator.controller.js');
-const rbac = require('../connectors/rbac');
-const db = require('../db');
+const { request, auth, mockDate, normalizePlaybookVersionForSnapshot, getSandbox, buildRbacResponse } = require('../../test');
+const generator = require('../../generator/generator.controller.js');
+const inventory = require('../../connectors/inventory');
+const rbac = require('../../connectors/rbac');
+const db = require('../../db');
 const P = require('bluebird');
 
 describe('playbooks', function () {
@@ -73,6 +74,26 @@ describe('playbooks', function () {
             .expect(200);
 
             expect(text).toMatchSnapshot();
+        });
+
+        test('playbook with cert-auth enabled', async () => {
+            mockDate();
+            const {text} = await request
+            .get('/v1/remediations/7d727f9c-7d9e-458d-a128-a9ffae1802ab/playbook?hosts=4bb19a8a-0c07-4ee6-a78c-504dab783cc8')
+            .set(auth.cert02)
+            .expect(200);
+
+            expect(normalizePlaybookVersionForSnapshot(text)).toMatchSnapshot();
+        });
+
+        test('playbook with cert-auth and localhost', async () => {
+            mockDate();
+            const {text} = await request
+            .get('/v1/remediations/7d727f9c-7d9e-458d-a128-a9ffae1802ab/playbook?hosts=4bb19a8a-0c07-4ee6-a78c-504dab783cc8&localhost')
+            .set(auth.cert02)
+            .expect(200);
+
+            expect(normalizePlaybookVersionForSnapshot(text)).toMatchSnapshot();
         });
 
         test('playbook specifying only 1 of its hosts', async () => {
@@ -152,7 +173,7 @@ describe('playbooks', function () {
             .expect(204);
         });
 
-        test('204 on remediation with no hosts', async () =>{
+        test('204 on remediation with no hosts', async () => {
             mockDate();
             await request
             .get('/v1/remediations/d1b070b5-1db8-4dac-8ecf-891dc1e9225f/playbook')
@@ -160,12 +181,28 @@ describe('playbooks', function () {
             .expect(204);
         });
 
-        test('204 on remediation with no hosts & localhost', async () =>{
+        test('204 on remediation with no hosts & localhost', async () => {
             mockDate();
             await request
             .get('/v1/remediations/d1b070b5-1db8-4dac-8ecf-891dc1e9225f/playbook?localhost')
             .set(auth.testReadSingle)
             .expect(204);
+        });
+
+        test('403 on cert-auth request with non matching owner_ids', async () => {
+            getSandbox().stub(inventory, 'getSystemProfileBatch').resolves({
+                '4bb19a8a-0c07-4ee6-a78c-504dab783cc8': {
+                    id: '4bb19a8a-0c07-4ee6-a78c-504dab783cc8',
+                    system_profile: {
+                        owner_id: 'non-existent'
+                    }
+                }
+            });
+            mockDate();
+            await request
+            .get('/v1/remediations/7d727f9c-7d9e-458d-a128-a9ffae1802ab/playbook?hosts=4bb19a8a-0c07-4ee6-a78c-504dab783cc8&localhost')
+            .set(auth.cert02)
+            .expect(403);
         });
 
         test('404 on non-existent remediation', async () => {
@@ -189,6 +226,22 @@ describe('playbooks', function () {
             await request
             .get('/v1/remediations/c3f9f751-4bcc-4222-9b83-77f5e6e603da/playbook?hosts=non-existent-host')
             .set(auth.testReadSingle)
+            .expect(404);
+        });
+
+        test('404 on non-existent-host with cert auth', async () => {
+            mockDate();
+            await request
+            .get('/v1/remediations/7d727f9c-7d9e-458d-a128-a9ffae1802ab/playbook?hosts=non-existent-host')
+            .set(auth.cert02)
+            .expect(404);
+        });
+
+        test('404 on playbook with cert-auth and no hosts query param', async () => {
+            mockDate();
+            await request
+            .get('/v1/remediations/7d727f9c-7d9e-458d-a128-a9ffae1802ab/playbook?localhost')
+            .set(auth.cert02)
             .expect(404);
         });
     });
@@ -314,6 +367,16 @@ describe('playbooks', function () {
             body.errors[0].details.message.should.equal(
                 'Permission remediations:remediation:read is required for this operation'
             );
+        });
+
+        test('permission = remediations:*:write ignored on cert-auth', async () => {
+            getSandbox().stub(rbac, 'getRemediationsAccess').resolves(buildRbacResponse('remediations:*:write'));
+
+            mockDate();
+            await request
+            .get('/v1/remediations/7d727f9c-7d9e-458d-a128-a9ffae1802ab/playbook?hosts=4bb19a8a-0c07-4ee6-a78c-504dab783cc8&localhost')
+            .set(auth.cert02)
+            .expect(200);
         });
     });
 });
