@@ -121,6 +121,24 @@ exports.splitPlaybookPerSatId = function (receptorWorkRequest, satId, remediatio
     }, 'Full Contents of Work Request before being sent to receptor controller');
 };
 
+exports.splitPlaybookPerRHCEnabledSystems = function (rhcWorkRequest, systems, playbookRunId) {
+    playbookExecutionCounter.inc();
+    log.debug({
+        rhc_work_request: rhcWorkRequest,
+        systems,
+        playbook_run_id: playbookRunId
+    }, 'Full Contents of Work Request before being sent to playbook-dispatcher');
+};
+
+exports.rhcJobDispatched = function (rhcWorkRequest, executor, response, playbookRunId) {
+    log.debug({
+        rhc_work_request: rhcWorkRequest,
+        systems: executor.systems,
+        response,
+        playbook_run_id: playbookRunId
+    });
+};
+
 exports.receptorJobDispatched = function (receptorWorkRequest, executor, response, remediation, playbookRunId) {
     log.info({
         account: receptorWorkRequest.account,

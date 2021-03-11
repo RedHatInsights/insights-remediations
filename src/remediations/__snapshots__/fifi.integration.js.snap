@@ -3,8 +3,8 @@
 exports[`FiFi connection status obtains connection status 1`] = `
 "{
     \\"meta\\": {
-        \\"count\\": 6,
-        \\"total\\": 6
+        \\"count\\": 7,
+        \\"total\\": 7
     },
     \\"data\\": [
         {
@@ -52,8 +52,16 @@ exports[`FiFi connection status obtains connection status 1`] = `
             \\"executor_id\\": null,
             \\"executor_type\\": null,
             \\"executor_name\\": null,
-            \\"system_count\\": 2,
+            \\"system_count\\": 1,
             \\"connection_status\\": \\"no_executor\\"
+        },
+        {
+            \\"endpoint_id\\": null,
+            \\"executor_id\\": null,
+            \\"executor_type\\": \\"RHC\\",
+            \\"executor_name\\": null,
+            \\"system_count\\": 1,
+            \\"connection_status\\": \\"connected\\"
         }
     ]
 }"

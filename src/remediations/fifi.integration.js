@@ -64,14 +64,14 @@ describe('FiFi', function () {
             .set(auth.fifi)
             .expect(200);
 
-            headers.etag.should.equal('"10d1-znP/hi4fEIT3PozsJd+nSvx8Im4"');
+            headers.etag.should.equal('"1172-aL66zBR3zzAbkQBquBARuVlS5w0"');
         });
 
         test('304s on ETag match', async () => {
             await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
             .set(auth.fifi)
-            .set('if-none-match', '"10d1-znP/hi4fEIT3PozsJd+nSvx8Im4"')
+            .set('if-none-match', '"1172-aL66zBR3zzAbkQBquBARuVlS5w0"')
             .expect(304);
         });
     });
@@ -778,14 +778,14 @@ describe('FiFi', function () {
                 await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
                 .set(auth.fifi)
-                .set('if-match', '"10d1-znP/hi4fEIT3PozsJd+nSvx8Im4"')
+                .set('if-match', '"1172-aL66zBR3zzAbkQBquBARuVlS5w0"')
                 .expect(201);
             });
 
             test('400 post playbook run', async () => {
                 await request
                 .set(auth.fifi)
-                .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d150000/connection_status')
+                .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d150000/playbook_runs')
                 .expect(400);
             });
 
@@ -810,17 +810,17 @@ describe('FiFi', function () {
                 const {headers} = await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs?pretty')
                 .set(auth.fifi)
-                .set('if-match', '"10d1-znP/hi4fEIT3PozsJd+nSvx8Im4"')
+                .set('if-match', '"1172-aL66zBR3zzAbkQBquBARuVlS5w0"')
                 .expect(201);
 
-                headers.etag.should.equal('"10d1-znP/hi4fEIT3PozsJd+nSvx8Im4"');
+                headers.etag.should.equal('"1172-aL66zBR3zzAbkQBquBARuVlS5w0"');
             });
 
             test('201s on ETag match', async () => {
                 await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
                 .set(auth.fifi)
-                .set('if-match', '"10d1-znP/hi4fEIT3PozsJd+nSvx8Im4"')
+                .set('if-match', '"1172-aL66zBR3zzAbkQBquBARuVlS5w0"')
                 .expect(201);
             });
 
@@ -831,7 +831,7 @@ describe('FiFi', function () {
                 .set('if-match', '"1062-Pl88DazTBuJo//SQVNUn6pZAlmk"')
                 .expect(412);
 
-                headers.etag.should.equal('"10d1-znP/hi4fEIT3PozsJd+nSvx8Im4"');
+                headers.etag.should.equal('"1172-aL66zBR3zzAbkQBquBARuVlS5w0"');
             });
 
             test('if if-match is not present, proceed', async () => {
@@ -903,10 +903,10 @@ describe('FiFi', function () {
                 expect(spy.args[0]).toMatchSnapshot();
             });
 
-            test('exclude both connected connectors and return 400 NO_EXECUTORS', async function () {
+            test('exclude all connected connectors and return 400 NO_EXECUTORS', async function () {
                 const {body} = await request
                 .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
-                .send({exclude: ['722ec903-f4b5-4b1f-9c2f-23fc7b0ba390', '63142926-46a5-498b-9614-01f2f66fd40b']})
+                .send({exclude: ['722ec903-f4b5-4b1f-9c2f-23fc7b0ba390', '63142926-46a5-498b-9614-01f2f66fd40b', 'RHC']})
                 .set(auth.fifi)
                 .expect(400);
 
@@ -1090,7 +1090,7 @@ describe('FiFi', function () {
                                 display_name: null
                             }
                         ],
-                        type: 'Satellite',
+                        type: 'satellite',
                         name: 'Dynamic Satellite',
                         status: 'connected'
                     }))
@@ -1128,7 +1128,7 @@ describe('FiFi', function () {
                                 display_name: null
                             }
                         ],
-                        type: 'Satellite',
+                        type: 'satellite',
                         name: 'Dynamic Satellite',
                         status: 'connected'
                     }))
@@ -1166,7 +1166,7 @@ describe('FiFi', function () {
                                 display_name: null
                             }
                         ],
-                        type: 'Satellite',
+                        type: 'satellite',
                         name: 'Dynamic Satellite',
                         status: 'connected'
                     }))
@@ -1345,7 +1345,7 @@ describe('FiFi', function () {
             const {body: post} = await request
             .post('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs')
             .set(auth.fifi)
-            .set('if-match', '"10d1-znP/hi4fEIT3PozsJd+nSvx8Im4"')
+            .set('if-match', '"1172-aL66zBR3zzAbkQBquBARuVlS5w0"')
             .expect(201);
 
             const {body: run} = await request

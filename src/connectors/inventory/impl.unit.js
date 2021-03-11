@@ -254,7 +254,8 @@ describe('inventory impl', function () {
                     results: [{
                         id: '9dae9304-86a8-4f66-baa3-a1b27dfdd479',
                         system_profile: {
-                            owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
+                            owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c',
+                            rhc_client_id: 'f415fc2d-9700-4e30-9621-6a410ccc92c8'
                         }
                     }]
                 },
@@ -267,6 +268,7 @@ describe('inventory impl', function () {
             const result = results['9dae9304-86a8-4f66-baa3-a1b27dfdd479'];
             result.should.have.property('id', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
             result.system_profile.should.have.property('owner_id', '81390ad6-ce49-4c8f-aa64-729d374ee65c');
+            result.system_profile.should.have.property('rhc_client_id', 'f415fc2d-9700-4e30-9621-6a410ccc92c8');
 
             http.callCount.should.equal(1);
             const options = http.args[0][0];
@@ -296,7 +298,8 @@ describe('inventory impl', function () {
                     results: [{
                         id: '9dae9304-86a8-4f66-baa3-a1b27dfdd479',
                         system_profile: {
-                            owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
+                            owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c',
+                            rhc_client_id: 'f415fc2d-9700-4e30-9621-6a410ccc92c8'
                         }
                     }]
                 },
@@ -309,6 +312,7 @@ describe('inventory impl', function () {
             const result = results['9dae9304-86a8-4f66-baa3-a1b27dfdd479'];
             result.should.have.property('id', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
             result.system_profile.should.have.property('owner_id', '81390ad6-ce49-4c8f-aa64-729d374ee65c');
+            result.system_profile.should.have.property('rhc_client_id', 'f415fc2d-9700-4e30-9621-6a410ccc92c8');
 
             http.callCount.should.equal(3);
             const options = http.args[0][0];

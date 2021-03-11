@@ -108,7 +108,7 @@ module.exports = new class extends Connector {
         uri.segment(ids.join());
         uri.segment('system_profile');
         uri.addQuery('per_page', String(pageSize));
-        uri.addQuery('fields[system_profile]', 'owner_id');
+        uri.addQuery('fields[system_profile]', 'owner_id,rhc_client_id');
 
         let response = null;
 
