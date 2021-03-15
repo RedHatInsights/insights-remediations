@@ -108,8 +108,8 @@ const config = {
     },
 
     dispatcher: {
-        impl: env.PlAYBOOK_DISPATCHER_IMPL,
-        host: env.PLAYBOOK_DISPATCHER_HOST || 'http://playbook-dispatcher.dispatcher-ci.svc.cluster.loacl:8000',
+        impl: env.PLAYBOOK_DISPATCHER_IMPL,
+        host: env.PLAYBOOK_DISPATCHER_HOST || 'http://playbook-dispatcher-api.playbook-dispatcher-ci.svc.cluster.local:8000',
         auth: env.PLAYBOOK_DISPATCHER_AUTH || '',
         insecure: (env.PLAYBOOK_DISPATCHER_INSECURE === 'true') ? true : false,
         revalidationInterval: parseIntEnv('PLAYBOOK_DISPATCHER_REVALIDATION_INTERVAL', 60 * 60) // 1 hour
