@@ -34,7 +34,7 @@ function buildListLinks (total, limit, offset, sort, system) {
 }
 
 function buildRHCUrl (remediation_id, system_id) {
-    return `https://${config.platformHostname}${config.path.prefix}/${config.path.app}/v1/${config.path.app}/${remediation_id}/playbook?hosts=${system_id}`;
+    return `https://${config.platformHostname}${config.path.prefix}/${config.path.app}/v1/${config.path.app}/${remediation_id}/playbook?hosts=${system_id}&localhost`;
 }
 
 exports.parseSort = function (param) {
