@@ -51,7 +51,7 @@ exports.BATCH_PROFILE_QUERY = `
         {
             data {
                 id
-                system_profile_facts (filter: ["owner_id", "rhc_client_id"])
+                system_profile_facts (filter: ["owner_id", "rhc_client_id", "is_marketplace"])
             }
         }
     }

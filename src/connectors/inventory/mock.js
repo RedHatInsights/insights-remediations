@@ -51,12 +51,13 @@ function generateSystemProfile (id) {
         return null;
     }
 
-    if (id === '750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4') {
+    if (id === '750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4' || id === '35e9b452-e405-499c-9c6e-120010b7b465') {
         return {
             id,
             system_profile: {
                 owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c',
-                rhc_client_id: 'f415fc2d-9700-4e30-9621-6a410ccc92c8'
+                rhc_client_id: 'f415fc2d-9700-4e30-9621-6a410ccc92c8',
+                is_marketplace: true
             }
         };
     }
@@ -65,7 +66,8 @@ function generateSystemProfile (id) {
     return {
         id,
         system_profile: {
-            owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
+            owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c',
+            is_marketplace: false
         }
     };
 }

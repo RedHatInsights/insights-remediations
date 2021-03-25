@@ -26,6 +26,22 @@ const FULL_MODE = true;
 const PENDING = 'pending';
 const FAILURE = 'failure';
 
+exports.checkSmartManagement = async function (remediation, smart_management) {
+    // if customer has smart_management entitlement fastlane them
+    if (smart_management) {
+        return true;
+    }
+
+    if (!config.isMarketplace) {
+        return false;
+    }
+
+    const systemsIds = _(remediation.issues).flatMap('systems').map('system_id').uniq().sort().value();
+    const systemsProfiles = await inventory.getSystemProfileBatch(systemsIds);
+
+    return _.some(systemsProfiles, system => system.system_profile.is_marketplace === true);
+};
+
 async function fetchRHCClientId (systems) {
     const systemIds = _.map(systems, system => { return system.id; });
     const systemProfileDetails = await inventory.getSystemProfileBatch(systemIds);

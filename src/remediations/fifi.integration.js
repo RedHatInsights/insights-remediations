@@ -58,20 +58,31 @@ describe('FiFi', function () {
             .expect(403);
         });
 
+        test('get connection status with false smartManagement but with system connected to RHC', async () => {
+            base.getSandbox().stub(config, 'isMarketplace').value(true);
+            await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
+            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
+                data.entitlements.smart_management = false;
+                return data;
+            }))
+            .expect(200);
+        });
+
         test('sets ETag', async () => {
             const {headers} = await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
             .set(auth.fifi)
             .expect(200);
 
-            headers.etag.should.equal('"1172-aL66zBR3zzAbkQBquBARuVlS5w0"');
+            headers.etag.should.equal('"11a6-sMkp3MoGBinxNmeldH7IHGb/MUk"');
         });
 
         test('304s on ETag match', async () => {
             await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
             .set(auth.fifi)
-            .set('if-none-match', '"1172-aL66zBR3zzAbkQBquBARuVlS5w0"')
+            .set('if-none-match', '"11a6-sMkp3MoGBinxNmeldH7IHGb/MUk"')
             .expect(304);
         });
     });
@@ -716,46 +727,6 @@ describe('FiFi', function () {
                 .expect(404);
             });
 
-            test('run playbook_run with false smartManagement', async () => {
-                await request
-                .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
-                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
-                    data.entitlements.smart_management = false;
-                    return data;
-                }))
-                .expect(403);
-            });
-
-            test('run playbook_run/:playbook_run_id with false smartManagement', async () => {
-                await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc')
-                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
-                    data.entitlements.smart_management = false;
-                    return data;
-                }))
-                .expect(403);
-            });
-
-            test('run playbook_run/:playbook_run_id/systems with false smartManagement', async () => {
-                await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems')
-                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
-                    data.entitlements.smart_management = false;
-                    return data;
-                }))
-                .expect(403);
-            });
-
-            test('run playbook_run/:playbook_run_id/systems/:system with false smartManagement', async () => {
-                await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems/7b136dd2-4824-43cf-af6c-ad0ee42f9f97')
-                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
-                    data.entitlements.smart_management = false;
-                    return data;
-                }))
-                .expect(403);
-            });
-
             test('sets etag for playbook_run/:playbook_run_id/systems/:system', async () => {
                 const {headers} = await request
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems/7b136dd2-4824-43cf-af6c-ad0ee42f9f97')
@@ -778,7 +749,7 @@ describe('FiFi', function () {
                 await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
                 .set(auth.fifi)
-                .set('if-match', '"1172-aL66zBR3zzAbkQBquBARuVlS5w0"')
+                .set('if-match', '"11a6-sMkp3MoGBinxNmeldH7IHGb/MUk"')
                 .expect(201);
             });
 
@@ -806,21 +777,32 @@ describe('FiFi', function () {
                 .expect(403);
             });
 
+            test('execute playbook_run with false smartManagement but with system connected to RHC', async () => {
+                base.getSandbox().stub(config, 'isMarketplace').value(true);
+                await request
+                .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
+                    data.entitlements.smart_management = false;
+                    return data;
+                }))
+                .expect(201);
+            });
+
             test('sets ETag', async () => {
                 const {headers} = await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs?pretty')
                 .set(auth.fifi)
-                .set('if-match', '"1172-aL66zBR3zzAbkQBquBARuVlS5w0"')
+                .set('if-match', '"11a6-sMkp3MoGBinxNmeldH7IHGb/MUk"')
                 .expect(201);
 
-                headers.etag.should.equal('"1172-aL66zBR3zzAbkQBquBARuVlS5w0"');
+                headers.etag.should.equal('"11a6-sMkp3MoGBinxNmeldH7IHGb/MUk"');
             });
 
             test('201s on ETag match', async () => {
                 await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
                 .set(auth.fifi)
-                .set('if-match', '"1172-aL66zBR3zzAbkQBquBARuVlS5w0"')
+                .set('if-match', '"11a6-sMkp3MoGBinxNmeldH7IHGb/MUk"')
                 .expect(201);
             });
 
@@ -831,7 +813,7 @@ describe('FiFi', function () {
                 .set('if-match', '"1062-Pl88DazTBuJo//SQVNUn6pZAlmk"')
                 .expect(412);
 
-                headers.etag.should.equal('"1172-aL66zBR3zzAbkQBquBARuVlS5w0"');
+                headers.etag.should.equal('"11a6-sMkp3MoGBinxNmeldH7IHGb/MUk"');
             });
 
             test('if if-match is not present, proceed', async () => {
@@ -1345,7 +1327,7 @@ describe('FiFi', function () {
             const {body: post} = await request
             .post('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs')
             .set(auth.fifi)
-            .set('if-match', '"1172-aL66zBR3zzAbkQBquBARuVlS5w0"')
+            .set('if-match', '"11a6-sMkp3MoGBinxNmeldH7IHGb/MUk"')
             .expect(201);
 
             const {body: run} = await request
