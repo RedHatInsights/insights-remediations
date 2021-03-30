@@ -62,6 +62,17 @@ function generateSystemProfile (id) {
         };
     }
 
+    if (id === '0341e468-fbae-416c-b16f-5abb64d99834') {
+        return {
+            id,
+            system_profile: {
+                owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c',
+                rhc_client_id: 'f415fc2d-9700-4e30-9621-6a410ccc92c8',
+                is_marketplace: false
+            }
+        };
+    }
+
     // eslint-disable-next-line security/detect-object-injection
     return {
         id,

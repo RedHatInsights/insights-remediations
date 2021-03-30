@@ -1,4 +1,5 @@
 'use strict';
+/* eslint-disable max-len */
 
 const _ = require('lodash');
 const P = require('bluebird');
@@ -46,7 +47,20 @@ async function fetchRHCClientId (systems) {
     const systemIds = _.map(systems, system => { return system.id; });
     const systemProfileDetails = await inventory.getSystemProfileBatch(systemIds);
 
-    _.forEach(systems, system => system.rhc_client = systemProfileDetails[system.id].system_profile.rhc_client_id);
+    _.forEach(systems, system => {
+        system.rhc_client = systemProfileDetails[system.id].system_profile.rhc_client_id;
+        system.marketplace = systemProfileDetails[system.id].system_profile.is_marketplace;
+    });
+}
+
+function sortRHCSystems (executor, smart_management) {
+    if (smart_management) {
+        return _.partition(executor.systems, system => !_.isUndefined(system.rhc_client));
+    }
+
+    const partitionedSystems = _.partition(executor.systems, system => !_.isUndefined(system.rhc_client) && system.marketplace);
+
+    return partitionedSystems;
 }
 
 async function fetchSystems (ids) {
@@ -65,28 +79,38 @@ exports.getSatelliteId = function (facts) {
     return null;
 };
 
-function defineRHCEnabledExecutor (satellites) {
+function defineRHCEnabledExecutor (satellites, smart_management) {
     const satlessExecutor = _.find(satellites, satellite => satellite.id === null);
     if (satlessExecutor) {
-        const partitionedSystems = _.partition(satlessExecutor.systems, system => _.isUndefined(system.rhc_client));
+        const partitionedSystems = sortRHCSystems(satlessExecutor, smart_management);
 
-        satlessExecutor.systems = partitionedSystems[0];
+        if (!_.isEmpty(partitionedSystems[0])) {
+            satellites.push({id: null, systems: partitionedSystems[0], type: 'RHC', rhcStatus: 'connected'});
+        }
 
-        satellites.push({id: null, systems: partitionedSystems[1], type: 'RHC'});
+        satlessExecutor.systems = partitionedSystems[1];
+
+        if (!smart_management) {
+            satlessExecutor.systems = _.filter(partitionedSystems[1], system => !_.isUndefined(system.rhc_client) && !system.marketplace);
+            const noSmartManagement = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client) && !system.marketplace);
+            if (!_.isEmpty(noSmartManagement)) {
+                satellites.push({id: null, systems: noSmartManagement, type: 'RHC', rhcStatus: 'no_smart_management'});
+            }
+
+            const rhcNotConfigured = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client) && system.marketplace);
+            if (!_.isEmpty(rhcNotConfigured)) {
+                satellites.push({id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'});
+            }
+        }
     }
 }
 
 function fetchRHCStatus (satellite) {
-    let rhcConnectionStatus = 'disconnected';
     if (satellite.type === 'RHC') {
-        _.forEach(satellite.systems, system => {
-            if (!_.isUndefined(system.rhc_client)) {
-                rhcConnectionStatus = 'connected';
-            }
-        });
+        return satellite.rhcStatus;
     }
 
-    return rhcConnectionStatus;
+    return null;
 }
 
 function filterExecutors (status, excludes = null) {
@@ -180,8 +204,12 @@ function getName (executor) {
     return null;
 }
 
-function getStatus (executor) {
+function getStatus (executor, smart_management) {
     if (executor.type === 'satellite') {
+        if (!smart_management) {
+            return 'no_smart_management';
+        }
+
         if (!executor.source) {
             return 'no_source';
         }
@@ -192,6 +220,14 @@ function getStatus (executor) {
 
         if (executor.receptorStatus !== 'connected') {
             return 'disconnected';
+        }
+    } else if (executor.type === 'RHC') {
+        if (executor.rhcStatus === 'no_smart_management') {
+            return 'no_smart_management';
+        }
+
+        if (executor.rhcStatus === 'no_rhc') {
+            return 'no_rhc';
         }
     } else if (executor.type === null) {
         return 'no_executor';
@@ -213,7 +249,7 @@ function defineExecutorType (executor) {
     return null;
 }
 
-function normalize (satellites) {
+function normalize (satellites, smart_management) {
     return _.map(satellites, satellite => ({
         satId: satellite.id,
         receptorId: _.get(satellite.receptor, 'receptor_node', null),
@@ -221,7 +257,7 @@ function normalize (satellites) {
         systems: _.map(satellite.systems, system => _.pick(system, SYSTEM_FIELDS)),
         type: satellite.type,
         name: getName(satellite),
-        status: getStatus(satellite)
+        status: getStatus(satellite, smart_management)
     }));
 }
 
@@ -256,7 +292,7 @@ exports.generatePlaybookRunId = function () {
     return uuidv4();
 };
 
-exports.getConnectionStatus = async function (remediation, account) {
+exports.getConnectionStatus = async function (remediation, account, smart_management) {
     const systemsIds = _(remediation.issues).flatMap('systems').map('system_id').uniq().sort().value();
     const systems = await fetchSystems(systemsIds);
 
@@ -272,23 +308,28 @@ exports.getConnectionStatus = async function (remediation, account) {
     })).values().value();
 
     if (!_.isEmpty(satellites)) {
-        defineRHCEnabledExecutor(satellites);
+        defineRHCEnabledExecutor(satellites, smart_management);
     }
 
-    const sourceInfo = await sources.getSourceInfo(_(satellites).map('id').filter().value());
+    if (smart_management) {
+        const sourceInfo = await sources.getSourceInfo(_(satellites).map('id').filter().value());
+
+        _.forEach(satellites, satellite => {
+            satellite.source = _.get(sourceInfo, satellite.id, null);
+            satellite.receptor = getReceptor(satellite.source);
+        });
+
+        await P.map(satellites, async satellite => {
+            satellite.receptorStatus = await fetchReceptorStatus(satellite.receptor, account);
+        });
+    }
 
     _.forEach(satellites, satellite => {
-        satellite.source = _.get(sourceInfo, satellite.id, null);
-        satellite.receptor = getReceptor(satellite.source);
         satellite.type = defineExecutorType(satellite); // defines all executors not marked with "RHC" as satellite type
         satellite.rhcStatus = fetchRHCStatus(satellite);
     });
 
-    await P.map(satellites, async satellite => {
-        satellite.receptorStatus = await fetchReceptorStatus(satellite.receptor, account);
-    });
-
-    return normalize(satellites);
+    return normalize(satellites, smart_management);
 };
 
 exports.filterIssuesPerExecutor = async function (systems, remediationIssues) {
