@@ -3188,9 +3188,9 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
                 \\"last_name\\": \\"user\\"
             },
             \\"updated_at\\": \\"2018-11-04T05:19:36.641Z\\",
-            \\"needs_reboot\\": true,
+            \\"needs_reboot\\": false,
             \\"system_count\\": 1,
-            \\"issue_count\\": 2,
+            \\"issue_count\\": 0,
             \\"resolved_count\\": 0,
             \\"archived\\": false
         },
