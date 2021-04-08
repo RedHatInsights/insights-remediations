@@ -37,6 +37,7 @@ const systems = [
     // no_executor
     '9574cba7-b9ce-4725-b392-e959afd3e69a',
     '750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4',
+    '0341e468-fbae-416c-b16f-5abb64d99834',
 
     // connected
     // these two systems have the same ansible_host - only one of them should show up

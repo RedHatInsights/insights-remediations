@@ -26,7 +26,7 @@ exports.connection_status = errors.async(async function (req, res) {
         throw new errors.Forbidden();
     }
 
-    const status = await fifi.getConnectionStatus(remediation, req.identity.account_number);
+    const status = await fifi.getConnectionStatus(remediation, req.identity.account_number, req.entitlements.smart_management);
 
     res.set('etag', etag(JSON.stringify(status)));
     res.json(format.connectionStatus(status));
@@ -45,7 +45,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
         throw new errors.Forbidden();
     }
 
-    const status = await fifi.getConnectionStatus(remediation, req.identity.account_number);
+    const status = await fifi.getConnectionStatus(remediation, req.identity.account_number, req.entitlements.smart_management);
     const currentEtag = etag(JSON.stringify(status));
 
     res.set('etag', currentEtag);
