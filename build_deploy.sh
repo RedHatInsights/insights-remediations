@@ -1,6 +1,6 @@
 set -exv
 
-IMAGE="quay.io/cloudservices/insights-remediations"
+IMAGE="quay.io/cloudservices/remediations"
 IMAGE_TAG=$(git rev-parse --short=7 HEAD)
 SMOKE_TEST_TAG="latest"
 
