@@ -100,6 +100,14 @@ const config = {
         revalidationInterval: parseIntEnv('COMPLIANCE_REVALIDATION_INVERVAL', 60 * 60) // 1 hour
     },
 
+    configManager: {
+        impl: env.CONFIG_MANAGER_IMPL,
+        host: env.CONFIG_MANAGER_HOST || 'http://config-manager-service.config-manager-ci.svc.cluster.local:8081',
+        auth: env.CONFIG_MANAGER_AUTH,
+        insecure: (env.CONFIG_MANAGER_INSECURE === 'true') ? true : false,
+        revalidationInterval: parseIntEnv('CONFIG_MANAGER_INTERVAL', 60 * 60) // 1 hour
+    },
+
     contentServer: {
         impl: env.CONTENT_SERVER_IMPL,
         host: env.CONTENT_SERVER_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000',
