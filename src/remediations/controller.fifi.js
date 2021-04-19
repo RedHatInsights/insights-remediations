@@ -14,7 +14,10 @@ const notMatching = res => res.sendStatus(412);
 const notFound = res => res.sendStatus(404);
 
 exports.connection_status = errors.async(async function (req, res) {
-    const remediation = await queries.get(req.params.id, req.user.account_number, req.user.username);
+    const [remediation, rhcEnabled] = await Promise.all([
+        queries.get(req.params.id, req.user.account_number, req.user.username),
+        fifi.checkRhcEnabled()
+    ]);
 
     if (!remediation) {
         return notFound(res);
@@ -26,14 +29,22 @@ exports.connection_status = errors.async(async function (req, res) {
         throw new errors.Forbidden();
     }
 
-    const status = await fifi.getConnectionStatus(remediation, req.identity.account_number, req.entitlements.smart_management);
+    const status = await fifi.getConnectionStatus(
+        remediation,
+        req.identity.account_number,
+        req.entitlements.smart_management,
+        rhcEnabled
+    );
 
     res.set('etag', etag(JSON.stringify(status)));
     res.json(format.connectionStatus(status));
 });
 
 exports.executePlaybookRuns = errors.async(async function (req, res) {
-    const remediation = await queries.get(req.params.id, req.user.account_number, req.user.username);
+    const [remediation, rhcEnabled] = await Promise.all([
+        queries.get(req.params.id, req.user.account_number, req.user.username),
+        fifi.checkRhcEnabled()
+    ]);
 
     if (!remediation) {
         return notFound(res);
@@ -45,7 +56,12 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
         throw new errors.Forbidden();
     }
 
-    const status = await fifi.getConnectionStatus(remediation, req.identity.account_number, req.entitlements.smart_management);
+    const status = await fifi.getConnectionStatus(
+        remediation,
+        req.identity.account_number,
+        req.entitlements.smart_management,
+        rhcEnabled
+    );
     const currentEtag = etag(JSON.stringify(status));
 
     res.set('etag', currentEtag);

@@ -11,6 +11,7 @@ const format = require('./remediations.format');
 const generator = require('../generator/generator.controller');
 const inventory = require('../connectors/inventory');
 const sources = require('../connectors/sources');
+const configManager = require('../connectors/configManager');
 const receptorConnector = require('../connectors/receptor');
 const dispatcher = require('../connectors/dispatcher');
 const log = require('../util/log');
@@ -28,6 +29,8 @@ const RHCSTATUSES = ['timeout', 'failure', 'success', 'running'];
 const DIFF_MODE = false;
 const FULL_MODE = true;
 
+const CONNECTED = 'connected';
+const DISABLED = 'disabled';
 const PENDING = 'pending';
 const FAILURE = 'failure';
 const RUNNING = 'running';
@@ -40,6 +43,7 @@ exports.checkSmartManagement = async function (remediation, smart_management) {
         return true;
     }
 
+    // if check marketplace systems isn't turned on return false
     if (!config.isMarketplace) {
         return false;
     }
@@ -48,6 +52,16 @@ exports.checkSmartManagement = async function (remediation, smart_management) {
     const systemsProfiles = await inventory.getSystemProfileBatch(systemsIds);
 
     return _.some(systemsProfiles, system => system.system_profile.is_marketplace === true);
+};
+
+exports.checkRhcEnabled = async function () {
+    const rhcStates = await configManager.getCurrentState();
+
+    if (rhcStates.state.remediations === DISABLED) {
+        return false;
+    }
+
+    return true;
 };
 
 exports.sortSystems = function (systems, column = 'system_name', asc = true) {
@@ -224,13 +238,13 @@ exports.getSatelliteId = function (facts) {
     return null;
 };
 
-function defineRHCEnabledExecutor (satellites, smart_management) {
+function defineRHCEnabledExecutor (satellites, smart_management, rhc_enabled) {
     const satlessExecutor = _.find(satellites, satellite => satellite.id === null);
     if (satlessExecutor) {
         const partitionedSystems = sortRHCSystems(satlessExecutor, smart_management);
 
         if (!_.isEmpty(partitionedSystems[0])) {
-            satellites.push({id: null, systems: partitionedSystems[0], type: 'RHC', rhcStatus: 'connected'});
+            satellites.push({id: null, systems: partitionedSystems[0], type: 'RHC', rhcStatus: (rhc_enabled) ? CONNECTED : DISABLED});
         }
 
         satlessExecutor.systems = partitionedSystems[1];
@@ -375,6 +389,10 @@ function getStatus (executor, smart_management) {
         if (executor.rhcStatus === 'no_rhc') {
             return 'no_rhc';
         }
+
+        if (executor.rhcStatus === 'disabled') {
+            return 'disabled';
+        }
     } else if (executor.type === null) {
         return 'no_executor';
     }
@@ -438,7 +456,7 @@ exports.generateUuid = function () {
     return uuidv4();
 };
 
-exports.getConnectionStatus = async function (remediation, account, smart_management) {
+exports.getConnectionStatus = async function (remediation, account, smart_management, rhc_enabled) {
     const systemsIds = _(remediation.issues).flatMap('systems').map('system_id').uniq().sort().value();
     const systems = await fetchSystems(systemsIds);
 
@@ -454,7 +472,7 @@ exports.getConnectionStatus = async function (remediation, account, smart_manage
     })).values().value();
 
     if (!_.isEmpty(satellites)) {
-        defineRHCEnabledExecutor(satellites, smart_management);
+        defineRHCEnabledExecutor(satellites, smart_management, rhc_enabled);
     }
 
     if (smart_management) {

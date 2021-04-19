@@ -3,6 +3,7 @@
 
 const { request, auth, mockDate, mockUuid, buildRbacResponse } = require('../test');
 const utils = require('../middleware/identity/utils');
+const configManager = require('../connectors/configManager');
 const receptor = require('../connectors/receptor');
 const fifi = require('../remediations/fifi');
 const base = require('../test');
@@ -67,6 +68,45 @@ describe('FiFi', function () {
                 data.entitlements.smart_management = false;
                 return data;
             }))
+            .expect(200);
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('get connection status with false smartManagment but not configured with config manager', async () => {
+            base.getSandbox().stub(config, 'isMarketplace').value(true);
+            base.getSandbox().stub(configManager, 'getCurrentState').resolves({
+                account: '654321',
+                state: {
+                    remediations: 'disabled'
+                },
+                id: 'c5639a03-4640-4ae3-93ce-9966cae18df7',
+                label: 'b7839a03-4640-4ae3-93ce-9966cae18df8'
+            });
+            const {text} = await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
+            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
+                data.entitlements.smart_management = false;
+                return data;
+            }))
+            .expect(200);
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('get connection status with smartManagment but not enabled with config manager', async () => {
+            base.getSandbox().stub(config, 'isMarketplace').value(true);
+            base.getSandbox().stub(configManager, 'getCurrentState').resolves({
+                account: '654321',
+                state: {
+                    remediations: 'disabled'
+                },
+                id: 'c5639a03-4640-4ae3-93ce-9966cae18df7',
+                label: 'b7839a03-4640-4ae3-93ce-9966cae18df8'
+            });
+            const {text} = await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
+            .set(auth.fifi)
             .expect(200);
 
             expect(text).toMatchSnapshot();
