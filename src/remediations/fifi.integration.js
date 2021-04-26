@@ -15,6 +15,50 @@ const config = require('../config');
 const db = require('../db');
 
 describe('FiFi', function () {
+    describe('executable', function () {
+        test('remediation is executable', async () => {
+            await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/executable')
+            .set(auth.fifi)
+            .expect(200);
+        });
+
+        test('remediation is executable with smartManagement false but RHC on', async () => {
+            base.getSandbox().stub(config, 'isMarketplace').value(true);
+            await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/executable')
+            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
+                data.entitlements.smart_management = false;
+                return data;
+            }))
+            .expect(200);
+        });
+
+        test('remediation is not executable with smartManagment false but isMarketplace false', async () => {
+            await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/executable')
+            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
+                data.entitlements.smart_management = false;
+                return data;
+            }))
+            .expect(403);
+        });
+
+        test('400 on incorrect remediationID', async () => {
+            await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5c/executable')
+            .set(auth.fifi)
+            .expect(400);
+        });
+
+        test('404 on unknown remediationID', async () => {
+            await request
+            .get('/v1/remediations/6ecb5db7-2f1a-441b-8220-e5ce45066f60/executable')
+            .set(auth.fifi)
+            .expect(404);
+        });
+    });
+
     describe('connection status', function () {
         test('obtains connection status', async () => {
             const {text} = await request
