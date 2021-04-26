@@ -2,10 +2,31 @@
 # The variable can be overridden to suppress this behavior.
 - name: Reboot localhost
   hosts: "@@HOSTS@@"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: "/hosts"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRMjVqZG5jMU9FUXJhalZ3VGtGUlp6aFdVUzhyU1djeFkz
+      UnVTbHBHTTJFdmVuTXJkRlZsWlVwTU9VaFdNbVl4TmxsT1EzUUtiMnhYWkUxd1ZWWlZNalp4U25G
+      SGNHeDZOSE4yZFRONFJtTkpPWGxGVTA5clp6bFBLMGszYVhKTFJrZFBTRnBpVFhSdVVFVTJUV0pS
+      WWtkelkySk5UUXBaUzFWb05URnhZVzVZWjJGUmFGaHJRMWRyVGlzNFdTdHVNM2x4VjB0ek1uTm5h
+      SFF4VTJsMGJ6UkxhRlpYVTNKVllsZDNlamRWTVhrd05tY3ZRbXA1Q2pFNVpEVk1NMWxhTW5jd2Vr
+      eFhVM2RsZUUxMFpGaGpUMjU2YmpaeGVtRlRhbVJTYkdkc1pYVlRiMHg2YTJWWWNYWk1NbVJyTlhk
+      aWFrRkJNMjh6ZFZvS2FDdE5XV1kwTnpKUWJscEVWazVCVDJwMmNtOVlaRTh6U0hKRmFuSkNjakp4
+      UjNGcFkweEdSMmRzUzNOcU1tWnBSbUpUTTJkaFpsTmhlbU56VURkWUt3cENiak13WjFwdVdFMUVX
+      a1o2VjJScGVuQklaR1pGU1V4dGJqWlpNR00zVmt0cWEyNWxkMm80ZGxoWE1qQmtkMFZJYTA5eE9V
+      WXdaakZVSzFVNFJYWlpDaTlVZW5GcVoyVXdWWFJXWjFsVlVsY3lOVko0UWs1aVFYQkVlRnBrVG05
+      QllXZDBORXN5TVRodGVtMTRUR2hNYVhneGJIa3ZhMEpCVUhsQ2MydFFaV1FLTWxCNk0zWTJXRVl4
+      ZEM5VGNuVkRhSHBGZDFBM2FWRmliRVZUUlROYU9YbFFjR3hOUmtkWE5TdERaR0pEY201UlNtUkxS
+      blpVWVdWV1RqZGFOVEJWTVFwRVVWQTFOVk5PYjJaNVpHdHFNbWs1VEU5VGN6ZDVSell6VGpGdFkw
+      eGplbmxQYzJaS2RGWkRSbmRSY1dSQlQwOVFkRXRMWTBWU2VHOWxNWGhHYUVNckNtSkphMFJaVkhj
+      NVZscHVVSG9yWm1WRmVXeEtPSHB0Y201TFMwZFVhWEUxUTJoR1ltZFpRbVZzUVZkRlkzRnRNM2h5
+      YW5ONlZucFpNa2xIVDBSNWQwUUtUR1kxV2tkclNIUkVWV3RQY1RaVlVuSjRlVVJRYURKMWNqRjZP
+      RFZRTDJRMkszbFRNalJuTDNscVpsZGpObWRxVnk5blNUWktMeXRMZFZOS1NIaFBWUW8zWVVoSlZr
+      RjJaVkJMTkQwS1BXUkllV1lLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - when:
         - insights_needs_reboot is defined
