@@ -13,6 +13,22 @@ const fifi = require('./fifi');
 const notMatching = res => res.sendStatus(412);
 const notFound = res => res.sendStatus(404);
 
+exports.checkExecutable = errors.async(async function (req, res) {
+    const remediation = await queries.get(req.params.id, req.user.account_number, req.user.username);
+
+    if (!remediation) {
+        return notFound(res);
+    }
+
+    const executable = await fifi.checkSmartManagement(remediation, req.entitlements.smart_management);
+
+    if (!executable) {
+        throw new errors.Forbidden();
+    }
+
+    res.sendStatus(200);
+});
+
 exports.connection_status = errors.async(async function (req, res) {
     const [remediation, rhcEnabled] = await Promise.all([
         queries.get(req.params.id, req.user.account_number, req.user.username),
