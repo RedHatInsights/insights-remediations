@@ -1462,6 +1462,7 @@ components:
           example: ready
           enum:
             - connected
+            - disabled
             - disconnected
             - no_executor
             - no_source
