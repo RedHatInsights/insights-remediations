@@ -15,7 +15,7 @@ module.exports = new class extends Connector {
     }
 
     async getCurrentState () {
-        const uri = this.buildUri(host, 'api', 'config-manager', 'v1');
+        const uri = this.buildUri(host, 'config-manager', 'v1');
         uri.segment('states');
         uri.segment('current');
 
@@ -37,7 +37,6 @@ module.exports = new class extends Connector {
 
     async ping () {
         const results = await this.getCurrentState();
-
         assert(_.isObject(results));
     }
 }();
