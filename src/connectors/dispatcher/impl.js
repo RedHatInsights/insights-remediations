@@ -74,7 +74,7 @@ module.exports = new class extends Connector {
 
         const result = await this.doHttp (options, false, this.fetchRuns);
 
-        if (_.isEmpty(result)) {
+        if (_.isEmpty(result.data)) {
             return null;
         }
 
@@ -102,7 +102,7 @@ module.exports = new class extends Connector {
 
         const result = await this.doHttp (options, false, this.fetchRunHosts);
 
-        if (_.isEmpty(result)) {
+        if (_.isEmpty(result.data)) {
             return null;
         }
 
