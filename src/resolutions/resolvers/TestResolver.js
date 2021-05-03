@@ -30,6 +30,22 @@ const RESOLUTIONS = Object.freeze({
         templates.test.pauseRandom15m,
         'fix',
         'Run Ansible pause module waiting a random delay (up to 15 minutes)'
+    )],
+    validSignature: [new Resolution(templates.test.validSignature, 'fix', 'Template with Valid Signature')],
+    invalidSignatureExclude: [new Resolution(
+        templates.test.invalidSignatureExclude,
+        'fix',
+        'Template with invalid signature due to bad exclude field'
+    )],
+    invalidSignatureTasks: [new Resolution(
+        templates.test.invalidSignatureTasks,
+        'fix',
+        'Template with invalid signature due to incorrect tasks field'
+    )],
+    invalidSignatureVars: [new Resolution(
+        templates.test.invalidSignatureVars,
+        'fix',
+        'Template with invalid signature due to incorrect vars field'
     )]
 });
 
