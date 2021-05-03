@@ -170,6 +170,6 @@ exports.normalizePlaybookVersionForSnapshot = function (text) {
     return text;
 };
 
-exports.mockPlaybookRunId = () => exports.sandbox.stub(
-    fifi, 'generatePlaybookRunId').returns('249f142c-2ae3-4c3f-b2ec-c8c588999999'
+exports.mockUuid = () => exports.sandbox.stub(
+    fifi, 'generateUuid').returns('249f142c-2ae3-4c3f-b2ec-c8c588999999'
 );

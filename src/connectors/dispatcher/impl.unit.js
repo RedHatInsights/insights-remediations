@@ -157,7 +157,17 @@ describe('dispatcher impl', function () {
         });
 
         test('returns null dispatcherWorkRequest is incorrect', async function () {
-            base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
+            base.getSandbox().stub(request, 'run').resolves({
+                statusCode: 200,
+                body: {
+                    meta: {
+                        count: 0
+                    },
+                    data: []
+                },
+                headers: {}
+            });
+
             await expect(impl.fetchPlaybookRuns()).resolves.toBeNull();
         });
 

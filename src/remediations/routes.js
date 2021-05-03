@@ -46,6 +46,11 @@ module.exports = function (router) {
         rbacWrite,
         write.removeIssueSystem);
 
+    router.get('/remediations/:id/executable',
+        openapi('checkExecutable'),
+        rbacRead,
+        fifi.checkExecutable);
+
     router.get('/remediations/:id/connection_status',
         openapi('getRemediationConnectionStatus'),
         rbacExecute,

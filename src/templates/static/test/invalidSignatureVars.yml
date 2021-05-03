@@ -1,0 +1,5 @@
+- name: ping
+  hosts: "@@HOSTS@@"
+  vars:
+  tasks:
+    - ping:

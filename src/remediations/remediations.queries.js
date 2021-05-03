@@ -366,8 +366,8 @@ exports.getRunningExecutors = function (remediation_id, playbook_run_id, account
 };
 
 // eslint-disable-next-line max-len
-exports.getSystems = function (remediation_id, playbook_run_id, executor_id = null, ansible_host = null, primaryOrder = 'system_name', asc = true, limit, offset, account, username) {
-    const { s: {col}, Op } = db;
+exports.getSystems = function (remediation_id, playbook_run_id, executor_id = null, ansible_host = null, account, username) {
+    const { Op } = db;
     const query = {
         attributes: [
             'id',
@@ -397,12 +397,7 @@ exports.getSystems = function (remediation_id, playbook_run_id, executor_id = nu
                     id: playbook_run_id
                 }
             }]
-        }],
-        order: [
-            [col(primaryOrder), asc ? 'ASC' : 'DESC']
-        ],
-        limit,
-        offset
+        }]
     };
 
     if (executor_id) {
@@ -419,7 +414,7 @@ exports.getSystems = function (remediation_id, playbook_run_id, executor_id = nu
         };
     }
 
-    return db.playbook_run_systems.findAndCountAll(query);
+    return db.playbook_run_systems.findAll(query);
 };
 
 exports.getSystemDetails = function (id, playbook_run_id, system_id, account_number, created_by) {
@@ -464,4 +459,8 @@ exports.insertPlaybookRun = async function (run, executors, systems) {
         await db.playbook_run_executors.bulkCreate(executors, {transaction});
         await db.playbook_run_systems.bulkCreate(systems, {transaction});
     });
+};
+
+exports.insertRHCPlaybookRun = async function (run) {
+    await db.playbook_runs.create(run);
 };
