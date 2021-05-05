@@ -115,6 +115,70 @@ test('generates a simple playbook with suppressed reboot', async () => {
     expect(text).toMatchSnapshot();
 });
 
+test('generates a simple playbook where signature is valid', async () => {
+    const data = {
+        issues: [{
+            id: 'test:validSignature',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    const {text} = await request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200);
+
+    expect(text).toMatchSnapshot();
+});
+
+test('generates a simple playbook where signature is invalid from incorrect tasks field', async () => {
+    const data = {
+        issues: [{
+            id: 'test:invalidSignatureTasks',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    const {text} = await request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200);
+
+    expect(text).toMatchSnapshot();
+});
+
+test('generates a simple playbook where signature is invalid from incorrect vars field', async () => {
+    const data = {
+        issues: [{
+            id: 'test:invalidSignatureVars',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    const {text} = await request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200);
+
+    expect(text).toMatchSnapshot();
+});
+
+test('generates a simple playbook where signature is invalid from incorrect exclude field', async () => {
+    const data = {
+        issues: [{
+            id: 'test:invalidSignatureExclude',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    const {text} = await request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200);
+
+    expect(text).toMatchSnapshot();
+});
+
 test('generates an erratum-based playbook', () => {
     mockVmaas();
 
