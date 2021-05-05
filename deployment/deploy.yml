@@ -1,0 +1,520 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: remediations
+objects:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    labels:
+      app: remediations
+    name: remediations
+  spec:
+    minReadySeconds: 15
+    progressDeadlineSeconds: 600
+    replicas: ${{REMEDIATIONS_REPLICAS}}
+    revisionHistoryLimit: 9
+    selector:
+      matchLabels:
+        app: remediations
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          prometheus.io/path: /metrics
+          prometheus.io/port: '9002'
+          prometheus.io/scrape: 'true'
+        labels:
+          app: remediations
+      spec:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - remediations
+                topologyKey: failure-domain.beta.kubernetes.io/zone
+              weight: 100
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - remediations
+                topologyKey: kubernetes.io/hostname
+              weight: 99
+        containers:
+        - env:
+          - name: ADVISOR_IMPL
+            value: ${ADVISOR_IMPL}
+          - name: ADVISOR_HOST
+            value: http://${ADVISOR_HOST}:8000
+          - name: BODY_PARSER_LIMIT
+            value: ${BODY_PARSER_LIMIT}
+          - name: COMPLIANCE_IMPL
+            value: ${COMPLIANCE_IMPL}
+          - name: COMPLIANCE_HOST
+            value: http://${COMPLIANCE_HOST}:3000
+          - name: CONTENT_SERVER_HOST
+            value: http://${ADVISOR_HOST}:8000
+          - name: CONFIG_MANAGER_IMPL
+            value: ${CONFIG_MANAGER_IMPL}
+          - name: CONFIG_MANAGER_PORT
+            value: ${CONFIG_MANAGER_PORT}
+          - name: CONFIG_MANAGER_HOST
+            value: http://${CONFIG_MANAGER_HOST}:${CONFIG_MANAGER_PORT}
+          - name: DB_HOST
+            valueFrom:
+              secretKeyRef:
+                key: db.host
+                name: remediations-db
+          - name: DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                key: db.user
+                name: remediations-db
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: db.password
+                name: remediations-db
+          - name: DB_CA
+            value: /opt/certs/rds-cacert
+          - name: DB_SSL_ENABLED
+            value: ${DB_SSL_ENABLED}
+          - name: FIFI_TEXT_UPDATES
+            value: 'true'
+          - name: FIFI_TEXT_UPDATE_INTERVAL
+            value: '5000'
+          - name: FIFI_TEXT_UPDATE_FULL
+            value: 'true'
+          - name: DEMO_MODE
+            value: 'false'
+          - name: INVENTORY_IMPL
+            value: ${INVENTORY_IMPL}
+          - name: INVENTORY_HOST
+            value: http://${HOST_INVENTORY_HOST}:8080
+          - name: LOG_LEVEL
+            value: ${LOG_LEVEL}
+          - name: LOG_CW_ENABLED
+            value: ${LOG_CW_ENABLED}
+          - name: LOG_CW_KEY
+            valueFrom:
+              secretKeyRef:
+                key: aws_access_key_id
+                name: cloudwatch
+          - name: LOG_CW_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: aws_secret_access_key
+                name: cloudwatch
+          - name: LOG_CW_GROUP
+            valueFrom:
+              secretKeyRef:
+                key: log_group_name
+                name: cloudwatch
+          - name: LOG_CW_REGION
+            valueFrom:
+              secretKeyRef:
+                key: aws_region
+                name: cloudwatch
+          - name: MARKETPLACE_CHECK
+            value: ${MARKETPLACE_CHECK}
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: PATCHMAN_IMPL
+            value: ${PATCHMAN_IMPL}
+          - name: PATCHMAN_HOST
+            value: http://${PATCHMAN_HOST}:8080
+          - name: PLAYBOOK_DISPATCHER_IMPL
+            value: ${PLAYBOOK_DISPATCHER_IMPL}
+          - name: PLAYBOOK_DISPATCHER_HOST
+            value: http://${PLAYBOOK_DISPATCHER_HOST}:8000
+          - name: PLAYBOOK_DISPATCHER_AUTH
+            valueFrom:
+              secretKeyRef:
+                key: key
+                name: psk-playbook-dispatcher
+          - name: PLATFORM_HOSTNAME
+            value: ${PLATFORM_HOSTNAME}
+          - name: PATH_PREFIX
+            value: ${PATH_PREFIX}
+          - name: RBAC_IMPL
+            value: ${RBAC_IMPL}
+          - name: RBAC_HOST
+            value: http://${RBAC_HOST}:8080
+          - name: RBAC_ENFORCE
+            value: ${RBAC_ENFORCE}
+          - name: RECEPTOR_IMPL
+            value: ${RECEPTOR_IMPL}
+          - name: RECEPTOR_HOST
+            value: http://${RECEPTOR_CONTROLLER_HOST}:9090
+          - name: REDIS_ENABLED
+            value: 'true'
+          - name: REDIS_HOST
+            value: redis
+          - name: REDIS_PORT
+            value: '6379'
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: redis
+          - name: SOURCES_IMPL
+            value: ${SOURCES_IMPL}
+          - name: SOURCES_PORT
+            value: ${SOURCES_PORT}
+          - name: SOURCES_HOST
+            value: http://${SOURCES_HOST}:${SOURCES_PORT}
+          - name: SSG_IMPL
+            value: ${SSG_IMPL}
+          - name: SSG_HOST
+            value: ${SSG_HOST}
+          - name: USERS_IMPL
+            value: ${USERS_IMPL}
+          - name: USERS_HOST
+            value: https://${BACKOFFICE_HOST}
+          - name: USERS_INSECURE
+            value: ${USERS_INSECURE}
+          - name: USERS_AUTH
+            valueFrom:
+              secretKeyRef:
+                key: token
+                name: backoffice
+          - name: USERS_ENV
+            value: ${BACKOFFICE_CLIENT_ENV}
+          - name: VULNERABILITIES_IMPL
+            value: ${VULNERABILITIES_IMPL}
+          - name: VULNERABILITIES_HOST
+            value: http://${VULNERABILITIES_HOST}:8443
+          - name: XJOIN_SEARCH_URL
+            value: http://${XJOIN_SEARCH_URL}:4000/graphql
+          image: quay.io/cloudservices/remediations:${IMAGE_TAG}
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 9002
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+          name: remediations
+          ports:
+          - containerPort: 9002
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 9002
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 1
+              memory: 1Gi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+          - mountPath: /opt/certs/
+            name: rds-cacert
+            readOnly: true
+        dnsPolicy: ClusterFirst
+        imagePullSecrets:
+        - name: quay-cloudservices-pull
+        - name: rh-registry-pull
+        initContainers:
+        - command:
+          - /bin/sh
+          - -c
+          - ${MIGRATION_COMMAND}
+          env:
+          - name: ADVISOR_IMPL
+            value: ${ADVISOR_IMPL}
+          - name: ADVISOR_HOST
+            value: http://${ADVISOR_HOST}:8000
+          - name: BODY_PARSER_LIMIT
+            value: ${BODY_PARSER_LIMIT}
+          - name: COMPLIANCE_IMPL
+            value: ${COMPLIANCE_IMPL}
+          - name: COMPLIANCE_HOST
+            value: http://${COMPLIANCE_HOST}:3000
+          - name: CONTENT_SERVER_HOST
+            value: http://${ADVISOR_HOST}:8000
+          - name: CONFIG_MANAGER_IMPL
+            value: ${CONFIG_MANAGER_IMPL}
+          - name: CONFIG_MANAGER_PORT
+            value: ${CONFIG_MANAGER_PORT}
+          - name: CONFIG_MANAGER_HOST
+            value: http://${CONFIG_MANAGER_HOST}:${CONFIG_MANAGER_PORT}
+          - name: DB_HOST
+            valueFrom:
+              secretKeyRef:
+                key: db.host
+                name: remediations-db
+          - name: DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                key: db.user
+                name: remediations-db
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: db.password
+                name: remediations-db
+          - name: DB_CA
+            value: /opt/certs/rds-cacert
+          - name: DB_SSL_ENABLED
+            value: ${DB_SSL_ENABLED}
+          - name: FIFI_TEXT_UPDATES
+            value: 'true'
+          - name: FIFI_TEXT_UPDATE_INTERVAL
+            value: '5000'
+          - name: FIFI_TEXT_UPDATE_FULL
+            value: 'true'
+          - name: DEMO_MODE
+            value: 'false'
+          - name: INVENTORY_IMPL
+            value: ${INVENTORY_IMPL}
+          - name: INVENTORY_HOST
+            value: http://${HOST_INVENTORY_HOST}:8080
+          - name: LOG_LEVEL
+            value: ${LOG_LEVEL}
+          - name: LOG_CW_ENABLED
+            value: ${LOG_CW_ENABLED}
+          - name: LOG_CW_KEY
+            valueFrom:
+              secretKeyRef:
+                key: aws_access_key_id
+                name: cloudwatch
+          - name: LOG_CW_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: aws_secret_access_key
+                name: cloudwatch
+          - name: LOG_CW_GROUP
+            valueFrom:
+              secretKeyRef:
+                key: log_group_name
+                name: cloudwatch
+          - name: LOG_CW_REGION
+            valueFrom:
+              secretKeyRef:
+                key: aws_region
+                name: cloudwatch
+          - name: MARKETPLACE_CHECK
+            value: ${MARKETPLACE_CHECK}
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: PATCHMAN_IMPL
+            value: ${PATCHMAN_IMPL}
+          - name: PATCHMAN_HOST
+            value: http://${PATCHMAN_HOST}:8080
+          - name: PLAYBOOK_DISPATCHER_IMPL
+            value: ${PLAYBOOK_DISPATCHER_IMPL}
+          - name: PLAYBOOK_DISPATCHER_HOST
+            value: http://${PLAYBOOK_DISPATCHER_HOST}:8000
+          - name: PLAYBOOK_DISPATCHER_AUTH
+            valueFrom:
+              secretKeyRef:
+                key: key
+                name: psk-playbook-dispatcher
+          - name: PLATFORM_HOSTNAME
+            value: ${PLATFORM_HOSTNAME}
+          - name: PATH_PREFIX
+            value: ${PATH_PREFIX}
+          - name: RBAC_IMPL
+            value: ${RBAC_IMPL}
+          - name: RBAC_HOST
+            value: http://${RBAC_HOST}:8080
+          - name: RBAC_ENFORCE
+            value: ${RBAC_ENFORCE}
+          - name: RECEPTOR_IMPL
+            value: ${RECEPTOR_IMPL}
+          - name: RECEPTOR_HOST
+            value: http://${RECEPTOR_CONTROLLER_HOST}:9090
+          - name: REDIS_ENABLED
+            value: 'true'
+          - name: REDIS_HOST
+            value: redis
+          - name: REDIS_PORT
+            value: '6379'
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: redis
+          - name: SOURCES_IMPL
+            value: ${SOURCES_IMPL}
+          - name: SOURCES_PORT
+            value: ${SOURCES_PORT}
+          - name: SOURCES_HOST
+            value: http://${SOURCES_HOST}:${SOURCES_PORT}
+          - name: SSG_IMPL
+            value: ${SSG_IMPL}
+          - name: SSG_HOST
+            value: ${SSG_HOST}
+          - name: USERS_IMPL
+            value: ${USERS_IMPL}
+          - name: USERS_HOST
+            value: https://${BACKOFFICE_HOST}
+          - name: USERS_INSECURE
+            value: ${USERS_INSECURE}
+          - name: USERS_AUTH
+            valueFrom:
+              secretKeyRef:
+                key: token
+                name: backoffice
+          - name: USERS_ENV
+            value: ${BACKOFFICE_CLIENT_ENV}
+          - name: VULNERABILITIES_IMPL
+            value: ${VULNERABILITIES_IMPL}
+          - name: VULNERABILITIES_HOST
+            value: http://${VULNERABILITIES_HOST}:8443
+          - name: XJOIN_SEARCH_URL
+            value: http://${XJOIN_SEARCH_URL}:4000/graphql
+          image: quay.io/cloudservices/remediations:${IMAGE_TAG}
+          imagePullPolicy: IfNotPresent
+          name: remediations-init
+          ports:
+          - containerPort: 9002
+            protocol: TCP
+          resources:
+            limits:
+              cpu: 1
+              memory: 1Gi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+          - mountPath: /opt/certs/
+            name: rds-cacert
+            readOnly: true
+        restartPolicy: Always
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: rds-cacert
+          secret:
+            secretName: rds-client-ca
+- apiVersion: autoscaling/v1
+  kind: HorizontalPodAutoscaler
+  metadata:
+    labels:
+      app: remediations
+    name: remediations
+  spec:
+    maxReplicas: ${{MAX_REPLICAS}}
+    minReplicas: ${{MIN_REPLICAS}}
+    scaleTargetRef:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: remediations
+    targetCPUUtilizationPercentage: ${{TARGET_CPU_UTILIZATION}}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: remediations
+    name: remediations
+  spec:
+    ports:
+    - name: 9002-tcp
+      port: 9002
+      protocol: TCP
+      targetPort: 9002
+    selector:
+      app: remediations
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+parameters:
+- name: ADVISOR_IMPL
+  value: impl
+- name: ADVISOR_HOST
+- name: VULNERABILITIES_IMPL
+  value: impl
+- name: VULNERABILITIES_HOST
+- name: COMPLIANCE_IMPL
+  value: impl
+- name: COMPLIANCE_HOST
+- name: CONFIG_MANAGER_IMPL
+  value: impl
+- name: CONFIG_MANAGER_PORT
+- name: CONFIG_MANAGER_HOST
+- name: INVENTORY_IMPL
+  value: impl
+- name: HOST_INVENTORY_HOST
+- name: USERS_IMPL
+  value: impl
+- name: USERS_INSECURE
+  value: 'false'
+- name: BACKOFFICE_CLIENT_ENV
+  value: ci
+- name: SSG_IMPL
+  value: impl
+- name: SSG_HOST
+- name: MARKETPLACE_CHECK
+  value: 'false'
+- name: LOG_LEVEL
+  value: trace
+- name: LOG_CW_ENABLED
+  value: 'true'
+- name: PATH_PREFIX
+  value: /api
+- name: PATCHMAN_IMPL
+  value: mock
+- name: PATCHMAN_HOST
+- name: PLAYBOOK_DISPATCHER_IMPL
+  value: impl
+- name: PLAYBOOK_DISPATCHER_HOST
+- name: PLATFORM_HOSTNAME
+- name: RBAC_IMPL
+  value: impl
+- name: RBAC_HOST
+- name: RBAC_ENFORCE
+  value: 'true'
+- name: RECEPTOR_IMPL
+  value: impl
+- name: RECEPTOR_CONTROLLER_HOST
+- name: SOURCES_IMPL
+  value: impl
+- name: SOURCES_HOST
+- name: SOURCES_PORT
+- name: MIGRATION_COMMAND
+  value: pwd
+- description: minimum number of pods to use when autoscaling is enabled
+  name: MIN_REPLICAS
+  value: '0'
+- description: maximum number of pods to use when autoscaling is enabled
+  name: MAX_REPLICAS
+  value: '0'
+- description: The number of replicas to use for remediations
+  name: REMEDIATIONS_REPLICAS
+  value: '1'
+- description: target CPU utilization for the service
+  name: TARGET_CPU_UTILIZATION
+  value: '80'
+- name: DB_SSL_ENABLED
+  value: 'true'
+- name: BODY_PARSER_LIMIT
+  value: 5mb
+- description: Image tag
+  name: IMAGE_TAG
+  required: true
