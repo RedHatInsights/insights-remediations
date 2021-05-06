@@ -3,7 +3,6 @@
 const _ = require('lodash');
 const URI = require('urijs');
 const qs = require('qs');
-const config = require('../../config');
 const {host, insecure, auth} = require('../../config').dispatcher;
 
 const Connector = require('../Connector');
@@ -50,8 +49,7 @@ module.exports = new class extends Connector {
     }
 
     async fetchPlaybookRuns (filter = null, fields = null, sort_by = null) {
-        const uri = new URI(config.platformHostname);
-        uri.path('/api/playbook-dispatcher/v1/runs');
+        const uri = this.buildUri(host, 'playbook-dispatcher', 'v1', 'runs');
 
         if (filter) {
             uri.addQuery(qs.stringify(filter, QSOPTIONS));
@@ -82,8 +80,7 @@ module.exports = new class extends Connector {
     }
 
     async fetchPlaybookRunHosts (filter = null, fields = null) {
-        const uri = new URI(config.platformHostname);
-        uri.path('/api/playbook-dispatcher/v1/run_hosts');
+        const uri = this.buildUri(host, 'playbook-dispatcher', 'v1', 'run_hosts');
 
         if (filter) {
             uri.addQuery(qs.stringify(filter, QSOPTIONS));
