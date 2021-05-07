@@ -25,6 +25,9 @@ const DISPATCHERWORKREQUEST = [
     }
 ];
 
+const MOCKFILTER = {filter: {service: 'remediations'}};
+const MOCKFIELDS = {fields: {data: ['id']}};
+
 /* eslint-disable max-len */
 describe('dispatcher impl', function () {
 
@@ -122,7 +125,7 @@ describe('dispatcher impl', function () {
                 headers: {}
             });
 
-            const results = await impl.fetchPlaybookRuns();
+            const results = await impl.fetchPlaybookRuns(MOCKFILTER, MOCKFIELDS);
             results.data.should.have.size(2);
 
             const result1 = results.data[0];
@@ -168,17 +171,17 @@ describe('dispatcher impl', function () {
                 headers: {}
             });
 
-            await expect(impl.fetchPlaybookRuns()).resolves.toBeNull();
+            await expect(impl.fetchPlaybookRuns(MOCKFILTER, MOCKFIELDS)).resolves.toBeNull();
         });
 
         test('connection error handling dispatcherWorkRequest', async function () {
             base.mockRequestError();
-            await expect(impl.fetchPlaybookRuns()).rejects.toThrow(errors.DependencyError);
+            await expect(impl.fetchPlaybookRuns(MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
         });
 
         test('status code handling dispatcherWorkRequest', async function () {
             base.mockRequestStatusCode();
-            await expect(impl.fetchPlaybookRuns()).rejects.toThrow(errors.DependencyError);
+            await expect(impl.fetchPlaybookRuns(MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
         });
     });
 
@@ -229,7 +232,7 @@ describe('dispatcher impl', function () {
                 headers: {}
             });
 
-            const results = await impl.fetchPlaybookRunHosts();
+            const results = await impl.fetchPlaybookRunHosts(MOCKFILTER, MOCKFIELDS);
             results.data.should.have.size(2);
 
             const result1 = results.data[0];
@@ -251,17 +254,17 @@ describe('dispatcher impl', function () {
 
         test('returns null dispatcherWorkRequest is incorrect', async function () {
             base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
-            await expect(impl.fetchPlaybookRunHosts()).resolves.toBeNull();
+            await expect(impl.fetchPlaybookRunHosts(MOCKFILTER, MOCKFIELDS)).resolves.toBeNull();
         });
 
         test('connection error handling dispatcherWorkRequest', async function () {
             base.mockRequestError();
-            await expect(impl.fetchPlaybookRunHosts()).rejects.toThrow(errors.DependencyError);
+            await expect(impl.fetchPlaybookRunHosts(MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
         });
 
         test('status code handling dispatcherWorkRequest', async function () {
             base.mockRequestStatusCode();
-            await expect(impl.fetchPlaybookRunHosts()).rejects.toThrow(errors.DependencyError);
+            await expect(impl.fetchPlaybookRunHosts(MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
         });
     });
 });

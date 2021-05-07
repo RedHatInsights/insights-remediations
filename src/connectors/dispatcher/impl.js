@@ -8,7 +8,14 @@ const {host, insecure, auth} = require('../../config').dispatcher;
 const Connector = require('../Connector');
 const metrics = require('../metrics');
 
-const QSOPTIONS = { encode: false };
+const QSOPTIONS = { encode: true, indices: false };
+
+function generateQueries (filter, fields) {
+    return qs.stringify({
+        filter: filter.filter,
+        fields: fields.fields
+    }, QSOPTIONS);
+}
 
 module.exports = new class extends Connector {
     constructor () {
@@ -48,16 +55,9 @@ module.exports = new class extends Connector {
         return result;
     }
 
-    async fetchPlaybookRuns (filter = null, fields = null, sort_by = null) {
+    async fetchPlaybookRuns (filter, fields, sort_by = null) {
         const uri = this.buildUri(host, 'playbook-dispatcher', 'v1', 'runs');
-
-        if (filter) {
-            uri.addQuery(qs.stringify(filter, QSOPTIONS));
-        }
-
-        if (fields) {
-            uri.addQuery(qs.stringify(fields, QSOPTIONS));
-        }
+        uri.search(generateQueries(filter, fields));
 
         if (sort_by) {
             uri.addQuery('sort_by', sort_by);
@@ -79,16 +79,9 @@ module.exports = new class extends Connector {
         return result;
     }
 
-    async fetchPlaybookRunHosts (filter = null, fields = null) {
+    async fetchPlaybookRunHosts (filter, fields) {
         const uri = this.buildUri(host, 'playbook-dispatcher', 'v1', 'run_hosts');
-
-        if (filter) {
-            uri.addQuery(qs.stringify(filter, QSOPTIONS));
-        }
-
-        if (fields) {
-            uri.addQuery(qs.stringify(fields, QSOPTIONS));
-        }
+        uri.search(generateQueries(filter, fields));
 
         const options = {
             uri: uri.toString(),
