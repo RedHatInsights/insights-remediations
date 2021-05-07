@@ -68,4 +68,29 @@ describe('content server impl', function () {
         base.mockRequestStatusCode();
         await expect(impl.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE')).rejects.toThrow(errors.DependencyError);
     });
+
+    test('deals with null play field', async function () {
+        base.getSandbox().stub(request, 'run').resolves({
+            statusCode: 200,
+            body: [{
+                resolution_risk: 3,
+                resolution_type: 'fix',
+                play: '- name: Correct Bonding Config Items\n  hosts: "{{HOSTS}}"\n  become: true\n  vars:\n    pydata: "{{ insights_report.details[\'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE\'] }}"\n\n  tasks:\n    - when:\n       - pydata.bond_config is defined\n      block:\n        - name: Add quotes around bonding options\n          lineinfile:\n            dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}"\n            regexp: \'(^\\s*BONDING_OPTS=)(.*)\'\n            backrefs: yes\n            line: \'\\1"\\2"\'\n          with_dict: "{{ pydata.bond_config }}"\n\n        - name: Restart Network Interfaces\n          shell: ifdown {{item.key}}  && ifup {{item.key}}\n          with_dict: "{{ pydata.bond_config }}"\n',
+                description: 'Correct Bonding Config Items',
+                path: 'playbooks/networking/bonding/network_bond_opts_config_issue/NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE/rhel_host/fix_fixit.yml'
+            }, {
+                resolution_risk: 2,
+                resolution_type: 'workaround',
+                play: null,
+                description: 'ha-ha',
+                path: 'playbooks/networking/bonding/network_bond_opts_config_issue/NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE/rhel_host/workaround.yml'
+            }],
+            headers: {}
+        });
+
+        const result = await impl.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+        result.should.have.length(1);
+        const resolution = result[0];
+        resolution.should.have.property('resolution_type', 'fix');
+    });
 });
