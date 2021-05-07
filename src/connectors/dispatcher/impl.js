@@ -63,7 +63,6 @@ module.exports = new class extends Connector {
             uri.addQuery('sort_by', sort_by);
         }
 
-        console.log(uri.toString())
         const options = {
             uri: uri.toString(),
             method: 'GET',
