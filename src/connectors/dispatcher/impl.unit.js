@@ -232,7 +232,7 @@ describe('dispatcher impl', function () {
                 headers: {}
             });
 
-            const results = await impl.fetchPlaybookRunHosts();
+            const results = await impl.fetchPlaybookRunHosts(MOCKFILTER, MOCKFIELDS);
             results.data.should.have.size(2);
 
             const result1 = results.data[0];

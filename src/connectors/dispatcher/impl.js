@@ -8,16 +8,13 @@ const {host, insecure, auth} = require('../../config').dispatcher;
 const Connector = require('../Connector');
 const metrics = require('../metrics');
 
-const FILTEROPTIONS = { encode: true };
-const FIELDOPTIONS = { encode: true, indices: false };
+const QSOPTIONS = { encode: true, indices: false };
 
 function generateQueries (filter, fields) {
-    const queries = [
-        qs.stringify(filter, FILTEROPTIONS),
-        qs.stringify(fields, FIELDOPTIONS)
-    ];
-
-    return _.join(queries, '&');
+    return qs.stringify({
+        filter: filter.filter,
+        fields: fields.fields
+    }, QSOPTIONS);
 }
 
 module.exports = new class extends Connector {
@@ -66,6 +63,7 @@ module.exports = new class extends Connector {
             uri.addQuery('sort_by', sort_by);
         }
 
+        console.log(uri.toString())
         const options = {
             uri: uri.toString(),
             method: 'GET',
