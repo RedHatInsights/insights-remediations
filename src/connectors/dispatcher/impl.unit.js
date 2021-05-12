@@ -36,13 +36,13 @@ describe('dispatcher impl', function () {
     describe('postPlaybookRunRequests', function () {
         test('post run requests', async function () {
             const http = base.getSandbox().stub(request, 'run').resolves({
-                statusCode: 200,
+                statusCode: 207,
                 body: [
                     {
-                        code: 200,
+                        code: 201,
                         id: '7ef23cc6-729f-4f65-8ce7-6f8185c051e9'
                     }, {
-                        code: 200,
+                        code: 201,
                         id: '5907b393-1448-4867-988b-5eed8fc02846'
                     }
                 ],
@@ -53,11 +53,11 @@ describe('dispatcher impl', function () {
             results.should.have.size(2);
 
             const result1 = results[0];
-            result1.should.have.property('code', 200);
+            result1.should.have.property('code', 201);
             result1.should.have.property('id', '7ef23cc6-729f-4f65-8ce7-6f8185c051e9');
 
             const result2 = results[1];
-            result2.should.have.property('code', 200);
+            result2.should.have.property('code', 201);
             result2.should.have.property('id', '5907b393-1448-4867-988b-5eed8fc02846');
 
             http.callCount.should.equal(1);
