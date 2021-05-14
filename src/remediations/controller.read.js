@@ -32,9 +32,7 @@ async function fetchRemediation (req, res) {
     const hosts = req.query.hosts;
 
     if (_.isUndefined(req.user)) {
-        // TODO: Add check here to get host that matches owner_id from inventory once generalized
-        //       filtering has been implemented.
-
+        // TODO: Add check here to get host that matches owner_id from inventory once generalized filtering has been implemented.
         const batchProfileInfo = await inventory.getSystemProfileBatch(hosts);
 
         if (_.isEmpty(batchProfileInfo)) {
