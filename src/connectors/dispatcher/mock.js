@@ -61,7 +61,8 @@ const RUNHOSTS = {
             status: 'running'
         },
         status: 'running',
-        stdout: 'console log goes here'
+        stdout: 'console log goes here',
+        inventory_id: '07adc41a-a6c6-426a-a0d5-c7ba08954153'
     },
     '9ce94170-34a0-4aa6-976a-9728aa4da7a4': {
         host: 'localhost',
@@ -77,7 +78,8 @@ const RUNHOSTS = {
             status: 'running'
         },
         status: 'running',
-        stdout: 'console log goes here'
+        stdout: 'console log goes here',
+        inventory_id: '17adc41a-a6c6-426a-a0d5-c7ba08954154'
     }
 };
 

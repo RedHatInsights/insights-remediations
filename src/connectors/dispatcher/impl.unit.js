@@ -209,7 +209,8 @@ describe('dispatcher impl', function () {
                                 status: 'running'
                             },
                             status: 'running',
-                            stdout: 'console log goes here'
+                            stdout: 'console log goes here',
+                            inventory_id: '07adc41a-a6c6-426a-a0d5-c7ba08954153'
                         },
                         {
                             host: '750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4',
@@ -225,7 +226,8 @@ describe('dispatcher impl', function () {
                                 status: 'running'
                             },
                             status: 'running',
-                            stdout: 'console log goes here'
+                            stdout: 'console log goes here',
+                            inventory_id: '17adc41a-a6c6-426a-a0d5-c7ba08954154'
                         }
                     ]
                 },
@@ -239,11 +241,13 @@ describe('dispatcher impl', function () {
             result1.should.have.property('host', '9574cba7-b9ce-4725-b392-e959afd3e69a');
             result1.should.have.property('status', 'running');
             result1.should.have.property('stdout', 'console log goes here');
+            result1.should.have.property('inventory_id', '07adc41a-a6c6-426a-a0d5-c7ba08954153');
 
             const result2 = results.data[1];
             result2.should.have.property('host', '750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4');
             result2.should.have.property('status', 'running');
             result2.should.have.property('stdout', 'console log goes here');
+            result2.should.have.property('inventory_id', '17adc41a-a6c6-426a-a0d5-c7ba08954154');
 
             http.callCount.should.equal(1);
             const options = http.args[0][0];
