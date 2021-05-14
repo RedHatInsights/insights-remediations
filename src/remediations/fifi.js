@@ -22,7 +22,7 @@ const queries = require('./remediations.queries');
 const SATELLITE_NAMESPACE = Object.freeze({namespace: 'satellite'});
 const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_name', 'rhc_client']);
 
-const RUNSFIELDS = Object.freeze({fields: {data: ['id', 'labels', 'status', 'service', 'created_at', 'updated_at']}});
+const RUNSFIELDS = Object.freeze({fields: {data: ['id', 'labels', 'status', 'service', 'created_at', 'updated_at', 'url']}});
 const RUNHOSTFIELDS = Object.freeze({fields: {data: ['stdout']}});
 const RHCSTATUSES = ['timeout', 'failure', 'success', 'running'];
 
@@ -97,7 +97,7 @@ function findRunStatus (run) {
         return FAILURE;
     } else if (run.count_running > 0 && run.count_timeout === 0 && run.count_failure === 0) {
         return RUNNING;
-    } else if (run.success > 0 && run.timeout === 0) {
+    } else if (run.count_success > 0 && run.count_timeout === 0) {
         return SUCCESS;
     }
 }
