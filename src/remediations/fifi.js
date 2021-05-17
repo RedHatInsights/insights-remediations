@@ -127,8 +127,8 @@ exports.formatRunHosts = function (rhcRunHosts, playbook_run_id) {
 
 function formatRHCHostDetails (host, details, playbook_run_id) {
     return {
-        system_id: details.data[0].inventory_id,
-        system_name: host.id,
+        system_id: host.id,
+        system_name: details.data[0].inventory_id,
         status: host.status,
         updated_at: host.updated_at,
         console: details.data[0].stdout,
