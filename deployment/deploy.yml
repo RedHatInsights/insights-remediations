@@ -467,6 +467,7 @@ parameters:
   value: 'false'
 - name: BACKOFFICE_CLIENT_ENV
   value: ci
+- name: BACKOFFICE_HOST
 - name: SSG_IMPL
   value: impl
 - name: SSG_HOST
