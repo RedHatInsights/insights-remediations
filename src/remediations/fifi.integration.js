@@ -662,7 +662,7 @@ describe('FiFi', function () {
                 .set(auth.fifi)
                 .expect(200);
 
-                body.should.have.property('system_id', '9ce94170-34a0-4aa6-976a-9728aa4da7a4');
+                body.should.have.property('system_id', '17adc41a-a6c6-426a-a0d5-c7ba08954154');
                 body.should.have.property('system_name', '9ce94170-34a0-4aa6-976a-9728aa4da7a4');
                 body.should.have.property('status', 'running');
                 body.should.have.property('console', 'console log goes here');

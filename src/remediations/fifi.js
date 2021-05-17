@@ -23,7 +23,7 @@ const SATELLITE_NAMESPACE = Object.freeze({namespace: 'satellite'});
 const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_name', 'rhc_client']);
 
 const RUNSFIELDS = Object.freeze({fields: {data: ['id', 'labels', 'status', 'service', 'created_at', 'updated_at', 'url']}});
-const RUNHOSTFIELDS = Object.freeze({fields: {data: ['stdout']}});
+const RUNHOSTFIELDS = Object.freeze({fields: {data: ['stdout', 'inventory_id']}});
 const RHCSTATUSES = ['timeout', 'failure', 'success', 'running'];
 
 const DIFF_MODE = false;
@@ -127,7 +127,7 @@ exports.formatRunHosts = function (rhcRunHosts, playbook_run_id) {
 
 function formatRHCHostDetails (host, details, playbook_run_id) {
     return {
-        system_id: host.id,
+        system_id: details.data[0].inventory_id,
         system_name: host.id,
         status: host.status,
         updated_at: host.updated_at,
