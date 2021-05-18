@@ -242,21 +242,24 @@ function defineRHCEnabledExecutor (satellites, smart_management, rhc_enabled) {
     const satlessExecutor = _.find(satellites, satellite => satellite.id === null);
     if (satlessExecutor) {
         const partitionedSystems = sortRHCSystems(satlessExecutor, smart_management);
+        _.remove(satellites, executor => executor === satlessExecutor); // Remove redundant satless executor
 
         if (!_.isEmpty(partitionedSystems[0])) {
             satellites.push({id: null, systems: partitionedSystems[0], type: 'RHC', rhcStatus: (rhc_enabled) ? CONNECTED : DISABLED});
         }
 
-        satlessExecutor.systems = partitionedSystems[1];
-
         if (!smart_management) {
-            satlessExecutor.systems = _.filter(partitionedSystems[1], system => !_.isUndefined(system.rhc_client) && !system.marketplace);
-            const noSmartManagement = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client) && !system.marketplace);
+            const noSmartManagement = _.filter(partitionedSystems[1], system => !system.marketplace);
             if (!_.isEmpty(noSmartManagement)) {
                 satellites.push({id: null, systems: noSmartManagement, type: 'RHC', rhcStatus: 'no_smart_management'});
             }
 
             const rhcNotConfigured = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client) && system.marketplace);
+            if (!_.isEmpty(rhcNotConfigured)) {
+                satellites.push({id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'});
+            }
+        } else {
+            const rhcNotConfigured = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client));
             if (!_.isEmpty(rhcNotConfigured)) {
                 satellites.push({id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'});
             }
