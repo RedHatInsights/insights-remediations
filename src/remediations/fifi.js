@@ -35,6 +35,7 @@ const PENDING = 'pending';
 const FAILURE = 'failure';
 const RUNNING = 'running';
 const SUCCESS = 'success';
+const CANCELED = 'canceled';
 const SERVICE = 'remediations';
 
 exports.checkSmartManagement = async function (remediation, smart_management) {
@@ -66,6 +67,33 @@ exports.checkRhcEnabled = async function () {
 
 exports.sortSystems = function (systems, column = 'system_name', asc = true) {
     return _.orderBy(systems, column, (asc) ? 'asc' : 'desc');
+};
+
+function findPlaybookRunStatus (run) {
+    if (_.some(run.executors, executor => executor.status === FAILURE)) {
+        return FAILURE;
+    }
+
+    if (_.some(run.executors, executor => executor.status === CANCELED)) {
+        return CANCELED;
+    }
+
+    if (_.every(run.executors, executor => executor.status === PENDING)) {
+        return PENDING;
+    }
+
+    if (_.every(run.executors, executor => executor.status === SUCCESS)) {
+        return SUCCESS;
+    }
+
+    return RUNNING;
+}
+
+// TODO: Replace this logic with logic in the remediations-consumer
+exports.updatePlaybookRunsStatus = function (playbook_runs) {
+    _.forEach(playbook_runs, run => {
+        run.status = findPlaybookRunStatus(run);
+    });
 };
 
 function createDispatcherRunsFilter (playbook_run_id = null) {
