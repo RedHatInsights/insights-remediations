@@ -186,7 +186,7 @@ describe('FiFi', function () {
                 body.meta.count.should.equal(2);
                 body.meta.total.should.equal(2);
                 body.data[0].should.have.property('id', '31a70e85-378a-4436-96e9-677cd6fba660');
-                body.data[0].should.have.property('status', 'pending');
+                body.data[0].should.have.property('status', 'running');
                 body.data[0].should.have.property('created_at', '2020-02-23T06:19:36.641Z');
 
                 body.data[1].should.have.property('id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
@@ -305,7 +305,7 @@ describe('FiFi', function () {
                 body.meta.count.should.equal(2);
                 body.meta.total.should.equal(2);
                 body.data[0].should.have.property('id', '31a70e85-378a-4436-96e9-677cd6fba660');
-                body.data[0].should.have.property('status', 'pending');
+                body.data[0].should.have.property('status', 'running');
                 body.data[0].should.have.property('created_at', '2020-02-23T06:19:36.641Z');
 
                 body.data[1].should.have.property('id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
@@ -349,7 +349,7 @@ describe('FiFi', function () {
                 body.data[0].should.have.property('created_at', '2019-12-23T08:19:36.641Z');
 
                 body.data[1].should.have.property('id', '31a70e85-378a-4436-96e9-677cd6fba660');
-                body.data[1].should.have.property('status', 'pending');
+                body.data[1].should.have.property('status', 'running');
                 body.data[1].should.have.property('created_at', '2020-02-23T06:19:36.641Z');
 
                 body.data[0].executors[0].should.have.property('executor_id', '21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd');
@@ -1597,7 +1597,7 @@ describe('FiFi', function () {
             .set(auth.fifi)
             .expect(200);
 
-            run.should.have.property('status', 'pending');
+            run.should.have.property('status', 'failure');
             run.executors.should.have.length(2);
 
             run.executors[0].should.have.property('executor_id', '722ec903-f4b5-4b1f-9c2f-23fc7b0ba390');
