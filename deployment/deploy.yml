@@ -147,7 +147,7 @@ objects:
                 key: key
                 name: psk-playbook-dispatcher
           - name: PLATFORM_HOSTNAME
-            value: ${PLATFORM_HOSTNAME}
+            value: cert.${PLATFORM_HOSTNAME}
           - name: PATH_PREFIX
             value: ${PATH_PREFIX}
           - name: RBAC_IMPL
@@ -336,7 +336,7 @@ objects:
                 key: key
                 name: psk-playbook-dispatcher
           - name: PLATFORM_HOSTNAME
-            value: ${PLATFORM_HOSTNAME}
+            value: cert.${PLATFORM_HOSTNAME}
           - name: PATH_PREFIX
             value: ${PATH_PREFIX}
           - name: RBAC_IMPL
