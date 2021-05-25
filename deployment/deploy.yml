@@ -146,8 +146,8 @@ objects:
               secretKeyRef:
                 key: key
                 name: psk-playbook-dispatcher
-          - name: PLATFORM_HOSTNAME
-            value: ${PLATFORM_HOSTNAME}
+          - name: PLATFORM_HOSTNAME_URL
+            value: ${PLATFORM_HOSTNAME_URL}
           - name: PATH_PREFIX
             value: ${PATH_PREFIX}
           - name: RBAC_IMPL
@@ -335,8 +335,8 @@ objects:
               secretKeyRef:
                 key: key
                 name: psk-playbook-dispatcher
-          - name: PLATFORM_HOSTNAME
-            value: ${PLATFORM_HOSTNAME}
+          - name: PLATFORM_HOSTNAME_URL
+            value: ${PLATFORM_HOSTNAME_URL}
           - name: PATH_PREFIX
             value: ${PATH_PREFIX}
           - name: RBAC_IMPL
@@ -485,7 +485,7 @@ parameters:
 - name: PLAYBOOK_DISPATCHER_IMPL
   value: impl
 - name: PLAYBOOK_DISPATCHER_HOST
-- name: PLATFORM_HOSTNAME
+- name: PLATFORM_HOSTNAME_URL
 - name: RBAC_IMPL
   value: impl
 - name: RBAC_HOST
