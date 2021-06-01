@@ -383,13 +383,17 @@ async function fetchReceptorStatus (receptor, account) {
     return _.get(result, 'status', null);
 }
 
-function getName (executor) {
+function getName (executor, smart_management) {
     if (executor.source) {
         return executor.source.name;
     }
 
     if (executor.id) {
         return `Satellite ${executor.id}`;
+    }
+
+    if (!smart_management && !_.includes([null, 'no_smart_management'], executor.rhcStatus)) {
+        return 'Direct connection - AWS Marketplace';
     }
 
     return null;
@@ -409,7 +413,7 @@ function getStatus (executor, smart_management) {
             return 'no_receptor';
         }
 
-        if (executor.receptorStatus !== 'connected') {
+        if (executor.receptorStatus !== CONNECTED) {
             return 'disconnected';
         }
     } else if (executor.type === 'RHC') {
@@ -451,7 +455,7 @@ function normalize (satellites, smart_management) {
         endpointId: _.get(satellite.receptor, 'id', null),
         systems: _.map(satellite.systems, system => _.pick(system, SYSTEM_FIELDS)),
         type: satellite.type,
-        name: getName(satellite),
+        name: getName(satellite, smart_management),
         status: getStatus(satellite, smart_management)
     }));
 }
