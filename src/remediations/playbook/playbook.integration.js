@@ -156,6 +156,16 @@ describe('playbooks', function () {
             expect(text).toMatchSnapshot();
         });
 
+        test('playbook with cert-auth and no hosts query param', async () => {
+            mockDate();
+            const {text} = await request
+            .get('/v1/remediations/7d727f9c-7d9e-458d-a128-a9ffae1802ab/playbook?localhost')
+            .set(auth.cert02)
+            .expect(200);
+
+            expect(text).toMatchSnapshot();
+        });
+
         test('playbook for remediation with zero issues does not freak out', async () => {
             const {text} = await request
             .get('/v1/remediations/256ab1d3-58cf-1292-35e6-1a49c8b122d3/playbook')
@@ -233,14 +243,6 @@ describe('playbooks', function () {
             mockDate();
             await request
             .get('/v1/remediations/7d727f9c-7d9e-458d-a128-a9ffae1802ab/playbook?hosts=non-existent-host')
-            .set(auth.cert02)
-            .expect(404);
-        });
-
-        test('404 on playbook with cert-auth and no hosts query param', async () => {
-            mockDate();
-            await request
-            .get('/v1/remediations/7d727f9c-7d9e-458d-a128-a9ffae1802ab/playbook?localhost')
             .set(auth.cert02)
             .expect(404);
         });
