@@ -7,7 +7,7 @@ const assert = require('assert');
 const metrics = require('../metrics');
 const queries = require('./xjoin.queries');
 const { pageSize } = require('../../config').inventory;
-const { BATCH_DETAILS_QUERY, INSIGHTS_ID_QUERY, BATCH_PROFILE_QUERY} = require('./xjoin.queries');
+const { BATCH_DETAILS_QUERY, INSIGHTS_ID_QUERY, BATCH_PROFILE_QUERY, OWNER_ID_QUERY } = require('./xjoin.queries');
 
 const Connector = require('../Connector');
 const log = require('../../util/log');
@@ -29,6 +29,7 @@ module.exports = new class extends Connector {
         this.xjoinDetailsMetrics = metrics.createConnectorMetric(this.getName(), 'getSystemDetailsBatch');
         this.xjoinSystemProfileMetrics = metrics.createConnectorMetric(this.getName(), 'getSystemProfileBatch');
         this.xjoinInsightsIdMetrics = metrics.createConnectorMetric(this.getName(), 'getSystemsByInsightsId');
+        this.xjoinOwnerIdMetrics = metrics.createConnectorMetric(this.getName(), 'getSystemsByOwnerId');
     }
 
     async getSystemDetailsBatch (ids = [], refresh = false, retries = 2) {
@@ -115,6 +116,20 @@ module.exports = new class extends Connector {
         const response = await queries.runQuery(INSIGHTS_ID_QUERY, {
             insights_id: id
         }, this.getForwardedHeaders(), this.xjoinInsightsIdMetrics);
+
+        const transformed = _(response.data.hosts.data)
+        .map(({id, display_name, canonical_facts, account, updated, ansible_host}) =>
+            ({id, insights_id: canonical_facts.insights_id, display_name, hostname: canonical_facts.fqdn, account, updated, ansible_host}))
+        .value();
+
+        transformed.forEach(validateHost);
+        return transformed;
+    }
+
+    async getSystemsByOwnerId (owner_id) {
+        const response = await queries.runQuery(OWNER_ID_QUERY, {
+            owner_id
+        }, this.getForwardedHeaders(), this.xjoinOwnerIdMetrics);
 
         const transformed = _(response.data.hosts.data)
         .map(({id, display_name, canonical_facts, account, updated, ansible_host}) =>
