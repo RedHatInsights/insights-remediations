@@ -392,7 +392,7 @@ function getName (executor, smart_management) {
         return `Satellite ${executor.id}`;
     }
 
-    if (!smart_management && !_.includes([null, 'no_smart_management'], executor.rhcStatus)) {
+    if (!smart_management && executor.rhcStatus !== 'no_smart_management') {
         return 'Direct connection - AWS Marketplace';
     }
 
