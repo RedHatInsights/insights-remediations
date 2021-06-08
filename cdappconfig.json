@@ -1,18 +1,7 @@
 {
-    "kafka": {
-        "brokers": [
-            {
-                "hostname": "ingress-env-kafka.clowder-system.svc",
-                "port": 29092
-            }
-        ],
-        "topics": [
-            {
-                "name": "platform.upload.advisor-ingress-env-clowder-system",
-                "requestedName": "platform.upload.advisor"
-            }
-        ]
-    },
+    "webPort": 8000,
+    "metricsPath": "/metrics",
+    "metricsPort": 9000,
     "logging": {
         "cloudwatch": {
             "accessKeyId": "",
@@ -22,8 +11,6 @@
         },
         "type": "null"
     },
-    "metricsPath": "/metrics",
-    "metricsPort": 9000,
     "objectStore": {
         "accessKey": "key",
         "buckets": [
@@ -37,15 +24,14 @@
         "hostname": "ingress-env-minio.clowder-system.svc",
         "port": 9000,
         "secretKey": "value",
-	"tls": false
+	    "tls": false
     },
-    "webPort": 8000,
     "endpoints":[
         {
-        "app": "advisor",
-        "name": "service",
-        "hostname": "advisor-service.ephem.svc",
-        "port": 8000
+            "app": "advisor",
+            "name": "service",
+            "hostname": "advisor-service.ephem.svc",
+            "port": 8000
         },
         {
             "app": "compliance",
