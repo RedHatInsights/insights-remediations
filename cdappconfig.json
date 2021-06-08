@@ -38,6 +38,36 @@
             "name": "service",
             "hostname": "compliance-service.ephem.svc",
             "port": 8000
+        },
+        {
+            "app": "config-manager",
+            "name": "service",
+            "hostname": "config-manager-service.ephem.svc",
+            "port": 8080
+        },
+        {
+            "app": "inventory",
+            "name": "service",
+            "hostname": "inventory-service.ephem.svc",
+            "port": 8000
+        },
+        {
+            "app": "patch",
+            "name": "service",
+            "hostname": "patch-service.ephem.svc",
+            "port": 8080
+        },
+        {
+            "app": "playbook-dispatcher",
+            "name": "service",
+            "hostname": "playbook-dispatcher-service.ephem.svc",
+            "port": 8080
+        },
+        {
+            "app": "sources",
+            "name": "service",
+            "hostname": "sources-service.ephem.svc",
+            "port": 8080
         }
     ],
     "database": {
