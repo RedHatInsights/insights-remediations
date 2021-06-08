@@ -1,0 +1,69 @@
+{
+    "kafka": {
+        "brokers": [
+            {
+                "hostname": "ingress-env-kafka.clowder-system.svc",
+                "port": 29092
+            }
+        ],
+        "topics": [
+            {
+                "name": "platform.upload.advisor-ingress-env-clowder-system",
+                "requestedName": "platform.upload.advisor"
+            }
+        ]
+    },
+    "logging": {
+        "cloudwatch": {
+            "accessKeyId": "",
+            "logGroup": "",
+            "region": "",
+            "secretAccessKey": ""
+        },
+        "type": "null"
+    },
+    "metricsPath": "/metrics",
+    "metricsPort": 9000,
+    "objectStore": {
+        "accessKey": "key",
+        "buckets": [
+            {
+                "name": "ingress-uploads-perma",
+                "requestedName": "ingress-uploads-perma",
+                "accessKey": "",
+                "secretKey": ""
+            }
+        ],
+        "hostname": "ingress-env-minio.clowder-system.svc",
+        "port": 9000,
+        "secretKey": "value",
+	"tls": false
+    },
+    "webPort": 8000,
+    "endpoints":[
+        {
+        "app": "advisor",
+        "name": "service",
+        "hostname": "advisor-service.ephem.svc",
+        "port": 8000
+        },
+        {
+            "app": "compliance",
+            "name": "service",
+            "hostname": "compliance-service.ephem.svc",
+            "port": 8000
+        }
+    ],
+    "database": {
+        "username": "test",
+        "password": "test",
+        "name": "test",
+        "hostname": "test",
+        "port": 5432
+    },
+    "inMemoryDb": {
+        "hostname": "test",
+        "port": 2000,
+        "password": "test"
+    }
+}
