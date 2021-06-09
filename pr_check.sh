@@ -7,8 +7,8 @@ APP_NAME="remediations"  # name of app-sre "application" folder this component l
 COMPONENT_NAME="remediations"  # name of app-sre "resourceTemplate" in deploy.yaml for this component
 IMAGE="quay.io/cloudservices/insights-remediations"  
 
-IQE_PLUGINS=""
-IQE_MARKER_EXPRESSION=""
+IQE_PLUGINS="remediations"
+IQE_MARKER_EXPRESSION="smoke"
 IQE_FILTER_EXPRESSION=""
 
 # Install bonfire repo/initialize
