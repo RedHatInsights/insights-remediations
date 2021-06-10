@@ -63,10 +63,15 @@ exports.Forbidden = class Forbidden extends HttpError {
 
 exports.DependencyError = class DependencyError extends HttpError {
     constructor (e, connector) {
-        super(503, 'DEPENDENCY_UNAVAILABLE', 'Service dependency unavailable', {
-            name: connector.getName(),
-            impl: connector.getImpl()
-        });
+        super(
+            503,
+            'DEPENDENCY_UNAVAILABLE',
+            // eslint-disable-next-line max-len
+            'Internal service dependency is temporarily unavailable.  If the issue persists please contact Red Hat support: https://access.redhat.com/support/cases/', {
+                name: connector.getName(),
+                impl: connector.getImpl()
+            }
+        );
         this.cause = e;
     }
 };
