@@ -15,7 +15,7 @@
       inMemoryDb: true
       deployments:
       - name: remediations
-        minReplicas: ${REMEDIATIONS_REPLICAS}
+        minReplicas: 2
         web: true
         podSpec:
           image: quay.io/cloudservices/remediations:${IMAGE_TAG}
