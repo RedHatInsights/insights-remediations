@@ -1,0 +1,463 @@
+
+> insights-remediations@0.1.0 verify /Users/alcohan/Documents/Insights_Repos/insights-remediations
+> npm-run-all lint coverage
+
+
+> insights-remediations@0.1.0 lint /Users/alcohan/Documents/Insights_Repos/insights-remediations
+> npm-run-all lint:js lint:openapi
+
+
+> insights-remediations@0.1.0 lint:js /Users/alcohan/Documents/Insights_Repos/insights-remediations
+> eslint *.js db src
+
+
+> insights-remediations@0.1.0 lint:openapi /Users/alcohan/Documents/Insights_Repos/insights-remediations
+> speccy lint src/api/openapi.yaml && node src/api/lint.js
+
+[32mSpecification is valid, with 0 lint errors[0m
+
+> insights-remediations@0.1.0 coverage /Users/alcohan/Documents/Insights_Repos/insights-remediations
+> NODE_ENV=test npm run db:ims && jest -i --coverage
+
+
+> insights-remediations@0.1.0 db:ims /Users/alcohan/Documents/Insights_Repos/insights-remediations
+> npm-run-all db:init db:migrate db:seed
+
+
+> insights-remediations@0.1.0 db:init /Users/alcohan/Documents/Insights_Repos/insights-remediations
+> sequelize db:drop; sequelize db:create
+
+
+[4mSequelize CLI [Node: 13.14.0, CLI: 5.5.1, ORM: 5.22.3][24m
+
+Loaded configuration file "db/config.js".
+Using environment "test".
+
+
+
+[4mSequelize CLI [Node: 13.14.0, CLI: 5.5.1, ORM: 5.22.3][24m
+
+Loaded configuration file "db/config.js".
+Using environment "test".
+Database [94mremediationstest[39m created.
+
+> insights-remediations@0.1.0 db:migrate /Users/alcohan/Documents/Insights_Repos/insights-remediations
+> sequelize db:migrate
+
+
+[4mSequelize CLI [Node: 13.14.0, CLI: 5.5.1, ORM: 5.22.3][24m
+
+Loaded configuration file "db/config.js".
+Using environment "test".
+== 20180823064322-add-remediations: migrating =======
+== 20180823064322-add-remediations: migrated (0.053s)
+
+== 20181001144835-add-systems: migrating =======
+== 20181001144835-add-systems: migrated (0.017s)
+
+== 20190429094740-remove-cac-issues: migrating =======
+== 20190429094740-remove-cac-issues: migrated (0.012s)
+
+== 20190502141233-playbook-archive: migrating =======
+== 20190502141233-playbook-archive: migrated (0.023s)
+
+== 20200120151545-add-remediation_runs: migrating =======
+== 20200120151545-add-remediation_runs: migrated (0.077s)
+
+== 20200309113845-modify_playbook_run_executors: migrating =======
+== 20200309113845-modify_playbook_run_executors: migrated (0.028s)
+
+== 20200312105619-fifi-tweaks: migrating =======
+== 20200312105619-fifi-tweaks: migrated (0.016s)
+
+== 20200324133857-job-id-tweaks: migrating =======
+== 20200324133857-job-id-tweaks: migrated (0.013s)
+
+== 20200327113936_playbook_run_cascade: migrating =======
+== 20200327113936_playbook_run_cascade: migrated (0.028s)
+
+== 20200413133945-add_text_update_full: migrating =======
+== 20200413133945-add_text_update_full: migrated (0.026s)
+
+== 20200624131846-add_issue_status: migrating =======
+== 20200624131846-add_issue_status: migrated (0.012s)
+
+== 20200728142544-add-index-on-system-id: migrating =======
+== 20200728142544-add-index-on-system-id: migrated (0.010s)
+
+== 20200807151234-add-archived: migrating =======
+== 20200807151234-add-archived: migrated (0.011s)
+
+== 20200818113833-add-index-on-system_name: migrating =======
+== 20200818113833-add-index-on-system_name: migrated (0.010s)
+
+== 20201001112405-add-connection-and-execution-code: migrating =======
+== 20201001112405-add-connection-and-execution-code: migrated (0.013s)
+
+== 20201014090645-add-connection-and-execution-code-to-systems: migrating =======
+== 20201014090645-add-connection-and-execution-code-to-systems: migrated (0.010s)
+
+== 20210127154038-add-additional-error-fileds: migrating =======
+== 20210127154038-add-additional-error-fileds: migrated (0.056s)
+
+
+> insights-remediations@0.1.0 db:seed /Users/alcohan/Documents/Insights_Repos/insights-remediations
+> sequelize db:seed:all
+
+
+[4mSequelize CLI [Node: 13.14.0, CLI: 5.5.1, ORM: 5.22.3][24m
+
+Loaded configuration file "db/config.js".
+Using environment "test".
+== 20180823074644-tests-read: migrating =======
+== 20180823074644-tests-read: migrated (0.789s)
+
+== 20181121125041-demo: migrating =======
+== 20181121125041-demo: migrated (0.192s)
+
+== 20181123074644-tests-write: migrating =======
+== 20181123074644-tests-write: migrated (0.077s)
+
+== 20190107133125-tests-read-single: migrating =======
+== 20190107133125-tests-read-single: migrated (0.088s)
+
+== 20190212130752-status: migrating =======
+== 20190212130752-status: migrated (0.012s)
+
+== 20191223133315-fifi: migrating =======
+== 20191223133315-fifi: migrated (0.035s)
+
+[1623770046069] ERROR	 (DependencyError/61690 on MacBook-Pro): rejecting request due to DependencyError
+    DependencyError: Internal service dependency is temporarily unavailable.  If the issue persists please contact Red Hat support: https://access.redhat.com/support/cases/
+        at Object.dependencyError (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/errors.js:192:16)
+        at Object.<anonymous> (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/remediations/fifi.integration.js:1357:42)
+        at Object.asyncJestTest (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
+        at /Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/jest-jasmine2/build/queueRunner.js:45:12
+        at new Promise (<anonymous>)
+        at mapper (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
+        at /Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/jest-jasmine2/build/queueRunner.js:75:41
+        at runMicrotasks (<anonymous>)
+        at processTicksAndRejections (internal/process/task_queues.js:97:5)
+error: {
+    id: "unknown"
+    status: 503
+    code: "DEPENDENCY_UNAVAILABLE"
+    title: "Internal service dependency is temporarily unavailable.  If the issue persists please contact Red Hat support: https://access.redhat.com/support/cases/"
+    details: {
+      "name": "receptor",
+      "impl": "mock"
+    }
+}
+cause: {
+    type: "Error"
+    message: "receptor down"
+    stack: "Error: receptor down\n    at Object.<anonymous> (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/remediations/fifi.integration.js:1357:58)\n    at Object.asyncJestTest (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)\n    at /Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/jest-jasmine2/build/queueRunner.js:45:12\n    at new Promise (<anonymous>)\n    at mapper (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/jest-jasmine2/build/queueRunner.js:28:19)\n    at /Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/jest-jasmine2/build/queueRunner.js:75:41\n    at runMicrotasks (<anonymous>)\n    at processTicksAndRejections (internal/process/task_queues.js:97:5)"
+}
+reqId: 44ab41c7-900d-432d-9f8a-448397e663bc
+[1623770046085] ERROR	 (remediations/61690 on MacBook-Pro): error sending Playbook to executor
+    error: {
+      "name": "DependencyError",
+      "error": {
+        "id": "unknown",
+        "status": 503,
+        "code": "DEPENDENCY_UNAVAILABLE",
+        "title": "Internal service dependency is temporarily unavailable.  If the issue persists please contact Red Hat support: https://access.redhat.com/support/cases/",
+        "details": {
+          "name": "receptor",
+          "impl": "mock"
+        }
+      },
+      "cause": {}
+    }
+    reqId: "8f65ca30-a8ff-40ea-b748-fb56a7af5d51"
+[1623770046173] ERROR	 (DependencyError/61690 on MacBook-Pro): rejecting request due to DependencyError
+    DependencyError: Internal service dependency is temporarily unavailable.  If the issue persists please contact Red Hat support: https://access.redhat.com/support/cases/
+        at Object.dependencyError (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/errors.js:192:16)
+        at Object.<anonymous> (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/remediations/fifi.integration.js:1465:38)
+        at Object.asyncJestTest (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
+        at /Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/jest-jasmine2/build/queueRunner.js:45:12
+        at new Promise (<anonymous>)
+        at mapper (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
+        at /Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/jest-jasmine2/build/queueRunner.js:75:41
+        at runMicrotasks (<anonymous>)
+        at processTicksAndRejections (internal/process/task_queues.js:97:5)
+error: {
+    id: "unknown"
+    status: 503
+    code: "DEPENDENCY_UNAVAILABLE"
+    title: "Internal service dependency is temporarily unavailable.  If the issue persists please contact Red Hat support: https://access.redhat.com/support/cases/"
+    details: {
+      "name": "rbac",
+      "impl": "mock"
+    }
+}
+cause: {
+    type: "Error"
+    message: "rbac down"
+    stack: "Error: rbac down\n    at Object.<anonymous> (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/remediations/fifi.integration.js:1465:54)\n    at Object.asyncJestTest (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)\n    at /Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/jest-jasmine2/build/queueRunner.js:45:12\n    at new Promise (<anonymous>)\n    at mapper (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/jest-jasmine2/build/queueRunner.js:28:19)\n    at /Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/jest-jasmine2/build/queueRunner.js:75:41\n    at runMicrotasks (<anonymous>)\n    at processTicksAndRejections (internal/process/task_queues.js:97:5)"
+}
+reqId: f9220de7-a866-4e87-8ea8-cad093e97290
+[1623770046261] ERROR	 (remediations/61690 on MacBook-Pro): error sending Playbook to executor
+    error: {
+      "name": "DependencyError",
+      "error": {
+        "id": "unknown",
+        "status": 503,
+        "code": "DEPENDENCY_UNAVAILABLE",
+        "title": "Internal service dependency is temporarily unavailable.  If the issue persists please contact Red Hat support: https://access.redhat.com/support/cases/",
+        "details": {
+          "name": "receptor",
+          "impl": "mock"
+        }
+      },
+      "cause": {}
+    }
+    reqId: "795d0c53-c57f-45bb-82e2-31af0aa341ee"
+[1623770073635] ERROR	 (remediations/61690 on MacBook-Pro): caught internal error
+    Error: Playbook rendering failed for template test:missingVariable
+        at Object.playbookRenderingFailed (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/errors.js:188:16)
+        at map (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/generator/format.js:61:31)
+        at Array.map (<anonymous>)
+        at Object.render (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/generator/format.js:14:18)
+        at Object.exports.playbookPipeline (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/generator/generator.controller.js:72:25)
+        at /Users/alcohan/Documents/Insights_Repos/insights-remediations/src/generator/generator.controller.js:80:22
+errorCode: PLAYBOOK_RENDERING_FAILED
+cause: {
+    type: "InternalError"
+    message: "Variable \"MISSING\" not provided for template"
+    stack: "Error: Variable \"MISSING\" not provided for template\n    at Object.invalidTemplate (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/errors.js:176:16)\n    at Function.invoke (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/sinon/lib/sinon/spy.js:302:51)\n    at Object.invalidTemplate (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/sinon/lib/sinon/spy.js:90:30)\n    at StrictContext.lookup (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/templates/Template.js:24:35)\n    at Writer.escapedValue (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/mustache/mustache.js:643:25)\n    at Writer.renderTokens (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/mustache/mustache.js:556:48)\n    at Writer.render (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/mustache/mustache.js:531:17)\n    at Object.render (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/mustache/mustache.js:698:26)\n    at Template.render (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/templates/Template.js:38:25)\n    at Resolution.render (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/resolutions/Resolution.js:43:30)\n    at RemediationPlay.render (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/generator/plays/ResolutionPlay.js:25:38)\n    at map (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/generator/format.js:59:21)\n    at Array.map (<anonymous>)\n    at Object.render (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/generator/format.js:14:18)\n    at Object.exports.playbookPipeline (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/generator/generator.controller.js:72:25)\n    at /Users/alcohan/Documents/Insights_Repos/insights-remediations/src/generator/generator.controller.js:80:22"
+    errorCode: "INVALID_TEMPLATE"
+}
+reqId: c694c9f2-bbed-47fe-9164-ca2838dde6aa
+[1623770138958] ERROR	 (remediations/61690 on MacBook-Pro): caught internal error
+    Error: intentional server error triggered by test01User
+        at fn (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/admin/admin.controller.js:9:11)
+        at /Users/alcohan/Documents/Insights_Repos/insights-remediations/src/errors.js:139:20
+        at Layer.handle [as handle_request] (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/layer.js:95:5)
+        at next (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/route.js:137:13)
+        at module.exports (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/middleware/isInternal.js:5:16)
+        at Layer.handle [as handle_request] (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/layer.js:95:5)
+        at next (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/route.js:137:13)
+        at Route.dispatch (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/route.js:112:3)
+        at Layer.handle [as handle_request] (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/layer.js:95:5)
+        at /Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/index.js:281:22
+        at Function.process_params (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/index.js:335:12)
+        at next (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/index.js:275:10)
+        at module.exports (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/middleware/identity/userIdentity.js:10:5)
+        at Layer.handle [as handle_request] (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/layer.js:95:5)
+        at trim_prefix (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/index.js:317:13)
+        at /Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/index.js:284:7
+        at Function.process_params (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/index.js:335:12)
+        at next (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/index.js:275:10)
+        at Function.handle (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/index.js:174:3)
+        at router (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/index.js:47:12)
+        at Layer.handle [as handle_request] (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/layer.js:95:5)
+        at trim_prefix (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/index.js:317:13)
+        at /Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/index.js:284:7
+        at Function.process_params (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/index.js:335:12)
+        at next (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/index.js:275:10)
+        at module.exports (/Users/alcohan/Documents/Insights_Repos/insights-remediations/src/middleware/prettyJson.js:20:5)
+        at Layer.handle [as handle_request] (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/layer.js:95:5)
+        at trim_prefix (/Users/alcohan/Documents/Insights_Repos/insights-remediations/node_modules/express/lib/router/index.js:317:13)
+reqId: 88558ebc-ad5e-4ed1-82d4-7c1960c71aad
+--------------------------------|---------|----------|---------|---------|-------------------------------------------
+File                            | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                         
+--------------------------------|---------|----------|---------|---------|-------------------------------------------
+All files                       |   91.86 |    78.07 |   92.04 |   91.78 |                                           
+ src                            |   90.17 |    82.98 |      85 |   90.67 |                                           
+  app.js                        |   74.42 |       50 |   44.44 |   76.19 | 19-20,27,32-33,60-68,87                   
+  errors.js                     |    88.1 |       84 |      90 |   87.65 | 80,96-110,184                             
+  probes.js                     |     100 |      100 |     100 |     100 |                                           
+  routes.js                     |   96.36 |       75 |    87.5 |   98.08 | 35                                        
+ src/admin                      |     100 |      100 |     100 |     100 |                                           
+  admin.controller.js           |     100 |      100 |     100 |     100 |                                           
+  routes.js                     |     100 |      100 |     100 |     100 |                                           
+ src/api                        |   85.71 |       50 |     100 |   85.71 |                                           
+  openapi.js                    |   85.71 |       50 |     100 |   85.71 | 18,22                                     
+ src/cache                      |   51.52 |       50 |    37.5 |   53.13 |                                           
+  index.js                      |   51.52 |       50 |    37.5 |   53.13 | 15,24-38,46,51-56                         
+ src/config                     |   54.05 |    59.14 |   66.67 |   54.05 |                                           
+  index.js                      |   53.42 |    59.14 |   66.67 |   53.42 | 14,22-28,35-40,226-249,273-275,285-286    
+  test.js                       |     100 |      100 |     100 |     100 |                                           
+ src/connectors                 |   97.95 |    95.89 |      96 |   97.93 |                                           
+  Connector.js                  |     100 |     87.5 |     100 |     100 | 39                                        
+  StatusCodeError.js            |     100 |      100 |     100 |     100 |                                           
+  common.js                     |   71.43 |    66.67 |     100 |   71.43 | 7,14                                      
+  http.js                       |     100 |      100 |     100 |     100 |                                           
+  metrics.js                    |     100 |      100 |     100 |     100 |                                           
+  testUtils.js                  |   94.74 |      100 |      80 |   94.74 | 38                                        
+ src/connectors/advisor         |   87.69 |       60 |   92.31 |   87.69 |                                           
+  impl.js                       |   88.37 |    58.33 |    87.5 |   88.37 | 25,70,82,114-115                          
+  impl.unit.data.js             |     100 |      100 |     100 |     100 |                                           
+  index.js                      |      80 |       50 |     100 |      80 | 9                                         
+  mock.js                       |    87.5 |    66.67 |     100 |    87.5 | 72,76                                     
+ src/connectors/compliance      |   91.18 |    83.33 |   83.33 |   91.18 |                                           
+  impl.js                       |   90.91 |      100 |   66.67 |   90.91 | 54-55                                     
+  index.js                      |      80 |       50 |     100 |      80 | 9                                         
+  mock.js                       |     100 |      100 |     100 |     100 |                                           
+ src/connectors/configManager   |   82.14 |       50 |   66.67 |   82.14 |                                           
+  impl.js                       |   83.33 |       50 |   66.67 |   83.33 | 32,39-40                                  
+  index.js                      |      80 |       50 |     100 |      80 | 9                                         
+  mock.js                       |      80 |      100 |   66.67 |      80 | 24                                        
+ src/connectors/contentServer   |   89.19 |    71.43 |   88.89 |   89.19 |                                           
+  impl.js                       |   86.96 |    66.67 |   83.33 |   86.96 | 32,58-59                                  
+  index.js                      |      80 |       50 |     100 |      80 | 9                                         
+  mock.js                       |     100 |      100 |     100 |     100 |                                           
+ src/connectors/dispatcher      |   90.77 |    62.96 |   81.82 |   90.77 |                                           
+  impl.js                       |   94.87 |    81.82 |   83.33 |   94.87 | 44,63                                     
+  index.js                      |   57.14 |       25 |     100 |   57.14 | 8-11                                      
+  mock.js                       |   94.74 |    58.33 |      80 |   94.74 | 133                                       
+ src/connectors/inventory       |   84.62 |    68.42 |   86.36 |   85.12 |                                           
+  impl.js                       |    87.5 |    70.83 |   88.89 |    88.3 | 40,83,103-105,137,201,214-225             
+  index.js                      |   57.14 |       25 |     100 |   57.14 | 8-11                                      
+  mock.js                       |    96.3 |    95.45 |     100 |    96.3 | 51                                        
+  xjoin.js                      |   88.57 |    72.22 |    87.5 |   89.39 | 63,81-83,103,144-145                      
+  xjoin.queries.js              |   52.38 |        0 |       0 |   52.38 | 91-104                                    
+ src/connectors/patchman        |   89.29 |    66.67 |   85.71 |   89.29 |                                           
+  impl.js                       |    87.5 |      100 |      75 |    87.5 | 36-37                                     
+  index.js                      |      80 |       50 |     100 |      80 | 9                                         
+  mock.js                       |     100 |      100 |     100 |     100 |                                           
+ src/connectors/rbac            |   97.14 |    85.71 |     100 |   97.14 |                                           
+  impl.js                       |     100 |      100 |     100 |     100 |                                           
+  index.js                      |      80 |       50 |     100 |      80 | 9                                         
+  mock.js                       |     100 |      100 |     100 |     100 |                                           
+ src/connectors/receptor        |   97.22 |    81.82 |     100 |   97.22 |                                           
+  impl.js                       |     100 |      100 |     100 |     100 |                                           
+  index.js                      |      75 |       60 |     100 |      75 | 8                                         
+  mock.js                       |     100 |      100 |     100 |     100 |                                           
+ src/connectors/sources         |   91.84 |    72.73 |   84.62 |   91.84 |                                           
+  impl.js                       |   94.29 |    83.33 |   85.71 |   94.29 | 73,84                                     
+  index.js                      |      75 |       60 |     100 |      75 | 8                                         
+  mock.js                       |      90 |      100 |   83.33 |      90 | 83                                        
+ src/connectors/ssg             |   86.25 |       65 |   85.71 |    85.9 |                                           
+  compliance.js                 |   88.89 |       75 |   83.33 |   88.24 | 70-77                                     
+  impl.js                       |   89.47 |       50 |      75 |   89.47 | 35-36                                     
+  index.js                      |   57.14 |       25 |     100 |   57.14 | 8-11                                      
+  mock.js                       |   88.89 |       80 |     100 |   88.89 | 29,35                                     
+ src/connectors/users           |   96.97 |       75 |     100 |   96.97 |                                           
+  impl.js                       |     100 |      100 |     100 |     100 |                                           
+  index.js                      |      75 |       60 |     100 |      75 | 8                                         
+  mock.js                       |     100 |      100 |     100 |     100 |                                           
+ src/connectors/vmaas           |   68.89 |    66.67 |      60 |   68.89 |                                           
+  index.js                      |      80 |       50 |     100 |      80 | 9                                         
+  mock.js                       |     100 |      100 |     100 |     100 |                                           
+  vmaas.js                      |   53.57 |       50 |      40 |   53.57 | 17-27,51-72                               
+ src/connectors/vulnerabilities |   85.71 |    61.54 |   81.82 |   85.71 |                                           
+  impl.js                       |   83.33 |       50 |   66.67 |   83.33 | 18,36,58,74                               
+  index.js                      |      75 |       60 |     100 |      75 | 8                                         
+  mock.js                       |   92.86 |       75 |     100 |   92.86 | 35                                        
+ src/db                         |   91.89 |       75 |   85.71 |   91.67 |                                           
+  index.js                      |   91.89 |       75 |   85.71 |   91.67 | 42-44                                     
+ src/diagnosis                  |     100 |      100 |     100 |     100 |                                           
+  diagnosis.controller.js       |     100 |      100 |     100 |     100 |                                           
+  routes.js                     |     100 |      100 |     100 |     100 |                                           
+ src/docs                       |     100 |      100 |     100 |     100 |                                           
+  index.js                      |     100 |      100 |     100 |     100 |                                           
+ src/generator                  |   97.35 |    88.89 |     100 |   97.18 |                                           
+  erratumPlayAggregator.js      |     100 |      100 |     100 |     100 |                                           
+  format.js                     |   86.96 |    66.67 |     100 |   86.96 | 20,28,32                                  
+  generator.controller.js       |   99.03 |    90.91 |     100 |   98.96 | 192                                       
+  routes.js                     |     100 |      100 |     100 |     100 |                                           
+ src/generator/factories        |   96.72 |    58.33 |   85.71 |   96.72 |                                           
+  AdvisorFactory.js             |     100 |        0 |     100 |     100 | 11                                        
+  CSAWFactory.js                |     100 |       80 |     100 |     100 | 12                                        
+  CVEFactory.js                 |     100 |    66.67 |     100 |     100 | 10                                        
+  ComplianceFactory.js          |     100 |        0 |     100 |     100 | 10                                        
+  Factory.js                    |      75 |      100 |      50 |      75 | 8                                         
+  PatchmanFactory.js            |     100 |      100 |     100 |     100 |                                           
+  TestFactory.js                |      90 |       50 |     100 |      90 | 18                                        
+ src/generator/plays            |   97.22 |    77.78 |   90.48 |   97.18 |                                           
+  AggregatedErrataPlay.js       |     100 |       80 |     100 |     100 | 39                                        
+  ErratumPlay.js                |     100 |      100 |     100 |     100 |                                           
+  Play.js                       |      80 |      100 |      60 |      80 | 21-25                                     
+  ResolutionPlay.js             |     100 |    66.67 |     100 |     100 | 19                                        
+  SpecialPlay.js                |     100 |      100 |     100 |     100 |                                           
+ src/issues                     |   86.49 |    75.68 |   75.68 |   86.49 |                                           
+  AdvisorHandler.js             |     100 |      100 |     100 |     100 |                                           
+  CSAWHandler.js                |   80.95 |       50 |      80 |   80.95 | 18,28-29,33                               
+  CVEHandler.js                 |     100 |      100 |     100 |     100 |                                           
+  ErratumHandler.js             |     100 |      100 |     100 |     100 |                                           
+  Handler.js                    |      20 |      100 |       0 |      20 | 6-18                                      
+  PackageHandler.js             |   61.54 |        0 |      50 |   61.54 | 13-23                                     
+  PatchmanHandler.js            |   61.54 |        0 |      50 |   61.54 | 13-23                                     
+  SSGHandler.js                 |     100 |      100 |     100 |     100 |                                           
+  TestHandler.js                |   90.91 |       50 |     100 |   90.91 | 14                                        
+  index.js                      |    97.3 |    94.74 |     100 |    97.3 | 55                                        
+ src/metrics                    |   93.33 |       50 |     100 |   92.86 |                                           
+  index.js                      |   93.33 |       50 |     100 |   92.86 | 19                                        
+ src/middleware                 |     100 |     91.3 |     100 |     100 |                                           
+  isInternal.js                 |     100 |      100 |     100 |     100 |                                           
+  prettyJson.js                 |     100 |    85.71 |     100 |     100 | 12                                        
+  rbac.js                       |     100 |       90 |     100 |     100 | 16                                        
+  reqId.js                      |     100 |      100 |     100 |     100 |                                           
+ src/middleware/identity        |   92.45 |     96.3 |     100 |   92.31 |                                           
+  fallback.js                   |     100 |      100 |     100 |     100 |                                           
+  impl.js                       |   82.61 |    83.33 |     100 |   82.61 | 13-14,42-43                               
+  switcher.js                   |     100 |      100 |     100 |     100 |                                           
+  userIdentity.js               |     100 |      100 |     100 |     100 |                                           
+  utils.js                      |     100 |      100 |     100 |     100 |                                           
+ src/middleware/openapi         |   89.61 |    84.85 |     100 |   89.04 |                                           
+  RequestSpecValidationError.js |     100 |      100 |     100 |     100 |                                           
+  index.js                      |   89.04 |    84.85 |     100 |   88.41 | 82,109,138-145                            
+ src/remediations               |   97.12 |    86.25 |   99.57 |   97.04 |                                           
+  controller.fifi.js            |   98.18 |    91.67 |     100 |   98.15 | 137,196                                   
+  controller.read.js            |   93.62 |       84 |   97.73 |   93.64 | 27,43,110,215,284,298-299,310-311,325,349 
+  controller.status.js          |    96.3 |     87.5 |     100 |   95.83 | 26                                        
+  controller.write.js           |     100 |    97.96 |     100 |     100 | 212                                       
+  fifi.js                       |   96.86 |    84.91 |     100 |   96.58 | 78,86,125,128-129,287,431-432,448,623,635 
+  remediations.format.js        |   97.47 |       75 |     100 |    97.3 | 42,123                                    
+  remediations.queries.js       |     100 |       84 |     100 |     100 | 68-69,235                                 
+  routes.js                     |     100 |      100 |     100 |     100 |                                           
+ src/remediations/models        |     100 |      100 |     100 |     100 |                                           
+  issue.js                      |     100 |      100 |     100 |     100 |                                           
+  issueSystem.js                |     100 |      100 |     100 |     100 |                                           
+  playbookArchive.js            |     100 |      100 |     100 |     100 |                                           
+  playbookRunExecutors.js       |     100 |      100 |     100 |     100 |                                           
+  playbookRunSystems.js         |     100 |      100 |     100 |     100 |                                           
+  playbookRuns.js               |     100 |      100 |     100 |     100 |                                           
+  remediation.js                |     100 |      100 |     100 |     100 |                                           
+ src/remediations/playbook      |     100 |      100 |     100 |     100 |                                           
+  routes.js                     |     100 |      100 |     100 |     100 |                                           
+ src/resolutions                |   97.78 |    94.87 |     100 |   97.67 |                                           
+  ErratumResolution.js          |     100 |      100 |     100 |     100 |                                           
+  Resolution.js                 |   94.44 |    90.91 |     100 |   94.44 | 15                                        
+  disambiguator.js              |     100 |      100 |     100 |     100 |                                           
+  resolutions.controller.js     |   96.43 |    83.33 |     100 |   96.15 | 14                                        
+  routes.js                     |     100 |      100 |     100 |     100 |                                           
+ src/resolutions/resolvers      |   97.79 |    86.67 |      96 |   97.74 |                                           
+  CSAWResolver.js               |     100 |      100 |     100 |     100 |                                           
+  CVEResolver.js                |     100 |      100 |     100 |     100 |                                           
+  ContentServerResolver.js      |     100 |      100 |     100 |     100 |                                           
+  ErratumResolver.js            |     100 |      100 |     100 |     100 |                                           
+  PackageResolver.js            |     100 |      100 |     100 |     100 |                                           
+  PatchmanResolver.js           |     100 |      100 |     100 |     100 |                                           
+  Resolver.js                   |    87.5 |      100 |      50 |    87.5 | 11                                        
+  SSGResolver.js                |    96.3 |    77.78 |     100 |   96.23 | 62,92                                     
+  SharedFunctions.js            |     100 |      100 |     100 |     100 |                                           
+  TestResolver.js               |     100 |      100 |     100 |     100 |                                           
+ src/status                     |   91.43 |       25 |     100 |   91.43 |                                           
+  routes.js                     |     100 |      100 |     100 |     100 |                                           
+  status.controller.js          |   90.63 |       25 |     100 |   90.63 | 38,48,60                                  
+ src/templates                  |     100 |      100 |     100 |     100 |                                           
+  Template.js                   |     100 |      100 |     100 |     100 |                                           
+ src/templates/static           |     100 |      100 |     100 |     100 |                                           
+  index.js                      |     100 |      100 |     100 |     100 |                                           
+ src/test                       |   93.33 |    85.71 |   94.74 |   92.73 |                                           
+  index.js                      |   93.33 |    85.71 |   94.74 |   92.73 | 142-145                                   
+ src/util                       |   85.71 |    63.77 |   87.23 |   85.57 |                                           
+  cls.js                        |   85.71 |      100 |      50 |   85.71 | 21-22                                     
+  fn.js                         |     100 |      100 |     100 |     100 |                                           
+  identifiers.js                |   86.49 |    77.78 |   85.71 |   88.89 | 12,40,57,62                               
+  keyValueParser.js             |   92.86 |       60 |     100 |   92.86 | 25                                        
+  log.js                        |   90.48 |    72.22 |     100 |   90.48 | 28,33,44,75                               
+  preconditions.js              |   58.33 |       50 |      40 |   58.33 | 15-19,23-27,36,43-47                      
+  request.js                    |      88 |       25 |     100 |   86.96 | 16-20                                     
+  version.js                    |      75 |       50 |     100 |      75 | 11,25-26,30                               
+  yaml.js                       |     100 |      100 |     100 |     100 |                                           
+ src/version                    |     100 |      100 |     100 |     100 |                                           
+  routes.js                     |     100 |      100 |     100 |     100 |                                           
+  version.controller.js         |     100 |      100 |     100 |     100 |                                           
+ src/whoami                     |     100 |      100 |     100 |     100 |                                           
+  routes.js                     |     100 |      100 |     100 |     100 |                                           
+  whoami.controller.js          |     100 |      100 |     100 |     100 |                                           
+--------------------------------|---------|----------|---------|---------|-------------------------------------------
