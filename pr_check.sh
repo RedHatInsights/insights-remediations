@@ -6,6 +6,7 @@
 APP_NAME="remediations"  # name of app-sre "application" folder this component lives in
 COMPONENT_NAME="remediations"  # name of app-sre "resourceTemplate" in deploy.yaml for this component
 IMAGE="quay.io/cloudservices/insights-remediations"
+DOCKERFILE=$APP_ROOT/build/DOCKERFILE
 
 # ADD IQE TESTS IN LATER
 # IQE_PLUGINS="remediations"
