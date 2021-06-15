@@ -6,7 +6,7 @@
 APP_NAME="remediations"  # name of app-sre "application" folder this component lives in
 COMPONENT_NAME="remediations"  # name of app-sre "resourceTemplate" in deploy.yaml for this component
 IMAGE="quay.io/cloudservices/insights-remediations"
-DOCKERFILE=$APP_ROOT/build/DOCKERFILE
+DOCKERFILE=build/Dockerfile
 
 # ADD IQE TESTS IN LATER
 # IQE_PLUGINS="remediations"
@@ -19,6 +19,6 @@ curl -s $CICD_URL/bootstrap.sh > .cicd_bootstrap.sh && source .cicd_bootstrap.sh
 
 # Build Remediations image based on the latest commit
 source $CICD_ROOT/build.sh
-source $CICD_ROOT//deploy_ephemeral_env.sh
+source $CICD_ROOT/deploy_ephemeral_env.sh
 
 source $APP_ROOT/unit_test.sh
