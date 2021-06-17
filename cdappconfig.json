@@ -1,0 +1,109 @@
+{
+    "webPort": 8000,
+    "metricsPath": "/metrics",
+    "metricsPort": 9000,
+    "logging": {
+        "cloudwatch": {
+            "accessKeyId": "",
+            "logGroup": "",
+            "region": "",
+            "secretAccessKey": ""
+        },
+        "type": "null"
+    },
+    "objectStore": {
+        "accessKey": "key",
+        "buckets": [
+            {
+                "name": "ingress-uploads-perma",
+                "requestedName": "ingress-uploads-perma",
+                "accessKey": "",
+                "secretKey": ""
+            }
+        ],
+        "hostname": "ingress-env-minio.clowder-system.svc",
+        "port": 9000,
+        "secretKey": "value",
+	    "tls": false
+    },
+    "endpoints":[
+        {
+            "app": "advisor",
+            "name": "service",
+            "hostname": "advisor-service.ephem.svc",
+            "port": 8000
+        },
+        {
+            "app": "compliance",
+            "name": "service",
+            "hostname": "compliance-service.ephem.svc",
+            "port": 8000
+        },
+        {
+            "app": "config-manager",
+            "name": "service",
+            "hostname": "config-manager-service.ephem.svc",
+            "port": 8080
+        },
+        {
+            "app": "inventory",
+            "name": "service",
+            "hostname": "inventory-service.ephem.svc",
+            "port": 8000
+        },
+        {
+            "app": "patch",
+            "name": "service",
+            "hostname": "patch-service.ephem.svc",
+            "port": 8080
+        },
+        {
+            "app": "playbook-dispatcher",
+            "name": "service",
+            "hostname": "playbook-dispatcher-service.ephem.svc",
+            "port": 8080
+        },
+        {
+            "app": "rbac",
+            "name": "service",
+            "hostname": "rbac-service.ephem.svc",
+            "port": 8080
+        },
+        {
+            "app": "receptor",
+            "name": "service",
+            "hostname": "receptor-service.ephem.svc",
+            "port": 8080
+        },
+        {
+            "app": "vmaas",
+            "name": "service",
+            "hostname": "vmaas-service.ephem.svc",
+            "port": 8080
+        },
+        {
+            "app": "vulnerabilities",
+            "name": "service",
+            "hostname": "vulnerabilities-service.ephem.svc",
+            "port": 8080
+        },
+        {
+            "app": "sources",
+            "name": "service",
+            "hostname": "sources-service.ephem.svc",
+            "port": 8080
+        }
+    ],
+    "database": {
+        "username": "test",
+        "password": "test",
+        "name": "test",
+        "hostname": "test",
+        "port": 5432
+    },
+    "inMemoryDb": {
+        "hostname": "test",
+        "port": 2000,
+        "password": "test"
+    }
+}
