@@ -64,6 +64,30 @@
             "port": 8080
         },
         {
+            "app": "rbac",
+            "name": "service",
+            "hostname": "rbac-service.ephem.svc",
+            "port": 8080
+        },
+        {
+            "app": "receptor",
+            "name": "service",
+            "hostname": "receptor-service.ephem.svc",
+            "port": 8080
+        },
+        {
+            "app": "vmaas",
+            "name": "service",
+            "hostname": "vmaas-service.ephem.svc",
+            "port": 8080
+        },
+        {
+            "app": "vulnerabilities",
+            "name": "service",
+            "hostname": "vulnerabilities-service.ephem.svc",
+            "port": 8080
+        },
+        {
             "app": "sources",
             "name": "service",
             "hostname": "sources-service.ephem.svc",

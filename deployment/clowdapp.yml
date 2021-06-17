@@ -10,6 +10,18 @@
       name: remediations
     spec:
       envName: ${ENV_NAME}
+      optionalDependencies:
+      - advisor
+      - compliance
+      - config-manager
+      - inventory
+      - patch
+      - playbook-dispatcher
+      - rbac
+      - receptor
+      - sources
+      - vmaas
+      - vulnerabilities
       database:
         name: remediations
       inMemoryDb: true
