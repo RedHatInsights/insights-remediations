@@ -370,7 +370,7 @@
               value: http://${XJOIN_SEARCH_URL}:4000/graphql
 
 parameters:
-  - name: ADVISOR_IMPL
+- name: ADVISOR_IMPL
   value: ${ADVISOR_IMPL}
 - name: ADVISOR_HOST
   value: ${ADVISOR_HOST}
