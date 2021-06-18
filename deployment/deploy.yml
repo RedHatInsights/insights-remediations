@@ -102,9 +102,9 @@ objects:
           - name: INVENTORY_IMPL
             value: ${INVENTORY_IMPL}
           - name: INVENTORY_PORT
-            value: ${INVENTORY_PORT}
+            value: ${HOST_INVENTORY_PORT}
           - name: INVENTORY_HOST
-            value: http://${HOST_INVENTORY_HOST}:${INVENTORY_PORT}
+            value: http://${HOST_INVENTORY_HOST}:${HOST_INVENTORY_PORT}
           - name: LOG_LEVEL
             value: ${LOG_LEVEL}
           - name: LOG_CW_ENABLED
@@ -293,9 +293,9 @@ objects:
           - name: INVENTORY_IMPL
             value: ${INVENTORY_IMPL}
           - name: INVENTORY_PORT
-            value: ${INVENTORY_PORT}
+            value: ${HOST_INVENTORY_PORT}
           - name: INVENTORY_HOST
-            value: http://${HOST_INVENTORY_HOST}:${INVENTORY_PORT}
+            value: http://${HOST_INVENTORY_HOST}:${HOST_INVENTORY_PORT}
           - name: LOG_LEVEL
             value: ${LOG_LEVEL}
           - name: LOG_CW_ENABLED
@@ -464,7 +464,7 @@ parameters:
 - name: CONFIG_MANAGER_HOST
 - name: INVENTORY_IMPL
   value: impl
-- name: INVENTORY_PORT
+- name: HOST_INVENTORY_PORT
 - name: HOST_INVENTORY_HOST
 - name: USERS_IMPL
   value: impl
