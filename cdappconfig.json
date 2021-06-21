@@ -28,13 +28,13 @@
     },
     "endpoints":[
         {
-            "app": "advisor",
+            "app": "insights-advisor-service",
             "name": "service",
             "hostname": "advisor-service.ephem.svc",
             "port": 8000
         },
         {
-            "app": "compliance",
+            "app": "compliance-ssg",
             "name": "service",
             "hostname": "compliance-service.ephem.svc",
             "port": 8000
@@ -46,7 +46,7 @@
             "port": 8080
         },
         {
-            "app": "inventory",
+            "app": "host-inventory",
             "name": "service",
             "hostname": "inventory-service.ephem.svc",
             "port": 8000
@@ -70,7 +70,7 @@
             "port": 8080
         },
         {
-            "app": "receptor",
+            "app": "receptor-gateway",
             "name": "service",
             "hostname": "receptor-service.ephem.svc",
             "port": 8080
@@ -88,7 +88,7 @@
             "port": 8080
         },
         {
-            "app": "sources",
+            "app": "sources-api",
             "name": "service",
             "hostname": "sources-service.ephem.svc",
             "port": 8080
