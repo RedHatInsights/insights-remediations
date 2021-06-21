@@ -46,7 +46,7 @@
             "port": 8080
         },
         {
-            "app": "inventory",
+            "app": "host-inventory",
             "name": "service",
             "hostname": "inventory-service.ephem.svc",
             "port": 8000

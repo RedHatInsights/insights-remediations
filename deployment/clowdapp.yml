@@ -14,7 +14,7 @@ objects:
     - advisor
     - compliance
     - config-manager
-    - inventory
+    - host-inventory
     - patchman
     - playbook-dispatcher
     - rbac
