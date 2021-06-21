@@ -11,15 +11,15 @@ objects:
   spec:
     envName: ${ENV_NAME}
     optionalDependencies:
-    - advisor
-    - compliance
+    - insights-advisor-service
+    - compliance-ssg
     - config-manager
     - host-inventory
     - patchman
     - playbook-dispatcher
     - rbac
-    - receptor
-    - sources
+    - receptor-gateway
+    - sources-api
     - vmaas
     - vulnerability-engine
     database:
