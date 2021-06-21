@@ -52,7 +52,7 @@
             "port": 8000
         },
         {
-            "app": "patch",
+            "app": "patchman",
             "name": "service",
             "hostname": "patch-service.ephem.svc",
             "port": 8080
@@ -82,7 +82,7 @@
             "port": 8080
         },
         {
-            "app": "vulnerabilities",
+            "app": "vulnerability-engine",
             "name": "service",
             "hostname": "vulnerabilities-service.ephem.svc",
             "port": 8080

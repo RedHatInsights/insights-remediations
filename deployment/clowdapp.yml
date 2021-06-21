@@ -15,13 +15,13 @@ objects:
     - compliance
     - config-manager
     - inventory
-    - patch
+    - patchman
     - playbook-dispatcher
     - rbac
     - receptor
     - sources
     - vmaas
-    - vulnerabilities
+    - vulnerability-engine
     database:
       name: remediations
     inMemoryDb: true
