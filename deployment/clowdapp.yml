@@ -406,6 +406,7 @@ parameters:
   value: /opt/certs/rds-cacert
 - name: DB_SSL_ENABLED
   value: ${DB_SSL_ENABLED}
+- name: ENV_NAME
 - name: FIFI_TEXT_UPDATES
   value: 'true'
 - name: FIFI_TEXT_UPDATE_INTERVAL
