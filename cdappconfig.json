@@ -28,12 +28,6 @@
     },
     "endpoints":[
         {
-            "app": "insights-advisor-service",
-            "name": "service",
-            "hostname": "advisor-service.ephem.svc",
-            "port": 8000
-        },
-        {
             "app": "compliance-ssg",
             "name": "service",
             "hostname": "compliance-service.ephem.svc",
