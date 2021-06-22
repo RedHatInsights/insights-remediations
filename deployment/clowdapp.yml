@@ -205,14 +205,6 @@ objects:
           periodSeconds: 10
           successThreshold: 1
           timeoutSeconds: 1
-        volumes:
-          - name: rds-cacert
-            secret:
-              secretName: rds-client-ca
-        volumeMounts:
-          - mountPath: /opt/certs/
-            name: rds-cacert
-            readOnly: true
         resources:
           limits:
             cpu: 1
