@@ -252,7 +252,7 @@ function Config() {
         if (env.DB_SSL_ENABLED !== 'false') {
             config.db.ssl = true;
             config.db.dialectOptions.ssl = {
-                ca: loadedConfig.rdsCa() // eslint-disable-line security/detect-non-literal-fs-filename
+                ca: fs.readFileSync(loadedConfig.rdsCa()) // eslint-disable-line security/detect-non-literal-fs-filename
             };
         }
     } else {
