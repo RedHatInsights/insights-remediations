@@ -54,21 +54,6 @@ objects:
               value: ${CONFIG_MANAGER_PORT}
             - name: CONFIG_MANAGER_HOST
               value: ${CONFIG_MANAGER_HOST}
-            - name: DB_HOST
-              valueFrom:
-                secretKeyRef:
-                  key: db.host
-                  name: remediations-db
-            - name: DB_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  key: db.user
-                  name: remediations-db
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  key: db.password
-                  name: remediations-db
             - name: DB_CA
               value: /opt/certs/rds-cacert
             - name: DB_SSL_ENABLED
@@ -91,26 +76,6 @@ objects:
               value: ${LOG_LEVEL}
             - name: LOG_CW_ENABLED
               value: ${LOG_CW_ENABLED}
-            - name: LOG_CW_KEY
-              valueFrom:
-                secretKeyRef:
-                  key: aws_access_key_id
-                  name: cloudwatch
-            - name: LOG_CW_SECRET
-              valueFrom:
-                secretKeyRef:
-                  key: aws_secret_access_key
-                  name: cloudwatch
-            - name: LOG_CW_GROUP
-              valueFrom:
-                secretKeyRef:
-                  key: log_group_name
-                  name: cloudwatch
-            - name: LOG_CW_REGION
-              valueFrom:
-                secretKeyRef:
-                  key: aws_region
-                  name: cloudwatch
             - name: MARKETPLACE_CHECK
               value: ${MARKETPLACE_CHECK}
             - name: NAMESPACE
@@ -150,11 +115,6 @@ objects:
               value: redis
             - name: REDIS_PORT
               value: '6379'
-            - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  key: password
-                  name: redis
             - name: SOURCES_IMPL
               value: ${SOURCES_IMPL}
             - name: SOURCES_PORT
@@ -231,21 +191,6 @@ objects:
             value: ${CONFIG_MANAGER_PORT}
           - name: CONFIG_MANAGER_HOST
             value: ${CONFIG_MANAGER_HOST}
-          - name: DB_HOST
-            valueFrom:
-              secretKeyRef:
-                key: db.host
-                name: remediations-db
-          - name: DB_USERNAME
-            valueFrom:
-              secretKeyRef:
-                key: db.user
-                name: remediations-db
-          - name: DB_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                key: db.password
-                name: remediations-db
           - name: DB_CA
             value: /opt/certs/rds-cacert
           - name: DB_SSL_ENABLED
@@ -266,26 +211,6 @@ objects:
             value: ${LOG_LEVEL}
           - name: LOG_CW_ENABLED
             value: ${LOG_CW_ENABLED}
-          - name: LOG_CW_KEY
-            valueFrom:
-              secretKeyRef:
-                key: aws_access_key_id
-                name: cloudwatch
-          - name: LOG_CW_SECRET
-            valueFrom:
-              secretKeyRef:
-                key: aws_secret_access_key
-                name: cloudwatch
-          - name: LOG_CW_GROUP
-            valueFrom:
-              secretKeyRef:
-                key: log_group_name
-                name: cloudwatch
-          - name: LOG_CW_REGION
-            valueFrom:
-              secretKeyRef:
-                key: aws_region
-                name: cloudwatch
           - name: MARKETPLACE_CHECK
             value: ${MARKETPLACE_CHECK}
           - name: NAMESPACE
@@ -325,11 +250,6 @@ objects:
             value: redis
           - name: REDIS_PORT
             value: '6379'
-          - name: REDIS_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                key: password
-                name: redis
           - name: SOURCES_IMPL
             value: ${SOURCES_IMPL}
           - name: SOURCES_PORT
@@ -379,21 +299,6 @@ parameters:
   value: ${CONFIG_MANAGER_PORT}
 - name: CONFIG_MANAGER_HOST
   value: ${CONFIG_MANAGER_HOST}
-- name: DB_HOST
-  valueFrom:
-    secretKeyRef:
-      key: db.host
-      name: remediations-db
-- name: DB_USERNAME
-  valueFrom:
-    secretKeyRef:
-      key: db.user
-      name: remediations-db
-- name: DB_PASSWORD
-  valueFrom:
-    secretKeyRef:
-      key: db.password
-      name: remediations-db
 - name: DB_CA
   value: /opt/certs/rds-cacert
 - name: DB_SSL_ENABLED
@@ -417,26 +322,6 @@ parameters:
   value: ${LOG_LEVEL}
 - name: LOG_CW_ENABLED
   value: ${LOG_CW_ENABLED}
-- name: LOG_CW_KEY
-  valueFrom:
-    secretKeyRef:
-      key: aws_access_key_id
-      name: cloudwatch
-- name: LOG_CW_SECRET
-  valueFrom:
-    secretKeyRef:
-      key: aws_secret_access_key
-      name: cloudwatch
-- name: LOG_CW_GROUP
-  valueFrom:
-    secretKeyRef:
-      key: log_group_name
-      name: cloudwatch
-- name: LOG_CW_REGION
-  valueFrom:
-    secretKeyRef:
-      key: aws_region
-      name: cloudwatch
 - name: MARKETPLACE_CHECK
   value: ${MARKETPLACE_CHECK}
 - name: NAMESPACE
@@ -476,11 +361,6 @@ parameters:
   value: redis
 - name: REDIS_PORT
   value: '6379'
-- name: REDIS_PASSWORD
-  valueFrom:
-    secretKeyRef:
-      key: password
-      name: redis
 - name: SOURCES_IMPL
   value: ${SOURCES_IMPL}
 - name: SOURCES_PORT
