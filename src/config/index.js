@@ -248,6 +248,13 @@ function Config() {
             config.redis.port = loadedConfig.inMemoryDb.port;
             config.redis.password = loadedConfig.inMemoryDb.password;
         }
+
+        if (env.DB_SSL_ENABLED !== 'false') {
+            config.db.ssl = true;
+            config.db.dialectOptions.ssl = {
+                ca: fs.readFileSync(loadedConfig.rdsCa()) // eslint-disable-line security/detect-non-literal-fs-filename
+            };
+        }
     } else {
         config.logging.cloudwatch.options.aws_access_key_id = env.LOG_CW_KEY;
         config.logging.cloudwatch.options.aws_secret_access_key = env.LOG_CW_SECRET;
@@ -273,6 +280,13 @@ function Config() {
             config.redis.host = env.REDIS_HOST || 'localhost';
             config.redis.port = parseIntEnv('REDIS_PORT', 6379);
             config.redis.password = env.REDIS_PASSWORD || undefined;
+        }
+
+        if (env.DB_SSL_ENABLED !== 'false' && env.DB_CA) {
+            config.db.ssl = true;
+            config.db.dialectOptions.ssl = {
+                ca: fs.readFileSync(env.DB_CA) // eslint-disable-line security/detect-non-literal-fs-filename
+            };
         }
     }
 
