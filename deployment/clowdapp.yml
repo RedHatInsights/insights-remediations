@@ -407,6 +407,8 @@ parameters:
   value: 'true'
 - name: DEMO_MODE
   value: 'false'
+- name: IMAGE_TAG
+  required: true
 - name: INVENTORY_IMPL
   value: ${INVENTORY_IMPL}
 - name: INVENTORY_HOST
