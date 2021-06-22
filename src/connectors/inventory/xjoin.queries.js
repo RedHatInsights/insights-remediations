@@ -72,6 +72,21 @@ exports.INSIGHTS_ID_QUERY = `
     }
 `;
 
+exports.OWNER_ID_QUERY = `
+    query hosts ($owner_id: String) {
+        hosts (filter: {spf_owner_id: {eq: $owner_id}})
+        {
+            data {
+                id
+                account
+                cannonical_facts (filter: ["insights_id", "fqdn"])
+                display_name
+                modified_on
+            }
+        }
+    }
+`;
+
 exports.runQuery = async function (query, variables, headers = {[IDENTITY_HEADER]: createIdentityHeader()}, metrics = false) {
     try {
         const client = new GraphQLClient(xjoinHost, { headers });
