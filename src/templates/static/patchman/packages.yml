@@ -27,7 +27,11 @@
   become: true
   tasks:
     - name: check for update
+<<<<<<< Updated upstream
       shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^[a-zA-Z0-9-._+]+-(\\d+:)?([\\d-]|\\.)+-[a-zA-Z0-9-._+]+\\.[a-zA-Z0-9-._+]+$') }}"
+=======
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;'"` ]+)-(([0-9]+):)?([^-:(/=<>;'"` ]+)-([^-:(/=<>;'"` ]+)\\.([^-:.(/=<>;'"` ]+)$') }}"
+>>>>>>> Stashed changes
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
