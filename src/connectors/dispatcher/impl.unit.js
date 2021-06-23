@@ -11,14 +11,14 @@ const DISPATCHERWORKREQUEST = [
     {
         recipient: '33a12856-a262-4e1e-b562-c099a735ca76',
         account: 123456,
-        url: 'https://cloud.redhat.com/api/remediations/v1/playbook?hosts=33a12856-a262-4e1e-b562-c099a735ca76&localhost',
+        url: 'https://console.redhat.com/api/remediations/v1/playbook?hosts=33a12856-a262-4e1e-b562-c099a735ca76&localhost',
         labels: {
             'playbook-run': 'ef7a1724-6adc-4370-b88c-bed7cb2d3fd2'
         }
     }, {
         recipient: '74b9182-a262-6d7d-b562-c877a735ca37',
         account: 123456,
-        url: 'https://cloud.redhat.com/api/remediations/v1/playbook?hosts=74b9182-a262-6d7d-b562-c877a735ca37&localhost',
+        url: 'https://console.redhat.com/api/remediations/v1/playbook?hosts=74b9182-a262-6d7d-b562-c877a735ca37&localhost',
         labels: {
             'playbook-run': 'ef7a1724-6adc-4370-b88c-bed7cb2d3fd2'
         }
@@ -97,7 +97,7 @@ describe('dispatcher impl', function () {
                             account: 654321,
                             recipient: '9574cba7-b9ce-4725-b392-e959afd3e69a',
                             correlation_id: '5c9ae28b-1728-4067-b1f3-f4ad992a8296',
-                            url: 'https://cloud.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=9574cba7-b9ce-4725-b392-e959afd3e69a&localhost',
+                            url: 'https://console.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=9574cba7-b9ce-4725-b392-e959afd3e69a&localhost',
                             labels: {
                                 'playbook-run': 'ef7a1724-6adc-4370-b88c-bed7cb2d3fd2'
                             },
@@ -111,7 +111,7 @@ describe('dispatcher impl', function () {
                             account: 654321,
                             recipient: '750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4',
                             correlation_id: '1b4244aa-2572-4067-bf44-ad4e5bfaafc4',
-                            url: 'https://cloud.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4&localhost',
+                            url: 'https://console.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4&localhost',
                             labels: {
                                 'playbook-run': 'fe7a1724-6adc-4370-b88c-bed7cb2d3fd4'
                             },
@@ -133,7 +133,7 @@ describe('dispatcher impl', function () {
             result1.should.have.property('account', 654321);
             result1.should.have.property('recipient', '9574cba7-b9ce-4725-b392-e959afd3e69a');
             result1.should.have.property('correlation_id', '5c9ae28b-1728-4067-b1f3-f4ad992a8296');
-            result1.should.have.property('url', 'https://cloud.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=9574cba7-b9ce-4725-b392-e959afd3e69a&localhost');
+            result1.should.have.property('url', 'https://console.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=9574cba7-b9ce-4725-b392-e959afd3e69a&localhost');
             result1.should.have.property('labels', {'playbook-run': 'ef7a1724-6adc-4370-b88c-bed7cb2d3fd2'});
             result1.should.have.property('status', 'running');
             result1.should.have.property('service', 'remediations');
@@ -145,7 +145,7 @@ describe('dispatcher impl', function () {
             result2.should.have.property('account', 654321);
             result2.should.have.property('recipient', '750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4');
             result2.should.have.property('correlation_id', '1b4244aa-2572-4067-bf44-ad4e5bfaafc4');
-            result2.should.have.property('url', 'https://cloud.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4&localhost');
+            result2.should.have.property('url', 'https://console.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4&localhost');
             result2.should.have.property('labels', {'playbook-run': 'fe7a1724-6adc-4370-b88c-bed7cb2d3fd4'});
             result2.should.have.property('status', 'running');
             result2.should.have.property('service', 'remediations');
@@ -201,7 +201,7 @@ describe('dispatcher impl', function () {
                                 account: 654321,
                                 recipient: '9574cba7-b9ce-4725-b392-e959afd3e69a',
                                 correlation_id: '5c9ae28b-1728-4067-b1f3-f4ad992a8296',
-                                url: 'https://cloud.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=9574cba7-b9ce-4725-b392-e959afd3e69a&localhost',
+                                url: 'https://console.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=9574cba7-b9ce-4725-b392-e959afd3e69a&localhost',
                                 labels: {
                                     'playbook-run': 'ef7a1724-6adc-4370-b88c-bed7cb2d3fd2'
                                 },
@@ -218,7 +218,7 @@ describe('dispatcher impl', function () {
                                 id: '9ce94170-34a0-4aa6-976a-9728aa4da7a4',
                                 account: 654321,
                                 recipient: '750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4',
-                                url: 'https://cloud.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4&localhost',
+                                url: 'https://console.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4&localhost',
                                 labels: {
                                     'playbook-run': 'fe7a1724-6adc-4370-b88c-bed7cb2d3fd4'
                                 },
