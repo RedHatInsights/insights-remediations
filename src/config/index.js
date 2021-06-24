@@ -5,7 +5,6 @@ const path = require('path');
 const _ = require('lodash');
 const env = process.env;
 
-// const ClowderEnabled = (process.env.CLOWDER_ENABLED === 'true') ? true : false;
 
 /* eslint-disable max-len*/
 /* eslint no-process-env: off */
