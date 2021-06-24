@@ -186,6 +186,14 @@ objects:
     token: ZHVtbXk=
   type: Opaque
 
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: psk-playbook-dispatcher
+  data:
+    key: ZHVtbXk=
+  type: Opaque
+
 parameters:
 - name: ADVISOR_IMPL
   value: ${ADVISOR_IMPL}
