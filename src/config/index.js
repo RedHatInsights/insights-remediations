@@ -298,13 +298,6 @@ function Config() {
 
 config.path.base = `${config.path.prefix}/${config.path.app}`;
 
-if (env.DB_SSL_ENABLED !== 'false' && env.DB_CA) {
-    config.db.ssl = true;
-    config.db.dialectOptions.ssl = {
-        ca: fs.readFileSync(env.DB_CA) // eslint-disable-line security/detect-non-literal-fs-filename
-    };
-}
-
 if (['development', 'production', 'test'].includes(config.env)) {
     if (fs.existsSync(path.join(__dirname, `${config.env}.js`))) { // eslint-disable-line security/detect-non-literal-fs-filename
         _.merge(config, require(`./${config.env}`)); // eslint-disable-line security/detect-non-literal-require
