@@ -225,18 +225,18 @@ function Config() {
     if (ClowderEnabled) {
         config.logging.cloudwatch.options.aws_access_key_id = loadedConfig.logging.accessKeyId;
         config.logging.cloudwatch.options.aws_secret_access_key = loadedConfig.logging.secretAccessKey;
-        config.logging.cloudwatch.options.aws_region = env.LOG_CW_REGION || loadedConfig.logging.region;
+        config.logging.cloudwatch.options.aws_region = loadedConfig.logging.region || env.LOG_CW_REGION;
 
-        config.advisor.host = env.ADVISOR_HOST || getHostForApp(dependencyEndpoints, 'advisor', 'service') || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
-        config.compliance.host = env.COMPLIANCE_HOST || getHostForApp(dependencyEndpoints, 'compliance', 'service') || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
-        config.configManager.host = env.CONFIG_MANAGER_HOST || getHostForApp(dependencyEndpoints, 'config-manager', 'service') || 'http://config-manager-service.config-manager-ci.svc.cluster.local:8081';
-        config.contentServer.host = env.CONTENT_SERVER_HOST || getHostForApp(dependencyEndpoints, 'content-server', 'service') || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
-        config.dispatcher.host = env.PLAYBOOK_DISPATCHER_HOST || getHostForApp(dependencyEndpoints, 'playbook-dispatcher', 'service') || 'http://playbook-dispatcher-api.playbook-dispatcher-ci.svc.cluster.local:8000';
-        config.inventory.host = env.INVENTORY_HOST || getHostForApp(dependencyEndpoints, 'inventory', 'service') || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';
-        config.patchman.host = env.PATCHMAN_HOST || getHostForApp(dependencyEndpoints, 'patchman', 'service') || 'http://localhost:8080';
-        config.rbac.host = env.RBAC_HOST || getHostForApp(dependencyEndpoints, 'rbac', 'service') || 'http://localhost:8080';
-        config.receptor.host = env.RECEPTOR_HOST || getHostForApp(dependencyEndpoints, 'receptor', 'service') || 'http://localhost:9090';
-        config.sources.host = env.SOURCES_HOST || getHostForApp(dependencyEndpoints, 'sources', 'service') || 'http://localhost:8080';
+        config.advisor.host = getHostForApp(dependencyEndpoints, 'advisor', 'service') || env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
+        config.compliance.host = getHostForApp(dependencyEndpoints, 'compliance', 'service') || env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
+        config.configManager.host = getHostForApp(dependencyEndpoints, 'config-manager', 'service') || env.CONFIG_MANAGER_HOST || 'http://config-manager-service.config-manager-ci.svc.cluster.local:8081';
+        config.contentServer.host = getHostForApp(dependencyEndpoints, 'content-server', 'service') || env.CONTENT_SERVER_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
+        config.dispatcher.host = getHostForApp(dependencyEndpoints, 'playbook-dispatcher', 'service') || env.PLAYBOOK_DISPATCHER_HOST || 'http://playbook-dispatcher-api.playbook-dispatcher-ci.svc.cluster.local:8000';
+        config.inventory.host = getHostForApp(dependencyEndpoints, 'inventory', 'service') || env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';
+        config.patchman.host = getHostForApp(dependencyEndpoints, 'patchman', 'service') || env.PATCHMAN_HOST || 'http://localhost:8080';
+        config.rbac.host = getHostForApp(dependencyEndpoints, 'rbac', 'service') || env.RBAC_HOST || 'http://localhost:8080';
+        config.receptor.host = getHostForApp(dependencyEndpoints, 'receptor', 'service') || env.RECEPTOR_HOST || 'http://localhost:9090';
+        config.sources.host = getHostForApp(dependencyEndpoints, 'sources', 'service') || env.SOURCES_HOST || 'http://localhost:8080';
 
         config.db.username = loadedConfig.database.username;
         config.db.password = loadedConfig.database.password;
