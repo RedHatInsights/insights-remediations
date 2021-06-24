@@ -87,6 +87,8 @@ objects:
             value: ${CONFIG_MANAGER_PORT}
           - name: CONFIG_MANAGER_HOST
             value: ${CONFIG_MANAGER_HOST}
+          - name: CLOWDER_ENABLED
+            value: ${CLOWDER_ENABLED}
           - name: DB_CA
             value: /opt/certs/rds-cacert
           - name: DB_SSL_ENABLED
@@ -203,6 +205,8 @@ parameters:
   value: ${CONFIG_MANAGER_PORT}
 - name: CONFIG_MANAGER_HOST
   value: ${CONFIG_MANAGER_HOST}
+- name: CLOWDER_ENABLED
+  value: 'true'
 - name: DB_CA
   value: /opt/certs/rds-cacert
 - name: DB_SSL_ENABLED
