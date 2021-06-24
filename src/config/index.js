@@ -5,7 +5,7 @@ const path = require('path');
 const _ = require('lodash');
 const env = process.env;
 
-const ClowderEnabled = (env.CLOWDER_ENABLED === 'true') ? true : false;
+const acgConfig = env.ACG_CONFIG;
 
 /* eslint-disable max-len*/
 /* eslint no-process-env: off */
@@ -41,8 +41,8 @@ function getHostForApp(dependencyEndpoints, appName, deploymentName) {
 }
 
 function Config() {
-    const loadedConfig = (ClowderEnabled) ? require('app-common-js').LoadedConfig : '';
-    const dependencyEndpoints = (ClowderEnabled) ? require('app-common-js').DependencyEndpoints : '';
+    const loadedConfig = (acgConfig) ? require('app-common-js').LoadedConfig : '';
+    const dependencyEndpoints = (acgConfig) ? require('app-common-js').DependencyEndpoints : '';
 
     const config = {
 
@@ -222,7 +222,7 @@ function Config() {
         }
     };
 
-    if (ClowderEnabled) {
+    if (acgConfig) {
         config.logging.cloudwatch.options.aws_access_key_id = loadedConfig.logging.accessKeyId;
         config.logging.cloudwatch.options.aws_secret_access_key = loadedConfig.logging.secretAccessKey;
         config.logging.cloudwatch.options.aws_region = loadedConfig.logging.region || env.LOG_CW_REGION;
