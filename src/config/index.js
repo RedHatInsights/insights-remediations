@@ -238,8 +238,8 @@ function Config() {
         config.receptor.host = getHostForApp(dependencyEndpoints, 'receptor', 'service') || env.RECEPTOR_HOST || 'http://localhost:9090';
         config.sources.host = getHostForApp(dependencyEndpoints, 'sources', 'service') || env.SOURCES_HOST || 'http://localhost:8080';
 
-        config.db.username = loadedConfig.database.username;
-        config.db.password = loadedConfig.database.password;
+        config.db.username = loadedConfig.database.adminUsername;
+        config.db.password = loadedConfig.database.adminPassword;
         config.db.database = loadedConfig.database.name;
         config.db.host = loadedConfig.database.hostname;
 
