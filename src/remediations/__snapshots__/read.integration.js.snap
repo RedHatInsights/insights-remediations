@@ -9,7 +9,7 @@ exports[`remediations download remediations download zip and verify remediation 
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 #
 # many systems
-# https://cloud.redhat.com/insights/remediations/c3f9f751-4bcc-4222-9b83-77f5e6e603da
+# https://console.redhat.com/insights/remediations/c3f9f751-4bcc-4222-9b83-77f5e6e603da
 
 # Created by testReadSingleUser
 
@@ -155,7 +155,7 @@ exports[`remediations download remediations download zip with multiple remediati
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 #
 # missing system 1
-# https://cloud.redhat.com/insights/remediations/82aeb63f-fc25-4eef-9333-4fa7e10f7217
+# https://console.redhat.com/insights/remediations/82aeb63f-fc25-4eef-9333-4fa7e10f7217
 
 # Created by testReadSingleUser
 
