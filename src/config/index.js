@@ -249,7 +249,7 @@ function Config() {
             config.redis.password = loadedConfig.inMemoryDb.password;
         }
 
-        if (env.DB_SSL_ENABLED !== 'false') {
+        if (loadedConfig.database.sslMode !== 'disable') {
             config.db.ssl = true;
             config.db.dialectOptions.ssl = {
                 ca: fs.readFileSync(loadedConfig.rdsCa()) // eslint-disable-line security/detect-non-literal-fs-filename
