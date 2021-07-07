@@ -26,13 +26,15 @@
         "secretKey": "value",
 	    "tls": false
     },
-    "endpoints":[
+    "privateEndpoints": [
         {
             "app": "compliance-ssg",
             "name": "service",
             "hostname": "compliance-service.ephem.svc",
-            "port": 8000
-        },
+            "port": 10000
+        }
+    ],
+    "endpoints":[
         {
             "app": "config-manager",
             "name": "service",
