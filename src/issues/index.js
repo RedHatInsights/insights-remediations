@@ -10,13 +10,7 @@ const CVE_PATTERN = /^CVE-20[\d]{2}-[\d]{4,}/;
 // Adapted the regex coming from https://github.com/rpm-software-management/libdnf/blob/master/libdnf/nevra.cpp
 // Contains both prefix epoch(still appears on the platform), and accepts a wider range of input
 // eslint-disable-next-line security/detect-unsafe-regex
-
-const NEVRA_PATTERN =
-<<<<<<< HEAD
-    /^(([0-9]+):)?([^:(/=<>;'"` ]+)-(([0-9]+):)?([^-:(/=<>;'"` ]+)-([^-:(/=<>;'"` ]+)\.([^-:.(/=<>;'"` ]+)$/;
-=======
-    /^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\.([^-:.(/=<>;]+)$/;
->>>>>>> c9175f30a61022418ac288f8419a4696b79fe794
+const NEVRA_PATTERN = /^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\.([^-:.(/=<>;]+)$/;
 
 const advisorHandler = new(require('./AdvisorHandler'))();
 const cveHandler = new(require('./CVEHandler'))();
