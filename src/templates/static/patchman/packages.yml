@@ -2,11 +2,32 @@
   hosts: "@@HOSTS@@"
   vars:
     insights_issues: "@@ISSUES@@"
-    insights_signature_exclude: "/hosts,/vars/insights_issues"
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_issues"
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRbEJOZG5jMU9FUXJhalZ3VGtGUmFscHplRUZCYnpOb2NV
+      NVJjRU4zSzJOeVRuZEdTRkZpVTFaaWVXNXNSa1ozYWpCSldVRUtVamgyUWxaVFdFMUZkRWh0SzB0
+      aFdUVklRekZyVTNGaVpGSjNZMk5DVUZoc2VYcDJZMHA2Vmpadk1YVjNWMVJEYWpRd2FEZEdPR1ly
+      U0ZkNWQwRkJUd3BuT0ZZd2RrWTNRbW96VURGMk9VOXRORkp2TWxWT1VrWnRSazU0ZVZKcGNqQkNi
+      RkZ1S3pGWVVtRTJWMFp0UlRVeU5HMVplazR6YmpaVmNpczRVRFpOQ2taTFlWaDZRamhSY2pSVE9Y
+      aFdSeXRGYUZGTlJHaG1VbGxSVkZkM2FqaHpSbFZvY2pkalVtZEpaVlYwT0V0b1owRTVOWGRDTlZj
+      eGFuRTRiRGg0WlRZS1VGVmlURzlMYWpoMWRrd3JkRkJEZEZNMWVVNTBkMWxKV1hnd1RVeHFNSGR1
+      WWxwWFJ6SkZTbEIyZGpoaWNXVXpialpGVkd4RU9GZDRla1ZCVDJOMVdncEljVTVLVGpBelNHaExZ
+      MFkwYVhOdWJVUm5RVGhWTkdwV2JYbDVOMGg0UldVMmNucDBZWEI2TW5RM2MxQnFSVFp4T0ZwUlkw
+      bFhORVpOVTB0Uk0waFBDbkJzYURSaFF6VjVURk14UW5OeFJIUk9iSGh4UTIxc2RsWnJlVVpTVDBW
+      eUwxRlVWWEZwWTAxalVVMU9TalZXUzB4SFZFZHhiMWhQYnk5RGFGQjBOSFVLT1hacU56QnFTVUpJ
+      TjB4cFluZ3dhbXg1VURGUVdFUnFNWGxNWlVsMFVXUmxhMFZXUVZWWlFYUTJhRzUzU2tFMVdHeGlV
+      MlZpV0RreE5HeFpSMEp2UVFwek9IcHJZMUFyVUN0TGJVaExXRk5LUWpGUVdtRk9kRXR3VjFsMWRs
+      QXJSRFJRUmxwS1FrMTZVbVJDVVc5V1FUa3hhM2xXVm1saVNVZENTVlpwVjFKakNqZFpRbmt6T0ZO
+      UGJFMHlVMU5tVm5Sb1YwOU1iSGxuVFRWcVdHUkxVMWRyTVRaT0wxcEhjMUpTVjFwRWFYTjZRbXBI
+      TDBsWVFuZEtXR3M0TW5JeWNrSUtNbmhoYVhWclJuQlNSRkF5ZEVzMWVTOWhSWEY0U25aUmNFbEVS
+      MUZqZW5sa016ZEVVVEJWU25WM1VsbzVXSE5WYVVwVE1GWXliM1J2YlRSNVJWVTVkd3BzT1V0aWRU
+      TkpTRlJuVFQwS1BVMVdjVlVLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   become: true
   tasks:
     - name: check for update
-      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;\'\"` ]+)-(([0-9]+):)?([^-:(/=<>;\'\"` ]+)-([^-:(/=<>;\'\"` ]+)\\.([^-:.(/=<>;\'\"` ]+)$') }}"
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\\.([^-:.(/=<>;]+)$') }}"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -15,11 +36,11 @@
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;\'\"` ]+)-(([0-9]+):)?([^-:(/=<>;\'\"` ]+)-([^-:(/=<>;\'\"` ]+)\\.([^-:.(/=<>;\'\"` ]+)$') }}"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\\.([^-:.(/=<>;]+)$') }}"
       args:
         warn: false
 
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: True
+        insights_needs_reboot: true

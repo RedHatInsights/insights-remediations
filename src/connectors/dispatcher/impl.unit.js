@@ -25,6 +25,9 @@ const DISPATCHERWORKREQUEST = [
     }
 ];
 
+const MOCKFILTER = {filter: {service: 'remediations'}};
+const MOCKFIELDS = {fields: {data: ['id']}};
+
 /* eslint-disable max-len */
 describe('dispatcher impl', function () {
 
@@ -33,13 +36,13 @@ describe('dispatcher impl', function () {
     describe('postPlaybookRunRequests', function () {
         test('post run requests', async function () {
             const http = base.getSandbox().stub(request, 'run').resolves({
-                statusCode: 200,
+                statusCode: 207,
                 body: [
                     {
-                        code: 200,
+                        code: 201,
                         id: '7ef23cc6-729f-4f65-8ce7-6f8185c051e9'
                     }, {
-                        code: 200,
+                        code: 201,
                         id: '5907b393-1448-4867-988b-5eed8fc02846'
                     }
                 ],
@@ -50,11 +53,11 @@ describe('dispatcher impl', function () {
             results.should.have.size(2);
 
             const result1 = results[0];
-            result1.should.have.property('code', 200);
+            result1.should.have.property('code', 201);
             result1.should.have.property('id', '7ef23cc6-729f-4f65-8ce7-6f8185c051e9');
 
             const result2 = results[1];
-            result2.should.have.property('code', 200);
+            result2.should.have.property('code', 201);
             result2.should.have.property('id', '5907b393-1448-4867-988b-5eed8fc02846');
 
             http.callCount.should.equal(1);
@@ -122,7 +125,7 @@ describe('dispatcher impl', function () {
                 headers: {}
             });
 
-            const results = await impl.fetchPlaybookRuns();
+            const results = await impl.fetchPlaybookRuns(MOCKFILTER, MOCKFIELDS);
             results.data.should.have.size(2);
 
             const result1 = results.data[0];
@@ -157,18 +160,28 @@ describe('dispatcher impl', function () {
         });
 
         test('returns null dispatcherWorkRequest is incorrect', async function () {
-            base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
-            await expect(impl.fetchPlaybookRuns()).resolves.toBeNull();
+            base.getSandbox().stub(request, 'run').resolves({
+                statusCode: 200,
+                body: {
+                    meta: {
+                        count: 0
+                    },
+                    data: []
+                },
+                headers: {}
+            });
+
+            await expect(impl.fetchPlaybookRuns(MOCKFILTER, MOCKFIELDS)).resolves.toBeNull();
         });
 
         test('connection error handling dispatcherWorkRequest', async function () {
             base.mockRequestError();
-            await expect(impl.fetchPlaybookRuns()).rejects.toThrow(errors.DependencyError);
+            await expect(impl.fetchPlaybookRuns(MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
         });
 
         test('status code handling dispatcherWorkRequest', async function () {
             base.mockRequestStatusCode();
-            await expect(impl.fetchPlaybookRuns()).rejects.toThrow(errors.DependencyError);
+            await expect(impl.fetchPlaybookRuns(MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
         });
     });
 
@@ -196,7 +209,8 @@ describe('dispatcher impl', function () {
                                 status: 'running'
                             },
                             status: 'running',
-                            stdout: 'console log goes here'
+                            stdout: 'console log goes here',
+                            inventory_id: '07adc41a-a6c6-426a-a0d5-c7ba08954153'
                         },
                         {
                             host: '750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4',
@@ -212,25 +226,28 @@ describe('dispatcher impl', function () {
                                 status: 'running'
                             },
                             status: 'running',
-                            stdout: 'console log goes here'
+                            stdout: 'console log goes here',
+                            inventory_id: '17adc41a-a6c6-426a-a0d5-c7ba08954154'
                         }
                     ]
                 },
                 headers: {}
             });
 
-            const results = await impl.fetchPlaybookRunHosts();
+            const results = await impl.fetchPlaybookRunHosts(MOCKFILTER, MOCKFIELDS);
             results.data.should.have.size(2);
 
             const result1 = results.data[0];
             result1.should.have.property('host', '9574cba7-b9ce-4725-b392-e959afd3e69a');
             result1.should.have.property('status', 'running');
             result1.should.have.property('stdout', 'console log goes here');
+            result1.should.have.property('inventory_id', '07adc41a-a6c6-426a-a0d5-c7ba08954153');
 
             const result2 = results.data[1];
             result2.should.have.property('host', '750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4');
             result2.should.have.property('status', 'running');
             result2.should.have.property('stdout', 'console log goes here');
+            result2.should.have.property('inventory_id', '17adc41a-a6c6-426a-a0d5-c7ba08954154');
 
             http.callCount.should.equal(1);
             const options = http.args[0][0];
@@ -241,17 +258,17 @@ describe('dispatcher impl', function () {
 
         test('returns null dispatcherWorkRequest is incorrect', async function () {
             base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
-            await expect(impl.fetchPlaybookRunHosts()).resolves.toBeNull();
+            await expect(impl.fetchPlaybookRunHosts(MOCKFILTER, MOCKFIELDS)).resolves.toBeNull();
         });
 
         test('connection error handling dispatcherWorkRequest', async function () {
             base.mockRequestError();
-            await expect(impl.fetchPlaybookRunHosts()).rejects.toThrow(errors.DependencyError);
+            await expect(impl.fetchPlaybookRunHosts(MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
         });
 
         test('status code handling dispatcherWorkRequest', async function () {
             base.mockRequestStatusCode();
-            await expect(impl.fetchPlaybookRunHosts()).rejects.toThrow(errors.DependencyError);
+            await expect(impl.fetchPlaybookRunHosts(MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
         });
     });
 });

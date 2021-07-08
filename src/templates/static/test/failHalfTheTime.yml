@@ -1,14 +1,34 @@
 - name: Sometimes fail
   hosts: "@@HOSTS@@"
   vars:
-    insights_signature_exclude: "/hosts"
-
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBSR1k0ZG5jMU9FUXJhalZ3VGtGUmFUaFdVUzg0UkV4eWNW
+      aGFaa0pDZWtGb1IwVkVZemx2TDNodVUzaDJXVXhLTTJGM1NqTUtkSGxwV0ZCeGQyZzROMDQwT1ZS
+      dE9VVXlObW94TDAxTE5GRnZiWGRIZUVJeE5UbG5kMVJTV21oa2MwMXJNaXRDU0hoWGNVMXVZems0
+      U1hsNGJGbzNjQXBWVDBWRVdVdFpZbVpyZUVReE4zbFNaWFZKVkdKTVdXTk9WR2hSZVRRelFYUkRZ
+      bTh5YzAxR2RUSlRVMEZGVGxrM09HWndhVEl6TTJsb1pTc3dWVlJMQ2sxSWNFNVBVMHR6YUZoV2VD
+      dHlNVGRoWVZOalpFOXZkR3gwYTNoRFRHUnhPWE5uVFVGWFFpOXhURFUyUTNKRFlWRkVUV1I1VG1k
+      WFNIVmxSMmxrTmpRS1VrOHlVVWRYZGtOd1NHUTViWFZ3SzJVdlpFNXdURlo1Yms4NFJGaEpiMmsx
+      ZFc1NWRqSnhlR3REYmtGV1dWZHVka05aUVhkNmFIY3llbHBrU0RGMFl3cFRkSFJ4UzBnNFpteHdT
+      VmRVYTBnMVozTllaWEV3WW1KMGVuRkhka3hCTHpsRlJGQk1PVm95UTNRM1NuaHlRM2N6VmtSRmRp
+      OWliMEpLZEdWa09DOHlDbEJxVVVaUFZqazVVR3czUm0xV2JXRkRSWEpTYUVZclYyRmpTVkF4ZG05
+      aGQxQnRRbnB4WVVNemRVVjRTMjVVT1ROaE1uaHVZVzB4TlhCbVVUQm9kVklLYVRoelFVTXJTV0ZD
+      ZFUwMGJsVjNSVEZTVTFobVNIazRielJSYVRORWRqWTJjRkZrY1hsWWRrd3JNbWxCUjNZek5uRkZX
+      WFF4UldVMlNtNVpRM1p5VlFwMVlXbHpSWFZFTWpocU5VcHViV2xUVFVOQk5rTTBRa2RPWlNzeFRr
+      MDRVRzVTUjFBelZ6RnlTVk13WW1wTFlsbExUMDVIVEd4eFZIcGpiVXRCYlVOeENsSlNWMFJ3ZW5C
+      NE5rVTRPREk0UjI1R1pFRnVSMll4VDJsVVNTdE1WekJJTUhOaVVURjJkMWRuWmxSd1pubG9NME5H
+      WVRkM2NYUlJlbVYwV0UxRGRVWUtXREpYUjNONFNHUkpaMjlrU0RVMGIwZEdUMjhyTmtZeVNUZFNO
+      M2hRUTNWb2VucEZjekUyU2k5SGR6UjZRVFZQUlZnNU9FOTNObUYwYmpKd2R5dHRiUXAwTVdaUFMz
+      UkpObTl4VlQwS1BWWjZVbmtLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
-  - name: Should we fail?
-    set_fact:
-      # with {{[True, False]| random}} i observed always true 
-      i_should_fail: '{{(100|random) < 50}}'
-  - name: Fail in case
-    fail:
-      msg: Sometimes Fail
-    when: i_should_fail
+    - name: Should we fail?
+      set_fact:
+    # with {{[True, False]| random}} i observed always true 
+        i_should_fail: '{{(100|random) < 50}}'
+    - name: Fail in case
+      fail:
+        msg: Sometimes Fail
+      when: i_should_fail

@@ -1,0 +1,308 @@
+---
+apiVersion: v1
+kind: Template
+metadata:
+  name: remediations
+objects:
+- apiVersion: cloud.redhat.com/v1alpha1
+  kind: ClowdApp
+  metadata:
+    name: remediations
+  spec:
+    envName: ${ENV_NAME}
+    optionalDependencies:
+    - compliance-ssg
+    - config-manager
+    - host-inventory
+    - patchman
+    - playbook-dispatcher
+    - rbac
+    - receptor-gateway
+    - sources-api
+    - vmaas
+    - vulnerability-engine
+    database:
+      name: remediations
+    inMemoryDb: true
+    deployments:
+    - name: remediations
+      minReplicas: 2
+      web: true
+      podSpec:
+        image: quay.io/cloudservices/remediations:${IMAGE_TAG}
+        initContainers:
+          - env:
+            - name: INIT_CONTAINER
+              value: "True"
+            - name: EPH_ENV
+              value: ${EPH_ENV}
+            - name: PLAYBOOK_DISPATCHER_AUTH
+              value: ""
+            - name: USERS_AUTH
+              value: ""
+            inheritEnv: true
+            args:
+              - /bin/sh
+              - -c
+              - ${MIGRATION_COMMAND}
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 9002
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 9002
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 1
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 512Mi
+        env:
+          - name: ADVISOR_IMPL
+            value: ${ADVISOR_IMPL}
+          - name: ADVISOR_HOST
+            value: ${ADVISOR_HOST}
+          - name: BODY_PARSER_LIMIT
+            value: ${BODY_PARSER_LIMIT}
+          - name: COMPLIANCE_IMPL
+            value: ${COMPLIANCE_IMPL}
+          - name: COMPLIANCE_HOST
+            value: ${COMPLIANCE_HOST}
+          - name: CONTENT_SERVER_HOST
+            value: ${ADVISOR_HOST}
+          - name: CONFIG_MANAGER_IMPL
+            value: ${CONFIG_MANAGER_IMPL}
+          - name: CONFIG_MANAGER_PORT
+            value: ${CONFIG_MANAGER_PORT}
+          - name: CONFIG_MANAGER_HOST
+            value: ${CONFIG_MANAGER_HOST}
+          - name: CLOWDER_ENABLED
+            value: ${CLOWDER_ENABLED}
+          - name: DB_CA
+            value: /opt/certs/rds-cacert
+          - name: DB_SSL_ENABLED
+            value: ${DB_SSL_ENABLED}
+          - name: FIFI_TEXT_UPDATES
+            value: 'true'
+          - name: FIFI_TEXT_UPDATE_INTERVAL
+            value: '5000'
+          - name: FIFI_TEXT_UPDATE_FULL
+            value: 'true'
+          - name: DEMO_MODE
+            value: 'false'
+          - name: INVENTORY_IMPL
+            value: ${INVENTORY_IMPL}
+          - name: INVENTORY_HOST
+            value: ${INVENTORY_HOST}
+          - name: LOG_LEVEL
+            value: ${LOG_LEVEL}
+          - name: LOG_CW_ENABLED
+            value: ${LOG_CW_ENABLED}
+          - name: MARKETPLACE_CHECK
+            value: ${MARKETPLACE_CHECK}
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: PATCHMAN_IMPL
+            value: ${PATCHMAN_IMPL}
+          - name: PATCHMAN_HOST
+            value: ${PATCHMAN_HOST}
+          - name: PLAYBOOK_DISPATCHER_IMPL
+            value: ${PLAYBOOK_DISPATCHER_IMPL}
+          - name: PLAYBOOK_DISPATCHER_HOST
+            value: ${PLAYBOOK_DISPATCHER_HOST}
+          - name: PLAYBOOK_DISPATCHER_AUTH
+            valueFrom:
+              secretKeyRef:
+                key: key
+                name: psk-playbook-dispatcher
+          - name: PLATFORM_HOSTNAME_URL
+            value: ${PLATFORM_HOSTNAME_URL}
+          - name: PATH_PREFIX
+            value: ${PATH_PREFIX}
+          - name: RBAC_IMPL
+            value: ${RBAC_IMPL}
+          - name: RBAC_HOST
+            value: ${RBAC_HOST}
+          - name: RBAC_ENFORCE
+            value: ${RBAC_ENFORCE}
+          - name: RECEPTOR_IMPL
+            value: ${RECEPTOR_IMPL}
+          - name: RECEPTOR_HOST
+            value: ${RECEPTOR_CONTROLLER_HOST}
+          - name: REDIS_ENABLED
+            value: 'true'
+          - name: REDIS_HOST
+            value: redis
+          - name: REDIS_PORT
+            value: '6379'
+          - name: SOURCES_IMPL
+            value: ${SOURCES_IMPL}
+          - name: SOURCES_PORT
+            value: ${SOURCES_PORT}
+          - name: SOURCES_HOST
+            value: ${SOURCES_HOST}
+          - name: SSG_IMPL
+            value: ${SSG_IMPL}
+          - name: SSG_HOST
+            value: ${SSG_HOST}
+          - name: USERS_IMPL
+            value: ${USERS_IMPL}
+          - name: USERS_HOST
+            value: https://${BACKOFFICE_HOST}
+          - name: USERS_INSECURE
+            value: ${USERS_INSECURE}
+          - name: USERS_AUTH
+            valueFrom:
+              secretKeyRef:
+                key: token
+                name: backoffice
+          - name: USERS_ENV
+            value: ${BACKOFFICE_CLIENT_ENV}
+          - name: VULNERABILITIES_IMPL
+            value: ${VULNERABILITIES_IMPL}
+          - name: VULNERABILITIES_HOST
+            value: ${VULNERABILITIES_HOST}
+          - name: XJOIN_SEARCH_URL
+            value: http://${XJOIN_SEARCH_URL}:4000/graphql
+
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: backoffice
+  data:
+    token: ZHVtbXk=
+  type: Opaque
+
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: psk-playbook-dispatcher
+  data:
+    key: ZHVtbXk=
+  type: Opaque
+
+parameters:
+- name: ADVISOR_IMPL
+  value: ${ADVISOR_IMPL}
+- name: ADVISOR_HOST
+  value: ${ADVISOR_HOST}
+- name: BODY_PARSER_LIMIT
+  value: ${BODY_PARSER_LIMIT}
+- name: COMPLIANCE_IMPL
+  value: ${COMPLIANCE_IMPL}
+- name: COMPLIANCE_HOST
+  value: ${COMPLIANCE_HOST}
+- name: CONTENT_SERVER_HOST
+  value: ${ADVISOR_HOST}
+- name: CONFIG_MANAGER_IMPL
+  value: ${CONFIG_MANAGER_IMPL}
+- name: CONFIG_MANAGER_PORT
+  value: ${CONFIG_MANAGER_PORT}
+- name: CONFIG_MANAGER_HOST
+  value: ${CONFIG_MANAGER_HOST}
+- name: CLOWDER_ENABLED
+  value: 'true'
+- name: DB_CA
+  value: /opt/certs/rds-cacert
+- name: DB_SSL_ENABLED
+  value: ${DB_SSL_ENABLED}
+- name: ENV_NAME
+- name: FIFI_TEXT_UPDATES
+  value: 'true'
+- name: FIFI_TEXT_UPDATE_INTERVAL
+  value: '5000'
+- name: FIFI_TEXT_UPDATE_FULL
+  value: 'true'
+- name: DEMO_MODE
+  value: 'false'
+- name: IMAGE_TAG
+  required: true
+- name: INVENTORY_IMPL
+  value: ${INVENTORY_IMPL}
+- name: INVENTORY_HOST
+  value: ${INVENTORY_HOST}
+- name: LOG_LEVEL
+  value: ${LOG_LEVEL}
+- name: LOG_CW_ENABLED
+  value: ${LOG_CW_ENABLED}
+- name: MARKETPLACE_CHECK
+  value: ${MARKETPLACE_CHECK}
+- name: NAMESPACE
+  valueFrom:
+    fieldRef:
+      fieldPath: metadata.namespace
+- name: PATCHMAN_IMPL
+  value: ${PATCHMAN_IMPL}
+- name: PATCHMAN_HOST
+  value: ${PATCHMAN_HOST}
+- name: PLAYBOOK_DISPATCHER_IMPL
+  value: ${PLAYBOOK_DISPATCHER_IMPL}
+- name: PLAYBOOK_DISPATCHER_HOST
+  value: ${PLAYBOOK_DISPATCHER_HOST}
+- name: PLAYBOOK_DISPATCHER_AUTH
+  valueFrom:
+    secretKeyRef:
+      key: key
+      name: psk-playbook-dispatcher
+- name: PLATFORM_HOSTNAME_URL
+  value: ${PLATFORM_HOSTNAME_URL}
+- name: PATH_PREFIX
+  value: ${PATH_PREFIX}
+- name: RBAC_IMPL
+  value: ${RBAC_IMPL}
+- name: RBAC_HOST
+  value: ${RBAC_HOST}
+- name: RBAC_ENFORCE
+  value: ${RBAC_ENFORCE}
+- name: RECEPTOR_IMPL
+  value: ${RECEPTOR_IMPL}
+- name: RECEPTOR_HOST
+  value: ${RECEPTOR_CONTROLLER_HOST}
+- name: REDIS_ENABLED
+  value: 'true'
+- name: REDIS_HOST
+  value: redis
+- name: REDIS_PORT
+  value: '6379'
+- name: SOURCES_IMPL
+  value: ${SOURCES_IMPL}
+- name: SOURCES_PORT
+  value: ${SOURCES_PORT}
+- name: SOURCES_HOST
+  value: ${SOURCES_HOST}
+- name: SSG_IMPL
+  value: ${SSG_IMPL}
+- name: SSG_HOST
+  value: ${SSG_HOST}
+- name: USERS_IMPL
+  value: ${USERS_IMPL}
+- name: USERS_HOST
+  value: https://${BACKOFFICE_HOST}
+- name: USERS_INSECURE
+  value: ${USERS_INSECURE}
+- name: USERS_AUTH
+  valueFrom:
+    secretKeyRef:
+      key: token
+      name: backoffice
+- name: USERS_ENV
+  value: ${BACKOFFICE_CLIENT_ENV}
+- name: VULNERABILITIES_IMPL
+  value: ${VULNERABILITIES_IMPL}
+- name: VULNERABILITIES_HOST
+  value: ${VULNERABILITIES_HOST}
+- name: XJOIN_SEARCH_URL
+  value: http://${XJOIN_SEARCH_URL}:4000/graphql

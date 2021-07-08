@@ -3,13 +3,19 @@
 const _ = require('lodash');
 const URI = require('urijs');
 const qs = require('qs');
-const config = require('../../config');
 const {host, insecure, auth} = require('../../config').dispatcher;
 
 const Connector = require('../Connector');
 const metrics = require('../metrics');
 
-const QSOPTIONS = { encode: false };
+const QSOPTIONS = { encode: true, indices: false };
+
+function generateQueries (filter, fields) {
+    return qs.stringify({
+        filter: filter.filter,
+        fields: fields.fields
+    }, QSOPTIONS);
+}
 
 module.exports = new class extends Connector {
     constructor () {
@@ -49,17 +55,9 @@ module.exports = new class extends Connector {
         return result;
     }
 
-    async fetchPlaybookRuns (filter = null, fields = null, sort_by = null) {
-        const uri = new URI(config.platformHostname);
-        uri.path('/api/playbook-dispatcher/v1/runs');
-
-        if (filter) {
-            uri.addQuery(qs.stringify(filter, QSOPTIONS));
-        }
-
-        if (fields) {
-            uri.addQuery(qs.stringify(fields, QSOPTIONS));
-        }
+    async fetchPlaybookRuns (filter, fields, sort_by = null) {
+        const uri = this.buildUri(host, 'playbook-dispatcher', 'v1', 'runs');
+        uri.search(generateQueries(filter, fields));
 
         if (sort_by) {
             uri.addQuery('sort_by', sort_by);
@@ -74,24 +72,16 @@ module.exports = new class extends Connector {
 
         const result = await this.doHttp (options, false, this.fetchRuns);
 
-        if (_.isEmpty(result)) {
+        if (_.isEmpty(result.data)) {
             return null;
         }
 
         return result;
     }
 
-    async fetchPlaybookRunHosts (filter = null, fields = null) {
-        const uri = new URI(config.platformHostname);
-        uri.path('/api/playbook-dispatcher/v1/run_hosts');
-
-        if (filter) {
-            uri.addQuery(qs.stringify(filter, QSOPTIONS));
-        }
-
-        if (fields) {
-            uri.addQuery(qs.stringify(fields, QSOPTIONS));
-        }
+    async fetchPlaybookRunHosts (filter, fields) {
+        const uri = this.buildUri(host, 'playbook-dispatcher', 'v1', 'run_hosts');
+        uri.search(generateQueries(filter, fields));
 
         const options = {
             uri: uri.toString(),
@@ -102,7 +92,7 @@ module.exports = new class extends Connector {
 
         const result = await this.doHttp (options, false, this.fetchRunHosts);
 
-        if (_.isEmpty(result)) {
+        if (_.isEmpty(result.data)) {
             return null;
         }
 

@@ -25,6 +25,7 @@ function validate (result) {
 module.exports = new class extends Connector {
     constructor () {
         super(module);
+        this.hostsMetrics = metrics.createConnectorMetric(this.getName(), 'getSystemsByOwnerId');
         this.detailsMetrics = metrics.createConnectorMetric(this.getName(), 'getSystemDetails');
         this.profileMetrics = metrics.createConnectorMetric(this.getName(), 'getSystemProfileBatch');
         this.tagsMetrics = metrics.createConnectorMetric(this.getName(), 'getTagsByIds');
@@ -159,6 +160,46 @@ module.exports = new class extends Connector {
         }, false);
 
         assert(response.total <= pageSize, `results exceed page (${response.total})`);
+
+        const transformed = _(response.results)
+        .map(({id, insights_id, display_name, fqdn: hostname, account, updated, ansible_host}) =>
+            ({id, insights_id, display_name, hostname, account, updated, ansible_host}))
+        .value();
+
+        transformed.forEach(validateHost);
+        return transformed;
+    }
+
+    async getSystemsByOwnerId (owner_id, refresh = false, retries = 2) {
+        const uri = this.buildHostsUri();
+        uri.addQuery('per_page', String(pageSize));
+        uri.addQuery('filter[system_profile][owner_id]', owner_id);
+
+        let response = null;
+
+        try {
+            response = await this.doHttp({
+                uri: uri.toString(),
+                method: 'GET',
+                json: true,
+                rejectUnauthorized: !insecure,
+                headers: this.getForwardedHeaders()
+            },
+            {
+                key: `remediations|http-cache|inventory|owner-id|${owner_id}`,
+                refresh,
+                revalidationInterval,
+                cacheable: body => body.count > 0 // only cache responses with at least 1 record
+            },
+            this.hostsMetrics);
+        } catch (e) {
+            if (retries > 0) {
+                log.warn({ error: e, retries }, 'Inventory fetch failed. Retrying');
+                return this.getSystemsByOwnerId(owner_id, false, retries - 1);
+            }
+
+            throw e;
+        }
 
         const transformed = _(response.results)
         .map(({id, insights_id, display_name, fqdn: hostname, account, updated, ansible_host}) =>

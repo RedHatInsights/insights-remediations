@@ -60,10 +60,31 @@ exports[`generates a rule-based playbook 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRMVk0ZG5jMU9FUXJhalZ3VGtGUmFrMUVRa0ZCYTJOeE1W
+      WlhVbEF3VUVoMGRIRjBWMGt4UkZSdU4zcE1kbFUyU0hKd2QxSUtUbkJ3Um5SWGJWRktiM2xxYm1w
+      bE5XUmFSemMxUTNCU1kzZGFPRU5XVW5sRlRVRXpVREExZW1Kc1UzSnFWbTUxVW5oNlpVeG1SbTFy
+      YW1SRVJWcHdjZ3ByWTJ0d2FFazJSVUpIYWtJemEyaGFUalJ5YTNwUWRWQm1PR1pMUVdsSE1ESmxk
+      SGhXVFZWV01tZHRkV3c0UjBJMmRIcEpkRk5uVFRGQlFYQkdORTFRQ2s1NFRDOUpUMlY2ZFdRMGFt
+      VlFaV05KZWpGS1dtMTVkVGgzWTNoVFZqWkpTbTVPU1VGSGVHYzVWRUpVYzNNMFEwbHVaVlZXY0RG
+      VWRrUlFPUzlHVXk4S2VGaFlaMFphWlM5VlZuQjBaRzA1ZDJkbmRVOXRiR2hvWVZCTVZHNU5Tbkoy
+      UVRsV2FVUnZRVzV2WWt0b1VIbEtZMHBSYjJOTFdrRlRjVTF6ZWs1VWNncHVNek5JYlRoUk9IQnRW
+      VTFLYldobU9VRnZkM2x4VW5GWVVHeHpXVGwzT0UxRU1WQkZjR3htY2pJeVlYTjFMMHhvYjNGNlIz
+      TmtOMUUxTTJwdFMyNXBDaXM1Y0VjeWEzVkNSVXhpVVhoblRHcERiVlZsUzFCdmJuaFhjM0JuVFZs
+      M2VYQjFaVFJvYnl0dmFsZG5WRGR2ZG1GbFRFNVRTMkV2UkZOS2JEWldRaThLZEd4YUwxUXJPRFZr
+      Ym5ZclNWb3phbEJTZFM5bVpuZFBkVVpVV2xoNmVGTkJUalZSV1M5ak15c3hhbUZSTDBKeFdYTmhi
+      M2RpUkZreGRXUXZVeXRsYVFwa2FEa3JWRkV5TlVKa1NYa3hibGh3ZWpoV1JHbHpjbEp3Y0VrNWFs
+      SldWakkwTVVVelRVWkhka1ZaTm1aVFYzSlZWMWMzY0RKbFpUbGphelpOVlUweUNrNUZjRXBLWm5G
+      UFNFdHBjRXRPZVRKdVFVRTJURmcxTHpNeGFWSk9VSEZZVXpKRVdqSlpkbVZTUTJOMmVDOHZPVTlo
+      UzFWd1FsZElZVmxYYW5STU4wWUtSWFJWVEZGeFZESkJPVTF3WjFSU1RtOU5WbEZ4Y1haQ01GUlBP
+      WE00TmxoTmRuUkdRa1IzYW5SbWIxSm9NRnBEYlUwME1FRlhRMHBxT0RKNlduTlRZUXBCYXpkUEsy
+      UkpkMFl5VVQwS1BWcEtiallLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - when:
         - insights_needs_reboot is defined
@@ -87,10 +108,31 @@ exports[`generates a rule-based playbook 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - name: run insights
       command: insights-client
@@ -109,8 +151,29 @@ exports[`generates a rule-based playbook with resolution preference 1`] = `
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   vars:
     insights_remediation: \\"\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_remediation\\"
-  become: True
+    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_remediation\\"
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRblZqZG5jMU9FUXJhalZ3VGtGUmFtRkdVa0ZCYTBSVWNu
+      UnZRVzFSVkRBdlFVODVaRlJyYlRablJHZHRabUkyVGxGMGFVNEtPWHBNYmtWcmRsaEpibVZQV2s0
+      MWRGcDBPSEZWWmtaaFNYQnBSMEV5SzFGWU9GVlNaR2hWTDJOdmRIbDRLMWQ2UlZscU1sSlpaSEEz
+      ZEVnM01IQXpWUXBpWjFwbVRGRTNkV2wxYm5NNGIwMXFaV3N5VURaVFVWcExXRmxhV1c0NVYyZENP
+      V2R2VG5FMk9FZERXbXR3Um1KVFVqWXJTRVl3TWxwYVVUUlZTV0ZtQ21Ga05XSmplWElyZVVwbFoy
+      TlFVVk5RYUhscmNtaGtaV1pQWm5ORk9YUlhlVmhXUjFwSk1ETnNXSGh3VEVaSlJsQlFZWFZRUzNB
+      NE5WcHBha0Y0VjNvS2RHYzRTSGRGUjJzME5HRTFRa3BqYVdsdWQyNXJWV1pDVEc0NFVHeHVPRVF2
+      TjNSc1NsZExUVWh4TmtsWVkwMW1NVzlVU1RKdWMzZDFXRkZzTUhsbWRRcHNUekYwVHpkWFpHVTJO
+      QzlHT0dGdVptNVpUVUZ5TjNoamIxTTJaMU5sTDJWeWRuVnZOamt3YVVOWFYyWm5SV294WVhSd1Qx
+      cDJjazF5YmxkSllYUlhDakZrYUVONFVqaGFabkE1UmxsQ2RXUnhZV05yYVhGWVNtNDBjbEppTTFo
+      clFVWlNUVmQ0YTBseWJFVkdkRUZKYjJveVdrNDJabGRVYjJwQ1JVTmlRbmNLZG14RmQxWmxObGhR
+      ZW5WYWVVRm9Sa0ZFZGxWcU1UZElLME01VnpCd1ZrcHlkM3BSVUV0cE1DOXJlRTFOZVV0UWJ6ZDNa
+      R3BEU0dsalFtdHRRVk01TXdwR1ZYbzVUMWcxY0RRNFpIa3lhV1p6TDBOblIyMW5XWFZEWjI1UllW
+      QjNWMkpHTUhkMGREQmlWVk55WldkUldWZ3JkV3hJTlhOQlJtMW9TVUZ1Ym1GdENsTkNWVUV5ZFZr
+      MVpsZGlPVXhzTmpablIwcGlUSGxNY1ZSUVNFcFNTbWxXWjNKTEt6VnpTMHgyZDNnMmNqTXJjVnBr
+      YTFoUVIza3hSM0ZTVlZKT1NGUUtXWFoxVm5sUGRIZHZVV2xCUm1rdlJYWmxPV05xV2xwdWEwcDVW
+      MlZUV1RodVVtNDFlbll5TkhSUWJGSkdVVk5xZWtscWMxSlNhVVJvYzA1UWFGUlRhd3AxZGxkYVdI
+      SjBWVlpoUlQwS1BVMDNMek1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
+  become: true
   tasks:
     - name: obtain diagnosis info
       command: \\"insights-client --diagnosis{{ insights_remediation | regex_search('\\\\\\\\s[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
@@ -181,10 +244,31 @@ exports[`generates a rule-based playbook with resolution preference 1`] = `
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRMVk0ZG5jMU9FUXJhalZ3VGtGUmFrMUVRa0ZCYTJOeE1W
+      WlhVbEF3VUVoMGRIRjBWMGt4UkZSdU4zcE1kbFUyU0hKd2QxSUtUbkJ3Um5SWGJWRktiM2xxYm1w
+      bE5XUmFSemMxUTNCU1kzZGFPRU5XVW5sRlRVRXpVREExZW1Kc1UzSnFWbTUxVW5oNlpVeG1SbTFy
+      YW1SRVJWcHdjZ3ByWTJ0d2FFazJSVUpIYWtJemEyaGFUalJ5YTNwUWRWQm1PR1pMUVdsSE1ESmxk
+      SGhXVFZWV01tZHRkV3c0UjBJMmRIcEpkRk5uVFRGQlFYQkdORTFRQ2s1NFRDOUpUMlY2ZFdRMGFt
+      VlFaV05KZWpGS1dtMTVkVGgzWTNoVFZqWkpTbTVPU1VGSGVHYzVWRUpVYzNNMFEwbHVaVlZXY0RG
+      VWRrUlFPUzlHVXk4S2VGaFlaMFphWlM5VlZuQjBaRzA1ZDJkbmRVOXRiR2hvWVZCTVZHNU5Tbkoy
+      UVRsV2FVUnZRVzV2WWt0b1VIbEtZMHBSYjJOTFdrRlRjVTF6ZWs1VWNncHVNek5JYlRoUk9IQnRW
+      VTFLYldobU9VRnZkM2x4VW5GWVVHeHpXVGwzT0UxRU1WQkZjR3htY2pJeVlYTjFMMHhvYjNGNlIz
+      TmtOMUUxTTJwdFMyNXBDaXM1Y0VjeWEzVkNSVXhpVVhoblRHcERiVlZsUzFCdmJuaFhjM0JuVFZs
+      M2VYQjFaVFJvYnl0dmFsZG5WRGR2ZG1GbFRFNVRTMkV2UkZOS2JEWldRaThLZEd4YUwxUXJPRFZr
+      Ym5ZclNWb3phbEJTZFM5bVpuZFBkVVpVV2xoNmVGTkJUalZSV1M5ak15c3hhbUZSTDBKeFdYTmhi
+      M2RpUkZreGRXUXZVeXRsYVFwa2FEa3JWRkV5TlVKa1NYa3hibGh3ZWpoV1JHbHpjbEp3Y0VrNWFs
+      SldWakkwTVVVelRVWkhka1ZaTm1aVFYzSlZWMWMzY0RKbFpUbGphelpOVlUweUNrNUZjRXBLWm5G
+      UFNFdHBjRXRPZVRKdVFVRTJURmcxTHpNeGFWSk9VSEZZVXpKRVdqSlpkbVZTUTJOMmVDOHZPVTlo
+      UzFWd1FsZElZVmxYYW5STU4wWUtSWFJWVEZGeFZESkJPVTF3WjFSU1RtOU5WbEZ4Y1haQ01GUlBP
+      WE00TmxoTmRuUkdRa1IzYW5SbWIxSm9NRnBEYlUwME1FRlhRMHBxT0RKNlduTlRZUXBCYXpkUEsy
+      UkpkMFl5VVQwS1BWcEtiallLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - when:
         - insights_needs_reboot is defined
@@ -208,10 +292,31 @@ exports[`generates a rule-based playbook with resolution preference 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - name: run insights
       command: insights-client

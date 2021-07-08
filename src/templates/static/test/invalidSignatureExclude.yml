@@ -1,7 +1,7 @@
 - name: ping
   hosts: "@@HOSTS@@"
   vars:
-    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature_exclude: /hosts,/vars/completely_incorrect
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTVlZCZDFWQldVaHBSM0ZqZG5jMU9FUXJhalZ3VGtGUmFrTXpRUzh6VVdwUVow
