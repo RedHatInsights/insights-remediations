@@ -76,7 +76,6 @@ function Config() {
                 enabled: env.LOG_CW_ENABLED === 'true',
                 level: env.LOG_CW_LEVEL || env.LOG_LEVEL || 'debug',
                 options: {
-                    group: env.LOG_CW_GROUP || env.NAMESPACE || 'remediations-local',
                     prefix: env.LOG_CW_PREFIX || 'remediations-',
                     interval: parseIntEnv('LOG_CW_INTERVAL', 1000) // 1000 ms
                 }
@@ -226,6 +225,7 @@ function Config() {
         config.logging.cloudwatch.options.aws_access_key_id = loadedConfig.logging.accessKeyId;
         config.logging.cloudwatch.options.aws_secret_access_key = loadedConfig.logging.secretAccessKey;
         config.logging.cloudwatch.options.aws_region = loadedConfig.logging.region || env.LOG_CW_REGION;
+        config.logging.cloudwatch.options.group = loadedConfig.logging.logGroup || env.LOG_CW_GROUP;
 
         config.advisor.host = getHostForApp(dependencyEndpoints, 'advisor', 'service') || env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
         config.compliance.host = getHostForApp(dependencyEndpoints, 'compliance', 'service') || env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
@@ -259,6 +259,7 @@ function Config() {
         config.logging.cloudwatch.options.aws_access_key_id = env.LOG_CW_KEY;
         config.logging.cloudwatch.options.aws_secret_access_key = env.LOG_CW_SECRET;
         config.logging.cloudwatch.options.aws_region = env.LOG_CW_REGION;
+        config.logging.cloudwatch.options.group = env.LOG_CW_GROUP || env.NAMESPACE || 'remediations-local';
 
         config.advisor.host = env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
         config.compliance.host = env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
