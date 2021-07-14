@@ -222,10 +222,10 @@ function Config() {
     };
 
     if (acgConfig) {
-        config.logging.cloudwatch.options.aws_access_key_id = loadedConfig.logging.accessKeyId;
-        config.logging.cloudwatch.options.aws_secret_access_key = loadedConfig.logging.secretAccessKey;
-        config.logging.cloudwatch.options.aws_region = loadedConfig.logging.region || env.LOG_CW_REGION;
-        config.logging.cloudwatch.options.group = loadedConfig.logging.logGroup || env.LOG_CW_GROUP;
+        config.logging.cloudwatch.options.aws_access_key_id = loadedConfig.logging.cloudwatch.accessKeyId;
+        config.logging.cloudwatch.options.aws_secret_access_key = loadedConfig.logging.cloudwatch.secretAccessKey;
+        config.logging.cloudwatch.options.aws_region = loadedConfig.logging.cloudwatch.region || env.LOG_CW_REGION;
+        config.logging.cloudwatch.options.group = loadedConfig.logging.cloudwatch.logGroup || env.LOG_CW_GROUP;
 
         config.advisor.host = getHostForApp(dependencyEndpoints, 'advisor', 'service') || env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
         config.compliance.host = getHostForApp(dependencyEndpoints, 'compliance', 'service') || env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
