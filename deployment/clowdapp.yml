@@ -11,6 +11,7 @@ objects:
   spec:
     envName: ${ENV_NAME}
     optionalDependencies:
+    - compliance
     - compliance-ssg
     - config-manager
     - host-inventory
@@ -72,7 +73,7 @@ objects:
           - name: ADVISOR_IMPL
             value: ${ADVISOR_IMPL}
           - name: ADVISOR_HOST
-            value: ${ADVISOR_HOST}
+            value: http://${ADVISOR_HOST}:8000
           - name: BODY_PARSER_LIMIT
             value: ${BODY_PARSER_LIMIT}
           - name: COMPLIANCE_IMPL
@@ -80,7 +81,7 @@ objects:
           - name: COMPLIANCE_HOST
             value: ${COMPLIANCE_HOST}
           - name: CONTENT_SERVER_HOST
-            value: ${ADVISOR_HOST}
+            value: http://${ADVISOR_HOST}:8000
           - name: CONFIG_MANAGER_IMPL
             value: ${CONFIG_MANAGER_IMPL}
           - name: CONFIG_MANAGER_PORT
@@ -141,7 +142,7 @@ objects:
           - name: RECEPTOR_IMPL
             value: ${RECEPTOR_IMPL}
           - name: RECEPTOR_HOST
-            value: ${RECEPTOR_CONTROLLER_HOST}
+            value: http://${RECEPTOR_CONTROLLER_HOST}:9090
           - name: REDIS_ENABLED
             value: 'true'
           - name: REDIS_HOST
