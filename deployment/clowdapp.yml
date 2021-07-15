@@ -119,7 +119,7 @@ objects:
           - name: PATCHMAN_IMPL
             value: ${PATCHMAN_IMPL}
           - name: PATCHMAN_HOST
-            value: ${PATCHMAN_HOST}
+            value: http://${PATCHMAN_HOST}:8080
           - name: PLAYBOOK_DISPATCHER_IMPL
             value: ${PLAYBOOK_DISPATCHER_IMPL}
           - name: PLAYBOOK_DISPATCHER_HOST
@@ -175,7 +175,7 @@ objects:
           - name: VULNERABILITIES_IMPL
             value: ${VULNERABILITIES_IMPL}
           - name: VULNERABILITIES_HOST
-            value: ${VULNERABILITIES_HOST}
+            value: http://${VULNERABILITIES_HOST}:8443
           - name: XJOIN_SEARCH_URL
             value: http://${XJOIN_SEARCH_URL}:4000/graphql
 
@@ -199,13 +199,11 @@ parameters:
 - name: ADVISOR_IMPL
   value: ${ADVISOR_IMPL}
 - name: ADVISOR_HOST
-  value: ${ADVISOR_HOST}
 - name: BODY_PARSER_LIMIT
   value: ${BODY_PARSER_LIMIT}
 - name: COMPLIANCE_IMPL
   value: ${COMPLIANCE_IMPL}
 - name: COMPLIANCE_HOST
-  value: ${COMPLIANCE_HOST}
 - name: CONTENT_SERVER_HOST
   value: ${ADVISOR_HOST}
 - name: CONFIG_MANAGER_IMPL
@@ -248,7 +246,6 @@ parameters:
 - name: PATCHMAN_IMPL
   value: ${PATCHMAN_IMPL}
 - name: PATCHMAN_HOST
-  value: ${PATCHMAN_HOST}
 - name: PLAYBOOK_DISPATCHER_IMPL
   value: ${PLAYBOOK_DISPATCHER_IMPL}
 - name: PLAYBOOK_DISPATCHER_HOST
@@ -304,6 +301,5 @@ parameters:
 - name: VULNERABILITIES_IMPL
   value: ${VULNERABILITIES_IMPL}
 - name: VULNERABILITIES_HOST
-  value: ${VULNERABILITIES_HOST}
 - name: XJOIN_SEARCH_URL
   value: http://${XJOIN_SEARCH_URL}:4000/graphql

@@ -37,7 +37,7 @@ function getHostForApp(dependencyEndpoints, appName, deploymentName) {
         return 'http://' + dependencyEndpoints[appName][deploymentName].hostname + ':' + dependencyEndpoints[appName][deploymentName].port + '';
     }
 
-    return '';
+    return undefined;
 }
 
 function Config() {
