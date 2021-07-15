@@ -154,8 +154,10 @@ objects:
             value: ${PATH_PREFIX}
           - name: RBAC_IMPL
             value: ${RBAC_IMPL}
+          - name: RBAC_PORT
+            value: ${RBAC_PORT}
           - name: RBAC_HOST
-            value: http://${RBAC_HOST}:8080
+            value: http://${RBAC_HOST}:${RBAC_PORT}
           - name: RBAC_ENFORCE
             value: ${RBAC_ENFORCE}
           - name: RECEPTOR_IMPL
@@ -345,8 +347,10 @@ objects:
             value: ${PATH_PREFIX}
           - name: RBAC_IMPL
             value: ${RBAC_IMPL}
+          - name: RBAC_PORT
+            value: ${RBAC_PORT}
           - name: RBAC_HOST
-            value: http://${RBAC_HOST}:8080
+            value: http://${RBAC_HOST}:${RBAC_PORT}
           - name: RBAC_ENFORCE
             value: ${RBAC_ENFORCE}
           - name: RECEPTOR_IMPL
@@ -494,6 +498,7 @@ parameters:
 - name: RBAC_IMPL
   value: impl
 - name: RBAC_HOST
+- name: RBAC_PORT
 - name: RBAC_ENFORCE
   value: 'true'
 - name: RECEPTOR_IMPL
