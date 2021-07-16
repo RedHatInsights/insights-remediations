@@ -79,7 +79,7 @@ objects:
           - name: COMPLIANCE_IMPL
             value: ${COMPLIANCE_IMPL}
           - name: COMPLIANCE_HOST
-            value: ${COMPLIANCE_HOST}
+            value: http://${COMPLIANCE_HOST}:3000
           - name: CONTENT_SERVER_HOST
             value: http://${ADVISOR_HOST}:8000
           - name: CONFIG_MANAGER_IMPL
