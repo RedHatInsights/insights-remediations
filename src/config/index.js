@@ -51,7 +51,6 @@ function Config() {
             */
         env: env.NODE_ENV || 'development',
         namespace: env.NAMESPACE || 'unknown',
-        port: (env.NODE_ENV === 'test') ? 9003 : 9002,
         commit: env.OPENSHIFT_BUILD_COMMIT,
         demo: (env.DEMO_MODE === 'true') ? true : false,
         platformHostname: env.PLATFORM_HOSTNAME_URL || 'hostname',
@@ -255,6 +254,8 @@ function Config() {
                 ca: fs.readFileSync(loadedConfig.rdsCa()) // eslint-disable-line security/detect-non-literal-fs-filename
             };
         }
+
+        config.port = loadedConfig.publicPort;
     } else {
         config.logging.cloudwatch.options.aws_access_key_id = env.LOG_CW_KEY;
         config.logging.cloudwatch.options.aws_secret_access_key = env.LOG_CW_SECRET;
@@ -292,6 +293,8 @@ function Config() {
                 ca: fs.readFileSync(env.DB_CA) // eslint-disable-line security/detect-non-literal-fs-filename
             };
         }
+
+        config.port = (env.NODE_ENV === 'test') ? 9003 : 9002;
     }
 
     return config;
