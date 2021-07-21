@@ -11,6 +11,11 @@ exports[`generates a playbook with block 1`] = `
 # Add nodev Option to &#x2F;dev&#x2F;shm
 # Identifier: (ssg:rhel7|ospp42|xccdf_org.ssgproject.content_rule_mount_option_dev_shm_nodev,fix)
 # Version: NORMALIZED_PLACEHOLDER
+# platform = multi_platform_all
+# complexity = low
+# strategy = configure
+# reboot = false
+# disruption = high
 - name: Add nodev Option to /dev/shm
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
@@ -25,15 +30,15 @@ exports[`generates a playbook with block 1`] = `
     - mount_option_dev_shm_nodev
     - no_reboot_needed
   tasks:
+
     - name: get back mount information associated to mountpoint
       command: findmnt --fstab '/dev/shm'
       register: device_name
       failed_when: device_name.rc > 1
       changed_when: false
-      when: >-
-        ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-        \\"docker\\"
-      notify: insights_reboot_handler
+      when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
+        != \\"docker\\"
+
     - name: create mount_info dictionary variable
       set_fact:
         mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
@@ -43,10 +48,9 @@ exports[`generates a playbook with block 1`] = `
       when:
         - device_name.stdout is defined and device_name.stdout_lines is defined
         - (device_name.stdout | length > 0)
-        - >-
-          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-          != \\"docker\\"
-      notify: insights_reboot_handler
+        - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+          \\"docker\\"
+
     - name: Ensure permission nodev are set on /dev/shm
       mount:
         path: /dev/shm
@@ -57,14 +61,8 @@ exports[`generates a playbook with block 1`] = `
       when:
         - device_name.stdout is defined
         - (device_name.stdout | length > 0)
-        - >-
-          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-          != \\"docker\\"
-      notify: insights_reboot_handler
-  handlers:
-    - name: insights_reboot_handler
-      set_fact:
-        insights_needs_reboot: true
+        - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+          \\"docker\\"
 
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
@@ -161,6 +159,11 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
 # Disable Prelinking
 # Identifier: (ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink,fix)
 # Version: NORMALIZED_PLACEHOLDER
+# platform = multi_platform_rhel,multi_platform_fedora,multi_platform_ol
+# complexity = low
+# strategy = restrict
+# reboot = false
+# disruption = low
 - name: Disable Prelinking
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
@@ -182,27 +185,28 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
     - no_reboot_needed
     - restrict_strategy
   tasks:
+
     - name: Does prelink file exist
       stat:
         path: /etc/sysconfig/prelink
       register: prelink_exists
-      notify: insights_reboot_handler
+
     - name: disable prelinking
       lineinfile:
         path: /etc/sysconfig/prelink
         regexp: ^PRELINKING=
         line: PRELINKING=no
       when: prelink_exists.stat.exists
-      notify: insights_reboot_handler
-  handlers:
-    - name: insights_reboot_handler
-      set_fact:
-        insights_needs_reboot: true
 
 
 # Enable rsyslog Service
 # Identifier: (ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled,fix)
 # Version: NORMALIZED_PLACEHOLDER
+# platform = multi_platform_all
+# complexity = low
+# strategy = enable
+# reboot = false
+# disruption = low
 - name: Enable rsyslog Service
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
@@ -217,12 +221,14 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
     - no_reboot_needed
     - service_rsyslog_enabled
   tasks:
+
     - name: Enable service rsyslog
       block:
+
         - name: Gather the package facts
           package_facts:
             manager: auto
-          notify: insights_reboot_handler
+
         - name: Enable service rsyslog
           service:
             name: rsyslog
@@ -230,14 +236,8 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
             state: started
           when:
             - '\\"rsyslog\\" in ansible_facts.packages'
-          notify: insights_reboot_handler
-      when: >-
-        ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-        \\"docker\\"
-  handlers:
-    - name: insights_reboot_handler
-      set_fact:
-        insights_needs_reboot: true
+      when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
+        != \\"docker\\"
 
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
@@ -334,6 +334,11 @@ exports[`generates a simple playbook with single compliance remediation 1`] = `
 # Disable Prelinking
 # Identifier: (ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink,fix)
 # Version: NORMALIZED_PLACEHOLDER
+# platform = multi_platform_rhel,multi_platform_fedora,multi_platform_ol
+# complexity = low
+# strategy = restrict
+# reboot = false
+# disruption = low
 - name: Disable Prelinking
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
@@ -355,22 +360,18 @@ exports[`generates a simple playbook with single compliance remediation 1`] = `
     - no_reboot_needed
     - restrict_strategy
   tasks:
+
     - name: Does prelink file exist
       stat:
         path: /etc/sysconfig/prelink
       register: prelink_exists
-      notify: insights_reboot_handler
+
     - name: disable prelinking
       lineinfile:
         path: /etc/sysconfig/prelink
         regexp: ^PRELINKING=
         line: PRELINKING=no
       when: prelink_exists.stat.exists
-      notify: insights_reboot_handler
-  handlers:
-    - name: insights_reboot_handler
-      set_fact:
-        insights_needs_reboot: true
 
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
@@ -467,6 +468,11 @@ exports[`generates a simple playbook with uppercase profile name 1`] = `
 # Disable Host-Based Authentication
 # Identifier: (ssg:rhel7|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth,fix)
 # Version: NORMALIZED_PLACEHOLDER
+# platform = multi_platform_all
+# complexity = low
+# strategy = restrict
+# reboot = false
+# disruption = low
 - name: Disable Host-Based Authentication
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
@@ -485,31 +491,27 @@ exports[`generates a simple playbook with uppercase profile name 1`] = `
     - no_reboot_needed
     - restrict_strategy
   tasks:
+
     - name: Disable Host-Based Authentication
       block:
+
         - name: Deduplicate values from /etc/ssh/sshd_config
           lineinfile:
             path: /etc/ssh/sshd_config
             create: false
             regexp: (?i)^\\\\s*HostbasedAuthentication\\\\s+
             state: absent
-          notify: insights_reboot_handler
+
         - name: Insert correct line to /etc/ssh/sshd_config
           lineinfile:
             path: /etc/ssh/sshd_config
             create: true
             line: HostbasedAuthentication no
             state: present
-            insertbefore: '^[#\\\\s]*Match'
+            insertbefore: ^[#\\\\s]*Match
             validate: /usr/sbin/sshd -t -f %s
-          notify: insights_reboot_handler
-      when: >-
-        ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-        \\"docker\\"
-  handlers:
-    - name: insights_reboot_handler
-      set_fact:
-        insights_needs_reboot: true
+      when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
+        != \\"docker\\"
 
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
