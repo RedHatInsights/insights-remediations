@@ -71,7 +71,7 @@ async function start () {
     await db.connect();
     await server.listenAsync(config.port);
     log.info(`${version.full} started`);
-    log.info(`PORT: ${config.port}`)
+    log.info(`PORT: ${config.port}`);
 
     return {
         stop () {
