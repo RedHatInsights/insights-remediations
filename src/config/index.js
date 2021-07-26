@@ -43,6 +43,7 @@ function getHostForApp(dependencyEndpoints, appName, deploymentName) {
 function Config() {
     const loadedConfig = (acgConfig) ? require('app-common-js').LoadedConfig : '';
     const dependencyEndpoints = (acgConfig) ? require('app-common-js').DependencyEndpoints : '';
+    const privateDepencencyEndpoints = (acgConfig) ? require('app-common-js').PrivateDependencyEndpoints : '';
 
     const config = {
 
@@ -233,7 +234,7 @@ function Config() {
         config.rbac.host = getHostForApp(dependencyEndpoints, 'rbac', 'service') || env.RBAC_HOST || 'http://localhost:8080';
         config.receptor.host = getHostForApp(dependencyEndpoints, 'receptor', 'service') || env.RECEPTOR_HOST || 'http://localhost:9090';
         config.sources.host = getHostForApp(dependencyEndpoints, 'sources-api', 'svc') || env.SOURCES_HOST || 'http://localhost:8080';
-        config.ssg.host = getHostForApp(dependencyEndpoints, 'compliance-ssg', 'service') || env.SSG_HOST || 'http://localhost:8090';
+        config.ssg.host = getHostForApp(privateDepencencyEndpoints, 'compliance-ssg', 'service') || env.SSG_HOST || 'http://localhost:8090';
         config.vmaas.host = getHostForApp(dependencyEndpoints, 'vmaas', 'webapp') || env.VMAAS_HOST || 'https://webapp-vmaas-prod.apps.crcp01ue1.o9m8.p1.openshiftapps.com';
         config.vulnerabilities.host = getHostForApp(dependencyEndpoints, 'vulnerability-engine', 'manager') || env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com';
 
