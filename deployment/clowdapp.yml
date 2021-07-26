@@ -267,8 +267,7 @@ parameters:
   value: ${RBAC_ENFORCE}
 - name: RECEPTOR_IMPL
   value: ${RECEPTOR_IMPL}
-- name: RECEPTOR_HOST
-  value: ${RECEPTOR_CONTROLLER_HOST}
+- name: RECEPTOR_CONTROLLER_HOST
 - name: REDIS_ENABLED
   value: 'true'
 - name: REDIS_HOST
