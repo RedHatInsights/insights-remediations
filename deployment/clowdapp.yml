@@ -87,7 +87,7 @@ objects:
           - name: CONFIG_MANAGER_PORT
             value: ${CONFIG_MANAGER_PORT}
           - name: CONFIG_MANAGER_HOST
-            value: ${CONFIG_MANAGER_HOST}
+            value: http://${CONFIG_MANAGER_HOST}:${CONFIG_MANAGER_PORT}
           - name: CLOWDER_ENABLED
             value: ${CLOWDER_ENABLED}
           - name: DB_CA
@@ -105,7 +105,7 @@ objects:
           - name: INVENTORY_IMPL
             value: ${INVENTORY_IMPL}
           - name: INVENTORY_HOST
-            value: ${INVENTORY_HOST}
+            value: http://${HOST_INVENTORY_HOST}:${HOST_INVENTORY_PORT}
           - name: LOG_LEVEL
             value: ${LOG_LEVEL}
           - name: LOG_CW_ENABLED
@@ -123,7 +123,7 @@ objects:
           - name: PLAYBOOK_DISPATCHER_IMPL
             value: ${PLAYBOOK_DISPATCHER_IMPL}
           - name: PLAYBOOK_DISPATCHER_HOST
-            value: ${PLAYBOOK_DISPATCHER_HOST}
+            value: http://${PLAYBOOK_DISPATCHER_HOST}:8000
           - name: PLAYBOOK_DISPATCHER_AUTH
             valueFrom:
               secretKeyRef:
@@ -197,19 +197,16 @@ objects:
 
 parameters:
 - name: ADVISOR_IMPL
-  value: ${ADVISOR_IMPL}
+  value: impl
 - name: ADVISOR_HOST
 - name: BODY_PARSER_LIMIT
-  value: ${BODY_PARSER_LIMIT}
 - name: BACKOFFICE_CLIENT_ENV
 - name: BACKOFFICE_HOST
 - name: COMPLIANCE_IMPL
-  value: ${COMPLIANCE_IMPL}
+  value: impl
 - name: COMPLIANCE_HOST
-- name: CONTENT_SERVER_HOST
-  value: ${ADVISOR_HOST}
 - name: CONFIG_MANAGER_IMPL
-  value: ${CONFIG_MANAGER_IMPL}
+  value: impl
 - name: CONFIG_MANAGER_PORT
   value: ${CONFIG_MANAGER_PORT}
 - name: CONFIG_MANAGER_HOST
@@ -232,43 +229,31 @@ parameters:
 - name: IMAGE_TAG
   required: true
 - name: INVENTORY_IMPL
-  value: ${INVENTORY_IMPL}
-- name: INVENTORY_HOST
-  value: ${INVENTORY_HOST}
+  value: impl
+- name: HOST_INVENTORY_HOST
+- name: HOST_INVENTORY_PORT
 - name: LOG_LEVEL
-  value: ${LOG_LEVEL}
 - name: LOG_CW_ENABLED
   value: ${LOG_CW_ENABLED}
 - name: MARKETPLACE_CHECK
-  value: ${MARKETPLACE_CHECK}
-- name: NAMESPACE
-  valueFrom:
-    fieldRef:
-      fieldPath: metadata.namespace
+  value: 'true'
 - name: PATCHMAN_IMPL
-  value: ${PATCHMAN_IMPL}
+  value: impl
 - name: PATCHMAN_HOST
 - name: PLAYBOOK_DISPATCHER_IMPL
-  value: ${PLAYBOOK_DISPATCHER_IMPL}
+  value: impl
 - name: PLAYBOOK_DISPATCHER_HOST
-  value: ${PLAYBOOK_DISPATCHER_HOST}
-- name: PLAYBOOK_DISPATCHER_AUTH
-  valueFrom:
-    secretKeyRef:
-      key: key
-      name: psk-playbook-dispatcher
 - name: PLATFORM_HOSTNAME_URL
   value: ${PLATFORM_HOSTNAME_URL}
 - name: PATH_PREFIX
   value: ${PATH_PREFIX}
 - name: RBAC_IMPL
-  value: ${RBAC_IMPL}
+  value: impl
 - name: RBAC_HOST
-  value: ${RBAC_HOST}
 - name: RBAC_ENFORCE
   value: 'true'
 - name: RECEPTOR_IMPL
-  value: ${RECEPTOR_IMPL}
+  value: impl
 - name: RECEPTOR_CONTROLLER_HOST
 - name: REDIS_ENABLED
   value: 'true'
@@ -277,21 +262,18 @@ parameters:
 - name: REDIS_PORT
   value: '6379'
 - name: SOURCES_IMPL
-  value: ${SOURCES_IMPL}
+  value: impl
 - name: SOURCES_PORT
-  value: ${SOURCES_PORT}
 - name: SOURCES_HOST
-  value: ${SOURCES_HOST}
 - name: SSG_IMPL
-  value: ${SSG_IMPL}
+  value: impl
 - name: SSG_HOST
-  value: ${SSG_HOST}
 - name: USERS_IMPL
   value: impl
 - name: USERS_INSECURE
   value: 'false'
 - name: VULNERABILITIES_IMPL
-  value: ${VULNERABILITIES_IMPL}
+  value: impl
 - name: VULNERABILITIES_HOST
 - name: XJOIN_SEARCH_URL
   value: http://${XJOIN_SEARCH_URL}:4000/graphql
