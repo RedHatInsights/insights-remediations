@@ -201,6 +201,8 @@ parameters:
 - name: ADVISOR_HOST
 - name: BODY_PARSER_LIMIT
   value: ${BODY_PARSER_LIMIT}
+- name: BACKOFFICE_CLIENT_ENV
+- name: BACKOFFICE_HOST
 - name: COMPLIANCE_IMPL
   value: ${COMPLIANCE_IMPL}
 - name: COMPLIANCE_HOST
@@ -264,7 +266,7 @@ parameters:
 - name: RBAC_HOST
   value: ${RBAC_HOST}
 - name: RBAC_ENFORCE
-  value: ${RBAC_ENFORCE}
+  value: 'true'
 - name: RECEPTOR_IMPL
   value: ${RECEPTOR_IMPL}
 - name: RECEPTOR_CONTROLLER_HOST
@@ -285,18 +287,9 @@ parameters:
 - name: SSG_HOST
   value: ${SSG_HOST}
 - name: USERS_IMPL
-  value: ${USERS_IMPL}
-- name: USERS_HOST
-  value: https://${BACKOFFICE_HOST}
+  value: impl
 - name: USERS_INSECURE
-  value: ${USERS_INSECURE}
-- name: USERS_AUTH
-  valueFrom:
-    secretKeyRef:
-      key: token
-      name: backoffice
-- name: USERS_ENV
-  value: ${BACKOFFICE_CLIENT_ENV}
+  value: 'false'
 - name: VULNERABILITIES_IMPL
   value: ${VULNERABILITIES_IMPL}
 - name: VULNERABILITIES_HOST
