@@ -1,7 +1,8 @@
-FROM registry.redhat.io/ubi8/nodejs-12
-
+FROM registry.redhat.io/ubi8/ubi-minimal:latest
 
 WORKDIR /opt/app-root/src
+
+RUN microdnf install -y nodejs --nodocs && microdnf clean all
 
 COPY package.json package-lock.json /opt/app-root/src/
 
