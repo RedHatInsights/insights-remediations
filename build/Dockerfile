@@ -1,5 +1,4 @@
-FROM registry.redhat.io/ubi8/nodejs-12
-
+FROM registry.redhat.io/ubi8/nodejs-12:latest
 
 WORKDIR /opt/app-root/src
 
