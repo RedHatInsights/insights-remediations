@@ -112,7 +112,7 @@ test('400s on rsyslog_remote_loghost rules for compliance remediations', async (
 test('generates a playbook with block', async () => {
     const data = {
         issues: [{
-            id: 'ssg:rhel7|ospp42|xccdf_org.ssgproject.content_rule_mount_option_dev_shm_nodev',
+            id: 'ssg:rhel7|ospp|xccdf_org.ssgproject.content_rule_mount_option_dev_shm_nodev',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
