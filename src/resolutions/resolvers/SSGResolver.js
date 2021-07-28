@@ -1,5 +1,6 @@
 'use strict';
 
+const P = require('bluebird');
 const config = require('../../config');
 const ssg = require('../../connectors/ssg');
 const Resolver = require('./Resolver');
@@ -11,6 +12,7 @@ const log = require('../../util/log');
 const identifiers = require('../../util/identifiers');
 
 const PLACEHOLDER_REGEX = /(@([A-Z_])+@)/;
+const FALLBACK_PROFILE = 'all';
 
 function testPlaceholders (raw) {
     const result = PLACEHOLDER_REGEX.exec(raw.replace('@@HOSTS@@', 'hosts'));
@@ -31,7 +33,12 @@ module.exports = class SSGResolver extends Resolver {
         if (config.ssg.impl === 'compliance') {
             raw = await ssg.getTemplate(id.issue);
         } else {
-            raw = await ssg.getTemplate(platform, profile, rule);
+            const [primary, fallback] = await P.all([
+                ssg.getTemplate(platform, profile, rule),
+                ssg.getTemplate(platform, FALLBACK_PROFILE, rule)
+            ]);
+
+            raw = primary || fallback;
         }
 
         if (!raw) {
