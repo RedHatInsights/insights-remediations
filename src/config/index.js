@@ -238,7 +238,7 @@ function Config() {
         config.ssg.host = getHostForApp(privateDepencencyEndpoints, 'compliance-ssg', 'service') || env.SSG_HOST || 'http://localhost:8090';
         config.vmaas.host = getHostForApp(dependencyEndpoints, 'vmaas', 'webapp') || env.VMAAS_HOST || 'https://webapp-vmaas-prod.apps.crcp01ue1.o9m8.p1.openshiftapps.com';
         config.vulnerabilities.host = getHostForApp(dependencyEndpoints, 'vulnerability-engine', 'manager') || env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com';
-        console.log('VULN_HOSTS: ', dependencyEndpoints['vulnerability-engine']);
+        console.log('VULN_ENDPOINTS: ', dependencyEndpoints['vulnerability-engine']);
 
         config.db.username = loadedConfig.database.adminUsername;
         config.db.password = loadedConfig.database.adminPassword;
