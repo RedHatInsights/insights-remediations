@@ -4,7 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
 const env = process.env;
-const console = require('console');
 
 const acgConfig = env.ACG_CONFIG;
 
@@ -237,8 +236,7 @@ function Config() {
         config.sources.host = getHostForApp(dependencyEndpoints, 'sources-api', 'svc') || env.SOURCES_HOST || 'http://localhost:8080';
         config.ssg.host = getHostForApp(privateDepencencyEndpoints, 'compliance-ssg', 'service') || env.SSG_HOST || 'http://localhost:8090';
         config.vmaas.host = getHostForApp(dependencyEndpoints, 'vmaas', 'webapp') || env.VMAAS_HOST || 'https://webapp-vmaas-prod.apps.crcp01ue1.o9m8.p1.openshiftapps.com';
-        config.vulnerabilities.host = getHostForApp(dependencyEndpoints, 'vulnerability-engine', 'manager') || env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com';
-        console.log('VULN_ENDPOINTS: ', dependencyEndpoints['vulnerability-engine']);
+        config.vulnerabilities.host = getHostForApp(dependencyEndpoints, 'vulnerability-engine', 'manager-admin') || env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com';
 
         config.db.username = loadedConfig.database.adminUsername;
         config.db.password = loadedConfig.database.adminPassword;
