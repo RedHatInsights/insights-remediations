@@ -1229,6 +1229,11 @@ exports[`playbooks generate playbook with pydata and playbook support 1`] = `
 # Disable the Automounter
 # Identifier: (ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled,fix)
 # Version: NORMALIZED_PLACEHOLDER
+# platform = multi_platform_all
+# complexity = low
+# strategy = disable
+# reboot = false
+# disruption = low
 - name: Disable the Automounter
   hosts: 'fc94beb8-21ee-403d-99b1-949ef7adb762'
   become: true
@@ -1252,10 +1257,10 @@ exports[`playbooks generate playbook with pydata and playbook support 1`] = `
       register: service_file_exists
       changed_when: false
       ignore_errors: true
-      when: >-
+      when:
         ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
         \\"docker\\"
-      notify: insights_reboot_handler
+
     - name: Disable service autofs
       systemd:
         name: autofs.service
@@ -1264,19 +1269,18 @@ exports[`playbooks generate playbook with pydata and playbook support 1`] = `
         masked: 'yes'
       when:
         - '\\"autofs.service\\" in service_file_exists.stdout_lines[1]'
-        - >-
-          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-          != \\"docker\\"
-      notify: insights_reboot_handler
+        - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+          \\"docker\\"
+
     - name: Unit Socket Exists - autofs.socket
       command: systemctl list-unit-files autofs.socket
       register: socket_file_exists
       changed_when: false
       ignore_errors: true
-      when: >-
-        ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-        \\"docker\\"
-      notify: insights_reboot_handler
+      when:
+          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+          \\"docker\\"
+
     - name: Disable socket autofs
       systemd:
         name: autofs.socket
@@ -1285,14 +1289,8 @@ exports[`playbooks generate playbook with pydata and playbook support 1`] = `
         masked: 'yes'
       when:
         - '\\"autofs.socket\\" in socket_file_exists.stdout_lines[1]'
-        - >-
-          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-          != \\"docker\\"
-      notify: insights_reboot_handler
-  handlers:
-    - name: insights_reboot_handler
-      set_fact:
-        insights_needs_reboot: true
+        - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+          \\"docker\\"
 
 
 # Upgrade packages affected by CVE-2017-5715
