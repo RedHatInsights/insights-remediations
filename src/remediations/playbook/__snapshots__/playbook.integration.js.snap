@@ -1252,14 +1252,14 @@ exports[`playbooks generate playbook with pydata and playbook support 1`] = `
     - no_reboot_needed
     - service_autofs_disabled
   tasks:
+
     - name: Unit Service Exists - autofs.service
       command: systemctl list-unit-files autofs.service
       register: service_file_exists
       changed_when: false
       ignore_errors: true
-      when:
-        ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-        \\"docker\\"
+      when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
+        != \\"docker\\"
 
     - name: Disable service autofs
       systemd:
@@ -1277,9 +1277,8 @@ exports[`playbooks generate playbook with pydata and playbook support 1`] = `
       register: socket_file_exists
       changed_when: false
       ignore_errors: true
-      when:
-          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-          \\"docker\\"
+      when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
+        != \\"docker\\"
 
     - name: Disable socket autofs
       systemd:
