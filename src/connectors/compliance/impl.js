@@ -2,7 +2,6 @@
 
 const assert = require('assert');
 const _ = require('lodash');
-const cls = require('../../util/cls');
 const log = require('../../util/log');
 const {host, insecure, revalidationInterval} = require('../../config').compliance;
 
@@ -18,8 +17,6 @@ module.exports = new class extends Connector {
     async getRule (id, refresh = false, retries = 2) {
         id = id.replace(/\./g, '-'); // compliance API limitation
 
-        const req = cls.getReq();
-
         const uri = this.buildUri(host, 'compliance', 'rules', id);
 
         try {
@@ -33,7 +30,7 @@ module.exports = new class extends Connector {
                 }
             },
             {
-                key: `remediations|http-cache|compliance|${req.user.account_number}|${id}`,
+                key: `remediations|http-cache|compliance|${host}|${id}`,
                 refresh,
                 revalidationInterval
             },
