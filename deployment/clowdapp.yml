@@ -11,7 +11,7 @@ objects:
   spec:
     envName: ${ENV_NAME}
     optionalDependencies:
-    - compliance-backend
+    - compliance
     - compliance-ssg
     - config-manager
     - host-inventory
