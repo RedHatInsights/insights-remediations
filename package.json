@@ -44,7 +44,7 @@
     "graphql-request": "^1.8.2",
     "ioredis": "^4.19.2",
     "js-yaml": "^3.14.0",
-    "jszip": "^3.5.0",
+    "jszip": "^3.7.0",
     "lodash": "^4.17.20",
     "mustache": "^3.2.1",
     "openapi-default-setter": "^2.1.0",
