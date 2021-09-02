@@ -968,6 +968,16 @@ components:
         resolution:
           $ref: '#/components/schemas/ResolutionType'
 
+    PlaybookRunsInput:
+      type: object
+      x-remediations-strict: false
+      properties:
+        exclude:
+          type: array
+          items:
+            type: string
+            example: 9197ba55-0abc-4028-9bbe-269e530f8bd5 or "RHC"
+
 
     #
     # Output schemas
