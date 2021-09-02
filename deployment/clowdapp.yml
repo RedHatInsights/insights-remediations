@@ -119,7 +119,7 @@ objects:
           - name: PATCHMAN_IMPL
             value: ${PATCHMAN_IMPL}
           - name: PATCHMAN_HOST
-            value: http://${PATCHMAN_HOST}:8080
+            value: http://${PATCHMAN_HOST}:8000
           - name: PLAYBOOK_DISPATCHER_IMPL
             value: ${PLAYBOOK_DISPATCHER_IMPL}
           - name: PLAYBOOK_DISPATCHER_HOST
