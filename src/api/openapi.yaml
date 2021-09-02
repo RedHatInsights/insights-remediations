@@ -727,14 +727,7 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            x-remediations-strict: false
-            properties:
-              exclude:
-                type: array
-                items:
-                  type: string
-                  example: 9197ba55-0abc-4028-9bbe-269e530f8bd5 or "RHC"
+            $ref: '#/components/schemas/PlaybookRunsInput'
 
   schemas:
     #
