@@ -236,7 +236,7 @@ function Config() {
         config.sources.host = getHostForApp(dependencyEndpoints, 'sources-api', 'svc') || env.SOURCES_HOST || 'http://localhost:8080';
         config.ssg.host = getHostForApp(privateDepencencyEndpoints, 'compliance-ssg', 'service') || env.SSG_HOST || 'http://localhost:8090';
         config.vmaas.host = env.VMAAS_HOST || 'https://webapp-vmaas-prod.apps.crcp01ue1.o9m8.p1.openshiftapps.com'; //getHostForApp(dependencyEndpoints, 'vmaas', 'webapp-service')
-        config.vulnerabilities.host =  env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com'; //getHostForApp(dependencyEndpoints, 'vulnerability-engine', 'manager-service')
+        config.vulnerabilities.host = env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com'; //getHostForApp(dependencyEndpoints, 'vulnerability-engine', 'manager-service')
 
         config.db.username = loadedConfig.database.adminUsername;
         config.db.password = loadedConfig.database.adminPassword;
