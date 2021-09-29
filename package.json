@@ -45,7 +45,7 @@
     "ioredis": "^4.19.2",
     "js-yaml": "^3.14.0",
     "jszip": "^3.5.0",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "mustache": "^3.2.1",
     "openapi-default-setter": "^2.1.0",
     "openapi-request-coercer": "^2.4.0",
@@ -63,7 +63,7 @@
     "sequelize": "^5.22.3",
     "sequelize-cli": "^5.5.1",
     "swagger-ui-express": "^4.1.4",
-    "urijs": "^1.19.5",
+    "urijs": "^1.19.7",
     "uuid": "^7.0.3"
   },
   "devDependencies": {
