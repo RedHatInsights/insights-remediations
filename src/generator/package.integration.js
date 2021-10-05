@@ -34,6 +34,9 @@ describe('patchman - package using patch-package', function () {
             }, {
                 id: 'patch-package:qemu-guest-agent-15:4.2.0-34.module+el8.3.0+8829+e7a0a3ea.1.x86_64',
                 systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+            }, {
+                id: 'patch-package:libgudev1-219-78.el7_9.3.x86_64',
+                systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
             }]
         };
 

@@ -4,7 +4,7 @@ openapi: 3.0.0
 info:
   title: Insights Remediations
   description: Insights Remediations Service
-  version: 1.3.2
+  version: 1.3.3
   contact:
     email: jharting@redhat.com
 
@@ -140,6 +140,26 @@ paths:
           $ref: '#/components/responses/BadRequest'
         404:
           $ref: '#/components/responses/NotFound'
+
+  /remediations/{id}/executable:
+    get:
+      tags:
+        - remediations
+      summary: Check smart_managment systems
+      description: Checks remediation for the existence of smart_managment flaged systems
+      operationId: checkExecutable
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+      responses:
+        200:
+          description: OK
+        400:
+          $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+
 
   /remediations/{id}/playbook:
     get:
@@ -707,15 +727,7 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            x-remediations-strict: false
-            properties:
-              exclude:
-                type: array
-                items:
-                  type: string
-                  format: uuid
-                  example: 9197ba55-0abc-4028-9bbe-269e530f8bd5
+            $ref: '#/components/schemas/PlaybookRunsInput'
 
   schemas:
     #
@@ -955,6 +967,16 @@ components:
       properties:
         resolution:
           $ref: '#/components/schemas/ResolutionType'
+
+    PlaybookRunsInput:
+      type: object
+      x-remediations-strict: false
+      properties:
+        exclude:
+          type: array
+          items:
+            type: string
+            example: 9197ba55-0abc-4028-9bbe-269e530f8bd5 or "RHC"
 
 
     #
@@ -1463,10 +1485,13 @@ components:
           example: ready
           enum:
             - connected
+            - disabled
             - disconnected
             - no_executor
             - no_source
             - no_receptor
+            - no_smart_management
+            - no_rhc
 
     SystemOut:
       type: object
@@ -1535,6 +1560,12 @@ components:
       description: Entity Not Found
     BadRequest:
       description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RequestError'
+    Forbidden:
+      description: Forbidden
       content:
         application/json:
           schema:

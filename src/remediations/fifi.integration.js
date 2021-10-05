@@ -1,18 +1,64 @@
 /*eslint-disable max-len*/
 'use strict';
 
-const { request, auth, mockDate, mockPlaybookRunId, buildRbacResponse } = require('../test');
+const { request, auth, mockDate, mockUuid, buildRbacResponse } = require('../test');
 const utils = require('../middleware/identity/utils');
+const configManager = require('../connectors/configManager');
 const receptor = require('../connectors/receptor');
 const fifi = require('../remediations/fifi');
 const base = require('../test');
 const errors = require('../errors');
 const rbac = require('../connectors/rbac');
 const queries = require('./remediations.queries');
+const dispatcher = require('../connectors/dispatcher');
 const config = require('../config');
 const db = require('../db');
 
 describe('FiFi', function () {
+    describe('executable', function () {
+        test('remediation is executable', async () => {
+            await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/executable')
+            .set(auth.fifi)
+            .expect(200);
+        });
+
+        test('remediation is executable with smartManagement false but RHC on', async () => {
+            base.getSandbox().stub(config, 'isMarketplace').value(true);
+            await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/executable')
+            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
+                data.entitlements.smart_management = false;
+                return data;
+            }))
+            .expect(200);
+        });
+
+        test('remediation is not executable with smartManagment false but isMarketplace false', async () => {
+            await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/executable')
+            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
+                data.entitlements.smart_management = false;
+                return data;
+            }))
+            .expect(403);
+        });
+
+        test('400 on incorrect remediationID', async () => {
+            await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5c/executable')
+            .set(auth.fifi)
+            .expect(400);
+        });
+
+        test('404 on unknown remediationID', async () => {
+            await request
+            .get('/v1/remediations/6ecb5db7-2f1a-441b-8220-e5ce45066f60/executable')
+            .set(auth.fifi)
+            .expect(404);
+        });
+    });
+
     describe('connection status', function () {
         test('obtains connection status', async () => {
             const {text} = await request
@@ -58,20 +104,72 @@ describe('FiFi', function () {
             .expect(403);
         });
 
+        test('get connection status with false smartManagement but with system connected to RHC', async () => {
+            base.getSandbox().stub(config, 'isMarketplace').value(true);
+            const {text} = await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
+            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
+                data.entitlements.smart_management = false;
+                return data;
+            }))
+            .expect(200);
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('get connection status with false smartManagment but not configured with config manager', async () => {
+            base.getSandbox().stub(config, 'isMarketplace').value(true);
+            base.getSandbox().stub(configManager, 'getCurrentState').resolves({
+                account: '654321',
+                state: {
+                    remediations: 'disabled'
+                },
+                id: 'c5639a03-4640-4ae3-93ce-9966cae18df7',
+                label: 'b7839a03-4640-4ae3-93ce-9966cae18df8'
+            });
+            const {text} = await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
+            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
+                data.entitlements.smart_management = false;
+                return data;
+            }))
+            .expect(200);
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('get connection status with smartManagment but not enabled with config manager', async () => {
+            base.getSandbox().stub(config, 'isMarketplace').value(true);
+            base.getSandbox().stub(configManager, 'getCurrentState').resolves({
+                account: '654321',
+                state: {
+                    remediations: 'disabled'
+                },
+                id: 'c5639a03-4640-4ae3-93ce-9966cae18df7',
+                label: 'b7839a03-4640-4ae3-93ce-9966cae18df8'
+            });
+            const {text} = await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
+            .set(auth.fifi)
+            .expect(200);
+
+            expect(text).toMatchSnapshot();
+        });
+
         test('sets ETag', async () => {
             const {headers} = await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
             .set(auth.fifi)
             .expect(200);
 
-            headers.etag.should.equal('"10d1-znP/hi4fEIT3PozsJd+nSvx8Im4"');
+            headers.etag.should.equal('"126a-T9NCY7bh5UoXSVSOiLivN2rEAww"');
         });
 
         test('304s on ETag match', async () => {
             await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
             .set(auth.fifi)
-            .set('if-none-match', '"10d1-znP/hi4fEIT3PozsJd+nSvx8Im4"')
+            .set('if-none-match', '"126a-T9NCY7bh5UoXSVSOiLivN2rEAww"')
             .expect(304);
         });
     });
@@ -79,6 +177,7 @@ describe('FiFi', function () {
     describe('playbook run', function () {
         describe('GET', function () {
             test('playbook_runs', async () => {
+                mockUuid();
                 const {body, text} = await request
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
                 .set(auth.fifi)
@@ -87,7 +186,7 @@ describe('FiFi', function () {
                 body.meta.count.should.equal(2);
                 body.meta.total.should.equal(2);
                 body.data[0].should.have.property('id', '31a70e85-378a-4436-96e9-677cd6fba660');
-                body.data[0].should.have.property('status', 'pending');
+                body.data[0].should.have.property('status', 'running');
                 body.data[0].should.have.property('created_at', '2020-02-23T06:19:36.641Z');
 
                 body.data[1].should.have.property('id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
@@ -99,6 +198,12 @@ describe('FiFi', function () {
                 body.data[0].executors[0].should.have.property('status', 'pending');
                 body.data[0].executors[0].should.have.property('system_count', 1);
                 body.data[0].executors[0].counts.should.have.property('pending', 1);
+
+                body.data[0].executors[1].should.have.property('executor_id', '31a70e85-378a-4436-96e9-677cd6fba660');
+                body.data[0].executors[1].should.have.property('executor_name', 'Direct connected');
+                body.data[0].executors[1].should.have.property('status', 'running');
+                body.data[0].executors[1].should.have.property('system_count', 1);
+                body.data[0].executors[1].counts.should.have.property('pending', 0);
 
                 body.data[1].executors[0].should.have.property('executor_id', '21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd');
                 body.data[1].executors[0].should.have.property('executor_name', 'executor-2');
@@ -118,6 +223,7 @@ describe('FiFi', function () {
             });
 
             test('pagination playbook_runs?limit=2', async () => {
+                base.getSandbox().stub(dispatcher, 'fetchPlaybookRuns').returns(null);
                 const {body, text} = await request
                 .get('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs?limit=2')
                 .set(auth.fifi)
@@ -148,6 +254,7 @@ describe('FiFi', function () {
             });
 
             test('pagination playbook_runs?limit=1', async () => {
+                base.getSandbox().stub(dispatcher, 'fetchPlaybookRuns').returns(null);
                 const {body, text} = await request
                 .get('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs?limit=1')
                 .set(auth.fifi)
@@ -168,6 +275,7 @@ describe('FiFi', function () {
             });
 
             test('pagination playbook_runs?offset=1', async () => {
+                base.getSandbox().stub(dispatcher, 'fetchPlaybookRuns').returns(null);
                 const {body, text} = await request
                 .get('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs?offset=1')
                 .set(auth.fifi)
@@ -188,6 +296,7 @@ describe('FiFi', function () {
             });
 
             test('sort playbook_runs?sort=-updated_at', async() => {
+                mockUuid();
                 const {body, text} = await request
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs?sort=-updated_at')
                 .set(auth.fifi)
@@ -196,7 +305,7 @@ describe('FiFi', function () {
                 body.meta.count.should.equal(2);
                 body.meta.total.should.equal(2);
                 body.data[0].should.have.property('id', '31a70e85-378a-4436-96e9-677cd6fba660');
-                body.data[0].should.have.property('status', 'pending');
+                body.data[0].should.have.property('status', 'running');
                 body.data[0].should.have.property('created_at', '2020-02-23T06:19:36.641Z');
 
                 body.data[1].should.have.property('id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
@@ -227,6 +336,7 @@ describe('FiFi', function () {
             });
 
             test('sort playbook_runs?sort=updated_at', async() => {
+                mockUuid();
                 const {body, text} = await request
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs?sort=updated_at')
                 .set(auth.fifi)
@@ -239,7 +349,7 @@ describe('FiFi', function () {
                 body.data[0].should.have.property('created_at', '2019-12-23T08:19:36.641Z');
 
                 body.data[1].should.have.property('id', '31a70e85-378a-4436-96e9-677cd6fba660');
-                body.data[1].should.have.property('status', 'pending');
+                body.data[1].should.have.property('status', 'running');
                 body.data[1].should.have.property('created_at', '2020-02-23T06:19:36.641Z');
 
                 body.data[0].executors[0].should.have.property('executor_id', '21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd');
@@ -266,6 +376,7 @@ describe('FiFi', function () {
             });
 
             test('playbook_runs/:playbook_run_id', async () => {
+                mockUuid();
                 const {body, text} = await request
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc')
                 .set(auth.fifi)
@@ -290,10 +401,17 @@ describe('FiFi', function () {
                 body.executors[1].counts.should.have.property('failure', 3);
                 body.executors[1].counts.should.have.property('canceled', 2);
 
+                body.executors[2].should.have.property('executor_id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
+                body.executors[2].should.have.property('executor_name', 'Direct connected');
+                body.executors[2].should.have.property('status', 'running');
+                body.executors[2].should.have.property('system_count', 1);
+                body.executors[2].counts.should.have.property('running', 1);
+
                 expect(text).toMatchSnapshot();
             });
 
             test('playbook_runs/:playbook_run_id/systems', async () => {
+                mockUuid();
                 const {body, text} = await request
                 .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems')
                 .set(auth.fifi)
@@ -302,6 +420,7 @@ describe('FiFi', function () {
                 body.meta.count.should.equal(3);
                 body.meta.total.should.equal(3);
                 body.data.should.have.length(3);
+
                 body.data[0].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f');
                 body.data[0].should.have.property('system_name', 'system-22');
                 body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
@@ -313,6 +432,32 @@ describe('FiFi', function () {
                 body.data[2].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f');
                 body.data[2].should.have.property('system_name', 'system-24');
                 body.data[2].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd');
+
+                expect(text).toMatchSnapshot();
+            });
+
+            test('playbook_runs/:playbook_run_id/systems with RHC systems', async () => {
+                mockUuid();
+                const {body, text} = await request
+                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems')
+                .set(auth.fifi)
+                .expect(200);
+
+                body.meta.count.should.equal(12);
+                body.meta.total.should.equal(12);
+                body.data.should.have.length(12);
+
+                body.data[0].should.have.property('system_id', '8e015e92-02bd-4df1-80c5-3a00b93c4a4a');
+                body.data[0].should.have.property('system_name', '8e015e92-02bd-4df1-80c5-3a00b93c4a4a');
+                body.data[0].should.have.property('playbook_run_executor_id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
+
+                body.data[1].should.have.property('system_id', '7b136dd2-4824-43cf-af6c-ad0ee42f9f97');
+                body.data[1].should.have.property('system_name', 'system-1');
+                body.data[1].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
+
+                body.data[2].should.have.property('system_id', '3590ba1a-e0df-4092-9c23-bca863b28573');
+                body.data[2].should.have.property('system_name', 'system-2');
+                body.data[2].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
 
                 expect(text).toMatchSnapshot();
             });
@@ -390,6 +535,7 @@ describe('FiFi', function () {
             });
 
             test('200s on executor search result that results in 0 systems?executor=88d0ba73-0015-4e7d-a6d6-4b530cbfb111', async () => {
+                base.getSandbox().stub(dispatcher, 'fetchPlaybookRuns').returns(null);
                 const {body} = await request
                 .set(auth.fifi)
                 .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?executor=88d0ba73-0015-4e7d-a6d6-4b530cbfb111')
@@ -444,6 +590,7 @@ describe('FiFi', function () {
             });
 
             test('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?sort=system_name', async () => {
+                mockUuid();
                 const {body, text} = await request
                 .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?sort=system_name')
                 .set(auth.fifi)
@@ -452,6 +599,7 @@ describe('FiFi', function () {
                 body.meta.count.should.equal(3);
                 body.meta.total.should.equal(3);
                 body.data.should.have.length(3);
+
                 body.data[0].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f');
                 body.data[0].should.have.property('system_name', 'system-22');
                 body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
@@ -468,6 +616,7 @@ describe('FiFi', function () {
             });
 
             test('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?sort=-system_name', async () => {
+                mockUuid();
                 const {body, text} = await request
                 .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?sort=-system_name')
                 .set(auth.fifi)
@@ -503,6 +652,22 @@ describe('FiFi', function () {
                 body.should.have.property('console', 'These are the logs for console-5');
                 body.should.have.property('updated_at', '2019-12-23T18:19:36.641Z');
                 body.should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
+                expect(text).toMatchSnapshot();
+            });
+
+            test('playbook_runs/:playbook_run_id/systems/:system with RHC system', async () => {
+                mockUuid();
+                const {body, text} = await request
+                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems/9ce94170-34a0-4aa6-976a-9728aa4da7a4')
+                .set(auth.fifi)
+                .expect(200);
+
+                body.should.have.property('system_id', '9ce94170-34a0-4aa6-976a-9728aa4da7a4');
+                body.should.have.property('system_name', '17adc41a-a6c6-426a-a0d5-c7ba08954154');
+                body.should.have.property('status', 'running');
+                body.should.have.property('console', 'console log goes here');
+                body.should.have.property('updated_at', '2018-10-04T08:19:36.641Z');
+                body.should.have.property('playbook_run_executor_id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
                 expect(text).toMatchSnapshot();
             });
 
@@ -621,7 +786,7 @@ describe('FiFi', function () {
             test('400 on very large offset playbook_run_id playbook_runs/:playbook_run_id/systems?offset=2500000000000000000', async () => {
                 await request
                 .set(auth.fifi)
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb111/systems?offset=2500000000000000000')
+                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?offset=2500000000000000000')
                 .expect(400);
             });
 
@@ -661,6 +826,7 @@ describe('FiFi', function () {
             });
 
             test('404 on unknown remediationID playbook_runs', async () => {
+                base.getSandbox().stub(dispatcher, 'fetchPlaybookRuns').returns(null);
                 await request
                 .set(auth.fifi)
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8111/playbook_runs')
@@ -668,6 +834,7 @@ describe('FiFi', function () {
             });
 
             test('404 on unknown remediationID playbook_runs/:playbook_run_id', async () => {
+                base.getSandbox().stub(dispatcher, 'fetchPlaybookRuns').returns(null);
                 await request
                 .set(auth.fifi)
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8111/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc')
@@ -675,6 +842,7 @@ describe('FiFi', function () {
             });
 
             test('404 on unknown playbookRunId playbook_runs/:playbook_run_id', async () => {
+                base.getSandbox().stub(dispatcher, 'fetchPlaybookRuns').returns(null);
                 await request
                 .set(auth.fifi)
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfbabc')
@@ -682,6 +850,7 @@ describe('FiFi', function () {
             });
 
             test('404 on unknown remediationID playbook_runs/:playbook_run_id/systems', async () => {
+                base.getSandbox().stub(dispatcher, 'fetchPlaybookRuns').returns(null);
                 await request
                 .set(auth.fifi)
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8111/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems')
@@ -689,6 +858,7 @@ describe('FiFi', function () {
             });
 
             test('404 on unknown playbook_run_id playbook_runs/:playbook_run_id/systems', async () => {
+                base.getSandbox().stub(dispatcher, 'fetchPlaybookRuns').returns(null);
                 await request
                 .set(auth.fifi)
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb111/systems')
@@ -696,6 +866,7 @@ describe('FiFi', function () {
             });
 
             test('404 on unknown remediationID playbook_runs/:playbook_run_id/systems/:system', async () => {
+                base.getSandbox().stub(dispatcher, 'fetchPlaybookRunHosts').returns(null);
                 await request
                 .set(auth.fifi)
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8111/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems/a8c4bbeb-dbcf-4fdb-94bc-19e45e961cb1')
@@ -703,6 +874,7 @@ describe('FiFi', function () {
             });
 
             test('404 on unknown playbookRunId playbook_runs/:playbook_run_id/systems/:system', async () => {
+                base.getSandbox().stub(dispatcher, 'fetchPlaybookRunHosts').returns(null);
                 await request
                 .set(auth.fifi)
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb111/systems/a8c4bbeb-dbcf-4fdb-94bc-19e45e961cb1')
@@ -710,50 +882,11 @@ describe('FiFi', function () {
             });
 
             test('404 on unknown systemId playbook_runs/:playbook_run_id/systems/:system', async () => {
+                base.getSandbox().stub(dispatcher, 'fetchPlaybookRunHosts').returns(null);
                 await request
                 .set(auth.fifi)
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb111/systems/a8c4bbeb-dbcf-4fdb-94bc-19e45e961123')
                 .expect(404);
-            });
-
-            test('run playbook_run with false smartManagement', async () => {
-                await request
-                .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
-                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
-                    data.entitlements.smart_management = false;
-                    return data;
-                }))
-                .expect(403);
-            });
-
-            test('run playbook_run/:playbook_run_id with false smartManagement', async () => {
-                await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc')
-                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
-                    data.entitlements.smart_management = false;
-                    return data;
-                }))
-                .expect(403);
-            });
-
-            test('run playbook_run/:playbook_run_id/systems with false smartManagement', async () => {
-                await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems')
-                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
-                    data.entitlements.smart_management = false;
-                    return data;
-                }))
-                .expect(403);
-            });
-
-            test('run playbook_run/:playbook_run_id/systems/:system with false smartManagement', async () => {
-                await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems/7b136dd2-4824-43cf-af6c-ad0ee42f9f97')
-                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
-                    data.entitlements.smart_management = false;
-                    return data;
-                }))
-                .expect(403);
             });
 
             test('sets etag for playbook_run/:playbook_run_id/systems/:system', async () => {
@@ -778,14 +911,14 @@ describe('FiFi', function () {
                 await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
                 .set(auth.fifi)
-                .set('if-match', '"10d1-znP/hi4fEIT3PozsJd+nSvx8Im4"')
+                .set('if-match', '"126a-T9NCY7bh5UoXSVSOiLivN2rEAww"')
                 .expect(201);
             });
 
             test('400 post playbook run', async () => {
                 await request
                 .set(auth.fifi)
-                .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d150000/connection_status')
+                .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d150000/playbook_runs')
                 .expect(400);
             });
 
@@ -806,21 +939,32 @@ describe('FiFi', function () {
                 .expect(403);
             });
 
+            test('execute playbook_run with false smartManagement but with system connected to RHC', async () => {
+                base.getSandbox().stub(config, 'isMarketplace').value(true);
+                await request
+                .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
+                    data.entitlements.smart_management = false;
+                    return data;
+                }))
+                .expect(201);
+            });
+
             test('sets ETag', async () => {
                 const {headers} = await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs?pretty')
                 .set(auth.fifi)
-                .set('if-match', '"10d1-znP/hi4fEIT3PozsJd+nSvx8Im4"')
+                .set('if-match', '"126a-T9NCY7bh5UoXSVSOiLivN2rEAww"')
                 .expect(201);
 
-                headers.etag.should.equal('"10d1-znP/hi4fEIT3PozsJd+nSvx8Im4"');
+                headers.etag.should.equal('"126a-T9NCY7bh5UoXSVSOiLivN2rEAww"');
             });
 
             test('201s on ETag match', async () => {
                 await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
                 .set(auth.fifi)
-                .set('if-match', '"10d1-znP/hi4fEIT3PozsJd+nSvx8Im4"')
+                .set('if-match', '"126a-T9NCY7bh5UoXSVSOiLivN2rEAww"')
                 .expect(201);
             });
 
@@ -831,7 +975,7 @@ describe('FiFi', function () {
                 .set('if-match', '"1062-Pl88DazTBuJo//SQVNUn6pZAlmk"')
                 .expect(412);
 
-                headers.etag.should.equal('"10d1-znP/hi4fEIT3PozsJd+nSvx8Im4"');
+                headers.etag.should.equal('"126a-T9NCY7bh5UoXSVSOiLivN2rEAww"');
             });
 
             test('if if-match is not present, proceed', async () => {
@@ -843,7 +987,7 @@ describe('FiFi', function () {
 
             test('check object being send to receptor connector', async function () {
                 mockDate();
-                mockPlaybookRunId();
+                mockUuid();
                 // do not create db record
                 base.getSandbox().stub(queries, 'insertPlaybookRun').returns();
 
@@ -881,7 +1025,7 @@ describe('FiFi', function () {
 
             test('exclude one of the two connected executors', async function () {
                 mockDate();
-                mockPlaybookRunId();
+                mockUuid();
                 // do not create db record
                 base.getSandbox().stub(queries, 'insertPlaybookRun').returns();
 
@@ -903,10 +1047,10 @@ describe('FiFi', function () {
                 expect(spy.args[0]).toMatchSnapshot();
             });
 
-            test('exclude both connected connectors and return 400 NO_EXECUTORS', async function () {
+            test('exclude all connected connectors and return 400 NO_EXECUTORS', async function () {
                 const {body} = await request
                 .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
-                .send({exclude: ['722ec903-f4b5-4b1f-9c2f-23fc7b0ba390', '63142926-46a5-498b-9614-01f2f66fd40b']})
+                .send({exclude: ['722ec903-f4b5-4b1f-9c2f-23fc7b0ba390', '63142926-46a5-498b-9614-01f2f66fd40b', 'RHC']})
                 .set(auth.fifi)
                 .expect(400);
 
@@ -1046,7 +1190,7 @@ describe('FiFi', function () {
 
             test('post playbook_runs with response_mode: diff and exclude executors', async function () {
                 mockDate();
-                mockPlaybookRunId();
+                mockUuid();
                 // do not create db record
                 base.getSandbox().stub(queries, 'insertPlaybookRun').returns();
 
@@ -1072,7 +1216,7 @@ describe('FiFi', function () {
 
             test('dynamic post playbook_runs with < 200 executors', async function () {
                 mockDate();
-                mockPlaybookRunId();
+                mockUuid();
 
                 const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
                 base.getSandbox().stub(config.fifi, 'text_update_full').value(false);
@@ -1090,7 +1234,7 @@ describe('FiFi', function () {
                                 display_name: null
                             }
                         ],
-                        type: 'Satellite',
+                        type: 'satellite',
                         name: 'Dynamic Satellite',
                         status: 'connected'
                     }))
@@ -1110,7 +1254,7 @@ describe('FiFi', function () {
 
             test('dynamic post playbook_runs with < 400 executors', async function () {
                 mockDate();
-                mockPlaybookRunId();
+                mockUuid();
 
                 const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
                 base.getSandbox().stub(config.fifi, 'text_update_full').value(false);
@@ -1128,7 +1272,7 @@ describe('FiFi', function () {
                                 display_name: null
                             }
                         ],
-                        type: 'Satellite',
+                        type: 'satellite',
                         name: 'Dynamic Satellite',
                         status: 'connected'
                     }))
@@ -1148,7 +1292,7 @@ describe('FiFi', function () {
 
             test('dynamic post playbook_runs with >= 400 executors', async function () {
                 mockDate();
-                mockPlaybookRunId();
+                mockUuid();
 
                 const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
                 base.getSandbox().stub(config.fifi, 'text_update_full').value(false);
@@ -1166,7 +1310,7 @@ describe('FiFi', function () {
                                 display_name: null
                             }
                         ],
-                        type: 'Satellite',
+                        type: 'satellite',
                         name: 'Dynamic Satellite',
                         status: 'connected'
                     }))
@@ -1345,7 +1489,7 @@ describe('FiFi', function () {
             const {body: post} = await request
             .post('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs')
             .set(auth.fifi)
-            .set('if-match', '"10d1-znP/hi4fEIT3PozsJd+nSvx8Im4"')
+            .set('if-match', '"126a-T9NCY7bh5UoXSVSOiLivN2rEAww"')
             .expect(201);
 
             const {body: run} = await request
@@ -1453,7 +1597,7 @@ describe('FiFi', function () {
             .set(auth.fifi)
             .expect(200);
 
-            run.should.have.property('status', 'pending');
+            run.should.have.property('status', 'failure');
             run.executors.should.have.length(2);
 
             run.executors[0].should.have.property('executor_id', '722ec903-f4b5-4b1f-9c2f-23fc7b0ba390');

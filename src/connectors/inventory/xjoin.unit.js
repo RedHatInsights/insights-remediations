@@ -178,7 +178,9 @@ describe('inventory xjoin', function () {
                             {
                                 id: '9dae9304-86a8-4f66-baa3-a1b27dfdd479',
                                 system_profile_facts: {
-                                    owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
+                                    owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c',
+                                    rhc_client_id: 'f415fc2d-9700-4e30-9621-6a410ccc92c8',
+                                    is_marketplace: true
                                 }
                             }
                         ]
@@ -203,7 +205,9 @@ describe('inventory xjoin', function () {
                             {
                                 id: '9dae9304-86a8-4f66-baa3-a1b27dfdd479',
                                 system_profile_facts: {
-                                    owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
+                                    owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c',
+                                    rhc_client_id: 'f415fc2d-9700-4e30-9621-6a410ccc92c8',
+                                    is_marketplace: true
                                 }
                             }
                         ]
@@ -217,6 +221,8 @@ describe('inventory xjoin', function () {
             const result = results['9dae9304-86a8-4f66-baa3-a1b27dfdd479'];
             result.should.have.property('id', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
             result.system_profile.should.have.property('owner_id', '81390ad6-ce49-4c8f-aa64-729d374ee65c');
+            result.system_profile.should.have.property('rhc_client_id', 'f415fc2d-9700-4e30-9621-6a410ccc92c8');
+            result.system_profile.should.have.property('is_marketplace', true);
 
             http.callCount.should.equal(1);
         });
@@ -235,7 +241,9 @@ describe('inventory xjoin', function () {
                             {
                                 id: '9dae9304-86a8-4f66-baa3-a1b27dfdd479',
                                 system_profile_facts: {
-                                    owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
+                                    owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c',
+                                    rhc_client_id: 'f415fc2d-9700-4e30-9621-6a410ccc92c8',
+                                    is_marketplace: true
                                 }
                             }
                         ]
@@ -249,6 +257,8 @@ describe('inventory xjoin', function () {
             const result = results['9dae9304-86a8-4f66-baa3-a1b27dfdd479'];
             result.should.have.property('id', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
             result.system_profile.should.have.property('owner_id', '81390ad6-ce49-4c8f-aa64-729d374ee65c');
+            result.system_profile.should.have.property('rhc_client_id', 'f415fc2d-9700-4e30-9621-6a410ccc92c8');
+            result.system_profile.should.have.property('is_marketplace', true);
 
             http.callCount.should.equal(3);
         });
@@ -301,6 +311,53 @@ describe('inventory xjoin', function () {
             });
 
             const result = await xjoin.getSystemsByInsightsId('d46c20e5-8f10-43ed-94e4-6c467a581ec7');
+            result.should.has.size(2);
+            result[0].should.have.property('id', '22cd8e39-13bb-4d02-8316-84b850dc5136');
+            result[0].should.have.property('account', 'test');
+            result[0].should.have.property('hostname', 'fqdn.test02.rhel7.local');
+            result[0].should.have.property('display_name', 'test02.rhel7.local');
+            result[0].should.have.property('insights_id', 'd46c20e5-8f10-43ed-94e4-6c467a581ec7');
+
+            result[1].should.have.property('id', '146e1d6b-1013-430b-a29f-aaab6c0c2ec5');
+            result[1].should.have.property('account', 'test');
+            result[1].should.have.property('hostname', 'fqdn.test03.rhel7.local');
+            result[1].should.have.property('display_name', 'test03.rhel7.local');
+            result[1].should.have.property('insights_id', 'd46c20e5-8f10-43ed-94e4-6c467a581ec7');
+        });
+    });
+
+    describe('getSystemsByOwnerId', function () {
+        test('new', async function () {
+            base.getSandbox().stub(queries, 'runQuery').resolves({
+                status: 200,
+                headers: {},
+                data: {
+                    hosts: {
+                        data: [
+                            {
+                                id: '22cd8e39-13bb-4d02-8316-84b850dc5136',
+                                account: 'test',
+                                display_name: 'test02.rhel7.local',
+                                canonical_facts: {
+                                    fqdn: 'fqdn.test02.rhel7.local',
+                                    insights_id: 'd46c20e5-8f10-43ed-94e4-6c467a581ec7'
+                                }
+                            },
+                            {
+                                id: '146e1d6b-1013-430b-a29f-aaab6c0c2ec5',
+                                account: 'test',
+                                display_name: 'test03.rhel7.local',
+                                canonical_facts: {
+                                    fqdn: 'fqdn.test03.rhel7.local',
+                                    insights_id: 'd46c20e5-8f10-43ed-94e4-6c467a581ec7'
+                                }
+                            }
+                        ]
+                    }
+                }
+            });
+
+            const result = await xjoin.getSystemsByOwnerId('d46c20e5-8f10-43ed-94e4-6c467a581ec7');
             result.should.has.size(2);
             result[0].should.have.property('id', '22cd8e39-13bb-4d02-8316-84b850dc5136');
             result[0].should.have.property('account', 'test');

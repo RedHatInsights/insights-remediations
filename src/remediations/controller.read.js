@@ -29,11 +29,13 @@ const catchErrorCode = (code, fn) => e => {
 
 async function fetchRemediation (req, res) {
     const id = req.params.id;
-    const hosts = req.query.hosts;
+    let hosts = req.query.hosts;
 
     if (_.isUndefined(req.user)) {
-        // TODO: Add check here to get host that matches owner_id from inventory once generalized
-        //       filtering has been implemented.
+        if (_.isUndefined(hosts)) {
+            const ownedSystems = await inventory.getSystemsByOwnerId(req.identity.system.cn);
+            hosts = _.map(ownedSystems, system => {return system.id;});
+        }
 
         const batchProfileInfo = await inventory.getSystemProfileBatch(hosts);
 
@@ -157,9 +159,12 @@ exports.list = errors.async(async function (req, res) {
         resolveUsers(req, ...remediations)
     ]);
 
+    // Add 'details' if they exist to each issue in remediation.issues
+    await P.map(remediations, remediation => resolveIssues(remediation));
+
     remediations.forEach(remediation => {
-        // filter out issues with 0 systems and unknown issues
-        remediation.issues = remediation.issues.filter(issue => issue.resolution);
+        // filter out issues with 0 systems, unknown issues and details
+        remediation.issues = remediation.issues.filter(issue => issue.resolution && issue.details);
         remediation.needs_reboot = inferNeedsReboot(remediation);
 
         // issue_count is not filtered on 0 systems by default

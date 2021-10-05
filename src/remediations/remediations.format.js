@@ -33,6 +33,10 @@ function buildListLinks (total, limit, offset, sort, system) {
     return links;
 }
 
+function buildRHCUrl (remediation_id, system_id) {
+    return `https://${config.platformHostname}${config.path.prefix}/${config.path.app}/v1/${config.path.app}/${remediation_id}/playbook?hosts=${system_id}&localhost`;
+}
+
 exports.parseSort = function (param) {
     if (!param) {
         throw new Error(`Invalid sort param value ${param}`);
@@ -186,6 +190,16 @@ exports.receptorWorkRequest = function (playbookRunRequest, account_number, rece
     };
 };
 
+exports.rhcWorkRequest = function (rhc_client_id, account_number, remediation_id, system_id, playbook_run_id) {
+    return {
+        recipient: rhc_client_id,
+        account: account_number,
+        url: buildRHCUrl(remediation_id, system_id),
+        labels: { 'playbook-run': playbook_run_id },
+        hosts: [{ansible_host: 'localhost', inventory_id: system_id}]
+    };
+};
+
 exports.playbookCancelRequest = function (playbookRunId) {
     return {
         type: 'playbook_run_cancel',
@@ -208,19 +222,19 @@ exports.playbookRuns = function (playbook_runs, total) {
         status: run.status,
         remediation_id: run.remediation_id,
         created_by: _.pick(run.created_by, USER),
-        created_at: run.created_at.toISOString(),
-        updated_at: run.updated_at.toISOString(),
+        created_at: (_.isDate(run.created_at)) ? run.created_at.toISOString() : run.created_at,
+        updated_at: (_.isDate(run.updated_at)) ? run.updated_at.toISOString() : run.updated_at,
         executors: run.executors.map(executor => ({
             executor_id: executor.executor_id,
             executor_name: executor.executor_name,
             status: executor.status,
-            system_count: executor.get('system_count'),
+            system_count: executor.system_count,
             counts: {
-                pending: executor.get('count_pending'),
-                running: executor.get('count_running'),
-                success: executor.get('count_success'),
-                failure: executor.get('count_failure'),
-                canceled: executor.get('count_canceled')
+                pending: executor.count_pending,
+                running: executor.count_running,
+                success: executor.count_success,
+                failure: executor.count_failure,
+                canceled: executor.count_canceled
             }
         }))
     }));
@@ -240,22 +254,22 @@ exports.playbookRunDetails = function (playbook_runs) {
         status: run.status,
         remediation_id: run.remediation_id,
         created_by: _.pick(run.created_by, USER),
-        created_at: run.created_at.toISOString(),
-        updated_at: run.updated_at.toISOString(),
+        created_at: (_.isDate(run.created_at)) ? run.created_at.toISOString() : run.created_at,
+        updated_at: (_.isDate(run.updated_at)) ? run.updated_at.toISOString() : run.updated_at,
         executors: run.executors.map(executor => ({
             executor_id: executor.executor_id,
             executor_name: executor.executor_name,
-            updated_at: executor.updated_at.toISOString(),
+            updated_at: (_.isDate(run.updated_at)) ? run.updated_at.toISOString() : run.updated_at,
             playbook: executor.playbook,
             playbook_run_id: executor.playbook_run_id,
             status: executor.status,
-            system_count: executor.get('system_count'),
+            system_count: executor.system_count,
             counts: {
-                pending: executor.get('count_pending'),
-                running: executor.get('count_running'),
-                success: executor.get('count_success'),
-                failure: executor.get('count_failure'),
-                canceled: executor.get('count_canceled')
+                pending: executor.count_pending,
+                running: executor.count_running,
+                success: executor.count_success,
+                failure: executor.count_failure,
+                canceled: executor.count_canceled
             }
         }))
     }));
@@ -268,7 +282,7 @@ exports.playbookSystems = function (systems, total) {
         system_id: system.system_id,
         system_name: system.system_name,
         status: system.status,
-        updated_at: system.updated_at.toISOString(),
+        updated_at: (_.isDate(system.updated_at)) ? system.updated_at.toISOString() : system.updated_at,
         playbook_run_executor_id: system.playbook_run_executor_id
     }));
 
@@ -287,8 +301,8 @@ exports.playbookSystemDetails = function (system) {
         system_name: system.system_name,
         status: system.status,
         console: system.console,
-        updated_at: system.updated_at.toISOString(),
-        playbook_run_executor_id: system.get('executor_id')
+        updated_at: (_.isDate(system.updated_at)) ? system.updated_at.toISOString() : system.updated_at,
+        playbook_run_executor_id: system.executor_id
     };
 
     return formatted;

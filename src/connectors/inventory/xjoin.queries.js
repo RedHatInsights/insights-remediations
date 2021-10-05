@@ -51,7 +51,7 @@ exports.BATCH_PROFILE_QUERY = `
         {
             data {
                 id
-                system_profile_facts (filter: ["owner_id"])
+                system_profile_facts (filter: ["owner_id", "rhc_client_id", "is_marketplace"])
             }
         }
     }
@@ -65,6 +65,21 @@ exports.INSIGHTS_ID_QUERY = `
                 id
                 account
                 canonical_facts (filter: ["insights_id", "fqdn"])
+                display_name
+                modified_on
+            }
+        }
+    }
+`;
+
+exports.OWNER_ID_QUERY = `
+    query hosts ($owner_id: String) {
+        hosts (filter: {spf_owner_id: {eq: $owner_id}})
+        {
+            data {
+                id
+                account
+                cannonical_facts (filter: ["insights_id", "fqdn"])
                 display_name
                 modified_on
             }

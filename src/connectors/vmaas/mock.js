@@ -57,8 +57,11 @@ const PACKAGES = {
     'qemu-guest-agent-15:4.2.0-34.module+el8.3.0+8829+e7a0a3ea.1.x86_64': {
         description: 'QEMU Guest Agent'
     },
-    'some.my-odd_pkg-1000:11.23.444.5-8.1.el8.x86_64': {
+    'sOME.my-odd_++pkg-1000:11.23.444.5-8.1.el8.x86_64': {
         description: 'Some testing rpm with weird package name'
+    },
+    'libgudev1-219-78.el7_9.3.x86_64': {
+        description: 'Libraries for adding libudev support'
     }
 };
 

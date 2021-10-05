@@ -2,12 +2,15 @@
 
 const errors = require('../errors');
 
-const ERRATUM_PATTERN = /^RH[SBE]A-20[\d]{2}:[\d]{4,5}/;
+const ERRATUM_PATTERN = /^(RH[SBE]A-20[\d]{2}:[\d]{4,5})|(FEDORA-EPEL-[\w-]+)/;
 const CSAW_PATTERN = /^CVE-20[\d]{2}-[\d]{4,}:\w+\|[A-Z\d_]+$/;
 const ADVISOR_PATTERN = /^\w+\|[A-Z\d_]+$/;
 const CVE_PATTERN = /^CVE-20[\d]{2}-[\d]{4,}/;
+
+// Adapted the regex coming from https://github.com/rpm-software-management/libdnf/blob/master/libdnf/nevra.cpp
+// Contains both prefix epoch(still appears on the platform), and accepts a wider range of input
 // eslint-disable-next-line security/detect-unsafe-regex
-const PKG_PATTERN = /^[a-z-._+]+-(\d+:)?([\d-]|\.)+-[a-z0-9-._+]+\.[a-z0-9-._+]+$/;
+const NEVRA_PATTERN = /^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\.([^-:.(/=<>;]+)$/;
 
 const advisorHandler = new(require('./AdvisorHandler'))();
 const cveHandler = new(require('./CVEHandler'))();
@@ -46,7 +49,7 @@ function getHandler (id) {
 
             return packageHandler; // TODO: remove after switching to "patch-package"
         case 'patch-package':
-            if (PKG_PATTERN.test(id.issue)) {
+            if (NEVRA_PATTERN.test(id.issue)) {
                 return packageHandler;
             }
 
