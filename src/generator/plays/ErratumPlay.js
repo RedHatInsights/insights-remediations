@@ -13,7 +13,17 @@ module.exports = class ErratumPlay extends ResolutionPlay {
 
     getTemplateParameters () {
         const params = super.getTemplateParameters();
-        params.ISSUES = this.erratum;
+        switch (this.issueType) {
+            case 'erratum':
+                params.ISSUES = '--advisory ' + this.erratum;
+                break;
+            case 'cve':
+                params.ISSUES = '--cve ' + this.erratum;
+                break;
+            default:
+                params.ISSUES = this.erratum;
+        }
+
         return params;
     }
 };

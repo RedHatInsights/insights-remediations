@@ -29,6 +29,14 @@ const ERRATA = {
         },
         id: 'RHBA-2019:2871',
         type: 'advisory'
+    },
+    'FEDORA-EPEL-2021-1ad3a13e05': {
+        attributes: {
+            description: 'The tzdata packages contain data files with rules for various time zones.\n\nThe tzdata packages have been updated to version 2019c, which addresses recent\ntime zone changes. Notably:\n\n* Fiji will observe the daylight saving time (DST) from November 10, 2019 to January 12, 2020. \n\n* Norfolk Island will start to observe Australian-style DST on November 06, 2019.\n(BZ#1751551, BZ#1751737, BZ#1751402, BZ#1751404)\n\nUsers of tzdata are advised to upgrade to these updated packages, which add\nthese enhancements.',
+            synopsis: 'tzdata enhancement update'
+        },
+        id: 'FEDORA-EPEL-2021-1ad3a13e05',
+        type: 'advisory'
     }
 };
 

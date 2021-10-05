@@ -220,33 +220,33 @@ exports[`playbooks generate playbook specifying only 1 of its hosts 1`] = `
 - name: update vulnerable packages
   hosts: \\"84762eb3-0bbb-4bd8-ab11-f420c50e9000.example.com\\"
   vars:
-    insights_issues: \\"CVE-2017-5715\\"
+    insights_issues: \\"--cve CVE-2017-5715\\"
     insights_signature_exclude: /hosts,/vars/insights_signature,/vars/insights_issues
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
-      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBTR2ROZG5jMU9FUXJhalZ3VGtGUmFqUnNRUzh2WlVKc1JH
-      Sk1Rbk5JT0UxRFFuZEpkSEZMZW1SclduaDVNa2xCZW0xNlYyc0tLMHN3YmpBeWVIUnlWR2RwZG5B
-      dlp6TTFXVVpQYjI5UVdqQTRka2xtWVdGVVZEVm5OVWRGZUhsRlVWVXJTMVZPVlVsUVRsUmxlVWxh
-      WTJ3cmRuVkhWZ28zTTIxUldVUmlibE5qUkhKdVJFeE5kMUI0SzI0ME1WcGtRbkUzUml0TE5XbFJO
-      bE5QTm5BNE5sUkJSbE5aVTFwYWVWUjJXVTl2UVZWRWNGQlFVWFpzQ2pWVVJWUnhOeTg1WWs1cFdY
-      RTBRVTV4YzFwbU1GSXlUV3RRT0c5VVRVNVpVVTQ0VFRSMlNsUmFPR1JuUVRsa0sxUnFZbVZ0YmxS
-      cmNEVk5VRXQwVWtzS01UWnFVMmg2ZW0xWFJFRjJSa1ZJVFc1U01FWTNla0pUU1c0emJYTkphRzVN
-      YVdjelFqQkxSM1pyYWtaaGRUWldSa01yWkU5blZUbFBZakY2UkhOVlJRcHZRbWgwYXpkek1YQllU
-      VWhOVW5wUVZHcDRiV3RQTDIxd09ISXhhMnhGZHpNMU5qUnNkMk52YmtKamJHOUVhbXRyWm5OalR6
-      Y3lORGhHZVRJMFYxTmFDalJ1VFRCelYyVnpWRGxJUTFSelpITnRhVkV2WkhoQ01WQllkMlJFZHpC
-      RFVuWnNRblpWUjNadWFHOXRNWEJCUTBveFFXbE5PRFI2VW1ZMU4zbHZWVzhLUjJabmVFaFpUMmhJ
-      UW5oeE0wcFVjWEpST0U5UlkyOUlUbXR0VEdob2VqZGlWRWx5ZEZNM2FXUk1kQzl0UkVWSGJHZE1k
-      VE5KWVdsUUsxWmtSbXRGY1FwdVExWXliSGxJWjJ4YVduTXJTM0F2YzAxd2NsSjFXRzk0TUVGa1RW
-      SkVTR2xPU2pWRE9YVXdlR2x6WldSQlZIVkZaa05aZUZKSVV6TllWMjA0VUZCWUNteHJPV2t4VkVs
-      cWRGRlVPRE53YzBObk9FSkxVRFV5WmxweU0wdG1UWEZVYnk5TkwzUTFVV1V6TXpKQ1RXaDNWblI0
-      Wnpndk16YzNTSHBGUzNGRVdGWUtXbEpRTkRoTVkzVmhjbVpNTmtwUVp5dEtNbnBMUVZBMlZsUkVh
-      RzR3YTBSVE5HWkhVR295Vm14SFp6SklXRGRJTWpGRWJFbzFWa1ZDV1RKbGJVNUdTQW96YW1VNFJV
-      cEdiMGxJWnowS1BWRmpkRkFLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      RWNnZGpFS0NtbFJTVlpCZDFWQldWTmFUMGM0ZG5jMU9FUXJhalZ3VGtGUmFFVnpRUzh2VW1OSFFU
+      TjFLM2RDVFdOYWJTOTNheTlOVVVKRGVua3pRWEZsZG1Jd1NIa0tlRFZtTUZKWVoybHROVkpKTkRs
+      YVVIYzRVak5EZDJGM1l6QTNUa0V5TjJOSFltWkRlbTF5TWpaR00zazNSemRKZG5ReldUUkpURGhs
+      YUhsWmFHUm5SZ3B4YTIwMk5uWkllVWRsTmxnNWVWVmpjblJrUzNOWlFXRjFNWE0wTkhSVU5IQnJh
+      MUpUYWl0VlJ6bHBUbGxWVEdzelUyRlNTMU5ZV0cxdFpVRnhiRXRZQ2tOMFV6a3hUVVpYWWtsS00z
+      ZHlibTF0VFhKUmRXaDRlVUYwTW14TllWUnFkMDU1VDFoalRuQjFWR0pQWVZoSlRIRkROV1YwZFdn
+      elRtZFpkV0ZLVVVFS2NVa3dZV3hNU21obWNsSkpVMlJLTkVNeU5YRk1aa2M0U2tKb1RXMTNRVkUy
+      VlhaM2N6VTJZaXRhZDIxWGEyTllaM28xV1ZwWVNHbERaMjF3V0ZNeFJncG9SbE0xVlU1YWNrYzNP
+      QzlTVGxGVmFHRTBiMkVyTDNsck5WWm5UVlZsYkVSV1EwaHhSMFk1YVdkWlVtdENiVk5UZFROc1RW
+      cFZZbU53Wms5eU5DdE9DbUZxVTJoSGRXaHdhMjlzTTFOSFNVWTFaVVZLYW5CWGFURlJSak52UTFS
+      UWVtMXVjM0p1TTNWWlpYTmtObWhCU1RGcFpIVnJVVGg1UW1sbk1EaExiR2NLU1hnNGMwaE9UeXQ0
+      TUhWcVJrRlVWalpDV2pCUU9HOUViREpHTjFCSlkwSkxWMnRsWldGM1pGaGFNWEpNVFRVNGVESnJa
+      V1J3VG14WldIaG1aems0VEFwRVlrZHJSVUpDVFd4MU1uUjJia2w2V0RsamNqUnVNVXRKZEZsTFpr
+      ZGhUbkpUYkZsWVJ6bG5TbG92YUZsTUt6ZHhPRk5TU2tsb1FUSkZkRTF4Y1VndkNteFVWVUpYZDBO
+      aVRuSnJjM1pGTWk5WE1VTnRTWHBOVDNsRVZuSTVibkZLTDFVclVYQnFWMU5HY2tWb1JHZEpOazFs
+      WWtOblR6SnVXVmxVTnpoM1MwZ0tSVWs1T1doblF5OHJOSGRYZFVkeVFVSmtlbnBLWm14YVpXZHRO
+      RTVaSzBOTFNHOXVUa28yYmxKaVYxUlhaMDV5TjFrM2VVcGhiVVZRUTFsd1FYTnlSZ3BpTTJveU1G
+      cEhWblp3TkQwS1BUaDBjbkFLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
       PQ==
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -255,7 +255,7 @@ exports[`playbooks generate playbook specifying only 1 of its hosts 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
       args:
         warn: false
 
@@ -865,33 +865,33 @@ exports[`playbooks generate playbook with localhost flag and reboot 1`] = `
 - name: update vulnerable packages
   hosts: \\"localhost\\"
   vars:
-    insights_issues: \\"CVE-2017-5715\\"
+    insights_issues: \\"--cve CVE-2017-5715\\"
     insights_signature_exclude: /hosts,/vars/insights_signature,/vars/insights_issues
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
-      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBTR2ROZG5jMU9FUXJhalZ3VGtGUmFqUnNRUzh2WlVKc1JH
-      Sk1Rbk5JT0UxRFFuZEpkSEZMZW1SclduaDVNa2xCZW0xNlYyc0tLMHN3YmpBeWVIUnlWR2RwZG5B
-      dlp6TTFXVVpQYjI5UVdqQTRka2xtWVdGVVZEVm5OVWRGZUhsRlVWVXJTMVZPVlVsUVRsUmxlVWxh
-      WTJ3cmRuVkhWZ28zTTIxUldVUmlibE5qUkhKdVJFeE5kMUI0SzI0ME1WcGtRbkUzUml0TE5XbFJO
-      bE5QTm5BNE5sUkJSbE5aVTFwYWVWUjJXVTl2UVZWRWNGQlFVWFpzQ2pWVVJWUnhOeTg1WWs1cFdY
-      RTBRVTV4YzFwbU1GSXlUV3RRT0c5VVRVNVpVVTQ0VFRSMlNsUmFPR1JuUVRsa0sxUnFZbVZ0YmxS
-      cmNEVk5VRXQwVWtzS01UWnFVMmg2ZW0xWFJFRjJSa1ZJVFc1U01FWTNla0pUU1c0emJYTkphRzVN
-      YVdjelFqQkxSM1pyYWtaaGRUWldSa01yWkU5blZUbFBZakY2UkhOVlJRcHZRbWgwYXpkek1YQllU
-      VWhOVW5wUVZHcDRiV3RQTDIxd09ISXhhMnhGZHpNMU5qUnNkMk52YmtKamJHOUVhbXRyWm5OalR6
-      Y3lORGhHZVRJMFYxTmFDalJ1VFRCelYyVnpWRGxJUTFSelpITnRhVkV2WkhoQ01WQllkMlJFZHpC
-      RFVuWnNRblpWUjNadWFHOXRNWEJCUTBveFFXbE5PRFI2VW1ZMU4zbHZWVzhLUjJabmVFaFpUMmhJ
-      UW5oeE0wcFVjWEpST0U5UlkyOUlUbXR0VEdob2VqZGlWRWx5ZEZNM2FXUk1kQzl0UkVWSGJHZE1k
-      VE5KWVdsUUsxWmtSbXRGY1FwdVExWXliSGxJWjJ4YVduTXJTM0F2YzAxd2NsSjFXRzk0TUVGa1RW
-      SkVTR2xPU2pWRE9YVXdlR2x6WldSQlZIVkZaa05aZUZKSVV6TllWMjA0VUZCWUNteHJPV2t4VkVs
-      cWRGRlVPRE53YzBObk9FSkxVRFV5WmxweU0wdG1UWEZVYnk5TkwzUTFVV1V6TXpKQ1RXaDNWblI0
-      Wnpndk16YzNTSHBGUzNGRVdGWUtXbEpRTkRoTVkzVmhjbVpNTmtwUVp5dEtNbnBMUVZBMlZsUkVh
-      RzR3YTBSVE5HWkhVR295Vm14SFp6SklXRGRJTWpGRWJFbzFWa1ZDV1RKbGJVNUdTQW96YW1VNFJV
-      cEdiMGxJWnowS1BWRmpkRkFLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      RWNnZGpFS0NtbFJTVlpCZDFWQldWTmFUMGM0ZG5jMU9FUXJhalZ3VGtGUmFFVnpRUzh2VW1OSFFU
+      TjFLM2RDVFdOYWJTOTNheTlOVVVKRGVua3pRWEZsZG1Jd1NIa0tlRFZtTUZKWVoybHROVkpKTkRs
+      YVVIYzRVak5EZDJGM1l6QTNUa0V5TjJOSFltWkRlbTF5TWpaR00zazNSemRKZG5ReldUUkpURGhs
+      YUhsWmFHUm5SZ3B4YTIwMk5uWkllVWRsTmxnNWVWVmpjblJrUzNOWlFXRjFNWE0wTkhSVU5IQnJh
+      MUpUYWl0VlJ6bHBUbGxWVEdzelUyRlNTMU5ZV0cxdFpVRnhiRXRZQ2tOMFV6a3hUVVpYWWtsS00z
+      ZHlibTF0VFhKUmRXaDRlVUYwTW14TllWUnFkMDU1VDFoalRuQjFWR0pQWVZoSlRIRkROV1YwZFdn
+      elRtZFpkV0ZLVVVFS2NVa3dZV3hNU21obWNsSkpVMlJLTkVNeU5YRk1aa2M0U2tKb1RXMTNRVkUy
+      VlhaM2N6VTJZaXRhZDIxWGEyTllaM28xV1ZwWVNHbERaMjF3V0ZNeFJncG9SbE0xVlU1YWNrYzNP
+      QzlTVGxGVmFHRTBiMkVyTDNsck5WWm5UVlZsYkVSV1EwaHhSMFk1YVdkWlVtdENiVk5UZFROc1RW
+      cFZZbU53Wms5eU5DdE9DbUZxVTJoSGRXaHdhMjlzTTFOSFNVWTFaVVZLYW5CWGFURlJSak52UTFS
+      UWVtMXVjM0p1TTNWWlpYTmtObWhCU1RGcFpIVnJVVGg1UW1sbk1EaExiR2NLU1hnNGMwaE9UeXQ0
+      TUhWcVJrRlVWalpDV2pCUU9HOUViREpHTjFCSlkwSkxWMnRsWldGM1pGaGFNWEpNVFRVNGVESnJa
+      V1J3VG14WldIaG1aems0VEFwRVlrZHJSVUpDVFd4MU1uUjJia2w2V0RsamNqUnVNVXRKZEZsTFpr
+      ZGhUbkpUYkZsWVJ6bG5TbG92YUZsTUt6ZHhPRk5TU2tsb1FUSkZkRTF4Y1VndkNteFVWVUpYZDBO
+      aVRuSnJjM1pGTWk5WE1VTnRTWHBOVDNsRVZuSTVibkZLTDFVclVYQnFWMU5HY2tWb1JHZEpOazFs
+      WWtOblR6SnVXVmxVTnpoM1MwZ0tSVWs1T1doblF5OHJOSGRYZFVkeVFVSmtlbnBLWm14YVpXZHRO
+      RTVaSzBOTFNHOXVUa28yYmxKaVYxUlhaMDV5TjFrM2VVcGhiVVZRUTFsd1FYTnlSZ3BpTTJveU1G
+      cEhWblp3TkQwS1BUaDBjbkFLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
       PQ==
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -900,7 +900,7 @@ exports[`playbooks generate playbook with localhost flag and reboot 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
       args:
         warn: false
 
@@ -976,33 +976,33 @@ exports[`playbooks generate playbook with many hosts 1`] = `
 - name: update vulnerable packages
   hosts: \\"84762eb3-0bbb-4bd8-ab11-f420c50e9000.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9001.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9002.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9003.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9004.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9005.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9006.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9007.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9008.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9009.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9010.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9011.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9012.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9013.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9014.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9015.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9016.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9017.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9018.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9019.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9020.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9021.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9022.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9023.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9024.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9025.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9026.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9027.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9028.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9029.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9030.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9031.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9032.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9033.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9034.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9035.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9036.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9037.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9038.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9039.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9040.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9041.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9042.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9043.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9044.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9045.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9046.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9047.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9048.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9049.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9050.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9051.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9052.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9053.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9054.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9055.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9056.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9057.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9058.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9059.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9060.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9061.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9062.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9063.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9064.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9065.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9066.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9067.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9068.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9069.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9070.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9071.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9072.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9073.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9074.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9075.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9076.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9077.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9078.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9079.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9080.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9081.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9082.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9083.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9084.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9085.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9086.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9087.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9088.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9089.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9090.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9091.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9092.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9093.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9094.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9095.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9096.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9097.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9098.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9099.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9100.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9101.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9102.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9103.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9104.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9105.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9106.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9107.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9108.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9109.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9110.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9111.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9112.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9113.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9114.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9115.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9116.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9117.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9118.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9119.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9120.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9121.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9122.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9123.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9124.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9125.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9126.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9127.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9128.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9129.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9130.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9131.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9132.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9133.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9134.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9135.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9136.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9137.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9138.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9139.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9140.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9141.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9142.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9143.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9144.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9145.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9146.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9147.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9148.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9149.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9150.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9151.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9152.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9153.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9154.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9155.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9156.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9157.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9158.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9159.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9160.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9161.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9162.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9163.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9164.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9165.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9166.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9167.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9168.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9169.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9170.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9171.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9172.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9173.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9174.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9175.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9176.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9177.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9178.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9179.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9180.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9181.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9182.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9183.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9184.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9185.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9186.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9187.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9188.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9189.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9190.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9191.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9192.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9193.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9194.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9195.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9196.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9197.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9198.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9199.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9200.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9201.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9202.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9203.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9204.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9205.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9206.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9207.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9208.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9209.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9210.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9211.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9212.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9213.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9214.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9215.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9216.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9217.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9218.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9219.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9220.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9221.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9222.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9223.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9224.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9225.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9226.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9227.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9228.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9229.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9230.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9231.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9232.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9233.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9234.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9235.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9236.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9237.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9238.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9239.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9240.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9241.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9242.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9243.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9244.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9245.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9246.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9247.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9248.example.com,84762eb3-0bbb-4bd8-ab11-f420c50e9249.example.com\\"
   vars:
-    insights_issues: \\"CVE-2017-5715\\"
+    insights_issues: \\"--cve CVE-2017-5715\\"
     insights_signature_exclude: /hosts,/vars/insights_signature,/vars/insights_issues
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
-      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBTR2ROZG5jMU9FUXJhalZ3VGtGUmFqUnNRUzh2WlVKc1JH
-      Sk1Rbk5JT0UxRFFuZEpkSEZMZW1SclduaDVNa2xCZW0xNlYyc0tLMHN3YmpBeWVIUnlWR2RwZG5B
-      dlp6TTFXVVpQYjI5UVdqQTRka2xtWVdGVVZEVm5OVWRGZUhsRlVWVXJTMVZPVlVsUVRsUmxlVWxh
-      WTJ3cmRuVkhWZ28zTTIxUldVUmlibE5qUkhKdVJFeE5kMUI0SzI0ME1WcGtRbkUzUml0TE5XbFJO
-      bE5QTm5BNE5sUkJSbE5aVTFwYWVWUjJXVTl2UVZWRWNGQlFVWFpzQ2pWVVJWUnhOeTg1WWs1cFdY
-      RTBRVTV4YzFwbU1GSXlUV3RRT0c5VVRVNVpVVTQ0VFRSMlNsUmFPR1JuUVRsa0sxUnFZbVZ0YmxS
-      cmNEVk5VRXQwVWtzS01UWnFVMmg2ZW0xWFJFRjJSa1ZJVFc1U01FWTNla0pUU1c0emJYTkphRzVN
-      YVdjelFqQkxSM1pyYWtaaGRUWldSa01yWkU5blZUbFBZakY2UkhOVlJRcHZRbWgwYXpkek1YQllU
-      VWhOVW5wUVZHcDRiV3RQTDIxd09ISXhhMnhGZHpNMU5qUnNkMk52YmtKamJHOUVhbXRyWm5OalR6
-      Y3lORGhHZVRJMFYxTmFDalJ1VFRCelYyVnpWRGxJUTFSelpITnRhVkV2WkhoQ01WQllkMlJFZHpC
-      RFVuWnNRblpWUjNadWFHOXRNWEJCUTBveFFXbE5PRFI2VW1ZMU4zbHZWVzhLUjJabmVFaFpUMmhJ
-      UW5oeE0wcFVjWEpST0U5UlkyOUlUbXR0VEdob2VqZGlWRWx5ZEZNM2FXUk1kQzl0UkVWSGJHZE1k
-      VE5KWVdsUUsxWmtSbXRGY1FwdVExWXliSGxJWjJ4YVduTXJTM0F2YzAxd2NsSjFXRzk0TUVGa1RW
-      SkVTR2xPU2pWRE9YVXdlR2x6WldSQlZIVkZaa05aZUZKSVV6TllWMjA0VUZCWUNteHJPV2t4VkVs
-      cWRGRlVPRE53YzBObk9FSkxVRFV5WmxweU0wdG1UWEZVYnk5TkwzUTFVV1V6TXpKQ1RXaDNWblI0
-      Wnpndk16YzNTSHBGUzNGRVdGWUtXbEpRTkRoTVkzVmhjbVpNTmtwUVp5dEtNbnBMUVZBMlZsUkVh
-      RzR3YTBSVE5HWkhVR295Vm14SFp6SklXRGRJTWpGRWJFbzFWa1ZDV1RKbGJVNUdTQW96YW1VNFJV
-      cEdiMGxJWnowS1BWRmpkRkFLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      RWNnZGpFS0NtbFJTVlpCZDFWQldWTmFUMGM0ZG5jMU9FUXJhalZ3VGtGUmFFVnpRUzh2VW1OSFFU
+      TjFLM2RDVFdOYWJTOTNheTlOVVVKRGVua3pRWEZsZG1Jd1NIa0tlRFZtTUZKWVoybHROVkpKTkRs
+      YVVIYzRVak5EZDJGM1l6QTNUa0V5TjJOSFltWkRlbTF5TWpaR00zazNSemRKZG5ReldUUkpURGhs
+      YUhsWmFHUm5SZ3B4YTIwMk5uWkllVWRsTmxnNWVWVmpjblJrUzNOWlFXRjFNWE0wTkhSVU5IQnJh
+      MUpUYWl0VlJ6bHBUbGxWVEdzelUyRlNTMU5ZV0cxdFpVRnhiRXRZQ2tOMFV6a3hUVVpYWWtsS00z
+      ZHlibTF0VFhKUmRXaDRlVUYwTW14TllWUnFkMDU1VDFoalRuQjFWR0pQWVZoSlRIRkROV1YwZFdn
+      elRtZFpkV0ZLVVVFS2NVa3dZV3hNU21obWNsSkpVMlJLTkVNeU5YRk1aa2M0U2tKb1RXMTNRVkUy
+      VlhaM2N6VTJZaXRhZDIxWGEyTllaM28xV1ZwWVNHbERaMjF3V0ZNeFJncG9SbE0xVlU1YWNrYzNP
+      QzlTVGxGVmFHRTBiMkVyTDNsck5WWm5UVlZsYkVSV1EwaHhSMFk1YVdkWlVtdENiVk5UZFROc1RW
+      cFZZbU53Wms5eU5DdE9DbUZxVTJoSGRXaHdhMjlzTTFOSFNVWTFaVVZLYW5CWGFURlJSak52UTFS
+      UWVtMXVjM0p1TTNWWlpYTmtObWhCU1RGcFpIVnJVVGg1UW1sbk1EaExiR2NLU1hnNGMwaE9UeXQ0
+      TUhWcVJrRlVWalpDV2pCUU9HOUViREpHTjFCSlkwSkxWMnRsWldGM1pGaGFNWEpNVFRVNGVESnJa
+      V1J3VG14WldIaG1aems0VEFwRVlrZHJSVUpDVFd4MU1uUjJia2w2V0RsamNqUnVNVXRKZEZsTFpr
+      ZGhUbkpUYkZsWVJ6bG5TbG92YUZsTUt6ZHhPRk5TU2tsb1FUSkZkRTF4Y1VndkNteFVWVUpYZDBO
+      aVRuSnJjM1pGTWk5WE1VTnRTWHBOVDNsRVZuSTVibkZLTDFVclVYQnFWMU5HY2tWb1JHZEpOazFs
+      WWtOblR6SnVXVmxVTnpoM1MwZ0tSVWs1T1doblF5OHJOSGRYZFVkeVFVSmtlbnBLWm14YVpXZHRO
+      RTVaSzBOTFNHOXVUa28yYmxKaVYxUlhaMDV5TjFrM2VVcGhiVVZRUTFsd1FYTnlSZ3BpTTJveU1G
+      cEhWblp3TkQwS1BUaDBjbkFLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
       PQ==
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -1011,7 +1011,7 @@ exports[`playbooks generate playbook with many hosts 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
       args:
         warn: false
 
@@ -1298,33 +1298,33 @@ exports[`playbooks generate playbook with pydata and playbook support 1`] = `
 - name: update vulnerable packages
   hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
   vars:
-    insights_issues: \\"CVE-2017-5715\\"
+    insights_issues: \\"--cve CVE-2017-5715\\"
     insights_signature_exclude: /hosts,/vars/insights_signature,/vars/insights_issues
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
-      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBTR2ROZG5jMU9FUXJhalZ3VGtGUmFqUnNRUzh2WlVKc1JH
-      Sk1Rbk5JT0UxRFFuZEpkSEZMZW1SclduaDVNa2xCZW0xNlYyc0tLMHN3YmpBeWVIUnlWR2RwZG5B
-      dlp6TTFXVVpQYjI5UVdqQTRka2xtWVdGVVZEVm5OVWRGZUhsRlVWVXJTMVZPVlVsUVRsUmxlVWxh
-      WTJ3cmRuVkhWZ28zTTIxUldVUmlibE5qUkhKdVJFeE5kMUI0SzI0ME1WcGtRbkUzUml0TE5XbFJO
-      bE5QTm5BNE5sUkJSbE5aVTFwYWVWUjJXVTl2UVZWRWNGQlFVWFpzQ2pWVVJWUnhOeTg1WWs1cFdY
-      RTBRVTV4YzFwbU1GSXlUV3RRT0c5VVRVNVpVVTQ0VFRSMlNsUmFPR1JuUVRsa0sxUnFZbVZ0YmxS
-      cmNEVk5VRXQwVWtzS01UWnFVMmg2ZW0xWFJFRjJSa1ZJVFc1U01FWTNla0pUU1c0emJYTkphRzVN
-      YVdjelFqQkxSM1pyYWtaaGRUWldSa01yWkU5blZUbFBZakY2UkhOVlJRcHZRbWgwYXpkek1YQllU
-      VWhOVW5wUVZHcDRiV3RQTDIxd09ISXhhMnhGZHpNMU5qUnNkMk52YmtKamJHOUVhbXRyWm5OalR6
-      Y3lORGhHZVRJMFYxTmFDalJ1VFRCelYyVnpWRGxJUTFSelpITnRhVkV2WkhoQ01WQllkMlJFZHpC
-      RFVuWnNRblpWUjNadWFHOXRNWEJCUTBveFFXbE5PRFI2VW1ZMU4zbHZWVzhLUjJabmVFaFpUMmhJ
-      UW5oeE0wcFVjWEpST0U5UlkyOUlUbXR0VEdob2VqZGlWRWx5ZEZNM2FXUk1kQzl0UkVWSGJHZE1k
-      VE5KWVdsUUsxWmtSbXRGY1FwdVExWXliSGxJWjJ4YVduTXJTM0F2YzAxd2NsSjFXRzk0TUVGa1RW
-      SkVTR2xPU2pWRE9YVXdlR2x6WldSQlZIVkZaa05aZUZKSVV6TllWMjA0VUZCWUNteHJPV2t4VkVs
-      cWRGRlVPRE53YzBObk9FSkxVRFV5WmxweU0wdG1UWEZVYnk5TkwzUTFVV1V6TXpKQ1RXaDNWblI0
-      Wnpndk16YzNTSHBGUzNGRVdGWUtXbEpRTkRoTVkzVmhjbVpNTmtwUVp5dEtNbnBMUVZBMlZsUkVh
-      RzR3YTBSVE5HWkhVR295Vm14SFp6SklXRGRJTWpGRWJFbzFWa1ZDV1RKbGJVNUdTQW96YW1VNFJV
-      cEdiMGxJWnowS1BWRmpkRkFLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      RWNnZGpFS0NtbFJTVlpCZDFWQldWTmFUMGM0ZG5jMU9FUXJhalZ3VGtGUmFFVnpRUzh2VW1OSFFU
+      TjFLM2RDVFdOYWJTOTNheTlOVVVKRGVua3pRWEZsZG1Jd1NIa0tlRFZtTUZKWVoybHROVkpKTkRs
+      YVVIYzRVak5EZDJGM1l6QTNUa0V5TjJOSFltWkRlbTF5TWpaR00zazNSemRKZG5ReldUUkpURGhs
+      YUhsWmFHUm5SZ3B4YTIwMk5uWkllVWRsTmxnNWVWVmpjblJrUzNOWlFXRjFNWE0wTkhSVU5IQnJh
+      MUpUYWl0VlJ6bHBUbGxWVEdzelUyRlNTMU5ZV0cxdFpVRnhiRXRZQ2tOMFV6a3hUVVpYWWtsS00z
+      ZHlibTF0VFhKUmRXaDRlVUYwTW14TllWUnFkMDU1VDFoalRuQjFWR0pQWVZoSlRIRkROV1YwZFdn
+      elRtZFpkV0ZLVVVFS2NVa3dZV3hNU21obWNsSkpVMlJLTkVNeU5YRk1aa2M0U2tKb1RXMTNRVkUy
+      VlhaM2N6VTJZaXRhZDIxWGEyTllaM28xV1ZwWVNHbERaMjF3V0ZNeFJncG9SbE0xVlU1YWNrYzNP
+      QzlTVGxGVmFHRTBiMkVyTDNsck5WWm5UVlZsYkVSV1EwaHhSMFk1YVdkWlVtdENiVk5UZFROc1RW
+      cFZZbU53Wms5eU5DdE9DbUZxVTJoSGRXaHdhMjlzTTFOSFNVWTFaVVZLYW5CWGFURlJSak52UTFS
+      UWVtMXVjM0p1TTNWWlpYTmtObWhCU1RGcFpIVnJVVGg1UW1sbk1EaExiR2NLU1hnNGMwaE9UeXQ0
+      TUhWcVJrRlVWalpDV2pCUU9HOUViREpHTjFCSlkwSkxWMnRsWldGM1pGaGFNWEpNVFRVNGVESnJa
+      V1J3VG14WldIaG1aems0VEFwRVlrZHJSVUpDVFd4MU1uUjJia2w2V0RsamNqUnVNVXRKZEZsTFpr
+      ZGhUbkpUYkZsWVJ6bG5TbG92YUZsTUt6ZHhPRk5TU2tsb1FUSkZkRTF4Y1VndkNteFVWVUpYZDBO
+      aVRuSnJjM1pGTWk5WE1VTnRTWHBOVDNsRVZuSTVibkZLTDFVclVYQnFWMU5HY2tWb1JHZEpOazFs
+      WWtOblR6SnVXVmxVTnpoM1MwZ0tSVWs1T1doblF5OHJOSGRYZFVkeVFVSmtlbnBLWm14YVpXZHRO
+      RTVaSzBOTFNHOXVUa28yYmxKaVYxUlhaMDV5TjFrM2VVcGhiVVZRUTFsd1FYTnlSZ3BpTTJveU1G
+      cEhWblp3TkQwS1BUaDBjbkFLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
       PQ==
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -1333,7 +1333,7 @@ exports[`playbooks generate playbook with pydata and playbook support 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
       args:
         warn: false
 
@@ -1374,33 +1374,33 @@ exports[`playbooks generate playbook with pydata and playbook support 1`] = `
 - name: update packages
   hosts: \\"fc94beb8-21ee-403d-99b1-949ef7adb762\\"
   vars:
-    insights_issues: \\"RHSA-2018:0502\\"
+    insights_issues: \\"--advisory RHSA-2018:0502\\"
     insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
-      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRWGh6ZG5jMU9FUXJhalZ3VGtGUlp5OUxRa0ZCYTNacE9V
-      Tm9VaTlTWmtaV0syVjFZVmxsUVhCc1pVOXFTMDVwTldVeFJqTUtSRkpNTkhjMUwyRkdOR1pRVDJw
-      UmRtbzBPVnB0Wmt4d1FrRlpjVWh4WTNjMFZIcHJha2RqY0dGUWNVMDBiVE5vWTIxSFJTdEJhbmhN
-      TUhwcWRXVktTZ293YTJoVVNHTnFXbFprUW1WSVMzVjBOVXRRZFRoUVJIRm1jREU0UlVoUFQzcHNZ
-      MjF3ZVdsblR6WkxZbU5UVjFaTmVVTjZkR0l3UzBGTFFqWktibmw2Q25GWWFUbDJkWEZ6WWt0dE5s
-      cHZSa3hSTlVWQ1pqRmhZVlo2V1ZsdVFrMXNlVFp4ZFZOelpEZEVia2xLYm0weGVreE1iV1EwUzFw
-      QmJWcGFkMVFyZFdVS1JrNHhRMDUwZGpaRk9GWTNTM2sxZDFVeFdYRnVRWGh4YW5FNGRrSlZiVE5R
-      YURKcVVEZERhRE5MWTFkYU1IZDNTMk1yWldRME4yeE5XVTUyUkhnMU9BcFllV1JLWWxkaVdTdFha
-      bGRzTTJWcU9ERTRlVzgzVUdKNU4xQlZTMGg2Tm1obGJrRllhakZZZHpKbWJFVXdja1V6SzBGSFlW
-      TmFWMmRVYzNaYWFuTnJDa2hUVkdWamF6TXlhMkUzZWsxa2FEZHhSRkJ0VTNGQlkwOXRRWFZSZWxC
-      VEt6UmlkbWtyUWxaRVZEaFlaSGhRVHpBMlpTdDNVV3BRY0VSWFRFaE1NMVFLUTFGeFJUVkNiVkpx
-      VGxGRFVHODJNMlJVTUVwcU1USnFXa2xpY1VabVVIZHBiMWxhVTA5cVNuQmlNVmt4VWpSWFFXOXdT
-      VGhzZDBjMVJrZEZaRTV2TVFvd2VFaHBkVkoyTjFjck0weFBRa3hCUldwM2QwdG9PRkE0VDI5UWVq
-      SnlSMFpKY2pCSlUyeFROR0oyYkM5SmRuaDZTR2xFT1ZWMldUTjFZVk5uWVZoWkNsZzNSbkpxUW1a
-      TFEzSlhRbFZTUm1oVEwyOXZhMlJRUVdWb1NsVlpZWHBsYlZRck1XNHJVM2h3YTFCMmFWQnRiRVJy
-      ZDB0c2NIYzBlbTFtTms0NFZDc0tNbEVyZEdSR1pqRXlPWFJJVTJoMU1IaFhkVmhsTmpCc0wyZEdZ
-      aTlpZUZaQlNrVnVabmxQY2xaa1kxUXpTMVJVVUhRdk5qSnhSWEl3T0VWamJXTkpWQXBGWnpWME5u
-      YzRTbVp4TkQwS1BWaEJhME1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      RWNnZGpFS0NtbFJTVlpCZDFWQldWTjZVM2R6ZG5jMU9FUXJhalZ3VGtGUmFsUTFVUzh2Vm1ZNVRE
+      WnZPSFJsV1ZkWFIwZHZWVE5ITWxnNGRVVkRPR3R0VEZSTGVXUUtXamRzU0ZKd2JEQmpPRlZ2U0U1
+      Rk1Hd3pWMU5XVGxSb2N6WkdSRFZHV1dobk5VWllUa1F3UW5GbU1YUXdiVWhXWkU1QmIyRmhhazVv
+      YWtjeVJsZGhTQW95YjBOUVpsVjFXa2wyVm5kWGFqQlJla294VG5SNFJUUklibnBvTm5wQ1ZsWkRi
+      VGwxU1ROTVFXcHpRM2R2Y1dFeVNrUk5WRlpJZHpsRVRqZ3ZPR0paQ2xWc1F5dFlia3N4VnpSNk1s
+      TXZTbXdyY21GWldtMTVhbEpFZUZwUlExTjBZWGxCY21KRk9EbHhNSFp2YnpKaVFrNVJXRUZKYWxG
+      clkxaHdNemR2UXpFS1MzZzVaMk51UjFZek5ucHRZakpJYTJKUWRGaEtja1Z5V1VKck9HUXpOVlF6
+      V0dSTmJqVjFOVXQyVlVselVVbHdZbGhZUmxSME1rWnRSSEpEYVhCa1JncERNVnBJYzFwRmRsbFpS
+      MDFKWldGeFFXOW5TRXBLYW10RWMzUmpNek5hUW5sYU4wcEZWa1U1TmtWaVMxaHVhbWt3Wm13emNG
+      aDRkblpvYkVoVlJ6VjRDbTl3ZVZkVk5rUkRNSFJVUjNoNFJXNHhWVzlrZUZab1NEUmhiVW8xZFRk
+      SEwzZFBkMjlTUzBwU2JtTjRkamxhYjFoUk1XRm5aREJhT1RWbWN6TkJZVTRLYlZGR1EwUlNNSEJW
+      YmtaNk1XTkxPV3hoWjBRMFIxRlBlRVpZZDJwc2RYbFdPVFpvY21OUlExSkJWbTFUVTA5TEwxZHJU
+      Rmh1YVdWd1pGRmhiRXRLVlFwNlExYzVlV3hsUmxkUk5UQTBNMWxOZWsxb2JHMUxkMHRsWVhOUVdE
+      WTJSMnRSWnpNNGFqQlZVQ3MxTjNOaE1VUnZPRE5GZGxsRWFUbERhVFp4Tlhsc0NtbFpSVmRoU2tS
+      V1VUSXhNMUJyVTFKbVZrWnhXSGg0VlVSUFRHZFRUbVpWYUdSb01VOXRNR2hWWkd4S0syNVhVbkY0
+      YjNKNk1VNVhPWFkyUjJoalpVa0tWMWc0T0dkWlUxRkNTVTE2UkVFd1JYTXhWQ3RIVVd0YWFDOHhj
+      bkZRVW5aTVluZGtjSGQ1UVZwRWMwUjNhVlpDWkRCc1RWWlhlVmxaTUdKdmVuSTBNQXBzVFZKUVlq
+      bFNiVmRSY3owS1BXRXdPRW9LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
       PQ==
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -1409,7 +1409,7 @@ exports[`playbooks generate playbook with pydata and playbook support 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
       args:
         warn: false
 
@@ -1947,33 +1947,33 @@ exports[`playbooks missing get remediation with unknown resolution 1`] = `
 - name: update vulnerable packages
   hosts: \\"1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com\\"
   vars:
-    insights_issues: \\"CVE-2017-5715\\"
+    insights_issues: \\"--cve CVE-2017-5715\\"
     insights_signature_exclude: /hosts,/vars/insights_signature,/vars/insights_issues
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
-      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBTR2ROZG5jMU9FUXJhalZ3VGtGUmFqUnNRUzh2WlVKc1JH
-      Sk1Rbk5JT0UxRFFuZEpkSEZMZW1SclduaDVNa2xCZW0xNlYyc0tLMHN3YmpBeWVIUnlWR2RwZG5B
-      dlp6TTFXVVpQYjI5UVdqQTRka2xtWVdGVVZEVm5OVWRGZUhsRlVWVXJTMVZPVlVsUVRsUmxlVWxh
-      WTJ3cmRuVkhWZ28zTTIxUldVUmlibE5qUkhKdVJFeE5kMUI0SzI0ME1WcGtRbkUzUml0TE5XbFJO
-      bE5QTm5BNE5sUkJSbE5aVTFwYWVWUjJXVTl2UVZWRWNGQlFVWFpzQ2pWVVJWUnhOeTg1WWs1cFdY
-      RTBRVTV4YzFwbU1GSXlUV3RRT0c5VVRVNVpVVTQ0VFRSMlNsUmFPR1JuUVRsa0sxUnFZbVZ0YmxS
-      cmNEVk5VRXQwVWtzS01UWnFVMmg2ZW0xWFJFRjJSa1ZJVFc1U01FWTNla0pUU1c0emJYTkphRzVN
-      YVdjelFqQkxSM1pyYWtaaGRUWldSa01yWkU5blZUbFBZakY2UkhOVlJRcHZRbWgwYXpkek1YQllU
-      VWhOVW5wUVZHcDRiV3RQTDIxd09ISXhhMnhGZHpNMU5qUnNkMk52YmtKamJHOUVhbXRyWm5OalR6
-      Y3lORGhHZVRJMFYxTmFDalJ1VFRCelYyVnpWRGxJUTFSelpITnRhVkV2WkhoQ01WQllkMlJFZHpC
-      RFVuWnNRblpWUjNadWFHOXRNWEJCUTBveFFXbE5PRFI2VW1ZMU4zbHZWVzhLUjJabmVFaFpUMmhJ
-      UW5oeE0wcFVjWEpST0U5UlkyOUlUbXR0VEdob2VqZGlWRWx5ZEZNM2FXUk1kQzl0UkVWSGJHZE1k
-      VE5KWVdsUUsxWmtSbXRGY1FwdVExWXliSGxJWjJ4YVduTXJTM0F2YzAxd2NsSjFXRzk0TUVGa1RW
-      SkVTR2xPU2pWRE9YVXdlR2x6WldSQlZIVkZaa05aZUZKSVV6TllWMjA0VUZCWUNteHJPV2t4VkVs
-      cWRGRlVPRE53YzBObk9FSkxVRFV5WmxweU0wdG1UWEZVYnk5TkwzUTFVV1V6TXpKQ1RXaDNWblI0
-      Wnpndk16YzNTSHBGUzNGRVdGWUtXbEpRTkRoTVkzVmhjbVpNTmtwUVp5dEtNbnBMUVZBMlZsUkVh
-      RzR3YTBSVE5HWkhVR295Vm14SFp6SklXRGRJTWpGRWJFbzFWa1ZDV1RKbGJVNUdTQW96YW1VNFJV
-      cEdiMGxJWnowS1BWRmpkRkFLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      RWNnZGpFS0NtbFJTVlpCZDFWQldWTmFUMGM0ZG5jMU9FUXJhalZ3VGtGUmFFVnpRUzh2VW1OSFFU
+      TjFLM2RDVFdOYWJTOTNheTlOVVVKRGVua3pRWEZsZG1Jd1NIa0tlRFZtTUZKWVoybHROVkpKTkRs
+      YVVIYzRVak5EZDJGM1l6QTNUa0V5TjJOSFltWkRlbTF5TWpaR00zazNSemRKZG5ReldUUkpURGhs
+      YUhsWmFHUm5SZ3B4YTIwMk5uWkllVWRsTmxnNWVWVmpjblJrUzNOWlFXRjFNWE0wTkhSVU5IQnJh
+      MUpUYWl0VlJ6bHBUbGxWVEdzelUyRlNTMU5ZV0cxdFpVRnhiRXRZQ2tOMFV6a3hUVVpYWWtsS00z
+      ZHlibTF0VFhKUmRXaDRlVUYwTW14TllWUnFkMDU1VDFoalRuQjFWR0pQWVZoSlRIRkROV1YwZFdn
+      elRtZFpkV0ZLVVVFS2NVa3dZV3hNU21obWNsSkpVMlJLTkVNeU5YRk1aa2M0U2tKb1RXMTNRVkUy
+      VlhaM2N6VTJZaXRhZDIxWGEyTllaM28xV1ZwWVNHbERaMjF3V0ZNeFJncG9SbE0xVlU1YWNrYzNP
+      QzlTVGxGVmFHRTBiMkVyTDNsck5WWm5UVlZsYkVSV1EwaHhSMFk1YVdkWlVtdENiVk5UZFROc1RW
+      cFZZbU53Wms5eU5DdE9DbUZxVTJoSGRXaHdhMjlzTTFOSFNVWTFaVVZLYW5CWGFURlJSak52UTFS
+      UWVtMXVjM0p1TTNWWlpYTmtObWhCU1RGcFpIVnJVVGg1UW1sbk1EaExiR2NLU1hnNGMwaE9UeXQ0
+      TUhWcVJrRlVWalpDV2pCUU9HOUViREpHTjFCSlkwSkxWMnRsWldGM1pGaGFNWEpNVFRVNGVESnJa
+      V1J3VG14WldIaG1aems0VEFwRVlrZHJSVUpDVFd4MU1uUjJia2w2V0RsamNqUnVNVXRKZEZsTFpr
+      ZGhUbkpUYkZsWVJ6bG5TbG92YUZsTUt6ZHhPRk5TU2tsb1FUSkZkRTF4Y1VndkNteFVWVUpYZDBO
+      aVRuSnJjM1pGTWk5WE1VTnRTWHBOVDNsRVZuSTVibkZLTDFVclVYQnFWMU5HY2tWb1JHZEpOazFs
+      WWtOblR6SnVXVmxVTnpoM1MwZ0tSVWs1T1doblF5OHJOSGRYZFVkeVFVSmtlbnBLWm14YVpXZHRO
+      RTVaSzBOTFNHOXVUa28yYmxKaVYxUlhaMDV5TjFrM2VVcGhiVVZRUTFsd1FYTnlSZ3BpTTJveU1G
+      cEhWblp3TkQwS1BUaDBjbkFLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
       PQ==
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -1982,7 +1982,7 @@ exports[`playbooks missing get remediation with unknown resolution 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
       args:
         warn: false
 
