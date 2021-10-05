@@ -156,6 +156,16 @@ describe('playbooks', function () {
             expect(text).toMatchSnapshot();
         });
 
+        test('playbook with cert-auth and no hosts query param', async () => {
+            mockDate();
+            const {text} = await request
+            .get('/v1/remediations/7d727f9c-7d9e-458d-a128-a9ffae1802ab/playbook?localhost')
+            .set(auth.cert02)
+            .expect(200);
+
+            expect(text).toMatchSnapshot();
+        });
+
         test('playbook for remediation with zero issues does not freak out', async () => {
             const {text} = await request
             .get('/v1/remediations/256ab1d3-58cf-1292-35e6-1a49c8b122d3/playbook')
@@ -236,14 +246,6 @@ describe('playbooks', function () {
             .set(auth.cert02)
             .expect(404);
         });
-
-        test('404 on playbook with cert-auth and no hosts query param', async () => {
-            mockDate();
-            await request
-            .get('/v1/remediations/7d727f9c-7d9e-458d-a128-a9ffae1802ab/playbook?localhost')
-            .set(auth.cert02)
-            .expect(404);
-        });
     });
 
     describe('caching', function () {
@@ -262,10 +264,10 @@ describe('playbooks', function () {
             });
         }
 
-        testCaching('pydata playbook', '66eec356-dd06-4c72-a3b6-ef27d1508a02', 'W/"4957-WqhV2Grf+ruldvFPYv4xuvwCzB8"');
-        testCaching('no reboot playbook', 'e809526c-56f5-4cd8-a809-93328436ea23', 'W/"176f-PSAG3Lvhnieg5rF2iFJYRZG8Sc4"');
+        testCaching('pydata playbook', '66eec356-dd06-4c72-a3b6-ef27d1508a02', 'W/"486a-xiHme8oAI3XCthIB0TqH3kstDaQ"');
+        testCaching('no reboot playbook', 'e809526c-56f5-4cd8-a809-93328436ea23', 'W/"1771-rC4jtT7ig9lQT9CBLpMFkH4Eor8"');
         testCaching('playbook with suppressed reboot', '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
-            'W/"1935-QGZet/XPGQdeZpdljid42KFQ+uc"');
+            'W/"1937-gjoSqp1gpVt5Me22Yni745YaNIc"');
 
         test('pydata playbook caching with stale data', async () => {
             await request

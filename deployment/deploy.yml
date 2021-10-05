@@ -101,8 +101,10 @@ objects:
             value: 'false'
           - name: INVENTORY_IMPL
             value: ${INVENTORY_IMPL}
+          - name: INVENTORY_PORT
+            value: ${HOST_INVENTORY_PORT}
           - name: INVENTORY_HOST
-            value: http://${HOST_INVENTORY_HOST}:8080
+            value: http://${HOST_INVENTORY_HOST}:${HOST_INVENTORY_PORT}
           - name: LOG_LEVEL
             value: ${LOG_LEVEL}
           - name: LOG_CW_ENABLED
@@ -146,14 +148,16 @@ objects:
               secretKeyRef:
                 key: key
                 name: psk-playbook-dispatcher
-          - name: PLATFORM_HOSTNAME
-            value: ${PLATFORM_HOSTNAME}
+          - name: PLATFORM_HOSTNAME_URL
+            value: ${PLATFORM_HOSTNAME_URL}
           - name: PATH_PREFIX
             value: ${PATH_PREFIX}
           - name: RBAC_IMPL
             value: ${RBAC_IMPL}
+          - name: RBAC_PORT
+            value: ${RBAC_PORT}
           - name: RBAC_HOST
-            value: http://${RBAC_HOST}:8080
+            value: http://${RBAC_HOST}:${RBAC_PORT}
           - name: RBAC_ENFORCE
             value: ${RBAC_ENFORCE}
           - name: RECEPTOR_IMPL
@@ -290,8 +294,10 @@ objects:
             value: 'false'
           - name: INVENTORY_IMPL
             value: ${INVENTORY_IMPL}
+          - name: INVENTORY_PORT
+            value: ${HOST_INVENTORY_PORT}
           - name: INVENTORY_HOST
-            value: http://${HOST_INVENTORY_HOST}:8080
+            value: http://${HOST_INVENTORY_HOST}:${HOST_INVENTORY_PORT}
           - name: LOG_LEVEL
             value: ${LOG_LEVEL}
           - name: LOG_CW_ENABLED
@@ -335,14 +341,16 @@ objects:
               secretKeyRef:
                 key: key
                 name: psk-playbook-dispatcher
-          - name: PLATFORM_HOSTNAME
-            value: ${PLATFORM_HOSTNAME}
+          - name: PLATFORM_HOSTNAME_URL
+            value: ${PLATFORM_HOSTNAME_URL}
           - name: PATH_PREFIX
             value: ${PATH_PREFIX}
           - name: RBAC_IMPL
             value: ${RBAC_IMPL}
+          - name: RBAC_PORT
+            value: ${RBAC_PORT}
           - name: RBAC_HOST
-            value: http://${RBAC_HOST}:8080
+            value: http://${RBAC_HOST}:${RBAC_PORT}
           - name: RBAC_ENFORCE
             value: ${RBAC_ENFORCE}
           - name: RECEPTOR_IMPL
@@ -460,6 +468,7 @@ parameters:
 - name: CONFIG_MANAGER_HOST
 - name: INVENTORY_IMPL
   value: impl
+- name: HOST_INVENTORY_PORT
 - name: HOST_INVENTORY_HOST
 - name: USERS_IMPL
   value: impl
@@ -467,11 +476,12 @@ parameters:
   value: 'false'
 - name: BACKOFFICE_CLIENT_ENV
   value: ci
+- name: BACKOFFICE_HOST
 - name: SSG_IMPL
   value: impl
 - name: SSG_HOST
 - name: MARKETPLACE_CHECK
-  value: 'false'
+  value: 'true'
 - name: LOG_LEVEL
   value: trace
 - name: LOG_CW_ENABLED
@@ -484,10 +494,11 @@ parameters:
 - name: PLAYBOOK_DISPATCHER_IMPL
   value: impl
 - name: PLAYBOOK_DISPATCHER_HOST
-- name: PLATFORM_HOSTNAME
+- name: PLATFORM_HOSTNAME_URL
 - name: RBAC_IMPL
   value: impl
 - name: RBAC_HOST
+- name: RBAC_PORT
 - name: RBAC_ENFORCE
   value: 'true'
 - name: RECEPTOR_IMPL

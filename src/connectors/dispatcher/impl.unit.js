@@ -36,13 +36,13 @@ describe('dispatcher impl', function () {
     describe('postPlaybookRunRequests', function () {
         test('post run requests', async function () {
             const http = base.getSandbox().stub(request, 'run').resolves({
-                statusCode: 200,
+                statusCode: 207,
                 body: [
                     {
-                        code: 200,
+                        code: 201,
                         id: '7ef23cc6-729f-4f65-8ce7-6f8185c051e9'
                     }, {
-                        code: 200,
+                        code: 201,
                         id: '5907b393-1448-4867-988b-5eed8fc02846'
                     }
                 ],
@@ -53,11 +53,11 @@ describe('dispatcher impl', function () {
             results.should.have.size(2);
 
             const result1 = results[0];
-            result1.should.have.property('code', 200);
+            result1.should.have.property('code', 201);
             result1.should.have.property('id', '7ef23cc6-729f-4f65-8ce7-6f8185c051e9');
 
             const result2 = results[1];
-            result2.should.have.property('code', 200);
+            result2.should.have.property('code', 201);
             result2.should.have.property('id', '5907b393-1448-4867-988b-5eed8fc02846');
 
             http.callCount.should.equal(1);
@@ -209,7 +209,8 @@ describe('dispatcher impl', function () {
                                 status: 'running'
                             },
                             status: 'running',
-                            stdout: 'console log goes here'
+                            stdout: 'console log goes here',
+                            inventory_id: '07adc41a-a6c6-426a-a0d5-c7ba08954153'
                         },
                         {
                             host: '750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4',
@@ -225,7 +226,8 @@ describe('dispatcher impl', function () {
                                 status: 'running'
                             },
                             status: 'running',
-                            stdout: 'console log goes here'
+                            stdout: 'console log goes here',
+                            inventory_id: '17adc41a-a6c6-426a-a0d5-c7ba08954154'
                         }
                     ]
                 },
@@ -239,11 +241,13 @@ describe('dispatcher impl', function () {
             result1.should.have.property('host', '9574cba7-b9ce-4725-b392-e959afd3e69a');
             result1.should.have.property('status', 'running');
             result1.should.have.property('stdout', 'console log goes here');
+            result1.should.have.property('inventory_id', '07adc41a-a6c6-426a-a0d5-c7ba08954153');
 
             const result2 = results.data[1];
             result2.should.have.property('host', '750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4');
             result2.should.have.property('status', 'running');
             result2.should.have.property('stdout', 'console log goes here');
+            result2.should.have.property('inventory_id', '17adc41a-a6c6-426a-a0d5-c7ba08954154');
 
             http.callCount.should.equal(1);
             const options = http.args[0][0];

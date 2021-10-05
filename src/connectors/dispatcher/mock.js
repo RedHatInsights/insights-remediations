@@ -20,7 +20,7 @@ const RUNS = {
         account: 654321,
         recipient: '9574cba7-b9ce-4725-b392-e959afd3e69a',
         correlation_id: '5c9ae28b-1728-4067-b1f3-f4ad992a8296',
-        url: 'https://cloud.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=9574cba7-b9ce-4725-b392-e959afd3e69a&localhost',
+        url: 'https://console.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=9574cba7-b9ce-4725-b392-e959afd3e69a&localhost',
         labels: {
             'playbook-run': '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc'
         },
@@ -34,7 +34,7 @@ const RUNS = {
         account: 654321,
         recipient: '750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4',
         correlation_id: '1b4244aa-2572-4067-bf44-ad4e5bfaafc4',
-        url: 'https://cloud.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4&localhost',
+        url: 'https://console.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4&localhost',
         labels: {
             'playbook-run': '31a70e85-378a-4436-96e9-677cd6fba660'
         },
@@ -53,7 +53,7 @@ const RUNHOSTS = {
             account: 654321,
             recipient: '9574cba7-b9ce-4725-b392-e959afd3e69a',
             correlation_id: '5c9ae28b-1728-4067-b1f3-f4ad992a8296',
-            url: 'https://cloud.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=9574cba7-b9ce-4725-b392-e959afd3e69a&localhost',
+            url: 'https://console.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=9574cba7-b9ce-4725-b392-e959afd3e69a&localhost',
             labels: {
                 'playbook-run': 'ef7a1724-6adc-4370-b88c-bed7cb2d3fd2'
             },
@@ -61,7 +61,8 @@ const RUNHOSTS = {
             status: 'running'
         },
         status: 'running',
-        stdout: 'console log goes here'
+        stdout: 'console log goes here',
+        inventory_id: '07adc41a-a6c6-426a-a0d5-c7ba08954153'
     },
     '9ce94170-34a0-4aa6-976a-9728aa4da7a4': {
         host: 'localhost',
@@ -69,7 +70,7 @@ const RUNHOSTS = {
             id: '9ce94170-34a0-4aa6-976a-9728aa4da7a4',
             account: 654321,
             recipient: '750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4',
-            url: 'https://cloud.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4&localhost',
+            url: 'https://console.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4&localhost',
             labels: {
                 'playbook-run': 'fe7a1724-6adc-4370-b88c-bed7cb2d3fd4'
             },
@@ -77,7 +78,8 @@ const RUNHOSTS = {
             status: 'running'
         },
         status: 'running',
-        stdout: 'console log goes here'
+        stdout: 'console log goes here',
+        inventory_id: '17adc41a-a6c6-426a-a0d5-c7ba08954154'
     }
 };
 

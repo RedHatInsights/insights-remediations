@@ -139,6 +139,9 @@ exports.listPlaybookRuns = errors.async(async function (req, res) {
 
     remediation = await fifi.resolveUsers(req, remediation);
 
+    // Update playbook_run status based on executor status (RHC)
+    await fifi.updatePlaybookRunsStatus(remediation.playbook_runs);
+
     const formated = format.playbookRuns(remediation.playbook_runs, total);
 
     res.status(200).send(formated);
@@ -163,6 +166,9 @@ exports.getRunDetails = errors.async(async function (req, res) {
     remediation.playbook_runs = await fifi.combineRuns(remediation);
 
     remediation = await fifi.resolveUsers(req, remediation);
+
+    // Update playbook_run status based on executor status (RHC)
+    await fifi.updatePlaybookRunsStatus(remediation.playbook_runs);
 
     const formated = format.playbookRunDetails(remediation.playbook_runs);
 

@@ -195,7 +195,8 @@ exports.rhcWorkRequest = function (rhc_client_id, account_number, remediation_id
         recipient: rhc_client_id,
         account: account_number,
         url: buildRHCUrl(remediation_id, system_id),
-        labels: { 'playbook-run': playbook_run_id }
+        labels: { 'playbook-run': playbook_run_id },
+        hosts: [{ansible_host: 'localhost', inventory_id: system_id}]
     };
 };
 

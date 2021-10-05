@@ -22,8 +22,8 @@ const queries = require('./remediations.queries');
 const SATELLITE_NAMESPACE = Object.freeze({namespace: 'satellite'});
 const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_name', 'rhc_client']);
 
-const RUNSFIELDS = Object.freeze({fields: {data: ['id', 'labels', 'status', 'service', 'created_at', 'updated_at']}});
-const RUNHOSTFIELDS = Object.freeze({fields: {data: ['stdout']}});
+const RUNSFIELDS = Object.freeze({fields: {data: ['id', 'labels', 'status', 'service', 'created_at', 'updated_at', 'url']}});
+const RUNHOSTFIELDS = Object.freeze({fields: {data: ['stdout', 'inventory_id']}});
 const RHCSTATUSES = ['timeout', 'failure', 'success', 'running'];
 
 const DIFF_MODE = false;
@@ -35,6 +35,7 @@ const PENDING = 'pending';
 const FAILURE = 'failure';
 const RUNNING = 'running';
 const SUCCESS = 'success';
+const CANCELED = 'canceled';
 const SERVICE = 'remediations';
 
 exports.checkSmartManagement = async function (remediation, smart_management) {
@@ -68,6 +69,33 @@ exports.sortSystems = function (systems, column = 'system_name', asc = true) {
     return _.orderBy(systems, column, (asc) ? 'asc' : 'desc');
 };
 
+function findPlaybookRunStatus (run) {
+    if (_.some(run.executors, executor => executor.status === FAILURE)) {
+        return FAILURE;
+    }
+
+    if (_.some(run.executors, executor => executor.status === CANCELED)) {
+        return CANCELED;
+    }
+
+    if (_.every(run.executors, executor => executor.status === PENDING)) {
+        return PENDING;
+    }
+
+    if (_.every(run.executors, executor => executor.status === SUCCESS)) {
+        return SUCCESS;
+    }
+
+    return RUNNING;
+}
+
+// TODO: Replace this logic with logic in the remediations-consumer
+exports.updatePlaybookRunsStatus = function (playbook_runs) {
+    _.forEach(playbook_runs, run => {
+        run.status = findPlaybookRunStatus(run);
+    });
+};
+
 function createDispatcherRunsFilter (playbook_run_id = null) {
     // Based on the qs library used in dispatcher connector, define filter in this format
     const runsFilter = {filter: {}};
@@ -97,7 +125,7 @@ function findRunStatus (run) {
         return FAILURE;
     } else if (run.count_running > 0 && run.count_timeout === 0 && run.count_failure === 0) {
         return RUNNING;
-    } else if (run.success > 0 && run.timeout === 0) {
+    } else if (run.count_success > 0 && run.count_timeout === 0) {
         return SUCCESS;
     }
 }
@@ -128,7 +156,7 @@ exports.formatRunHosts = function (rhcRunHosts, playbook_run_id) {
 function formatRHCHostDetails (host, details, playbook_run_id) {
     return {
         system_id: host.id,
-        system_name: host.id,
+        system_name: details.data[0].inventory_id,
         status: host.status,
         updated_at: host.updated_at,
         console: details.data[0].stdout,
@@ -242,21 +270,24 @@ function defineRHCEnabledExecutor (satellites, smart_management, rhc_enabled) {
     const satlessExecutor = _.find(satellites, satellite => satellite.id === null);
     if (satlessExecutor) {
         const partitionedSystems = sortRHCSystems(satlessExecutor, smart_management);
+        _.remove(satellites, executor => executor === satlessExecutor); // Remove redundant satless executor
 
         if (!_.isEmpty(partitionedSystems[0])) {
             satellites.push({id: null, systems: partitionedSystems[0], type: 'RHC', rhcStatus: (rhc_enabled) ? CONNECTED : DISABLED});
         }
 
-        satlessExecutor.systems = partitionedSystems[1];
-
         if (!smart_management) {
-            satlessExecutor.systems = _.filter(partitionedSystems[1], system => !_.isUndefined(system.rhc_client) && !system.marketplace);
-            const noSmartManagement = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client) && !system.marketplace);
+            const noSmartManagement = _.filter(partitionedSystems[1], system => !system.marketplace);
             if (!_.isEmpty(noSmartManagement)) {
                 satellites.push({id: null, systems: noSmartManagement, type: 'RHC', rhcStatus: 'no_smart_management'});
             }
 
             const rhcNotConfigured = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client) && system.marketplace);
+            if (!_.isEmpty(rhcNotConfigured)) {
+                satellites.push({id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'});
+            }
+        } else {
+            const rhcNotConfigured = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client));
             if (!_.isEmpty(rhcNotConfigured)) {
                 satellites.push({id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'});
             }
@@ -352,13 +383,17 @@ async function fetchReceptorStatus (receptor, account) {
     return _.get(result, 'status', null);
 }
 
-function getName (executor) {
+function getName (executor, smart_management) {
     if (executor.source) {
         return executor.source.name;
     }
 
     if (executor.id) {
         return `Satellite ${executor.id}`;
+    }
+
+    if (!smart_management && executor.rhcStatus !== 'no_smart_management') {
+        return 'Direct connection - AWS Marketplace';
     }
 
     return null;
@@ -378,7 +413,7 @@ function getStatus (executor, smart_management) {
             return 'no_receptor';
         }
 
-        if (executor.receptorStatus !== 'connected') {
+        if (executor.receptorStatus !== CONNECTED) {
             return 'disconnected';
         }
     } else if (executor.type === 'RHC') {
@@ -420,7 +455,7 @@ function normalize (satellites, smart_management) {
         endpointId: _.get(satellite.receptor, 'id', null),
         systems: _.map(satellite.systems, system => _.pick(system, SYSTEM_FIELDS)),
         type: satellite.type,
-        name: getName(satellite),
+        name: getName(satellite, smart_management),
         status: getStatus(satellite, smart_management)
     }));
 }
