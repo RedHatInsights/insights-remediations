@@ -18,12 +18,33 @@ exports[`aggregates multiple errata into a single play 1`] = `
 - name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   vars:
-    insights_issues: \\"RHSA-2017:1382 --advisory RHSA-2017:1852 --advisory RHSA-2017:2679 --advisory RHSA-2018:0502\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
+    insights_issues: \\"--advisory RHSA-2017:1382 --advisory RHSA-2017:1852 --advisory RHSA-2017:2679 --advisory RHSA-2018:0502\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues\\"
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldWTjZVM2R6ZG5jMU9FUXJhalZ3VGtGUmFsUTFVUzh2Vm1ZNVRE
+      WnZPSFJsV1ZkWFIwZHZWVE5ITWxnNGRVVkRPR3R0VEZSTGVXUUtXamRzU0ZKd2JEQmpPRlZ2U0U1
+      Rk1Hd3pWMU5XVGxSb2N6WkdSRFZHV1dobk5VWllUa1F3UW5GbU1YUXdiVWhXWkU1QmIyRmhhazVv
+      YWtjeVJsZGhTQW95YjBOUVpsVjFXa2wyVm5kWGFqQlJla294VG5SNFJUUklibnBvTm5wQ1ZsWkRi
+      VGwxU1ROTVFXcHpRM2R2Y1dFeVNrUk5WRlpJZHpsRVRqZ3ZPR0paQ2xWc1F5dFlia3N4VnpSNk1s
+      TXZTbXdyY21GWldtMTVhbEpFZUZwUlExTjBZWGxCY21KRk9EbHhNSFp2YnpKaVFrNVJXRUZKYWxG
+      clkxaHdNemR2UXpFS1MzZzVaMk51UjFZek5ucHRZakpJYTJKUWRGaEtja1Z5V1VKck9HUXpOVlF6
+      V0dSTmJqVjFOVXQyVlVselVVbHdZbGhZUmxSME1rWnRSSEpEYVhCa1JncERNVnBJYzFwRmRsbFpS
+      MDFKWldGeFFXOW5TRXBLYW10RWMzUmpNek5hUW5sYU4wcEZWa1U1TmtWaVMxaHVhbWt3Wm13emNG
+      aDRkblpvYkVoVlJ6VjRDbTl3ZVZkVk5rUkRNSFJVUjNoNFJXNHhWVzlrZUZab1NEUmhiVW8xZFRk
+      SEwzZFBkMjlTUzBwU2JtTjRkamxhYjFoUk1XRm5aREJhT1RWbWN6TkJZVTRLYlZGR1EwUlNNSEJW
+      YmtaNk1XTkxPV3hoWjBRMFIxRlBlRVpZZDJwc2RYbFdPVFpvY21OUlExSkJWbTFUVTA5TEwxZHJU
+      Rmh1YVdWd1pGRmhiRXRLVlFwNlExYzVlV3hsUmxkUk5UQTBNMWxOZWsxb2JHMUxkMHRsWVhOUVdE
+      WTJSMnRSWnpNNGFqQlZVQ3MxTjNOaE1VUnZPRE5GZGxsRWFUbERhVFp4Tlhsc0NtbFpSVmRoU2tS
+      V1VUSXhNMUJyVTFKbVZrWnhXSGg0VlVSUFRHZFRUbVpWYUdSb01VOXRNR2hWWkd4S0syNVhVbkY0
+      YjNKNk1VNVhPWFkyUjJoalpVa0tWMWc0T0dkWlUxRkNTVTE2UkVFd1JYTXhWQ3RIVVd0YWFDOHhj
+      bkZRVW5aTVluZGtjSGQ1UVZwRWMwUjNhVlpDWkRCc1RWWlhlVmxaTUdKdmVuSTBNQXBzVFZKUVlq
+      bFNiVmRSY3owS1BXRXdPRW9LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -32,23 +53,44 @@ exports[`aggregates multiple errata into a single play 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
       args:
         warn: false
 
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: True
+        insights_needs_reboot: true
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRMVk0ZG5jMU9FUXJhalZ3VGtGUmFrMUVRa0ZCYTJOeE1W
+      WlhVbEF3VUVoMGRIRjBWMGt4UkZSdU4zcE1kbFUyU0hKd2QxSUtUbkJ3Um5SWGJWRktiM2xxYm1w
+      bE5XUmFSemMxUTNCU1kzZGFPRU5XVW5sRlRVRXpVREExZW1Kc1UzSnFWbTUxVW5oNlpVeG1SbTFy
+      YW1SRVJWcHdjZ3ByWTJ0d2FFazJSVUpIYWtJemEyaGFUalJ5YTNwUWRWQm1PR1pMUVdsSE1ESmxk
+      SGhXVFZWV01tZHRkV3c0UjBJMmRIcEpkRk5uVFRGQlFYQkdORTFRQ2s1NFRDOUpUMlY2ZFdRMGFt
+      VlFaV05KZWpGS1dtMTVkVGgzWTNoVFZqWkpTbTVPU1VGSGVHYzVWRUpVYzNNMFEwbHVaVlZXY0RG
+      VWRrUlFPUzlHVXk4S2VGaFlaMFphWlM5VlZuQjBaRzA1ZDJkbmRVOXRiR2hvWVZCTVZHNU5Tbkoy
+      UVRsV2FVUnZRVzV2WWt0b1VIbEtZMHBSYjJOTFdrRlRjVTF6ZWs1VWNncHVNek5JYlRoUk9IQnRW
+      VTFLYldobU9VRnZkM2x4VW5GWVVHeHpXVGwzT0UxRU1WQkZjR3htY2pJeVlYTjFMMHhvYjNGNlIz
+      TmtOMUUxTTJwdFMyNXBDaXM1Y0VjeWEzVkNSVXhpVVhoblRHcERiVlZsUzFCdmJuaFhjM0JuVFZs
+      M2VYQjFaVFJvYnl0dmFsZG5WRGR2ZG1GbFRFNVRTMkV2UkZOS2JEWldRaThLZEd4YUwxUXJPRFZr
+      Ym5ZclNWb3phbEJTZFM5bVpuZFBkVVpVV2xoNmVGTkJUalZSV1M5ak15c3hhbUZSTDBKeFdYTmhi
+      M2RpUkZreGRXUXZVeXRsYVFwa2FEa3JWRkV5TlVKa1NYa3hibGh3ZWpoV1JHbHpjbEp3Y0VrNWFs
+      SldWakkwTVVVelRVWkhka1ZaTm1aVFYzSlZWMWMzY0RKbFpUbGphelpOVlUweUNrNUZjRXBLWm5G
+      UFNFdHBjRXRPZVRKdVFVRTJURmcxTHpNeGFWSk9VSEZZVXpKRVdqSlpkbVZTUTJOMmVDOHZPVTlo
+      UzFWd1FsZElZVmxYYW5STU4wWUtSWFJWVEZGeFZESkJPVTF3WjFSU1RtOU5WbEZ4Y1haQ01GUlBP
+      WE00TmxoTmRuUkdRa1IzYW5SbWIxSm9NRnBEYlUwME1FRlhRMHBxT0RKNlduTlRZUXBCYXpkUEsy
+      UkpkMFl5VVQwS1BWcEtiallLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - when:
         - insights_needs_reboot is defined
@@ -72,10 +114,31 @@ exports[`aggregates multiple errata into a single play 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - name: run insights
       command: insights-client
@@ -100,12 +163,33 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 - name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   vars:
-    insights_issues: \\"RHSA-2017:1382 --advisory RHSA-2017:1852 --advisory RHSA-2017:2679 --advisory RHSA-2018:0502\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
+    insights_issues: \\"--advisory RHSA-2017:1382 --advisory RHSA-2017:1852 --advisory RHSA-2017:2679 --advisory RHSA-2018:0502\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues\\"
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldWTjZVM2R6ZG5jMU9FUXJhalZ3VGtGUmFsUTFVUzh2Vm1ZNVRE
+      WnZPSFJsV1ZkWFIwZHZWVE5ITWxnNGRVVkRPR3R0VEZSTGVXUUtXamRzU0ZKd2JEQmpPRlZ2U0U1
+      Rk1Hd3pWMU5XVGxSb2N6WkdSRFZHV1dobk5VWllUa1F3UW5GbU1YUXdiVWhXWkU1QmIyRmhhazVv
+      YWtjeVJsZGhTQW95YjBOUVpsVjFXa2wyVm5kWGFqQlJla294VG5SNFJUUklibnBvTm5wQ1ZsWkRi
+      VGwxU1ROTVFXcHpRM2R2Y1dFeVNrUk5WRlpJZHpsRVRqZ3ZPR0paQ2xWc1F5dFlia3N4VnpSNk1s
+      TXZTbXdyY21GWldtMTVhbEpFZUZwUlExTjBZWGxCY21KRk9EbHhNSFp2YnpKaVFrNVJXRUZKYWxG
+      clkxaHdNemR2UXpFS1MzZzVaMk51UjFZek5ucHRZakpJYTJKUWRGaEtja1Z5V1VKck9HUXpOVlF6
+      V0dSTmJqVjFOVXQyVlVselVVbHdZbGhZUmxSME1rWnRSSEpEYVhCa1JncERNVnBJYzFwRmRsbFpS
+      MDFKWldGeFFXOW5TRXBLYW10RWMzUmpNek5hUW5sYU4wcEZWa1U1TmtWaVMxaHVhbWt3Wm13emNG
+      aDRkblpvYkVoVlJ6VjRDbTl3ZVZkVk5rUkRNSFJVUjNoNFJXNHhWVzlrZUZab1NEUmhiVW8xZFRk
+      SEwzZFBkMjlTUzBwU2JtTjRkamxhYjFoUk1XRm5aREJhT1RWbWN6TkJZVTRLYlZGR1EwUlNNSEJW
+      YmtaNk1XTkxPV3hoWjBRMFIxRlBlRVpZZDJwc2RYbFdPVFpvY21OUlExSkJWbTFUVTA5TEwxZHJU
+      Rmh1YVdWd1pGRmhiRXRLVlFwNlExYzVlV3hsUmxkUk5UQTBNMWxOZWsxb2JHMUxkMHRsWVhOUVdE
+      WTJSMnRSWnpNNGFqQlZVQ3MxTjNOaE1VUnZPRE5GZGxsRWFUbERhVFp4Tlhsc0NtbFpSVmRoU2tS
+      V1VUSXhNMUJyVTFKbVZrWnhXSGg0VlVSUFRHZFRUbVpWYUdSb01VOXRNR2hWWkd4S0syNVhVbkY0
+      YjNKNk1VNVhPWFkyUjJoalpVa0tWMWc0T0dkWlUxRkNTVTE2UkVFd1JYTXhWQ3RIVVd0YWFDOHhj
+      bkZRVW5aTVluZGtjSGQ1UVZwRWMwUjNhVlpDWkRCc1RWWlhlVmxaTUdKdmVuSTBNQXBzVFZKUVlq
+      bFNiVmRSY3owS1BXRXdPRW9LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -114,14 +198,14 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
       args:
         warn: false
 
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: True
+        insights_needs_reboot: true
 
 # Upgrade the following packages:
 #   - Upgrade packages affected by CVE-2017-17712
@@ -131,12 +215,33 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 - name: update vulnerable packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   vars:
-    insights_issues: \\"CVE-2017-17712 --cve CVE-2017-5715\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
+    insights_issues: \\"--cve CVE-2017-17712 --cve CVE-2017-5715\\"
+    insights_signature_exclude: /hosts,/vars/insights_signature,/vars/insights_issues
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldWTmFUMGM0ZG5jMU9FUXJhalZ3VGtGUmFFVnpRUzh2VW1OSFFU
+      TjFLM2RDVFdOYWJTOTNheTlOVVVKRGVua3pRWEZsZG1Jd1NIa0tlRFZtTUZKWVoybHROVkpKTkRs
+      YVVIYzRVak5EZDJGM1l6QTNUa0V5TjJOSFltWkRlbTF5TWpaR00zazNSemRKZG5ReldUUkpURGhs
+      YUhsWmFHUm5SZ3B4YTIwMk5uWkllVWRsTmxnNWVWVmpjblJrUzNOWlFXRjFNWE0wTkhSVU5IQnJh
+      MUpUYWl0VlJ6bHBUbGxWVEdzelUyRlNTMU5ZV0cxdFpVRnhiRXRZQ2tOMFV6a3hUVVpYWWtsS00z
+      ZHlibTF0VFhKUmRXaDRlVUYwTW14TllWUnFkMDU1VDFoalRuQjFWR0pQWVZoSlRIRkROV1YwZFdn
+      elRtZFpkV0ZLVVVFS2NVa3dZV3hNU21obWNsSkpVMlJLTkVNeU5YRk1aa2M0U2tKb1RXMTNRVkUy
+      VlhaM2N6VTJZaXRhZDIxWGEyTllaM28xV1ZwWVNHbERaMjF3V0ZNeFJncG9SbE0xVlU1YWNrYzNP
+      QzlTVGxGVmFHRTBiMkVyTDNsck5WWm5UVlZsYkVSV1EwaHhSMFk1YVdkWlVtdENiVk5UZFROc1RW
+      cFZZbU53Wms5eU5DdE9DbUZxVTJoSGRXaHdhMjlzTTFOSFNVWTFaVVZLYW5CWGFURlJSak52UTFS
+      UWVtMXVjM0p1TTNWWlpYTmtObWhCU1RGcFpIVnJVVGg1UW1sbk1EaExiR2NLU1hnNGMwaE9UeXQ0
+      TUhWcVJrRlVWalpDV2pCUU9HOUViREpHTjFCSlkwSkxWMnRsWldGM1pGaGFNWEpNVFRVNGVESnJa
+      V1J3VG14WldIaG1aems0VEFwRVlrZHJSVUpDVFd4MU1uUjJia2w2V0RsamNqUnVNVXRKZEZsTFpr
+      ZGhUbkpUYkZsWVJ6bG5TbG92YUZsTUt6ZHhPRk5TU2tsb1FUSkZkRTF4Y1VndkNteFVWVUpYZDBO
+      aVRuSnJjM1pGTWk5WE1VTnRTWHBOVDNsRVZuSTVibkZLTDFVclVYQnFWMU5HY2tWb1JHZEpOazFs
+      WWtOblR6SnVXVmxVTnpoM1MwZ0tSVWs1T1doblF5OHJOSGRYZFVkeVFVSmtlbnBLWm14YVpXZHRO
+      RTVaSzBOTFNHOXVUa28yYmxKaVYxUlhaMDV5TjFrM2VVcGhiVVZRUTFsd1FYTnlSZ3BpTTJveU1G
+      cEhWblp3TkQwS1BUaDBjbkFLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -145,23 +250,44 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
       args:
         warn: false
 
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: True
+        insights_needs_reboot: true
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRMVk0ZG5jMU9FUXJhalZ3VGtGUmFrMUVRa0ZCYTJOeE1W
+      WlhVbEF3VUVoMGRIRjBWMGt4UkZSdU4zcE1kbFUyU0hKd2QxSUtUbkJ3Um5SWGJWRktiM2xxYm1w
+      bE5XUmFSemMxUTNCU1kzZGFPRU5XVW5sRlRVRXpVREExZW1Kc1UzSnFWbTUxVW5oNlpVeG1SbTFy
+      YW1SRVJWcHdjZ3ByWTJ0d2FFazJSVUpIYWtJemEyaGFUalJ5YTNwUWRWQm1PR1pMUVdsSE1ESmxk
+      SGhXVFZWV01tZHRkV3c0UjBJMmRIcEpkRk5uVFRGQlFYQkdORTFRQ2s1NFRDOUpUMlY2ZFdRMGFt
+      VlFaV05KZWpGS1dtMTVkVGgzWTNoVFZqWkpTbTVPU1VGSGVHYzVWRUpVYzNNMFEwbHVaVlZXY0RG
+      VWRrUlFPUzlHVXk4S2VGaFlaMFphWlM5VlZuQjBaRzA1ZDJkbmRVOXRiR2hvWVZCTVZHNU5Tbkoy
+      UVRsV2FVUnZRVzV2WWt0b1VIbEtZMHBSYjJOTFdrRlRjVTF6ZWs1VWNncHVNek5JYlRoUk9IQnRW
+      VTFLYldobU9VRnZkM2x4VW5GWVVHeHpXVGwzT0UxRU1WQkZjR3htY2pJeVlYTjFMMHhvYjNGNlIz
+      TmtOMUUxTTJwdFMyNXBDaXM1Y0VjeWEzVkNSVXhpVVhoblRHcERiVlZsUzFCdmJuaFhjM0JuVFZs
+      M2VYQjFaVFJvYnl0dmFsZG5WRGR2ZG1GbFRFNVRTMkV2UkZOS2JEWldRaThLZEd4YUwxUXJPRFZr
+      Ym5ZclNWb3phbEJTZFM5bVpuZFBkVVpVV2xoNmVGTkJUalZSV1M5ak15c3hhbUZSTDBKeFdYTmhi
+      M2RpUkZreGRXUXZVeXRsYVFwa2FEa3JWRkV5TlVKa1NYa3hibGh3ZWpoV1JHbHpjbEp3Y0VrNWFs
+      SldWakkwTVVVelRVWkhka1ZaTm1aVFYzSlZWMWMzY0RKbFpUbGphelpOVlUweUNrNUZjRXBLWm5G
+      UFNFdHBjRXRPZVRKdVFVRTJURmcxTHpNeGFWSk9VSEZZVXpKRVdqSlpkbVZTUTJOMmVDOHZPVTlo
+      UzFWd1FsZElZVmxYYW5STU4wWUtSWFJWVEZGeFZESkJPVTF3WjFSU1RtOU5WbEZ4Y1haQ01GUlBP
+      WE00TmxoTmRuUkdRa1IzYW5SbWIxSm9NRnBEYlUwME1FRlhRMHBxT0RKNlduTlRZUXBCYXpkUEsy
+      UkpkMFl5VVQwS1BWcEtiallLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - when:
         - insights_needs_reboot is defined
@@ -185,10 +311,31 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - name: run insights
       command: insights-client
@@ -209,12 +356,33 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 - name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   vars:
-    insights_issues: \\"RHSA-2018:0502\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
+    insights_issues: \\"--advisory RHSA-2018:0502\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues\\"
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldWTjZVM2R6ZG5jMU9FUXJhalZ3VGtGUmFsUTFVUzh2Vm1ZNVRE
+      WnZPSFJsV1ZkWFIwZHZWVE5ITWxnNGRVVkRPR3R0VEZSTGVXUUtXamRzU0ZKd2JEQmpPRlZ2U0U1
+      Rk1Hd3pWMU5XVGxSb2N6WkdSRFZHV1dobk5VWllUa1F3UW5GbU1YUXdiVWhXWkU1QmIyRmhhazVv
+      YWtjeVJsZGhTQW95YjBOUVpsVjFXa2wyVm5kWGFqQlJla294VG5SNFJUUklibnBvTm5wQ1ZsWkRi
+      VGwxU1ROTVFXcHpRM2R2Y1dFeVNrUk5WRlpJZHpsRVRqZ3ZPR0paQ2xWc1F5dFlia3N4VnpSNk1s
+      TXZTbXdyY21GWldtMTVhbEpFZUZwUlExTjBZWGxCY21KRk9EbHhNSFp2YnpKaVFrNVJXRUZKYWxG
+      clkxaHdNemR2UXpFS1MzZzVaMk51UjFZek5ucHRZakpJYTJKUWRGaEtja1Z5V1VKck9HUXpOVlF6
+      V0dSTmJqVjFOVXQyVlVselVVbHdZbGhZUmxSME1rWnRSSEpEYVhCa1JncERNVnBJYzFwRmRsbFpS
+      MDFKWldGeFFXOW5TRXBLYW10RWMzUmpNek5hUW5sYU4wcEZWa1U1TmtWaVMxaHVhbWt3Wm13emNG
+      aDRkblpvYkVoVlJ6VjRDbTl3ZVZkVk5rUkRNSFJVUjNoNFJXNHhWVzlrZUZab1NEUmhiVW8xZFRk
+      SEwzZFBkMjlTUzBwU2JtTjRkamxhYjFoUk1XRm5aREJhT1RWbWN6TkJZVTRLYlZGR1EwUlNNSEJW
+      YmtaNk1XTkxPV3hoWjBRMFIxRlBlRVpZZDJwc2RYbFdPVFpvY21OUlExSkJWbTFUVTA5TEwxZHJU
+      Rmh1YVdWd1pGRmhiRXRLVlFwNlExYzVlV3hsUmxkUk5UQTBNMWxOZWsxb2JHMUxkMHRsWVhOUVdE
+      WTJSMnRSWnpNNGFqQlZVQ3MxTjNOaE1VUnZPRE5GZGxsRWFUbERhVFp4Tlhsc0NtbFpSVmRoU2tS
+      V1VUSXhNMUJyVTFKbVZrWnhXSGg0VlVSUFRHZFRUbVpWYUdSb01VOXRNR2hWWkd4S0syNVhVbkY0
+      YjNKNk1VNVhPWFkyUjJoalpVa0tWMWc0T0dkWlUxRkNTVTE2UkVFd1JYTXhWQ3RIVVd0YWFDOHhj
+      bkZRVW5aTVluZGtjSGQ1UVZwRWMwUjNhVlpDWkRCc1RWWlhlVmxaTUdKdmVuSTBNQXBzVFZKUVlq
+      bFNiVmRSY3owS1BXRXdPRW9LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -223,43 +391,14 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
       args:
         warn: false
 
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: True
-
-# Apply RHBA-2007:0331
-# Identifier: (vulnerabilities:RHBA-2007:0331,fix)
-# Version: test
-- name: update packages
-  hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com\\"
-  vars:
-    insights_issues: \\"RHBA-2007:0331\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
-  become: true
-  tasks:
-    - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
-      check_mode: no
-      register: check_out
-      failed_when: check_out.rc != 0 and check_out.rc != 100
-      args:
-        warn: false
-
-    - when: check_out.rc == 100
-      name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
-      args:
-        warn: false
-
-    - when: check_out.rc == 100
-      name: set reboot fact
-      set_fact:
-        insights_needs_reboot: True
+        insights_needs_reboot: true
 
 # Upgrade packages affected by CVE-2017-17712
 # Identifier: (vulnerabilities:CVE-2017-17712,fix)
@@ -267,12 +406,33 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 - name: update vulnerable packages
   hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com\\"
   vars:
-    insights_issues: \\"CVE-2017-17712\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
+    insights_issues: \\"--cve CVE-2017-17712\\"
+    insights_signature_exclude: /hosts,/vars/insights_signature,/vars/insights_issues
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldWTmFUMGM0ZG5jMU9FUXJhalZ3VGtGUmFFVnpRUzh2VW1OSFFU
+      TjFLM2RDVFdOYWJTOTNheTlOVVVKRGVua3pRWEZsZG1Jd1NIa0tlRFZtTUZKWVoybHROVkpKTkRs
+      YVVIYzRVak5EZDJGM1l6QTNUa0V5TjJOSFltWkRlbTF5TWpaR00zazNSemRKZG5ReldUUkpURGhs
+      YUhsWmFHUm5SZ3B4YTIwMk5uWkllVWRsTmxnNWVWVmpjblJrUzNOWlFXRjFNWE0wTkhSVU5IQnJh
+      MUpUYWl0VlJ6bHBUbGxWVEdzelUyRlNTMU5ZV0cxdFpVRnhiRXRZQ2tOMFV6a3hUVVpYWWtsS00z
+      ZHlibTF0VFhKUmRXaDRlVUYwTW14TllWUnFkMDU1VDFoalRuQjFWR0pQWVZoSlRIRkROV1YwZFdn
+      elRtZFpkV0ZLVVVFS2NVa3dZV3hNU21obWNsSkpVMlJLTkVNeU5YRk1aa2M0U2tKb1RXMTNRVkUy
+      VlhaM2N6VTJZaXRhZDIxWGEyTllaM28xV1ZwWVNHbERaMjF3V0ZNeFJncG9SbE0xVlU1YWNrYzNP
+      QzlTVGxGVmFHRTBiMkVyTDNsck5WWm5UVlZsYkVSV1EwaHhSMFk1YVdkWlVtdENiVk5UZFROc1RW
+      cFZZbU53Wms5eU5DdE9DbUZxVTJoSGRXaHdhMjlzTTFOSFNVWTFaVVZLYW5CWGFURlJSak52UTFS
+      UWVtMXVjM0p1TTNWWlpYTmtObWhCU1RGcFpIVnJVVGg1UW1sbk1EaExiR2NLU1hnNGMwaE9UeXQ0
+      TUhWcVJrRlVWalpDV2pCUU9HOUViREpHTjFCSlkwSkxWMnRsWldGM1pGaGFNWEpNVFRVNGVESnJa
+      V1J3VG14WldIaG1aems0VEFwRVlrZHJSVUpDVFd4MU1uUjJia2w2V0RsamNqUnVNVXRKZEZsTFpr
+      ZGhUbkpUYkZsWVJ6bG5TbG92YUZsTUt6ZHhPRk5TU2tsb1FUSkZkRTF4Y1VndkNteFVWVUpYZDBO
+      aVRuSnJjM1pGTWk5WE1VTnRTWHBOVDNsRVZuSTVibkZLTDFVclVYQnFWMU5HY2tWb1JHZEpOazFs
+      WWtOblR6SnVXVmxVTnpoM1MwZ0tSVWs1T1doblF5OHJOSGRYZFVkeVFVSmtlbnBLWm14YVpXZHRO
+      RTVaSzBOTFNHOXVUa28yYmxKaVYxUlhaMDV5TjFrM2VVcGhiVVZRUTFsd1FYTnlSZ3BpTTJveU1G
+      cEhWblp3TkQwS1BUaDBjbkFLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -281,23 +441,44 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
       args:
         warn: false
 
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: True
+        insights_needs_reboot: true
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRMVk0ZG5jMU9FUXJhalZ3VGtGUmFrMUVRa0ZCYTJOeE1W
+      WlhVbEF3VUVoMGRIRjBWMGt4UkZSdU4zcE1kbFUyU0hKd2QxSUtUbkJ3Um5SWGJWRktiM2xxYm1w
+      bE5XUmFSemMxUTNCU1kzZGFPRU5XVW5sRlRVRXpVREExZW1Kc1UzSnFWbTUxVW5oNlpVeG1SbTFy
+      YW1SRVJWcHdjZ3ByWTJ0d2FFazJSVUpIYWtJemEyaGFUalJ5YTNwUWRWQm1PR1pMUVdsSE1ESmxk
+      SGhXVFZWV01tZHRkV3c0UjBJMmRIcEpkRk5uVFRGQlFYQkdORTFRQ2s1NFRDOUpUMlY2ZFdRMGFt
+      VlFaV05KZWpGS1dtMTVkVGgzWTNoVFZqWkpTbTVPU1VGSGVHYzVWRUpVYzNNMFEwbHVaVlZXY0RG
+      VWRrUlFPUzlHVXk4S2VGaFlaMFphWlM5VlZuQjBaRzA1ZDJkbmRVOXRiR2hvWVZCTVZHNU5Tbkoy
+      UVRsV2FVUnZRVzV2WWt0b1VIbEtZMHBSYjJOTFdrRlRjVTF6ZWs1VWNncHVNek5JYlRoUk9IQnRW
+      VTFLYldobU9VRnZkM2x4VW5GWVVHeHpXVGwzT0UxRU1WQkZjR3htY2pJeVlYTjFMMHhvYjNGNlIz
+      TmtOMUUxTTJwdFMyNXBDaXM1Y0VjeWEzVkNSVXhpVVhoblRHcERiVlZsUzFCdmJuaFhjM0JuVFZs
+      M2VYQjFaVFJvYnl0dmFsZG5WRGR2ZG1GbFRFNVRTMkV2UkZOS2JEWldRaThLZEd4YUwxUXJPRFZr
+      Ym5ZclNWb3phbEJTZFM5bVpuZFBkVVpVV2xoNmVGTkJUalZSV1M5ak15c3hhbUZSTDBKeFdYTmhi
+      M2RpUkZreGRXUXZVeXRsYVFwa2FEa3JWRkV5TlVKa1NYa3hibGh3ZWpoV1JHbHpjbEp3Y0VrNWFs
+      SldWakkwTVVVelRVWkhka1ZaTm1aVFYzSlZWMWMzY0RKbFpUbGphelpOVlUweUNrNUZjRXBLWm5G
+      UFNFdHBjRXRPZVRKdVFVRTJURmcxTHpNeGFWSk9VSEZZVXpKRVdqSlpkbVZTUTJOMmVDOHZPVTlo
+      UzFWd1FsZElZVmxYYW5STU4wWUtSWFJWVEZGeFZESkJPVTF3WjFSU1RtOU5WbEZ4Y1haQ01GUlBP
+      WE00TmxoTmRuUkdRa1IzYW5SbWIxSm9NRnBEYlUwME1FRlhRMHBxT0RKNlduTlRZUXBCYXpkUEsy
+      UkpkMFl5VVQwS1BWcEtiallLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - when:
         - insights_needs_reboot is defined
@@ -321,10 +502,31 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 
 - name: run insights
   hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - name: run insights
       command: insights-client
@@ -345,12 +547,33 @@ exports[`generates a simple playbook with single CVE remediation 1`] = `
 - name: update vulnerable packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   vars:
-    insights_issues: \\"CVE-2017-17712\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
+    insights_issues: \\"--cve CVE-2017-17712\\"
+    insights_signature_exclude: /hosts,/vars/insights_signature,/vars/insights_issues
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldWTmFUMGM0ZG5jMU9FUXJhalZ3VGtGUmFFVnpRUzh2VW1OSFFU
+      TjFLM2RDVFdOYWJTOTNheTlOVVVKRGVua3pRWEZsZG1Jd1NIa0tlRFZtTUZKWVoybHROVkpKTkRs
+      YVVIYzRVak5EZDJGM1l6QTNUa0V5TjJOSFltWkRlbTF5TWpaR00zazNSemRKZG5ReldUUkpURGhs
+      YUhsWmFHUm5SZ3B4YTIwMk5uWkllVWRsTmxnNWVWVmpjblJrUzNOWlFXRjFNWE0wTkhSVU5IQnJh
+      MUpUYWl0VlJ6bHBUbGxWVEdzelUyRlNTMU5ZV0cxdFpVRnhiRXRZQ2tOMFV6a3hUVVpYWWtsS00z
+      ZHlibTF0VFhKUmRXaDRlVUYwTW14TllWUnFkMDU1VDFoalRuQjFWR0pQWVZoSlRIRkROV1YwZFdn
+      elRtZFpkV0ZLVVVFS2NVa3dZV3hNU21obWNsSkpVMlJLTkVNeU5YRk1aa2M0U2tKb1RXMTNRVkUy
+      VlhaM2N6VTJZaXRhZDIxWGEyTllaM28xV1ZwWVNHbERaMjF3V0ZNeFJncG9SbE0xVlU1YWNrYzNP
+      QzlTVGxGVmFHRTBiMkVyTDNsck5WWm5UVlZsYkVSV1EwaHhSMFk1YVdkWlVtdENiVk5UZFROc1RW
+      cFZZbU53Wms5eU5DdE9DbUZxVTJoSGRXaHdhMjlzTTFOSFNVWTFaVVZLYW5CWGFURlJSak52UTFS
+      UWVtMXVjM0p1TTNWWlpYTmtObWhCU1RGcFpIVnJVVGg1UW1sbk1EaExiR2NLU1hnNGMwaE9UeXQ0
+      TUhWcVJrRlVWalpDV2pCUU9HOUViREpHTjFCSlkwSkxWMnRsWldGM1pGaGFNWEpNVFRVNGVESnJa
+      V1J3VG14WldIaG1aems0VEFwRVlrZHJSVUpDVFd4MU1uUjJia2w2V0RsamNqUnVNVXRKZEZsTFpr
+      ZGhUbkpUYkZsWVJ6bG5TbG92YUZsTUt6ZHhPRk5TU2tsb1FUSkZkRTF4Y1VndkNteFVWVUpYZDBO
+      aVRuSnJjM1pGTWk5WE1VTnRTWHBOVDNsRVZuSTVibkZLTDFVclVYQnFWMU5HY2tWb1JHZEpOazFs
+      WWtOblR6SnVXVmxVTnpoM1MwZ0tSVWs1T1doblF5OHJOSGRYZFVkeVFVSmtlbnBLWm14YVpXZHRO
+      RTVaSzBOTFNHOXVUa28yYmxKaVYxUlhaMDV5TjFrM2VVcGhiVVZRUTFsd1FYTnlSZ3BpTTJveU1G
+      cEhWblp3TkQwS1BUaDBjbkFLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -359,23 +582,44 @@ exports[`generates a simple playbook with single CVE remediation 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y --cve {{ insights_issues | regex_search('(CVE-[0-9]{4}-[0-9]+( --cve CVE-[0-9]{4}-[0-9]+)*)') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
       args:
         warn: false
 
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: True
+        insights_needs_reboot: true
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRMVk0ZG5jMU9FUXJhalZ3VGtGUmFrMUVRa0ZCYTJOeE1W
+      WlhVbEF3VUVoMGRIRjBWMGt4UkZSdU4zcE1kbFUyU0hKd2QxSUtUbkJ3Um5SWGJWRktiM2xxYm1w
+      bE5XUmFSemMxUTNCU1kzZGFPRU5XVW5sRlRVRXpVREExZW1Kc1UzSnFWbTUxVW5oNlpVeG1SbTFy
+      YW1SRVJWcHdjZ3ByWTJ0d2FFazJSVUpIYWtJemEyaGFUalJ5YTNwUWRWQm1PR1pMUVdsSE1ESmxk
+      SGhXVFZWV01tZHRkV3c0UjBJMmRIcEpkRk5uVFRGQlFYQkdORTFRQ2s1NFRDOUpUMlY2ZFdRMGFt
+      VlFaV05KZWpGS1dtMTVkVGgzWTNoVFZqWkpTbTVPU1VGSGVHYzVWRUpVYzNNMFEwbHVaVlZXY0RG
+      VWRrUlFPUzlHVXk4S2VGaFlaMFphWlM5VlZuQjBaRzA1ZDJkbmRVOXRiR2hvWVZCTVZHNU5Tbkoy
+      UVRsV2FVUnZRVzV2WWt0b1VIbEtZMHBSYjJOTFdrRlRjVTF6ZWs1VWNncHVNek5JYlRoUk9IQnRW
+      VTFLYldobU9VRnZkM2x4VW5GWVVHeHpXVGwzT0UxRU1WQkZjR3htY2pJeVlYTjFMMHhvYjNGNlIz
+      TmtOMUUxTTJwdFMyNXBDaXM1Y0VjeWEzVkNSVXhpVVhoblRHcERiVlZsUzFCdmJuaFhjM0JuVFZs
+      M2VYQjFaVFJvYnl0dmFsZG5WRGR2ZG1GbFRFNVRTMkV2UkZOS2JEWldRaThLZEd4YUwxUXJPRFZr
+      Ym5ZclNWb3phbEJTZFM5bVpuZFBkVVpVV2xoNmVGTkJUalZSV1M5ak15c3hhbUZSTDBKeFdYTmhi
+      M2RpUkZreGRXUXZVeXRsYVFwa2FEa3JWRkV5TlVKa1NYa3hibGh3ZWpoV1JHbHpjbEp3Y0VrNWFs
+      SldWakkwTVVVelRVWkhka1ZaTm1aVFYzSlZWMWMzY0RKbFpUbGphelpOVlUweUNrNUZjRXBLWm5G
+      UFNFdHBjRXRPZVRKdVFVRTJURmcxTHpNeGFWSk9VSEZZVXpKRVdqSlpkbVZTUTJOMmVDOHZPVTlo
+      UzFWd1FsZElZVmxYYW5STU4wWUtSWFJWVEZGeFZESkJPVTF3WjFSU1RtOU5WbEZ4Y1haQ01GUlBP
+      WE00TmxoTmRuUkdRa1IzYW5SbWIxSm9NRnBEYlUwME1FRlhRMHBxT0RKNlduTlRZUXBCYXpkUEsy
+      UkpkMFl5VVQwS1BWcEtiallLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - when:
         - insights_needs_reboot is defined
@@ -399,10 +643,31 @@ exports[`generates a simple playbook with single CVE remediation 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - name: run insights
       command: insights-client
@@ -423,12 +688,33 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
 - name: update packages
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   vars:
-    insights_issues: \\"RHSA-2018:0502\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_issues\\"
+    insights_issues: \\"--advisory RHSA-2018:0502\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues\\"
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldWTjZVM2R6ZG5jMU9FUXJhalZ3VGtGUmFsUTFVUzh2Vm1ZNVRE
+      WnZPSFJsV1ZkWFIwZHZWVE5ITWxnNGRVVkRPR3R0VEZSTGVXUUtXamRzU0ZKd2JEQmpPRlZ2U0U1
+      Rk1Hd3pWMU5XVGxSb2N6WkdSRFZHV1dobk5VWllUa1F3UW5GbU1YUXdiVWhXWkU1QmIyRmhhazVv
+      YWtjeVJsZGhTQW95YjBOUVpsVjFXa2wyVm5kWGFqQlJla294VG5SNFJUUklibnBvTm5wQ1ZsWkRi
+      VGwxU1ROTVFXcHpRM2R2Y1dFeVNrUk5WRlpJZHpsRVRqZ3ZPR0paQ2xWc1F5dFlia3N4VnpSNk1s
+      TXZTbXdyY21GWldtMTVhbEpFZUZwUlExTjBZWGxCY21KRk9EbHhNSFp2YnpKaVFrNVJXRUZKYWxG
+      clkxaHdNemR2UXpFS1MzZzVaMk51UjFZek5ucHRZakpJYTJKUWRGaEtja1Z5V1VKck9HUXpOVlF6
+      V0dSTmJqVjFOVXQyVlVselVVbHdZbGhZUmxSME1rWnRSSEpEYVhCa1JncERNVnBJYzFwRmRsbFpS
+      MDFKWldGeFFXOW5TRXBLYW10RWMzUmpNek5hUW5sYU4wcEZWa1U1TmtWaVMxaHVhbWt3Wm13emNG
+      aDRkblpvYkVoVlJ6VjRDbTl3ZVZkVk5rUkRNSFJVUjNoNFJXNHhWVzlrZUZab1NEUmhiVW8xZFRk
+      SEwzZFBkMjlTUzBwU2JtTjRkamxhYjFoUk1XRm5aREJhT1RWbWN6TkJZVTRLYlZGR1EwUlNNSEJW
+      YmtaNk1XTkxPV3hoWjBRMFIxRlBlRVpZZDJwc2RYbFdPVFpvY21OUlExSkJWbTFUVTA5TEwxZHJU
+      Rmh1YVdWd1pGRmhiRXRLVlFwNlExYzVlV3hsUmxkUk5UQTBNMWxOZWsxb2JHMUxkMHRsWVhOUVdE
+      WTJSMnRSWnpNNGFqQlZVQ3MxTjNOaE1VUnZPRE5GZGxsRWFUbERhVFp4Tlhsc0NtbFpSVmRoU2tS
+      V1VUSXhNMUJyVTFKbVZrWnhXSGg0VlVSUFRHZFRUbVpWYUdSb01VOXRNR2hWWkd4S0syNVhVbkY0
+      YjNKNk1VNVhPWFkyUjJoalpVa0tWMWc0T0dkWlUxRkNTVTE2UkVFd1JYTXhWQ3RIVVd0YWFDOHhj
+      bkZRVW5aTVluZGtjSGQ1UVZwRWMwUjNhVlpDWkRCc1RWWlhlVmxaTUdKdmVuSTBNQXBzVFZKUVlq
+      bFNiVmRSY3owS1BXRXdPRW9LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
@@ -437,23 +723,44 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y --advisory {{ insights_issues | regex_search('RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}( --advisory RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5})*') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
       args:
         warn: false
 
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: True
+        insights_needs_reboot: true
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRMVk0ZG5jMU9FUXJhalZ3VGtGUmFrMUVRa0ZCYTJOeE1W
+      WlhVbEF3VUVoMGRIRjBWMGt4UkZSdU4zcE1kbFUyU0hKd2QxSUtUbkJ3Um5SWGJWRktiM2xxYm1w
+      bE5XUmFSemMxUTNCU1kzZGFPRU5XVW5sRlRVRXpVREExZW1Kc1UzSnFWbTUxVW5oNlpVeG1SbTFy
+      YW1SRVJWcHdjZ3ByWTJ0d2FFazJSVUpIYWtJemEyaGFUalJ5YTNwUWRWQm1PR1pMUVdsSE1ESmxk
+      SGhXVFZWV01tZHRkV3c0UjBJMmRIcEpkRk5uVFRGQlFYQkdORTFRQ2s1NFRDOUpUMlY2ZFdRMGFt
+      VlFaV05KZWpGS1dtMTVkVGgzWTNoVFZqWkpTbTVPU1VGSGVHYzVWRUpVYzNNMFEwbHVaVlZXY0RG
+      VWRrUlFPUzlHVXk4S2VGaFlaMFphWlM5VlZuQjBaRzA1ZDJkbmRVOXRiR2hvWVZCTVZHNU5Tbkoy
+      UVRsV2FVUnZRVzV2WWt0b1VIbEtZMHBSYjJOTFdrRlRjVTF6ZWs1VWNncHVNek5JYlRoUk9IQnRW
+      VTFLYldobU9VRnZkM2x4VW5GWVVHeHpXVGwzT0UxRU1WQkZjR3htY2pJeVlYTjFMMHhvYjNGNlIz
+      TmtOMUUxTTJwdFMyNXBDaXM1Y0VjeWEzVkNSVXhpVVhoblRHcERiVlZsUzFCdmJuaFhjM0JuVFZs
+      M2VYQjFaVFJvYnl0dmFsZG5WRGR2ZG1GbFRFNVRTMkV2UkZOS2JEWldRaThLZEd4YUwxUXJPRFZr
+      Ym5ZclNWb3phbEJTZFM5bVpuZFBkVVpVV2xoNmVGTkJUalZSV1M5ak15c3hhbUZSTDBKeFdYTmhi
+      M2RpUkZreGRXUXZVeXRsYVFwa2FEa3JWRkV5TlVKa1NYa3hibGh3ZWpoV1JHbHpjbEp3Y0VrNWFs
+      SldWakkwTVVVelRVWkhka1ZaTm1aVFYzSlZWMWMzY0RKbFpUbGphelpOVlUweUNrNUZjRXBLWm5G
+      UFNFdHBjRXRPZVRKdVFVRTJURmcxTHpNeGFWSk9VSEZZVXpKRVdqSlpkbVZTUTJOMmVDOHZPVTlo
+      UzFWd1FsZElZVmxYYW5STU4wWUtSWFJWVEZGeFZESkJPVTF3WjFSU1RtOU5WbEZ4Y1haQ01GUlBP
+      WE00TmxoTmRuUkdRa1IzYW5SbWIxSm9NRnBEYlUwME1FRlhRMHBxT0RKNlduTlRZUXBCYXpkUEsy
+      UkpkMFl5VVQwS1BWcEtiallLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - when:
         - insights_needs_reboot is defined
@@ -477,10 +784,31 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - name: run insights
       command: insights-client

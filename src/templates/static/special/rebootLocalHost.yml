@@ -2,10 +2,31 @@
 # The variable can be overridden to suppress this behavior.
 - name: Reboot localhost
   hosts: "@@HOSTS@@"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: "/hosts"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVdEtObkE0ZG5jMU9FUXJhalZ3VGtGUmFGZFJRUzh2WTB0MFIz
+      UXlVME5ZWmpOQ2NHYzJaRzVoUkVSTU1XOTBWalpMVm1zdmNWTUtUMkZhVDBSMkwwcE1WMFZETlRa
+      cmEwcDFUSEYwYkVaUU9YQjBVRFIxU3pkd2VEUnJaVW95U2tnMVdVOHhjVUp3YkU1M1ZXUmhjMmt5
+      TVdveVJVaENUQXBzVVZoVk1FRTRSVmRqUW1NMmVHUjRZMnRCUW0xRVR6YzNkM2RPY1ZsRU0wbERT
+      MlJxYkUxVlpqa3JibUZYTkZkWE5VcGpVME14VmtOWmFVaHRjRGxEQ2xab2NITmtXRVV6VVV0Q1VU
+      WjFNM1JQUm0xTlptbEtZbTF1TUZsUGFHVkxjbmROVVZsTmRsSXlhelJNUzJwRlprZDZaVWhVZUVs
+      YVJ6RTFNMDFySzBnS2FFMW9VbVpXSzNvNWRYQkJSMkZTVmxNeVN6TTRORlpKTUVaaFVYUm9WRlpW
+      YUdsTGJ6SnJlRE15WTBwdE5WaG5iSEZKU1dZd1ZFeHBXak5rUld4c1ZRcEpVMWRoZEVwblRWUjJP
+      VE5MUlZkNFRUbFVSMUJ6VkZRek1VbDFUR2h4UWpRMlozbFVkWEJwZVRJclRGVnJWVzFrS3pNMlMz
+      azFjbGxWU25OTlVXaFdDbTFxUXpjdlZqVnRaVTVGTDI0eGNGWndOeTlLUmxJMGJtSXZWRkl2V2tv
+      eWFYcE1aMWt5ZEhGUlJUazJkVFpLUVVSbGFWVTNXRWRGVkc5MlYwWlZRMVlLV0hSbFdVUnFjRUpQ
+      Y0ZOQlYyNXlhMlZqZGpJNWIzTmFkVEowVFVsMldrRXJla3BRVERZek4yODJVMlFyTlhsWWIzWnNV
+      bWR3UlZSQ09HbGtWMFZ3Y2dwVWNVVkNNblpsUkdZd1oyUkxiRkZVYzJRMWNWTk5VV1pqVVhFemFH
+      ZExWRzVrZEZsaFNUTXJaMGN2TnpKRGEwbG1jVWhQUlhKTFNUTkVTbkkyWlRGSENqSk5iRlJwU2tw
+      QlNVNU9Vemx3WkVNM1lXWXlLMWMyTlRsUVdWRTRNRTFESzFJMFIyaE9ZVFpaZWpGalZVTllVbHAz
+      UVM5UlNFSk9jRTlxWWxkbGVuUUtNalE0SzJwcmNIQk1PUzg0Y2pSVVpVUk9TUzlOZEZSTU9UbFNW
+      SGd6YTI5SlIzcEtXVmxpV25vMldUWk1UQ3RZWjFsVFZEaFVWV2RsY2tSWVZucFBjZ281WlU0MUsz
+      TXhVV1pIYXowS1BXazFRa3dLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - when:
         - insights_needs_reboot is defined
@@ -15,6 +36,11 @@
           file:
             path: "/etc/insights-client/.run_insights_client_next_boot"
             state: touch
+        - name: Enable boot service
+          systemd:
+            name: insights-client-boot.service
+            enabled: true
+          ignore_errors: true
         - name: Reboot system
           shell: sleep 2 && shutdown -r +1 now "Ansible triggered reboot"
           ignore_errors: true

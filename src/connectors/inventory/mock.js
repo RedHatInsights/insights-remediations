@@ -62,6 +62,17 @@ function generateSystemProfile (id) {
         };
     }
 
+    if (id === '0341e468-fbae-416c-b16f-5abb64d99834') {
+        return {
+            id,
+            system_profile: {
+                owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c',
+                rhc_client_id: 'f415fc2d-9700-4e30-9621-6a410ccc92c8',
+                is_marketplace: false
+            }
+        };
+    }
+
     // eslint-disable-next-line security/detect-object-injection
     return {
         id,
@@ -126,6 +137,31 @@ module.exports = new class extends Connector {
             return [];
         }
 
+        return [{
+            account: 'diagnosis01',
+            id: 'none',
+            insights_id: '9a212816-a472-11e8-98d0-529269fb1459',
+            display_name: null,
+            hostname: 'jozef-cert01',
+            updated: '2018-12-19T14:59:47.954018Z'
+        }, {
+            account: 'diagnosis01',
+            id: '56099741-6294-411d-a5c6-3d0eac23c52f',
+            insights_id: '9a212816-a472-11e8-98d0-529269fb1459',
+            display_name: null,
+            hostname: 'jozef-cert01',
+            updated: '2018-12-19T16:59:47.954018Z'
+        }, {
+            account: 'diagnosis01',
+            id: 'none',
+            insights_id: '9a212816-a472-11e8-98d0-529269fb1459',
+            display_name: null,
+            hostname: 'jozef-cert01',
+            updated: '2018-12-19T15:59:47.954018Z'
+        }];
+    }
+
+    getSystemsByOwnerId () {
         return [{
             account: 'diagnosis01',
             id: 'none',

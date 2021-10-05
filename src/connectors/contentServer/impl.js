@@ -41,7 +41,9 @@ module.exports = new class extends Connector {
         },
         this.metrics);
 
-        return _.map(resolutions, resolution =>
+        return _(resolutions)
+        .filter(resolution => resolution.play) // workaround for https://issues.redhat.com/browse/ADVISOR-1728
+        .map(resolution =>
             _(resolution)
             .pick(['description', 'play', 'resolution_type', 'resolution_risk', 'version'])
             .defaults({
@@ -49,7 +51,7 @@ module.exports = new class extends Connector {
                 version: 'unknown'
             })
             .value()
-        );
+        ).value();
     }
 
     async ping () {

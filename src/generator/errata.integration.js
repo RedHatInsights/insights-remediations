@@ -42,9 +42,6 @@ test('generates a simple playbook with multiple erratum-based remediation', asyn
             id: 'vulnerabilities:RHSA-2018:0502',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }, {
-            id: 'vulnerabilities:RHBA-2007:0331',
-            systems: ['53fbcd90-9c8f-11e8-98d0-529269fb1459']
-        }, {
             id: 'vulnerabilities:CVE-2017-17712',
             systems: ['53fbcd90-9c8f-11e8-98d0-529269fb1459']
         }]

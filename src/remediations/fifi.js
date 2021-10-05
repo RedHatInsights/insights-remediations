@@ -1,4 +1,5 @@
 'use strict';
+/* eslint-disable max-len */
 
 const _ = require('lodash');
 const P = require('bluebird');
@@ -10,8 +11,9 @@ const format = require('./remediations.format');
 const generator = require('../generator/generator.controller');
 const inventory = require('../connectors/inventory');
 const sources = require('../connectors/sources');
+const configManager = require('../connectors/configManager');
 const receptorConnector = require('../connectors/receptor');
-const dispatcherConnector = require('../connectors/dispatcher');
+const dispatcher = require('../connectors/dispatcher');
 const log = require('../util/log');
 const probes = require('../probes');
 const read = require('./controller.read');
@@ -20,11 +22,21 @@ const queries = require('./remediations.queries');
 const SATELLITE_NAMESPACE = Object.freeze({namespace: 'satellite'});
 const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_name', 'rhc_client']);
 
+const RUNSFIELDS = Object.freeze({fields: {data: ['id', 'labels', 'status', 'service', 'created_at', 'updated_at', 'url']}});
+const RUNHOSTFIELDS = Object.freeze({fields: {data: ['stdout', 'inventory_id']}});
+const RHCSTATUSES = ['timeout', 'failure', 'success', 'running'];
+
 const DIFF_MODE = false;
 const FULL_MODE = true;
 
+const CONNECTED = 'connected';
+const DISABLED = 'disabled';
 const PENDING = 'pending';
 const FAILURE = 'failure';
+const RUNNING = 'running';
+const SUCCESS = 'success';
+const CANCELED = 'canceled';
+const SERVICE = 'remediations';
 
 exports.checkSmartManagement = async function (remediation, smart_management) {
     // if customer has smart_management entitlement fastlane them
@@ -32,6 +44,7 @@ exports.checkSmartManagement = async function (remediation, smart_management) {
         return true;
     }
 
+    // if check marketplace systems isn't turned on return false
     if (!config.isMarketplace) {
         return false;
     }
@@ -42,11 +55,199 @@ exports.checkSmartManagement = async function (remediation, smart_management) {
     return _.some(systemsProfiles, system => system.system_profile.is_marketplace === true);
 };
 
+exports.checkRhcEnabled = async function () {
+    const rhcStates = await configManager.getCurrentState();
+
+    if (rhcStates.state.remediations === DISABLED) {
+        return false;
+    }
+
+    return true;
+};
+
+exports.sortSystems = function (systems, column = 'system_name', asc = true) {
+    return _.orderBy(systems, column, (asc) ? 'asc' : 'desc');
+};
+
+function findPlaybookRunStatus (run) {
+    if (_.some(run.executors, executor => executor.status === FAILURE)) {
+        return FAILURE;
+    }
+
+    if (_.some(run.executors, executor => executor.status === CANCELED)) {
+        return CANCELED;
+    }
+
+    if (_.every(run.executors, executor => executor.status === PENDING)) {
+        return PENDING;
+    }
+
+    if (_.every(run.executors, executor => executor.status === SUCCESS)) {
+        return SUCCESS;
+    }
+
+    return RUNNING;
+}
+
+// TODO: Replace this logic with logic in the remediations-consumer
+exports.updatePlaybookRunsStatus = function (playbook_runs) {
+    _.forEach(playbook_runs, run => {
+        run.status = findPlaybookRunStatus(run);
+    });
+};
+
+function createDispatcherRunsFilter (playbook_run_id = null) {
+    // Based on the qs library used in dispatcher connector, define filter in this format
+    const runsFilter = {filter: {}};
+    runsFilter.filter.service = SERVICE;
+
+    if (playbook_run_id) {
+        runsFilter.filter.labels = {'playbook-run': playbook_run_id};
+    }
+
+    return runsFilter;
+}
+
+function createDispatcherRunHostsFilter (playbook_run_id, host_id = null) {
+    const runHostsFilter = {filter: {run: {}}};
+    runHostsFilter.filter.run.service = SERVICE;
+    runHostsFilter.filter.run.labels = {'playbook-run': playbook_run_id};
+
+    if (host_id) {
+        runHostsFilter.filter.run.id = host_id;
+    }
+
+    return runHostsFilter;
+}
+
+function findRunStatus (run) {
+    if (run.count_failure > 0 || run.count_timeout > 0) {
+        return FAILURE;
+    } else if (run.count_running > 0 && run.count_timeout === 0 && run.count_failure === 0) {
+        return RUNNING;
+    } else if (run.count_success > 0 && run.count_timeout === 0) {
+        return SUCCESS;
+    }
+}
+
+function formatRHCRuns (rhcRuns) {
+    // Add system count
+    rhcRuns.system_count = rhcRuns.meta.count;
+
+    // Assign each status count
+    RHCSTATUSES.forEach(status => {
+        rhcRuns[`count_${status}`] = _.size(_.filter(rhcRuns.data, run => run.status === status));
+    });
+
+    // Status of executor
+    rhcRuns.status = findRunStatus(rhcRuns);
+}
+
+exports.formatRunHosts = function (rhcRunHosts, playbook_run_id) {
+    return _.map(rhcRunHosts.data, host => ({
+        system_id: host.id,
+        system_name: host.id,
+        status: host.status,
+        updated_at: host.updated_at,
+        playbook_run_executor_id: playbook_run_id
+    }));
+};
+
+function formatRHCHostDetails (host, details, playbook_run_id) {
+    return {
+        system_id: host.id,
+        system_name: details.data[0].inventory_id,
+        status: host.status,
+        updated_at: host.updated_at,
+        console: details.data[0].stdout,
+        executor_id: playbook_run_id
+    };
+}
+
+function pushRHCSystem (host, systems) {
+    systems.push(host);
+}
+
+function pushRHCExecutor (rhcRun, satRun) {
+    satRun.executors.push({
+        executor_id: rhcRun.data[0].labels['playbook-run'],
+        executor_name: 'Direct connected',
+        status: rhcRun.status,
+        system_count: rhcRun.system_count,
+        playbook_run_id: rhcRun.data[0].labels['playbook-run'],
+        playbook: rhcRun.data[0].url,
+        updated_at: rhcRun.data[0].updated_at,
+        count_failure: rhcRun.count_failure,
+        count_success: rhcRun.count_success,
+        count_running: rhcRun.count_running,
+        count_pending: 0, // RHC does not return the status pending
+        count_canceled: 0 // RHC does not currently return status canceled
+    });
+}
+
+exports.getRHCRuns = async function (playbook_run_id = null) {
+    const filter = createDispatcherRunsFilter(playbook_run_id);
+    const rhcRuns = await dispatcher.fetchPlaybookRuns(filter, RUNSFIELDS);
+
+    return rhcRuns;
+};
+
+exports.getRunHostDetails = async function (playbook_run_id, system_id) {
+    const runsFilter = createDispatcherRunHostsFilter(playbook_run_id);
+    const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, system_id);
+    const [rhcRunHosts, rhcRunHostDetails] = await Promise.all([
+        dispatcher.fetchPlaybookRuns(runsFilter, RUNSFIELDS),
+        dispatcher.fetchPlaybookRunHosts(runHostsFilter, RUNHOSTFIELDS)
+    ]);
+
+    if (!rhcRunHosts || !rhcRunHostDetails) {
+        return null;
+    }
+
+    const host = _.find(rhcRunHosts.data, host => host.id === system_id);
+
+    return formatRHCHostDetails(host, rhcRunHostDetails, playbook_run_id);
+};
+
+exports.combineHosts = function (rhcRunHosts, systems, playbook_run_id) {
+    rhcRunHosts = exports.formatRunHosts(rhcRunHosts, playbook_run_id);
+
+    _.forEach(rhcRunHosts, host => {
+        pushRHCSystem(host, systems);
+    });
+};
+
+exports.combineRuns = async function (remediation) {
+    for (const run of remediation.playbook_runs) {
+        const rhcRuns = await exports.getRHCRuns(run.id);
+
+        if (rhcRuns) {
+            formatRHCRuns(rhcRuns);
+            pushRHCExecutor(rhcRuns, run);
+        }
+    }
+
+    return remediation.playbook_runs;
+};
+
 async function fetchRHCClientId (systems) {
     const systemIds = _.map(systems, system => { return system.id; });
     const systemProfileDetails = await inventory.getSystemProfileBatch(systemIds);
 
-    _.forEach(systems, system => system.rhc_client = systemProfileDetails[system.id].system_profile.rhc_client_id);
+    _.forEach(systems, system => {
+        system.rhc_client = systemProfileDetails[system.id].system_profile.rhc_client_id;
+        system.marketplace = systemProfileDetails[system.id].system_profile.is_marketplace;
+    });
+}
+
+function sortRHCSystems (executor, smart_management) {
+    if (smart_management) {
+        return _.partition(executor.systems, system => !_.isUndefined(system.rhc_client));
+    }
+
+    const partitionedSystems = _.partition(executor.systems, system => !_.isUndefined(system.rhc_client) && system.marketplace);
+
+    return partitionedSystems;
 }
 
 async function fetchSystems (ids) {
@@ -65,28 +266,41 @@ exports.getSatelliteId = function (facts) {
     return null;
 };
 
-function defineRHCEnabledExecutor (satellites) {
+function defineRHCEnabledExecutor (satellites, smart_management, rhc_enabled) {
     const satlessExecutor = _.find(satellites, satellite => satellite.id === null);
     if (satlessExecutor) {
-        const partitionedSystems = _.partition(satlessExecutor.systems, system => _.isUndefined(system.rhc_client));
+        const partitionedSystems = sortRHCSystems(satlessExecutor, smart_management);
+        _.remove(satellites, executor => executor === satlessExecutor); // Remove redundant satless executor
 
-        satlessExecutor.systems = partitionedSystems[0];
+        if (!_.isEmpty(partitionedSystems[0])) {
+            satellites.push({id: null, systems: partitionedSystems[0], type: 'RHC', rhcStatus: (rhc_enabled) ? CONNECTED : DISABLED});
+        }
 
-        satellites.push({id: null, systems: partitionedSystems[1], type: 'RHC'});
+        if (!smart_management) {
+            const noSmartManagement = _.filter(partitionedSystems[1], system => !system.marketplace);
+            if (!_.isEmpty(noSmartManagement)) {
+                satellites.push({id: null, systems: noSmartManagement, type: 'RHC', rhcStatus: 'no_smart_management'});
+            }
+
+            const rhcNotConfigured = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client) && system.marketplace);
+            if (!_.isEmpty(rhcNotConfigured)) {
+                satellites.push({id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'});
+            }
+        } else {
+            const rhcNotConfigured = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client));
+            if (!_.isEmpty(rhcNotConfigured)) {
+                satellites.push({id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'});
+            }
+        }
     }
 }
 
 function fetchRHCStatus (satellite) {
-    let rhcConnectionStatus = 'disconnected';
     if (satellite.type === 'RHC') {
-        _.forEach(satellite.systems, system => {
-            if (!_.isUndefined(system.rhc_client)) {
-                rhcConnectionStatus = 'connected';
-            }
-        });
+        return satellite.rhcStatus;
     }
 
-    return rhcConnectionStatus;
+    return null;
 }
 
 function filterExecutors (status, excludes = null) {
@@ -113,6 +327,7 @@ function filterExecutors (status, excludes = null) {
         status = _.filter(status, executor => !_.includes(excludes, executor.satId));
     }
 
+    // Only return executors with status "connected"
     return _.filter(status, {status: 'connected'});
 }
 
@@ -168,7 +383,7 @@ async function fetchReceptorStatus (receptor, account) {
     return _.get(result, 'status', null);
 }
 
-function getName (executor) {
+function getName (executor, smart_management) {
     if (executor.source) {
         return executor.source.name;
     }
@@ -177,11 +392,19 @@ function getName (executor) {
         return `Satellite ${executor.id}`;
     }
 
+    if (!smart_management && executor.rhcStatus !== 'no_smart_management') {
+        return 'Direct connection - AWS Marketplace';
+    }
+
     return null;
 }
 
-function getStatus (executor) {
+function getStatus (executor, smart_management) {
     if (executor.type === 'satellite') {
+        if (!smart_management) {
+            return 'no_smart_management';
+        }
+
         if (!executor.source) {
             return 'no_source';
         }
@@ -190,8 +413,20 @@ function getStatus (executor) {
             return 'no_receptor';
         }
 
-        if (executor.receptorStatus !== 'connected') {
+        if (executor.receptorStatus !== CONNECTED) {
             return 'disconnected';
+        }
+    } else if (executor.type === 'RHC') {
+        if (executor.rhcStatus === 'no_smart_management') {
+            return 'no_smart_management';
+        }
+
+        if (executor.rhcStatus === 'no_rhc') {
+            return 'no_rhc';
+        }
+
+        if (executor.rhcStatus === 'disabled') {
+            return 'disabled';
         }
     } else if (executor.type === null) {
         return 'no_executor';
@@ -213,15 +448,15 @@ function defineExecutorType (executor) {
     return null;
 }
 
-function normalize (satellites) {
+function normalize (satellites, smart_management) {
     return _.map(satellites, satellite => ({
         satId: satellite.id,
         receptorId: _.get(satellite.receptor, 'receptor_node', null),
         endpointId: _.get(satellite.receptor, 'id', null),
         systems: _.map(satellite.systems, system => _.pick(system, SYSTEM_FIELDS)),
         type: satellite.type,
-        name: getName(satellite),
-        status: getStatus(satellite)
+        name: getName(satellite, smart_management),
+        status: getStatus(satellite, smart_management)
     }));
 }
 
@@ -252,11 +487,11 @@ exports.resolveUsers = async function (req, remediation) {
     return remediation;
 };
 
-exports.generatePlaybookRunId = function () {
+exports.generateUuid = function () {
     return uuidv4();
 };
 
-exports.getConnectionStatus = async function (remediation, account) {
+exports.getConnectionStatus = async function (remediation, account, smart_management, rhc_enabled) {
     const systemsIds = _(remediation.issues).flatMap('systems').map('system_id').uniq().sort().value();
     const systems = await fetchSystems(systemsIds);
 
@@ -272,23 +507,28 @@ exports.getConnectionStatus = async function (remediation, account) {
     })).values().value();
 
     if (!_.isEmpty(satellites)) {
-        defineRHCEnabledExecutor(satellites);
+        defineRHCEnabledExecutor(satellites, smart_management, rhc_enabled);
     }
 
-    const sourceInfo = await sources.getSourceInfo(_(satellites).map('id').filter().value());
+    if (smart_management) {
+        const sourceInfo = await sources.getSourceInfo(_(satellites).map('id').filter().value());
+
+        _.forEach(satellites, satellite => {
+            satellite.source = _.get(sourceInfo, satellite.id, null);
+            satellite.receptor = getReceptor(satellite.source);
+        });
+
+        await P.map(satellites, async satellite => {
+            satellite.receptorStatus = await fetchReceptorStatus(satellite.receptor, account);
+        });
+    }
 
     _.forEach(satellites, satellite => {
-        satellite.source = _.get(sourceInfo, satellite.id, null);
-        satellite.receptor = getReceptor(satellite.source);
         satellite.type = defineExecutorType(satellite); // defines all executors not marked with "RHC" as satellite type
         satellite.rhcStatus = fetchRHCStatus(satellite);
     });
 
-    await P.map(satellites, async satellite => {
-        satellite.receptorStatus = await fetchReceptorStatus(satellite.receptor, account);
-    });
-
-    return normalize(satellites);
+    return normalize(satellites, smart_management);
 };
 
 exports.filterIssuesPerExecutor = async function (systems, remediationIssues) {
@@ -388,7 +628,7 @@ function dispatchCancelRequests (requests, playbook_run_id) {
 async function dispatchRHCRequests ({executor, rhcWorkRequest}, playbook_run_id) {
     try {
         probes.splitPlaybookPerRHCEnabledSystems(rhcWorkRequest, executor.systems, playbook_run_id);
-        const response = await dispatcherConnector.postPlaybookRunRequests(rhcWorkRequest);
+        const response = await dispatcher.postPlaybookRunRequests(rhcWorkRequest);
         probes.rhcJobDispatched(rhcWorkRequest, executor, response, playbook_run_id);
         return response;
     } catch (e) {
@@ -436,8 +676,18 @@ async function storePlaybookRun (remediation, playbook_run_id, requests, respons
     await queries.insertPlaybookRun(run, executors, systems);
 }
 
+async function storeRHCPlaybookRun (remediation, playbook_run_id, username) {
+    const run = {
+        id: playbook_run_id,
+        remediation_id: remediation.id,
+        created_by: username
+    };
+
+    await queries.insertRHCPlaybookRun(run);
+}
+
 exports.createPlaybookRun = async function (status, remediation, username, excludes, response_mode) {
-    const playbook_run_id = exports.generatePlaybookRunId();
+    const playbook_run_id = exports.generateUuid();
     const executors = filterExecutors(status, excludes);
     const remediationIssues = remediation.toJSON().issues;
     const text_update_full = findResponseMode(response_mode, executors);
@@ -485,7 +735,9 @@ exports.createPlaybookRun = async function (status, remediation, username, exclu
         const rhcRequests = splitRequests.RHC[0]; // There should only ever be one
         await dispatchRHCRequests(rhcRequests, playbook_run_id);
 
-        // TODO: Store responses??
+        if (_.isEmpty(splitRequests.satellite)) {
+            await storeRHCPlaybookRun(remediation, playbook_run_id, username);
+        }
     }
 
     return playbook_run_id;

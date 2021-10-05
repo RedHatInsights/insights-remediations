@@ -9,8 +9,13 @@ exports[`generates a playbook with block 1`] = `
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
 # Add nodev Option to &#x2F;dev&#x2F;shm
-# Identifier: (ssg:rhel7|ospp42|xccdf_org.ssgproject.content_rule_mount_option_dev_shm_nodev,fix)
+# Identifier: (ssg:rhel7|ospp|xccdf_org.ssgproject.content_rule_mount_option_dev_shm_nodev,fix)
 # Version: NORMALIZED_PLACEHOLDER
+# platform = multi_platform_all
+# complexity = low
+# strategy = configure
+# reboot = false
+# disruption = high
 - name: Add nodev Option to /dev/shm
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
@@ -25,15 +30,15 @@ exports[`generates a playbook with block 1`] = `
     - mount_option_dev_shm_nodev
     - no_reboot_needed
   tasks:
+
     - name: get back mount information associated to mountpoint
       command: findmnt --fstab '/dev/shm'
       register: device_name
       failed_when: device_name.rc > 1
       changed_when: false
-      when: >-
-        ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-        \\"docker\\"
-      notify: insights_reboot_handler
+      when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
+        != \\"docker\\"
+
     - name: create mount_info dictionary variable
       set_fact:
         mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
@@ -43,10 +48,9 @@ exports[`generates a playbook with block 1`] = `
       when:
         - device_name.stdout is defined and device_name.stdout_lines is defined
         - (device_name.stdout | length > 0)
-        - >-
-          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-          != \\"docker\\"
-      notify: insights_reboot_handler
+        - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+          \\"docker\\"
+
     - name: Ensure permission nodev are set on /dev/shm
       mount:
         path: /dev/shm
@@ -57,24 +61,39 @@ exports[`generates a playbook with block 1`] = `
       when:
         - device_name.stdout is defined
         - (device_name.stdout | length > 0)
-        - >-
-          ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-          != \\"docker\\"
-      notify: insights_reboot_handler
-  handlers:
-    - name: insights_reboot_handler
-      set_fact:
-        insights_needs_reboot: true
+        - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
+          \\"docker\\"
 
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRMVk0ZG5jMU9FUXJhalZ3VGtGUmFrMUVRa0ZCYTJOeE1W
+      WlhVbEF3VUVoMGRIRjBWMGt4UkZSdU4zcE1kbFUyU0hKd2QxSUtUbkJ3Um5SWGJWRktiM2xxYm1w
+      bE5XUmFSemMxUTNCU1kzZGFPRU5XVW5sRlRVRXpVREExZW1Kc1UzSnFWbTUxVW5oNlpVeG1SbTFy
+      YW1SRVJWcHdjZ3ByWTJ0d2FFazJSVUpIYWtJemEyaGFUalJ5YTNwUWRWQm1PR1pMUVdsSE1ESmxk
+      SGhXVFZWV01tZHRkV3c0UjBJMmRIcEpkRk5uVFRGQlFYQkdORTFRQ2s1NFRDOUpUMlY2ZFdRMGFt
+      VlFaV05KZWpGS1dtMTVkVGgzWTNoVFZqWkpTbTVPU1VGSGVHYzVWRUpVYzNNMFEwbHVaVlZXY0RG
+      VWRrUlFPUzlHVXk4S2VGaFlaMFphWlM5VlZuQjBaRzA1ZDJkbmRVOXRiR2hvWVZCTVZHNU5Tbkoy
+      UVRsV2FVUnZRVzV2WWt0b1VIbEtZMHBSYjJOTFdrRlRjVTF6ZWs1VWNncHVNek5JYlRoUk9IQnRW
+      VTFLYldobU9VRnZkM2x4VW5GWVVHeHpXVGwzT0UxRU1WQkZjR3htY2pJeVlYTjFMMHhvYjNGNlIz
+      TmtOMUUxTTJwdFMyNXBDaXM1Y0VjeWEzVkNSVXhpVVhoblRHcERiVlZsUzFCdmJuaFhjM0JuVFZs
+      M2VYQjFaVFJvYnl0dmFsZG5WRGR2ZG1GbFRFNVRTMkV2UkZOS2JEWldRaThLZEd4YUwxUXJPRFZr
+      Ym5ZclNWb3phbEJTZFM5bVpuZFBkVVpVV2xoNmVGTkJUalZSV1M5ak15c3hhbUZSTDBKeFdYTmhi
+      M2RpUkZreGRXUXZVeXRsYVFwa2FEa3JWRkV5TlVKa1NYa3hibGh3ZWpoV1JHbHpjbEp3Y0VrNWFs
+      SldWakkwTVVVelRVWkhka1ZaTm1aVFYzSlZWMWMzY0RKbFpUbGphelpOVlUweUNrNUZjRXBLWm5G
+      UFNFdHBjRXRPZVRKdVFVRTJURmcxTHpNeGFWSk9VSEZZVXpKRVdqSlpkbVZTUTJOMmVDOHZPVTlo
+      UzFWd1FsZElZVmxYYW5STU4wWUtSWFJWVEZGeFZESkJPVTF3WjFSU1RtOU5WbEZ4Y1haQ01GUlBP
+      WE00TmxoTmRuUkdRa1IzYW5SbWIxSm9NRnBEYlUwME1FRlhRMHBxT0RKNlduTlRZUXBCYXpkUEsy
+      UkpkMFl5VVQwS1BWcEtiallLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - when:
         - insights_needs_reboot is defined
@@ -98,10 +117,31 @@ exports[`generates a playbook with block 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - name: run insights
       command: insights-client
@@ -119,6 +159,11 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
 # Disable Prelinking
 # Identifier: (ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink,fix)
 # Version: NORMALIZED_PLACEHOLDER
+# platform = multi_platform_rhel,multi_platform_fedora,multi_platform_ol
+# complexity = low
+# strategy = restrict
+# reboot = false
+# disruption = low
 - name: Disable Prelinking
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
@@ -140,27 +185,28 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
     - no_reboot_needed
     - restrict_strategy
   tasks:
+
     - name: Does prelink file exist
       stat:
         path: /etc/sysconfig/prelink
       register: prelink_exists
-      notify: insights_reboot_handler
+
     - name: disable prelinking
       lineinfile:
         path: /etc/sysconfig/prelink
         regexp: ^PRELINKING=
         line: PRELINKING=no
       when: prelink_exists.stat.exists
-      notify: insights_reboot_handler
-  handlers:
-    - name: insights_reboot_handler
-      set_fact:
-        insights_needs_reboot: true
 
 
 # Enable rsyslog Service
 # Identifier: (ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled,fix)
 # Version: NORMALIZED_PLACEHOLDER
+# platform = multi_platform_all
+# complexity = low
+# strategy = enable
+# reboot = false
+# disruption = low
 - name: Enable rsyslog Service
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
@@ -175,12 +221,14 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
     - no_reboot_needed
     - service_rsyslog_enabled
   tasks:
+
     - name: Enable service rsyslog
       block:
+
         - name: Gather the package facts
           package_facts:
             manager: auto
-          notify: insights_reboot_handler
+
         - name: Enable service rsyslog
           service:
             name: rsyslog
@@ -188,24 +236,39 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
             state: started
           when:
             - '\\"rsyslog\\" in ansible_facts.packages'
-          notify: insights_reboot_handler
-      when: >-
-        ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-        \\"docker\\"
-  handlers:
-    - name: insights_reboot_handler
-      set_fact:
-        insights_needs_reboot: true
+      when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
+        != \\"docker\\"
 
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRMVk0ZG5jMU9FUXJhalZ3VGtGUmFrMUVRa0ZCYTJOeE1W
+      WlhVbEF3VUVoMGRIRjBWMGt4UkZSdU4zcE1kbFUyU0hKd2QxSUtUbkJ3Um5SWGJWRktiM2xxYm1w
+      bE5XUmFSemMxUTNCU1kzZGFPRU5XVW5sRlRVRXpVREExZW1Kc1UzSnFWbTUxVW5oNlpVeG1SbTFy
+      YW1SRVJWcHdjZ3ByWTJ0d2FFazJSVUpIYWtJemEyaGFUalJ5YTNwUWRWQm1PR1pMUVdsSE1ESmxk
+      SGhXVFZWV01tZHRkV3c0UjBJMmRIcEpkRk5uVFRGQlFYQkdORTFRQ2s1NFRDOUpUMlY2ZFdRMGFt
+      VlFaV05KZWpGS1dtMTVkVGgzWTNoVFZqWkpTbTVPU1VGSGVHYzVWRUpVYzNNMFEwbHVaVlZXY0RG
+      VWRrUlFPUzlHVXk4S2VGaFlaMFphWlM5VlZuQjBaRzA1ZDJkbmRVOXRiR2hvWVZCTVZHNU5Tbkoy
+      UVRsV2FVUnZRVzV2WWt0b1VIbEtZMHBSYjJOTFdrRlRjVTF6ZWs1VWNncHVNek5JYlRoUk9IQnRW
+      VTFLYldobU9VRnZkM2x4VW5GWVVHeHpXVGwzT0UxRU1WQkZjR3htY2pJeVlYTjFMMHhvYjNGNlIz
+      TmtOMUUxTTJwdFMyNXBDaXM1Y0VjeWEzVkNSVXhpVVhoblRHcERiVlZsUzFCdmJuaFhjM0JuVFZs
+      M2VYQjFaVFJvYnl0dmFsZG5WRGR2ZG1GbFRFNVRTMkV2UkZOS2JEWldRaThLZEd4YUwxUXJPRFZr
+      Ym5ZclNWb3phbEJTZFM5bVpuZFBkVVpVV2xoNmVGTkJUalZSV1M5ak15c3hhbUZSTDBKeFdYTmhi
+      M2RpUkZreGRXUXZVeXRsYVFwa2FEa3JWRkV5TlVKa1NYa3hibGh3ZWpoV1JHbHpjbEp3Y0VrNWFs
+      SldWakkwTVVVelRVWkhka1ZaTm1aVFYzSlZWMWMzY0RKbFpUbGphelpOVlUweUNrNUZjRXBLWm5G
+      UFNFdHBjRXRPZVRKdVFVRTJURmcxTHpNeGFWSk9VSEZZVXpKRVdqSlpkbVZTUTJOMmVDOHZPVTlo
+      UzFWd1FsZElZVmxYYW5STU4wWUtSWFJWVEZGeFZESkJPVTF3WjFSU1RtOU5WbEZ4Y1haQ01GUlBP
+      WE00TmxoTmRuUkdRa1IzYW5SbWIxSm9NRnBEYlUwME1FRlhRMHBxT0RKNlduTlRZUXBCYXpkUEsy
+      UkpkMFl5VVQwS1BWcEtiallLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - when:
         - insights_needs_reboot is defined
@@ -229,10 +292,31 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - name: run insights
       command: insights-client
@@ -250,6 +334,11 @@ exports[`generates a simple playbook with single compliance remediation 1`] = `
 # Disable Prelinking
 # Identifier: (ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink,fix)
 # Version: NORMALIZED_PLACEHOLDER
+# platform = multi_platform_rhel,multi_platform_fedora,multi_platform_ol
+# complexity = low
+# strategy = restrict
+# reboot = false
+# disruption = low
 - name: Disable Prelinking
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
@@ -271,32 +360,49 @@ exports[`generates a simple playbook with single compliance remediation 1`] = `
     - no_reboot_needed
     - restrict_strategy
   tasks:
+
     - name: Does prelink file exist
       stat:
         path: /etc/sysconfig/prelink
       register: prelink_exists
-      notify: insights_reboot_handler
+
     - name: disable prelinking
       lineinfile:
         path: /etc/sysconfig/prelink
         regexp: ^PRELINKING=
         line: PRELINKING=no
       when: prelink_exists.stat.exists
-      notify: insights_reboot_handler
-  handlers:
-    - name: insights_reboot_handler
-      set_fact:
-        insights_needs_reboot: true
 
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRMVk0ZG5jMU9FUXJhalZ3VGtGUmFrMUVRa0ZCYTJOeE1W
+      WlhVbEF3VUVoMGRIRjBWMGt4UkZSdU4zcE1kbFUyU0hKd2QxSUtUbkJ3Um5SWGJWRktiM2xxYm1w
+      bE5XUmFSemMxUTNCU1kzZGFPRU5XVW5sRlRVRXpVREExZW1Kc1UzSnFWbTUxVW5oNlpVeG1SbTFy
+      YW1SRVJWcHdjZ3ByWTJ0d2FFazJSVUpIYWtJemEyaGFUalJ5YTNwUWRWQm1PR1pMUVdsSE1ESmxk
+      SGhXVFZWV01tZHRkV3c0UjBJMmRIcEpkRk5uVFRGQlFYQkdORTFRQ2s1NFRDOUpUMlY2ZFdRMGFt
+      VlFaV05KZWpGS1dtMTVkVGgzWTNoVFZqWkpTbTVPU1VGSGVHYzVWRUpVYzNNMFEwbHVaVlZXY0RG
+      VWRrUlFPUzlHVXk4S2VGaFlaMFphWlM5VlZuQjBaRzA1ZDJkbmRVOXRiR2hvWVZCTVZHNU5Tbkoy
+      UVRsV2FVUnZRVzV2WWt0b1VIbEtZMHBSYjJOTFdrRlRjVTF6ZWs1VWNncHVNek5JYlRoUk9IQnRW
+      VTFLYldobU9VRnZkM2x4VW5GWVVHeHpXVGwzT0UxRU1WQkZjR3htY2pJeVlYTjFMMHhvYjNGNlIz
+      TmtOMUUxTTJwdFMyNXBDaXM1Y0VjeWEzVkNSVXhpVVhoblRHcERiVlZsUzFCdmJuaFhjM0JuVFZs
+      M2VYQjFaVFJvYnl0dmFsZG5WRGR2ZG1GbFRFNVRTMkV2UkZOS2JEWldRaThLZEd4YUwxUXJPRFZr
+      Ym5ZclNWb3phbEJTZFM5bVpuZFBkVVpVV2xoNmVGTkJUalZSV1M5ak15c3hhbUZSTDBKeFdYTmhi
+      M2RpUkZreGRXUXZVeXRsYVFwa2FEa3JWRkV5TlVKa1NYa3hibGh3ZWpoV1JHbHpjbEp3Y0VrNWFs
+      SldWakkwTVVVelRVWkhka1ZaTm1aVFYzSlZWMWMzY0RKbFpUbGphelpOVlUweUNrNUZjRXBLWm5G
+      UFNFdHBjRXRPZVRKdVFVRTJURmcxTHpNeGFWSk9VSEZZVXpKRVdqSlpkbVZTUTJOMmVDOHZPVTlo
+      UzFWd1FsZElZVmxYYW5STU4wWUtSWFJWVEZGeFZESkJPVTF3WjFSU1RtOU5WbEZ4Y1haQ01GUlBP
+      WE00TmxoTmRuUkdRa1IzYW5SbWIxSm9NRnBEYlUwME1FRlhRMHBxT0RKNlduTlRZUXBCYXpkUEsy
+      UkpkMFl5VVQwS1BWcEtiallLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - when:
         - insights_needs_reboot is defined
@@ -320,10 +426,31 @@ exports[`generates a simple playbook with single compliance remediation 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - name: run insights
       command: insights-client
@@ -341,6 +468,11 @@ exports[`generates a simple playbook with uppercase profile name 1`] = `
 # Disable Host-Based Authentication
 # Identifier: (ssg:rhel7|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth,fix)
 # Version: NORMALIZED_PLACEHOLDER
+# platform = multi_platform_all
+# complexity = low
+# strategy = restrict
+# reboot = false
+# disruption = low
 - name: Disable Host-Based Authentication
   hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
   become: true
@@ -359,41 +491,58 @@ exports[`generates a simple playbook with uppercase profile name 1`] = `
     - no_reboot_needed
     - restrict_strategy
   tasks:
+
     - name: Disable Host-Based Authentication
       block:
+
         - name: Deduplicate values from /etc/ssh/sshd_config
           lineinfile:
             path: /etc/ssh/sshd_config
             create: false
             regexp: (?i)^\\\\s*HostbasedAuthentication\\\\s+
             state: absent
-          notify: insights_reboot_handler
+
         - name: Insert correct line to /etc/ssh/sshd_config
           lineinfile:
             path: /etc/ssh/sshd_config
             create: true
             line: HostbasedAuthentication no
             state: present
-            insertbefore: '^[#\\\\s]*Match'
+            insertbefore: ^[#\\\\s]*Match
             validate: /usr/sbin/sshd -t -f %s
-          notify: insights_reboot_handler
-      when: >-
-        ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-        \\"docker\\"
-  handlers:
-    - name: insights_reboot_handler
-      set_fact:
-        insights_needs_reboot: true
+      when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
+        != \\"docker\\"
 
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRMVk0ZG5jMU9FUXJhalZ3VGtGUmFrMUVRa0ZCYTJOeE1W
+      WlhVbEF3VUVoMGRIRjBWMGt4UkZSdU4zcE1kbFUyU0hKd2QxSUtUbkJ3Um5SWGJWRktiM2xxYm1w
+      bE5XUmFSemMxUTNCU1kzZGFPRU5XVW5sRlRVRXpVREExZW1Kc1UzSnFWbTUxVW5oNlpVeG1SbTFy
+      YW1SRVJWcHdjZ3ByWTJ0d2FFazJSVUpIYWtJemEyaGFUalJ5YTNwUWRWQm1PR1pMUVdsSE1ESmxk
+      SGhXVFZWV01tZHRkV3c0UjBJMmRIcEpkRk5uVFRGQlFYQkdORTFRQ2s1NFRDOUpUMlY2ZFdRMGFt
+      VlFaV05KZWpGS1dtMTVkVGgzWTNoVFZqWkpTbTVPU1VGSGVHYzVWRUpVYzNNMFEwbHVaVlZXY0RG
+      VWRrUlFPUzlHVXk4S2VGaFlaMFphWlM5VlZuQjBaRzA1ZDJkbmRVOXRiR2hvWVZCTVZHNU5Tbkoy
+      UVRsV2FVUnZRVzV2WWt0b1VIbEtZMHBSYjJOTFdrRlRjVTF6ZWs1VWNncHVNek5JYlRoUk9IQnRW
+      VTFLYldobU9VRnZkM2x4VW5GWVVHeHpXVGwzT0UxRU1WQkZjR3htY2pJeVlYTjFMMHhvYjNGNlIz
+      TmtOMUUxTTJwdFMyNXBDaXM1Y0VjeWEzVkNSVXhpVVhoblRHcERiVlZsUzFCdmJuaFhjM0JuVFZs
+      M2VYQjFaVFJvYnl0dmFsZG5WRGR2ZG1GbFRFNVRTMkV2UkZOS2JEWldRaThLZEd4YUwxUXJPRFZr
+      Ym5ZclNWb3phbEJTZFM5bVpuZFBkVVpVV2xoNmVGTkJUalZSV1M5ak15c3hhbUZSTDBKeFdYTmhi
+      M2RpUkZreGRXUXZVeXRsYVFwa2FEa3JWRkV5TlVKa1NYa3hibGh3ZWpoV1JHbHpjbEp3Y0VrNWFs
+      SldWakkwTVVVelRVWkhka1ZaTm1aVFYzSlZWMWMzY0RKbFpUbGphelpOVlUweUNrNUZjRXBLWm5G
+      UFNFdHBjRXRPZVRKdVFVRTJURmcxTHpNeGFWSk9VSEZZVXpKRVdqSlpkbVZTUTJOMmVDOHZPVTlo
+      UzFWd1FsZElZVmxYYW5STU4wWUtSWFJWVEZGeFZESkJPVTF3WjFSU1RtOU5WbEZ4Y1haQ01GUlBP
+      WE00TmxoTmRuUkdRa1IzYW5SbWIxSm9NRnBEYlUwME1FRlhRMHBxT0RKNlduTlRZUXBCYXpkUEsy
+      UkpkMFl5VVQwS1BWcEtiallLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - when:
         - insights_needs_reboot is defined
@@ -417,10 +566,31 @@ exports[`generates a simple playbook with uppercase profile name 1`] = `
 
 - name: run insights
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  become: true
+  gather_facts: false
   vars:
-    insights_signature_exclude: \\"/hosts\\"
-  become: True
-  gather_facts: False
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
   tasks:
     - name: run insights
       command: insights-client
