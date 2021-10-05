@@ -225,7 +225,7 @@ function Config() {
         config.logging.cloudwatch.options.group = loadedConfig.logging.cloudwatch.logGroup || env.LOG_CW_GROUP;
 
         config.advisor.host = getHostForApp(dependencyEndpoints, 'advisor', 'service') || env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
-        config.compliance.host = getHostForApp(dependencyEndpoints, 'compliance', 'compliance-backend') || env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
+        config.compliance.host = getHostForApp(dependencyEndpoints, 'compliance', 'service') || env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
         config.configManager.host = getHostForApp(dependencyEndpoints, 'config-manager', 'service') || env.CONFIG_MANAGER_HOST || 'http://config-manager-service.config-manager-ci.svc.cluster.local:8081';
         config.contentServer.host = getHostForApp(dependencyEndpoints, 'advisor', 'service') || env.CONTENT_SERVER_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
         config.dispatcher.host = getHostForApp(dependencyEndpoints, 'playbook-dispatcher', 'api') || env.PLAYBOOK_DISPATCHER_HOST || 'http://playbook-dispatcher-api.playbook-dispatcher-ci.svc.cluster.local:8000';
