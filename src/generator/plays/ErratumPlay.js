@@ -24,6 +24,7 @@ module.exports = class ErratumPlay extends ResolutionPlay {
                 params.ISSUES = this.erratum;
         }
 
+        params.REQUIRES_REBOOT = this.needsReboot();
         return params;
     }
 };

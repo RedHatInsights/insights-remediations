@@ -43,6 +43,7 @@ module.exports = class MergedPlay extends Play {
     getTemplateParameters () {
         const params = super.getTemplateParameters();
         params.ISSUES = this.issues;
+        params.REQUIRES_REBOOT = this.needsReboot();
         return params;
     }
 
