@@ -173,6 +173,25 @@ describe('resolve patchman resolutions', function () {
             resolutions: [{
                 description: 'Apply RHBA-2019:4105',
                 id: 'fix',
+                needs_reboot: false,
+                resolution_risk: -1
+            }]
+        });
+    });
+});
+
+describe('resolve patchman resolution with restart', function () {
+    test('resolution info', async () => {
+        const {body} = await request
+        .get('/v1/resolutions/patch-advisory:RHSA-2019:1873')
+        .expect(200);
+
+        body.should.eql({
+            id: 'patch-advisory:RHSA-2019:1873',
+            resolution_risk: -1,
+            resolutions: [{
+                description: 'Apply RHSA-2019:1873',
+                id: 'fix',
                 needs_reboot: true,
                 resolution_risk: -1
             }]
