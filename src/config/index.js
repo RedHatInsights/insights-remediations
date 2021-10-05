@@ -5,7 +5,7 @@ const path = require('path');
 const _ = require('lodash');
 const env = process.env;
 
-const ClowderEnabled = process.env.CLOWDER_ENABLED ? true : false;
+const acgConfig = env.ACG_CONFIG;
 
 /* eslint-disable max-len*/
 /* eslint no-process-env: off */
@@ -37,12 +37,13 @@ function getHostForApp(dependencyEndpoints, appName, deploymentName) {
         return 'http://' + dependencyEndpoints[appName][deploymentName].hostname + ':' + dependencyEndpoints[appName][deploymentName].port + '';
     }
 
-    return '';
+    return undefined;
 }
 
 function Config() {
-    const loadedConfig = (ClowderEnabled) ? require('app-common-js').LoadedConfig : '';
-    const dependencyEndpoints = (ClowderEnabled) ? require('app-common-js').DependencyEndpoints : '';
+    const loadedConfig = (acgConfig) ? require('app-common-js').LoadedConfig : '';
+    const dependencyEndpoints = (acgConfig) ? require('app-common-js').DependencyEndpoints : '';
+    const privateDepencencyEndpoints = (acgConfig) ? require('app-common-js').PrivateDependencyEndpoints : '';
 
     const config = {
 
@@ -51,7 +52,6 @@ function Config() {
             */
         env: env.NODE_ENV || 'development',
         namespace: env.NAMESPACE || 'unknown',
-        port: (env.NODE_ENV === 'test') ? 9003 : 9002,
         commit: env.OPENSHIFT_BUILD_COMMIT,
         demo: (env.DEMO_MODE === 'true') ? true : false,
         platformHostname: env.PLATFORM_HOSTNAME_URL || 'hostname',
@@ -76,7 +76,6 @@ function Config() {
                 enabled: env.LOG_CW_ENABLED === 'true',
                 level: env.LOG_CW_LEVEL || env.LOG_LEVEL || 'debug',
                 options: {
-                    group: env.LOG_CW_GROUP || env.NAMESPACE || 'remediations-local',
                     prefix: env.LOG_CW_PREFIX || 'remediations-',
                     interval: parseIntEnv('LOG_CW_INTERVAL', 1000) // 1000 ms
                 }
@@ -163,8 +162,7 @@ function Config() {
         },
 
         ssg: {
-            impl: env.SSG_IMPL,
-            host: env.SSG_HOST || 'http://localhost:8090'
+            impl: env.SSG_IMPL
         },
 
         users: {
@@ -180,13 +178,11 @@ function Config() {
 
         vmaas: {
             impl: env.VMAAS_IMPL,
-            host: env.VMAAS_HOST || 'https://webapp-vmaas-prod.apps.crcp01ue1.o9m8.p1.openshiftapps.com',
             revalidationInterval: parseIntEnv('VMAAS_REVALIDATION_INVERVAL', 60 * 60 * 12) // 12 hours
         },
 
         vulnerabilities: {
             impl: env.VULNERABILITIES_IMPL,
-            host: env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com',
             auth: env.VULNERABILITIES_AUTH || '',
             insecure: (env.VULNERABILITIES_INSECURE === 'true') ? true : false
         },
@@ -222,24 +218,28 @@ function Config() {
         }
     };
 
-    if (ClowderEnabled) {
-        config.logging.cloudwatch.options.aws_access_key_id = loadedConfig.logging.accessKeyId;
-        config.logging.cloudwatch.options.aws_secret_access_key = loadedConfig.logging.secretAccessKey;
-        config.logging.cloudwatch.options.aws_region = env.LOG_CW_REGION || loadedConfig.logging.region;
+    if (acgConfig) {
+        config.logging.cloudwatch.options.aws_access_key_id = loadedConfig.logging.cloudwatch.accessKeyId;
+        config.logging.cloudwatch.options.aws_secret_access_key = loadedConfig.logging.cloudwatch.secretAccessKey;
+        config.logging.cloudwatch.options.aws_region = loadedConfig.logging.cloudwatch.region || env.LOG_CW_REGION;
+        config.logging.cloudwatch.options.group = loadedConfig.logging.cloudwatch.logGroup || env.LOG_CW_GROUP;
 
-        config.advisor.host = env.ADVISOR_HOST || getHostForApp(dependencyEndpoints, 'advisor', 'service') || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
-        config.compliance.host = env.COMPLIANCE_HOST || getHostForApp(dependencyEndpoints, 'compliance', 'service') || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
-        config.configManager.host = env.CONFIG_MANAGER_HOST || getHostForApp(dependencyEndpoints, 'config-manager', 'service') || 'http://config-manager-service.config-manager-ci.svc.cluster.local:8081';
-        config.contentServer.host = env.CONTENT_SERVER_HOST || getHostForApp(dependencyEndpoints, 'content-server', 'service') || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
-        config.dispatcher.host = env.PLAYBOOK_DISPATCHER_HOST || getHostForApp(dependencyEndpoints, 'playbook-dispatcher', 'service') || 'http://playbook-dispatcher-api.playbook-dispatcher-ci.svc.cluster.local:8000';
-        config.inventory.host = env.INVENTORY_HOST || getHostForApp(dependencyEndpoints, 'inventory', 'service') || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';
-        config.patchman.host = env.PATCHMAN_HOST || getHostForApp(dependencyEndpoints, 'patchman', 'service') || 'http://localhost:8080';
-        config.rbac.host = env.RBAC_HOST || getHostForApp(dependencyEndpoints, 'rbac', 'service') || 'http://localhost:8080';
-        config.receptor.host = env.RECEPTOR_HOST || getHostForApp(dependencyEndpoints, 'receptor', 'service') || 'http://localhost:9090';
-        config.sources.host = env.SOURCES_HOST || getHostForApp(dependencyEndpoints, 'sources', 'service') || 'http://localhost:8080';
+        config.advisor.host = getHostForApp(dependencyEndpoints, 'advisor', 'service') || env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
+        config.compliance.host = getHostForApp(dependencyEndpoints, 'compliance', 'compliance-backend') || env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
+        config.configManager.host = getHostForApp(dependencyEndpoints, 'config-manager', 'service') || env.CONFIG_MANAGER_HOST || 'http://config-manager-service.config-manager-ci.svc.cluster.local:8081';
+        config.contentServer.host = getHostForApp(dependencyEndpoints, 'advisor', 'service') || env.CONTENT_SERVER_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
+        config.dispatcher.host = getHostForApp(dependencyEndpoints, 'playbook-dispatcher', 'api') || env.PLAYBOOK_DISPATCHER_HOST || 'http://playbook-dispatcher-api.playbook-dispatcher-ci.svc.cluster.local:8000';
+        config.inventory.host = getHostForApp(dependencyEndpoints, 'host-inventory', 'service') || env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';
+        config.patchman.host = getHostForApp(dependencyEndpoints, 'patchman', 'manager') || env.PATCHMAN_HOST || 'http://localhost:8080';
+        config.rbac.host = getHostForApp(dependencyEndpoints, 'rbac', 'service') || env.RBAC_HOST || 'http://localhost:8080';
+        config.receptor.host = getHostForApp(dependencyEndpoints, 'receptor', 'gateway-clowder') || env.RECEPTOR_HOST || 'http://localhost:9090';
+        config.sources.host = getHostForApp(dependencyEndpoints, 'sources-api', 'svc') || env.SOURCES_HOST || 'http://localhost:8080';
+        config.ssg.host = getHostForApp(privateDepencencyEndpoints, 'compliance-ssg', 'service') || env.SSG_HOST || 'http://localhost:8090';
+        config.vmaas.host = getHostForApp(dependencyEndpoints, 'vmaas', 'webapp-service') || env.VMAAS_HOST || 'https://webapp-vmaas-prod.apps.crcp01ue1.o9m8.p1.openshiftapps.com';
+        config.vulnerabilities.host = getHostForApp(dependencyEndpoints, 'vulnerability-engine', 'manager-service') || env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com';
 
-        config.db.username = loadedConfig.database.username;
-        config.db.password = loadedConfig.database.password;
+        config.db.username = loadedConfig.database.adminUsername;
+        config.db.password = loadedConfig.database.adminPassword;
         config.db.database = loadedConfig.database.name;
         config.db.host = loadedConfig.database.hostname;
 
@@ -249,16 +249,19 @@ function Config() {
             config.redis.password = loadedConfig.inMemoryDb.password;
         }
 
-        if (env.DB_SSL_ENABLED !== 'false') {
+        if (loadedConfig.database.sslMode !== 'disable') {
             config.db.ssl = true;
             config.db.dialectOptions.ssl = {
                 ca: fs.readFileSync(loadedConfig.rdsCa()) // eslint-disable-line security/detect-non-literal-fs-filename
             };
         }
+
+        config.port = loadedConfig.publicPort;
     } else {
         config.logging.cloudwatch.options.aws_access_key_id = env.LOG_CW_KEY;
         config.logging.cloudwatch.options.aws_secret_access_key = env.LOG_CW_SECRET;
         config.logging.cloudwatch.options.aws_region = env.LOG_CW_REGION;
+        config.logging.cloudwatch.options.group = env.LOG_CW_GROUP || env.NAMESPACE || 'remediations-local';
 
         config.advisor.host = env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
         config.compliance.host = env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
@@ -270,6 +273,9 @@ function Config() {
         config.rbac.host = env.RBAC_HOST || 'http://localhost:8080';
         config.receptor.host = env.RECEPTOR_HOST || 'http://localhost:9090';
         config.sources.host = env.SOURCES_HOST || 'http://localhost:8080';
+        config.ssg.host = env.SSG_HOST || 'http://localhost:8090';
+        config.vmaas.host = env.VMAAS_HOST || 'https://webapp-vmaas-prod.apps.crcp01ue1.o9m8.p1.openshiftapps.com';
+        config.vulnerabilities.host = env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com',
 
         config.db.username = env.DB_USERNAME || 'postgres';
         config.db.password = env.DB_PASSWORD || 'remediations';
@@ -288,19 +294,14 @@ function Config() {
                 ca: fs.readFileSync(env.DB_CA) // eslint-disable-line security/detect-non-literal-fs-filename
             };
         }
+
+        config.port = (env.NODE_ENV === 'test') ? 9003 : 9002;
     }
 
     return config;
 }
 
 config.path.base = `${config.path.prefix}/${config.path.app}`;
-
-if (env.DB_SSL_ENABLED !== 'false' && env.DB_CA) {
-    config.db.ssl = true;
-    config.db.dialectOptions.ssl = {
-        ca: fs.readFileSync(env.DB_CA) // eslint-disable-line security/detect-non-literal-fs-filename
-    };
-}
 
 if (['development', 'production', 'test'].includes(config.env)) {
     if (fs.existsSync(path.join(__dirname, `${config.env}.js`))) { // eslint-disable-line security/detect-non-literal-fs-filename
