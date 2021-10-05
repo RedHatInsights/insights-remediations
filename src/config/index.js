@@ -225,18 +225,18 @@ function Config() {
         config.logging.cloudwatch.options.group = loadedConfig.logging.cloudwatch.logGroup || env.LOG_CW_GROUP;
 
         config.advisor.host = getHostForApp(dependencyEndpoints, 'advisor', 'service') || env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
-        config.compliance.host = getHostForApp(dependencyEndpoints, 'compliance-backend', 'service') || env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
+        config.compliance.host = getHostForApp(dependencyEndpoints, 'compliance', 'compliance-backend') || env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
         config.configManager.host = getHostForApp(dependencyEndpoints, 'config-manager', 'service') || env.CONFIG_MANAGER_HOST || 'http://config-manager-service.config-manager-ci.svc.cluster.local:8081';
         config.contentServer.host = getHostForApp(dependencyEndpoints, 'advisor', 'service') || env.CONTENT_SERVER_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
         config.dispatcher.host = getHostForApp(dependencyEndpoints, 'playbook-dispatcher', 'api') || env.PLAYBOOK_DISPATCHER_HOST || 'http://playbook-dispatcher-api.playbook-dispatcher-ci.svc.cluster.local:8000';
         config.inventory.host = getHostForApp(dependencyEndpoints, 'host-inventory', 'service') || env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';
         config.patchman.host = getHostForApp(dependencyEndpoints, 'patchman', 'manager') || env.PATCHMAN_HOST || 'http://localhost:8080';
         config.rbac.host = getHostForApp(dependencyEndpoints, 'rbac', 'service') || env.RBAC_HOST || 'http://localhost:8080';
-        config.receptor.host = getHostForApp(dependencyEndpoints, 'receptor', 'service') || env.RECEPTOR_HOST || 'http://localhost:9090';
+        config.receptor.host = getHostForApp(dependencyEndpoints, 'receptor', 'gateway-clowder') || env.RECEPTOR_HOST || 'http://localhost:9090';
         config.sources.host = getHostForApp(dependencyEndpoints, 'sources-api', 'svc') || env.SOURCES_HOST || 'http://localhost:8080';
         config.ssg.host = getHostForApp(privateDepencencyEndpoints, 'compliance-ssg', 'service') || env.SSG_HOST || 'http://localhost:8090';
-        config.vmaas.host = getHostForApp(dependencyEndpoints, 'vmaas', 'webapp') || env.VMAAS_HOST || 'https://webapp-vmaas-prod.apps.crcp01ue1.o9m8.p1.openshiftapps.com';
-        config.vulnerabilities.host = getHostForApp(dependencyEndpoints, 'vulnerability-engine', 'manager-admin') || env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com';
+        config.vmaas.host = getHostForApp(dependencyEndpoints, 'vmaas', 'webapp-service') || env.VMAAS_HOST || 'https://webapp-vmaas-prod.apps.crcp01ue1.o9m8.p1.openshiftapps.com';
+        config.vulnerabilities.host = getHostForApp(dependencyEndpoints, 'vulnerability-engine', 'manager-service') || env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com';
 
         config.db.username = loadedConfig.database.adminUsername;
         config.db.password = loadedConfig.database.adminPassword;

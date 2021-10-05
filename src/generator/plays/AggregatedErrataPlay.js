@@ -19,11 +19,11 @@ module.exports = class MergedPlay extends Play {
         switch (plays[0].issueType) {
             case 'erratum':
                 this.template = ERRATA_TEMPLATE;
-                this.issues = _.join(this.issues, ' --advisory ');
+                this.issues = '--advisory ' + _.join(this.issues, ' --advisory ');
                 break;
             case 'cve':
                 this.template = CVES_TEMPLATE;
-                this.issues = _.join(this.issues, ' --cve ');
+                this.issues = '--cve ' + _.join(this.issues, ' --cve ');
                 break;
             default:
                 this.template = PACKAGE_TEMPLATE;
