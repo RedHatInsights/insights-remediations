@@ -89,7 +89,6 @@ docker-compose -f build/docker-compose.yml build
 ```
 
 ## Releases
-
 Upon any change in the master branch the branch is tested, an image is built and deployed in CI and QA environments automatically.
 This process is controlled by the [deployment Jenkinsfile](./deployment/Jenkinsfile).
 
