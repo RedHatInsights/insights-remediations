@@ -19,7 +19,7 @@ exports[`aggregates multiple errata into a single play 1`] = `
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   vars:
     insights_issues: \\"--advisory RHSA-2017:1382 --advisory RHSA-2017:1852 --advisory RHSA-2017:2679 --advisory RHSA-2018:0502\\"
-    requres_reboot: \\"true\\"
+    requires_reboot: \\"true\\"
     insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
@@ -165,7 +165,7 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   vars:
     insights_issues: \\"--advisory RHSA-2017:1382 --advisory RHSA-2017:1852 --advisory RHSA-2017:2679 --advisory RHSA-2018:0502\\"
-    requres_reboot: \\"true\\"
+    requires_reboot: \\"true\\"
     insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
@@ -359,7 +359,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   vars:
     insights_issues: \\"--advisory RHSA-2018:0502\\"
-    requres_reboot: \\"true\\"
+    requires_reboot: \\"true\\"
     insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
@@ -692,7 +692,7 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   vars:
     insights_issues: \\"--advisory RHSA-2018:0502\\"
-    requres_reboot: \\"true\\"
+    requires_reboot: \\"true\\"
     insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV

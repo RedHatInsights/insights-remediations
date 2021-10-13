@@ -18,7 +18,7 @@ exports[`patchman aggregates multiple advisories into a single play 1`] = `
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   vars:
     insights_issues: \\"--advisory RHBA-2019:0689 --advisory RHBA-2019:2871 --advisory RHBA-2019:4105\\"
-    requres_reboot: \\"false\\"
+    requires_reboot: \\"false\\"
     insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
@@ -112,7 +112,7 @@ exports[`patchman generates a playbook including EPEL advisory 1`] = `
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   vars:
     insights_issues: \\"--advisory FEDORA-EPEL-2021-1ad3a13e05 --advisory RHBA-2019:4105\\"
-    requres_reboot: \\"false\\"
+    requires_reboot: \\"false\\"
     insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
@@ -204,7 +204,7 @@ exports[`patchman generates a simple playbook with multiple patchman advisory re
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   vars:
     insights_issues: \\"--advisory RHBA-2019:4105\\"
-    requres_reboot: \\"false\\"
+    requires_reboot: \\"false\\"
     insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
@@ -257,7 +257,7 @@ exports[`patchman generates a simple playbook with multiple patchman advisory re
   hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com\\"
   vars:
     insights_issues: \\"--advisory RHBA-2019:0689 --advisory RHBA-2019:2871\\"
-    requres_reboot: \\"false\\"
+    requires_reboot: \\"false\\"
     insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
@@ -349,7 +349,7 @@ exports[`patchman generates a simple playbook with single patchman advisory reme
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   vars:
     insights_issues: \\"--advisory RHBA-2019:4105\\"
-    requres_reboot: \\"false\\"
+    requires_reboot: \\"false\\"
     insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV

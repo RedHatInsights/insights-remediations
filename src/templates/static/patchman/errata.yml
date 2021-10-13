@@ -2,7 +2,7 @@
   hosts: "@@HOSTS@@"
   vars:
     insights_issues: "@@ISSUES@@"
-    requres_reboot: "@@REQUIRES_REBOOT@@"
+    requires_reboot: "@@REQUIRES_REBOOT@@"
     insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
