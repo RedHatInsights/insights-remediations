@@ -89,7 +89,6 @@ node {
                 }
 
                 stage('contract tests') {
-                    env.VMAAS_IMPL='impl'
                     env.SSG_IMPL='impl'
                     env.SSG_HOST="http://playbooks-ssg.${NS}.svc:8080"
 
