@@ -27,7 +27,7 @@ objects:
     inMemoryDb: true
     deployments:
     - name: api
-      minReplicas: 2
+      minReplicas: ${{MIN_REPLICAS}}
       web: true
       podSpec:
         image: quay.io/cloudservices/remediations:${IMAGE_TAG}
@@ -277,3 +277,6 @@ parameters:
 - name: VULNERABILITIES_HOST
 - name: XJOIN_SEARCH_URL
   value: http://${XJOIN_SEARCH_URL}:4000/graphql
+- name: MIN_REPLICAS
+  description: Replica count for api service
+  value: "2"
