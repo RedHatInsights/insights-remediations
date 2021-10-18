@@ -38,7 +38,7 @@ Insights Remediations supports the following types of remediations:
 
 ### Prerequisities
 
-* node.js 10
+* node.js 12
 
 ### Running the application locally
 
@@ -49,6 +49,7 @@ Insights Remediations supports the following types of remediations:
 
 1. ```docker-compose -f build/docker-compose.yml up db```
 1. ```docker-compose -f build/docker-compose.yml up redis```
+1. ```npm ci```
 1. ```npm run db:ims```
 1. ```npm start```
 1. open http://localhost:9002
