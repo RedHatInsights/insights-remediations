@@ -32,25 +32,6 @@ module.exports = new class extends Connector {
         ).then(res => _.get(res, ['data'], null));
     }
 
-    getPackage (id, refresh = false) {
-        const uri = new URI(host);
-        uri.path('/api/patch/v1/packages');
-        uri.segment(id);
-
-        return this.doHttp({
-            uri: uri.toString(),
-            method: 'GET',
-            json: true,
-            headers: this.getForwardedHeaders()
-        },
-        {
-            refresh,
-            revalidationInterval
-        },
-        this.metrics
-        ).then(res => _.get(res, ['data'], null));
-    }
-
     async ping () {
         const result = await this.getErratum('RHBA-2019:0689', true);
         assert(result.id === 'RHBA-2019:0689');
