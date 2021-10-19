@@ -40,6 +40,27 @@ const ERRATA = {
     }
 };
 
+const PACKAGES = {
+    'rpm-4.14.2-37.el8.x86_64': {
+        description: 'RPM package manager.'
+    },
+    'systemd-239-13.el8_0.5.x86_64': {
+        description: 'systemd is a system and service manager that runs as PID 1 and starts.'
+    },
+    'libstdc++-8.3.1-5.1.el8.x86_64': {
+        description: 'GNU Standard C++ Library'
+    },
+    'qemu-guest-agent-15:4.2.0-34.module+el8.3.0+8829+e7a0a3ea.1.x86_64': {
+        description: 'QEMU Guest Agent'
+    },
+    'sOME.my-odd_++pkg-1000:11.23.444.5-8.1.el8.x86_64': {
+        description: 'Some testing rpm with weird package name'
+    },
+    'libgudev1-219-78.el7_9.3.x86_64': {
+        description: 'Libraries for adding libudev support'
+    }
+};
+
 module.exports = new class extends Connector {
     constructor () {
         super(module);
@@ -49,8 +70,12 @@ module.exports = new class extends Connector {
         return P.resolve(ERRATA[id]);
     }
 
+    getPackage (id) {
+        const ret = PACKAGES[id] || {};
+        return P.resolve(ret);
+    }
+
     ping () {
         return this.getCve('RHBA-2019:4105');
     }
 }();
-

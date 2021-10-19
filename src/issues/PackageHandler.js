@@ -3,14 +3,14 @@
 const Handler = require('./Handler');
 const errors = require('../errors');
 
-const vmaas = require('../connectors/vmaas');
+const patchman = require('../connectors/patchman');
 const packageResolver = new(require('../resolutions/resolvers/PackageResolver'))();
 const cveFactory = new(require('../generator/factories/CVEFactory'))();
 
 module.exports = class PackageHandler extends Handler {
 
     getIssueDetailsInternal (id) {
-        return vmaas.getPackage(id.issue);
+        return patchman.getPackage(id.issue);
     }
 
     async getIssueDetails (id) {

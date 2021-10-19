@@ -1,13 +1,13 @@
 'use strict';
 
-const vmaas = require('../../connectors/vmaas');
+const patchman = require('../../connectors/patchman');
 const ErratumResolution = require('../ErratumResolution');
 const CVEResolver = require('./CVEResolver');
 
 module.exports = class PackageResolver extends CVEResolver {
 
     fetch (id) {
-        return vmaas.getPackage(id.issue);
+        return patchman.getPackage(id.issue);
     }
 
     build(id, entity) {
