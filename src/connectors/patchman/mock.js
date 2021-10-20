@@ -53,4 +53,3 @@ module.exports = new class extends Connector {
         return this.getCve('RHBA-2019:4105');
     }
 }();
-
