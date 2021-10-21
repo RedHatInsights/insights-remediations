@@ -47,7 +47,7 @@ function getHandler (id) {
                 return patchmanHandler;
             }
 
-            return packageHandler; // TODO: remove after switching to "patch-package"
+            throw errors.unknownIssue(id);
         case 'patch-package':
             if (NEVRA_PATTERN.test(id.issue)) {
                 return packageHandler;
