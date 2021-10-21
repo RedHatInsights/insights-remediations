@@ -134,7 +134,8 @@ exports[`adds diagnosis play 1`] = `
   hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.ansible.example.com\\"
   vars:
     insights_issues: \\"--advisory RHSA-2018:0502\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues\\"
+    requires_reboot: \\"true\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTVlpCZDFWQldWTjZVM2R6ZG5jMU9FUXJhalZ3VGtGUmFsUTFVUzh2Vm1ZNVRE
@@ -175,7 +176,7 @@ exports[`adds diagnosis play 1`] = `
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: true
+        insights_needs_reboot: \\"{{requires_reboot}}\\"
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
@@ -1869,7 +1870,8 @@ exports[`generates an erratum-based playbook 1`] = `
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
   vars:
     insights_issues: \\"--advisory RHSA-2018:0502\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues\\"
+    requires_reboot: \\"true\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTVlpCZDFWQldWTjZVM2R6ZG5jMU9FUXJhalZ3VGtGUmFsUTFVUzh2Vm1ZNVRE
@@ -1910,7 +1912,7 @@ exports[`generates an erratum-based playbook 1`] = `
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: true
+        insights_needs_reboot: \\"{{requires_reboot}}\\"
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
@@ -2506,7 +2508,8 @@ exports[`sorts the hosts line 1`] = `
   hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,d2c8db4e-bd6a-11e8-a355-529269fb1459\\"
   vars:
     insights_issues: \\"--advisory RHSA-2018:0502\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues\\"
+    requires_reboot: \\"true\\"
+    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTVlpCZDFWQldWTjZVM2R6ZG5jMU9FUXJhalZ3VGtGUmFsUTFVUzh2Vm1ZNVRE
@@ -2547,7 +2550,7 @@ exports[`sorts the hosts line 1`] = `
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: true
+        insights_needs_reboot: \\"{{requires_reboot}}\\"
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
