@@ -10,7 +10,7 @@ objects:
     name: remediations
   spec:
     envName: ${ENV_NAME}
-    optionalDependencies:
+    dependencies:
     - compliance
     - compliance-ssg
     - config-manager
