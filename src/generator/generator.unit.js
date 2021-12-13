@@ -2,7 +2,7 @@
 /* eslint-disable max-len */
 
 const errors = require('../errors');
-const { request, mockVmaas, getSandbox, reqId } = require('../test');
+const { request, mockVmaas, getSandbox, reqId, auth } = require('../test');
 const { NON_EXISTENT_SYSTEM } = require('../connectors/inventory/mock');
 
 test('generates a simple playbook', () => {
@@ -242,6 +242,24 @@ test('generates a CVE playbook if CSAW rule is not found', () => {
 
     return request
     .post('/v1/playbook')
+    .send(data)
+    .expect(200)
+    .then(res => expect(res.text).toMatchSnapshot());
+});
+
+test('generates a CVE playbook over cert-auth', () => {
+    mockVmaas();
+
+    const data = {
+        issues: [{
+            id: 'vulnerabilities:CVE-2017-17712:CVE_2017_6075_kernel|UNDEFINED',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .set(auth.cert02)
     .send(data)
     .expect(200)
     .then(res => expect(res.text).toMatchSnapshot());
