@@ -238,10 +238,10 @@ function Config() {
         config.vmaas.host = getHostForApp(dependencyEndpoints, 'vmaas', 'webapp-service') || env.VMAAS_HOST || 'https://webapp-vmaas-prod.apps.crcp01ue1.o9m8.p1.openshiftapps.com';
         config.vulnerabilities.host = getHostForApp(dependencyEndpoints, 'vulnerability-engine', 'manager-service') || env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com';
 
-        config.db.username = loadedConfig.database.adminUsername;
-        config.db.password = loadedConfig.database.adminPassword;
-        config.db.database = loadedConfig.database.name;
-        config.db.host = loadedConfig.database.hostname;
+        config.db.username = loadedConfig.database.adminUsername || env.DB_USERNAME;
+        config.db.password = loadedConfig.database.adminPassword || env.DB_PASSWORD;
+        config.db.database = loadedConfig.database.name || env.DB_DATABASE;
+        config.db.host = loadedConfig.database.hostname || env.DB_HOST;
 
         if (config.redis.enabled) {
             config.redis.host = loadedConfig.inMemoryDb.hostname;
@@ -281,6 +281,7 @@ function Config() {
         config.db.password = env.DB_PASSWORD || 'remediations';
         config.db.database = env.DB_DATABASE || 'remediations';
         config.db.host = env.DB_HOST || '127.0.0.1';
+        config.db.port = env.DB_PORT || '5432';
 
         if (config.redis.enabled) {
             config.redis.host = env.REDIS_HOST || 'localhost';
