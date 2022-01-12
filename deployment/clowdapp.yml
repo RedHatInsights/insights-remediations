@@ -30,7 +30,7 @@ objects:
       minReplicas: ${{MIN_REPLICAS}}
       webServices:
         public:
-        enabled: True
+          enabled: true
       podSpec:
         image: quay.io/cloudservices/remediations:${IMAGE_TAG}
         initContainers:
