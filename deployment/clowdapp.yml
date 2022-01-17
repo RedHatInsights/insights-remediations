@@ -18,7 +18,7 @@ objects:
     - patchman
     - playbook-dispatcher
     - rbac
-    - receptor-gateway
+    - receptor
     - sources-api
     - vmaas
     - vulnerability-engine
