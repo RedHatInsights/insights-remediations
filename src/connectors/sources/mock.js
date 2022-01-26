@@ -90,6 +90,11 @@ module.exports = new class extends Connector {
         .value();
     }
 
+    async getTenant () {
+        // TODO: Update when this is implemented
+        return '12345';
+    }
+
     async ping () {
         await this.findSources('test');
     }

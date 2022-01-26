@@ -187,4 +187,49 @@ describe('sources impl', function () {
             spy.callCount.should.equal(0);
         });
     });
+
+    describe('getTenant', function () {
+        test('get tenant from given satellite id', async function () {
+            const http = base.getSandbox().stub(request, 'run').resolves({
+                statusCode: 200,
+                body: {
+                    meta: {
+                        count: 1,
+                        limit: 100,
+                        offset: 0
+                    },
+                    data: [{
+                        created_at: '2019-12-13T11:47:01Z',
+                        id: '49',
+                        name: '1643138807',
+                        source_type_id: '1',
+                        uid: '42431bd4-7f3f-4c71-b38a-c731addda6d7',
+                        updated_at: '2022-01-25T19:26:47Z',
+                        tenant: '6089719'
+                    }]
+                },
+                headers: {}
+            });
+
+            const result = await impl.getTenant('12345');
+            result.should.have.size(1);
+            result[0].should.have.property('tenant', '6089719');
+
+            const options = http.args[0][0];
+            options.uri.should.equal('http://localhost:8080/api/internal/v2.0/sources?id=12345');
+            options.headers.should.have.size(2);
+            options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
+            options.headers.should.have.property('x-rh-identity', 'identity');
+        });
+
+        test('returns null on 404', async function () {
+            base.getSandbox().stub(request, 'run').resolves({
+                statusCode: 404,
+                headers: {}
+            });
+
+            const result = await impl.getTenant('12345');
+            (result === null).should.be.true();
+        });
+    });
 });

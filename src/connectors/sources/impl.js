@@ -15,6 +15,7 @@ module.exports = new class extends Connector {
         super(module);
         this.sourcesMetrics = metrics.createConnectorMetric(this.getName(), 'getSources');
         this.endpointMetrics = metrics.createConnectorMetric(this.getName(), 'getEndpoints');
+        this.tenantMetrics = metrics.createConnectorMetric(this.getName(), 'getTenant');
     }
 
     async findSources (ids) {
@@ -78,6 +79,26 @@ module.exports = new class extends Connector {
         });
 
         return sources;
+    }
+
+    // TODO: Update this once the Sources team allows for querying of list of ids
+    async getTenant (satellite_id) {
+        const uri = this.buildUri(host, 'internal', 'v2.0', 'sources');
+        uri.query({id: satellite_id});
+
+        const result = await this.doHttp({
+            uri: uri.toString(),
+            method: 'GET',
+            json: true,
+            rejectUnauthorized: !insecure,
+            headers: this.getForwardedHeaders()
+        }, false, this.tenantMetrics);
+
+        if (!result) {
+            return null;
+        }
+
+        return result.data;
     }
 
     async ping () {
