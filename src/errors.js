@@ -194,5 +194,13 @@ exports.internal = {
 
     preconditionFailed (msg) {
         return new InternalError('PRECONDITION_FAILED', msg);
+    },
+
+    systemDetailsMissing (e, msg) {
+        return new InternalError('MISSING_SYSTEM_DETAILS', msg, {cause: e});
+    },
+
+    systemProfileMissing (e, msg) {
+        return new InternalError('MISSING_SYSTEM_PROFILE', msg, {cause: e});
     }
 };
