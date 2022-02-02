@@ -266,14 +266,14 @@ exports.playbook = errors.async(async function (req, res) {
             }
 
             all_systems.forEach(system => {
-                try {
-                    // eslint-disable-next-line security/detect-object-injection
-                    const ownerId = batchProfileInfo[system].system_profile.owner_id;
-                    if (!_.isEqual(req.identity.system.cn, ownerId)) {
-                        throw errors.unauthorizedGeneration(req.identity.system.cn);
-                    }
-                } catch (e) {
-                    throw errors.internal.systemProfileMissing(e, `Missing profile for system: ${system}`);
+                if (!_.has(batchProfileInfo, `[${system}].system_profile.owner_id`)) {
+                    throw errors.internal.systemProfileMissing(null, `Missing profile for system: ${system}`);
+                }
+
+                // eslint-disable-next-line security/detect-object-injection
+                const ownerId = batchProfileInfo[system].system_profile.owner_id;
+                if (!_.isEqual(req.identity.system.cn, ownerId)) {
+                    throw errors.unauthorizedGeneration(req.identity.system.cn);
                 }
             });
         }
