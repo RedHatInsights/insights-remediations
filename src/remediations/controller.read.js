@@ -249,7 +249,7 @@ exports.playbook = errors.async(async function (req, res) {
                 issue.systems = _.filter(issue.systems, system => {
                     try {
                         const satelliteFacts = _.find(batchDetailInfo[system].facts, SATELLITE_NAMESPACE).facts;
-                        return _.isEqual(satelliteFacts.organization_id, sat_org_id) // todo: verify identifier
+                        return _.isEqual(satelliteFacts.organization_id, sat_org_id)
                     } catch (e) {
                         throw errors.internal.systemDetailsMissing(e, `Missing details for system: ${system}`);
                     }
