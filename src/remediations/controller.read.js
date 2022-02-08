@@ -244,15 +244,14 @@ exports.playbook = errors.async(async function (req, res) {
         // remove any systems not in specified satellite organization
         if (sat_org_id) {
             const batchDetailInfo = await inventory.getSystemDetailsBatch(all_systems);
-
             _.forEach(normalizedIssues, issue => {
                 issue.systems = _.filter(issue.systems, system => {
-                    try {
-                        const satelliteFacts = _.find(batchDetailInfo[system].facts, SATELLITE_NAMESPACE).facts;
-                        return _.isEqual(satelliteFacts.organization_id, sat_org_id)
-                    } catch (e) {
-                        throw errors.internal.systemDetailsMissing(e, `Missing details for system: ${system}`);
-                    }
+                    const org_id = _.chain(batchDetailInfo[system].facts)
+                        .find(SATELLITE_NAMESPACE)
+                        .get('facts.organization_id')
+                        .toString(); //organization_id is an int (boo!)
+
+                    return _.isEqual(org_id, sat_org_id);
                 });
             });
         }

@@ -104,7 +104,8 @@ function generateSystem (id) {
             {
                 namespace: 'satellite',
                 facts: {
-                    satellite_instance_id: _.get(SATELLITES, satelliteIndex)
+                    satellite_instance_id: _.get(SATELLITES, satelliteIndex),
+                    organization_id: 2
                 }
             }
         ]
