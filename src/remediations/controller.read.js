@@ -226,6 +226,10 @@ exports.playbook = errors.async(async function (req, res) {
 
     let normalizedIssues = generator.normalizeIssues(issues);
 
+    if (_.isEmpty(normalizedIssues)) {
+        return noContent(res);
+    }
+
     // remove any hosts not in selected_host list
     if (selected_hosts) {
         _.forEach(normalizedIssues, issue => {
