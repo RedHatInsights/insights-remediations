@@ -171,6 +171,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/RemediationId'
         - $ref: '#/components/parameters/SelectedHosts'
+        - $ref: '#/components/parameters/SatOrgId'
         - $ref: '#/components/parameters/LocalHost'
       responses:
         200:
@@ -687,6 +688,13 @@ components:
       schema:
         type: string
         format: uuid
+    SatOrgId:
+      in: query
+      name: sat_org
+      description: 'Organization ID passed by satellite'
+      required: false
+      schema:
+        type: string
 
     IssueSystemsSort:
       in: query

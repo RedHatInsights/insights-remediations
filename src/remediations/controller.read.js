@@ -19,6 +19,8 @@ const notFound = res => res.status(404).json();
 const noContent = res => res.sendStatus(204);
 const badRequest = res => res.sendStatus(400);
 
+const SATELLITE_NAMESPACE = Object.freeze({namespace: 'satellite'});
+
 const catchErrorCode = (code, fn) => e => {
     if (e.error && e.error.code === code) {
         return fn(e);
@@ -26,38 +28,6 @@ const catchErrorCode = (code, fn) => e => {
 
     throw e;
 };
-
-async function fetchRemediation (req, res) {
-    const id = req.params.id;
-    let hosts = req.query.hosts;
-
-    if (_.isUndefined(req.user)) {
-        if (_.isUndefined(hosts)) {
-            const ownedSystems = await inventory.getSystemsByOwnerId(req.identity.system.cn);
-            hosts = _.map(ownedSystems, system => {return system.id;});
-        }
-
-        const batchProfileInfo = await inventory.getSystemProfileBatch(hosts);
-
-        if (_.isEmpty(batchProfileInfo)) {
-            throw notFound(res);
-        }
-
-        hosts.forEach(host => {
-            if (_.has(batchProfileInfo, host)) {
-                // eslint-disable-next-line security/detect-object-injection
-                const ownerId = batchProfileInfo[host].system_profile.owner_id;
-                if (!_.isEqual(req.identity.system.cn, ownerId)) {
-                    throw errors.unauthorizedGeneration(req.identity.system.cn);
-                }
-            }
-        });
-
-        return queries.get(id, req.identity.account_number);
-    }
-
-    return queries.get(id, req.user.account_number, req.user.username);
-}
 
 function resolveResolutions (...remediations) {
     return P.all(_(remediations).flatMap('issues').map(async issue => {
@@ -233,11 +203,16 @@ exports.get = errors.async(async function (req, res) {
 });
 
 exports.playbook = errors.async(async function (req, res) {
+    const id = req.params.id;
     const selected_hosts = req.query.hosts;
     const localhost = req.query.localhost;
+    const sat_org_id = req.query.sat_org;
+    const cert_auth = _.isUndefined(req.user);
 
-    // If /playbook is called with cert-auth go through additional host validation check before querying remediation
-    const remediation = await fetchRemediation(req, res);
+    const account_number = cert_auth ? req.identity.account_number : req.user.account_number;
+    const creator = cert_auth ? null : req.user.username;
+
+    const remediation = await queries.get(id, account_number, creator);
 
     if (!remediation) {
         return notFound(res);
@@ -251,17 +226,67 @@ exports.playbook = errors.async(async function (req, res) {
 
     let normalizedIssues = generator.normalizeIssues(issues);
 
+    if (_.isEmpty(normalizedIssues)) {
+        return noContent(res);
+    }
+
+    // remove any hosts not in selected_host list
     if (selected_hosts) {
         _.forEach(normalizedIssues, issue => {
             issue.systems = _.filter(issue.systems, system => selected_hosts.includes(system));
         });
+    }
 
-        // If any issues have 0 systems based on the changes above filter them out
-        normalizedIssues = _.filter(normalizedIssues, issue => !_.isEmpty(issue.systems));
+    if (sat_org_id || cert_auth) {
+        // get list of unique systems from issues
+        let all_systems = _(normalizedIssues)
+            .map('systems')
+            .flatten()
+            .uniq()
+            .value();
 
-        if (_.isEmpty(normalizedIssues)) { // If all issues are filtered return 404
-            return notFound(res);
+        // remove any systems not in specified satellite organization
+        if (sat_org_id) {
+            const batchDetailInfo = await inventory.getSystemDetailsBatch(all_systems);
+            _.forEach(normalizedIssues, issue => {
+                issue.systems = _.filter(issue.systems, system => {
+                    const org_id = _.chain(batchDetailInfo[system].facts)
+                        .find(SATELLITE_NAMESPACE)
+                        .get('facts.organization_id')
+                        .toString(); //organization_id is an int (boo!)
+
+                    return _.isEqual(org_id, sat_org_id);
+                });
+            });
         }
+
+        // validate system ownership if using certificate authentication
+        if (cert_auth) {
+            const batchProfileInfo = await inventory.getSystemProfileBatch(all_systems);
+
+            if (_.isEmpty(batchProfileInfo)) {
+                return notFound(res); // Eh, this is really more of an internal error...
+            }
+
+            all_systems.forEach(system => {
+                if (!_.has(batchProfileInfo, `[${system}].system_profile.owner_id`)) {
+                    throw errors.internal.systemProfileMissing(null, `Missing profile for system: ${system}`);
+                }
+
+                // eslint-disable-next-line security/detect-object-injection
+                const ownerId = batchProfileInfo[system].system_profile.owner_id;
+                if (!_.isEqual(req.identity.system.cn, ownerId)) {
+                    throw errors.unauthorizedGeneration(req.identity.system.cn);
+                }
+            });
+        }
+    }
+
+    // If any issues have 0 systems based on the changes above filter them out
+    normalizedIssues = _.filter(normalizedIssues, issue => !_.isEmpty(issue.systems));
+
+    if (_.isEmpty(normalizedIssues)) { // If all issues are filtered return 404
+        return notFound(res);
     }
 
     const playbook = await generator.playbookPipeline({
