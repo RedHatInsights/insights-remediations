@@ -180,6 +180,57 @@ objects:
             value: http://${VULNERABILITIES_HOST}:8443
           - name: XJOIN_SEARCH_URL
             value: http://${XJOIN_SEARCH_URL}:4000/graphql
+    jobs:
+    - name: floorist
+      schedule: ${FLOORIST_SCHEDULE}
+      suspend: ${{FLOORIST_SUSPEND}}
+      concurrencyPolicy: Forbid
+      podSpec:
+        image: ${FLOORIST_IMAGE}:${FLOORIST_IMAGE_TAG}
+        env:
+        - name: AWS_BUCKET
+          valueFrom:
+            secretKeyRef:
+              name: ${FLOORIST_BUCKET_SECRET_NAME}
+              key: bucket
+        - name: AWS_REGION
+          valueFrom:
+            secretKeyRef:
+              name: ${FLOORIST_BUCKET_SECRET_NAME}
+              key: aws_region
+        - name: AWS_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: ${FLOORIST_BUCKET_SECRET_NAME}
+              key: endpoint
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: ${FLOORIST_BUCKET_SECRET_NAME}
+              key: aws_access_key_id
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ${FLOORIST_BUCKET_SECRET_NAME}
+              key: aws_secret_access_key
+        - name: FLOORPLAN_FILE
+          value: "/tmp/floorplan/floorplan.yaml"
+        - name: LOGLEVEL
+          value: ${FLOORIST_LOGLEVEL}
+        volumeMounts:
+        - name: floorplan-volume
+          mountPath: "/tmp/floorplan"
+        volumes:
+          - name: floorplan-volume
+            configMap:
+              name: floorplan
+      resources:
+          limits:
+            cpu: "${CPU_LIMIT_FLOO}"
+            memory: "${MEMORY_LIMIT_FLOO}"
+          requests:
+            cpu: "${CPU_REQUEST_FLOO}"
+            memory: "${MEMORY_REQUEST_FLOO}"
 
 - apiVersion: v1
   kind: Secret
@@ -196,6 +247,26 @@ objects:
   data:
     key: ZHVtbXk=
   type: Opaque
+
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: floorplan
+  data:
+    floorplan.yaml: |
+      - prefix: insights/remediations/remediations_counts
+        query: >-
+          SELECT id as remediations_id,
+                 name as remediations_name,
+                 account_number as remediations_account_number,
+                 created_by as remediations_created_by,
+                 updated_by as remediations_updated_by,
+                 auto_reboot as remediations_auto_reboot,
+                 archived as remediations_archived
+          FROM remediation
+          WHERE createdAt >= TIMESTAMP 'yesterday'
+            AND createdAt < TIMESTAMP 'today'
+          ORDER BY account_number; 
 
 parameters:
 - name: ADVISOR_IMPL
@@ -282,3 +353,33 @@ parameters:
 - name: MIN_REPLICAS
   description: Replica count for api service
   value: "2"
+- name: FLOORIST_SCHEDULE
+  description: Cronjob schedule definition
+  required: true
+  value: '20 0 * * *'
+- name: FLOORIST_SUSPEND
+  description: Disable Floorist cronjob execution
+  required: true
+  value: 'true'
+- description: Floorist image name
+  name: FLOORIST_IMAGE
+  value: quay.io/cloudservices/floorist
+- description: Floorist Image tag
+  name: FLOORIST_IMAGE_TAG
+  required: true
+  value: latest
+- description: bucket secret name
+  name: FLOORIST_BUCKET_SECRET_NAME
+  required: true
+  value: dummy-secret
+- name: FLOORIST_LOGLEVEL
+  description: Floorist loglevel config
+  value: 'INFO'
+- name: CPU_LIMIT_FLOO
+  value: 100m
+- name: CPU_REQUEST_FLOO
+  value: 50m
+- name: MEMORY_LIMIT_FLOO
+  value: 200Mi
+- name: MEMORY_REQUEST_FLOO
+  value: 100Mi
