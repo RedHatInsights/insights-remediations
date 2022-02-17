@@ -263,7 +263,7 @@ objects:
                  updated_by as remediations_updated_by,
                  auto_reboot as remediations_auto_reboot,
                  archived as remediations_archived
-          FROM remediation
+          FROM remediations
           WHERE createdAt >= TIMESTAMP 'yesterday'
             AND createdAt < TIMESTAMP 'today'
           ORDER BY account_number; 
