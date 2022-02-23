@@ -1,6 +1,6 @@
 'use strict';
 
-const { request, reqId } = require('../test');
+const { request, reqId, auth } = require('../test');
 
 describe('resolve test resolutions', function () {
     test('resolution info (1)', async () => {
@@ -55,6 +55,24 @@ describe('resolve test resolutions', function () {
                 id: 'alternative',
                 needs_reboot: false,
                 resolution_risk: 2
+            }]
+        });
+    });
+
+    test('resolution with cert-auth enabled', async () => {
+        const {body} = await request
+            .get('/v1/resolutions/test:ping')
+            .set(auth.cert02)
+            .expect(200);
+
+        body.should.eql({
+            id: 'test:ping',
+            resolution_risk: -1,
+            resolutions: [{
+                description: 'Run Ansible ping module',
+                id: 'fix',
+                needs_reboot: false,
+                resolution_risk: -1
             }]
         });
     });
