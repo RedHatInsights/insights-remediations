@@ -1,6 +1,6 @@
 'use strict';
 
-const { request, reqId, auth} = require('../test');
+const { request, reqId, auth } = require('../test');
 
 describe('resolve test resolutions', function () {
     test('resolution info (1)', async () => {
