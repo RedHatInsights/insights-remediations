@@ -264,9 +264,9 @@ objects:
                  auto_reboot as remediations_auto_reboot,
                  archived as remediations_archived
           FROM remediations
-          WHERE createdAt >= TIMESTAMP 'yesterday'
-            AND createdAt < TIMESTAMP 'today'
-          ORDER BY account_number; 
+          WHERE created_at >= TIMESTAMP 'yesterday'
+            AND created_at < TIMESTAMP 'today'
+          ORDER BY account_number;
 
 parameters:
 - name: ADVISOR_IMPL
