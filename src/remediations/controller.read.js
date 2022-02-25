@@ -239,21 +239,22 @@ exports.playbook = errors.async(async function (req, res) {
 
     if (sat_org_id || cert_auth) {
         // get list of unique systems from issues
-        let all_systems = _(normalizedIssues)
-            .map('systems')
-            .flatten()
-            .uniq()
-            .value();
+        const all_systems = _(normalizedIssues)
+        .map('systems')
+        .flatten()
+        .uniq()
+        .value();
 
         // remove any systems not in specified satellite organization
         if (sat_org_id) {
             const batchDetailInfo = await inventory.getSystemDetailsBatch(all_systems);
             _.forEach(normalizedIssues, issue => {
                 issue.systems = _.filter(issue.systems, system => {
+                    // eslint-disable-next-line security/detect-object-injection
                     const org_id = _.chain(batchDetailInfo[system].facts)
-                        .find(SATELLITE_NAMESPACE)
-                        .get('facts.organization_id')
-                        .toString(); //organization_id is an int (boo!)
+                    .find(SATELLITE_NAMESPACE)
+                    .get('facts.organization_id')
+                    .toString(); //organization_id is an int (boo!)
 
                     return _.isEqual(org_id, sat_org_id);
                 });
