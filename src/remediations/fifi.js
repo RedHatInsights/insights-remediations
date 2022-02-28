@@ -44,15 +44,10 @@ exports.checkSmartManagement = async function (remediation, smart_management) {
         return true;
     }
 
-    // if check marketplace systems isn't turned on return false
-    if (!config.isMarketplace) {
-        return false;
-    }
-
     const systemsIds = _(remediation.issues).flatMap('systems').map('system_id').uniq().sort().value();
     const systemsProfiles = await inventory.getSystemProfileBatch(systemsIds);
 
-    return _.some(systemsProfiles, system => system.system_profile.is_marketplace === true);
+    return _.some(systemsProfiles, system => !_.isUndefined(system.system_profile.rhc_client_id));
 };
 
 exports.checkRhcEnabled = async function () {
@@ -236,18 +231,11 @@ async function fetchRHCClientId (systems) {
 
     _.forEach(systems, system => {
         system.rhc_client = systemProfileDetails[system.id].system_profile.rhc_client_id;
-        system.marketplace = systemProfileDetails[system.id].system_profile.is_marketplace;
     });
 }
 
-function sortRHCSystems (executor, smart_management) {
-    if (smart_management) {
-        return _.partition(executor.systems, system => !_.isUndefined(system.rhc_client));
-    }
-
-    const partitionedSystems = _.partition(executor.systems, system => !_.isUndefined(system.rhc_client) && system.marketplace);
-
-    return partitionedSystems;
+function sortRHCSystems (executor) {
+    return _.partition(executor.systems, system => !_.isUndefined(system.rhc_client));
 }
 
 async function fetchSystems (ids) {
@@ -266,31 +254,19 @@ exports.getSatelliteId = function (facts) {
     return null;
 };
 
-function defineRHCEnabledExecutor (satellites, smart_management, rhc_enabled) {
+function defineRHCEnabledExecutor (satellites, rhc_enabled) {
     const satlessExecutor = _.find(satellites, satellite => satellite.id === null);
     if (satlessExecutor) {
-        const partitionedSystems = sortRHCSystems(satlessExecutor, smart_management);
+        const partitionedSystems = sortRHCSystems(satlessExecutor);
         _.remove(satellites, executor => executor === satlessExecutor); // Remove redundant satless executor
 
         if (!_.isEmpty(partitionedSystems[0])) {
             satellites.push({id: null, systems: partitionedSystems[0], type: 'RHC', rhcStatus: (rhc_enabled) ? CONNECTED : DISABLED});
         }
 
-        if (!smart_management) {
-            const noSmartManagement = _.filter(partitionedSystems[1], system => !system.marketplace);
-            if (!_.isEmpty(noSmartManagement)) {
-                satellites.push({id: null, systems: noSmartManagement, type: 'RHC', rhcStatus: 'no_smart_management'});
-            }
-
-            const rhcNotConfigured = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client) && system.marketplace);
-            if (!_.isEmpty(rhcNotConfigured)) {
-                satellites.push({id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'});
-            }
-        } else {
-            const rhcNotConfigured = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client));
-            if (!_.isEmpty(rhcNotConfigured)) {
-                satellites.push({id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'});
-            }
+        const rhcNotConfigured = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client));
+        if (!_.isEmpty(rhcNotConfigured)) {
+            satellites.push({id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'});
         }
     }
 }
@@ -383,17 +359,13 @@ async function fetchReceptorStatus (receptor, account) {
     return _.get(result, 'status', null);
 }
 
-function getName (executor, smart_management) {
+function getName (executor) {
     if (executor.source) {
         return executor.source.name;
     }
 
     if (executor.id) {
         return `Satellite ${executor.id}`;
-    }
-
-    if (!smart_management && executor.rhcStatus !== 'no_smart_management') {
-        return 'Direct connection - AWS Marketplace';
     }
 
     return null;
@@ -417,10 +389,6 @@ function getStatus (executor, smart_management) {
             return 'disconnected';
         }
     } else if (executor.type === 'RHC') {
-        if (executor.rhcStatus === 'no_smart_management') {
-            return 'no_smart_management';
-        }
-
         if (executor.rhcStatus === 'no_rhc') {
             return 'no_rhc';
         }
@@ -455,7 +423,7 @@ function normalize (satellites, smart_management) {
         endpointId: _.get(satellite.receptor, 'id', null),
         systems: _.map(satellite.systems, system => _.pick(system, SYSTEM_FIELDS)),
         type: satellite.type,
-        name: getName(satellite, smart_management),
+        name: getName(satellite),
         status: getStatus(satellite, smart_management)
     }));
 }
@@ -507,7 +475,7 @@ exports.getConnectionStatus = async function (remediation, account, smart_manage
     })).values().value();
 
     if (!_.isEmpty(satellites)) {
-        defineRHCEnabledExecutor(satellites, smart_management, rhc_enabled);
+        defineRHCEnabledExecutor(satellites, rhc_enabled);
     }
 
     if (smart_management) {

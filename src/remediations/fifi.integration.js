@@ -34,16 +34,6 @@ describe('FiFi', function () {
             .expect(200);
         });
 
-        test('remediation is not executable with smartManagment false but isMarketplace false', async () => {
-            await request
-            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/executable')
-            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
-                data.entitlements.smart_management = false;
-                return data;
-            }))
-            .expect(403);
-        });
-
         test('400 on incorrect remediationID', async () => {
             await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5c/executable')
@@ -64,6 +54,18 @@ describe('FiFi', function () {
             const {text} = await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
             .set(auth.fifi)
+            .expect(200);
+
+            expect(text).toMatchSnapshot();
+        });
+
+        test('get connection status with false smartManagement but with system connected to RHC', async () => {
+            const {text} = await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
+            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
+                data.entitlements.smart_management = false;
+                return data;
+            }))
             .expect(200);
 
             expect(text).toMatchSnapshot();
@@ -92,29 +94,6 @@ describe('FiFi', function () {
             .set(auth.fifi)
             .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d150000/connection_status')
             .expect(400);
-        });
-
-        test('get connection status with false smartManagement', async () => {
-            await request
-            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status')
-            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
-                data.entitlements.smart_management = false;
-                return data;
-            }))
-            .expect(403);
-        });
-
-        test('get connection status with false smartManagement but with system connected to RHC', async () => {
-            base.getSandbox().stub(config, 'isMarketplace').value(true);
-            const {text} = await request
-            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
-            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
-                data.entitlements.smart_management = false;
-                return data;
-            }))
-            .expect(200);
-
-            expect(text).toMatchSnapshot();
         });
 
         test('get connection status with false smartManagment but not configured with config manager', async () => {
@@ -936,7 +915,7 @@ describe('FiFi', function () {
                     data.entitlements.smart_management = false;
                     return data;
                 }))
-                .expect(403);
+                .expect(201);
             });
 
             test('execute playbook_run with false smartManagement but with system connected to RHC', async () => {
