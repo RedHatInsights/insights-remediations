@@ -11,7 +11,9 @@ const SATELLITES = [
     '72f44b25-64a7-4ee7-a94e-3beed9393972', // no_receptor
     '01bf542e-6092-485c-ba04-c656d77f988a', // no_source
     null, // no_executor,
-    '63142926-46a5-498b-9614-01f2f66fd40b' // connected
+    '63142926-46a5-498b-9614-01f2f66fd40b', // connected
+    '893f2788-c7a6-4cc3-89bc-9066ffda695e', // connected (Sat RHC, org_id 2)
+    '893f2788-c7a6-4cc3-89bc-9066ffda695e'  // connected (Sat RHC, org_id 6)
 ];
 
 const SYSTEMS = {
@@ -105,7 +107,8 @@ function generateSystem (id) {
                 namespace: 'satellite',
                 facts: {
                     satellite_instance_id: _.get(SATELLITES, satelliteIndex),
-                    organization_id: 2
+                    organization_id: (satelliteIndex === 7) ? '6' : '2',
+                    satellite_version: (satelliteIndex >= 6) ? '6.11.3' : '6.10.7'
                 }
             }
         ]

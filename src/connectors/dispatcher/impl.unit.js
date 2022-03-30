@@ -33,6 +33,21 @@ const MOCKCANCELREQUEST = [
     }
 ];
 
+const DISPATCHSTATUSREQUEST = [
+    {
+        recipient: 'd415fc2d-9700-4e30-9621-6a410ccc92d8',
+        org_id: '123456'
+    },
+    {
+        recipient: '320ba13c-e9fd-48ef-99a2-52c704e8a91f',
+        org_id: '123456'
+    },
+    {
+        recipient: 'e84c3178-469c-48a4-8087-9537c09b8b50',
+        org_id: '123456'
+    }
+];
+
 const MOCKFILTER = {filter: {service: 'remediations'}};
 const MOCKFIELDS = {fields: {data: ['id']}};
 
@@ -294,8 +309,7 @@ describe('dispatcher impl', function () {
                             code: 202
                         }
                     ]
-                },
-                headers: {}
+                }
             });
 
             const results = await impl.postPlaybookCancelRequest(MOCKCANCELREQUEST);
@@ -304,12 +318,6 @@ describe('dispatcher impl', function () {
             const result1 = results.data[0];
             result1.should.have.property('run_id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb7bc');
             result1.should.have.property('code', 202);
-
-            http.callCount.should.equal(1);
-            const options = http.args[0][0];
-            options.headers.should.have.size(2);
-            options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-            options.headers.should.have.property('x-rh-identity', 'identity');
         });
 
         test('returns null playbookCancelRequest is incorrect', async function () {
@@ -325,6 +333,76 @@ describe('dispatcher impl', function () {
         test('status code handling playbookCancelRequest', async function () {
             base.mockRequestStatusCode();
             await expect(impl.postPlaybookCancelRequest(MOCKCANCELREQUEST)).rejects.toThrow(errors.DependencyError);
+        });
+    });
+
+
+    describe('getPlaybookRunRecipientStatus', function () {
+        test('get run recipient statuses', async function () {
+            const http = base.getSandbox().stub(request, 'run').resolves({
+                statusCode: 200,
+                body: {
+                    meta: {
+                        count: 3
+                    },
+                    data: [
+                        {
+                            recipient: 'd415fc2d-9700-4e30-9621-6a410ccc92d8',
+                            org_id: '123456',
+                            connected: true
+                        },
+                        {
+                            recipient: '320ba13c-e9fd-48ef-99a2-52c704e8a91f',
+                            org_id: '123456',
+                            connected: false
+                        },
+                        {
+                            recipient: 'e84c3178-469c-48a4-8087-9537c09b8b50',
+                            org_id: '123456',
+                            connected: true
+                        }
+                    ]
+                },
+                headers: {}
+            });
+
+            const results = await impl.getPlaybookRunRecipientStatus(DISPATCHSTATUSREQUEST);
+
+            const result1 = results['d415fc2d-9700-4e30-9621-6a410ccc92d8'];
+            result1.should.have.property('recipient', 'd415fc2d-9700-4e30-9621-6a410ccc92d8');
+            result1.should.have.property('org_id', '123456');
+            result1.should.have.property('connected', true);
+
+            const result2 = results['320ba13c-e9fd-48ef-99a2-52c704e8a91f'];
+            result2.should.have.property('recipient', '320ba13c-e9fd-48ef-99a2-52c704e8a91f');
+            result2.should.have.property('org_id', '123456');
+            result2.should.have.property('connected', false);
+
+            const result3 = results['e84c3178-469c-48a4-8087-9537c09b8b50'];
+            result3.should.have.property('recipient', 'e84c3178-469c-48a4-8087-9537c09b8b50');
+            result3.should.have.property('org_id', '123456');
+            result3.should.have.property('connected', true);
+
+            http.callCount.should.equal(1);
+            const options = http.args[0][0];
+            options.headers.should.have.size(2);
+            options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
+            options.headers.should.have.property('x-rh-identity', 'identity');
+        });
+
+        test('returns null dispatcherStatusRequest is incorrect', async function () {
+            base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
+            await expect(impl.getPlaybookRunRecipientStatus(DISPATCHSTATUSREQUEST)).resolves.toBeNull();
+        });
+
+        test('connection error handling dispatcherStatusRequest', async function () {
+            base.mockRequestError();
+            await expect(impl.getPlaybookRunRecipientStatus(DISPATCHSTATUSREQUEST)).rejects.toThrow(errors.DependencyError);
+        });
+
+        test('status code handling dispatcherStatusRequest', async function () {
+            base.mockRequestStatusCode();
+            await expect(impl.getPlaybookRunRecipientStatus(DISPATCHSTATUSREQUEST)).rejects.toThrow(errors.DependencyError);
         });
     });
 });

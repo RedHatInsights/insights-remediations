@@ -56,21 +56,6 @@ const REMEDIATIONISSUES = [
     }
 ];
 
-const SYSTEM_FACTS = [
-    {
-        namespace: 'receptor',
-        facts: { satellite_instance_id: '01bf542e-6092-485c-ba04-c656d77f988a' }
-    }
-];
-
-describe('connection status functions', function () {
-    test('test if get system id return null if satellite namespace is missing', async () => {
-        const result = fifi.getSatelliteId(SYSTEM_FACTS);
-
-        expect(result).toBeNull();
-    });
-});
-
 describe('playbook run functions', function () {
     test('test playbook slicing function', async () => {
         const parsedIssues = await fifi.filterIssuesPerExecutor(SYSTEMS, REMEDIATIONISSUES);
