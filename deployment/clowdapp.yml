@@ -10,14 +10,15 @@ objects:
     name: remediations
   spec:
     envName: ${ENV_NAME}
+    dependencies:
+    - rbac
+    - host-inventory
     optionalDependencies:
     - compliance
     - compliance-ssg
     - config-manager
-    - host-inventory
     - patchman
     - playbook-dispatcher
-    - rbac
     - receptor
     - sources-api
     - vmaas
