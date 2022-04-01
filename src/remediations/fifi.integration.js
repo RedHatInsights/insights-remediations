@@ -1381,10 +1381,26 @@ describe('FiFi', function () {
                 });
             });
 
+            test('cancel playbook when there are Sat-RHC systems running', async () => {
+                const spy = base.getSandbox().spy(dispatcher, 'postPlaybookCancelRequest');
+                await request
+                .post('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb7bc/cancel')
+                .set(auth.fifi)
+                .expect(202);
+
+                spy.callCount.should.equal(1);
+
+                spy.firstCall.args[0].should.eql([{
+                    run_id: '88d0ba73-0015-4e7d-a6d6-4b530cbfb7bc',
+                    org_id: 5318290,
+                    principal: 'fifi'
+                }]);
+            });
+
             test('cancel playbook when no executors are still running', async () => {
                 const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
                 await request
-                .post('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb7bc/cancel')
+                .post('/v1/remediations/64d92aeb-9351-4216-8d7c-044d171337bd/playbook_runs/7d462faa-0918-44e2-9b36-dbdbb69db463/cancel')
                 .set(auth.fifi)
                 .expect(404);
 

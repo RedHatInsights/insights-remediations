@@ -21,6 +21,7 @@ module.exports = new class extends Connector {
     constructor () {
         super(module);
         this.postRunRequests = metrics.createConnectorMetric(this.getName(), 'postPlaybookRunRequests');
+        this.postPlaybookCancelRequests = metrics.createConnectorMetric(this.getName(), 'postPlaybookCancelRequests');
         this.fetchRuns = metrics.createConnectorMetric(this.getName(), 'fetchPlaybookRuns');
         this.fetchRunHosts = metrics.createConnectorMetric(this.getName(), 'fetchPlaybookRunHosts');
     }
@@ -91,6 +92,37 @@ module.exports = new class extends Connector {
         };
 
         const result = await this.doHttp (options, false, this.fetchRunHosts);
+
+        if (_.isEmpty(result.data)) {
+            return null;
+        }
+
+        return result;
+    }
+
+    async postPlaybookCancelRequest (cancelPlaybookRunsRequest) {
+        const uri = new URI(host);
+        uri.segment('internal');
+        uri.segment('v2');
+        uri.segment('cancel');
+
+        const options = {
+            uri: uri.toString(),
+            method: 'POST',
+            json: true,
+            rejectUnauthorized: !insecure,
+            headers: this.getForwardedHeaders(),
+            body: cancelPlaybookRunsRequest
+        };
+
+        // This header should be sent to the playbook dispatcher for each internal request.
+        if (auth) {
+            options.headers = {
+                Authorization: `PSK ${auth}`
+            };
+        }
+
+        const result = await this.doHttp (options, false, this.postRunRequests);
 
         if (_.isEmpty(result.data)) {
             return null;
