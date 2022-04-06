@@ -312,7 +312,10 @@ async function defineRHCEnabledExecutor (satellites, rhc_enabled, org_id) {
         _.remove(satellites, executor => executor === satlessExecutor); // Remove redundant satless executor
 
         if (!_.isEmpty(partitionedSystems[0])) {
-            satellites.push({id: null, systems: partitionedSystems[0][0], type: 'RHC', rhcStatus: (rhc_enabled) ? CONNECTED : DISABLED});
+            if (!_.isEmpty(partitionedSystems[0][0])) {
+                satellites.push({id: null, systems: partitionedSystems[0][0], type: 'RHC', rhcStatus: (rhc_enabled) ? CONNECTED : DISABLED});
+            }
+
             if (!_.isEmpty(partitionedSystems[0][1])) {
                 satellites.push({id: null, systems: partitionedSystems[0][1], type: 'RHC', rhcStatus: (rhc_enabled) ? DISCONNECTED : DISABLED});
             }
