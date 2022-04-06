@@ -102,10 +102,7 @@ module.exports = new class extends Connector {
     }
 
     async postPlaybookCancelRequest (cancelPlaybookRunsRequest) {
-        const uri = new URI(host);
-        uri.segment('internal');
-        uri.segment('v2');
-        uri.segment('cancel');
+        const uri = this.buildUri(host, 'internal', 'v2', 'cancel');
 
         const options = {
             uri: uri.toString(),
@@ -133,11 +130,7 @@ module.exports = new class extends Connector {
     }
 
     async getPlaybookRunRecipientStatus (dispatcherStatusRequest) {
-        const uri = new URI(host);
-        uri.segment('internal');
-        uri.segment('v2');
-        uri.segment('recipients');
-        uri.segment('status');
+        const uri = this.buildUri(host, 'internal', 'v2', 'recipients', 'status');
 
         const options = {
             uri: uri.toString(),
