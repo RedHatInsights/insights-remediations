@@ -24,7 +24,7 @@ module.exports = new class extends Connector {
         this.postPlaybookCancelRequests = metrics.createConnectorMetric(this.getName(), 'postPlaybookCancelRequests');
         this.fetchRuns = metrics.createConnectorMetric(this.getName(), 'fetchPlaybookRuns');
         this.fetchRunHosts = metrics.createConnectorMetric(this.getName(), 'fetchPlaybookRunHosts');
-        this.getRunRecipientStatus = metrics.createConnectorMetric(this.getName(), 'getgetPlaybookRunRecipientStatus');
+        this.getRunRecipientStatus = metrics.createConnectorMetric(this.getName(), 'getPlaybookRunRecipientStatus');
     }
 
     async postPlaybookRunRequests (dispatcherWorkRequest) {
@@ -102,10 +102,7 @@ module.exports = new class extends Connector {
     }
 
     async postPlaybookCancelRequest (cancelPlaybookRunsRequest) {
-        const uri = new URI(host);
-        uri.segment('internal');
-        uri.segment('v2');
-        uri.segment('cancel');
+        const uri = this.buildUri(host, 'internal', 'v2', 'cancel');
 
         const options = {
             uri: uri.toString(),
@@ -133,11 +130,7 @@ module.exports = new class extends Connector {
     }
 
     async getPlaybookRunRecipientStatus (dispatcherStatusRequest) {
-        const uri = new URI(host);
-        uri.segment('internal');
-        uri.segment('v2');
-        uri.segment('recipients');
-        uri.segment('status');
+        const uri = this.buildUri(host, 'internal', 'v2', 'recipients', 'status');
 
         const options = {
             uri: uri.toString(),
