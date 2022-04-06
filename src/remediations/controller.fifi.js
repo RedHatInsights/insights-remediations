@@ -48,6 +48,7 @@ exports.connection_status = errors.async(async function (req, res) {
     const status = await fifi.getConnectionStatus(
         remediation,
         req.identity.account_number,
+        req.identity.org_id,
         req.entitlements.smart_management,
         rhcEnabled
     );

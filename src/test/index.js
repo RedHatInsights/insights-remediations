@@ -88,6 +88,7 @@ exports.auth = Object.freeze({
                 org_id: '5318290'
             },
             account_number: '901578',
+            org_id: '5318290',
             user: {
                 first_name: 'Jozef',
                 is_active: true,

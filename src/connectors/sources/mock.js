@@ -70,6 +70,18 @@ const SOURCES = {
     }
 };
 
+const RHC_CONNECTIONS = {
+    '893f2788-c7a6-4cc3-89bc-9066ffda695e': {
+        id: '153',
+        rhc_id: 'd415fc2d-9700-4e30-9621-6a410ccc92d8',
+        last_checked_at: '0001-01-01T00:00:00Z',
+        last_available_at: '0001-01-01T00:00:00Z',
+        source_ids: [
+            '7'
+        ]
+    }
+};
+
 module.exports = new class extends Connector {
     constructor () {
         super(module);
@@ -88,6 +100,10 @@ module.exports = new class extends Connector {
         .keyBy()
         .mapValues(id => _.get(SOURCES, id, null))
         .value();
+    }
+
+    async getRHCConnections (id) {
+        return _.get(RHC_CONNECTIONS, id, null);
     }
 
     async ping () {

@@ -90,6 +90,19 @@ const CANCELED = {
     }
 };
 
+const RUNSTATUSES = {
+    'd415fc2d-9700-4e30-9621-6a410ccc92d8': {
+        recipient: 'd415fc2d-9700-4e30-9621-6a410ccc92d8',
+        org_id: '123456',
+        connected: true
+    },
+    'f415fc2d-9700-4e30-9621-6a410ccc92c8': {
+        recipient: 'f415fc2d-9700-4e30-9621-6a410ccc92c8',
+        org_id: '123456',
+        connected: true
+    }
+};
+
 module.exports = new class extends Connector {
     constructor () {
         super(module);
@@ -166,6 +179,10 @@ module.exports = new class extends Connector {
             },
             data: [CANCELED[request[0].run_id]]
         };
+    }
+
+    getPlaybookRunRecipientStatus () {
+        return RUNSTATUSES;
     }
 
     ping () {}

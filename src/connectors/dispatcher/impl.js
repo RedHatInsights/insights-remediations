@@ -24,6 +24,7 @@ module.exports = new class extends Connector {
         this.postPlaybookCancelRequests = metrics.createConnectorMetric(this.getName(), 'postPlaybookCancelRequests');
         this.fetchRuns = metrics.createConnectorMetric(this.getName(), 'fetchPlaybookRuns');
         this.fetchRunHosts = metrics.createConnectorMetric(this.getName(), 'fetchPlaybookRunHosts');
+        this.getRunRecipientStatus = metrics.createConnectorMetric(this.getName(), 'getgetPlaybookRunRecipientStatus');
     }
 
     async postPlaybookRunRequests (dispatcherWorkRequest) {
@@ -129,6 +130,44 @@ module.exports = new class extends Connector {
         }
 
         return result;
+    }
+
+    async getPlaybookRunRecipientStatus (dispatcherStatusRequest) {
+        const uri = new URI(host);
+        uri.segment('internal');
+        uri.segment('v2');
+        uri.segment('recipients');
+        uri.segment('status');
+
+        const options = {
+            uri: uri.toString(),
+            method: 'POST',
+            json: true,
+            rejectUnauthorized: !insecure,
+            headers: this.getForwardedHeaders(),
+            body: dispatcherStatusRequest
+        };
+
+        // This header should be sent to the playbook dispatcher for each internal request.
+        if (auth) {
+            options.headers = {
+                Authorization: `PSK ${auth}`
+            };
+        }
+
+        const result = await this.doHttp (options, false, this.getRunRecipientStatus);
+
+        if (_.isEmpty(result.data)) {
+            return null;
+        }
+
+        const transformed = _(result.data)
+        .keyBy('recipient')
+        .mapValues(({recipient, org_id, connected}) =>
+            ({recipient, org_id, connected}))
+        .value();
+
+        return transformed;
     }
 
     async ping () {}

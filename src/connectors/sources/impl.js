@@ -15,6 +15,7 @@ module.exports = new class extends Connector {
         super(module);
         this.sourcesMetrics = metrics.createConnectorMetric(this.getName(), 'getSources');
         this.endpointMetrics = metrics.createConnectorMetric(this.getName(), 'getEndpoints');
+        this.rhcConnectionsMetrics = metrics.createConnectorMetric(this.getName(), 'getRHCConnections');
     }
 
     async findSources (ids) {
@@ -78,6 +79,25 @@ module.exports = new class extends Connector {
         });
 
         return sources;
+    }
+
+    async getRHCConnections (id) {
+        const uri = this.buildUri(host, 'sources', 'v3.1', 'sources', String(id), 'rhc_connections');
+
+        const result = await this.doHttp({
+            uri: uri.toString(),
+            method: 'GET',
+            json: true,
+            rejectUnauthorized: !insecure,
+            headers: this.getForwardedHeaders()
+        }, false, this.rhcConnectionsMetrics);
+
+        if (!result) {
+            return null;
+        }
+
+        assert(result.meta.count <= result.meta.limit);
+        return result.data;
     }
 
     async ping () {
