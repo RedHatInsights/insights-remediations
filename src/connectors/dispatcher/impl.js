@@ -150,7 +150,7 @@ module.exports = new class extends Connector {
 
         const result = await this.doHttp (options, false, this.getRunRecipientStatus);
 
-        if (_.isEmpty(result.data)) {
+        if (_.isNull(result)) {
             return null;
         }
 
