@@ -24,7 +24,7 @@ module.exports = new class extends Connector {
         this.postPlaybookCancelRequests = metrics.createConnectorMetric(this.getName(), 'postPlaybookCancelRequests');
         this.fetchRuns = metrics.createConnectorMetric(this.getName(), 'fetchPlaybookRuns');
         this.fetchRunHosts = metrics.createConnectorMetric(this.getName(), 'fetchPlaybookRunHosts');
-        this.getRunRecipientStatus = metrics.createConnectorMetric(this.getName(), 'getgetPlaybookRunRecipientStatus');
+        this.getPlaybookRunRecipientStatus = metrics.createConnectorMetric(this.getName(), 'getPlaybookRunRecipientStatus');
     }
 
     async postPlaybookRunRequests (dispatcherWorkRequest) {
@@ -148,7 +148,7 @@ module.exports = new class extends Connector {
             };
         }
 
-        const result = await this.doHttp (options, false, this.getRunRecipientStatus);
+        const result = await this.doHttp (options, false, this.getPlaybookRunRecipientStatus);
 
         if (_.isEmpty(result.data)) {
             return null;
