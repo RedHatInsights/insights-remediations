@@ -397,7 +397,7 @@ describe('dispatcher impl', function () {
         });
 
         test('returns null dispatcherStatusRequest is incorrect', async function () {
-            base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
+            base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(null);
             await expect(impl.getPlaybookRunRecipientStatus(DISPATCHSTATUSREQUEST)).resolves.toBeNull();
         });
 
