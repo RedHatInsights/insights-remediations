@@ -309,7 +309,8 @@ describe('dispatcher impl', function () {
                             code: 202
                         }
                     ]
-                }
+                },
+                headers: {}
             });
 
             const results = await impl.postPlaybookCancelRequest(MOCKCANCELREQUEST);
