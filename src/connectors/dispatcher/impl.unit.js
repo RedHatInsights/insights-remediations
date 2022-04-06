@@ -318,6 +318,12 @@ describe('dispatcher impl', function () {
             const result1 = results.data[0];
             result1.should.have.property('run_id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb7bc');
             result1.should.have.property('code', 202);
+
+            http.callCount.should.equal(1);
+            const options = http.args[0][0];
+            options.headers.should.have.size(2);
+            options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
+            options.headers.should.have.property('x-rh-identity', 'identity');
         });
 
         test('returns null playbookCancelRequest is incorrect', async function () {
@@ -335,7 +341,6 @@ describe('dispatcher impl', function () {
             await expect(impl.postPlaybookCancelRequest(MOCKCANCELREQUEST)).rejects.toThrow(errors.DependencyError);
         });
     });
-
 
     describe('getPlaybookRunRecipientStatus', function () {
         test('get run recipient statuses', async function () {

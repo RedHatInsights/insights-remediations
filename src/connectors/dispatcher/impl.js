@@ -106,7 +106,7 @@ module.exports = new class extends Connector {
         uri.segment('internal');
         uri.segment('v2');
         uri.segment('cancel');
-        
+
         const options = {
             uri: uri.toString(),
             method: 'POST',
@@ -131,7 +131,6 @@ module.exports = new class extends Connector {
 
         return result;
     }
-
 
     async getPlaybookRunRecipientStatus (dispatcherStatusRequest) {
         const uri = new URI(host);
