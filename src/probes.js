@@ -162,6 +162,14 @@ exports.receptorCancelDispatched = function (receptorCancelRequest, executor, re
     }, 'receptor cancel request sent');
 };
 
+exports.dispatcherCancelDispatched = function (dispatcherCancelRequest) {
+    playbookCancelCounter.inc();
+    log.info({
+        org_id: dispatcherCancelRequest[0].org_id,
+        playbook_run_id: dispatcherCancelRequest[0].run_id
+    }, 'dispatcher cancel request sent');
+};
+
 exports.excludedExecutors = function (excluded) {
     excludedExecutorsCounter.inc();
     log.info({excluded}, 'executors excluded from playbook run');

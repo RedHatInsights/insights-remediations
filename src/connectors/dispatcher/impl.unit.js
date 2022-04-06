@@ -25,6 +25,14 @@ const DISPATCHERWORKREQUEST = [
     }
 ];
 
+const MOCKCANCELREQUEST = [
+    {
+        run_id: '88d0ba73-0015-4e7d-a6d6-4b530cbfb7bc',
+        org_id: '123456',
+        principal: 'test'
+    }
+];
+
 const MOCKFILTER = {filter: {service: 'remediations'}};
 const MOCKFIELDS = {fields: {data: ['id']}};
 
@@ -269,6 +277,54 @@ describe('dispatcher impl', function () {
         test('status code handling dispatcherWorkRequest', async function () {
             base.mockRequestStatusCode();
             await expect(impl.fetchPlaybookRunHosts(MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
+        });
+    });
+
+    describe('postPlaybookCancelRequest', function () {
+        test('post successful cancel request', async function () {
+            const http = base.getSandbox().stub(request, 'run').resolves({
+                statusCode: 207,
+                body: {
+                    meta: {
+                        count: 1
+                    },
+                    data: [
+                        {
+                            run_id: '88d0ba73-0015-4e7d-a6d6-4b530cbfb7bc',
+                            code: 202
+                        }
+                    ]
+                },
+                headers: {}
+            });
+
+            const results = await impl.postPlaybookCancelRequest(MOCKCANCELREQUEST);
+            results.data.should.have.size(1);
+
+            const result1 = results.data[0];
+            result1.should.have.property('run_id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb7bc');
+            result1.should.have.property('code', 202);
+
+            http.callCount.should.equal(1);
+            const options = http.args[0][0];
+            options.headers.should.have.size(2);
+            options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
+            options.headers.should.have.property('x-rh-identity', 'identity');
+        });
+
+        test('returns null playbookCancelRequest is incorrect', async function () {
+            base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
+            await expect(impl.postPlaybookCancelRequest(MOCKCANCELREQUEST)).resolves.toBeNull();
+        });
+
+        test('connection error handling playbookCancelRequest', async function () {
+            base.mockRequestError();
+            await expect(impl.postPlaybookCancelRequest(MOCKCANCELREQUEST)).rejects.toThrow(errors.DependencyError);
+        });
+
+        test('status code handling playbookCancelRequest', async function () {
+            base.mockRequestStatusCode();
+            await expect(impl.postPlaybookCancelRequest(MOCKCANCELREQUEST)).rejects.toThrow(errors.DependencyError);
         });
     });
 });

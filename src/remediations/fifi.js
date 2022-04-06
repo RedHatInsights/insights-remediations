@@ -574,14 +574,18 @@ function dispatchReceptorRequests (requests, remediation, playbook_run_id) {
     });
 }
 
-function prepareCancelRequest (account_number, executor, playbook_run_id) {
+function prepareReceptorCancelRequest (account_number, executor, playbook_run_id) {
     const receptorCancelRequest = format.receptorCancelRequest(format.playbookCancelRequest(
         playbook_run_id), account_number, executor.get('receptor_node_id'));
 
     return { executor, receptorCancelRequest };
 }
 
-function dispatchCancelRequests (requests, playbook_run_id) {
+function prepareRHCCancelRequest (org_id, playbook_run_id, username) {
+    return { run_id: playbook_run_id, org_id, principal: username};
+}
+
+function dispatchReceptorCancelRequests (requests, playbook_run_id) {
     return P.mapSeries(requests, async ({ executor, receptorCancelRequest }) => {
         try {
             const response = await receptorConnector.postInitialRequest(receptorCancelRequest);
@@ -591,6 +595,16 @@ function dispatchCancelRequests (requests, playbook_run_id) {
             log.error({executor: executor.id, error: e}, 'error sending cancel request to executor');
         }
     });
+}
+
+async function dispatchRHCCancelRequests (dispatcherCancelRequest, playbook_run_id) {
+    try {
+        const response = await dispatcher.postPlaybookCancelRequest(dispatcherCancelRequest);
+        probes.dispatcherCancelDispatched(dispatcherCancelRequest);
+        return response;
+    } catch (e) {
+        log.error({playbook_run_id, error: e}, 'error sending cancel request to playbook-dispatcher');
+    }
 }
 
 async function dispatchRHCRequests ({executor, rhcWorkRequest}, playbook_run_id) {
@@ -711,8 +725,12 @@ exports.createPlaybookRun = async function (status, remediation, username, exclu
     return playbook_run_id;
 };
 
-exports.cancelPlaybookRun = async function (account_number, playbook_run_id, executors) {
-    const requests = executors.map(executor => prepareCancelRequest(account_number, executor, playbook_run_id));
-
-    await dispatchCancelRequests(requests, playbook_run_id);
+exports.cancelPlaybookRun = async function (account_number, org_id, playbook_run_id, username, executors) {
+    if (_.isEmpty(executors)) {
+        const request = [prepareRHCCancelRequest(org_id, playbook_run_id, username)];
+        await dispatchRHCCancelRequests(request);
+    } else {
+        const requests = executors.map(executor => prepareReceptorCancelRequest(account_number, executor, playbook_run_id));
+        await dispatchReceptorCancelRequests(requests, playbook_run_id);
+    }
 };

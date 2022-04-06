@@ -83,6 +83,13 @@ const RUNHOSTS = {
     }
 };
 
+const CANCELED = {
+    '88d0ba73-0015-4e7d-a6d6-4b530cbfb7bc': {
+        run_id: '88d0ba73-0015-4e7d-a6d6-4b530cbfb7bc',
+        code: 202
+    }
+};
+
 module.exports = new class extends Connector {
     constructor () {
         super(module);
@@ -135,6 +142,29 @@ module.exports = new class extends Connector {
                 count: 2
             },
             data: _.flatMap(RUNHOSTS)
+        };
+    }
+
+    postPlaybookCancelRequest (request) {
+        if (request[0].run_id !== '88d0ba73-0015-4e7d-a6d6-4b530cbfb7bc') {
+            return {
+                meta: {
+                    count: 1
+                },
+                data: [
+                    {
+                        run_id: request[0].run_id,
+                        code: 404
+                    }
+                ]
+            };
+        }
+
+        return {
+            meta: {
+                count: 1
+            },
+            data: [CANCELED[request[0].run_id]]
         };
     }
 

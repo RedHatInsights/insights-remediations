@@ -61,9 +61,9 @@ describe('resolve test resolutions', function () {
 
     test('resolution with cert-auth enabled', async () => {
         const {body} = await request
-            .get('/v1/resolutions/test:ping')
-            .set(auth.cert02)
-            .expect(200);
+        .get('/v1/resolutions/test:ping')
+        .set(auth.cert02)
+        .expect(200);
 
         body.should.eql({
             id: 'test:ping',
