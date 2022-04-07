@@ -269,14 +269,18 @@ async function defineDirectConnectedRHCSystems (executor, org_id) {
     const rhcSystems = _.partition(executor.systems, system => !_.isUndefined(system.rhc_client));
     const dispatcherStatusRequest = _.map(rhcSystems[0], system => ({ recipient: system.rhc_client, org_id }));
 
-    log.info('created dispatcher status request: ', dispatcherStatusRequest);
+    log.info(`created dispatcher status request: ${dispatcherStatusRequest}`);
 
     const requestStatuses = await dispatcher.getPlaybookRunRecipientStatus(dispatcherStatusRequest);
 
     // partition systems containing rhc_client_ids by connection status
     _.forEach(rhcSystems[0], system => {
-        if (requestStatuses[system.rhc_client]) {
-            system.rhcStatus = requestStatuses[system.rhc_client].connected;
+        if (!_.isNull(requestStatuses)) {
+            if (requestStatuses[system.rhc_client]) {
+                system.rhcStatus = requestStatuses[system.rhc_client].connected;
+            } else {
+                system.rhcStatus = false;
+            }
         } else {
             system.rhcStatus = false;
         }
