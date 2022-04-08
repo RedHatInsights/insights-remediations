@@ -267,9 +267,9 @@ async function fetchSatRHCClientId (systems) {
 
 async function defineDirectConnectedRHCSystems (executor, org_id) {
     const rhcSystems = _.partition(executor.systems, system => !_.isUndefined(system.rhc_client));
-    const dispatcherStatusRequest = _.map(rhcSystems[0], system => ({ recipient: system.rhc_client, org_id }));
+    const dispatcherStatusRequest = _.map(rhcSystems[0], system => { return {recipient: system.rhc_client, org_id }; });
 
-    log.info(`created dispatcher status request: ${dispatcherStatusRequest}`);
+    log.info(`created dispatcher status request: ${dispatcherStatusRequest.toString()}`);
 
     const requestStatuses = await dispatcher.getPlaybookRunRecipientStatus(dispatcherStatusRequest);
 
@@ -334,12 +334,10 @@ async function defineRHCEnabledExecutor (satellites, rhc_enabled, org_id) {
 
 async function fetchRHCStatuses (satellites, org_id) {
     const recipientStatusRequest = _.map(satellites, satellite => {
-        if (satellite.sat_rhc_client) {
-            return {
-                recipient: satellite.sat_rhc_client,
-                org_id
-            };
-        }
+        return {
+            recipient: satellite.sat_rhc_client,
+            org_id
+        };
     });
 
     const result = await dispatcher.getPlaybookRunRecipientStatus(recipientStatusRequest);

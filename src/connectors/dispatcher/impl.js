@@ -123,7 +123,7 @@ module.exports = new class extends Connector {
             };
         }
 
-        const result = await this.doHttp (options, false, this.postRunRequests);
+        const result = await this.doHttp (options, false, this.postPlaybookCancelRequests);
 
         if (_.isEmpty(result.data)) {
             return null;
