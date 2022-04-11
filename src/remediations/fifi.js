@@ -267,7 +267,7 @@ async function fetchSatRHCClientId (systems) {
 
 async function defineDirectConnectedRHCSystems (executor, org_id) {
     const rhcSystems = _.partition(executor.systems, system => !_.isUndefined(system.rhc_client));
-    const dispatcherStatusRequest = _.map(rhcSystems[0], system => { return {recipient: system.rhc_client, org_id }; });
+    const dispatcherStatusRequest = _.map(rhcSystems[0], system => { return {recipient: system.rhc_client, org_id: String(org_id) }; });
 
     log.info(`created dispatcher status request: ${dispatcherStatusRequest.toString()}`);
 
@@ -336,7 +336,7 @@ async function fetchRHCStatuses (satellites, org_id) {
     const recipientStatusRequest = _.map(satellites, satellite => {
         return {
             recipient: satellite.sat_rhc_client,
-            org_id
+            org_id: String(org_id)
         };
     });
 
