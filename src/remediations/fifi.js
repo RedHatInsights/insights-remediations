@@ -577,9 +577,7 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
 
     await fetchRHCClientId(systems, systemsIds);
     await fetchSatRHCClientId(systems);
-
     const [rhcSatelliteSystems, receptorSatelliteSystems] = _.partition(systems, system => { return !_.isNull(system.sat_rhc_client); });
-    const rhcSatellites = await defineRHCSatellites(rhcSatelliteSystems, org_id);
     const receptorSatellites = _(receptorSatelliteSystems).groupBy('satelliteId').mapValues(receptorSatelliteSystems => ({
         id: receptorSatelliteSystems[0].satelliteId,
         org_id: receptorSatelliteSystems[0].satelliteOrgId,
@@ -588,6 +586,11 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
         // only pick on one of them as we wouldn't be able to tell them apart based on responses from Satellite
         systems: _(receptorSatelliteSystems).sortBy('id').uniqBy(generator.systemToHost).value()
     })).values().value();
+
+    let rhcSatellites = [];
+    if (!_.isEmpty(rhcSatelliteSystems)) {
+        rhcSatellites = await defineRHCSatellites(rhcSatelliteSystems, org_id);
+    }
 
     if (!_.isEmpty(receptorSatellites)) {
         await defineRHCEnabledExecutor(receptorSatellites, rhc_enabled, org_id);
