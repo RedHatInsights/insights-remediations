@@ -892,7 +892,7 @@ describe('FiFi', function () {
                 await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
                 .set(auth.fifi)
-                .set('if-match', '"146e-AjBrmaIjujPeGasneA0nt8bYl1Q"')
+                .set('if-match', '"146f-clkJBenpuwfEyKAcA05+WsuX/to"')
                 .expect(201);
             });
 
@@ -935,17 +935,17 @@ describe('FiFi', function () {
                 const {headers} = await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs?pretty')
                 .set(auth.fifi)
-                .set('if-match', '"146e-AjBrmaIjujPeGasneA0nt8bYl1Q"')
+                .set('if-match', '"146f-clkJBenpuwfEyKAcA05+WsuX/to"')
                 .expect(201);
 
-                headers.etag.should.equal('"146e-AjBrmaIjujPeGasneA0nt8bYl1Q"');
+                headers.etag.should.equal('"146f-clkJBenpuwfEyKAcA05+WsuX/to"');
             });
 
             test('201s on ETag match', async () => {
                 await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
                 .set(auth.fifi)
-                .set('if-match', '"146e-AjBrmaIjujPeGasneA0nt8bYl1Q"')
+                .set('if-match', '"146f-clkJBenpuwfEyKAcA05+WsuX/to"')
                 .expect(201);
             });
 
@@ -956,7 +956,7 @@ describe('FiFi', function () {
                 .set('if-match', '"1062-Pl88DazTBuJo//SQVNUn6pZAlmk"')
                 .expect(412);
 
-                headers.etag.should.equal('"146e-AjBrmaIjujPeGasneA0nt8bYl1Q"');
+                headers.etag.should.equal('"146f-clkJBenpuwfEyKAcA05+WsuX/to"');
             });
 
             test('if if-match is not present, proceed', async () => {
@@ -1490,7 +1490,7 @@ describe('FiFi', function () {
             const {body: post} = await request
             .post('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs')
             .set(auth.fifi)
-            .set('if-match', '"146e-AjBrmaIjujPeGasneA0nt8bYl1Q"')
+            .set('if-match', '"146f-clkJBenpuwfEyKAcA05+WsuX/to"')
             .expect(201);
 
             const {body: run} = await request
