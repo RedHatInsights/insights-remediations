@@ -21,6 +21,7 @@ module.exports = new class extends Connector {
     constructor () {
         super(module);
         this.postRunRequests = metrics.createConnectorMetric(this.getName(), 'postPlaybookRunRequests');
+        this.postV2RunRequests = metrics.createConnectorMetric(this.getName(), 'postV2PlaybookRunRequests');
         this.postPlaybookCancelRequests = metrics.createConnectorMetric(this.getName(), 'postPlaybookCancelRequests');
         this.fetchRuns = metrics.createConnectorMetric(this.getName(), 'fetchPlaybookRuns');
         this.fetchRunHosts = metrics.createConnectorMetric(this.getName(), 'fetchPlaybookRunHosts');
@@ -39,6 +40,34 @@ module.exports = new class extends Connector {
             rejectUnauthorized: !insecure,
             headers: this.getForwardedHeaders(),
             body: dispatcherWorkRequest
+        };
+
+        // This header should be sent to the playbook dispatcher for each internal request.
+        if (auth) {
+            options.headers = {
+                Authorization: `PSK ${auth}`
+            };
+        }
+
+        const result = await this.doHttp (options, false, this.postRunRequests);
+
+        if (_.isEmpty(result)) {
+            return null;
+        }
+
+        return result;
+    }
+
+    async postV2PlaybookRunRequests (dispatcherV2WorkRequest) {
+        const uri = new URI(host).segment(['internal', 'v2', 'dispatch']);
+
+        const options = {
+            uri: uri.toString(),
+            method: 'POST',
+            json: true,
+            rejectUnauthorized: !insecure,
+            headers: this.getForwardedHeaders(),
+            body: dispatcherV2WorkRequest
         };
 
         // This header should be sent to the playbook dispatcher for each internal request.

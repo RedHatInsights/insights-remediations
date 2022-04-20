@@ -112,6 +112,10 @@ module.exports = new class extends Connector {
         return MOCKDISPATCHRESPONSE;
     }
 
+    postV2PlaybookRunRequests () {
+        return MOCKDISPATCHRESPONSE;
+    }
+
     fetchPlaybookRuns (filter = null) {
         if (filter) {
             if (!_.isUndefined(filter.filter.labels)) {
