@@ -492,6 +492,7 @@ function normalize (satellites, smart_management) {
     return _.map(satellites, satellite => ({
         satId: satellite.id,
         satOrgId: satellite.org_id,
+        satRhcId: satellite.sat_rhc_client,
         receptorId: _.get(satellite.receptor, 'receptor_node', null),
         endpointId: _.get(satellite.receptor, 'id', null),
         systems: _.map(satellite.systems, system => _.pick(system, SYSTEM_FIELDS)),
@@ -565,6 +566,11 @@ exports.generateUuid = function () {
 };
 
 exports.getConnectionStatus = async function (remediation, account, org_id, smart_management, rhc_enabled) {
+    // get list of system_ids
+    // fetch system details for each system_id -> systems[]
+    // get (sat_id, sat_org_id, sat_version) for each receptor satellite
+    // get rhc_client_id for each rhc system
+    // get sat_rhc_client (rhc_id) for rhc satellites
     const systemsIds = _(remediation.issues).flatMap('systems').map('system_id').uniq().sort().value();
     const systems = await fetchSystems(systemsIds);
 
@@ -606,6 +612,7 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
 
     const concatSatellites = _.concat(rhcSatellites, receptorSatellites);
 
+    // this seems to ommit sat_rhc_client :-/ ...
     return normalize(concatSatellites, smart_management);
 };
 
@@ -666,6 +673,18 @@ function prepareRHCRequest (executor, playbook_run_id, remediation) {
     return { executor, rhcWorkRequest };
 }
 
+// prepare everything needed to dispatch work requests to satellite via RHC
+function prepareRHCSatelliteRequest (executor, remediation, username, tenant_org_id, playbook_run_id) {
+    const rhcSatWorkRequest = format.rhcSatelliteWorkRequest(
+        executor,
+        remediation,
+        username,
+        tenant_org_id,
+        playbook_run_id);
+
+    return { executor,  rhcSatWorkRequest };
+}
+
 function dispatchReceptorRequests (requests, remediation, playbook_run_id) {
     return P.mapSeries(requests, async ({ executor, receptorWorkRequest }, index) => {
         try {
@@ -682,6 +701,28 @@ function dispatchReceptorRequests (requests, remediation, playbook_run_id) {
             throw e;
         }
     });
+}
+
+async function dispatchRHCRequests ({executor, rhcWorkRequest}, playbook_run_id) {
+    try {
+        probes.splitPlaybookPerRHCEnabledSystems(rhcWorkRequest, executor.systems, playbook_run_id);
+        const response = await dispatcher.postPlaybookRunRequests(rhcWorkRequest);
+        probes.rhcJobDispatched(rhcWorkRequest, executor, response, playbook_run_id);
+        return response;
+    } catch (e) {
+        log.error({systems: executor.systems, error: e}, 'error sending work request to playbook-dispatcher');
+    }
+}
+
+async function dispatchRHCSatelliteRequests (rhcSatWorkRequest, playbook_run_id) {
+    try {
+        probes.splitPlaybookPerRHCEnabledSatellite(rhcSatWorkRequest, playbook_run_id);
+        const response = await dispatcher.postV2PlaybookRunRequests(rhcSatWorkRequest);
+        probes.rhcSatJobDispatched(rhcSatWorkRequest, response, playbook_run_id);
+        return response;
+    } catch (e) {
+        log.error({systems: executor.systems, error: e}, 'error sending satellite work request to playbook-dispatcher');
+    }
 }
 
 function prepareReceptorCancelRequest (account_number, executor, playbook_run_id) {
@@ -714,17 +755,6 @@ async function dispatchRHCCancelRequests (dispatcherCancelRequest, playbook_run_
         return response;
     } catch (e) {
         log.error({playbook_run_id, error: e}, 'error sending cancel request to playbook-dispatcher');
-    }
-}
-
-async function dispatchRHCRequests ({executor, rhcWorkRequest}, playbook_run_id) {
-    try {
-        probes.splitPlaybookPerRHCEnabledSystems(rhcWorkRequest, executor.systems, playbook_run_id);
-        const response = await dispatcher.postPlaybookRunRequests(rhcWorkRequest);
-        probes.rhcJobDispatched(rhcWorkRequest, executor, response, playbook_run_id);
-        return response;
-    } catch (e) {
-        log.error({systems: executor.systems, error: e}, 'error sending work request to playbook-dispatcher');
     }
 }
 
@@ -778,7 +808,7 @@ async function storeRHCPlaybookRun (remediation, playbook_run_id, username) {
     await queries.insertRHCPlaybookRun(run);
 }
 
-exports.createPlaybookRun = async function (status, remediation, username, excludes, response_mode) {
+exports.createPlaybookRun = async function (status, remediation, username, tenant_org_id, excludes, response_mode) {
     const playbook_run_id = exports.generateUuid();
     const executors = filterExecutors(status, excludes);
     const remediationIssues = remediation.toJSON().issues;
@@ -791,6 +821,7 @@ exports.createPlaybookRun = async function (status, remediation, username, exclu
 
     const requests = await P.map(executors,
         executor => {
+            // satellite via receptor
             if (executor.type === 'satellite') {
                 return prepareReceptorRequest(
                     executor,
@@ -801,6 +832,18 @@ exports.createPlaybookRun = async function (status, remediation, username, exclu
                     text_update_interval);
             }
 
+            // satellite via cloud connector
+            if (executor.type === 'RHC-satellite') {
+                return prepareRHCSatelliteRequest(
+                    executor,
+                    remediation,
+                    username,
+                    tenant_org_id,
+                    playbook_run_id
+                )
+            }
+
+            // RHEL systems via cloud connector
             if (executor.type === 'RHC') {
                 return prepareRHCRequest(
                     executor,
@@ -828,6 +871,18 @@ exports.createPlaybookRun = async function (status, remediation, username, exclu
         await dispatchRHCRequests(rhcRequests, playbook_run_id);
 
         if (_.isEmpty(splitRequests.satellite)) {
+            await storeRHCPlaybookRun(remediation, playbook_run_id, username);
+        }
+    }
+
+    // Dispatch satellite via RHC if they exist
+    if (splitRequests['RHC-satellite']) {
+        const rhcSatRequests = splitRequests['RHC-satellite'];
+        await dispatchRHCSatelliteRequests(rhcSatRequests, playbook_run_id);
+
+        // this is gross - we should restructure this chain of logic...
+        // basically, adds an entry if one hasn't been added already
+        if (_.isEmpty(splitRequests.satellite) && _.isEmpty(splitRequests.RHC)) {
             await storeRHCPlaybookRun(remediation, playbook_run_id, username);
         }
     }

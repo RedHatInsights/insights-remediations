@@ -121,6 +121,22 @@ exports.splitPlaybookPerSatId = function (receptorWorkRequest, satId, remediatio
     }, 'Full Contents of Work Request before being sent to receptor controller');
 };
 
+exports.splitPlaybookPerRHCEnabledSatellite = function (rhcSatWorkRequest, playbookRunId) {
+    playbookExecutionCounter.inc();
+    log.debug({
+        rhc_sat_work_request: rhcSatWorkRequest,
+        playbook_run_id: playbookRunId
+    }, 'Full Contents of RHC-satellite Work Request before being sent to playbook-dispatcher');
+}
+
+exports.rhcSatJobDispatched = function (rhcSatWorkRequest, response, playbookRunId) {
+    log.debug({
+        rhc_sat_work_request: rhcSatWorkRequest,
+        response,
+        playbook_run_id: playbookRunId
+    });
+}
+
 exports.splitPlaybookPerRHCEnabledSystems = function (rhcWorkRequest, systems, playbookRunId) {
     playbookExecutionCounter.inc();
     log.debug({

@@ -58,6 +58,11 @@ exports.connection_status = errors.async(async function (req, res) {
 });
 
 exports.executePlaybookRuns = errors.async(async function (req, res) {
+    //--------------------------------------------------
+    // get remediation by id
+    // get connection status of referenced systems
+    // createPlaybookRun
+    //--------------------------------------------------
     const [remediation, rhcEnabled] = await Promise.all([
         queries.get(req.params.id, req.user.account_number, req.user.username),
         fifi.checkRhcEnabled()
@@ -93,6 +98,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
         status,
         remediation,
         req.user.username,
+        req.identity.org_id,
         req.body.exclude,
         req.body.response_mode
     );

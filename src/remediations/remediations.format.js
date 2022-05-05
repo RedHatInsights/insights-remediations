@@ -8,6 +8,8 @@ const DEFAULT_REMEDIATION_NAME = 'unnamed-playbook';
 const USER = ['username', 'first_name', 'last_name'];
 const PLAYBOOK_SUFFIX = 'yml';
 const config = require('../config');
+const {filterIssuesPerExecutor} = require("./fifi");
+const {systemToHost} = require("../generator/generator.controller");
 
 const listLinkBuilder = (sort, system) => (limit, page) =>
     new URI(config.path.base)
@@ -35,6 +37,19 @@ function buildListLinks (total, limit, offset, sort, system) {
 
 function buildRHCUrl (remediation_id, system_id) {
     return `https://${config.platformHostname}${config.path.prefix}/${config.path.app}/v1/${config.path.app}/${remediation_id}/playbook?hosts=${system_id}&localhost`;
+}
+
+// Build URL for fetching rhc-satellite playbooks
+// e.g.: https://hostname/api/remediations/v1/remediations/42503118-80d4-49e0-bfee-20ac2d8ea74f/playbook?hosts=29dafba0-c190-4acd-998d-074ba0aee477&hosts=fc84c991-a029-4882-bc9c-7e351a73b59f
+function buildRHCSatUrl(remediation_id, systems) {
+    const ids = _(systems).map('inventory_id').value();
+
+    let url = new URI(`https://${config.platformHostname}`)
+        .segment([config.path.prefix, config.path.app, 'v1', config.path.app, remediation_id, 'playbook'])
+        .search({hosts: ids})
+        .toString()
+
+    return url;
 }
 
 exports.parseSort = function (param) {
@@ -198,6 +213,30 @@ exports.rhcWorkRequest = function (rhc_client_id, account_number, remediation_id
         labels: { 'playbook-run': playbook_run_id },
         hosts: [{ansible_host: 'localhost', inventory_id: system_id}]
     };
+};
+
+exports.rhcSatelliteWorkRequest = function (executor, remediation, username, tenant_org_id, playbook_run_id) {
+    const systems = executor.systems.map(system => ({
+        ansible_host: system.ansible_host,
+        inventory_id: system.id
+    }));
+
+    const request = {
+        recipient: executor.satRhcId,
+        org_id: tenant_org_id,
+        principal: username,
+        name: remediation.name,
+        recipient_config: {
+            sat_id: executor.satId,
+            sat_org_id: executor.satOrgId
+        },
+        url: buildRHCSatUrl(remediation.id, systems),
+        labels: { 'playbook-run': playbook_run_id },
+        hosts: systems,
+        web_console_url: "https://console.redhat.com/insights/remediations",
+    };
+
+    return request;
 };
 
 exports.playbookCancelRequest = function (playbookRunId) {
