@@ -62,6 +62,7 @@ describe('FiFi', function () {
         });
 
         test('get connection status with false smartManagement but with system connected to RHC', async () => {
+            base.getSandbox().stub(config, 'isMarketplace').value(true);
             const {text} = await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
             .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
@@ -96,6 +97,16 @@ describe('FiFi', function () {
             .set(auth.fifi)
             .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d150000/connection_status')
             .expect(400);
+        });
+
+        test('get connection status with false smartManagement', async () => {
+            await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status')
+            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
+                data.entitlements.smart_management = false;
+                return data;
+            }))
+            .expect(403);
         });
 
         test('get connection status with false smartManagement but not configured with config manager', async () => {
@@ -917,7 +928,7 @@ describe('FiFi', function () {
                     data.entitlements.smart_management = false;
                     return data;
                 }))
-                .expect(201);
+                .expect(403);
             });
 
             test('execute playbook_run with false smartManagement but with system connected to RHC', async () => {

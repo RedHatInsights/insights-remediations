@@ -3,8 +3,8 @@
 exports[`FiFi connection status get connection status with false smartManagement but not configured with config manager 1`] = `
 "{
     \\"meta\\": {
-        \\"count\\": 9,
-        \\"total\\": 9
+        \\"count\\": 8,
+        \\"total\\": 8
     },
     \\"data\\": [
         {
@@ -68,16 +68,8 @@ exports[`FiFi connection status get connection status with false smartManagement
             \\"executor_id\\": null,
             \\"executor_type\\": \\"RHC\\",
             \\"executor_name\\": null,
-            \\"system_count\\": 2,
-            \\"connection_status\\": \\"disabled\\"
-        },
-        {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": null,
-            \\"executor_type\\": \\"RHC\\",
-            \\"executor_name\\": null,
-            \\"system_count\\": 1,
-            \\"connection_status\\": \\"no_rhc\\"
+            \\"system_count\\": 3,
+            \\"connection_status\\": \\"no_smart_management\\"
         }
     ]
 }"
@@ -86,8 +78,8 @@ exports[`FiFi connection status get connection status with false smartManagement
 exports[`FiFi connection status get connection status with false smartManagement but with system connected to RHC 1`] = `
 "{
     \\"meta\\": {
-        \\"count\\": 9,
-        \\"total\\": 9
+        \\"count\\": 8,
+        \\"total\\": 8
     },
     \\"data\\": [
         {
@@ -151,16 +143,8 @@ exports[`FiFi connection status get connection status with false smartManagement
             \\"executor_id\\": null,
             \\"executor_type\\": \\"RHC\\",
             \\"executor_name\\": null,
-            \\"system_count\\": 2,
-            \\"connection_status\\": \\"connected\\"
-        },
-        {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": null,
-            \\"executor_type\\": \\"RHC\\",
-            \\"executor_name\\": null,
-            \\"system_count\\": 1,
-            \\"connection_status\\": \\"no_rhc\\"
+            \\"system_count\\": 3,
+            \\"connection_status\\": \\"no_smart_management\\"
         }
     ]
 }"
