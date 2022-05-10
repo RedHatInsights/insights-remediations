@@ -593,6 +593,9 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
         systems: _(receptorSatelliteSystems).sortBy('id').uniqBy(generator.systemToHost).value()
     })).values().value();
 
+    log.info("rhcSatelliteSystems: ", rhcSatelliteSystems);
+    log.info("receptorSatelliteSystems: ", receptorSatelliteSystems);
+
     let rhcSatellites = [];
     if (!_.isEmpty(rhcSatelliteSystems)) {
         rhcSatellites = await defineRHCSatellites(rhcSatelliteSystems, org_id);
