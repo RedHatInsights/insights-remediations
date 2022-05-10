@@ -334,7 +334,7 @@ async function defineRHCEnabledExecutor (satellites, rhc_enabled, org_id) {
 
 async function fetchRHCStatuses (satellites, org_id) {
     const recipientStatusRequest = _.map(satellites, satellite => {
-        return { 
+        return {
             recipient: satellite.sat_rhc_client,
             org_id: String(org_id)
         };
