@@ -334,7 +334,7 @@ async function defineRHCEnabledExecutor (satellites, rhc_enabled, org_id) {
 
 async function fetchRHCStatuses (satellites, org_id) {
     const recipientStatusRequest = _.map(satellites, satellite => {
-        return {
+        return { 
             recipient: satellite.sat_rhc_client,
             org_id: String(org_id)
         };
@@ -592,6 +592,9 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
         // only pick on one of them as we wouldn't be able to tell them apart based on responses from Satellite
         systems: _(receptorSatelliteSystems).sortBy('id').uniqBy(generator.systemToHost).value()
     })).values().value();
+
+    log.info("rhcSatelliteSystems: ", rhcSatelliteSystems);
+    log.info("receptorSatelliteSystems: ", receptorSatelliteSystems);
 
     let rhcSatellites = [];
     if (!_.isEmpty(rhcSatelliteSystems)) {
