@@ -255,6 +255,7 @@ async function fetchRHCClientId (systems, systemIds) {
 
     _.forEach(systems, system => {
         system.rhc_client = systemProfileDetails[system.id].system_profile.rhc_client_id;
+        system.marketplace = systemProfileDetails[system.id].system_profile.is_marketplace;
     });
 }
 
