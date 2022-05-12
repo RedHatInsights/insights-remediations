@@ -68,7 +68,7 @@ exports[`FiFi connection status get connection status with false smartManagement
             \\"executor_id\\": null,
             \\"executor_type\\": \\"RHC\\",
             \\"executor_name\\": null,
-            \\"system_count\\": 2,
+            \\"system_count\\": 1,
             \\"connection_status\\": \\"disabled\\"
         },
         {
@@ -76,8 +76,8 @@ exports[`FiFi connection status get connection status with false smartManagement
             \\"executor_id\\": null,
             \\"executor_type\\": \\"RHC\\",
             \\"executor_name\\": null,
-            \\"system_count\\": 1,
-            \\"connection_status\\": \\"no_rhc\\"
+            \\"system_count\\": 2,
+            \\"connection_status\\": \\"no_smart_management\\"
         }
     ]
 }"
@@ -151,7 +151,7 @@ exports[`FiFi connection status get connection status with false smartManagement
             \\"executor_id\\": null,
             \\"executor_type\\": \\"RHC\\",
             \\"executor_name\\": null,
-            \\"system_count\\": 2,
+            \\"system_count\\": 1,
             \\"connection_status\\": \\"connected\\"
         },
         {
@@ -159,8 +159,8 @@ exports[`FiFi connection status get connection status with false smartManagement
             \\"executor_id\\": null,
             \\"executor_type\\": \\"RHC\\",
             \\"executor_name\\": null,
-            \\"system_count\\": 1,
-            \\"connection_status\\": \\"no_rhc\\"
+            \\"system_count\\": 2,
+            \\"connection_status\\": \\"no_smart_management\\"
         }
     ]
 }"
