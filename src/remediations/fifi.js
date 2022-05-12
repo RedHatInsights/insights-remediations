@@ -20,7 +20,7 @@ const read = require('./controller.read');
 const queries = require('./remediations.queries');
 
 const SATELLITE_NAMESPACE = Object.freeze({namespace: 'satellite'});
-const MIN_SAT_RHC_VERSION = [6, 10, 7];
+const MIN_SAT_RHC_VERSION = [6, 11, 0];
 const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_name', 'rhc_client']);
 
 const RUNSFIELDS = Object.freeze({fields: {data: ['id', 'labels', 'status', 'service', 'created_at', 'updated_at', 'url']}});
@@ -262,7 +262,8 @@ async function fetchRHCClientId (systems, systemIds) {
 async function fetchSatRHCClientId (systems) {
     await P.map(systems, async system => {
         if (checkSatVersionForRhc(system.satelliteVersion) && !_.isNull(system.satelliteId)) {
-            const sourcesRHCDetails = await sources.getRHCConnections(system.satelliteId);
+            const sourcesDetails = await sources.getSourceInfo([system.satelliteId]);
+            const sourcesRHCDetails = await sources.getRHCConnections(sourcesDetails[system.satelliteId].id);
 
             system.sat_rhc_client = (sourcesRHCDetails) ? sourcesRHCDetails.rhc_id : null;
         } else {

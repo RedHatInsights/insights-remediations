@@ -67,12 +67,22 @@ const SOURCES = {
             source_id: '126',
             updated_at: '2019-12-13T11:47:01Z'
         }]
+    },
+    '893f2788-c7a6-4cc3-89bc-9066ffda695e': {
+        created_at: '2019-12-13T11:47:00Z',
+        id: '127',
+        name: 'Satellite 5 (connected)',
+        source_ref: '63142926-46a5-498b-9614-01f2f66fd40b',
+        source_type_id: '9',
+        uid: '49cd4278-3be8-4862-944f-17187c3b568e',
+        updated_at: '2019-12-13T11:47:00Z',
+        endpoints: []
     }
 };
 
 const RHC_CONNECTIONS = {
-    '893f2788-c7a6-4cc3-89bc-9066ffda695e': {
-        id: '153',
+    '127': {
+        id: '127',
         rhc_id: 'd415fc2d-9700-4e30-9621-6a410ccc92d8',
         last_checked_at: '0001-01-01T00:00:00Z',
         last_available_at: '0001-01-01T00:00:00Z',
