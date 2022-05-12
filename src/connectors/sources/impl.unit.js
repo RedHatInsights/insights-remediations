@@ -211,7 +211,7 @@ describe('sources impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getRHCConnections('d415fc2d-9700-4e30-9621-6a410ccc92d8');
+            const results = await impl.getRHCConnections('5');
             results.should.have.size(1);
 
             const result = results[0];
@@ -220,7 +220,7 @@ describe('sources impl', function () {
 
             const options = http.args[0][0];
             // eslint-disable-next-line max-len
-            options.uri.should.equal('http://localhost:8080/api/sources/v3.1/sources/d415fc2d-9700-4e30-9621-6a410ccc92d8/rhc_connections');
+            options.uri.should.equal('http://localhost:8080/api/sources/v3.1/sources/5/rhc_connections');
             options.headers.should.have.size(2);
             options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
             options.headers.should.have.property('x-rh-identity', 'identity');
