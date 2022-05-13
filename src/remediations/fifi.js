@@ -283,8 +283,12 @@ async function defineDirectConnectedRHCSystems (executor, smart_management, org_
         rhcSystems = _.partition(executor.systems, system => !_.isUndefined(system.rhc_client) && system.marketplace);
     }
 
-    const dispatcherStatusRequest = _.map(rhcSystems[0], system => { return {recipient: system.rhc_client, org_id: String(org_id) }; });
+    // If there are no systems to check, return rhcSystems
+    if (_.isEmpty(rhcSystems[0])) {
+        return rhcSystems;
+    }
 
+    const dispatcherStatusRequest = _.map(rhcSystems[0], system => { return {recipient: system.rhc_client, org_id: String(org_id) }; });
     const requestStatuses = await dispatcher.getPlaybookRunRecipientStatus(dispatcherStatusRequest);
 
     // partition systems containing rhc_client_ids by connection status
