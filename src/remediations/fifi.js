@@ -268,7 +268,11 @@ async function fetchSatRHCClientId (systems) {
             log.info({sourcesDetails: sourcesDetails}, 'sourcesDetails');
             log.info({sourcesRHCDetails: sourcesRHCDetails}, 'sourcesRHCDetails');
 
-            system.sat_rhc_client = (sourcesRHCDetails) ? sourcesRHCDetails.rhc_id : null;
+            if (sourcesRHCDetails) {
+                system.sat_rhc_client = (sourcesRHCDetails[0].availability_status === "available") ? sourcesRHCDetails[0].rhc_id : null;
+            } else {
+                system.sat_rhc_client = null;
+            }
         } else {
             system.sat_rhc_client = null;
         }
@@ -373,8 +377,8 @@ async function fetchRHCStatuses (satellites, org_id) {
     const result = await dispatcher.getPlaybookRunRecipientStatus(recipientStatusRequest);
 
     _.forEach(satellites, satellite => {
-        if (satellite.source) {
-            satellite.rhcStatus = (result[satellite.source.rhc_id].connected) ? CONNECTED : DISCONNECTED;
+        if (result) {
+            satellite.rhcStatus = (result[satellite.sat_rhc_client].connected) ? CONNECTED : DISCONNECTED;
         } else {
             satellite.rhcStatus = null;
         }
@@ -502,6 +506,10 @@ function getStatus (executor, smart_management) {
         if (executor.rhcStatus === 'disabled') {
             return 'disabled';
         }
+    } else if (executor.type === 'RHC-satellite') {
+        if (executor.rhcStatus !== 'connected') {
+            return 'disconnected'
+        }
     } else if (executor.type === null) {
         return 'no_executor';
     }
@@ -618,7 +626,6 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
     await fetchRHCClientId(systems, systemsIds);
     await fetchSatRHCClientId(systems);
     const [rhcSatelliteSystems, receptorSatelliteSystems] = _.partition(systems, system => { return !_.isNull(system.sat_rhc_client); });
-
     const receptorSatellites = _(receptorSatelliteSystems).groupBy('satelliteId').mapValues(receptorSatelliteSystems => ({
         id: receptorSatelliteSystems[0].satelliteId,
         org_id: receptorSatelliteSystems[0].satelliteOrgId,
@@ -627,9 +634,6 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
         // only pick on one of them as we wouldn't be able to tell them apart based on responses from Satellite
         systems: _(receptorSatelliteSystems).sortBy('id').uniqBy(generator.systemToHost).value()
     })).values().value();
-
-    log.info(`rhcSatelliteSystems: ${(rhcSatelliteSystems) ? rhcSatelliteSystems[0] : []}`);
-    log.info(`receptorSatelliteSystems: ${(receptorSatelliteSystems) ? receptorSatelliteSystems[0] : []}`);
 
     let rhcSatellites = [];
     if (!_.isEmpty(rhcSatelliteSystems)) {

@@ -84,6 +84,7 @@ const RHC_CONNECTIONS = {
     '127': {
         id: '127',
         rhc_id: 'd415fc2d-9700-4e30-9621-6a410ccc92d8',
+        availability_status: "available",
         last_checked_at: '0001-01-01T00:00:00Z',
         last_available_at: '0001-01-01T00:00:00Z',
         source_ids: [
@@ -113,7 +114,7 @@ module.exports = new class extends Connector {
     }
 
     async getRHCConnections (id) {
-        return _.get(RHC_CONNECTIONS, id, null);
+        return [_.get(RHC_CONNECTIONS, id, null)];
     }
 
     async ping () {
