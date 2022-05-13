@@ -615,6 +615,8 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
     await fetchRHCClientId(systems, systemsIds);
     await fetchSatRHCClientId(systems);
     const [rhcSatelliteSystems, receptorSatelliteSystems] = _.partition(systems, system => { return !_.isNull(system.sat_rhc_client); });
+    // Add other check here for receptorSatelliteSystems
+
     const receptorSatellites = _(receptorSatelliteSystems).groupBy('satelliteId').mapValues(receptorSatelliteSystems => ({
         id: receptorSatelliteSystems[0].satelliteId,
         org_id: receptorSatelliteSystems[0].satelliteOrgId,
@@ -624,8 +626,8 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
         systems: _(receptorSatelliteSystems).sortBy('id').uniqBy(generator.systemToHost).value()
     })).values().value();
 
-    log.info(`rhcSatelliteSystems: ${rhcSatelliteSystems[0]}`);
-    log.info(`receptorSatelliteSystems: ${receptorSatelliteSystems[0]}`);
+    log.info(`rhcSatelliteSystems: ${(rhcSatelliteSystems) ? rhcSatelliteSystems[0] : []}`);
+    log.info(`receptorSatelliteSystems: ${(receptorSatelliteSystems) ? receptorSatelliteSystems[0] : []}`);
 
     let rhcSatellites = [];
     if (!_.isEmpty(rhcSatelliteSystems)) {
