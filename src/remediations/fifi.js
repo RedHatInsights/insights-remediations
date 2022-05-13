@@ -265,8 +265,8 @@ async function fetchSatRHCClientId (systems) {
             const sourcesDetails = await sources.getSourceInfo([system.satelliteId]);
             const sourcesRHCDetails = await sources.getRHCConnections(sourcesDetails[system.satelliteId].id);
 
-            log.info(`sourcesDetails: ${sourcesDetails}`);
-            log.info(`sourcesRHCDetails: ${sourcesRHCDetails}`);
+            log.info({sourcesDetails: sourcesDetails}, 'sourcesDetails');
+            log.info({sourcesRHCDetails: sourcesRHCDetails}, 'sourcesRHCDetails');
 
             system.sat_rhc_client = (sourcesRHCDetails) ? sourcesRHCDetails.rhc_id : null;
         } else {
