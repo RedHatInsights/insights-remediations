@@ -18,7 +18,6 @@ const log = require('../util/log');
 const probes = require('../probes');
 const read = require('./controller.read');
 const queries = require('./remediations.queries');
-const { logicalExpression } = require('../../../../../Library/Caches/typescript/4.6/node_modules/@babel/types/lib/index');
 
 const SATELLITE_NAMESPACE = Object.freeze({namespace: 'satellite'});
 const MIN_SAT_RHC_VERSION = [6, 11, 0];
