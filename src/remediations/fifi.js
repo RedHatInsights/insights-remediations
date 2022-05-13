@@ -375,6 +375,7 @@ async function fetchRHCStatuses (satellites, org_id) {
     });
 
     const result = await dispatcher.getPlaybookRunRecipientStatus(recipientStatusRequest);
+    log.info({results: result}, 'playbook-dispatcher-results');
 
     _.forEach(satellites, satellite => {
         if (result) {
