@@ -18,6 +18,7 @@ const log = require('../util/log');
 const probes = require('../probes');
 const read = require('./controller.read');
 const queries = require('./remediations.queries');
+const { logicalExpression } = require('../../../../../Library/Caches/typescript/4.6/node_modules/@babel/types/lib/index');
 
 const SATELLITE_NAMESPACE = Object.freeze({namespace: 'satellite'});
 const MIN_SAT_RHC_VERSION = [6, 11, 0];
@@ -265,6 +266,9 @@ async function fetchSatRHCClientId (systems) {
             const sourcesDetails = await sources.getSourceInfo([system.satelliteId]);
             const sourcesRHCDetails = await sources.getRHCConnections(sourcesDetails[system.satelliteId].id);
 
+            log.info(`sourcesDetails: ${sourcesDetails}`);
+            log.info(`sourcesRHCDetails: ${sourcesRHCDetails}`);
+
             system.sat_rhc_client = (sourcesRHCDetails) ? sourcesRHCDetails.rhc_id : null;
         } else {
             system.sat_rhc_client = null;
@@ -281,8 +285,6 @@ async function defineDirectConnectedRHCSystems (executor, smart_management, org_
     }
 
     const dispatcherStatusRequest = _.map(rhcSystems[0], system => { return {recipient: system.rhc_client, org_id: String(org_id) }; });
-
-    log.info(`created dispatcher status request: ${dispatcherStatusRequest.toString()}`);
 
     const requestStatuses = await dispatcher.getPlaybookRunRecipientStatus(dispatcherStatusRequest);
 
@@ -622,8 +624,8 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
         systems: _(receptorSatelliteSystems).sortBy('id').uniqBy(generator.systemToHost).value()
     })).values().value();
 
-    log.info(`rhcSatelliteSystems: ${rhcSatelliteSystems}`);
-    log.info(`receptorSatelliteSystems: ${receptorSatelliteSystems}`);
+    log.info(`rhcSatelliteSystems: ${rhcSatelliteSystems[0]}`);
+    log.info(`receptorSatelliteSystems: ${receptorSatelliteSystems[0]}`);
 
     let rhcSatellites = [];
     if (!_.isEmpty(rhcSatelliteSystems)) {
