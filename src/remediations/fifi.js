@@ -265,6 +265,9 @@ async function fetchSatRHCClientId (systems) {
             const sourcesDetails = await sources.getSourceInfo([system.satelliteId]);
             const sourcesRHCDetails = await sources.getRHCConnections(sourcesDetails[system.satelliteId].id);
 
+            log.info(`sourcesDetails: ${sourcesDetails}`);
+            log.info(`sourcesRHCDetails: ${sourcesRHCDetails}`);
+
             system.sat_rhc_client = (sourcesRHCDetails) ? sourcesRHCDetails.rhc_id : null;
         } else {
             system.sat_rhc_client = null;
@@ -281,8 +284,6 @@ async function defineDirectConnectedRHCSystems (executor, smart_management, org_
     }
 
     const dispatcherStatusRequest = _.map(rhcSystems[0], system => { return {recipient: system.rhc_client, org_id: String(org_id) }; });
-
-    log.info(`created dispatcher status request: ${dispatcherStatusRequest.toString()}`);
 
     const requestStatuses = await dispatcher.getPlaybookRunRecipientStatus(dispatcherStatusRequest);
 
@@ -613,6 +614,7 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
     await fetchRHCClientId(systems, systemsIds);
     await fetchSatRHCClientId(systems);
     const [rhcSatelliteSystems, receptorSatelliteSystems] = _.partition(systems, system => { return !_.isNull(system.sat_rhc_client); });
+
     const receptorSatellites = _(receptorSatelliteSystems).groupBy('satelliteId').mapValues(receptorSatelliteSystems => ({
         id: receptorSatelliteSystems[0].satelliteId,
         org_id: receptorSatelliteSystems[0].satelliteOrgId,
@@ -622,8 +624,8 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
         systems: _(receptorSatelliteSystems).sortBy('id').uniqBy(generator.systemToHost).value()
     })).values().value();
 
-    log.info(`rhcSatelliteSystems: ${rhcSatelliteSystems}`);
-    log.info(`receptorSatelliteSystems: ${receptorSatelliteSystems}`);
+    log.info(`rhcSatelliteSystems: ${(rhcSatelliteSystems) ? rhcSatelliteSystems[0] : []}`);
+    log.info(`receptorSatelliteSystems: ${(receptorSatelliteSystems) ? receptorSatelliteSystems[0] : []}`);
 
     let rhcSatellites = [];
     if (!_.isEmpty(rhcSatelliteSystems)) {
