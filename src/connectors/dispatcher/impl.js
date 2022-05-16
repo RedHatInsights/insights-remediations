@@ -7,6 +7,7 @@ const {host, insecure, auth} = require('../../config').dispatcher;
 
 const Connector = require('../Connector');
 const metrics = require('../metrics');
+const log = require('../../util/log')
 
 const QSOPTIONS = { encode: true, indices: false };
 
@@ -184,7 +185,9 @@ module.exports = new class extends Connector {
             };
         }
 
+        log.info({request: dispatcherStatusRequest}, 'PRE RunRecipientStatus');
         const result = await this.doHttp (options, false, this.getRunRecipientStatus);
+        log.info({result: result}, 'POST RunRecipientStatus')
 
         if (_.isNull(result)) {
             return null;
