@@ -7,6 +7,7 @@ const {host, insecure, auth} = require('../../config').dispatcher;
 
 const Connector = require('../Connector');
 const metrics = require('../metrics');
+const log = require('../util/log');
 
 const QSOPTIONS = { encode: true, indices: false };
 
