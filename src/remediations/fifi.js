@@ -764,7 +764,7 @@ async function dispatchRHCSatelliteRequests (rhcSatWorkRequest, playbook_run_id)
         probes.rhcSatJobDispatched(rhcSatWorkRequest, response, playbook_run_id);
         return response;
     } catch (e) {
-        log.error({systems: executor.systems, error: e}, 'error sending satellite work request to playbook-dispatcher');
+        log.error({workRequest: rhcSatWorkRequest, error: e}, 'error sending satellite work request to playbook-dispatcher');
     }
 }
 
