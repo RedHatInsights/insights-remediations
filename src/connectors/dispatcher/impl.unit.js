@@ -347,11 +347,7 @@ describe('dispatcher impl', function () {
         test('get run recipient statuses', async function () {
             const http = base.getSandbox().stub(request, 'run').resolves({
                 statusCode: 200,
-                body: {
-                    meta: {
-                        count: 3
-                    },
-                    data: [
+                body: [
                         {
                             recipient: 'd415fc2d-9700-4e30-9621-6a410ccc92d8',
                             org_id: '123456',
@@ -367,8 +363,7 @@ describe('dispatcher impl', function () {
                             org_id: '123456',
                             connected: true
                         }
-                    ]
-                },
+                ],
                 headers: {}
             });
 

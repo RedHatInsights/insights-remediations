@@ -193,7 +193,7 @@ module.exports = new class extends Connector {
             return null;
         }
 
-        const transformed = _(result.data)
+        const transformed = _(result)
         .keyBy('recipient')
         .mapValues(({recipient, org_id, connected}) =>
             ({recipient, org_id, connected}))
