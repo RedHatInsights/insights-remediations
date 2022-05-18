@@ -60,7 +60,10 @@ module.exports = new class extends Connector {
     }
 
     async postV2PlaybookRunRequests (dispatcherV2WorkRequest) {
-        const uri = this.buildUri(host, 'internal', 'v2', 'dispatch');
+        const uri = new URI(host);
+        uri.segment('internal');
+        uri.segment('v2');
+        uri.segment('dispatch');
 
         const options = {
             uri: uri.toString(),
