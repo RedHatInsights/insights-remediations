@@ -1524,7 +1524,7 @@ components:
     UserOut:
       type: object
       additionalProperties: false
-      required: [username, first_name, last_name]
+      required: [username]
       properties:
         username:
           type: string

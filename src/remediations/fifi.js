@@ -263,7 +263,8 @@ async function fetchSatRHCClientId (systems) {
     await P.map(systems, async system => {
         if (checkSatVersionForRhc(system.satelliteVersion) && !_.isNull(system.satelliteId)) {
             const sourcesDetails = await sources.getSourceInfo([system.satelliteId]);
-            const sourcesRHCDetails = await sources.getRHCConnections(sourcesDetails[system.satelliteId].id);
+            const id = _(sourcesDetails).get([system.satelliteId, 'id']);
+            const sourcesRHCDetails = await sources.getRHCConnections(id);
 
             log.info({sourcesDetails: sourcesDetails}, 'sourcesDetails');
             log.info({sourcesRHCDetails: sourcesRHCDetails}, 'sourcesRHCDetails');
@@ -759,8 +760,9 @@ async function dispatchRHCRequests ({executor, rhcWorkRequest}, playbook_run_id)
 
 async function dispatchRHCSatelliteRequests (rhcSatWorkRequest, playbook_run_id) {
     try {
+        const WorkRequest = _(rhcSatWorkRequest).map('rhcSatWorkRequest').value();
         probes.splitPlaybookPerRHCEnabledSatellite(rhcSatWorkRequest, playbook_run_id);
-        const response = await dispatcher.postV2PlaybookRunRequests(rhcSatWorkRequest);
+        const response = await dispatcher.postV2PlaybookRunRequests(WorkRequest);
         probes.rhcSatJobDispatched(rhcSatWorkRequest, response, playbook_run_id);
         return response;
     } catch (e) {
