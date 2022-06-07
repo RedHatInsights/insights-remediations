@@ -760,9 +760,9 @@ async function dispatchRHCRequests ({executor, rhcWorkRequest}, playbook_run_id)
 
 async function dispatchRHCSatelliteRequests (rhcSatWorkRequest, playbook_run_id) {
     try {
-        const WorkRequest = _(rhcSatWorkRequest).map('rhcSatWorkRequest').value();
+        const workRequest = _(rhcSatWorkRequest).map('rhcSatWorkRequest').value();
         probes.splitPlaybookPerRHCEnabledSatellite(rhcSatWorkRequest, playbook_run_id);
-        const response = await dispatcher.postV2PlaybookRunRequests(WorkRequest);
+        const response = await dispatcher.postV2PlaybookRunRequests(workRequest);
         probes.rhcSatJobDispatched(rhcSatWorkRequest, response, playbook_run_id);
         return response;
     } catch (e) {
