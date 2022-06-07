@@ -228,7 +228,7 @@ exports.rhcSatelliteWorkRequest = function (executor, remediation, username, ten
         name: remediation.name,
         recipient_config: {
             sat_id: executor.satId,
-            sat_org_id: executor.satOrgId
+            sat_org_id: executor.satOrgId.toString()
         },
         url: buildRHCSatUrl(remediation.id, systems),
         labels: { 'playbook-run': playbook_run_id },
