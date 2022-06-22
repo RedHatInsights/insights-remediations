@@ -216,10 +216,15 @@ exports.rhcWorkRequest = function (rhc_client_id, account_number, remediation_id
 };
 
 exports.rhcSatelliteWorkRequest = function (executor, remediation, username, tenant_org_id, playbook_run_id) {
-    const systems = executor.systems.map(system => ({
-        ansible_host: system.ansible_host || "",
-        inventory_id: system.id
-    }));
+    const systems = executor.systems.map(system => {
+        let host = {"inventory_id": system.id};
+
+        if (!_.isNull(system.ansible_host)) {
+            host.absible_host = system.ansible_host
+        }
+
+        return host
+    });
 
     const request = {
         recipient: executor.satRhcId,
