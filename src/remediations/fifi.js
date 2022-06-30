@@ -25,7 +25,7 @@ const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_
 
 const RUNSFIELDS = Object.freeze({fields: {data: ['id', 'labels', 'status', 'service', 'created_at', 'updated_at', 'url']}});
 const RUNHOSTFIELDS = Object.freeze({fields: {data: ['stdout', 'inventory_id']}});
-const RHCRUNFIELDS = Object.freeze({fields: {data: ['host', 'status']}});
+const RHCRUNFIELDS = Object.freeze({fields: {data: ['host', 'status', 'inventory_id']}});
 const RHCSTATUSES = ['timeout', 'failure', 'success', 'running'];
 
 const DIFF_MODE = false;
@@ -212,7 +212,7 @@ exports.formatRunHosts = async function (rhcRuns, playbook_run_id) {
         const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
 
         hosts.push(..._.map(rhcRunHosts.data, host => ({
-            system_id: host.host,
+            system_id: host.inventory_id,
             system_name: host.host,
             status: host.status,
             updated_at: run.updated_at,
@@ -299,8 +299,8 @@ exports.getRunHostDetails = async function (playbook_run_id, system_id) {
     return formatRHCHostDetails(host, rhcRunHostDetails, playbook_run_id);
 };
 
-exports.combineHosts = function (rhcRunHosts, systems, playbook_run_id) {
-    rhcRunHosts = exports.formatRunHosts(rhcRunHosts, playbook_run_id);
+exports.combineHosts = async function (rhcRunHosts, systems, playbook_run_id) {
+    rhcRunHosts = await exports.formatRunHosts(rhcRunHosts, playbook_run_id);
 
     _.forEach(rhcRunHosts, host => {
         pushRHCSystem(host, systems);
