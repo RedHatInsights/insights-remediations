@@ -208,7 +208,7 @@ exports.formatRunHosts = async function (rhcRuns, playbook_run_id) {
 
     for (const run of rhcRuns.data) {
         // get dispatcher run hosts...
-        const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run_id);
+        const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run.id);
         const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
 
         hosts.concat(_.map(rhcRunHosts.data, host => ({
@@ -316,8 +316,8 @@ exports.combineRuns = async function (remediation) {
         const rhcRuns = await exports.getRHCRuns(run.id); // run.id is playbook_run_id
 
         if (rhcRuns) {
-            await formatRHCRuns(rhcRuns, run.id);
-            pushRHCExecutor(rhcRuns, run);
+            const executors = await formatRHCRuns(rhcRuns, run.id);
+            pushRHCExecutor(executors, run);
         }
     }
 
