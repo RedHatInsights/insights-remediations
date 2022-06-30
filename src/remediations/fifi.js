@@ -211,7 +211,7 @@ exports.formatRunHosts = async function (rhcRuns, playbook_run_id) {
         const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run.id);
         const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
 
-        hosts.concat(_.map(rhcRunHosts.data, host => ({
+        hosts.push(..._.map(rhcRunHosts.data, host => ({
             system_id: host.host,
             system_name: host.host,
             status: host.status,
