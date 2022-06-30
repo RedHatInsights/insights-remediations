@@ -206,6 +206,7 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
     return executors;
 }
 
+
 exports.formatRunHosts = async function (rhcRuns, playbook_run_id) {
     let hosts = [];
 
@@ -217,7 +218,7 @@ exports.formatRunHosts = async function (rhcRuns, playbook_run_id) {
         hosts.push( ... _.map(rhcRunHosts.data, host => ({
             system_id: host.inventory_id,
             system_name: host.host,
-            status: run.status,
+            status: (host.status === 'timeout' ? 'failure' : host.status),
             updated_at: run.updated_at,
             playbook_run_executor_id: playbook_run_id
         })));
