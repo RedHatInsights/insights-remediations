@@ -213,7 +213,7 @@ exports.getSystems = errors.async(async function (req, res) {
         }
 
         if (!req.query.executor) { // not scoped to an executor, merge any rhc-direct and receptor hosts
-            fifi.combineHosts(rhcRunHosts, systems, req.params.playbook_run_id);
+            await fifi.combineHosts(rhcRunHosts, systems, req.params.playbook_run_id);
         }
     }
 
