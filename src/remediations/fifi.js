@@ -212,8 +212,11 @@ exports.formatRunHosts = async function (rhcRuns, playbook_run_id) {
         const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
 
         hosts.push(..._.map(rhcRunHosts.data, host => ({
-            system_id: host.inventory_id,
-            system_name: host.host,
+            // hard to believe, but we're plugging the dispatcher id for both of these
+            // system_id: host.inventory_id,
+            // system_name: host.host,
+            system_id: host.run.id,
+            system_name: host.run.id,
             status: host.status,
             updated_at: run.updated_at,
             playbook_run_executor_id: playbook_run_id
