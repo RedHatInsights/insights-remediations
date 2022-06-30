@@ -217,7 +217,7 @@ exports.formatRunHosts = async function (rhcRuns, playbook_run_id) {
         hosts.push( ... _.map(rhcRunHosts.data, host => ({
             system_id: host.inventory_id,
             system_name: host.host,
-            status: host.status,
+            status: run.status,
             updated_at: run.updated_at,
             playbook_run_executor_id: playbook_run_id
         })));
