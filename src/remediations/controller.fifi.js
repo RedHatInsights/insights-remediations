@@ -206,16 +206,18 @@ exports.getSystems = errors.async(async function (req, res) {
         fifi.getRHCRuns(req.params.playbook_run_id)
     ]);
 
-    if (!req.query.ansible_host && rhcRunHosts) {
-        if (req.query.executor && _.isEmpty(systems)) {
-            systems = fifi.formatRunHosts(rhcRunHosts, req.params.playbook_run_id);
+    // combine RHC and receptor hosts if needed
+    if (!req.query.ansible_host && rhcRunHosts) {  // not scoped to a single system and we have rhc-direct hosts...
+        if (req.query.executor && _.isEmpty(systems)) { // scoped to an executor that's not receptor...
+            systems = await fifi.formatRunHosts(rhcRunHosts, req.params.playbook_run_id); // list of systems is just the rhc-direct hosts
         }
 
-        if (!req.query.executor) {
+        if (!req.query.executor) { // not scoped to an executor, merge any rhc-direct and receptor hosts
             fifi.combineHosts(rhcRunHosts, systems, req.params.playbook_run_id);
         }
     }
 
+    // perhaps we scoped this to a non-existent receptor host?
     if (_.isEmpty(systems)) {
         const remediation = await queries.getRunDetails(
             req.params.id,
