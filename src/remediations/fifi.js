@@ -25,6 +25,7 @@ const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_
 
 const RUNSFIELDS = Object.freeze({fields: {data: ['id', 'labels', 'status', 'service', 'created_at', 'updated_at', 'url']}});
 const RUNHOSTFIELDS = Object.freeze({fields: {data: ['stdout', 'inventory_id']}});
+const RHCRUNFIELDS = Object.freeze({fields: {data: ['host', 'status']}});
 const RHCSTATUSES = ['timeout', 'failure', 'success', 'running'];
 
 const DIFF_MODE = false;
@@ -110,13 +111,13 @@ function createDispatcherRunsFilter (playbook_run_id = null) {
     return runsFilter;
 }
 
-function createDispatcherRunHostsFilter (playbook_run_id, host_id = null) {
+function createDispatcherRunHostsFilter (playbook_run_id, run_id = null) {
     const runHostsFilter = {filter: {run: {}}};
     runHostsFilter.filter.run.service = SERVICE;
     runHostsFilter.filter.run.labels = {'playbook-run': playbook_run_id};
 
-    if (host_id) {
-        runHostsFilter.filter.run.id = host_id;
+    if (run_id) {
+        runHostsFilter.filter.run.id = run_id;
     }
 
     return runHostsFilter;
@@ -132,27 +133,94 @@ function findRunStatus (run) {
     }
 }
 
-function formatRHCRuns (rhcRuns) {
-    // Add system count
-    rhcRuns.system_count = rhcRuns.meta.count;
+// Create array of maps: one representing all RCH-direct hosts, and one for each RHC-satellite
+// Compute aggregate system_count, status counts and overall status for each
+async function formatRHCRuns (rhcRuns, playbook_run_id) {
+    // rhcRuns contains all the dispatcher runs for this playbook_run_id
+    // One for each RHC-(satellite, org), one for each RHC-direct host
 
-    // Assign each status count
-    RHCSTATUSES.forEach(status => {
-        rhcRuns[`count_${status}`] = _.size(_.filter(rhcRuns.data, run => run.status === status));
-    });
+    let executors = [];
 
-    // Status of executor
-    rhcRuns.status = findRunStatus(rhcRuns);
+    let rhcDirect = {
+        name: 'Direct connected',
+        executor_id: playbook_run_id,
+        status: null,
+        system_count: 0,
+        playbook_run_id: playbook_run_id,
+        playbook: null,
+        updated_at: null,
+        count_timeout: 0,
+        count_failure: 0,
+        count_success: 0,
+        count_running: 0,
+    }
+    
+    for (const run of rhcRuns.data) {
+        // get dispatcher run hosts
+        const runHostsFilter = createDispatcherRunHostsFilter(run.labels['playbook-run'], run.id);
+        const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
+
+        // If host === 'localhost' then add to RHCDirect
+        if (_.get(rhcRunHosts, 'data[0][host]') === 'localhost') {
+            rhcDirect.playbook = run.url;
+            rhcDirect.updated_at = run.updated_at;
+            rhcDirect.system_count += rhcRunHosts.meta.count; // should always be 1, but...
+            rhcDirect[`count_${run.status}`]++;
+        }
+
+        // else create a new sat executor
+        else {
+            let satExecutor = {
+                name: 'RHC Satellite',
+                executor_id: playbook_run_id,
+                status: run.status,
+                system_count: rhcRunHosts.meta.count,
+                playbook_run_id: playbook_run_id,
+                playbook: run.url,
+                updated_at: run.updated_at,
+                count_timeout: 0,
+                count_failure: 0,
+                count_success: 0,
+                count_running: 0,
+            };
+
+            // Assign each status count
+            RHCSTATUSES.forEach(status => {
+                satExecutor[`count_${status}`] = _.size(_.filter(rhcRunHosts.data, run => run.status === status));
+            });
+
+            executors.push(satExecutor);
+        }
+    }
+
+    // return array of executors
+    if (rhcDirect.system_count) {
+        // Status of executor
+        rhcDirect.status = findRunStatus(rhcDirect);
+        executors.push(rhcDirect);
+    }
+
+    return executors;
 }
 
-exports.formatRunHosts = function (rhcRunHosts, playbook_run_id) {
-    return _.map(rhcRunHosts.data, host => ({
-        system_id: host.id,
-        system_name: host.id,
-        status: host.status,
-        updated_at: host.updated_at,
-        playbook_run_executor_id: playbook_run_id
-    }));
+exports.formatRunHosts = async function (rhcRuns, playbook_run_id) {
+    let hosts = [];
+
+    for (const run of rhcRuns.data) {
+        // get dispatcher run hosts...
+        const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run.id);
+        const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
+
+        hosts.concat(_.map(rhcRunHosts.data, host => ({
+            system_id: host.host,
+            system_name: host.host,
+            status: host.status,
+            updated_at: run.updated_at,
+            playbook_run_executor_id: playbook_run_id
+        })));
+    }
+
+    return hosts;
 };
 
 function formatRHCHostDetails (host, details, playbook_run_id) {
@@ -170,21 +238,23 @@ function pushRHCSystem (host, systems) {
     systems.push(host);
 }
 
-function pushRHCExecutor (rhcRun, satRun) {
-    satRun.executors.push({
-        executor_id: rhcRun.data[0].labels['playbook-run'],
-        executor_name: 'Direct connected',
-        status: rhcRun.status,
-        system_count: rhcRun.system_count,
-        playbook_run_id: rhcRun.data[0].labels['playbook-run'],
-        playbook: rhcRun.data[0].url,
-        updated_at: rhcRun.data[0].updated_at,
-        count_failure: rhcRun.count_failure,
-        count_success: rhcRun.count_success,
-        count_running: rhcRun.count_running,
-        count_pending: 0, // RHC does not return the status pending
-        count_canceled: 0 // RHC does not currently return status canceled
-    });
+function pushRHCExecutor (rhcRuns, satRun) {
+    for (const rhcRun of rhcRuns) {
+        satRun.executors.push({
+            executor_id: rhcRun.executor_id,
+            executor_name: rhcRun.name,
+            status: rhcRun.status,
+            system_count: rhcRun.system_count,
+            playbook_run_id: rhcRun.playbook_run_id,
+            playbook: rhcRun.playbook,
+            updated_at: rhcRun.updated_at,
+            count_failure: rhcRun.count_failure,
+            count_success: rhcRun.count_success,
+            count_running: rhcRun.count_running,
+            count_pending: 0, // RHC does not return the status pending
+            count_canceled: 0 // RHC does not currently return status canceled
+        });
+    }
 }
 
 function checkSatVersionForRhc (version) {
@@ -237,13 +307,17 @@ exports.combineHosts = function (rhcRunHosts, systems, playbook_run_id) {
     });
 };
 
+// add rhc playbook run data to remediation
 exports.combineRuns = async function (remediation) {
+    // array of playbook_run_id
     for (const run of remediation.playbook_runs) {
-        const rhcRuns = await exports.getRHCRuns(run.id);
+        // query playbook-dispatcher to see if there are any RHC direct or
+        // RHC satellite hosts for this playbook run...
+        const rhcRuns = await exports.getRHCRuns(run.id); // run.id is playbook_run_id
 
         if (rhcRuns) {
-            formatRHCRuns(rhcRuns);
-            pushRHCExecutor(rhcRuns, run);
+            const executors = await formatRHCRuns(rhcRuns, run.id);
+            pushRHCExecutor(executors, run);
         }
     }
 

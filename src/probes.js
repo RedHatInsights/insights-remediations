@@ -61,7 +61,7 @@ PERMISSIONS.forEach(value => rbacCounter.labels(value).inc(0));
 exports.playbookGenerated = function (req, {auto_reboot, issues}, name) {
     playbookCounter.inc();
     log.info({
-        username: req.user.username,
+        username: req.user.username, // TODO: username not present for cert auth
         email: req.identity.user.email,
         account_number: req.user.account_number,
         name,
