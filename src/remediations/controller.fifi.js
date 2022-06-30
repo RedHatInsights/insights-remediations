@@ -261,6 +261,7 @@ exports.getSystemDetails = errors.async(async function (req, res) {
     }
 
     if (!system) {
+        // rhc-direct or rhc-satellite system
         system = await fifi.getRunHostDetails(req.params.playbook_run_id, req.params.system);
 
         if (!system) {

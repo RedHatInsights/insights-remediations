@@ -173,7 +173,7 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
             let satExecutor = {
                 name: 'RHC Satellite',
                 executor_id: playbook_run_id,
-                status: run.status,
+                status: null,
                 system_count: rhcRunHosts.meta.count,
                 playbook_run_id: playbook_run_id,
                 playbook: run.url,
@@ -189,12 +189,15 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
                 satExecutor[`count_${status}`] = _.size(_.filter(rhcRunHosts.data, run => run.status === status));
             });
 
+            // Compute status of executor
+            satExecutor.status = findRunStatus(satExecutor);
+
             executors.push(satExecutor);
         }
     }
 
     // return array of executors
-    if (rhcDirect.system_count) {
+    if (rhcDirect.system_count > 0) {
         // Status of executor
         rhcDirect.status = findRunStatus(rhcDirect);
         executors.push(rhcDirect);
@@ -211,7 +214,7 @@ exports.formatRunHosts = async function (rhcRuns, playbook_run_id) {
         const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run.id);
         const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
 
-        hosts.push(..._.map(rhcRunHosts.data, host => ({
+        hosts.push( ... _.map(rhcRunHosts.data, host => ({
             system_id: host.inventory_id,
             system_name: host.host,
             status: host.status,
