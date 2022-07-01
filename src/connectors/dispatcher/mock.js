@@ -144,6 +144,15 @@ module.exports = new class extends Connector {
 
     fetchPlaybookRunHosts (filter = null) {
         if (filter) {
+            if (!_.isUndefined(filter.filter.inventory_id)) {
+                return {
+                    meta: {
+                        count: 1
+                    },
+                    data: [_.find(RUNHOSTS, {inventory_id: filter.filter.inventory_id})]
+                };
+            }
+
             if (!_.isUndefined(filter.filter.run.id)) {
                 return {
                     meta: {

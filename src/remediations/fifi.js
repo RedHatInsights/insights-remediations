@@ -111,13 +111,17 @@ function createDispatcherRunsFilter (playbook_run_id = null) {
     return runsFilter;
 }
 
-function createDispatcherRunHostsFilter (playbook_run_id, run_id = null) {
+function createDispatcherRunHostsFilter (playbook_run_id, run_id = null, system_id = null) {
     const runHostsFilter = {filter: {run: {}}};
     runHostsFilter.filter.run.service = SERVICE;
     runHostsFilter.filter.run.labels = {'playbook-run': playbook_run_id};
 
     if (run_id) {
         runHostsFilter.filter.run.id = run_id;
+    }
+
+    if (system_id) {
+        runHostsFilter.filter.inventory_id = system_id;
     }
 
     return runHostsFilter;
@@ -188,6 +192,9 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
             RHCSTATUSES.forEach(status => {
                 satExecutor[`count_${status}`] = _.size(_.filter(rhcRunHosts.data, run => run.status === status));
             });
+
+            // timeouts also count as errors since count_timeout doesn't get propogated
+            satExecutor.count_failure += satExecutor.count_timeout;
 
             // Compute status of executor
             satExecutor.status = findRunStatus(satExecutor);
@@ -287,20 +294,39 @@ exports.getRHCRuns = async function (playbook_run_id = null) {
 };
 
 exports.getRunHostDetails = async function (playbook_run_id, system_id) {
-    const runsFilter = createDispatcherRunHostsFilter(playbook_run_id);
-    const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, system_id);
-    const [rhcRunHosts, rhcRunHostDetails] = await Promise.all([
-        dispatcher.fetchPlaybookRuns(runsFilter, RUNSFIELDS),
-        dispatcher.fetchPlaybookRunHosts(runHostsFilter, RUNHOSTFIELDS)
-    ]);
+    // So... given the remediations playbook_run_id and a system_id find the matching
+    // dispatcher run_hosts entry.  /dispatcher/runs?playbook_run_id will return an
+    // entry for every RHC-direct host that was part of the playbook run, and one for
+    // each <satellite,org> with one or more systems.  We need the *dispatcher* run_id
+    // and the system_id to query dispatcher run_hosts...
 
-    if (!rhcRunHosts || !rhcRunHostDetails) {
-        return null;
+    const runsFilter = createDispatcherRunsFilter(playbook_run_id);
+    const rhcRuns = await dispatcher.fetchPlaybookRuns(runsFilter, RUNSFIELDS);
+
+    if (!rhcRuns || !rhcRuns.data) {
+        return null; // didn't find any dispatcher runs for playbook_run_id...
     }
 
-    const host = _.find(rhcRunHosts.data, host => host.id === system_id);
+    // For each dispatcher run in rhcRuns
+    //   get run_hosts for this run_id and system_id
+    //   return the first match found
 
-    return formatRHCHostDetails(host, rhcRunHostDetails, playbook_run_id);
+    for (const run of rhcRuns.data) {
+        const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run.id, system_id);
+        const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RUNHOSTFIELDS)
+
+        if (!rhcRunHosts || !rhcRunHosts.data) {
+            return null; // didn't find any runHosts for dispatcher_run_id + system_id...
+        }
+
+        if (rhcRunHosts.data) {
+            // there should only ever be one run_hosts entry for a given system_id in a
+            // dispatcher run, right?  Just grab the first entry...
+            return formatRHCHostDetails(run, rhcRunHosts, playbook_run_id);
+        }
+    }
+
+    return null; // didn't find any systems...
 };
 
 exports.combineHosts = async function (rhcRunHosts, systems, playbook_run_id) {
