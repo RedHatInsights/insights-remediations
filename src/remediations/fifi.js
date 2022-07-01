@@ -238,7 +238,7 @@ function formatRHCHostDetails (host, details, playbook_run_id) {
     return {
         system_id: host.id,
         system_name: details.data[0].inventory_id,
-        status: host.status,
+        status: (host.status === 'timeout' ? 'failure' : host.status),
         updated_at: host.updated_at,
         console: details.data[0].stdout,
         executor_id: playbook_run_id
