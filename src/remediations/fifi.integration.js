@@ -650,7 +650,7 @@ describe('FiFi', function () {
             test('playbook_runs/:playbook_run_id/systems/:system with RHC system', async () => {
                 mockUuid();
                 const {body, text} = await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems/9ce94170-34a0-4aa6-976a-9728aa4da7a4')
+                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/31a70e85-378a-4436-96e9-677cd6fba660/systems/17adc41a-a6c6-426a-a0d5-c7ba08954154')
                 .set(auth.fifi)
                 .expect(200);
 
@@ -659,7 +659,7 @@ describe('FiFi', function () {
                 body.should.have.property('status', 'running');
                 body.should.have.property('console', 'console log goes here');
                 body.should.have.property('updated_at', '2018-10-04T08:19:36.641Z');
-                body.should.have.property('playbook_run_executor_id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
+                body.should.have.property('playbook_run_executor_id', '31a70e85-378a-4436-96e9-677cd6fba660');
                 expect(text).toMatchSnapshot();
             });
 
