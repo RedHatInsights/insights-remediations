@@ -439,7 +439,7 @@ describe('FiFi', function () {
                 body.meta.total.should.equal(12);
                 body.data.should.have.length(12);
 
-                body.data[0].should.have.property('system_id', '07adc41a-a6c6-426a-a0d5-c7ba08954153');
+                body.data[0].should.have.property('system_id', '8e015e92-02bd-4df1-80c5-3a00b93c4a4a');
                 body.data[0].should.have.property('system_name', 'localhost');
                 body.data[0].should.have.property('playbook_run_executor_id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
 
