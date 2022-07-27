@@ -23,7 +23,8 @@ module.exports = function (req, res, next) {
             entitlements: req.entitlements,
             reqId}, 'parsed identity header');
 
-        if (!req.identity.account_number) {
+        // allow for anemic tenants (org_id present but no account_number)
+        if (!(req.identity.account_number || req.identity.org_id)) {
             return next(new errors.Unauthorized());
         }
 
