@@ -43,7 +43,7 @@ exports.createIdentityHeader = function (
         },
         identity: {
             account_number,
-            org_id: 5318290,
+            org_id: '5318290',
             type: DEFAULTS.type,
             user: {
                 ...DEFAULTS.user,
