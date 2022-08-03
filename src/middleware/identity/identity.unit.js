@@ -39,6 +39,19 @@ describe('identity', () => {
         });
     });
 
+    // TODO: Write me!!
+    test('anemic tenant', async () => {
+        const {body} = await request
+            .get('/v1/whoami')
+            .set(auth.anemicTenant)
+            .expect(200);
+
+        body.should.containEql({
+            username: 'test01User',
+            org_id: '5318290'
+        });
+    });
+
     test('id switcher', async () => {
         const {body} = await request
         .get('/v1/whoami?username=500')
@@ -74,11 +87,12 @@ describe('identity', () => {
         });
     });
 
-    test('401s on missing account_number', async () => {
+    test('401s on missing account_number AND org_id', async () => {
         await request
         .get('/v1/whoami')
         .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, true, data => {
             delete data.identity.account_number;
+            delete data.identity.org_id;
             return data;
         }))
         .expect(401);
