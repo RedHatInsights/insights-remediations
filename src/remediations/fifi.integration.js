@@ -1409,7 +1409,7 @@ describe('FiFi', function () {
 
                 spy.firstCall.args[0].should.eql([{
                     run_id: '88d0ba73-0015-4e7d-a6d6-4b530cbfb7bc',
-                    org_id: 5318290,
+                    org_id: '5318290',
                     principal: 'fifi'
                 }]);
             });

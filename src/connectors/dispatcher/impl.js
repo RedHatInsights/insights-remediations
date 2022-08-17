@@ -45,9 +45,7 @@ module.exports = new class extends Connector {
 
         // This header should be sent to the playbook dispatcher for each internal request.
         if (auth) {
-            options.headers = {
-                Authorization: `PSK ${auth}`
-            };
+            options.headers.Authorization = `PSK ${auth}`;
         }
 
         const result = await this.doHttp (options, false, this.postRunRequests);
@@ -76,9 +74,7 @@ module.exports = new class extends Connector {
 
         // This header should be sent to the playbook dispatcher for each internal request.
         if (auth) {
-            options.headers = {
-                Authorization: `PSK ${auth}`
-            };
+            options.headers.Authorization = `PSK ${auth}`;
         }
 
         log.info({postDetails: options}, 'V2PlaybookRunRequests POST');
@@ -153,9 +149,7 @@ module.exports = new class extends Connector {
 
         // This header should be sent to the playbook dispatcher for each internal request.
         if (auth) {
-            options.headers = {
-                Authorization: `PSK ${auth}`
-            };
+            options.headers.Authorization = `PSK ${auth}`;
         }
 
         const result = await this.doHttp (options, false, this.postPlaybookCancelRequests);
@@ -185,9 +179,7 @@ module.exports = new class extends Connector {
 
         // This header should be sent to the playbook dispatcher for each internal request.
         if (auth) {
-            options.headers = {
-                Authorization: `PSK ${auth}`
-            };
+            options.headers.Authorization = `PSK ${auth}`;
         }
 
         log.info({request: dispatcherStatusRequest}, 'PRE RunRecipientStatus');

@@ -16,7 +16,7 @@ const DEFAULTS = Object.freeze({
         locale: 'en_US'
     },
     internal: {
-        org_id: '5318290' // not used by remediations but some apps (compliance) rely on this (demo mode)
+        org_id: '5318290'
     }
 });
 
@@ -43,7 +43,7 @@ exports.createIdentityHeader = function (
         },
         identity: {
             account_number,
-            org_id: 5318290,
+            org_id: '5318290',
             type: DEFAULTS.type,
             user: {
                 ...DEFAULTS.user,
@@ -76,10 +76,10 @@ exports.createCertIdentityHeader = function (account_number, transform = f=>f) {
             internal: {
                 auth_time: 5700,
                 auth_type: 'cert-auth',
-                org_id: 5318290
+                org_id: '5318290'
             },
             account_number,
-            org_id: 5318290,
+            org_id: '5318290',
             system: {
                 cn: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
             },
