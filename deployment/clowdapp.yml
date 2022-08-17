@@ -368,7 +368,7 @@ parameters:
 - description: Floorist Image tag
   name: FLOORIST_IMAGE_TAG
   required: true
-  value: latest
+  value: 'fe12542'
 - description: bucket secret name
   name: FLOORIST_BUCKET_SECRET_NAME
   required: true
