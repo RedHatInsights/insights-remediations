@@ -49,6 +49,7 @@ module.exports = new class extends Connector {
     }
 
     async getEBSAccounts (tenant_org_ids) {
+console.log(`fetching EBS Accounts for: ${tenant_org_ids}`);
         const uri = new URI(host);
         uri.path('/internal/ebsNumbers');
         // uri.query({application: 'remediations'});
@@ -63,11 +64,13 @@ module.exports = new class extends Connector {
         };
 
         if (_.isEmpty(tenant_org_ids)) {
+console.log('no tenant_org_ids supplied - returning empty map');
             return {};
         }
 
         try {
             const result = await this.doHttp (options, false, this.orgIdMetrics);
+console.log(`POST-ing request - response: ${result}`);
 
             if (_.isEmpty(result)) {
                 return null;
@@ -75,6 +78,7 @@ module.exports = new class extends Connector {
 
             return result;
         } catch (e) {
+console.log(`caught exception: ${e}`);
             log.warn({ error: e }, `Failed to retrieve EBS_accounts for tenant org_ids: ${tenant_org_ids}`);
             throw e;
         }
