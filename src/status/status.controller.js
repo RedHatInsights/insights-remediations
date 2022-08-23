@@ -23,7 +23,8 @@ const CONNECTORS = _([
     'patchman',
     'rbac',
     'receptor',
-    'sources'
+    'sources',
+    'bop'
 ]).keyBy().mapValues(id => require(`../connectors/${id}`)).value(); // eslint-disable-line security/detect-non-literal-require
 
 async function getConnectorStatus (connector) {
