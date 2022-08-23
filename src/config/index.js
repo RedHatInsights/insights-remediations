@@ -48,8 +48,8 @@ function Config() {
     const config = {
 
         /*
-            * Server configuration
-            */
+        * Server configuration
+        */
         env: env.NODE_ENV || 'development',
         namespace: env.NAMESPACE || 'unknown',
         commit: env.OPENSHIFT_BUILD_COMMIT,
@@ -89,8 +89,8 @@ function Config() {
         },
 
         /*
-            * Connector configuration
-            */
+        * Connector configuration
+        */
 
         // general timeout for HTTP invocations of external services
         requestTimeout: parseInt(env.REQUEST_TIMEOUT) || 10000,
@@ -105,6 +105,11 @@ function Config() {
             auth: env.ADVISOR_AUTH || '',
             insecure: (env.ADVISOR_INSECURE === 'true') ? true : false,
             revalidationInterval: parseIntEnv('ADVISOR_REVALIDATION_INVERVAL', 60 * 60) // 1 hour
+        },
+
+        bop: {
+            impl: env.BOP_IMPL,
+            insecure: (env.BOP_INSECURE === 'true') ? true : false
         },
 
         compliance: {
@@ -225,6 +230,7 @@ function Config() {
         config.logging.cloudwatch.options.group = loadedConfig.logging.cloudwatch.logGroup || env.LOG_CW_GROUP;
 
         config.advisor.host = getHostForApp(dependencyEndpoints, 'advisor', 'service') || env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
+        config.bop.host = getHostForApp(dependencyEndpoints, 'bop', 'service') || `http://${env.TENANT_TRANSLATOR_HOST}:${env.TENANT_TRANSLATOR_PORT}` || 'http://apicast.3scale-dev.svc.cluster.local:8892';
         config.compliance.host = getHostForApp(dependencyEndpoints, 'compliance', 'service') || env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
         config.configManager.host = getHostForApp(dependencyEndpoints, 'config-manager', 'service') || env.CONFIG_MANAGER_HOST || 'http://config-manager-service.config-manager-ci.svc.cluster.local:8081';
         config.contentServer.host = getHostForApp(dependencyEndpoints, 'advisor', 'service') || env.CONTENT_SERVER_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
@@ -264,6 +270,7 @@ function Config() {
         config.logging.cloudwatch.options.group = env.LOG_CW_GROUP || env.NAMESPACE || 'remediations-local';
 
         config.advisor.host = env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
+        config.bop.host = env.BOP_HOST || 'http://apicast.3scale-dev.svc.cluster.local:8892';
         config.compliance.host = env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
         config.configManager.host = env.CONFIG_MANAGER_HOST || 'http://config-manager-service.config-manager-ci.svc.cluster.local:8081';
         config.contentServer.host = env.CONTENT_SERVER_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
@@ -275,7 +282,7 @@ function Config() {
         config.sources.host = env.SOURCES_HOST || 'http://localhost:8080';
         config.ssg.host = env.SSG_HOST || 'http://localhost:8090';
         config.vmaas.host = env.VMAAS_HOST || 'https://webapp-vmaas-prod.apps.crcp01ue1.o9m8.p1.openshiftapps.com';
-        config.vulnerabilities.host = env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com',
+        config.vulnerabilities.host = env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com';
 
         config.db.username = env.DB_USERNAME || 'postgres';
         config.db.password = env.DB_PASSWORD || 'remediations';

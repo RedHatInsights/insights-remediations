@@ -1,0 +1,87 @@
+'use strict';
+
+const _ = require('lodash');
+const assert = require('assert');
+const URI = require('urijs');
+const Connector = require('../Connector');
+const log = require('../../util/log');
+
+const { host, insecure } = require('../../config').rbac;
+const metrics = require('../metrics');
+
+module.exports = new class extends Connector {
+    constructor () {
+        super(module);
+        this.orgIdMetrics = metrics.createConnectorMetric(this.getName(), 'getTenantOrgIds');
+        this.EBSAccountMetrics = metrics.createConnectorMetric(this.getName(), 'getEBSAccounts');
+    }
+
+    async getTenantOrgIds (accounts) {
+        const uri = new URI(host);
+        uri.path('/internal/orgIds');
+        // uri.query({application: 'remediations'});
+
+        const options = {
+            uri: uri.toString(),
+            method: 'POST',
+            json: true,
+            rejectUnauthorized: !insecure,
+            headers: this.getForwardedHeaders(false),
+            body: [].concat(accounts)
+        };
+
+        if (_.isEmpty(accounts)) {
+            return {};
+        }
+
+        try {
+            const result = await this.doHttp (options, false, this.orgIdMetrics);
+
+            if (_.isEmpty(result)) {
+                return null;
+            }
+
+            return result;
+        } catch (e) {
+            log.warn({ error: e }, `Failed to retrieve tenant org_ids for accounts: ${accounts}`);
+            throw e;
+        }
+    }
+
+    async getEBSAccounts (tenant_org_ids) {
+        const uri = new URI(host);
+        uri.path('/internal/ebsNumbers');
+        // uri.query({application: 'remediations'});
+
+        const options = {
+            uri: uri.toString(),
+            method: 'POST',
+            json: true,
+            rejectUnauthorized: !insecure,
+            headers: this.getForwardedHeaders(false),
+            body: [].concat(tenant_org_ids)
+        };
+
+        if (_.isEmpty(tenant_org_ids)) {
+            return {};
+        }
+
+        try {
+            const result = await this.doHttp (options, false, this.orgIdMetrics);
+
+            if (_.isEmpty(result)) {
+                return null;
+            }
+
+            return result;
+        } catch (e) {
+            log.warn({ error: e }, `Failed to retrieve EBS_accounts for tenant org_ids: ${tenant_org_ids}`);
+            throw e;
+        }
+    }
+
+    async ping () {
+        const result = await this.getEBSAccounts(['1979710']);
+        assert(result !== null);
+    }
+}();
