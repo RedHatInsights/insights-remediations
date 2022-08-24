@@ -54,6 +54,9 @@ module.exports = new class extends Connector {
         return result[0];
     }
 
+    // TODO: this doesn't currently work.
+    // I think we dropped an env var for the testAccount and it just defaults
+    // to something unhelpful.  Maybe grab the username from req.user?
     async ping () {
         const result = await this.getUser(testAccount, true);
         assert(result.username === testAccount);
