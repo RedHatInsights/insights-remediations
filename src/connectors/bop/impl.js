@@ -7,7 +7,7 @@ const Connector = require('../Connector');
 const log = require('../../util/log');
 const cls = require('../../util/cls');
 
-const { host, insecure } = require('../../config').rbac;
+const { host, insecure } = require('../../config').bop;
 const metrics = require('../metrics');
 
 module.exports = new class extends Connector {
