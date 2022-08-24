@@ -4,6 +4,7 @@ const _ = require('lodash');
 const assert = require('assert');
 const URI = require('urijs');
 const Connector = require('../Connector');
+const log = require('../../util/log');
 const cls = require('../../util/cls');
 
 const { host, insecure } = require('../../config').rbac;
