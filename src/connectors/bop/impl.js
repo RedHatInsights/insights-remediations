@@ -51,6 +51,7 @@ module.exports = new class extends Connector {
 
     async getEBSAccounts (tenant_org_ids) {
 console.log(`fetching EBS Accounts for: ${tenant_org_ids}`);
+console.log(`bop -> ${JSON.stringify(require('../../config').bop)}`);
         const uri = new URI(host);
         uri.path('/internal/ebsNumbers');
         // uri.query({application: 'remediations'});
