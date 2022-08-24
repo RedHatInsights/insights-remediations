@@ -5,6 +5,7 @@ const assert = require('assert');
 const URI = require('urijs');
 const Connector = require('../Connector');
 const log = require('../../util/log');
+const cls = require('../../util/cls');
 
 const { host, insecure } = require('../../config').rbac;
 const metrics = require('../metrics');
@@ -62,7 +63,7 @@ console.log(`fetching EBS Accounts for: ${tenant_org_ids}`);
             headers: this.getForwardedHeaders(false),
             body: [].concat(tenant_org_ids)
         };
-
+console.log(`options = ${options}`);
         if (_.isEmpty(tenant_org_ids)) {
 console.log('no tenant_org_ids supplied - returning empty map');
             return {};
@@ -85,7 +86,8 @@ console.log(`caught exception: ${e}`);
     }
 
     async ping () {
-        const result = await this.getEBSAccounts(['1979710']);
+        const req = cls.getReq();
+        const result = await this.getEBSAccounts([`${req.identity.internal.org_id}`]);
         assert(result !== null);
     }
 }();
