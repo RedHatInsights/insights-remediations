@@ -162,6 +162,10 @@ objects:
             value: ${SSG_IMPL}
           - name: SSG_HOST
             value: ${SSG_HOST}
+          - name: TENANT_TRANSLATOR_HOST
+            value: ${TENANT_TRANSLATOR_HOST}
+          - name: TENANT_TRANSLATOR_PORT
+            value: ${TENANT_TRANSLATOR_PORT}
           - name: USERS_IMPL
             value: ${USERS_IMPL}
           - name: USERS_HOST
@@ -342,6 +346,8 @@ parameters:
 - name: SSG_IMPL
   value: impl
 - name: SSG_HOST
+- name: TENANT_TRANSLATOR_HOST
+- name: TENANT_TRANSLATOR_PORT
 - name: USERS_IMPL
   value: impl
 - name: USERS_INSECURE
