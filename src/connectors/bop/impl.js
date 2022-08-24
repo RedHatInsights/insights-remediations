@@ -63,7 +63,7 @@ console.log(`fetching EBS Accounts for: ${tenant_org_ids}`);
             headers: this.getForwardedHeaders(false),
             body: [].concat(tenant_org_ids)
         };
-console.log(`options = ${options}`);
+console.log(`options = ${JSON.stringify(options)}`);
         if (_.isEmpty(tenant_org_ids)) {
 console.log('no tenant_org_ids supplied - returning empty map');
             return {};
