@@ -17,10 +17,20 @@ module.exports = new class extends Connector {
         this.EBSAccountMetrics = metrics.createConnectorMetric(this.getName(), 'getEBSAccounts');
     }
 
+    // Given an array of account numbers, fetch corresponding tenant org_ids from
+    // backoffice proxy
     async getTenantOrgIds (accounts) {
+        log.info(`Fetching tenant_org_ids for accounts: ${accounts}`);
+
+        const EBS_accounts = [].concat(accounts).map(String);
+
+        if (_.isEmpty(EBS_accounts)) {
+            log.info('No EBS accounts supplied - returning empty map');
+            return {};
+        }
+
         const uri = new URI(host);
         uri.path('/internal/orgIds');
-        // uri.query({application: 'remediations'});
 
         const options = {
             uri: uri.toString(),
@@ -28,18 +38,16 @@ module.exports = new class extends Connector {
             json: true,
             rejectUnauthorized: !insecure,
             headers: this.getForwardedHeaders(false),
-            body: [].concat(accounts)
+            body: EBS_accounts
         };
 
-        if (_.isEmpty(accounts)) {
-            return {};
-        }
-
         try {
+            log.debug(`Request options: ${JSON.stringify(options)}`);
             const result = await this.doHttp (options, false, this.orgIdMetrics);
+            log.debug(`POST response: ${JSON.stringify(result)}`);
 
             if (_.isEmpty(result)) {
-                return null;
+                return {};
             }
 
             return result;
@@ -49,11 +57,20 @@ module.exports = new class extends Connector {
         }
     }
 
-    async getEBSAccounts (tenant_org_ids) {
-console.log(`fetching EBS Accounts for: ${tenant_org_ids}`);
+    // Given an array of tenant org_ids, fetch corresponding EBS account numbers
+    // from backoffice proxy
+    async getEBSAccounts (org_ids) {
+        log.info(`Fetching EBS Accounts for: ${org_ids}`);
+
+        const tenant_org_ids = [].concat(org_ids).map(String);
+
+        if (_.isEmpty(tenant_org_ids)) {
+            log.info('No tenant_org_ids supplied - returning empty map');
+            return {};
+        }
+
         const uri = new URI(host);
         uri.path('/internal/ebsNumbers');
-        // uri.query({application: 'remediations'});
 
         const options = {
             uri: uri.toString(),
@@ -61,30 +78,26 @@ console.log(`fetching EBS Accounts for: ${tenant_org_ids}`);
             json: true,
             rejectUnauthorized: !insecure,
             headers: this.getForwardedHeaders(false),
-            body: [].concat(tenant_org_ids)
+            body: tenant_org_ids
         };
-console.log(`options = ${JSON.stringify(options)}`);
-        if (_.isEmpty(tenant_org_ids)) {
-console.log('no tenant_org_ids supplied - returning empty map');
-            return {};
-        }
 
         try {
+            log.debug(`Request options: ${JSON.stringify(options)}`);
             const result = await this.doHttp (options, false, this.orgIdMetrics);
-console.log(`POST-ing request - response: ${result}`);
+            log.debug(`POST response: ${JSON.stringify(result)}`);
 
             if (_.isEmpty(result)) {
-                return null;
+                return {};
             }
 
             return result;
         } catch (e) {
-console.log(`caught exception: ${e}`);
             log.warn({ error: e }, `Failed to retrieve EBS_accounts for tenant org_ids: ${tenant_org_ids}`);
             throw e;
         }
     }
 
+    // Verify connection to backoffice proxy tenant org_id / EBS account number translation service
     async ping () {
         const req = cls.getReq();
         const result = await this.getEBSAccounts([`${req.identity.internal.org_id}`]);
