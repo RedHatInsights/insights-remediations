@@ -44,6 +44,10 @@ objects:
               value: ""
             - name: USERS_AUTH
               value: ""
+            - name: TENANT_TRANSLATOR_HOST
+              value: ${TENANT_TRANSLATOR_HOST}
+            - name: TENANT_TRANSLATOR_PORT
+              value: ${TENANT_TRANSLATOR_PORT}
             inheritEnv: true
             args:
               - /bin/sh
