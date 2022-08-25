@@ -113,6 +113,8 @@ objects:
             value: ${LOG_LEVEL}
           - name: LOG_CW_ENABLED
             value: ${LOG_CW_ENABLED}
+          - name: MIGRATION_COMMAND
+            value: ${MIGRATION_COMMAND}
           - name: MARKETPLACE_CHECK
             value: ${MARKETPLACE_CHECK}
           - name: NAMESPACE
@@ -315,6 +317,7 @@ parameters:
   value: ${LOG_CW_ENABLED}
 - name: MARKETPLACE_CHECK
   value: 'true'
+- name: MIGRATION_COMMAND
 - name: PATCHMAN_IMPL
   value: impl
 - name: PATCHMAN_HOST
