@@ -44,8 +44,6 @@ objects:
               value: ""
             - name: USERS_AUTH
               value: ""
-            - name: TENANT_TRANSLATOR_PORT
-              value: '8891'
             inheritEnv: true
             args:
               - /bin/sh
