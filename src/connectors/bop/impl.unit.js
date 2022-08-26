@@ -42,7 +42,7 @@ describe('inventory impl', () => {
             const stub = base.getSandbox().stub(http, 'request');
             stub.returns({
                 "29393933": "2828282",
-                "1979710": "540155",
+                "1979710":  "540155",
                 "38393949": "3098430"
             });
 
