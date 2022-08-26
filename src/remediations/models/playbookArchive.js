@@ -15,6 +15,10 @@ module.exports = (sequelize, {INTEGER, DATE, STRING, TEXT}) => {
             type: STRING,
             allowNull: false
         },
+        tenant_org_id: {
+            type: TEXT,
+            allowNull: true // TODO: fix this once org_id migration is complete
+        },
         filename: {
             type: STRING,
             allowNull: false
