@@ -37,9 +37,14 @@ module.exports = new class extends Connector {
             method: 'POST',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders(false),
             body: EBS_accounts
         };
+
+        // if this function was called outside the context of a user request (e.g. from a db migration)
+        // then skip the forwarded headers.
+        if (cls.getReq()) {
+            options.headers = this.getForwardedHeaders(false);
+        }
 
         try {
             log.debug(`Request options: ${JSON.stringify(options)}`);
