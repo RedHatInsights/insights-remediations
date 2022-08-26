@@ -40,6 +40,7 @@ module.exports = new class extends Connector {
             body: EBS_accounts
         };
 
+        // TODO: I'm not even sure we need to bother forwarding headers for this internal service...
         // if this function was called outside the context of a user request (e.g. from a db migration)
         // then skip the forwarded headers.
         if (cls.getReq()) {
