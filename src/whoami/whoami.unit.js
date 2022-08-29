@@ -9,7 +9,8 @@ describe('whoami', () => {
         .expect(200);
         res.body.should.containEql({
             username: 'tuser@redhat.com',
-            account_number: 'test'
+            account_number: 'test',
+            org_id: '0000000'
         });
     });
 

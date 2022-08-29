@@ -210,7 +210,7 @@ exports.playbook = errors.async(async function (req, res) {
     const sat_org_id = req.query.sat_org;
     const cert_auth = _.isUndefined(req.user);
 
-    const tenant_org_id = cert_auth ? req.identity.org_id : req.user.tenant_org_id; // TODO: uh... really?
+    const tenant_org_id = req.identity.org_id;
     const creator = cert_auth ? null : req.user.username;
 
     const remediation = await queries.get(id, tenant_org_id, creator);
