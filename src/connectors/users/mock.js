@@ -8,7 +8,7 @@ const Connector = require('../Connector');
 const MOCK_USERS = _.keyBy([{
     username: 'tuser@redhat.com',
     account_number: 'test',
-    tenant_org_id: '1111111',
+    tenant_org_id: '0000000',
     first_name: 'Test',
     last_name: 'User'
 }, {
