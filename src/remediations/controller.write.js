@@ -218,7 +218,7 @@ exports.patchIssue = errors.async(async function (req, res) {
 function findIssueQuery (req) {
     const id = req.params.id;
     const iid = req.params.issue;
-    const {account_number, username: created_by} = req.user;
+    const {tenant_org_id, username: created_by} = req.user;
 
     return {
         where: {
@@ -229,7 +229,7 @@ function findIssueQuery (req) {
             model: db.remediation,
             required: true,
             where: {
-                id, account_number, created_by
+                id, tenant_org_id, created_by
             }
         }
     };
@@ -286,7 +286,7 @@ exports.removeIssueSystem = errors.async(function (req, res) {
     const id = req.params.id;
     const iid = req.params.issue;
     const sid = req.params.system;
-    const {account_number, username: created_by} = req.user;
+    const {account_number: tenant_org_id, username: created_by} = req.user;
 
     return findAndDestroy(req, db.issue_system, {
         where: {
@@ -302,7 +302,7 @@ exports.removeIssueSystem = errors.async(function (req, res) {
                 model: db.remediation,
                 required: true,
                 where: {
-                    id, account_number, created_by
+                    id, account_number: tenant_org_id, created_by
                 }
             }
         }

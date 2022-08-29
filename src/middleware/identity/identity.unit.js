@@ -46,8 +46,8 @@ describe('identity', () => {
             .expect(200);
 
         body.should.containEql({
-            username: 'test01User',
-            org_id: '1111111'
+            username: 'anemicUser',
+            org_id: '9999999'
         });
     });
 

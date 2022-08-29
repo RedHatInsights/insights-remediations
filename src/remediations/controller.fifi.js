@@ -89,7 +89,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
 
     res.set('etag', currentEtag);
 
-    probes.optimisticLockCheck(req.headers['if-match'], currentEtag, req.identity.account_number);
+    probes.optimisticLockCheck(req.headers['if-match'], currentEtag, req.identity.org_id);
     if (req.headers['if-match'] && currentEtag !== req.headers['if-match']) {
         return notMatching(res);
     }

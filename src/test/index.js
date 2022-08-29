@@ -57,7 +57,7 @@ exports.auth = Object.freeze({
     default: createHeader(),
     emptyInternal: createHeader('test01User', 'test01', '1111111'),
     emptyCustomer: createHeader('test02User', 'test02', '2222222', false),
-    anemicTenant: createHeader('test01User', undefined, '1111111', false, id => {
+    anemicTenant: createHeader('anemicUser', undefined, '9999999', false, id => {
         delete id.identity.account_number;
         return id;
     }),
