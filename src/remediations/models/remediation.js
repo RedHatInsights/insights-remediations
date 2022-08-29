@@ -2,7 +2,7 @@
 
 const NULL_NAME_VALUE = 'Unnamed Playbook';
 
-module.exports = (sequelize, {BOOLEAN, STRING, UUID}) => {
+module.exports = (sequelize, {BOOLEAN, STRING, UUID, TEXT}) => {
     const Remediation = sequelize.define('remediation', {
         id: {
             type: UUID,
@@ -23,6 +23,10 @@ module.exports = (sequelize, {BOOLEAN, STRING, UUID}) => {
         account_number: {
             type: STRING,
             allowNull: false
+        },
+        tenant_org_id: {
+            type: TEXT,
+            allowNull: true // TODO: fix this once org_id migration is complete
         },
         created_by: {
             type: STRING,
