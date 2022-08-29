@@ -1,6 +1,6 @@
 'use strict';
 
-const { account_number, username: created_by } = require('../../src/connectors/users/mock').MOCK_USERS.testReadSingleUser;
+const { account_number, tenant_org_id, username: created_by } = require('../../src/connectors/users/mock').MOCK_USERS.testReadSingleUser;
 
 const { NON_EXISTENT_SYSTEM } = require('../../src/connectors/inventory/mock');
 const SYSTEM = '1040856f-b772-44c7-83a9-eea4813c4be8';
@@ -18,6 +18,7 @@ exports.up = async q => {
         name: 'missing system 1',
         auto_reboot: true,
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2018-11-04T08:19:36.641Z',
         updated_by: created_by,
@@ -27,6 +28,7 @@ exports.up = async q => {
         name: 'missing system 2',
         auto_reboot: true,
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2018-11-04T07:19:36.641Z',
         updated_by: created_by,
@@ -36,6 +38,7 @@ exports.up = async q => {
         name: 'unknown resolution',
         auto_reboot: true,
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2018-11-04T06:19:36.641Z',
         updated_by: created_by,
@@ -45,6 +48,7 @@ exports.up = async q => {
         name: 'unknown issues',
         auto_reboot: true,
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2018-11-04T05:19:36.641Z',
         updated_by: created_by,
@@ -54,6 +58,7 @@ exports.up = async q => {
         name: 'many systems',
         auto_reboot: true,
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2018-11-04T04:19:36.641Z',
         updated_by: created_by,
@@ -63,6 +68,7 @@ exports.up = async q => {
         name: 'no systems',
         auto_reboot: true,
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2018-11-04T03:19:36.641Z',
         updated_by: created_by,
@@ -72,6 +78,7 @@ exports.up = async q => {
         name: 'test namespace',
         auto_reboot: false,
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2018-11-04T03:19:36.641Z',
         updated_by: created_by,
@@ -81,6 +88,7 @@ exports.up = async q => {
         name: 'system profile test',
         auto_reboot: false,
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2018-11-04T03:19:36.641Z',
         updated_by: created_by,

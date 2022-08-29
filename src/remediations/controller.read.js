@@ -103,7 +103,7 @@ exports.list = errors.async(async function (req, res) {
     const {limit, offset, hide_archived} = req.query;
 
     const {count, rows} = await queries.list(
-        req.user.account_number,
+        req.user.tenant_org_id,
         req.user.username,
         req.query.system,
         column,
@@ -117,9 +117,10 @@ exports.list = errors.async(async function (req, res) {
         throw errors.invalidOffset(offset, count.length - 1);
     }
 
-    let remediations = await queries.loadDetails(req.user.account_number, req.user.username, rows);
+    let remediations = await queries.loadDetails(req.user.tenant_org_id, req.user.username, rows);
 
     if (column === 'name') {
+        // TODO: remove null name support?
         // if sorting by name re-order as db does not order null names (Unnamed playbook) properly
         remediations = _.orderBy(remediations, [r => (r.name || '').toLowerCase()], [asc ? 'asc' : 'desc']);
     }
@@ -179,7 +180,7 @@ function orderSystems (systems, column, asc = true) {
 }
 
 exports.get = errors.async(async function (req, res) {
-    let remediation = await queries.get(req.params.id, req.user.account_number, req.user.username);
+    let remediation = await queries.get(req.params.id, req.user.tenant_org_id, req.user.username);
 
     if (!remediation) {
         return notFound(res);
@@ -209,10 +210,10 @@ exports.playbook = errors.async(async function (req, res) {
     const sat_org_id = req.query.sat_org;
     const cert_auth = _.isUndefined(req.user);
 
-    const account_number = cert_auth ? req.identity.account_number : req.user.account_number;
+    const tenant_org_id = cert_auth ? req.identity.org_id : req.user.tenant_org_id; // TODO: uh... really?
     const creator = cert_auth ? null : req.user.username;
 
-    const remediation = await queries.get(id, account_number, creator);
+    const remediation = await queries.get(id, tenant_org_id, creator);
 
     if (!remediation) {
         return notFound(res);
@@ -311,7 +312,7 @@ exports.downloadPlaybooks = errors.async(async function (req, res) {
     }
 
     await P.map(req.query.selected_remediations, async id => {
-        const remediation = await queries.get(id, req.user.account_number, req.user.username);
+        const remediation = await queries.get(id, req.user.tenant_org_id, req.user.username);
 
         if (!remediation) {
             generateZip = false;
@@ -357,10 +358,10 @@ exports.downloadPlaybooks = errors.async(async function (req, res) {
 exports.getIssueSystems = errors.async(async function (req, res) {
     const {id, issue} = req.params;
     const {column, asc} = format.parseSort(req.query.sort);
-    const {account_number, username} = req.user;
+    const {tenant_org_id, username} = req.user;
     const {limit, offset} = req.query;
 
-    const remediation = await queries.getIssueSystems(id, account_number, username, issue);
+    const remediation = await queries.getIssueSystems(id, tenant_org_id, username, issue);
 
     if (!remediation) {
         return notFound(res);

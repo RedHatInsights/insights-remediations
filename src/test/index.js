@@ -47,28 +47,28 @@ afterAll(async () => {
 exports.request = supertest.agent(`http://localhost:${config.port}${config.path.base}`);
 exports.requestLegacy = supertest.agent(`http://localhost:${config.port}/r/insights/platform/remediations`);
 
-function createHeader (id, account_number, internal, fn) {
+function createHeader (id, account_number, tenant_org_id, internal, fn) {
     return {
-        [identityUtils.IDENTITY_HEADER]: identityUtils.createIdentityHeader(String(id), account_number, internal, fn)
+        [identityUtils.IDENTITY_HEADER]: identityUtils.createIdentityHeader(String(id), account_number, tenant_org_id, internal, fn)
     };
 }
 
 exports.auth = Object.freeze({
     default: createHeader(),
-    emptyInternal: createHeader('test01User', 'test01'),
-    emptyCustomer: createHeader('test02User', 'test02', false),
-    anemicTenant: createHeader('test01User', undefined, false, id => {
+    emptyInternal: createHeader('test01User', 'test01', '1111111'),
+    emptyCustomer: createHeader('test02User', 'test02', '2222222', false),
+    anemicTenant: createHeader('test01User', undefined, '1111111', false, id => {
         delete id.identity.account_number;
         return id;
     }),
-    testWrite: createHeader(USERS.testWriteUser.username, USERS.testWriteUser.account_number, false),
-    testReadSingle: createHeader(USERS.testReadSingleUser.username, USERS.testReadSingleUser.account_number, false),
-    testStatus: createHeader(USERS.testStatus.username, USERS.testStatus.account_number, false),
+    testWrite: createHeader(USERS.testWriteUser.username, USERS.testWriteUser.account_number, USERS.testWriteUser.tenant_org_id, false),
+    testReadSingle: createHeader(USERS.testReadSingleUser.username, USERS.testReadSingleUser.account_number, USERS.testReadSingleUser.tenant_org_id, false),
+    testStatus: createHeader(USERS.testStatus.username, USERS.testStatus.account_number, USERS.testStatus.tenant_org_id, false),
     cert01: {
         [identityUtils.IDENTITY_HEADER]: identityUtils.createCertIdentityHeader('diagnosis01')
     },
     cert02: {
-        [identityUtils.IDENTITY_HEADER]: identityUtils.createCertIdentityHeader(USERS.testReadSingleUser.account_number)
+        [identityUtils.IDENTITY_HEADER]: identityUtils.createCertIdentityHeader(USERS.testReadSingleUser.account_number, USERS.testReadSingleUser.tenant_org_id)
     },
     jharting: createHeader(null, null, null, () => ({
         entitlements: {
@@ -109,12 +109,12 @@ exports.auth = Object.freeze({
     jhartingCert: {
         [identityUtils.IDENTITY_HEADER]: identityUtils.createCertIdentityHeader('901578')
     },
-    emptyInternalUtf8: createHeader('test03User', 'test03', false, id => {
+    emptyInternalUtf8: createHeader('test03User', 'test03', '3333333', false, id => {
         id.identity.user.first_name = 'Řehoř';
         id.identity.user.last_name = 'Samsa';
         return id;
     }),
-    fifi: createHeader(USERS.fifi.username, USERS.fifi.account_number, false)
+    fifi: createHeader(USERS.fifi.username, USERS.fifi.account_number, USERS.fifi.tenant_org_id, false)
 });
 
 exports.buildRbacResponse = function (accessedPermission) {

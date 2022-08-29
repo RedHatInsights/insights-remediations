@@ -117,6 +117,7 @@ exports.create = errors.async(async function (req, res) {
             id,
             name,
             auto_reboot,
+            tenant_org_id: req.user.tenant_org_id,
             account_number: req.user.account_number,
             created_by: req.user.username,
             updated_by: req.user.username
@@ -136,7 +137,7 @@ exports.create = errors.async(async function (req, res) {
 
 exports.patch = errors.async(async function (req, res) {
     const id = req.params.id;
-    const {account_number, username} = req.user;
+    const {tenant_org_id, username} = req.user;
     const {add, name, auto_reboot, archived} = req.body;
 
     if (_.isUndefined(add) && _.isUndefined(name) && _.isUndefined(auto_reboot) && _.isUndefined(archived)) {
@@ -151,7 +152,7 @@ exports.patch = errors.async(async function (req, res) {
     const result = await db.s.transaction(async transaction => {
         const remediation = await db.remediation.findOne({
             attributes: ['id'],
-            where: { id, account_number, created_by: username },
+            where: { id, tenant_org_id, created_by: username },
             include: {
                 attributes: ['id', 'issue_id', 'resolution'],
                 model: db.issue
@@ -268,11 +269,11 @@ function findAndDestroy (req, entity, query, res) {
 
 exports.remove = errors.async(function (req, res) {
     const id = req.params.id;
-    const {account_number, username: created_by} = req.user;
+    const {tenant_org_id, username: created_by} = req.user;
 
     return findAndDestroy(req, db.remediation, {
         where: {
-            id, account_number, created_by
+            id, tenant_org_id, created_by
         }
     }, res);
 });

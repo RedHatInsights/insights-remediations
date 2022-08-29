@@ -20,7 +20,7 @@ async function resolveStatus (issue) {
 }
 
 exports.status = errors.async(async function (req, res) {
-    let remediation = await queries.get(req.params.id, req.user.account_number, req.user.username);
+    let remediation = await queries.get(req.params.id, req.user.tenant_org_id, req.user.username);
 
     if (!remediation) {
         return res.status(404).json();

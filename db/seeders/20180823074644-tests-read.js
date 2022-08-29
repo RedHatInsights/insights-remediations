@@ -1,6 +1,6 @@
 'use strict';
 
-const { account_number, username: created_by } = require('../../src/connectors/users/mock').MOCK_USERS['tuser@redhat.com'];
+const { account_number, tenant_org_id, username: created_by } = require('../../src/connectors/users/mock').MOCK_USERS['tuser@redhat.com'];
 
 const opts = {
     returning: true
@@ -18,6 +18,7 @@ exports.up = async q => {
         auto_reboot: true,
         archived: true,
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2018-10-04T08:19:36.641Z',
         updated_by: created_by,
@@ -27,6 +28,7 @@ exports.up = async q => {
         name: 'remediation 2',
         auto_reboot: true,
         account_number,
+        tenant_org_id,
         archived: false,
         created_by,
         created_at: '2018-11-04T08:19:36.641Z',
@@ -37,6 +39,7 @@ exports.up = async q => {
         name: null,
         auto_reboot: false,
         account_number,
+        tenant_org_id,
         archived: false,
         created_by,
         created_at: '2018-12-04T08:19:36.641Z',
@@ -47,6 +50,7 @@ exports.up = async q => {
         name: 'Remediation with suppressed reboot',
         auto_reboot: false,
         account_number,
+        tenant_org_id,
         archived: true,
         created_by,
         created_at: '2018-12-05T08:19:36.641Z',
@@ -57,6 +61,7 @@ exports.up = async q => {
         name: 'Remediation with zero issues',
         auto_reboot: false,
         account_number,
+        tenant_org_id,
         archived: false,
         created_by,
         created_at: '2018-12-06T08:19:36.641Z',

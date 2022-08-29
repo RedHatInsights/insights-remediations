@@ -62,6 +62,32 @@ describe('remediations', function () {
             r2.body.should.have.property('auto_reboot', false);
         });
 
+        test('creates a new remediation (anemic tenant)', async () => {
+            const name = 'remediation';
+
+            const r1 = await request
+                .post('/v1/remediations')
+                .set(auth.anemicTenant)
+                .send({name})
+                .expect(201);
+
+            r1.body.should.have.size(1);
+            r1.body.should.have.property('id');
+            const location = r1.header.location;
+            location.should.match(
+                // eslint-disable-next-line security/detect-non-literal-regexp
+                new RegExp(`^${config.path.base}/v1/remediations/[\\w]{8}-[\\w]{4}-[\\w]{4}-[\\w]{4}-[\\w]{12}$`));
+
+            const r2 = await request
+                // strip away the base path as request already counts with that
+                .get(location.replace(config.path.base, ''))
+                .set(auth.anemicTenant)
+                .expect(200);
+
+            r2.body.should.have.property('id', r1.body.id);
+            r2.body.should.have.property('name', name);
+        });
+
         test('400s on weird remediation name', async () => {
             const {id, header} = reqId();
             const {body} = await request

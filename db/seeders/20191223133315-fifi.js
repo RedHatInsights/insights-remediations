@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const { account_number, username: created_by } = require('../../src/connectors/users/mock').MOCK_USERS.fifi;
+const { account_number, tenant_org_id, username: created_by } = require('../../src/connectors/users/mock').MOCK_USERS.fifi;
 
 const opts = {
     returning: true
@@ -51,6 +51,7 @@ exports.up = async q => {
         name: 'FiFI playbook',
         auto_reboot: true,
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2019-12-23T08:19:36.641Z',
         updated_by: created_by,
@@ -60,6 +61,7 @@ exports.up = async q => {
         name: 'FiFI playbook 2',
         auto_reboot: true,
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2019-12-23T18:19:36.641Z',
         updated_by: created_by,
@@ -69,6 +71,7 @@ exports.up = async q => {
         name: 'FiFI playbook 3',
         auto_reboot: true,
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2020-01-23T18:19:36.641Z',
         updated_by: created_by,
@@ -78,6 +81,7 @@ exports.up = async q => {
         name: 'FiFI playbook 4',
         auto_reboot: true,
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2020-01-23T18:19:36.641Z',
         updated_by: created_by,
@@ -87,6 +91,7 @@ exports.up = async q => {
         name: 'FiFI playbook 5',
         auto_reboot: true,
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2020-01-23T18:19:36.641Z',
         updated_by: created_by,
@@ -96,6 +101,7 @@ exports.up = async q => {
         name: 'FiFI playbook 6',
         auto_reboot: true,
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2020-01-23T18:19:36.641Z',
         updated_by: created_by,

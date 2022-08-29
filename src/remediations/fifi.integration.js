@@ -29,7 +29,7 @@ describe('FiFi', function () {
             base.getSandbox().stub(config, 'isMarketplace').value(true);
             await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/executable')
-            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
+            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', '6666666', true, data => {
                 data.entitlements.smart_management = false;
                 return data;
             }))
@@ -65,7 +65,7 @@ describe('FiFi', function () {
             base.getSandbox().stub(config, 'isMarketplace').value(true);
             const {text} = await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
-            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
+            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', '6666666', true, data => {
                 data.entitlements.smart_management = false;
                 return data;
             }))
@@ -121,7 +121,7 @@ describe('FiFi', function () {
             });
             const {text} = await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
-            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
+            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', '6666666', true, data => {
                 data.entitlements.smart_management = false;
                 return data;
             }))
@@ -935,7 +935,7 @@ describe('FiFi', function () {
                 base.getSandbox().stub(config, 'isMarketplace').value(true);
                 await request
                 .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
-                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', '6666666', true, data => {
                     data.entitlements.smart_management = false;
                     return data;
                 }))
@@ -1409,7 +1409,7 @@ describe('FiFi', function () {
 
                 spy.firstCall.args[0].should.eql([{
                     run_id: '88d0ba73-0015-4e7d-a6d6-4b530cbfb7bc',
-                    org_id: '5318290',
+                    org_id: '6666666',
                     principal: 'fifi'
                 }]);
             });
