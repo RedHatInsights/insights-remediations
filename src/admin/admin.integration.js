@@ -48,14 +48,15 @@ describe('users', function () {
             .set(auth.default)
             .expect(200);
 
-            body.map(user => user.username).should.eql([
+            body.map(user => user.username.should.be.oneOf([
+                'anemicUser',
                 'demoUser',
                 'fifi',
                 'testReadSingleUser',
                 'testStatus',
                 'testWriteUser',
                 'tuser@redhat.com'
-            ]);
+            ]));
         });
     });
 });

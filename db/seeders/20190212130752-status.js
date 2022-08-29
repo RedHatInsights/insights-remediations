@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const { account_number, username: created_by } = require('../../src/connectors/users/mock').MOCK_USERS.testStatus;
+const { account_number, tenant_org_id, username: created_by } = require('../../src/connectors/users/mock').MOCK_USERS.testStatus;
 
 const opts = {
     returning: true
@@ -20,6 +20,7 @@ exports.up = async q => {
         name: 'playbook',
         auto_reboot: true,
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2018-11-04T08:19:36.641Z',
         updated_by: created_by,

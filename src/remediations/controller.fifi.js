@@ -14,7 +14,7 @@ const notMatching = res => res.sendStatus(412);
 const notFound = res => res.sendStatus(404);
 
 exports.checkExecutable = errors.async(async function (req, res) {
-    const remediation = await queries.get(req.params.id, req.user.account_number, req.user.username);
+    const remediation = await queries.get(req.params.id, req.user.tenant_org_id, req.user.username);
 
     if (!remediation) {
         return notFound(res);
@@ -31,7 +31,7 @@ exports.checkExecutable = errors.async(async function (req, res) {
 
 exports.connection_status = errors.async(async function (req, res) {
     const [remediation, rhcEnabled] = await Promise.all([
-        queries.get(req.params.id, req.user.account_number, req.user.username),
+        queries.get(req.params.id, req.user.tenant_org_id, req.user.username),
         fifi.checkRhcEnabled()
     ]);
 
@@ -64,7 +64,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
     // createPlaybookRun
     //--------------------------------------------------
     const [remediation, rhcEnabled] = await Promise.all([
-        queries.get(req.params.id, req.user.account_number, req.user.username),
+        queries.get(req.params.id, req.user.tenant_org_id, req.user.username),
         fifi.checkRhcEnabled()
     ]);
 
@@ -89,7 +89,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
 
     res.set('etag', currentEtag);
 
-    probes.optimisticLockCheck(req.headers['if-match'], currentEtag, req.identity.account_number);
+    probes.optimisticLockCheck(req.headers['if-match'], currentEtag, req.identity.org_id);
     if (req.headers['if-match'] && currentEtag !== req.headers['if-match']) {
         return notMatching(res);
     }
@@ -112,8 +112,8 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
 
 exports.cancelPlaybookRuns = errors.async(async function (req, res) {
     const [executors, remediation] = await Promise.all([
-        queries.getRunningExecutors(req.params.id, req.params.playbook_run_id, req.user.account_number, req.user.username),
-        queries.getRunDetails(req.params.id, req.params.playbook_run_id, req.user.account_number, req.user.username)
+        queries.getRunningExecutors(req.params.id, req.params.playbook_run_id, req.user.tenant_org_id, req.user.username),
+        queries.getRunDetails(req.params.id, req.params.playbook_run_id, req.user.tenant_org_id, req.user.username)
     ]);
 
     if (_.isEmpty(executors) && !_.isEmpty(remediation.playbook_runs[0].executors)) {
@@ -133,7 +133,7 @@ exports.cancelPlaybookRuns = errors.async(async function (req, res) {
 exports.listPlaybookRuns = errors.async(async function (req, res) {
     const {column, asc} = format.parseSort(req.query.sort);
     const {limit, offset} = req.query;
-    let remediation = await queries.getPlaybookRuns(req.params.id, req.user.account_number, req.user.username, column, asc);
+    let remediation = await queries.getPlaybookRuns(req.params.id, req.user.tenant_org_id, req.user.username, column, asc);
 
     if (!remediation) {
         return notFound(res);
@@ -167,7 +167,7 @@ exports.getRunDetails = errors.async(async function (req, res) {
     let remediation = await queries.getRunDetails(
         req.params.id,
         req.params.playbook_run_id,
-        req.user.account_number,
+        req.user.tenant_org_id,
         req.user.username
     );
 
@@ -200,7 +200,7 @@ exports.getSystems = errors.async(async function (req, res) {
             req.params.playbook_run_id,
             req.query.executor,
             req.query.ansible_host,
-            req.user.account_number,
+            req.user.tenant_org_id,
             req.user.username
         ),
         fifi.getRHCRuns(req.params.playbook_run_id)
@@ -222,7 +222,7 @@ exports.getSystems = errors.async(async function (req, res) {
         const remediation = await queries.getRunDetails(
             req.params.id,
             req.params.playbook_run_id,
-            req.user.account_number,
+            req.user.tenant_org_id,
             req.user.username
         );
 
@@ -252,7 +252,7 @@ exports.getSystemDetails = errors.async(async function (req, res) {
         req.params.id,
         req.params.playbook_run_id,
         req.params.system,
-        req.user.account_number,
+        req.user.tenant_org_id,
         req.user.username
     );
 

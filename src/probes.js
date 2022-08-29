@@ -86,7 +86,7 @@ exports.rbacErrorCount = function (permission, availablePermissions) {
     }, 'Rejecting access due to missing RBAC permission');
 };
 
-exports.optimisticLockCheck = function (oldEtag, newEtag, accountNumber) {
+exports.optimisticLockCheck = function (oldEtag, newEtag, tenant_org_id) {
     if (!oldEtag) {
         etagErrorCounter.labels('check_skipped').inc();
     }
@@ -94,7 +94,7 @@ exports.optimisticLockCheck = function (oldEtag, newEtag, accountNumber) {
     if (oldEtag && oldEtag !== newEtag) {
         etagErrorCounter.labels('mismatch').inc();
         log.info({
-            account_number: accountNumber,
+            tenant_org_id: tenant_org_id,
             previousEtag: oldEtag,
             currentEtag: newEtag
         }, 'Etag Verification Failure');

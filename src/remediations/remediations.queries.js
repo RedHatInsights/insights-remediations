@@ -12,6 +12,7 @@ const REMEDIATION_ATTRIBUTES = [
     'auto_reboot',
     'archived',
     'account_number',
+    'tenant_org_id',
     'created_by',
     'created_at',
     'updated_by',
@@ -62,7 +63,7 @@ function resolvedCountSubquery () {
 }
 
 exports.list = function (
-    account_number,
+    tenant_org_id,
     created_by,
     system = false,
     primaryOrder = 'updated_at',
@@ -92,7 +93,7 @@ exports.list = function (
             }]
         }],
         where: {
-            account_number,
+            tenant_org_id,
             created_by
         },
         group: ['remediation.id'],
@@ -138,7 +139,7 @@ exports.list = function (
     return db.remediation.findAndCountAll(query);
 };
 
-exports.loadDetails = async function (account_number, created_by, rows) {
+exports.loadDetails = async function (tenant_org_id, created_by, rows) {
     const {Op, s: {literal}} = db;
 
     const query = {
@@ -154,7 +155,7 @@ exports.loadDetails = async function (account_number, created_by, rows) {
             )
         }],
         where: {
-            account_number,
+            tenant_org_id,
             created_by,
             id: {
                 [Op.in]: _.map(rows, 'id')
@@ -168,7 +169,7 @@ exports.loadDetails = async function (account_number, created_by, rows) {
     return rows.map(row => _.assign(byId[row.id].toJSON(), row));
 };
 
-exports.get = function (id, account_number, created_by = null) {
+exports.get = function (id, tenant_org_id, created_by = null) {
     const query = {
         attributes: [
             ...REMEDIATION_ATTRIBUTES,
@@ -184,7 +185,7 @@ exports.get = function (id, account_number, created_by = null) {
             }
         }],
         where: {
-            id, account_number
+            id, tenant_org_id
         },
         group: [
             'remediation.id',
@@ -206,7 +207,7 @@ exports.get = function (id, account_number, created_by = null) {
     return db.remediation.findOne(query);
 };
 
-exports.getIssueSystems = function (id, account_number, created_by, issueId) {
+exports.getIssueSystems = function (id, tenant_org_id, created_by, issueId) {
     return db.remediation.findOne({
         attributes: ['id'],
         include: [{
@@ -222,7 +223,7 @@ exports.getIssueSystems = function (id, account_number, created_by, issueId) {
             }
         }],
         where: {
-            id, account_number, created_by
+            id, tenant_org_id, created_by
         },
         order: [
             ['id'],
@@ -232,7 +233,7 @@ exports.getIssueSystems = function (id, account_number, created_by, issueId) {
     });
 };
 
-exports.getPlaybookRuns = function (id, account_number, created_by, primaryOrder = 'updated_at', asc = false) {
+exports.getPlaybookRuns = function (id, tenant_org_id, created_by, primaryOrder = 'updated_at', asc = false) {
     const {s: {col, cast, where}, fn: {DISTINCT, COUNT, SUM}} = db;
 
     return db.remediation.findOne({
@@ -262,7 +263,7 @@ exports.getPlaybookRuns = function (id, account_number, created_by, primaryOrder
             }]
         }],
         where: {
-            id, account_number, created_by
+            id, tenant_org_id, created_by
         },
         group: [
             'remediation.id',
@@ -275,7 +276,7 @@ exports.getPlaybookRuns = function (id, account_number, created_by, primaryOrder
     });
 };
 
-exports.getRunDetails = function (id, playbook_run_id, account_number, created_by) {
+exports.getRunDetails = function (id, playbook_run_id, tenant_org_id, created_by) {
     const {s: {col, cast, where}, fn: {DISTINCT, COUNT, SUM}} = db;
 
     return db.remediation.findOne({
@@ -311,7 +312,7 @@ exports.getRunDetails = function (id, playbook_run_id, account_number, created_b
             }]
         }],
         where: {
-            id, account_number, created_by
+            id, tenant_org_id, created_by
         },
         group: [
             'remediation.id',
@@ -324,7 +325,7 @@ exports.getRunDetails = function (id, playbook_run_id, account_number, created_b
     });
 };
 
-exports.getRunningExecutors = function (remediation_id, playbook_run_id, account, username) {
+exports.getRunningExecutors = function (remediation_id, playbook_run_id, tenant_org_id, username) {
     const { Op } = db;
     const query = {
         attributes: [
@@ -344,7 +345,7 @@ exports.getRunningExecutors = function (remediation_id, playbook_run_id, account
                 model: db.remediation,
                 where: {
                     id: remediation_id,
-                    account_number: account,
+                    tenant_org_id,
                     created_by: username
                 }
             }],
@@ -366,7 +367,7 @@ exports.getRunningExecutors = function (remediation_id, playbook_run_id, account
 };
 
 // eslint-disable-next-line max-len
-exports.getSystems = function (remediation_id, playbook_run_id, executor_id = null, ansible_host = null, account, username) {
+exports.getSystems = function (remediation_id, playbook_run_id, executor_id = null, ansible_host = null, tenant_org_id, username) {
     const { Op } = db;
     const query = {
         attributes: [
@@ -389,7 +390,7 @@ exports.getSystems = function (remediation_id, playbook_run_id, executor_id = nu
                     model: db.remediation,
                     where: {
                         id: remediation_id,
-                        account_number: account,
+                        tenant_org_id,
                         created_by: username
                     }
                 }],
@@ -417,7 +418,7 @@ exports.getSystems = function (remediation_id, playbook_run_id, executor_id = nu
     return db.playbook_run_systems.findAll(query);
 };
 
-exports.getSystemDetails = function (id, playbook_run_id, system_id, account_number, created_by) {
+exports.getSystemDetails = function (id, playbook_run_id, system_id, tenant_org_id, created_by) {
     return db.playbook_run_systems.findOne({
         attributes: [
             'id',
@@ -439,7 +440,7 @@ exports.getSystemDetails = function (id, playbook_run_id, system_id, account_num
                     attributes: [],
                     model: db.remediation,
                     where: {
-                        id, account_number, created_by
+                        id, tenant_org_id, created_by
                     }
                 }],
                 where: {

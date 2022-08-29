@@ -16,13 +16,14 @@ const DEFAULTS = Object.freeze({
         locale: 'en_US'
     },
     internal: {
-        org_id: '5318290'
+        org_id: '0000000'
     }
 });
 
 exports.createIdentityHeader = function (
     username = DEFAULTS.user.username,
     account_number = DEFAULTS.account_number,
+    org_id = DEFAULTS.internal.org_id,
     is_internal = true,
     transform = f => f) {
 
@@ -43,7 +44,7 @@ exports.createIdentityHeader = function (
         },
         identity: {
             account_number,
-            org_id: '5318290',
+            org_id,
             type: DEFAULTS.type,
             user: {
                 ...DEFAULTS.user,
@@ -56,7 +57,7 @@ exports.createIdentityHeader = function (
     return encode(transform(data));
 };
 
-exports.createCertIdentityHeader = function (account_number, transform = f=>f) {
+exports.createCertIdentityHeader = function (account_number, tenant_org_id = '5318290', transform = f=>f) {
     const data = {
         entitlements: {
             insights: {
@@ -76,10 +77,10 @@ exports.createCertIdentityHeader = function (account_number, transform = f=>f) {
             internal: {
                 auth_time: 5700,
                 auth_type: 'cert-auth',
-                org_id: '5318290'
+                org_id: tenant_org_id
             },
             account_number,
-            org_id: '5318290',
+            org_id: tenant_org_id,
             system: {
                 cn: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
             },

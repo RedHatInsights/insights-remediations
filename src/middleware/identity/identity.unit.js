@@ -39,7 +39,6 @@ describe('identity', () => {
         });
     });
 
-    // TODO: Write me!!
     test('anemic tenant', async () => {
         const {body} = await request
             .get('/v1/whoami')
@@ -47,8 +46,8 @@ describe('identity', () => {
             .expect(200);
 
         body.should.containEql({
-            username: 'test01User',
-            org_id: '5318290'
+            username: 'anemicUser',
+            org_id: '9999999'
         });
     });
 
@@ -90,7 +89,7 @@ describe('identity', () => {
     test('401s on missing account_number AND org_id', async () => {
         await request
         .get('/v1/whoami')
-        .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, true, data => {
+        .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, undefined, true, data => {
             delete data.identity.account_number;
             delete data.identity.org_id;
             return data;

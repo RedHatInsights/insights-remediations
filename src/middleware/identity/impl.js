@@ -30,8 +30,8 @@ module.exports = function (req, res, next) {
 
         if (req.identity.type === 'User') {
             req.user = {
-                org_id: req.identity.org_id,
-                account_number: req.identity.account_number,
+                account_number: req.identity.account_number || '', // empty string for anemic tenant
+                tenant_org_id: req.identity.org_id,
                 username: req.identity.user.username,
                 is_internal: req.identity.user.is_internal
             };

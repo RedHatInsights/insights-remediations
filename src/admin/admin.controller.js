@@ -19,7 +19,7 @@ exports.users = errors.async(async function (req, res) {
         group: ['created_by', 'account_number'],
         order: ['created_by', 'account_number'],
         where: {
-            account_number: req.user.account_number
+            tenant_org_id: req.user.tenant_org_id
         },
         raw: true
     };

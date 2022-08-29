@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 
-const { account_number, username: created_by } = require('../../src/connectors/users/mock').MOCK_USERS.demoUser;
+const { account_number, tenant_org_id, username: created_by } = require('../../src/connectors/users/mock').MOCK_USERS.demoUser;
 
 const opts = {
     returning: true
@@ -105,6 +105,7 @@ exports.up = async q => {
         id: '9939e04a-a936-482d-a317-008c058f7918',
         name: 'Patch vulnerabilities on production systems',
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2018-11-21T10:19:38.541Z',
         updated_by: created_by,
@@ -113,6 +114,7 @@ exports.up = async q => {
         id: '0bcebc81-0d53-4f77-b0f0-1a56e01a55fd',
         name: 'Recommended configuration changes',
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2018-11-21T09:19:38.541Z',
         updated_by: created_by,
@@ -121,6 +123,7 @@ exports.up = async q => {
         id: '42503118-80d4-49e0-bfee-20ac2d8ea74f',
         name: 'Mixed remediation',
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2018-11-21T11:19:38.541Z',
         updated_by: created_by,
@@ -129,6 +132,7 @@ exports.up = async q => {
         id: '99999999-99d9-99e9-bfee-99ac9d9ea99f',
         name: 'Remediation with no issues',
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2018-11-21T11:19:38.541Z',
         updated_by: created_by,
@@ -137,6 +141,7 @@ exports.up = async q => {
         id: '10b533ec-ff1c-4643-8f45-aa0f4a26987a',
         name: 'Vulnerability',
         account_number,
+        tenant_org_id,
         created_by,
         created_at: '2018-11-21T13:19:38.541Z',
         updated_by: created_by,
