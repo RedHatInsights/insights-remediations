@@ -185,6 +185,7 @@ async function storePlaybookDefinition(req, definition, filename) {
         await db.PlaybookArchive.create({
             username: req.user.username,
             account_number: req.user.account_number,
+            tenant_org_id: req.user.tenant_org_id,
             filename,
             definition: JSON.stringify(definition)
         });

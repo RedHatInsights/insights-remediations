@@ -1055,7 +1055,7 @@ describe('FiFi', function () {
                     'No executors available for Playbook "FiFI playbook 5" (63d92aeb-9351-4216-8d7c-044d171337bc)');
             });
 
-            test('post playbook_runs with wrong exclude statment', async function () {
+            test('post playbook_runs with wrong exclude statement', async function () {
                 await request
                 .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
                 .send({exclude: 'fifi'})

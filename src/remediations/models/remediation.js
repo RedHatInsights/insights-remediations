@@ -22,11 +22,11 @@ module.exports = (sequelize, {BOOLEAN, STRING, UUID, TEXT}) => {
         },
         account_number: {
             type: STRING,
-            allowNull: false
+            allowNull: true
         },
         tenant_org_id: {
             type: TEXT,
-            allowNull: true // TODO: fix this once org_id migration is complete
+            allowNull: false
         },
         created_by: {
             type: STRING,
