@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const bop = require('../../src/connectors/bop');
 
-const BATCH_SIZE = 50;
+const BATCH_SIZE = 25;
 
 module.exports = {
   up: async (q, Sequelize) => {
@@ -25,7 +25,7 @@ module.exports = {
         // populate tenant_org_id
         for (const account in org_ids) {
           const query = `UPDATE remediations SET tenant_org_id = '${org_ids[account]}' WHERE account_number = '${account}'`
-          q.sequelize.query(query);
+          await q.sequelize.query(query);
         }
       }
     }
@@ -47,7 +47,7 @@ module.exports = {
         // populate tenant_org_id
         for (const account in org_ids) {
           const query = `UPDATE playbook_archive SET tenant_org_id = '${org_ids[account]}' WHERE account_number = '${account}'`
-          q.sequelize.query(query);
+          await q.sequelize.query(query);
         }
       }
     }
