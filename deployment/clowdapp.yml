@@ -32,6 +32,7 @@ objects:
       webServices:
         public:
           enabled: true
+          apiPath: remediations
       podSpec:
         image: quay.io/cloudservices/remediations:${IMAGE_TAG}
         initContainers:
