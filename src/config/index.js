@@ -230,7 +230,7 @@ function Config() {
         config.logging.cloudwatch.options.group = loadedConfig.logging.cloudwatch.logGroup || env.LOG_CW_GROUP;
 
         config.advisor.host = getHostForApp(dependencyEndpoints, 'advisor', 'service') || env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
-        config.bop.host = getHostForApp(dependencyEndpoints, 'bop', 'service') || `http://${env.TENANT_TRANSLATOR_HOST}:${env.TENANT_TRANSLATOR_PORT}` || 'http://apicast.3scale-dev.svc.cluster.local:8892';
+        config.bop.host = getHostForApp(dependencyEndpoints, 'bop', 'service') || `http://${env.TENANT_TRANSLATOR_HOST}:${env.TENANT_TRANSLATOR_PORT}` || 'http://gateway.3scale-dev.svc.cluster.local:8892';
         config.compliance.host = getHostForApp(dependencyEndpoints, 'compliance', 'service') || env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
         config.configManager.host = getHostForApp(dependencyEndpoints, 'config-manager', 'service') || env.CONFIG_MANAGER_HOST || 'http://config-manager-service.config-manager-ci.svc.cluster.local:8081';
         config.contentServer.host = getHostForApp(dependencyEndpoints, 'advisor', 'service') || env.CONTENT_SERVER_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
@@ -270,7 +270,7 @@ function Config() {
         config.logging.cloudwatch.options.group = env.LOG_CW_GROUP || env.NAMESPACE || 'remediations-local';
 
         config.advisor.host = env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
-        config.bop.host = env.BOP_HOST || 'http://apicast.3scale-dev.svc.cluster.local:8892';
+        config.bop.host = env.BOP_HOST || 'http://gateway.3scale-dev.svc.cluster.local:8892';
         config.compliance.host = env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
         config.configManager.host = env.CONFIG_MANAGER_HOST || 'http://config-manager-service.config-manager-ci.svc.cluster.local:8081';
         config.contentServer.host = env.CONTENT_SERVER_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
