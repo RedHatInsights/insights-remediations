@@ -63,7 +63,8 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
     issues = erratumPlayAggregator.process(issues);
     issues = addRebootPlay(issues, auto_reboot, localhost);
 
-    if (!localhost) {
+    // post run check-in is already included in the localhost reboot snippet...
+    if ( !(localhost && auto_reboot)) {
         issues = addPostRunCheckIn(issues);
     }
 
