@@ -44,7 +44,39 @@ exports[`playbooks generate playbook specifying 1 host and using localhost flag 
       dFJMMHhSUFQwS1BVVnpWVWNLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
       PQ==
   tasks:
-    - ping:"
+    - ping:
+
+- name: run insights
+  hosts: \\"localhost\\"
+  become: true
+  gather_facts: false
+  vars:
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
 `;
 
 exports[`playbooks generate playbook specifying 1 host, making some issues in the playbook hostless 1`] = `
@@ -534,7 +566,39 @@ exports[`playbooks generate playbook with cert-auth and localhost 1`] = `
         msg: \\"Automatic system reboot was suppressed for this playbook. Reboot {{inventory_hostname}} manually for the changes to take effect.\\"
       when:
         - insights_needs_reboot is defined
-        - insights_needs_reboot"
+        - insights_needs_reboot
+
+- name: run insights
+  hosts: \\"localhost\\"
+  become: true
+  gather_facts: false
+  vars:
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
 `;
 
 exports[`playbooks generate playbook with cert-auth and no hosts query param 1`] = `
@@ -616,7 +680,39 @@ exports[`playbooks generate playbook with cert-auth and no hosts query param 1`]
         msg: \\"Automatic system reboot was suppressed for this playbook. Reboot {{inventory_hostname}} manually for the changes to take effect.\\"
       when:
         - insights_needs_reboot is defined
-        - insights_needs_reboot"
+        - insights_needs_reboot
+
+- name: run insights
+  hosts: \\"localhost\\"
+  become: true
+  gather_facts: false
+  vars:
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
 `;
 
 exports[`playbooks generate playbook with cert-auth enabled 1`] = `
@@ -843,7 +939,39 @@ exports[`playbooks generate playbook with localhost flag 1`] = `
         msg: \\"Automatic system reboot was suppressed for this playbook. Reboot {{inventory_hostname}} manually for the changes to take effect.\\"
       when:
         - insights_needs_reboot is defined
-        - insights_needs_reboot"
+        - insights_needs_reboot
+
+- name: run insights
+  hosts: \\"localhost\\"
+  become: true
+  gather_facts: false
+  vars:
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
 `;
 
 exports[`playbooks generate playbook with localhost flag and reboot 1`] = `
