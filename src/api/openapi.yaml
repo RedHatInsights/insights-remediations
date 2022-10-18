@@ -65,6 +65,19 @@ paths:
                 $ref: '#/components/schemas/RemediationCreated'
         400:
           $ref: '#/components/responses/BadRequest'
+    delete:
+      tags:
+        - remediations
+      summary: Bulk Delete Remediations
+      description: Removes the given list of Remediations, RBAC permission {remediations:remediation:write}
+      operationId: deleteRemediations
+      requestBody:
+        $ref: '#/components/requestBodies/RemediationsList'
+      responses:
+        204:
+          $ref: '#/components/responses/Deleted'
+        400:
+          $ref: '#/components/responses/BadBulkRequest'
 
   /remediations/download:
     get:
@@ -159,7 +172,6 @@ paths:
           $ref: '#/components/responses/Forbidden'
         404:
           $ref: '#/components/responses/NotFound'
-
 
   /remediations/{id}/playbook:
     get:
@@ -475,7 +487,6 @@ paths:
         400:
           $ref: '#/components/responses/BadRequest'
 
-
   /diagnosis/{system}:
     get:
       tags:
@@ -498,7 +509,6 @@ paths:
           $ref: '#/components/responses/BadRequest'
         404:
           description: System not found
-
 
   /playbook:
     post:
@@ -523,7 +533,6 @@ paths:
         400:
           $ref: '#/components/responses/BadRequest'
 
-
   /version:
     get:
       tags:
@@ -547,7 +556,6 @@ paths:
                   commit:
                     type: string
                     example: '8b87342'
-
 
 components:
   parameters:
@@ -730,6 +738,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/RemediationInput'
+    RemediationsList:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RemediationsList'
     PlaybookRunsInput:
       required: false
       content:
@@ -761,6 +775,7 @@ components:
       description: >
         Indicates whether systems that require reboot for the remediation to be properly applied should be
         rebooted automatically or not
+
 
     RemediationId:
       type: string
@@ -968,6 +983,16 @@ components:
                 systems:
                   - a8799a02-8be9-11e8-9eb6-529269fb1459
 
+    RemediationsList:
+      type: array
+      minItems: 1
+      maxItems: 100
+      items:
+        $ref: '#/components/schemas/RemediationId'
+      example:
+        - 9197ba55-0abc-4028-9bbe-269e530f8bd5
+        - 3df5ed22-4324-402c-b128-ea62debbde6c
+
     RemediationIssueIn:
       type: object
       additionalProperties: false
@@ -1015,6 +1040,37 @@ components:
                 example: Unknown system identifier 'abcd'
               details:
                 type: object
+
+    BulkDeleteError:
+      type: object
+      additionalProperties: false
+      required: [errors]
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [id, status, code, title]
+            properties:
+              id:
+                type: string
+                example: e8fc170b-5426-4445-8930-106bdf6739cb
+              status:
+                type: integer
+                example: 400
+              code:
+                type: string
+                example: UNKNOWN_REMEDIATION_ID
+              title:
+                type: string
+                example: One or more IDs are invalid
+              details:
+                type: object
+                example:
+                  ids:
+                    - 256ab1d3-58cf-1292-35e6-1a49c8b122d4
+                    - 66eec356-dd06-4c72-a3b6-ef27d1508a01
 
     Meta:
       type: object
@@ -1572,6 +1628,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/RequestError'
+    BadBulkRequest:
+      description: Bad Bulk Delete Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BulkDeleteError'
     Forbidden:
       description: Forbidden
       content:

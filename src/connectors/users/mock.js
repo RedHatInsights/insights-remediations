@@ -24,6 +24,12 @@ const MOCK_USERS = _.keyBy([{
     first_name: 'Test',
     last_name: 'Write'
 }, {
+    username: 'bulkDeleteUser',
+    account_number: 'testBulk',
+    tenant_org_id: '1234567',
+    first_name: 'Bulk',
+    last_name: 'Delete'
+}, {
     username: 'testReadSingleUser',
     account_number: 'testReadSingle',
     tenant_org_id: '4444444',

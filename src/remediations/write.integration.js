@@ -583,6 +583,73 @@ describe('remediations', function () {
             .expect(404);
         });
 
+        describe('bulk delete remediations', () => {
+            test('invalid IDs', async () => {
+                const res = await request
+                .delete('/v1/remediations')
+                .send([
+                    'cecf1e86-f1c0-4dd7-81b6-8798deadbeef', // <-- bad id
+                    'c11b0d3e-6b0d-4dd6-a531-12121afd3ec0',
+                    '4270c407-12fb-4a69-b4e8-588fdc0bcdf3',
+                    '756e2b13-f27c-4d71-a9ea-005255924181', // <-- bad id
+                    '329a22fe-fc63-4700-9e4d-e9b92d6e2b54'
+                ])
+                .set(auth.testBulk)
+                .expect(400);
+
+                res.body.errors[0].id = ''; // id is different every time..
+                expect(res.body).toMatchSnapshot()
+            });
+
+            test('wrong user', async () => {
+                const res = await request
+                .delete('/v1/remediations')
+                .send([
+                    '466fc274-16fe-4239-a648-2083ed2e05b0',
+                    'c11b0d3e-6b0d-4dd6-a531-12121afd3ec0',
+                    '4270c407-12fb-4a69-b4e8-588fdc0bcdf3',
+                    '702d0f73-de15-4bfe-897f-125bd339fbb9',
+                    '329a22fe-fc63-4700-9e4d-e9b92d6e2b54'
+                ])
+                .set(auth.testWrite)
+                .expect(400);
+
+                res.body.errors[0].id = ''; // id is different every time..
+                expect(res.body).toMatchSnapshot()
+            });
+
+            test('too many IDs', async () => {
+                const id_count = 101;
+                const res = await request
+                .delete('/v1/remediations')
+                .send(Array.from({length: id_count}, () => {return 'c11b0d3e-6b0d-4dd6-a531-12121afd3ec0'}))
+                .set(auth.testBulk)
+                .expect(400);
+
+                res.body.errors[0].id = ''; // id is different every time..
+                expect(res.body).toMatchSnapshot()
+            });
+
+            test('bulk delete', async () => {
+                await request
+                .delete('/v1/remediations')
+                .send([
+                    'cecf1e86-f1c0-4dd7-81b6-8798b2aa714c',
+                    'c11b0d3e-6b0d-4dd6-a531-12121afd3ec0',
+                    '4270c407-12fb-4a69-b4e8-588fdc0bcdf3',
+                    '702d0f73-de15-4bfe-897f-125bd339fbb9',
+                    '329a22fe-fc63-4700-9e4d-e9b92d6e2b54'
+                ])
+                .set(auth.testBulk)
+                .expect(204);
+
+                await request
+                .delete('/v1/remediations/4270c407-12fb-4a69-b4e8-588fdc0bcdf3')
+                .set(auth.testBulk)
+                .expect(404);
+            });
+        });
+
         test('issue', async () => {
             await request
             .delete('/v1/remediations/3274d99f-511d-4b05-9d88-69934f6bb8ec/issues/vulnerabilities:CVE-2017-5715')

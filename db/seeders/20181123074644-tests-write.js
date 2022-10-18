@@ -3,6 +3,7 @@
 const _ = require('lodash');
 
 const { account_number, tenant_org_id, username: created_by } = require('../../src/connectors/users/mock').MOCK_USERS.testWriteUser;
+const { account_number: bulk_account, tenant_org_id: bulk_tenant_org, username: bulk_creator } = require('../../src/connectors/users/mock').MOCK_USERS.bulkDeleteUser;
 
 const opts = {
     returning: true
@@ -65,6 +66,41 @@ exports.up = async q => {
         tenant_org_id,
         created_by,
         updated_by: created_by
+    }, {
+        id: 'cecf1e86-f1c0-4dd7-81b6-8798b2aa714c',
+        name: 'bulk delete 1',
+        account_number: bulk_account,
+        tenant_org_id: bulk_tenant_org,
+        created_by: bulk_creator,
+        updated_by: bulk_creator
+    }, {
+        id: 'c11b0d3e-6b0d-4dd6-a531-12121afd3ec0',
+        name: 'bulk delete 2',
+        account_number: bulk_account,
+        tenant_org_id: bulk_tenant_org,
+        created_by: bulk_creator,
+        updated_by: bulk_creator
+    }, {
+        id: '4270c407-12fb-4a69-b4e8-588fdc0bcdf3',
+        name: 'bulk delete 3',
+        account_number: bulk_account,
+        tenant_org_id: bulk_tenant_org,
+        created_by: bulk_creator,
+        updated_by: bulk_creator
+    }, {
+        id: '702d0f73-de15-4bfe-897f-125bd339fbb9',
+        name: 'bulk delete 4',
+        account_number: bulk_account,
+        tenant_org_id: bulk_tenant_org,
+        created_by: bulk_creator,
+        updated_by: bulk_creator
+    }, {
+        id: '329a22fe-fc63-4700-9e4d-e9b92d6e2b54',
+        name: 'bulk delete 5',
+        account_number: bulk_account,
+        tenant_org_id: bulk_tenant_org,
+        created_by: bulk_creator,
+        updated_by: bulk_creator
     }], opts);
 
     const issues = await q.bulkInsert('remediation_issues', _.flatMap(remediations, remediation => [{

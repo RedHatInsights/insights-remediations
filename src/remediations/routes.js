@@ -14,6 +14,7 @@ const rbacExecute = rbac('remediations:remediation:execute');
 module.exports = function (router) {
     router.get('/remediations', openapi('getRemediations'), rbacRead, read.list);
     router.post('/remediations', openapi('createRemediation'), rbacWrite, write.create);
+    router.delete('/remediations', openapi('deleteRemediations'), rbacWrite, write.bulkRemove);
     router.get('/remediations/download', openapi('downloadPlaybooks'), rbacRead, read.downloadPlaybooks);
 
     router.get('/remediations/:id', openapi('getRemediation'), rbacRead, read.get);
