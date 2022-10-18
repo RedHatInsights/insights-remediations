@@ -65,6 +65,21 @@ paths:
                 $ref: '#/components/schemas/RemediationCreated'
         400:
           $ref: '#/components/responses/BadRequest'
+    delete:
+      tags:
+        - remediations
+      summary: Bulk Delete Remediations
+      description: Removes the given list of Remediations, RBAC permission {remediations:remediation:write}
+      operationId: deleteRemediations
+      requestBody:
+        $ref: '#/components/requestBodies/RemediationsList'
+      responses:
+        204:
+          $ref: '#/components/responses/Deleted'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
 
   /remediations/download:
     get:
@@ -159,7 +174,6 @@ paths:
           $ref: '#/components/responses/Forbidden'
         404:
           $ref: '#/components/responses/NotFound'
-
 
   /remediations/{id}/playbook:
     get:
@@ -475,7 +489,6 @@ paths:
         400:
           $ref: '#/components/responses/BadRequest'
 
-
   /diagnosis/{system}:
     get:
       tags:
@@ -498,7 +511,6 @@ paths:
           $ref: '#/components/responses/BadRequest'
         404:
           description: System not found
-
 
   /playbook:
     post:
@@ -523,7 +535,6 @@ paths:
         400:
           $ref: '#/components/responses/BadRequest'
 
-
   /version:
     get:
       tags:
@@ -547,7 +558,6 @@ paths:
                   commit:
                     type: string
                     example: '8b87342'
-
 
 components:
   parameters:
@@ -730,6 +740,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/RemediationInput'
+    RemediationsList:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RemediationsList'
     PlaybookRunsInput:
       required: false
       content:
@@ -761,6 +777,7 @@ components:
       description: >
         Indicates whether systems that require reboot for the remediation to be properly applied should be
         rebooted automatically or not
+
 
     RemediationId:
       type: string
@@ -967,6 +984,16 @@ components:
                 resolution: mitigate
                 systems:
                   - a8799a02-8be9-11e8-9eb6-529269fb1459
+
+    RemediationsList:
+      type: array
+      minItems: 1
+      maxItems: 100
+      items:
+        $ref: '#/components/schemas/RemediationId'
+      example:
+        - 9197ba55-0abc-4028-9bbe-269e530f8bd5
+        - 3df5ed22-4324-402c-b128-ea62debbde6c
 
     RemediationIssueIn:
       type: object

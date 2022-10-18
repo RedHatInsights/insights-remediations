@@ -62,6 +62,7 @@ exports.auth = Object.freeze({
         return id;
     }),
     testWrite: createHeader(USERS.testWriteUser.username, USERS.testWriteUser.account_number, USERS.testWriteUser.tenant_org_id, false),
+    testBulk: createHeader(USERS.bulkDeleteUser.username, USERS.bulkDeleteUser.account_number, USERS.bulkDeleteUser.tenant_org_id, false),
     testReadSingle: createHeader(USERS.testReadSingleUser.username, USERS.testReadSingleUser.account_number, USERS.testReadSingleUser.tenant_org_id, false),
     testStatus: createHeader(USERS.testStatus.username, USERS.testStatus.account_number, USERS.testStatus.tenant_org_id, false),
     cert01: {

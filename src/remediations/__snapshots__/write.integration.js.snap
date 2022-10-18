@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`remediations remove bulk delete remediations invalid IDs 1`] = `
+Object {
+  "errors": Array [
+    Object {
+      "code": "UNKNOWN_REMEDIATION_ID",
+      "details": Object {
+        "ids": Array [
+          "cecf1e86-f1c0-4dd7-81b6-8798deadbeef",
+          "756e2b13-f27c-4d71-a9ea-005255924181",
+        ],
+      },
+      "id": "",
+      "status": 400,
+      "title": "One or more IDs are invalid.",
+    },
+  ],
+}
+`;
+
+exports[`remediations remove bulk delete remediations too many IDs 1`] = `
+Object {
+  "errors": Array [
+    Object {
+      "code": "maxItems.openapi.validation",
+      "id": "",
+      "status": 400,
+      "title": "should NOT have more than 100 items (location: body, path: undefined)",
+    },
+  ],
+}
+`;
+
+exports[`remediations remove bulk delete remediations wrong user 1`] = `
+Object {
+  "errors": Array [
+    Object {
+      "code": "UNKNOWN_REMEDIATION_ID",
+      "details": Object {
+        "ids": Array [
+          "c11b0d3e-6b0d-4dd6-a531-12121afd3ec0",
+          "4270c407-12fb-4a69-b4e8-588fdc0bcdf3",
+          "702d0f73-de15-4bfe-897f-125bd339fbb9",
+          "329a22fe-fc63-4700-9e4d-e9b92d6e2b54",
+        ],
+      },
+      "id": "",
+      "status": 400,
+      "title": "One or more IDs are invalid.",
+    },
+  ],
+}
+`;

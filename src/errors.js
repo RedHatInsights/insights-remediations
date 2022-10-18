@@ -43,6 +43,20 @@ class InternalError extends Error {
 
 exports.InternalError = InternalError;
 
+class CompositeError extends Error {
+    constructor (errors, ...params) {
+        super(...params);
+
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, CompositeError);
+        }
+
+        this.errors = errors;
+    }
+}
+
+exports.CompositeError = CompositeError;
+
 exports.BadRequest = class BadRequest extends HttpError {
     constructor (code, title, details) {
         super(400, code, title, details);

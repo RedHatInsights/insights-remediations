@@ -278,6 +278,51 @@ exports.remove = errors.async(function (req, res) {
     }, res);
 });
 
+exports.bulkRemove = errors.async((req, res) => {
+    const ids = req.body;
+    const {tenant_org_id, username: created_by} = req.user;
+
+    // wrap this in a transaction so no one can delete something out from under us...
+    return db.s.transaction(t => {
+        // find all specified remediations...
+        return db.remediation.findAll({where: {tenant_org_id, created_by, id: ids}})
+
+        .then(remediations => {
+            // check for missing items
+            if (remediations.length !== ids.length) {
+                const missing = _.differenceWith(ids, remediations, (id, rem) => {
+                    return rem.id === id;
+                });
+
+                throw new errors.CompositeError(missing, 'One or more IDs are invalid.');
+            }
+
+            // delete all specified remediations
+            return db.remediation.destroy({transaction: t, where: {id: ids, tenant_org_id, created_by}})
+        })
+    })
+
+    .then(result => {
+        return res.sendStatus(204);
+    })
+
+    .catch(error => {
+        if (error instanceof errors.CompositeError) {
+            const payload = {
+                errors: [{
+                    id: req.id,
+                    status: 400,
+                    code: 'UNKNOWN_REMEDIATION_ID',
+                    title: error.message,
+                    details: {ids: error.errors}
+                }]
+            }
+
+            return res.status(400).json(payload);
+        }
+    })
+});
+
 exports.removeIssue = errors.async(function (req, res) {
     return findAndDestroy(req, db.issue, findIssueQuery(req), res);
 });
