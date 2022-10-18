@@ -1,6 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`remediations remove bulk delete remediations invalid IDs 1`] = `
+exports[`remediations remove bulk delete empty list 1`] = `
+Object {
+  "errors": Array [
+    Object {
+      "code": "minItems.openapi.validation",
+      "id": "",
+      "status": 400,
+      "title": "should NOT have fewer than 1 items (location: body, path: undefined)",
+    },
+  ],
+}
+`;
+
+exports[`remediations remove bulk delete invalid IDs 1`] = `
 Object {
   "errors": Array [
     Object {
@@ -19,7 +32,20 @@ Object {
 }
 `;
 
-exports[`remediations remove bulk delete remediations too many IDs 1`] = `
+exports[`remediations remove bulk delete missing body 1`] = `
+Object {
+  "errors": Array [
+    Object {
+      "code": "type.openapi.validation",
+      "id": "",
+      "status": 400,
+      "title": "should be array (location: body, path: undefined)",
+    },
+  ],
+}
+`;
+
+exports[`remediations remove bulk delete too many IDs 1`] = `
 Object {
   "errors": Array [
     Object {
@@ -32,7 +58,7 @@ Object {
 }
 `;
 
-exports[`remediations remove bulk delete remediations wrong user 1`] = `
+exports[`remediations remove bulk delete wrong user 1`] = `
 Object {
   "errors": Array [
     Object {
