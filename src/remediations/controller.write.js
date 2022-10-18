@@ -294,7 +294,7 @@ exports.bulkRemove = errors.async((req, res) => {
                     return rem.id === id;
                 });
 
-                throw new errors.CompositeError(missing, 'One or more IDs are invalid.');
+                throw new errors.CompositeError(missing, 'One or more IDs are invalid');
             }
 
             // delete all specified remediations

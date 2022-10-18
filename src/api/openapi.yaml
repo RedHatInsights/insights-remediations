@@ -79,7 +79,6 @@ paths:
         400:
           $ref: '#/components/responses/BadBulkRequest'
 
-
   /remediations/download:
     get:
       tags:
@@ -1056,7 +1055,7 @@ components:
             properties:
               id:
                 type: string
-                eaxmple: e8fc170b-5426-4445-8930-106bdf6739cb
+                example: e8fc170b-5426-4445-8930-106bdf6739cb
               status:
                 type: integer
                 example: 400
@@ -1065,14 +1064,13 @@ components:
                 example: UNKNOWN_REMEDIATION_ID
               title:
                 type: string
-                example: One or more IDs are invalid.
+                example: One or more IDs are invalid
               details:
                 type: object
                 example:
                   ids:
-                    - "256ab1d3-58cf-1292-35e6-1a49c8b122d4"
-                    - "66eec356-dd06-4c72-a3b6-ef27d1508a01"
-
+                    - 256ab1d3-58cf-1292-35e6-1a49c8b122d4
+                    - 66eec356-dd06-4c72-a3b6-ef27d1508a01
 
     Meta:
       type: object
@@ -1631,7 +1629,7 @@ components:
           schema:
             $ref: '#/components/schemas/RequestError'
     BadBulkRequest:
-      description: Bad Bulk Request
+      description: Bad Bulk Delete Request
       content:
         application/json:
           schema:

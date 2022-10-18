@@ -13,7 +13,7 @@ Object {
       },
       "id": "",
       "status": 400,
-      "title": "One or more IDs are invalid.",
+      "title": "One or more IDs are invalid",
     },
   ],
 }
@@ -47,7 +47,7 @@ Object {
       },
       "id": "",
       "status": 400,
-      "title": "One or more IDs are invalid.",
+      "title": "One or more IDs are invalid",
     },
   ],
 }

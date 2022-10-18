@@ -55,7 +55,8 @@ describe('users', function () {
                 'testReadSingleUser',
                 'testStatus',
                 'testWriteUser',
-                'tuser@redhat.com'
+                'tuser@redhat.com',
+                'bulkDeleteUser'
             ]));
         });
     });
