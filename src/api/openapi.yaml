@@ -69,7 +69,10 @@ paths:
       tags:
         - remediations
       summary: Bulk Delete Remediations
-      description: Removes the given list of Remediations, RBAC permission {remediations:remediation:write}
+      description: Removes the given list of Remediations IDs.  Requests 
+        containing invalid IDs are rejected.  Duplicate IDs are ignored.
+        
+        RBAC permission {remediations:remediation:write}
       operationId: deleteRemediations
       requestBody:
         $ref: '#/components/requestBodies/RemediationsList'
@@ -984,14 +987,19 @@ components:
                   - a8799a02-8be9-11e8-9eb6-529269fb1459
 
     RemediationsList:
-      type: array
-      minItems: 1
-      maxItems: 100
-      items:
-        $ref: '#/components/schemas/RemediationId'
-      example:
-        - 9197ba55-0abc-4028-9bbe-269e530f8bd5
-        - 3df5ed22-4324-402c-b128-ea62debbde6c
+      type: object
+      required:
+        - remediation_ids
+      properties:
+        remediation_ids:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/RemediationId'
+          example:
+            - 9197ba55-0abc-4028-9bbe-269e530f8bd5
+            - 3df5ed22-4324-402c-b128-ea62debbde6c
 
     RemediationIssueIn:
       type: object
@@ -1068,7 +1076,7 @@ components:
               details:
                 type: object
                 example:
-                  ids:
+                  remediation_ids:
                     - 256ab1d3-58cf-1292-35e6-1a49c8b122d4
                     - 66eec356-dd06-4c72-a3b6-ef27d1508a01
 

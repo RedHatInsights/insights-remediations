@@ -279,7 +279,7 @@ exports.remove = errors.async(function (req, res) {
 });
 
 exports.bulkRemove = errors.async((req, res) => {
-    const ids = req.body;
+    const ids = req.body.remediation_ids;
     const {tenant_org_id, username: created_by} = req.user;
 
     // wrap this in a transaction so no one can delete something out from under us...
@@ -316,7 +316,7 @@ exports.bulkRemove = errors.async((req, res) => {
                     status: 400,
                     code: 'UNKNOWN_REMEDIATION_ID',
                     title: error.message,
-                    details: {ids: error.errors}
+                    details: {remediation_ids: error.errors}
                 }]
             }
 
