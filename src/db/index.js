@@ -27,7 +27,7 @@ const dbQueryHistogram = new client.Histogram({
 function loadModels (sequelize, dir) {
     // eslint-disable-next-line security/detect-non-literal-fs-filename
     const models = fs.readdirSync(dir).reduce((models, current) => {
-        const model = sequelize.import(path.join(dir, current));
+        const model = require(path.join(dir, current))(sequelize, Sequelize);
         models[model.name] = model;
         return models;
     }, {});
