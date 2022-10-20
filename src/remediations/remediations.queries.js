@@ -30,7 +30,7 @@ const PLAYBOOK_RUN_ATTRIBUTES = [
 
 function systemSubquery (system_id) {
     const {s: { dialect, col, literal }, fn: { DISTINCT }, issue, issue_system} = db;
-    const generator = dialect.QueryGenerator;
+    const generator = dialect.queryGenerator;
 
     const query = {
         attributes: [DISTINCT(col('remediation_id'))],

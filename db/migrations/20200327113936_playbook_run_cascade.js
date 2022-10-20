@@ -3,9 +3,10 @@
 
 async function changeConstraint (q, table, column, targetTable, targetField, name, action) {
     await q.removeConstraint(table, name);
-    await q.addConstraint(table, [column], {
+    await q.addConstraint(table, {
         type: 'foreign key',
         name,
+        fields: [column],
         references: {
             table: targetTable,
             field: targetField
