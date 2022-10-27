@@ -69,18 +69,17 @@ paths:
       tags:
         - remediations
       summary: Bulk Delete Remediations
-      description: Removes the given list of Remediations IDs.  Requests 
-        containing invalid IDs are rejected.  Duplicate IDs are ignored.
+      description: Removes the given list of Remediations.  Requests 
+        containing malformed remediation IDs are rejected.  Duplicate or missing
+        IDs are ignored.
         
         RBAC permission {remediations:remediation:write}
       operationId: deleteRemediations
       requestBody:
         $ref: '#/components/requestBodies/RemediationsList'
       responses:
-        204:
-          $ref: '#/components/responses/Deleted'
-        400:
-          $ref: '#/components/responses/BadBulkRequest'
+        200:
+          $ref: '#/components/responses/MultipleDelete'
 
   /remediations/download:
     get:
@@ -1049,37 +1048,6 @@ components:
               details:
                 type: object
 
-    BulkDeleteError:
-      type: object
-      additionalProperties: false
-      required: [errors]
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            additionalProperties: false
-            required: [id, status, code, title]
-            properties:
-              id:
-                type: string
-                example: e8fc170b-5426-4445-8930-106bdf6739cb
-              status:
-                type: integer
-                example: 400
-              code:
-                type: string
-                example: UNKNOWN_REMEDIATION_ID
-              title:
-                type: string
-                example: One or more IDs are invalid
-              details:
-                type: object
-                example:
-                  remediation_ids:
-                    - 256ab1d3-58cf-1292-35e6-1a49c8b122d4
-                    - 66eec356-dd06-4c72-a3b6-ef27d1508a01
-
     Meta:
       type: object
       additionalProperties: false
@@ -1387,6 +1355,14 @@ components:
         id:
           $ref: '#/components/schemas/RemediationId'
 
+    MultipleDelete:
+      type: object
+      additionalProperties: false
+      properties:
+        deleted_count:
+          type: integer
+          description: Count of remediations deleted
+
     RemediationDetails:
       type: object
       additionalProperties: false
@@ -1636,12 +1612,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/RequestError'
-    BadBulkRequest:
-      description: Bad Bulk Delete Request
+    MultipleDelete:
+      description: Multiple entities were deleted
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/BulkDeleteError'
+            $ref: '#/components/schemas/MultipleDelete'
     Forbidden:
       description: Forbidden
       content:
