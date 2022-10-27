@@ -585,7 +585,7 @@ describe('remediations', function () {
 
         describe('bulk delete', () => {
             test('invalid IDs', async () => {
-                const res = await request
+                const { body } = await request
                 .delete('/v1/remediations')
                 .send({
                     remediation_ids: [
@@ -597,29 +597,39 @@ describe('remediations', function () {
                     ]
                 })
                 .set(auth.testBulk)
-                .expect(400);
+                .expect(200);
 
-                res.body.errors[0].id = ''; // id is different every time..
-                expect(res.body).toMatchSnapshot()
+                body.deleted_count.should.equal(3)
             });
 
             test('wrong user', async () => {
-                const res = await request
+                const { body } = await request
                 .delete('/v1/remediations')
                 .send({
                     remediation_ids: [
-                        '466fc274-16fe-4239-a648-2083ed2e05b0',
-                        'c11b0d3e-6b0d-4dd6-a531-12121afd3ec0',
-                        '4270c407-12fb-4a69-b4e8-588fdc0bcdf3',
-                        '702d0f73-de15-4bfe-897f-125bd339fbb9',
-                        '329a22fe-fc63-4700-9e4d-e9b92d6e2b54'
+                        '1f600784-947d-4883-a364-c59ec9d3ec00', // <-- only this belongs to testWrite
+                        'a91aedb0-4856-47c7-85d7-4725fb3f9262',
+                        'e96a2346-8e37-441d-963a-c2eed3ee856a',
+                        '301653a2-4b5f-411c-8cb5-a74a96e2f344',
+                        '702d0f73-de15-4bfe-897f-125bd339fbb9'
                     ]
                 })
                 .set(auth.testWrite)
-                .expect(400);
+                .expect(200);
 
-                res.body.errors[0].id = ''; // id is different every time..
-                expect(res.body).toMatchSnapshot()
+                body.deleted_count.should.equal(1);
+
+                // check that testWrite's remediation was deleted
+                await request
+                    .get('/v1/remediations/1f600784-947d-4883-a364-c59ec9d3ec00')
+                    .set(auth.testWrite)
+                    .expect(404);
+
+                // check that other remediations were not deleted
+                await request
+                    .get('/v1/remediations/a91aedb0-4856-47c7-85d7-4725fb3f9262')
+                    .set(auth.testBulk)
+                    .expect(200);
             });
 
             test('too many IDs', async () => {
@@ -657,40 +667,57 @@ describe('remediations', function () {
             });
 
             test('repeated ids', async () => {
-                await request
+                const remediation_1 = '091d3d7a-0c58-4d4a-a8e5-d79ac4e9ee58',
+                      remediation_2 = '85063be8-381e-4d38-aa2d-5400b2a6b0cc';
+
+                const { body } = await request
                 .delete('/v1/remediations')
                 .send({
                     remediation_ids: [
-                        'cecf1e86-f1c0-4dd7-81b6-8798b2aa714c',
-                        'c11b0d3e-6b0d-4dd6-a531-12121afd3ec0',
-                        'cecf1e86-f1c0-4dd7-81b6-8798b2aa714c',
-                        'c11b0d3e-6b0d-4dd6-a531-12121afd3ec0'
+                        remediation_1,
+                        remediation_2,
+                        remediation_1,
+                        remediation_2
                     ]
                 })
                 .set(auth.testBulk)
-                .expect(204);
+                .expect(200);
+
+                body.deleted_count.should.equal(2);
 
                 await request
-                .delete('/v1/remediations/c11b0d3e-6b0d-4dd6-a531-12121afd3ec0')
+                .delete(`/v1/remediations/${remediation_1}`)
                 .set(auth.testBulk)
                 .expect(404);
+
+                await request
+                    .delete(`/v1/remediations/${remediation_2}`)
+                    .set(auth.testBulk)
+                    .expect(404);
             });
 
             test('bulk delete', async () => {
                 await request
+                    .get('/v1/remediations/cecf1e86-f1c0-4dd7-81b6-8798b2aa714c')
+                    .set(auth.testBulk)
+                    .expect(200);
+
+                const { body } = await request
                 .delete('/v1/remediations')
                 .send({
                     remediation_ids: [
-                        '4270c407-12fb-4a69-b4e8-588fdc0bcdf3',
-                        '702d0f73-de15-4bfe-897f-125bd339fbb9',
-                        '329a22fe-fc63-4700-9e4d-e9b92d6e2b54'
+                        'cecf1e86-f1c0-4dd7-81b6-8798b2aa714c',
+                        '32f0c7ed-dc9e-4425-b38d-e80a245dae84',
+                        'fe3337ca-01cf-4b75-b65e-b14c61ecdaa7'
                     ]
                 })
                 .set(auth.testBulk)
-                .expect(204);
+                .expect(200);
+
+                body.deleted_count.should.equal(3);
 
                 await request
-                .delete('/v1/remediations/4270c407-12fb-4a69-b4e8-588fdc0bcdf3')
+                .get('/v1/remediations/cecf1e86-f1c0-4dd7-81b6-8798b2aa714c')
                 .set(auth.testBulk)
                 .expect(404);
             });
