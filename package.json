@@ -63,7 +63,7 @@
     "sequelize": "^6.25.3",
     "sequelize-cli": "^6.5.2",
     "swagger-ui-express": "^4.1.4",
-    "urijs": "^1.19.6",
+    "urijs": "^1.19.11",
     "uuid": "^7.0.3"
   },
   "devDependencies": {
