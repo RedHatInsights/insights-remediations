@@ -1,6 +1,6 @@
 {
   "name": "insights-remediations",
-  "version": "0.1.0",
+  "version": "1.2.0",
   "description": "Generator of automated remediations for Red Hat Insights",
   "main": "index.js",
   "repository": {
@@ -24,6 +24,7 @@
     "prod": "NODE_ENV=production node src/app.js",
     "start": "NODE_ENV=development nodemon --watch src  -e js,yaml src/app.js",
     "test": "NODE_ENV=test npm run db:ims && jest -i",
+    "ci-test": "NODE_ENV=test npm run db:ims && LOG_LEVEL=fatal jest -i",
     "test:unit": "NODE_ENV=test jest -i --testMatch='**/?(*.)+(unit).js'",
     "test:contract": "NODE_ENV=test jest -i --testMatch='**/?(*.)+(contract).js'",
     "verify": "npm-run-all lint coverage"
@@ -52,7 +53,7 @@
     "openapi-request-validator": "^3.8.3",
     "openapi-response-validator": "^3.8.2",
     "openapi-schema-validator": "^3.0.3",
-    "pg": "^7.18.2",
+    "pg": "^8.8.0",
     "pino": "^6.7.0",
     "pino-cloudwatch": "^0.7.0",
     "pino-multi-stream": "^5.1.1",

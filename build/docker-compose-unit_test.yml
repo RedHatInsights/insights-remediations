@@ -1,0 +1,35 @@
+version: '3.4'
+
+services:
+  remediations:
+    build:
+      context: ../
+      dockerfile: build/Dockerfile
+      target: test
+    command: sh -c "echo 'Waiting 3s for db to start' && sleep 3 && npm run ci-test"
+    links:
+#      - redis
+      - db
+    ports:
+      - "9002:9002"
+    environment:
+      - NODE_ENV=test
+#      - REDIS_ENABLED=true
+#      - REDIS_HOST=redis
+#      - LOG_LEVEL=trace
+      - DB_HOST=db
+    restart: "no"
+
+  redis:
+    image: registry.access.redhat.com/rhscl/redis-32-rhel7:latest
+    ports:
+      - "6379:6379"
+    restart: always
+
+  db:
+    image: registry.access.redhat.com/rhscl/postgresql-10-rhel7
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRESQL_ADMIN_PASSWORD=remediations
+
