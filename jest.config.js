@@ -4,7 +4,5 @@ module.exports = {
     coverageDirectory: 'coverage',
     testEnvironment: 'node',
     roots: ['src'],
-    testMatch: [
-        '**/?(*.)+(unit|integration).js'
-    ]
+    testMatch: ['**/?(*.)+(unit|integration).js']
 };
