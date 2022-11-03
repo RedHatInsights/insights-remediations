@@ -3,8 +3,6 @@
 module.exports = {
     coverageDirectory: 'coverage',
     testEnvironment: 'node',
-
-    testMatch: [
-        '**/?(*.)+(unit|integration).js'
-    ]
+    roots: ['src'],
+    testMatch: ['**/?(*.)+(unit|integration).js']
 };

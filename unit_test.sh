@@ -1,23 +1,15 @@
-# Deploy ephemeral db
-source $CICD_ROOT/deploy_ephemeral_db.sh
+#!/bin/bash
 
-# Map env vars set by `deploy_ephemeral_db.sh` if vars the app uses are different
-export DB_PASSWORD=$DATABASE_ADMIN_PASSWORD
-export DB_USERNAME=$DATABASE_ADMIN_USERNAME
-export DB_DATABASE=$DATABASE_NAME
-export DB_HOST=$DATABASE_HOST
-export DB_PORT=$DATABASE_PORT
+set -x
 
-echo DB_PASSWORD: $DB_PASSWORD
-echo DB_USERNAME: $DB_USERNAME
-echo DB_DATABASE: $DB_DATABASE
-echo DB_HOST: $DB_HOST
-echo DB_PORT: $DB_PORT
+# run our tests...
+docker-compose -f build/docker-compose-unit_test.yml up --build --exit-code-from remediations
 
-# run unit-tests
-npm ci
-npm run test
+# save result...
 result=$?
+
+# tidy up...
+docker-compose -f build/docker-compose-unit_test.yml down
 
 # TODO: add unittest-xml-reporting to rbac so that junit results can be parsed by jenkins
 mkdir -p $WORKSPACE/artifacts
@@ -26,3 +18,5 @@ cat << EOF > $WORKSPACE/artifacts/junit-dummy.xml
     <testcase classname="dummy" name="dummytest"/>
 </testsuite>
 EOF
+
+set +x

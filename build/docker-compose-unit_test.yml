@@ -1,0 +1,25 @@
+version: '3.4'
+
+services:
+  remediations:
+    build:
+      context: ../
+      dockerfile: build/Dockerfile
+      target: test
+    command: sh -c "echo 'Waiting 3s for db to start' && sleep 3 && npm run test:ci"
+    links:
+      - db
+    ports:
+      - "9002:9002"
+    environment:
+      - NODE_ENV=test
+      - DB_HOST=db
+    restart: "no"
+
+  db:
+    image: registry.access.redhat.com/rhscl/postgresql-10-rhel7
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRESQL_ADMIN_PASSWORD=remediations
+

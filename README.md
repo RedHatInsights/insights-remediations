@@ -38,7 +38,7 @@ Insights Remediations supports the following types of remediations:
 
 ### Prerequisities
 
-* node.js 12
+* node.js 16
 
 ### Running the application locally
 

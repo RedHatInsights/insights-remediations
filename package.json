@@ -1,6 +1,6 @@
 {
   "name": "insights-remediations",
-  "version": "0.1.0",
+  "version": "1.2.0",
   "description": "Generator of automated remediations for Red Hat Insights",
   "main": "index.js",
   "repository": {
@@ -8,6 +8,7 @@
     "url": "git@github.com:RedHatInsights/insights-remediations.git"
   },
   "scripts": {
+    "build": "gulp build",
     "coverage": "NODE_ENV=test npm run db:ims && jest -i --coverage",
     "db:ims": "npm-run-all db:init db:migrate db:seed",
     "db:create": "sequelize db:create",
@@ -24,6 +25,7 @@
     "prod": "NODE_ENV=production node src/app.js",
     "start": "NODE_ENV=development nodemon --watch src  -e js,yaml src/app.js",
     "test": "NODE_ENV=test npm run db:ims && jest -i",
+    "test:ci": "NODE_ENV=test npm run db:ims && LOG_LEVEL=fatal jest -i",
     "test:unit": "NODE_ENV=test jest -i --testMatch='**/?(*.)+(unit).js'",
     "test:contract": "NODE_ENV=test jest -i --testMatch='**/?(*.)+(contract).js'",
     "verify": "npm-run-all lint coverage"
@@ -52,7 +54,7 @@
     "openapi-request-validator": "^3.8.3",
     "openapi-response-validator": "^3.8.2",
     "openapi-schema-validator": "^3.0.3",
-    "pg": "^7.18.2",
+    "pg": "^8.8.0",
     "pino": "^6.7.0",
     "pino-cloudwatch": "^0.7.0",
     "pino-multi-stream": "^5.1.1",
@@ -70,6 +72,8 @@
     "eslint": "^5.16.0",
     "eslint-plugin-jest": "^22.21.0",
     "eslint-plugin-security": "^1.4.0",
+    "gulp": "^4.0.2",
+    "gulp-cli": "^2.3.0",
     "jest": "^25.5.4",
     "nodemon": "^1.19.4",
     "npm-run-all": "^4.1.5",
