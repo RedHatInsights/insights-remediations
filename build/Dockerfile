@@ -35,7 +35,6 @@ RUN npm ci --omit=dev
 
 COPY --from=test /opt/app-root/src/dist ./
 
-USER 1001
 EXPOSE 9002
 ENV NODE_ENV=production
 
