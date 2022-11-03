@@ -5,6 +5,6 @@ module.exports = {
     testEnvironment: 'node',
 
     testMatch: [
-        '**/?(*.)+(unit|integration).js'
+        'src/**/?(*.)+(unit|integration).js'
     ]
 };
