@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set +x
+set -x
 
 # run our tests...
 docker-compose -f build/docker-compose-unit_test.yml up --build --exit-code-from remediations
@@ -19,4 +19,4 @@ cat << EOF > $WORKSPACE/artifacts/junit-dummy.xml
 </testsuite>
 EOF
 
-set -x
+set +x

@@ -6,7 +6,7 @@ services:
       context: ../
       dockerfile: build/Dockerfile
       target: test
-    command: sh -c "echo 'Waiting 3s for db to start' && sleep 3 && npm run ci-test"
+    command: sh -c "echo 'Waiting 3s for db to start' && sleep 3 && npm run test:ci"
     links:
       - db
     ports:
