@@ -5,7 +5,7 @@ FROM registry.redhat.io/ubi8/ubi-minimal:latest AS base
 
 WORKDIR /opt/app-root/src
 
-RUN microdnf module enable nodejs:12 && \
+RUN microdnf module enable nodejs:16 && \
     microdnf install -y nodejs --nodocs && \
     microdnf clean all
 
@@ -33,7 +33,7 @@ FROM packages AS dist
 
 RUN npm ci --omit=dev
 
-COPY --from=test /opt/app-root/src ./
+COPY --from=test /opt/app-root/src/dist ./
 
 EXPOSE 9002
 ENV NODE_ENV=production
