@@ -33,7 +33,7 @@ FROM packages AS dist
 
 RUN npm ci --omit=dev
 
-COPY --from=test /opt/app-root/src ./
+COPY --from=test /opt/app-root/src/dist ./
 
 EXPOSE 9002
 ENV NODE_ENV=production

@@ -16,17 +16,22 @@ const clean = async () => {
 const build = () => {
     return src([
         'package.json',
+        'package-lock.json',
         'src/**/*.js',
         'src/**/*.yaml',
         'src/**/*.yml',
         'certs/**/*',
         'db/**/*',
-        '.sequelizerc'
+        'dashboards/**/*',
+        'deployment/**/*',
+        '.sequelizerc',
+        'Dockerfile',
+        'cdappconfig.json'
     ], {base: './'})
 
     .pipe(dest('./dist'));
 }
 
-exports.build = build;
+exports.build = series(clean, build);
 exports.clean = clean;
 exports.default = series(clean, build);
