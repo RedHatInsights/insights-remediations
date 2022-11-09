@@ -60,7 +60,7 @@
     "pino": "^6.7.0",
     "pino-cloudwatch": "^0.7.0",
     "pino-multi-stream": "^5.1.1",
-    "prismjs": "^1.25.0",
+    "prismjs": "^1.27.0",
     "prom-client": "^11.5.3",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
