@@ -3,6 +3,8 @@
 
 FROM registry.redhat.io/ubi8/ubi-minimal:latest AS base
 
+USER root
+
 WORKDIR /opt/app-root/src
 
 RUN microdnf module enable nodejs:16 && \
@@ -31,7 +33,7 @@ ENV NODE_ENV=test
 
 FROM packages AS dist
 
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=test /opt/app-root/src/dist ./
 
