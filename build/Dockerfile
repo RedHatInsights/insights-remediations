@@ -17,6 +17,8 @@ FROM base AS packages
 
 COPY package.json package-lock.json ./
 
+RUN npm install -g npm@latest
+
 #----------------------- test -----------------------
 
 FROM packages AS test
