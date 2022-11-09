@@ -25,6 +25,7 @@ const build = () => {
         'dashboards/**/*',
         'deployment/**/*',
         '.sequelizerc',
+        '.npmrc',
         'Dockerfile',
         'cdappconfig.json'
     ], {base: './'})

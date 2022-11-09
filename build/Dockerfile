@@ -3,8 +3,6 @@
 
 FROM registry.redhat.io/ubi8/ubi-minimal:latest AS base
 
-USER root
-
 WORKDIR /opt/app-root/src
 
 RUN microdnf module enable nodejs:16 && \
@@ -15,7 +13,7 @@ RUN microdnf module enable nodejs:16 && \
 
 FROM base AS packages
 
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json .npmrc ./
 
 RUN npm install -g npm@latest
 
@@ -39,6 +37,7 @@ RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=test /opt/app-root/src/dist ./
 
+USER root
 EXPOSE 9002
 ENV NODE_ENV=production
 
