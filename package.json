@@ -45,7 +45,7 @@
     "express-http-context": "^1.2.4",
     "express-pino-logger": "^4.0.0",
     "express-prom-bundle": "^5.1.5",
-    "graphql-request": "^5.0.0",
+    "graphql-request": "^1.8.2",
     "ioredis": "^4.19.2",
     "js-yaml": "^3.14.0",
     "jszip": "^3.7.0",
