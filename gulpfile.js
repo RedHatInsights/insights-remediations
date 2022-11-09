@@ -22,12 +22,8 @@ const build = () => {
         'src/**/*.yml',
         'certs/**/*',
         'db/**/*',
-        'dashboards/**/*',
-        'deployment/**/*',
         '.sequelizerc',
-        '.npmrc',
-        'Dockerfile',
-        'cdappconfig.json'
+        '.npmrc'
     ], {base: './'})
 
     .pipe(dest('./dist'));

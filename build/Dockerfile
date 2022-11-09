@@ -1,7 +1,7 @@
 
 #----------------------- base -----------------------
 
-FROM registry.redhat.io/ubi8/ubi-minimal:latest AS base
+FROM registry.redhat.io/ubi8/ubi-minimal:8.7-923 AS base
 
 WORKDIR /opt/app-root/src
 
@@ -15,7 +15,7 @@ FROM base AS packages
 
 COPY package.json package-lock.json .npmrc ./
 
-RUN npm install -g npm@latest
+RUN npm install -g npm@8.19.3
 
 #----------------------- test -----------------------
 
