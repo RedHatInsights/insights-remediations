@@ -20,7 +20,7 @@ module.exports = new class extends Connector {
 
     async getSystems (id) {
         const uri = this.buildUri(host, 'vulnerability', 'v1', 'cves', id, 'affected_systems');
-        uri.addQuery('page_size', String(10000)); // TODO
+        uri.addQuery('page_size', String(10000)); // TODO - implement pagination
 
         const data = await this.doHttp({
             uri: uri.toString(),
@@ -36,7 +36,7 @@ module.exports = new class extends Connector {
             return [];
         }
 
-        assert(data.meta.total_items < 10000);
+        assert(data.meta.total_items < 10001);
 
         return _.map(data.data, 'id');
     }
