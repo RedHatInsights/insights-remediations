@@ -36,7 +36,10 @@ module.exports = new class extends Connector {
             return [];
         }
 
-        assert(data.meta.total_items < 10001);
+        // We actually have CVEs with more than this many affected systems in
+        // prod, so I'm disabling this check.  This code needs to be redesigned
+        // a bit.
+        // assert(data.meta.total_items < 10001);
 
         return _.map(data.data, 'id');
     }
