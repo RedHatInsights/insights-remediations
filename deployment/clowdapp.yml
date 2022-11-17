@@ -182,6 +182,8 @@ objects:
                 name: backoffice
           - name: USERS_ENV
             value: ${BACKOFFICE_CLIENT_ENV}
+          - name: USERS_TEST_ACCOUNT
+            value: ${USERS_TEST_ACCOUNT}
           - name: VULNERABILITIES_IMPL
             value: ${VULNERABILITIES_IMPL}
           - name: VULNERABILITIES_HOST
@@ -356,6 +358,8 @@ parameters:
   value: impl
 - name: USERS_INSECURE
   value: 'false'
+- name: USERS_TEST_ACCOUNT
+  value: 'authUser'
 - name: VULNERABILITIES_IMPL
   value: impl
 - name: VULNERABILITIES_HOST
