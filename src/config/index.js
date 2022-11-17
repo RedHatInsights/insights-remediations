@@ -176,7 +176,7 @@ function Config() {
             auth: env.USERS_AUTH || '',
             clientId: env.USERS_CLIENT_ID || 'remediations',
             env: env.USERS_ENV || 'prod',
-            testAccount: env.USERS_TEST_ACCOUNT || 'authUser',
+            testAccount: env.USERS_TEST_ACCOUNT || 'someUsername',
             insecure: (env.USERS_INSECURE === 'true') ? true : false,
             revalidationInterval: parseIntEnv('USERS_REVALIDATION_INVERVAL', 60 * 60 * 12) // 12 hours
         },
