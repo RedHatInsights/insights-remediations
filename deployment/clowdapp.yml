@@ -49,7 +49,7 @@ objects:
             args:
               - /bin/sh
               - -c
-              - ${MIGRATION_COMMAND}
+              - id; ${MIGRATION_COMMAND}
         livenessProbe:
           failureThreshold: 3
           httpGet:
