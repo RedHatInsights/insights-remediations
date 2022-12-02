@@ -1,21 +1,24 @@
-
 #----------------------- base -----------------------
 
 FROM registry.redhat.io/ubi8/ubi-minimal:8.7-923 AS base
-
-WORKDIR /opt/app-root/src
 
 RUN microdnf module enable nodejs:16 && \
     microdnf install -y nodejs --nodocs && \
     microdnf clean all
 
+RUN npm install -g npm@8.19.3
+
+ENV APP_ROOT=/opt/app-root/src
+WORKDIR $APP_ROOT
+RUN chgrp -R 0 $APP_ROOT && chmod -R g+rwX $APP_ROOT
+
 #--------------------- packages ---------------------
 
 FROM base AS packages
 
-COPY package.json package-lock.json .npmrc ./
+USER 1001
 
-RUN npm install -g npm@8.19.3
+COPY package.json package-lock.json .npmrc ./
 
 #----------------------- test -----------------------
 
@@ -37,7 +40,6 @@ RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=test /opt/app-root/src/dist ./
 
-USER root
 EXPOSE 9002
 ENV NODE_ENV=production
 
