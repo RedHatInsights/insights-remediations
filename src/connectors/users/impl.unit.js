@@ -3,6 +3,7 @@
 const impl = require('./impl');
 const base = require('../../test');
 const Connector = require('../Connector');
+const cls = require("../../util/cls");
 const { mockRequest, mockCache } = require('../testUtils');
 const request = require('../../util/request');
 const errors = require('../../errors');
