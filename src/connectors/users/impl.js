@@ -4,7 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const URI = require('urijs');
 const assert = require('assert');
-const cls = require('../../util/cls');
 const Connector = require('../Connector');
 
 const {host, insecure, auth, env, clientId, revalidationInterval, testAccount} = require('../../config').users;
