@@ -13,6 +13,7 @@ const cert = fs.readFileSync(path.resolve(__dirname, '../../../certs/backoffice-
 const ca = fs.readFileSync(path.resolve(__dirname, '../../../certs/backoffice-proxy.ca.crt'));
 /* eslint-enable security/detect-non-literal-fs-filename */
 const metrics = require('../metrics');
+const cls = require("../../util/cls");
 
 module.exports = new class extends Connector {
     constructor () {
@@ -54,11 +55,17 @@ module.exports = new class extends Connector {
         return result[0];
     }
 
-    // TODO: this doesn't currently work.
-    // I think we dropped an env var for the testAccount and it just defaults
-    // to something unhelpful.  Maybe grab the username from req.user?
     async ping () {
-        const result = await this.getUser(testAccount, true);
-        assert(result.username === testAccount);
+        const req = cls.getReq();
+
+        if (req.identity.type === 'User') {
+            const result = await this.getUser(req.identity.user.username, true);
+            assert(result.username === req.identity.user.username);
+        }
+
+        else {
+            const result = await this.getUser(testAccount, true);
+            assert(result.username === testAccount);
+        }
     }
 }();

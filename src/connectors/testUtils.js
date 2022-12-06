@@ -13,9 +13,10 @@ exports.mockRequest = function (headers = {
 }, user = {
     username: 'test',
     account_number: 'test'
-}) {
+}, identity = {type: 'test'}) {
     base.getSandbox().stub(cls, 'getReq').returns({
         headers,
+        identity,
         user
     });
 };
