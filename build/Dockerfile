@@ -10,13 +10,14 @@ ENV APP_ROOT=/opt/app-root/src
 WORKDIR $APP_ROOT
 RUN chgrp -R 0 $APP_ROOT && chmod -R g+rwX $APP_ROOT
 
-USER 1001
-
 RUN npm install -g npm@8.19.3
+RUN chown -R 1001:0 ".npm"
 
 #--------------------- packages ---------------------
 
 FROM base AS packages
+
+USER 1001
 
 COPY package.json package-lock.json .npmrc ./
 
