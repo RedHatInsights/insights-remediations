@@ -6,17 +6,17 @@ RUN microdnf module enable nodejs:16 && \
     microdnf install -y nodejs --nodocs && \
     microdnf clean all
 
-RUN npm install -g npm@8.19.3
-
 ENV APP_ROOT=/opt/app-root/src
 WORKDIR $APP_ROOT
 RUN chgrp -R 0 $APP_ROOT && chmod -R g+rwX $APP_ROOT
 
+USER 1001
+
+RUN npm install -g npm@8.19.3
+
 #--------------------- packages ---------------------
 
 FROM base AS packages
-
-USER 1001
 
 COPY package.json package-lock.json .npmrc ./
 
