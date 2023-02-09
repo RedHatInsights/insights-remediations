@@ -184,9 +184,9 @@ function playbookEtag (playbook) {
 async function storePlaybookDefinition(req, definition, filename) {
     try {
         await db.PlaybookArchive.create({
-            username: req.user.username,
-            account_number: req.user.account_number,
-            tenant_org_id: req.user.tenant_org_id,
+            username: req.identity.user.username || '',
+            account_number: req.identity.account_number || '',
+            tenant_org_id: req.identity.org_id,
             filename,
             definition: JSON.stringify(definition)
         });
