@@ -1,6 +1,6 @@
 'use strict';
 
-require('lodash');
+const _ = require('lodash');
 const client = require('prom-client');
 
 const log = require('./util/log');
@@ -61,7 +61,7 @@ PERMISSIONS.forEach(value => rbacCounter.labels(value).inc(0));
 exports.playbookGenerated = function (req, {auto_reboot, issues}, name) {
     playbookCounter.inc();
     log.info({
-        username: req.identity.user.username,
+        username: _.get(req, 'identity.user.username', 'cert-auth'),
         email: req.identity.user.email,
         account_number: req.identity.account_number || '',
         name,
