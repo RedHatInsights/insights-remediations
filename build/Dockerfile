@@ -8,7 +8,7 @@ RUN microdnf module enable nodejs:16 && \
 
 ENV APP_ROOT=/opt/app-root/src
 WORKDIR $APP_ROOT
-RUN chown -R 1001:0 $APP_ROOT && chmod -R g+rwX $APP_ROOT
+RUN chgrp -R 0 $APP_ROOT && chmod -R g+rwX $APP_ROOT
 
 RUN npm install -g npm@8.19.3
 
