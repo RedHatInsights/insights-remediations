@@ -135,6 +135,7 @@ objects:
               secretKeyRef:
                 key: key
                 name: psk-playbook-dispatcher
+                optional: true
           - name: PLATFORM_HOSTNAME_URL
             value: ${PLATFORM_HOSTNAME_URL}
           - name: PATH_PREFIX
