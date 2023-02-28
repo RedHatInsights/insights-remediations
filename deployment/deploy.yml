@@ -196,6 +196,7 @@ objects:
               secretKeyRef:
                 key: token
                 name: backoffice
+                optional: true
           - name: USERS_ENV
             value: ${BACKOFFICE_CLIENT_ENV}
           - name: VULNERABILITIES_IMPL
