@@ -7,7 +7,7 @@ if (config.users.impl === 'mock' || config.env === 'test' || config.env === 'dev
 }
 
 // FedRAMP has no back office proxy...
-else if (config.users.impl === 'noop' || config.user.auth === '') {
+else if (config.users.impl === 'noop' || config.users.auth === '') {
     module.exports = require('./noop');
 }
 
