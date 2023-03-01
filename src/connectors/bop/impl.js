@@ -89,7 +89,7 @@ module.exports = new class extends Connector {
 
         try {
             log.debug(`Request options: ${JSON.stringify(options)}`);
-            const result = await this.doHttp (options, false, this.orgIdMetrics);
+            const result = await this.doHttp (options, false, this.EBSAccountMetrics);
             log.debug(`POST response: ${JSON.stringify(result)}`);
 
             if (_.isEmpty(result)) {
