@@ -181,6 +181,7 @@ objects:
               secretKeyRef:
                 key: token
                 name: backoffice
+                optional: true
           - name: USERS_ENV
             value: ${BACKOFFICE_CLIENT_ENV}
           - name: USERS_TEST_ACCOUNT

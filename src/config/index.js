@@ -179,11 +179,13 @@ function Config() {
             testAccount: env.USERS_TEST_ACCOUNT || 'someUsername',
             insecure: (env.USERS_INSECURE === 'true') ? true : false,
             revalidationInterval: parseIntEnv('USERS_REVALIDATION_INVERVAL', 60 * 60 * 12) // 12 hours
+            // TODO: pretty sure this is a typo -------------------------^
         },
 
         vmaas: {
             impl: env.VMAAS_IMPL,
             revalidationInterval: parseIntEnv('VMAAS_REVALIDATION_INVERVAL', 60 * 60 * 12) // 12 hours
+            // TODO: pretty sure this is a typo -------------------------^
         },
 
         vulnerabilities: {
