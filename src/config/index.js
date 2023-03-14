@@ -30,11 +30,17 @@ function parseIntEnv (name, defaultValue) {
 
 const config = Config();
 
-function getHostForApp(dependencyEndpoints, appName, deploymentName) {
+function getHostForApp(dependencyEndpoints, appName, deploymentName, envar) {
     // eslint-disable-next-line security/detect-object-injection
     if (appName in dependencyEndpoints && deploymentName in dependencyEndpoints[appName]) {
-        // eslint-disable-next-line security/detect-object-injection
-        return 'http://' + dependencyEndpoints[appName][deploymentName].hostname + ':' + dependencyEndpoints[appName][deploymentName].port + '';
+        let endpoint = dependencyEndpoints[appName][deploymentName];
+
+        // use http is tlsPort param is missing or there's an envar override
+        if (_.toLower(env[envar + '_USETLS']) === 'false' || !endpoint.tlsPort) {
+            return 'http://' + endpoint.hostname + ':' + endpoint.port + '';
+        }
+
+        return 'https://' + endpoint.hostname + ':' + endpoint.tlsPort + '';
     }
 
     return undefined;
@@ -231,20 +237,20 @@ function Config() {
         config.logging.cloudwatch.options.aws_region = loadedConfig.logging.cloudwatch.region || env.LOG_CW_REGION;
         config.logging.cloudwatch.options.group = loadedConfig.logging.cloudwatch.logGroup || env.LOG_CW_GROUP;
 
-        config.advisor.host = getHostForApp(dependencyEndpoints, 'advisor', 'service') || env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
-        config.bop.host = getHostForApp(dependencyEndpoints, 'bop', 'service') || `http://${env.TENANT_TRANSLATOR_HOST}:${env.TENANT_TRANSLATOR_PORT}` || 'http://gateway.3scale-dev.svc.cluster.local:8892';
-        config.compliance.host = getHostForApp(dependencyEndpoints, 'compliance', 'service') || env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
-        config.configManager.host = getHostForApp(dependencyEndpoints, 'config-manager', 'service') || env.CONFIG_MANAGER_HOST || 'http://config-manager-service.config-manager-ci.svc.cluster.local:8081';
-        config.contentServer.host = getHostForApp(dependencyEndpoints, 'advisor', 'service') || env.CONTENT_SERVER_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
-        config.dispatcher.host = getHostForApp(dependencyEndpoints, 'playbook-dispatcher', 'api') || env.PLAYBOOK_DISPATCHER_HOST || 'http://playbook-dispatcher-api.playbook-dispatcher-ci.svc.cluster.local:8000';
-        config.inventory.host = getHostForApp(dependencyEndpoints, 'host-inventory', 'service') || env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';
-        config.patchman.host = getHostForApp(dependencyEndpoints, 'patchman', 'manager') || env.PATCHMAN_HOST || 'http://localhost:8080';
-        config.rbac.host = getHostForApp(dependencyEndpoints, 'rbac', 'service') || env.RBAC_HOST || 'http://localhost:8080';
-        config.receptor.host = getHostForApp(dependencyEndpoints, 'receptor', 'gateway-clowder') || env.RECEPTOR_HOST || 'http://localhost:9090';
-        config.sources.host = getHostForApp(dependencyEndpoints, 'sources-api', 'svc') || env.SOURCES_HOST || 'http://localhost:8080';
-        config.ssg.host = getHostForApp(privateDepencencyEndpoints, 'compliance-ssg', 'service') || env.SSG_HOST || 'http://localhost:8090';
-        config.vmaas.host = getHostForApp(dependencyEndpoints, 'vmaas', 'webapp-service') || env.VMAAS_HOST || 'https://webapp-vmaas-prod.apps.crcp01ue1.o9m8.p1.openshiftapps.com';
-        config.vulnerabilities.host = getHostForApp(dependencyEndpoints, 'vulnerability-engine', 'manager-service') || env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com';
+        config.advisor.host = getHostForApp(dependencyEndpoints, 'advisor', 'service', 'ADVISOR') || env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
+        config.bop.host = getHostForApp(dependencyEndpoints, 'bop', 'service', 'TENANT_TRANSLATOR') || `http://${env.TENANT_TRANSLATOR_HOST}:${env.TENANT_TRANSLATOR_PORT}` || 'http://gateway.3scale-dev.svc.cluster.local:8892';
+        config.compliance.host = getHostForApp(dependencyEndpoints, 'compliance', 'service', 'COMPLIANCE') || env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
+        config.configManager.host = getHostForApp(dependencyEndpoints, 'config-manager', 'service', 'CONFIG_MANAGER') || env.CONFIG_MANAGER_HOST || 'http://config-manager-service.config-manager-ci.svc.cluster.local:8081';
+        config.contentServer.host = getHostForApp(dependencyEndpoints, 'advisor', 'service', 'CONTENT_SERVER') || env.CONTENT_SERVER_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
+        config.dispatcher.host = getHostForApp(dependencyEndpoints, 'playbook-dispatcher', 'api', 'PLAYBOOK_DISPATCHER') || env.PLAYBOOK_DISPATCHER_HOST || 'http://playbook-dispatcher-api.playbook-dispatcher-ci.svc.cluster.local:8000';
+        config.inventory.host = getHostForApp(dependencyEndpoints, 'host-inventory', 'service', 'INVENTORY') || env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';
+        config.patchman.host = getHostForApp(dependencyEndpoints, 'patchman', 'manager', 'PATCHMAN') || env.PATCHMAN_HOST || 'http://localhost:8080';
+        config.rbac.host = getHostForApp(dependencyEndpoints, 'rbac', 'service', 'RBAC') || env.RBAC_HOST || 'http://localhost:8080';
+        config.receptor.host = getHostForApp(dependencyEndpoints, 'receptor', 'gateway-clowder', 'RECEPTOR') || env.RECEPTOR_HOST || 'http://localhost:9090';
+        config.sources.host = getHostForApp(dependencyEndpoints, 'sources-api', 'svc', 'SOURCES') || env.SOURCES_HOST || 'http://localhost:8080';
+        config.ssg.host = getHostForApp(privateDepencencyEndpoints, 'compliance-ssg', 'service', 'SSG') || env.SSG_HOST || 'http://localhost:8090';
+        config.vmaas.host = getHostForApp(dependencyEndpoints, 'vmaas', 'webapp-service', 'VMAAS') || env.VMAAS_HOST || 'https://webapp-vmaas-prod.apps.crcp01ue1.o9m8.p1.openshiftapps.com';
+        config.vulnerabilities.host = getHostForApp(dependencyEndpoints, 'vulnerability-engine', 'manager-service', 'VULNERABILITIES') || env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com';
 
         config.db.username = loadedConfig.database.adminUsername || env.DB_USERNAME;
         config.db.password = loadedConfig.database.adminPassword || env.DB_PASSWORD;
@@ -304,6 +310,9 @@ function Config() {
                 ca: fs.readFileSync(env.DB_CA) // eslint-disable-line security/detect-non-literal-fs-filename
             };
         }
+
+        // add certs for TLS CA...
+        env.NODE_EXTRA_CA_CERTS = loadedConfig.tlsCAPath;
 
         config.port = (env.NODE_ENV === 'test') ? 9003 : 9002;
     }
