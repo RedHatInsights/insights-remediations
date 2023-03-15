@@ -3,7 +3,7 @@
 FROM registry.redhat.io/ubi8/ubi-minimal:8.7-1049 AS base
 
 RUN microdnf module enable nodejs:16 && \
-    microdnf install -y nodejs --nodocs && \
+    microdnf install -y jq nodejs --nodocs && \
     microdnf clean all
 
 ENV APP_ROOT=/opt/app-root/src
@@ -43,4 +43,4 @@ COPY --from=test /opt/app-root/src/dist ./
 EXPOSE 9002
 ENV NODE_ENV=production
 
-CMD [ "node", "--max-http-header-size=16384", "src/app.js" ]
+CMD [ "sh", "-c", "NODE_EXTRA_CA_CERTS=$(jq -r .tlsCAPath $ACG_CONFIG /dev/null); node --max-http-header-size=16384 src/app.js" ]

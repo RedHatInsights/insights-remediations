@@ -311,9 +311,6 @@ function Config() {
             };
         }
 
-        // add certs for TLS CA...
-        env.NODE_EXTRA_CA_CERTS = loadedConfig.tlsCAPath;
-
         config.port = (env.NODE_ENV === 'test') ? 9003 : 9002;
     }
 
