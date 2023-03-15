@@ -191,7 +191,7 @@ objects:
           - name: VULNERABILITIES_HOST
             value: http://${VULNERABILITIES_HOST}:8443
           - name: XJOIN_SEARCH_URL
-            value: http://${XJOIN_SEARCH_URL}:4000/graphql
+            value: http://${XJOIN_SEARCH_HOST}:${XJOIN_SEARCH_PORT}/graphql
     jobs:
     - name: floorist
       schedule: ${FLOORIST_SCHEDULE}
@@ -365,8 +365,8 @@ parameters:
 - name: VULNERABILITIES_IMPL
   value: impl
 - name: VULNERABILITIES_HOST
-- name: XJOIN_SEARCH_URL
-  value: http://${XJOIN_SEARCH_URL}:4000/graphql
+- name: XJOIN_SEARCH_HOST
+- name: XJOIN_SEARCH_PORT
 - name: MIN_REPLICAS
   description: Replica count for api service
   value: "2"
