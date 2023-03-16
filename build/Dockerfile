@@ -43,4 +43,4 @@ COPY --from=test /opt/app-root/src/dist ./
 EXPOSE 9002
 ENV NODE_ENV=production
 
-CMD [ "sh", "-c", "NODE_EXTRA_CA_CERTS=$(jq -r .tlsCAPath $ACG_CONFIG /dev/null); node --max-http-header-size=16384 src/app.js" ]
+CMD [ "sh", "-c", "NODE_EXTRA_CA_CERTS=$(jq -r .tlsCAPath $ACG_CONFIG /dev/null) node --max-http-header-size=16384 src/app.js" ]
