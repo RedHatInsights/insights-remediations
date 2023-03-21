@@ -77,12 +77,16 @@ describe('remediations', function () {
         });
 
         test('list remediations with extra run data', async () => {
-            const {text} = await request
-                .get('/v1/remediations?fields[data]=playbook_runs&sort=updated_at&limit=3')
+            const {body} = await request
+                .get('/v1/remediations?fields[data]=playbook_runs&sort=name&limit=3')
                 .set(auth.fifi)
                 .expect(200);
 
-            expect(text).toMatchSnapshot();
+            // can't check against a snapshot because the fifi tests are not
+            // idempotent and test execution order is random
+            for (const remediation of body.data) {
+                expect(remediation).toHaveProperty('playbook_runs');
+            }
         });
 
         test('does not leak data outside of the account', async () => {
