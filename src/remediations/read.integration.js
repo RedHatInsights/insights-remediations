@@ -78,7 +78,7 @@ describe('remediations', function () {
 
         test('list remediations with extra run data', async () => {
             const {text} = await request
-                .get('/v1/remediations?fields[data]=playbook_runs&sort=name&limit=3')
+                .get('/v1/remediations?fields[data]=playbook_runs&sort=updated_at&limit=3')
                 .set(auth.fifi)
                 .expect(200);
 
