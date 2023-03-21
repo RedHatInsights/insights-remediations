@@ -76,6 +76,15 @@ describe('remediations', function () {
             expect(text).toMatchSnapshot();
         });
 
+        test('list remediations with extra run data', async () => {
+            const {text} = await request
+                .get('/v1/remediations?fields[data]=playbook_runs&limit=3')
+                .set(auth.fifi)
+                .expect(200);
+
+            expect(text).toMatchSnapshot();
+        });
+
         test('does not leak data outside of the account', async () => {
             const {body} = await request
             .get('/v1/remediations?username=99999')
@@ -251,15 +260,6 @@ describe('remediations', function () {
                     }]
                 }]
             });
-        });
-
-        test('get remediation with extra run data', async () => {
-            const {text} = await request
-                .set(auth.fifi)
-                .get('/v1/remediations?fields[data]=playbook_runs&limit=3')
-                .expect(200);
-
-            expect(text).toMatchSnapshot();
         });
 
         test('get remediation with many systems', async () => {
