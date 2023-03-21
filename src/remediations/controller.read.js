@@ -147,7 +147,9 @@ exports.list = errors.async(async function (req, res) {
         }
     });
 
-    if (req.query.playbook_runs) {
+    // Check for playbook_runs in fields query param:
+    //    &fields[data]=playbook_runs
+    if (_.get(req, 'query.fields.data', []).includes('playbook_runs')) {
         for (const remediation of remediations) {
             let playbook_runs = await queries.getPlaybookRuns(
                 remediation.id,
