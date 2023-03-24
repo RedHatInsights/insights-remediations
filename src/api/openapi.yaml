@@ -39,7 +39,7 @@ paths:
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/RemediationSystem'
         - $ref: '#/components/parameters/HideArchived'
-        - $ref: '#/components/parameters/PlaybookRuns'
+        - $ref: '#/components/parameters/Fields'
       responses:
         200:
           description: OK
@@ -664,14 +664,24 @@ components:
       schema:
         type: boolean
         default: false
-    PlaybookRuns:
+    Fields:
       in: query
-      name: playbook_runs
-      description: 'Show playbook runs'
+      name: fields
+      description: 'Extra fields to be returned in the response'
       required: false
+      style: deepObject
+      explode: true
       schema:
-        type: boolean
-        default: false
+        type: object
+        properties:
+          data:
+            type: array
+            items:
+              type: string
+              enum:
+                - playbook_runs
+            default:
+              - playbook_runs
     SelectedHosts:
       in: query
       name: hosts
