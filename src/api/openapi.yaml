@@ -666,22 +666,17 @@ components:
         default: false
     Fields:
       in: query
-      name: fields
-      description: 'Extra fields to be returned in the response'
+      name: fields[data]
+      description: Add playbook run data to the response
       required: false
-      style: deepObject
-      explode: true
       schema:
-        type: object
-        properties:
-          data:
-            type: array
-            items:
-              type: string
-              enum:
-                - playbook_runs
-            default:
-              - playbook_runs
+        type: array
+        items:
+          type: string
+          enum:
+            - playbook_runs
+        default:
+          - playbook_runs
     SelectedHosts:
       in: query
       name: hosts
