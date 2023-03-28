@@ -147,6 +147,35 @@ exports.list = errors.async(async function (req, res) {
         }
     });
 
+    // Check for playbook_runs in fields query param:
+    //    &fields[data]=playbook_runs
+    if (_.get(req, 'query.fields.data', []).includes('playbook_runs')) {
+        for (const remediation of remediations) {
+            let playbook_runs = await queries.getPlaybookRuns(
+                remediation.id,
+                req.user.tenant_org_id,
+                req.user.username
+            );
+            playbook_runs = playbook_runs.toJSON();
+
+            // Join rhcRuns and playbookRuns
+            playbook_runs.playbook_runs = await fifi.combineRuns(playbook_runs);
+
+            const pr_total = fifi.getListSize(playbook_runs.playbook_runs);
+            playbook_runs.playbook_runs = await fifi.pagination(playbook_runs.playbook_runs, pr_total, 1, 0);
+            if (_.isNull(playbook_runs)) {
+                throw errors.invalidOffset(offset, pr_total);
+            }
+
+            playbook_runs = await fifi.resolveUsers(req, playbook_runs);
+
+            // Update playbook_run status based on executor status (RHC)
+            await fifi.updatePlaybookRunsStatus(playbook_runs.playbook_runs);
+
+            remediation.playbook_runs = format.playbookRuns(playbook_runs.playbook_runs, pr_total);
+        }
+    }
+
     res.json(format.list(remediations, count.length, limit, offset, req.query.sort, req.query.system));
 });
 

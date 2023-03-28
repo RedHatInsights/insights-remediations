@@ -39,6 +39,7 @@ paths:
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/RemediationSystem'
         - $ref: '#/components/parameters/HideArchived'
+        - $ref: '#/components/parameters/Fields'
       responses:
         200:
           description: OK
@@ -69,10 +70,10 @@ paths:
       tags:
         - remediations
       summary: Bulk Delete Remediations
-      description: Removes the given list of Remediations.  Requests 
+      description: Removes the given list of Remediations.  Requests
         containing malformed remediation IDs are rejected.  Duplicate or missing
         IDs are ignored.
-        
+
         RBAC permission {remediations:remediation:write}
       operationId: deleteRemediations
       requestBody:
@@ -663,6 +664,19 @@ components:
       schema:
         type: boolean
         default: false
+    Fields:
+      in: query
+      name: fields[data]
+      description: Add playbook run data to the response
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - playbook_runs
+        default:
+          - playbook_runs
     SelectedHosts:
       in: query
       name: hosts
@@ -1094,7 +1108,7 @@ components:
           items:
             $ref: '#/components/schemas/PlaybookRunDetails'
         meta:
-            $ref: '#/components/schemas/Meta'
+          $ref: '#/components/schemas/Meta'
 
     Counts:
       type: object
@@ -1103,14 +1117,19 @@ components:
       properties:
         pending:
           type: integer
+          nullable: true
         running:
           type: integer
+          nullable: true
         success:
           type: integer
+          nullable: true
         failure:
           type: integer
+          nullable: true
         canceled:
           type: integer
+          nullable: true
 
     PlaybookRunSystemList:
       type: object
@@ -1122,7 +1141,7 @@ components:
           items:
             $ref: '#/components/schemas/PlaybookRunSystems'
         meta:
-            $ref: '#/components/schemas/Meta'
+          $ref: '#/components/schemas/Meta'
 
     ExecutorList:
       type: array
@@ -1433,7 +1452,7 @@ components:
           items:
             $ref: '#/components/schemas/RemediationListItem'
         meta:
-            $ref: '#/components/schemas/Meta'
+          $ref: '#/components/schemas/Meta'
         links:
           type: object
           additionalProperties: false
@@ -1483,6 +1502,8 @@ components:
           $ref: '#/components/schemas/RemediationNeedsReboot'
         archived:
           $ref: '#/components/schemas/RemediationArchived'
+        playbook_runs:
+          $ref: '#/components/schemas/PlaybookRunsList'
 
     RemediationConnectionStatus:
       type: object
