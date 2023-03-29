@@ -84,5 +84,8 @@
     "sinon": "^7.5.0",
     "speccy": "^0.11.0",
     "supertest": "^4.0.2"
+  },
+  "overrides": {
+    "loader-utils": "^3.2.1"
   }
 }
