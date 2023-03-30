@@ -6,7 +6,7 @@ services:
       context: ../
       dockerfile: build/Dockerfile
       target: test
-    command: sh -c "echo 'Waiting 3s for db to start' && sleep 3 && npm run test:ci"
+    command: sh -c "npm run test:ci"
     links:
       - db
     ports:
@@ -24,4 +24,9 @@ services:
       - POSTGRESQL_USER=postgres_user
       - POSTGRESQL_PASSWORD=remediations
       - POSTGRESQL_DATABASE=remediations
+    healthcheck:
+      test: "psql -c 'SELECT datname FROM pg_database;'"
+      start_period: 3s
+      interval: 10s
+      retries: 6
 
