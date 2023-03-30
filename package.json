@@ -19,7 +19,6 @@
     "db:migrate:undo": "sequelize db:migrate:undo",
     "db:migrate:undo:all": "sequelize db:migrate:undo:all",
     "db:seed": "sequelize db:seed:all",
-    "hello": "echo 'Hello world!!!'",
     "lint": "npm-run-all lint:js lint:openapi",
     "lint:js": "eslint *.js db src",
     "lint:yaml": "yamllint src/api/openapi.yaml",
