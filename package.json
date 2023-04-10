@@ -28,6 +28,8 @@
     "test": "NODE_ENV=test npm run db:ims && jest -i",
     "test:ci": "NODE_ENV=test npm run db:ims && LOG_LEVEL=fatal jest -i",
     "test:unit": "NODE_ENV=test jest -i --testMatch='**/?(*.)+(unit).js'",
+    "test:dc": "docker-compose -f build/docker-compose-unit_test.yml up --build --exit-code-from remediations",
+    "test:dc-down": "docker-compose -f build/docker-compose-unit_test.yml down",
     "test:contract": "NODE_ENV=test jest -i --testMatch='**/?(*.)+(contract).js'",
     "verify": "npm-run-all lint coverage"
   },

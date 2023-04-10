@@ -1117,19 +1117,14 @@ components:
       properties:
         pending:
           type: integer
-          nullable: true
         running:
           type: integer
-          nullable: true
         success:
           type: integer
-          nullable: true
         failure:
           type: integer
-          nullable: true
         canceled:
           type: integer
-          nullable: true
 
     PlaybookRunSystemList:
       type: object
