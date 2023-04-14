@@ -24,7 +24,7 @@ const MIN_SAT_RHC_VERSION = [6, 11, 0];
 const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_name', 'rhc_client']);
 
 const RUNSFIELDS = Object.freeze({fields: {data: ['id', 'labels', 'status', 'service', 'created_at', 'updated_at', 'url']}});
-const RUNHOSTFIELDS = Object.freeze({fields: {data: ['stdout', 'inventory_id']}});
+const RUNHOSTFIELDS = Object.freeze({fields: {data: ['host', 'stdout', 'inventory_id']}});
 const RHCRUNFIELDS = Object.freeze({fields: {data: ['host', 'status', 'inventory_id']}});
 const RHCSTATUSES = ['timeout', 'failure', 'success', 'running'];
 
