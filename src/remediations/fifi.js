@@ -15,7 +15,7 @@ const configManager = require('../connectors/configManager');
 const receptorConnector = require('../connectors/receptor');
 const dispatcher = require('../connectors/dispatcher');
 const log = require('../util/log');
-const cls = require("../../util/cls");
+const cls = require("../util/cls");
 
 const probes = require('../probes');
 const read = require('./controller.read');
