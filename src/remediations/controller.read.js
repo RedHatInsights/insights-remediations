@@ -101,7 +101,9 @@ function inferNeedsReboot (remediation) {
 }
 
 exports.list = errors.async(async function (req, res) {
+    // create a Trace object for this call and attach to req
     const trace = new Trace('exports.list');
+    req.trace = trace;
 
     trace.event('Get sort and query parms from url');
     const {column, asc} = format.parseSort(req.query.sort);
