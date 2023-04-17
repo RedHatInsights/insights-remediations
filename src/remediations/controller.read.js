@@ -164,6 +164,8 @@ exports.list = errors.async(async function (req, res) {
     if (_.get(req, 'query.fields.data', []).includes('playbook_runs')) {
         trace.event('Include playbook_runs data');
         for (const remediation of remediations) {
+            trace.enter(`Process remediation: ${remediation.id}`);
+            trace.event('Fetch playbook run');
             let playbook_runs = await queries.getPlaybookRuns(
                 remediation.id,
                 req.user.tenant_org_id,
@@ -172,20 +174,27 @@ exports.list = errors.async(async function (req, res) {
             playbook_runs = playbook_runs.toJSON();
 
             // Join rhcRuns and playbookRuns
+            trace.event('Combine runs');
             playbook_runs.playbook_runs = await fifi.combineRuns(playbook_runs);
 
+            trace.event('Handle pagination');
             const pr_total = fifi.getListSize(playbook_runs.playbook_runs);
             playbook_runs.playbook_runs = await fifi.pagination(playbook_runs.playbook_runs, pr_total, 1, 0);
             if (_.isNull(playbook_runs)) {
                 throw errors.invalidOffset(offset, pr_total);
             }
 
+            trace.event('Resolve users');
             playbook_runs = await fifi.resolveUsers(req, playbook_runs);
 
             // Update playbook_run status based on executor status (RHC)
+            trace.event('Update playbook run status');
             await fifi.updatePlaybookRunsStatus(playbook_runs.playbook_runs);
 
+            trace.event('Format playbook run');
             remediation.playbook_runs = format.playbookRuns(playbook_runs.playbook_runs, pr_total);
+
+            trace.leave();
         }
     }
 
