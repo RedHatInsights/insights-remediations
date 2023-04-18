@@ -103,6 +103,8 @@ function inferNeedsReboot (remediation) {
 exports.list = errors.async(async function (req, res) {
     // create a Trace object for this call and attach to req
     const trace = new Trace('exports.list');
+    let log_trace_info = false;
+
     req.trace = trace;
 
     trace.event('Get sort and query parms from url');
@@ -164,6 +166,7 @@ exports.list = errors.async(async function (req, res) {
     // Check for playbook_runs in fields query param:
     //    &fields[data]=playbook_runs
     if (_.get(req, 'query.fields.data', []).includes('playbook_runs')) {
+        log_trace_info = true;
         trace.event('Include playbook_runs data');
         for (const remediation of remediations) {
             trace.enter(`Process remediation: ${remediation.id}`);
@@ -202,8 +205,12 @@ exports.list = errors.async(async function (req, res) {
 
     trace.event('Return formatted response');
     res.json(format.list(remediations, count.length, limit, offset, req.query.sort, req.query.system));
+
     trace.leave();
-    log.info(trace.toString());
+
+    if (log_trace_info) {
+        log.info(trace.toString());
+    }
 });
 
 async function resolveSystems (remediation) {
