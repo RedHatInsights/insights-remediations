@@ -168,7 +168,7 @@ exports.list = errors.async(async function (req, res) {
     if (_.get(req, 'query.fields.data', []).includes('playbook_runs')) {
         log_trace_info = true;
         trace.event('Include playbook_runs data');
-        for (const remediation of remediations) {
+        await P.map(remediations, async remediation => {
             trace.enter(`Process remediation: ${remediation.id}`);
             trace.event('Fetch playbook run');
             let playbook_runs = await queries.getPlaybookRuns(
@@ -182,25 +182,23 @@ exports.list = errors.async(async function (req, res) {
             trace.event('Combine runs');
             playbook_runs.playbook_runs = await fifi.combineRuns(playbook_runs);
 
-            trace.event('Handle pagination');
+            trace.event('Only include first run');
             const pr_total = fifi.getListSize(playbook_runs.playbook_runs);
-            playbook_runs.playbook_runs = await fifi.pagination(playbook_runs.playbook_runs, pr_total, 1, 0);
-            if (_.isNull(playbook_runs)) {
-                throw errors.invalidOffset(offset, pr_total);
-            }
+            playbook_runs.playbook_runs = playbook_runs.playbook_runs.slice(0, 1);
 
             trace.event('Resolve users');
             playbook_runs = await fifi.resolveUsers(req, playbook_runs);
 
             // Update playbook_run status based on executor status (RHC)
             trace.event('Update playbook run status');
-            await fifi.updatePlaybookRunsStatus(playbook_runs.playbook_runs);
+            fifi.updatePlaybookRunsStatus(playbook_runs.playbook_runs);
 
             trace.event('Format playbook run');
+            // this formatter is for an api endpoint, not an embedded object
             remediation.playbook_runs = format.playbookRuns(playbook_runs.playbook_runs, pr_total);
 
             trace.leave();
-        }
+        })
     }
 
     trace.event('Return formatted response');
