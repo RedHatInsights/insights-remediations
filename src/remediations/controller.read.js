@@ -168,11 +168,11 @@ exports.list = errors.async(async function (req, res) {
     if (_.get(req, 'query.fields.data', []).includes('playbook_runs')) {
         log_trace_info = true;
         trace.event('Include playbook_runs data');
-        let iteration = 0;
-        await P.map(remediations, async remediation => {
-            iteration += 1;
-            trace.enter(`[${iteration}] Process remediation: ${remediation.id}`);
-            trace.event(`[${iteration}] Fetch playbook run`);
+        let iteration = 1;
+        await P.map(remediations, async (remediation) => {
+            const local_iteration = iteration++;
+            trace.enter(`[${local_iteration}] Process remediation: ${remediation.id}`);
+            trace.event(`[${local_iteration}] Fetch playbook run`);
             let playbook_runs = await queries.getPlaybookRuns(
                 remediation.id,
                 req.user.tenant_org_id,
@@ -181,26 +181,26 @@ exports.list = errors.async(async function (req, res) {
             playbook_runs = playbook_runs.toJSON();
 
             // Join rhcRuns and playbookRuns
-            trace.event(`[${iteration}] Combine runs`);
-            playbook_runs.iteration = iteration;
+            trace.event(`[${local_iteration}] Combine runs`);
+            playbook_runs.iteration = local_iteration;
             playbook_runs.playbook_runs = await fifi.combineRuns(playbook_runs);
 
-            trace.event(`[${iteration}] Only include first run`);
+            trace.event(`[${local_iteration}] Only include first run`);
             const pr_total = fifi.getListSize(playbook_runs.playbook_runs);
             playbook_runs.playbook_runs = playbook_runs.playbook_runs.slice(0, 1);
 
-            trace.event(`[${iteration}] Resolve users`);
+            trace.event(`[${local_iteration}] Resolve users`);
             playbook_runs = await fifi.resolveUsers(req, playbook_runs);
 
             // Update playbook_run status based on executor status (RHC)
-            trace.event(`[${iteration}] Update playbook run status`);
+            trace.event(`[${local_iteration}] Update playbook run status`);
             fifi.updatePlaybookRunsStatus(playbook_runs.playbook_runs);
 
-            trace.event(`[${iteration}] Format playbook run`);
+            trace.event(`[${local_iteration}] Format playbook run`);
             // this formatter is for an api endpoint, not an embedded object
             remediation.playbook_runs = format.playbookRuns(playbook_runs.playbook_runs, pr_total);
 
-            trace.leave();
+            trace.leave(`[${local_iteration}] Process remediation: ${remediation.id}`);
         })
     }
 
@@ -210,7 +210,7 @@ exports.list = errors.async(async function (req, res) {
     trace.leave();
 
     if (log_trace_info) {
-        log.info(trace.toString());
+        log.info({trace: trace.toString()}, 'trace data');
     }
 });
 
