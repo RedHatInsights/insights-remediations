@@ -40,7 +40,7 @@ class Trace {
         this.traceEvents.push({
             level: this.fn.length,
             timestamp: now,
-            message: `${this.padding}Exited: ${func.label} | (${func.timestamp - now})`
+            message: `${this.padding}Exited: ${func.label} | (${now - func.timestamp})`
         });
     }
 
