@@ -360,7 +360,7 @@ exports.combineRuns = async function (remediation) {
         }
     }
 
-    trace?.leave();
+    trace?.leave(`[${iteration}] fifi.combineRuns`);
     return remediation.playbook_runs;
 };
 

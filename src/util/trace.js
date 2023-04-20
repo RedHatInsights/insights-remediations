@@ -32,15 +32,16 @@ class Trace {
         this.padding = '  '.repeat(this.fn.length);
     }
 
-    leave () {
+    leave (label) {
         const func = this.fn.pop();
+        const internal_label = label ?? func.label;
         const now = Date.now();
         this.padding = '  '.repeat(this.fn.length);
 
         this.traceEvents.push({
             level: this.fn.length,
             timestamp: now,
-            message: `${this.padding}Exited: ${func.label} | (${now - func.timestamp})`
+            message: `${this.padding}Exited: ${internal_label} | (${now - func.timestamp})`
         });
     }
 
