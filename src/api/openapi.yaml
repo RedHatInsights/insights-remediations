@@ -1498,7 +1498,9 @@ components:
         archived:
           $ref: '#/components/schemas/RemediationArchived'
         playbook_runs:
-          $ref: '#/components/schemas/PlaybookRunsList'
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaybookRunDetails'
 
     RemediationConnectionStatus:
       type: object
