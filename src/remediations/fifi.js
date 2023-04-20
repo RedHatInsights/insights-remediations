@@ -342,18 +342,19 @@ exports.combineHosts = async function (rhcRunHosts, systems, playbook_run_id) {
 // add rhc playbook run data to remediation
 exports.combineRuns = async function (remediation) {
     const trace = cls.getReq()?.trace;
+    const iteration = remediation.iteration;
 
-    trace?.enter(`fifi.combineRuns`);
+    trace?.enter(`[${iteration}] fifi.combineRuns`);
 
     // array of playbook_run_id
     for (const run of remediation.playbook_runs) {
         // query playbook-dispatcher to see if there are any RHC direct or
         // RHC satellite hosts for this playbook run...
-        trace?.event(`Fetch run details for run: ${run.id}`);
+        trace?.event(`[${iteration}] Fetch run details for run: ${run.id}`);
         const rhcRuns = await exports.getRHCRuns(run.id); // run.id is playbook_run_id
 
         if (rhcRuns) {
-            trace?.event('Format run details and add it to the remediation')
+            trace?.event(`[${iteration}] Format run details and add it to the remediation`)
             const executors = await formatRHCRuns(rhcRuns, run.id);
             pushRHCExecutor(executors, run);
         }

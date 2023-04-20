@@ -168,9 +168,12 @@ exports.list = errors.async(async function (req, res) {
     if (_.get(req, 'query.fields.data', []).includes('playbook_runs')) {
         log_trace_info = true;
         trace.event('Include playbook_runs data');
+        let iteration = 0;
         await P.map(remediations, async remediation => {
-            trace.enter(`Process remediation: ${remediation.id}`);
-            trace.event('Fetch playbook run');
+            iteration += 1;
+            remediation.iteration = iteration;
+            trace.enter(`[${iteration}] Process remediation: ${remediation.id}`);
+            trace.event(`[${iteration}] Fetch playbook run`);
             let playbook_runs = await queries.getPlaybookRuns(
                 remediation.id,
                 req.user.tenant_org_id,
@@ -179,21 +182,21 @@ exports.list = errors.async(async function (req, res) {
             playbook_runs = playbook_runs.toJSON();
 
             // Join rhcRuns and playbookRuns
-            trace.event('Combine runs');
+            trace.event(`[${iteration}] Combine runs`);
             playbook_runs.playbook_runs = await fifi.combineRuns(playbook_runs);
 
-            trace.event('Only include first run');
+            trace.event(`[${iteration}] Only include first run`);
             const pr_total = fifi.getListSize(playbook_runs.playbook_runs);
             playbook_runs.playbook_runs = playbook_runs.playbook_runs.slice(0, 1);
 
-            trace.event('Resolve users');
+            trace.event(`[${iteration}] Resolve users`);
             playbook_runs = await fifi.resolveUsers(req, playbook_runs);
 
             // Update playbook_run status based on executor status (RHC)
-            trace.event('Update playbook run status');
+            trace.event(`[${iteration}] Update playbook run status`);
             fifi.updatePlaybookRunsStatus(playbook_runs.playbook_runs);
 
-            trace.event('Format playbook run');
+            trace.event(`[${iteration}] Format playbook run`);
             // this formatter is for an api endpoint, not an embedded object
             remediation.playbook_runs = format.playbookRuns(playbook_runs.playbook_runs, pr_total);
 
