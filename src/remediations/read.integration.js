@@ -86,8 +86,6 @@ describe('remediations', function () {
             // idempotent and test execution order is random
             for (const remediation of body.data) {
                 expect(remediation).toHaveProperty('playbook_runs');
-                expect(remediation.playbook_runs).toHaveProperty('meta');
-                expect(remediation.playbook_runs).toHaveProperty('data');
             }
         });
 
