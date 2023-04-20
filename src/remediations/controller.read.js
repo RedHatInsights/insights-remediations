@@ -171,7 +171,6 @@ exports.list = errors.async(async function (req, res) {
         let iteration = 0;
         await P.map(remediations, async remediation => {
             iteration += 1;
-            remediation.iteration = iteration;
             trace.enter(`[${iteration}] Process remediation: ${remediation.id}`);
             trace.event(`[${iteration}] Fetch playbook run`);
             let playbook_runs = await queries.getPlaybookRuns(
@@ -183,6 +182,7 @@ exports.list = errors.async(async function (req, res) {
 
             // Join rhcRuns and playbookRuns
             trace.event(`[${iteration}] Combine runs`);
+            playbook_runs.iteration = iteration;
             playbook_runs.playbook_runs = await fifi.combineRuns(playbook_runs);
 
             trace.event(`[${iteration}] Only include first run`);
