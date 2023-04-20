@@ -261,8 +261,9 @@ exports.receptorCancelRequest = function (playbookCancelRequest, account_number,
     };
 };
 
-exports.playbookRuns = function (playbook_runs, total) {
-    const formatted = playbook_runs.map(run => ({
+// Returns an array of formatted playbook runs for inclusion in a response.
+exports.formatRuns = (playbookRuns) => {
+    return playbookRuns.map(run => ({
         id: run.id,
         status: run.status,
         remediation_id: run.remediation_id,
@@ -283,6 +284,10 @@ exports.playbookRuns = function (playbook_runs, total) {
             }
         }))
     }));
+};
+
+exports.playbookRuns = function (playbook_runs, total) {
+    const formatted = exports.formatRuns(playbook_runs);
 
     return {
         meta: {

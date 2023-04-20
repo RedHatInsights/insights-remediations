@@ -185,10 +185,6 @@ exports.list = errors.async(async function (req, res) {
             playbook_runs.iteration = local_iteration;
             playbook_runs.playbook_runs = await fifi.combineRuns(playbook_runs);
 
-            trace.event(`[${local_iteration}] Only include first run`);
-            const pr_total = fifi.getListSize(playbook_runs.playbook_runs);
-            playbook_runs.playbook_runs = playbook_runs.playbook_runs.slice(0, 1);
-
             trace.event(`[${local_iteration}] Resolve users`);
             playbook_runs = await fifi.resolveUsers(req, playbook_runs);
 
@@ -197,8 +193,7 @@ exports.list = errors.async(async function (req, res) {
             fifi.updatePlaybookRunsStatus(playbook_runs.playbook_runs);
 
             trace.event(`[${local_iteration}] Format playbook run`);
-            // this formatter is for an api endpoint, not an embedded object
-            remediation.playbook_runs = format.playbookRuns(playbook_runs.playbook_runs, pr_total);
+            remediation.playbook_runs = format.formatRuns(playbook_runs.playbook_runs, 0);
 
             trace.leave(`[${local_iteration}] Process remediation: ${remediation.id}`);
         })
