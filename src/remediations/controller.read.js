@@ -193,7 +193,7 @@ exports.list = errors.async(async function (req, res) {
             fifi.updatePlaybookRunsStatus(playbook_runs.playbook_runs);
 
             trace.event(`[${local_iteration}] Format playbook run`);
-            remediation.playbook_runs = format.formatRuns(playbook_runs.playbook_runs, 0);
+            remediation.playbook_runs = format.formatRuns(playbook_runs.playbook_runs);
 
             trace.leave(`[${local_iteration}] Process remediation: ${remediation.id}`);
         })
