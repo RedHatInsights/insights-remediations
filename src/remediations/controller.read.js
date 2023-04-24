@@ -5,6 +5,7 @@ const P = require('bluebird');
 const etag = require('etag');
 const JSZip = require('jszip');
 const errors = require('../errors');
+const log = require('../util/log');
 const issues = require('../issues');
 const queries = require('./remediations.queries');
 const format = require('./remediations.format');
@@ -14,6 +15,7 @@ const identifiers = require('../util/identifiers');
 const generator = require('../generator/generator.controller');
 const users = require('../connectors/users');
 const fifi = require('./fifi');
+const Trace = require('../util/trace');
 
 const notFound = res => res.status(404).json();
 const noContent = res => res.sendStatus(204);
@@ -99,9 +101,17 @@ function inferNeedsReboot (remediation) {
 }
 
 exports.list = errors.async(async function (req, res) {
+    // create a Trace object for this call and attach to req
+    const trace = new Trace('exports.list');
+    let log_trace_info = false;
+
+    req.trace = trace;
+
+    trace.event('Get sort and query parms from url');
     const {column, asc} = format.parseSort(req.query.sort);
     const {limit, offset, hide_archived} = req.query;
 
+    trace.event('Query db for list of remediations');
     const {count, rows} = await queries.list(
         req.user.tenant_org_id,
         req.user.username,
@@ -113,26 +123,32 @@ exports.list = errors.async(async function (req, res) {
         limit,
         offset);
 
+    trace.event('Validate offset query parm');
     if (offset >= Math.max(count.length, 1)) {
         throw errors.invalidOffset(offset, count.length - 1);
     }
 
+    trace.event('Fetch associated system details from HBI');
     let remediations = await queries.loadDetails(req.user.tenant_org_id, req.user.username, rows);
 
     if (column === 'name') {
+        trace.event('Accomodate sort ordering for null names');
         // TODO: remove null name support?
         // if sorting by name re-order as db does not order null names (Unnamed playbook) properly
         remediations = _.orderBy(remediations, [r => (r.name || '').toLowerCase()], [asc ? 'asc' : 'desc']);
     }
 
+    trace.event('Resolve user names and reboot flag');
     await P.all([
         resolveResolutionsNeedReboot(...remediations),
         resolveUsers(req, ...remediations)
     ]);
 
     // Add 'details' if they exist to each issue in remediation.issues
+    trace.event('Fetch issue details');
     await P.map(remediations, remediation => resolveIssues(remediation));
 
+    trace.event('Remove empty issues');
     remediations.forEach(remediation => {
         // filter out issues with 0 systems, unknown issues and details
         remediation.issues = remediation.issues.filter(issue => issue.resolution && issue.details);
@@ -147,7 +163,50 @@ exports.list = errors.async(async function (req, res) {
         }
     });
 
+    // Check for playbook_runs in fields query param:
+    //    &fields[data]=playbook_runs
+    if (_.get(req, 'query.fields.data', []).includes('playbook_runs')) {
+        log_trace_info = true;
+        trace.event('Include playbook_runs data');
+        let iteration = 1;
+        await P.map(remediations, async (remediation) => {
+            const local_iteration = iteration++;
+            trace.enter(`[${local_iteration}] Process remediation: ${remediation.id}`);
+            trace.event(`[${local_iteration}] Fetch playbook run`);
+            let playbook_runs = await queries.getPlaybookRuns(
+                remediation.id,
+                req.user.tenant_org_id,
+                req.user.username
+            );
+            playbook_runs = playbook_runs.toJSON();
+
+            // Join rhcRuns and playbookRuns
+            trace.event(`[${local_iteration}] Combine runs`);
+            playbook_runs.iteration = local_iteration;
+            playbook_runs.playbook_runs = await fifi.combineRuns(playbook_runs);
+
+            trace.event(`[${local_iteration}] Resolve users`);
+            playbook_runs = await fifi.resolveUsers(req, playbook_runs);
+
+            // Update playbook_run status based on executor status (RHC)
+            trace.event(`[${local_iteration}] Update playbook run status`);
+            fifi.updatePlaybookRunsStatus(playbook_runs.playbook_runs);
+
+            trace.event(`[${local_iteration}] Format playbook run`);
+            remediation.playbook_runs = format.formatRuns(playbook_runs.playbook_runs);
+
+            trace.leave(`[${local_iteration}] Process remediation: ${remediation.id}`);
+        })
+    }
+
+    trace.event('Return formatted response');
     res.json(format.list(remediations, count.length, limit, offset, req.query.sort, req.query.system));
+
+    trace.leave();
+
+    if (log_trace_info) {
+        log.info({trace: trace.toString()}, 'trace data');
+    }
 });
 
 async function resolveSystems (remediation) {

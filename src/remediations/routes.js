@@ -12,78 +12,50 @@ const rbacWrite = rbac('remediations:remediation:write');
 const rbacExecute = rbac('remediations:remediation:execute');
 
 module.exports = function (router) {
-    router.get('/remediations', openapi('getRemediations'), rbacRead, read.list);
-    router.post('/remediations', openapi('createRemediation'), rbacWrite, write.create);
-    router.delete('/remediations', openapi('deleteRemediations'), rbacWrite, write.bulkRemove);
+    router.route('/remediations')
+        .get(openapi('getRemediations'), rbacRead, read.list)
+        .post(openapi('createRemediation'), rbacWrite, write.create)
+        .delete(openapi('deleteRemediations'), rbacWrite, write.bulkRemove);
+
     router.get('/remediations/download', openapi('downloadPlaybooks'), rbacRead, read.downloadPlaybooks);
 
-    router.get('/remediations/:id', openapi('getRemediation'), rbacRead, read.get);
-    router.patch('/remediations/:id', openapi('updateRemediation'), rbacWrite, write.patch);
-    router.delete('/remediations/:id', openapi('deleteRemediation'), rbacWrite, write.remove);
+    router.route('/remediations/:id')
+        .get(openapi('getRemediation'), rbacRead, read.get)
+        .patch(openapi('updateRemediation'), rbacWrite, write.patch)
+        .delete(openapi('deleteRemediation'), rbacWrite, write.remove);
 
-    router.get('/remediations/:id/status', rbacRead, status.status); // TODO: openapi mw
+    router.route('/remediations/:id/status')
+        .get(rbacRead, status.status); // TODO: openapi mw
 
-    router.patch(
-        '/remediations/:id/issues/:issue',
-        openapi('updateRemediationIssue'),
-        rbacWrite,
-        write.patchIssue);
+    router.route('/remediations/:id/issues/:issue')
+        .patch(openapi('updateRemediationIssue'), rbacWrite, write.patchIssue)
+        .delete(openapi('deleteRemediationIssue'), rbacWrite, write.removeIssue);
 
-    router.delete(
-        '/remediations/:id/issues/:issue',
-        openapi('deleteRemediationIssue'),
-        rbacWrite,
-        write.removeIssue);
+    router.route('/remediations/:id/issues/:issue/systems')
+        .get(openapi('getRemediationIssueSystems'), rbacRead, read.getIssueSystems);
 
-    router.get(
-        '/remediations/:id/issues/:issue/systems',
-        openapi('getRemediationIssueSystems'),
-        rbacRead,
-        read.getIssueSystems);
+    router.route('/remediations/:id/issues/:issue/systems/:system')
+        .delete(openapi('deleteRemediationIssueSystem'), rbacWrite, write.removeIssueSystem);
 
-    router.delete(
-        '/remediations/:id/issues/:issue/systems/:system',
-        openapi('deleteRemediationIssueSystem'),
-        rbacWrite,
-        write.removeIssueSystem);
+    router.route('/remediations/:id/executable')
+        .get(openapi('checkExecutable'), rbacRead, fifi.checkExecutable);
 
-    router.get('/remediations/:id/executable',
-        openapi('checkExecutable'),
-        rbacRead,
-        fifi.checkExecutable);
+    router.route('/remediations/:id/connection_status')
+        .get(openapi('getRemediationConnectionStatus'), rbacExecute, fifi.connection_status);
 
-    router.get('/remediations/:id/connection_status',
-        openapi('getRemediationConnectionStatus'),
-        rbacExecute,
-        fifi.connection_status);
+    router.route('/remediations/:id/playbook_runs')
+        .get(openapi('listPlaybookRuns'), rbacRead, fifi.listPlaybookRuns)
+        .post(openapi('runRemediation'), rbacExecute, fifi.executePlaybookRuns);
 
-    router.get('/remediations/:id/playbook_runs',
-        openapi('listPlaybookRuns'),
-        rbacRead,
-        fifi.listPlaybookRuns);
+    router.route('/remediations/:id/playbook_runs/:playbook_run_id')
+        .get(openapi('getPlaybookRunDetails'), rbacRead, fifi.getRunDetails);
 
-    router.post('/remediations/:id/playbook_runs',
-        openapi('runRemediation'),
-        rbacExecute,
-        fifi.executePlaybookRuns);
+    router.route('/remediations/:id/playbook_runs/:playbook_run_id/cancel')
+        .post(openapi('cancelPlaybookRuns'), rbacExecute, fifi.cancelPlaybookRuns);
 
-    router.get('/remediations/:id/playbook_runs/:playbook_run_id',
-        openapi('getPlaybookRunDetails'),
-        rbacRead,
-        fifi.getRunDetails);
+    router.route('/remediations/:id/playbook_runs/:playbook_run_id/systems')
+        .get(openapi('getPlaybookRunSystems'), rbacRead, fifi.getSystems);
 
-    router.post('/remediations/:id/playbook_runs/:playbook_run_id/cancel',
-        openapi('cancelPlaybookRuns'),
-        rbacExecute,
-        fifi.cancelPlaybookRuns);
-
-    router.get('/remediations/:id/playbook_runs/:playbook_run_id/systems',
-        openapi('getPlaybookRunSystems'),
-        rbacRead,
-        fifi.getSystems);
-
-    router.get('/remediations/:id/playbook_runs/:playbook_run_id/systems/:system',
-        openapi('getPlaybookRunSystemDetails'),
-        rbacRead,
-        fifi.getSystemDetails);
+    router.route('/remediations/:id/playbook_runs/:playbook_run_id/systems/:system')
+        .get(openapi('getPlaybookRunSystemDetails'), rbacRead, fifi.getSystemDetails);
 };

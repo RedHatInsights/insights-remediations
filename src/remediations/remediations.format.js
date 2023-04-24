@@ -72,7 +72,7 @@ exports.parseSort = function (param) {
 
 exports.list = function (remediations, total, limit, offset, sort, system) {
     const formatted = _.map(remediations,
-        ({id, name, needs_reboot, created_by, created_at, updated_by, updated_at, system_count, issue_count, resolved_count, archived}) => ({
+        ({id, name, needs_reboot, created_by, created_at, updated_by, updated_at, system_count, issue_count, resolved_count, archived, playbook_runs}) => ({
             id,
             name,
             created_by: _.pick(created_by, USER),
@@ -83,7 +83,8 @@ exports.list = function (remediations, total, limit, offset, sort, system) {
             system_count,
             issue_count,
             resolved_count: (resolved_count === null) ? 0 : resolved_count,
-            archived
+            archived,
+            playbook_runs: (playbook_runs === null) ? [] : playbook_runs
         })
     );
 
@@ -260,8 +261,9 @@ exports.receptorCancelRequest = function (playbookCancelRequest, account_number,
     };
 };
 
-exports.playbookRuns = function (playbook_runs, total) {
-    const formatted = playbook_runs.map(run => ({
+// Returns an array of formatted playbook runs for inclusion in a response.
+exports.formatRuns = (playbookRuns) => {
+    return playbookRuns.map(run => ({
         id: run.id,
         status: run.status,
         remediation_id: run.remediation_id,
@@ -282,6 +284,10 @@ exports.playbookRuns = function (playbook_runs, total) {
             }
         }))
     }));
+};
+
+exports.playbookRuns = function (playbook_runs, total) {
+    const formatted = exports.formatRuns(playbook_runs);
 
     return {
         meta: {
