@@ -15,6 +15,8 @@ const configManager = require('../connectors/configManager');
 const receptorConnector = require('../connectors/receptor');
 const dispatcher = require('../connectors/dispatcher');
 const log = require('../util/log');
+const cls = require("../util/cls");
+
 const probes = require('../probes');
 const read = require('./controller.read');
 const queries = require('./remediations.queries');
@@ -24,7 +26,7 @@ const MIN_SAT_RHC_VERSION = [6, 11, 0];
 const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_name', 'rhc_client']);
 
 const RUNSFIELDS = Object.freeze({fields: {data: ['id', 'labels', 'status', 'service', 'created_at', 'updated_at', 'url']}});
-const RUNHOSTFIELDS = Object.freeze({fields: {data: ['stdout', 'inventory_id']}});
+const RUNHOSTFIELDS = Object.freeze({fields: {data: ['host', 'stdout', 'inventory_id']}});
 const RHCRUNFIELDS = Object.freeze({fields: {data: ['host', 'status', 'inventory_id']}});
 const RHCSTATUSES = ['timeout', 'failure', 'success', 'running'];
 
@@ -339,18 +341,26 @@ exports.combineHosts = async function (rhcRunHosts, systems, playbook_run_id) {
 
 // add rhc playbook run data to remediation
 exports.combineRuns = async function (remediation) {
+    const trace = cls.getReq()?.trace;
+    const iteration = remediation.iteration;
+
+    trace?.enter(`[${iteration}] fifi.combineRuns`);
+
     // array of playbook_run_id
     for (const run of remediation.playbook_runs) {
         // query playbook-dispatcher to see if there are any RHC direct or
         // RHC satellite hosts for this playbook run...
+        trace?.event(`[${iteration}] Fetch run details for run: ${run.id}`);
         const rhcRuns = await exports.getRHCRuns(run.id); // run.id is playbook_run_id
 
         if (rhcRuns) {
+            trace?.event(`[${iteration}] Format run details and add it to the remediation`)
             const executors = await formatRHCRuns(rhcRuns, run.id);
             pushRHCExecutor(executors, run);
         }
     }
 
+    trace?.leave(`[${iteration}] fifi.combineRuns`);
     return remediation.playbook_runs;
 };
 

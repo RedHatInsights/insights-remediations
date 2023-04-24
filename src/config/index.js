@@ -292,7 +292,7 @@ function Config() {
         config.vmaas.host = env.VMAAS_HOST || 'https://webapp-vmaas-prod.apps.crcp01ue1.o9m8.p1.openshiftapps.com';
         config.vulnerabilities.host = env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com';
 
-        config.db.username = env.DB_USERNAME || 'postgres';
+        config.db.username = env.DB_USERNAME || 'postgres_user';
         config.db.password = env.DB_PASSWORD || 'remediations';
         config.db.database = env.DB_DATABASE || 'remediations';
         config.db.host = env.DB_HOST || '127.0.0.1';
