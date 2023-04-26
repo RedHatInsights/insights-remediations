@@ -174,6 +174,15 @@ describe('playbooks', function () {
             expect(text).toMatchSnapshot();
         });
 
+        test('playbook contains correct resolution for issue', async () => {
+            const { text } = await request
+            .get('/v1/remediations/0e1c1018-cb54-4459-945b-f5d946645b7a/playbook')
+            .set(auth.fifi)
+            .expect(200);
+
+            expect(text).toContain('- name: Update polkit to fix CVE-2021-4034');
+        });
+
         test('204 on generation that creates no playbook', async () => {
             getSandbox().stub(generator, 'normalizeIssues').resolves([]);
             mockDate();
