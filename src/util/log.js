@@ -2,12 +2,10 @@
 
 const _ = require('lodash');
 const pino = require('pino');
-const pinoms = require('pino-multi-stream');
 const config = require('../config');
 const cls = require('./cls');
-const pinoCloudWatch = require('pino-cloudwatch');
 
-// avoid writting down the entire response buffer
+// avoid writing down the entire response buffer
 function errorSerializer (e) {
     if (!e) {
         return e;
@@ -36,25 +34,32 @@ function headersSerializer (headers) {
     return _.omit(headers, ['cookie']);
 }
 
-function buildDestination () {
+function buildTransport () {
     if (!config.logging.cloudwatch.enabled) {
-        return pino.destination(1); // stdout
+        return {
+            target: 'pino-pretty',
+            level: config.logging.level
+        };
     }
 
-    return pinoms.multistream([{
-        stream: pino.destination(1),
-        level: config.logging.level
-    }, {
-        stream: pinoCloudWatch({ ...config.logging.cloudwatch.options }),
-        level: config.logging.cloudwatch.level
-    }]);
+    return {targets: [
+            {
+                target: 'pino/file',
+                options: { destination: 1}, // stdout
+                level: config.logging.level
+            },
+            {
+                target: 'pino-cloudwatch',
+                level: config.logging.cloudwatch.level,
+                options: { ...config.logging.cloudwatch.options }
+            }
+        ]};
 }
 
 const serializers = {
     req: value => {
         const result = pino.stdSerializers.req(value);
-        result.identity = value.raw.identity;
-        result.headers = headersSerializer(result.headers);
+        result.identity = value.raw?.identity;
         return result;
     },
     err: errorSerializer,
@@ -66,10 +71,8 @@ const logger = pino({
     name: 'remediations',
     level: config.logging.level,
     serializers,
-    prettyPrint: config.logging.pretty ? {
-        errorProps: '*'
-    } : false
-}, buildDestination());
+    transport: buildTransport()
+});
 
 if (config.logging.cloudwatch.enabled) {
     logger.info({group: config.logging.cloudwatch.options.group}, 'CloudWatch enabled');
@@ -89,17 +92,5 @@ function getLogger () {
     return req.logger;
 }
 
-module.exports = new Proxy (logger, {
-    get (target, key, receiver) {
-        const logger = getLogger();
-
-        const result = Reflect.get(logger, key, receiver);
-        if (typeof result === 'function') {
-            return result.bind(logger); // bind so that we do not proxy inner calls
-        }
-
-        return result;
-    }
-});
-
+module.exports = getLogger();
 module.exports.serializers = serializers;
