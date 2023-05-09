@@ -199,14 +199,16 @@ exports.list = errors.async(async function (req, res) {
         })
     }
 
-    trace.event('Return formatted response');
-    res.json(format.list(remediations, count.length, limit, offset, req.query.sort, req.query.system));
+    trace.event('Format response');
+    const resp = format.list(remediations, count.length, limit, offset, req.query.sort, req.query.system);
 
     trace.leave();
 
     if (log_trace_info) {
         log.info({trace: trace.toString()}, 'trace data');
     }
+
+    return res.json(resp);
 });
 
 async function resolveSystems (remediation) {
