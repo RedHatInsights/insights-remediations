@@ -27,7 +27,7 @@ const build = () => {
     ], {base: './'})
 
     .pipe(dest('./dist'));
-}
+};
 
 exports.build = series(clean, build);
 exports.clean = clean;
