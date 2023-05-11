@@ -31,7 +31,7 @@ function headersSerializer (headers) {
         return headers;
     }
 
-    return _.omit(headers, ['cookie']);
+    return _.omit(headers, ['cookie', 'x-3scale-proxy-secret-token']);
 }
 
 function buildTransport () {
@@ -60,6 +60,7 @@ const serializers = {
     req: value => {
         const result = pino.stdSerializers.req(value);
         result.identity = value.raw?.identity;
+        result.headers = headersSerializer(result.headers);
         return result;
     },
     err: errorSerializer,
@@ -92,5 +93,23 @@ function getLogger () {
     return req.logger;
 }
 
-module.exports = getLogger();
+// Export a logger proxy, so we can redirect logging calls to req.logger (a
+// child logger that has an additional reqID correlation parameter) if we're
+// called in the context of a request, otherwise pass the call onto the default
+// logger.
+module.exports = new Proxy (logger, {
+    get (target, key, receiver) {
+        const logger = getLogger();
+
+        const result = Reflect.get(logger, key, receiver);
+        if (typeof result === 'function') {
+            return result.bind(logger); // bind so that we do not proxy inner calls
+        }
+
+        return result;
+    }
+});
+
+// pino-http won't respect the base-logger's serializers, so it's going to need
+// a copy too...
 module.exports.serializers = serializers;
