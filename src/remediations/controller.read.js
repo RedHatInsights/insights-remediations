@@ -102,7 +102,7 @@ function inferNeedsReboot (remediation) {
 
 exports.list = errors.async(async function (req, res) {
     // grab trace object from req
-    const trace = req.trace || Trace.null;
+    const trace = req.trace || Trace.dummy;
 
     trace.enter('exports.list');
 

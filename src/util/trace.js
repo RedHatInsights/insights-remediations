@@ -88,6 +88,7 @@ class Trace {
 
 }
 
+// A middleware function to attach a trace object to an inbound request
 function traceMiddleware (threshold) {
     return (req, res, next) => {
         req.trace ??= new Trace(threshold);
@@ -98,7 +99,10 @@ function traceMiddleware (threshold) {
 
 module.exports = traceMiddleware;
 
-const null_trace = new Trace();  // dummy trace object
-module.exports.null = new Proxy(null_trace, {
-    apply () {},
+// A null trace object that does nothing.  This is useful for cases where a
+// function is called by multiple endpoints and there may not be a trace object
+// attached to the request for every call path.
+const dummy = new Trace();  // dummy trace object
+module.exports.dummy = new Proxy(dummy, {
+    apply () {}  // do nothing...
 });
