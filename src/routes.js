@@ -28,6 +28,7 @@ module.exports = async function (app) {
     metrics.start(app);
 
     app.use((req, res, next) => {
+        res[httpLogger.startTime] = Date.now();  // record accurate start time
         log.trace({ req }, 'incoming request');
         next();
     });

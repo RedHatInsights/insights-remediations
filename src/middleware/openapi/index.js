@@ -129,9 +129,13 @@ module.exports = function (operationId) {
     const resValidator = buildResValidator(responses, spec);
 
     return function (req, res, next) {
+        // add trace entry if trace facility exists
+        req.trace?.event?.('OpenAPI: Validating request');
         res.validateResponse = resValidator.validateResponse.bind(resValidator);
         const jsonFn = res.json.bind(res);
         res.json = function (...args) {
+            // add trace entry if trace facility exists
+            res.trace?.event?.('OpenAPI: Validating response');
             const errors = resValidator.validateResponse(res.statusCode, args[0]);
 
             if (errors) {

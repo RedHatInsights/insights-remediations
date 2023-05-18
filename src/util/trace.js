@@ -3,13 +3,13 @@
 // Simple tracing facility with elapsed timestamps, aggregates a series of entries
 // into one log message.
 class Trace {
-    constructor(scope) {
+    constructor(threshold) {
+        this.threshold_ms = threshold ?? 0;
         this.traceEvents = [];
         this.fn = [];
         this.initialTimestamp = Date.now();
         this.padding = '';
-
-        this.enter(scope);
+        this.force = false;
     }
 
     // Use enter() and leave() to group messages.  Useful for grouping by
@@ -41,7 +41,7 @@ class Trace {
         this.traceEvents.push({
             level: this.fn.length,
             timestamp: now,
-            message: `${this.padding}Exited: ${internal_label} | (${now - func.timestamp})`
+            message: `${this.padding}Left: ${internal_label} | (${now - func.timestamp})`
         });
     }
 
@@ -70,6 +70,35 @@ class Trace {
 
         return message;
     }
+
+    // print accumulated messages with elapsed times
+    format () {
+        let message = [];
+        let previousTimestamp = this.initialTimestamp;
+        let finalTimestamp = previousTimestamp;
+
+        for (const event of this.traceEvents) {
+            message.push(`(${event.timestamp - previousTimestamp})`.padEnd(7) + `${event.message}`);
+            previousTimestamp = event.timestamp;
+            finalTimestamp = event.timestamp;
+        }
+
+        return message;
+    }
+
 }
 
-module.exports = Trace;
+function traceMiddleware (threshold) {
+    return (req, res, next) => {
+        req.trace ??= new Trace(threshold);
+        res.trace ??= req.trace;
+        next();
+    };
+}
+
+module.exports = traceMiddleware;
+
+const null_trace = new Trace();  // dummy trace object
+module.exports.null = new Proxy(null_trace, {
+    apply () {},
+});

@@ -6,6 +6,7 @@ const fifi = require('./controller.fifi');
 const status = require('./controller.status');
 const openapi = require('../middleware/openapi');
 const rbac = require('../middleware/rbac');
+const trace = require("../util/trace");
 
 const rbacRead = rbac('remediations:remediation:read');
 const rbacWrite = rbac('remediations:remediation:write');
@@ -13,7 +14,7 @@ const rbacExecute = rbac('remediations:remediation:execute');
 
 module.exports = function (router) {
     router.route('/remediations')
-        .get(openapi('getRemediations'), rbacRead, read.list)
+        .get(trace(500), openapi('getRemediations'), rbacRead, read.list)
         .post(openapi('createRemediation'), rbacWrite, write.create)
         .delete(openapi('deleteRemediations'), rbacWrite, write.bulkRemove);
 
