@@ -23,24 +23,24 @@ exports[`patchman - package using patch-package generates a playbook with multip
     insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
-      RWNnZGpFS0NtbFJTVlpCZDFWQldVOWpRVEJOZG5jMU9FUXJhalZ3VGtGUmFraHhaeTgyUVhZMFJI
-      QmtabEppVlhSaWFrTnNSbVYyTmpSMWRHUkZSbFo2Y2xwTmFTOEtOME5xVFc0dmIyNWxSR0U0ZFhN
-      clRqVkRPR1J5Tm05c1YxbHBRMU5aWW5CTFptMU1LekF4UkVGVWFqTkVRVVUyVW1GSVpXVmxMMDE1
-      U2pWNVYybHBkQXBKV1V0M1IzQTBUWEJXVDNOSFJ6bFNOVmxaUzNwSldtRkdkR0ZhZERaMk1uQkhU
-      MEpxYUZsdk4zRkhNV0ZJUkZwNmEzVnVSVVZRZGs0NVprMUNaRnA1Q2trdk5sRlZUeXRRYlhsTlNV
-      VjFVV2RPV1hReWNVZHJUSFpTWjFwVlRHaE1kV0l5Y1dwUlozTkVaVmQzUmxOb1dsbFdXVEoyUm13
-      d2VGUlNjVXRPU21ZS01HZDZVMUpJTW05Wk5VZElXVlZYZDFOSVEycFZXbWxHWTNVNGFYTXZOVU5G
-      Y0RCNlJFbHdNVEZMY0c1bWIyVTNUMVpOWmxCSlFrZzVhakJETVRKd1FRcEhaemRuVDI0d1lXVklU
-      R3RMUlZCT1lXY3liVTVUS3pNemNVaE9kakF5YjFZMmJrTkdSMGt4VjIxa1p6UlhTakZ0YUdkVmVU
-      VkhkR2QwUVhJM01uaEVDbVpoVkVGNk4wRlhUakpuZGtadk0zRm1TSEEyTlZOek1XZG5VVUV4TTNs
-      TmRsQjNOV3N6VUhwWE5XcGlUbUl3YXpJeVdFaENTVlE1WVhGVVJUUlpUWE1LVWs0MGMydFVPSFJu
-      WTBKdVkzQjNWWHB3WlZkVGVFTkZSMU4xTWs1QmFtSlZaM3BIVVdWMGNHOUxUVTB4ZUZSVmJXVnpS
-      M0p0ZDFGNVYyMUdjV2xSVVFwUk9EaExlbTkwWmxWbmJWSnFWRGxMUmxNd2NFbHhPQzlKYmxKTVFq
-      QkdPQzgxU1ZVMk1qQnlVemRSVGpSV2QycFhRbmRuV0Rsa1QzSmpTSFpSUWxsSENqaHJjbFl5T0Va
-      Rk1uVmpRbEI1VGxkUU1FcFhTemhDVkVaVFIxUlNlbVJXV1VkRWJIQXpWRmczZG0xSWRqUnlVM3Ax
-      YW5WVWNVRjBkV2x1UmtwUFpua0tlR3hSV2k4M0wwdE5kRTEyVkhBelFuVlFUbWM0VDNKMFlqUmxO
-      bGcxT0VGM1pWWjJkbVUxUVRWc2QwczFabkptTVc1b05XNTZRWGxvY0hvd05XMUtSQXB6V2taT0sz
-      UXdNM2x6YXowS1BTOVhiR1VLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      RWNnZGpFS0NtbFJTVlpCZDFWQldrWjZOR2RqZG5jMU9FUXJhalZ3VGtGUmFubDVVUzg1U0hoU1lq
+      QjVUSEprZDJaeWRTdERjMmhqVXpVNFMyNURURW8xUTJaM1dGY0tjVGh2VVZsSFVtaElaMDlCY0hw
+      Q1pXTjFSV3RNTWtWR1psRXljbXBFYTFwVGVYbFdWR1ZxTm5admVrdFZVMjlZVEdWWVUxZElRMlpy
+      WjNkMFJYSXJXQXBzT0hscVpsVTBVRkJ1YnpoS2NGbEZhRXBzVjNBMlVGZG5PRzFuSzA1cmRXaFRN
+      SGN3Y0VSRWNHbElUVzlEVDJKc1NrOVlVbVozV2k4NFZUVlBPSFZNQ2xWSlFtUklha3hGWlRZeWVX
+      RXlSa2N4ZUVOQ1lsZHZURTlOVmxkdFYxRmhhbko1T0doT0swSmlaRmR0TnpOdGVWVlhVRWRTYlhw
+      UFZIRkxiRFpZZDI0S1RtMVhOVVJLZG1WSFRFUmtTR1F5ZUhKUlZVTkZiVzR5U3l0SUwwWTJVMlZT
+      TUZRMmMwSjFjVTlLVUhGUFVtd3pPRFEwUkU5bU1sbHhibVpwT0dSclZRcFpiRVJPVmtreGFIQlNk
+      MUJ0WXpVcmJHMVZkRXc1ZWxoeE1FZzJXREJDYkZrMlJrZEpVbU5IUmxsR2JXWmtkVUpCVkdWR1Mx
+      aGtOVVZyVm5kcVdERkRDamg1V25kSVNtWTVLM1ZIUkVnNU5uUklPSFpOTkZSQlJrbFJZa1IyU0VW
+      UE1razJNWEpzUWtzMVduZGFjblZ6U1RWdVdYTlJSRmRUV1dac2RXdENSWGdLTURSUWVFWlNMMFpo
+      WmxoQlFYVmhXVE5rUVdGMVEzVTNPVmhpZURSdVJtWnNURkpsV0hKdmJteElUbkJPVlRaRVdERm1N
+      bk00UzNKd01rTk9aV0l6ZFFwRmIwVkRVR3R5VVVOM05sSlFhekpvVEVweVVUUkhkR1pOT1RSTFdY
+      TkhSbTFXVUVwNFYzcG1lWEJHUzB0RlNVTXZjMGxVZDB0RFFuQmFNMHRET1VjckNrWnVWbUZzU0dK
+      M2EyVk9SalJVY1VsNldYZHFNa2R5VkRSV1pWSjFNekZJVjIxWVFtbDZVa1JUVlhaNFN5OTJOVU56
+      T0VwWlprNW1jRXg1ZUhsTGFtMEtOR0kwUnpWMWRFOTRjbE5RVXpSVU1GUk1SbWt5VDJZM1NpdG1k
+      bFp1UW5sV1NHd3haR3BPY0cxdWVtVnhNV3RsVjNkM2RXNVplR2xyV0hoRWQyMTZSZ3AzTWpkb09G
+      WTBkalJqUlQwS1BYbFRWRGdLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
       PQ==
   become: true
   tasks:
@@ -49,14 +49,10 @@ exports[`patchman - package using patch-package generates a playbook with multip
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
-      args:
-        warn: false
 
     - when: check_out.rc == 100
       name: upgrade package
       shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\\\\\\\\.([^-:.(/=<>;]+)$') }}\\"
-      args:
-        warn: false
 
     - when: check_out.rc == 100
       name: set reboot fact
@@ -164,24 +160,24 @@ exports[`patchman - package using patch-package generates a simple playbook with
     insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
-      RWNnZGpFS0NtbFJTVlpCZDFWQldVOWpRVEJOZG5jMU9FUXJhalZ3VGtGUmFraHhaeTgyUVhZMFJI
-      QmtabEppVlhSaWFrTnNSbVYyTmpSMWRHUkZSbFo2Y2xwTmFTOEtOME5xVFc0dmIyNWxSR0U0ZFhN
-      clRqVkRPR1J5Tm05c1YxbHBRMU5aWW5CTFptMU1LekF4UkVGVWFqTkVRVVUyVW1GSVpXVmxMMDE1
-      U2pWNVYybHBkQXBKV1V0M1IzQTBUWEJXVDNOSFJ6bFNOVmxaUzNwSldtRkdkR0ZhZERaMk1uQkhU
-      MEpxYUZsdk4zRkhNV0ZJUkZwNmEzVnVSVVZRZGs0NVprMUNaRnA1Q2trdk5sRlZUeXRRYlhsTlNV
-      VjFVV2RPV1hReWNVZHJUSFpTWjFwVlRHaE1kV0l5Y1dwUlozTkVaVmQzUmxOb1dsbFdXVEoyUm13
-      d2VGUlNjVXRPU21ZS01HZDZVMUpJTW05Wk5VZElXVlZYZDFOSVEycFZXbWxHWTNVNGFYTXZOVU5G
-      Y0RCNlJFbHdNVEZMY0c1bWIyVTNUMVpOWmxCSlFrZzVhakJETVRKd1FRcEhaemRuVDI0d1lXVklU
-      R3RMUlZCT1lXY3liVTVUS3pNemNVaE9kakF5YjFZMmJrTkdSMGt4VjIxa1p6UlhTakZ0YUdkVmVU
-      VkhkR2QwUVhJM01uaEVDbVpoVkVGNk4wRlhUakpuZGtadk0zRm1TSEEyTlZOek1XZG5VVUV4TTNs
-      TmRsQjNOV3N6VUhwWE5XcGlUbUl3YXpJeVdFaENTVlE1WVhGVVJUUlpUWE1LVWs0MGMydFVPSFJu
-      WTBKdVkzQjNWWHB3WlZkVGVFTkZSMU4xTWs1QmFtSlZaM3BIVVdWMGNHOUxUVTB4ZUZSVmJXVnpS
-      M0p0ZDFGNVYyMUdjV2xSVVFwUk9EaExlbTkwWmxWbmJWSnFWRGxMUmxNd2NFbHhPQzlKYmxKTVFq
-      QkdPQzgxU1ZVMk1qQnlVemRSVGpSV2QycFhRbmRuV0Rsa1QzSmpTSFpSUWxsSENqaHJjbFl5T0Va
-      Rk1uVmpRbEI1VGxkUU1FcFhTemhDVkVaVFIxUlNlbVJXV1VkRWJIQXpWRmczZG0xSWRqUnlVM3Ax
-      YW5WVWNVRjBkV2x1UmtwUFpua0tlR3hSV2k4M0wwdE5kRTEyVkhBelFuVlFUbWM0VDNKMFlqUmxO
-      bGcxT0VGM1pWWjJkbVUxUVRWc2QwczFabkptTVc1b05XNTZRWGxvY0hvd05XMUtSQXB6V2taT0sz
-      UXdNM2x6YXowS1BTOVhiR1VLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      RWNnZGpFS0NtbFJTVlpCZDFWQldrWjZOR2RqZG5jMU9FUXJhalZ3VGtGUmFubDVVUzg1U0hoU1lq
+      QjVUSEprZDJaeWRTdERjMmhqVXpVNFMyNURURW8xUTJaM1dGY0tjVGh2VVZsSFVtaElaMDlCY0hw
+      Q1pXTjFSV3RNTWtWR1psRXljbXBFYTFwVGVYbFdWR1ZxTm5admVrdFZVMjlZVEdWWVUxZElRMlpy
+      WjNkMFJYSXJXQXBzT0hscVpsVTBVRkJ1YnpoS2NGbEZhRXBzVjNBMlVGZG5PRzFuSzA1cmRXaFRN
+      SGN3Y0VSRWNHbElUVzlEVDJKc1NrOVlVbVozV2k4NFZUVlBPSFZNQ2xWSlFtUklha3hGWlRZeWVX
+      RXlSa2N4ZUVOQ1lsZHZURTlOVmxkdFYxRmhhbko1T0doT0swSmlaRmR0TnpOdGVWVlhVRWRTYlhw
+      UFZIRkxiRFpZZDI0S1RtMVhOVVJLZG1WSFRFUmtTR1F5ZUhKUlZVTkZiVzR5U3l0SUwwWTJVMlZT
+      TUZRMmMwSjFjVTlLVUhGUFVtd3pPRFEwUkU5bU1sbHhibVpwT0dSclZRcFpiRVJPVmtreGFIQlNk
+      MUJ0WXpVcmJHMVZkRXc1ZWxoeE1FZzJXREJDYkZrMlJrZEpVbU5IUmxsR2JXWmtkVUpCVkdWR1Mx
+      aGtOVVZyVm5kcVdERkRDamg1V25kSVNtWTVLM1ZIUkVnNU5uUklPSFpOTkZSQlJrbFJZa1IyU0VW
+      UE1razJNWEpzUWtzMVduZGFjblZ6U1RWdVdYTlJSRmRUV1dac2RXdENSWGdLTURSUWVFWlNMMFpo
+      WmxoQlFYVmhXVE5rUVdGMVEzVTNPVmhpZURSdVJtWnNURkpsV0hKdmJteElUbkJPVlRaRVdERm1N
+      bk00UzNKd01rTk9aV0l6ZFFwRmIwVkRVR3R5VVVOM05sSlFhekpvVEVweVVUUkhkR1pOT1RSTFdY
+      TkhSbTFXVUVwNFYzcG1lWEJHUzB0RlNVTXZjMGxVZDB0RFFuQmFNMHRET1VjckNrWnVWbUZzU0dK
+      M2EyVk9SalJVY1VsNldYZHFNa2R5VkRSV1pWSjFNekZJVjIxWVFtbDZVa1JUVlhaNFN5OTJOVU56
+      T0VwWlprNW1jRXg1ZUhsTGFtMEtOR0kwUnpWMWRFOTRjbE5RVXpSVU1GUk1SbWt5VDJZM1NpdG1k
+      bFp1UW5sV1NHd3haR3BPY0cxdWVtVnhNV3RsVjNkM2RXNVplR2xyV0hoRWQyMTZSZ3AzTWpkb09G
+      WTBkalJqUlQwS1BYbFRWRGdLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
       PQ==
   become: true
   tasks:
@@ -190,14 +186,10 @@ exports[`patchman - package using patch-package generates a simple playbook with
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
-      args:
-        warn: false
 
     - when: check_out.rc == 100
       name: upgrade package
       shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\\\\\\\\.([^-:.(/=<>;]+)$') }}\\"
-      args:
-        warn: false
 
     - when: check_out.rc == 100
       name: set reboot fact
