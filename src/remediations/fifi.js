@@ -15,6 +15,7 @@ const configManager = require('../connectors/configManager');
 const receptorConnector = require('../connectors/receptor');
 const dispatcher = require('../connectors/dispatcher');
 const log = require('../util/log');
+const trace = require('../util/trace');
 const cls = require("../util/cls");
 
 const probes = require('../probes');
@@ -395,7 +396,13 @@ async function fetchSatRHCClientId (systems) {
 }
 
 async function defineDirectConnectedRHCSystems (executor, smart_management, org_id) {
+    trace.enter('fifi.defineDirectConnectedRHCSystems');
+
+    // split executor systems in rhc client or not, based on presence of rhc_client
+    // considering smart management and marketplace settings.
     let rhcSystems = [];
+
+    trace.event('find all eligible rhc systems');
     if (smart_management) {
         rhcSystems = _.partition(executor.systems, system => !_.isUndefined(system.rhc_client));
     } else {
@@ -404,13 +411,17 @@ async function defineDirectConnectedRHCSystems (executor, smart_management, org_
 
     // If there are no systems to check, return rhcSystems
     if (_.isEmpty(rhcSystems[0])) {
+        trace.leave('No eligible rhc systems...');
         return rhcSystems;
     }
 
     const dispatcherStatusRequest = _.map(rhcSystems[0], system => { return {recipient: system.rhc_client, org_id: String(org_id) }; });
+    trace.event(`Get run status from playbook-dispatcher for recipients: ${JSON.stringify(dispatcherStatusRequest)}`)
     const requestStatuses = await dispatcher.getPlaybookRunRecipientStatus(dispatcherStatusRequest);
+    trace.event(`Statuses: ${JSON.stringify(requestStatuses)}`);
 
     // partition systems containing rhc_client_ids by connection status
+    trace.event('Partition elligible systems by status')
     _.forEach(rhcSystems[0], system => {
         if (!_.isNull(requestStatuses)) {
             if (requestStatuses[system.rhc_client]) {
@@ -422,8 +433,10 @@ async function defineDirectConnectedRHCSystems (executor, smart_management, org_
             system.rhcStatus = false;
         }
     });
+
     rhcSystems[0] = _.partition(rhcSystems[0], system => system.rhcStatus === true);
 
+    trace.leave(`RHC systems with status: ${JSON.stringify(rhcSystems)}`);
     return rhcSystems;
 }
 
@@ -447,38 +460,70 @@ function getSatelliteFacts (facts) {
 }
 
 async function defineRHCEnabledExecutor (satellites, smart_management, rhc_enabled, org_id) {
+    trace.enter('fifi.defineRHCEnabledExecutor');
+
+    trace.event('Look for satellites without an id (i.e. rhc direct)');
     const satlessExecutor = _.find(satellites, satellite => satellite.id === null);
     if (satlessExecutor) {
         const partitionedSystems = await defineDirectConnectedRHCSystems(satlessExecutor, smart_management, org_id);
+        trace.event('Remove redundant executors');
         _.remove(satellites, executor => executor === satlessExecutor); // Remove redundant satless executor
 
         if (!_.isEmpty(partitionedSystems[0])) {
+            trace.event('Process eligible systems')
             if (!_.isEmpty(partitionedSystems[0][0])) {
-                satellites.push({id: null, systems: partitionedSystems[0][0], type: 'RHC', rhcStatus: (rhc_enabled) ? CONNECTED : DISABLED});
+                trace.event('Add CONNECTED systems')
+                const entry = {
+                    id: null,
+                    systems: partitionedSystems[0][0],
+                    type: 'RHC',
+                    rhcStatus: (rhc_enabled) ? CONNECTED : DISABLED
+                };
+                satellites.push(entry);
+                trace.event(`Added entry: ${JSON.stringify(entry)}`);
             }
 
             if (!_.isEmpty(partitionedSystems[0][1])) {
-                satellites.push({id: null, systems: partitionedSystems[0][1], type: 'RHC', rhcStatus: (rhc_enabled) ? DISCONNECTED : DISABLED});
+                trace.event('Add DISCONNECTED systems');
+                const entry = {
+                    id: null,
+                    systems: partitionedSystems[0][1],
+                    type: 'RHC',
+                    rhcStatus: (rhc_enabled) ? DISCONNECTED : DISABLED
+                };
+                satellites.push(entry);
+                trace.event(`Added entry: ${JSON.stringify(entry)}`);
             }
         }
 
         if (!smart_management) {
+            trace.event('Smart Management: DISABLED');
+
             const noSmartManagement = _.filter(partitionedSystems[1], system => !system.marketplace);
             if (!_.isEmpty(noSmartManagement)) {
-                satellites.push({id: null, systems: noSmartManagement, type: 'RHC', rhcStatus: 'no_smart_management'});
+                const result = {id: null, systems: noSmartManagement, type: 'RHC', rhcStatus: 'no_smart_management'};
+                trace.event(`!smart_management && !system.marketplace: ${JSON.stringify(result)}`);
+                satellites.push(result);
             }
 
             const rhcNotConfigured = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client) && system.marketplace);
             if (!_.isEmpty(rhcNotConfigured)) {
-                satellites.push({id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'});
+                const result = {id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'};
+                trace.event(`!smart_management && !system.rhc_client: ${JSON.stringify(result)}`);
+                satellites.push(result);
             }
         } else {
+            trace.event('Smart Management: ENABLED');
             const rhcNotConfigured = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client));
             if (!_.isEmpty(rhcNotConfigured)) {
-                satellites.push({id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'});
+                const result = {id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'};
+                trace.event(`smart_management && !system.rhc_client: ${JSON.stringify(result)}`);
+                satellites.push(result);
             }
         }
     }
+
+    trace.leave();
 }
 
 async function fetchRHCStatuses (satellites, org_id) {
@@ -724,14 +769,21 @@ exports.generateUuid = function () {
 };
 
 exports.getConnectionStatus = async function (remediation, account, org_id, smart_management, rhc_enabled) {
+    trace.enter(`fifi.getConnectionStatus`);
+
     // get list of system_ids
     // fetch system details for each system_id -> systems[]
     // get (sat_id, sat_org_id, sat_version) for each receptor satellite
     // get rhc_client_id for each rhc system
     // get sat_rhc_client (rhc_id) for rhc satellites
+
+    trace.event('Get system_ids');
     const systemsIds = _(remediation.issues).flatMap('systems').map('system_id').uniq().sort().value();
+
+    trace.event(`Get system details for system ids: ${systemsIds}`);
     const systems = await fetchSystems(systemsIds);
 
+    trace.event(`Populate satellite facts for: ${JSON.stringify(systems)}`);
     await P.map(systems, async system => {
         const satelliteFacts = await getSatelliteFacts(system.facts);
         system.satelliteId = satelliteFacts.satelliteId;
@@ -739,9 +791,18 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
         system.satelliteVersion = satelliteFacts.satelliteVersion;
     });
 
+    trace.event(`Get RHC client ids for systems`);
     await fetchRHCClientId(systems, systemsIds);
+
+    trace.event(`Get satellite RHC client ids for systems`);
     await fetchSatRHCClientId(systems);
+
+    trace.event(`systems: ${JSON.stringify(systems)}`);
+
+    trace.event('Group systems into rhc or receptor (& rhc direct)');
     const [rhcSatelliteSystems, receptorSatelliteSystems] = _.partition(systems, system => { return !_.isNull(system.sat_rhc_client); });
+
+    trace.event('Extract list of receptor satellites (& rhc direct)');
     const receptorSatellites = _(receptorSatelliteSystems).groupBy('satelliteId').mapValues(receptorSatelliteSystems => ({
         id: receptorSatelliteSystems[0].satelliteId,
         org_id: receptorSatelliteSystems[0].satelliteOrgId,
@@ -750,14 +811,17 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
         // only pick on one of them as we wouldn't be able to tell them apart based on responses from Satellite
         systems: _(receptorSatelliteSystems).sortBy('id').uniqBy(generator.systemToHost).value()
     })).values().value();
+    trace.event(`Recpetor satellites (& rhc direct): ${JSON.stringify(receptorSatellites)}`);
 
     let rhcSatellites = [];
     if (!_.isEmpty(rhcSatelliteSystems)) {
         rhcSatellites = await defineRHCSatellites(rhcSatelliteSystems, org_id);
+        trace.event(`rhc satellites: ${JSON.stringify(rhcSatellites)}`);
     }
 
     if (!_.isEmpty(receptorSatellites)) {
         await defineRHCEnabledExecutor(receptorSatellites, smart_management, rhc_enabled, org_id);
+        trace.event(`Defined receptor (& rhc direct) executors: ${JSON.stringify(receptorSatellites)}`);
     }
 
     if (smart_management) {
@@ -771,7 +835,11 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
     const concatSatellites = _.concat(rhcSatellites, receptorSatellites);
 
     // this seems to ommit sat_rhc_client :-/ ...
-    return normalize(concatSatellites, smart_management);
+    const result = normalize(concatSatellites, smart_management);
+
+    trace.leave(`return result: ${JSON.stringify(result)}`);
+
+    return result;
 };
 
 exports.filterIssuesPerExecutor = async function (systems, remediationIssues) {
