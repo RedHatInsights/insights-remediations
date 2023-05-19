@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const pino = require('pino');
+const pinoHttp = require('pino-http');
 const config = require('../config');
 const cls = require('./cls');
 
@@ -58,10 +59,32 @@ function buildTransport () {
 
 const serializers = {
     req: value => {
-        const result = pino.stdSerializers.req(value);
+        const result = pino.stdSerializers.req(value); // not 100% sure why we do this,
+        // as value is already serialized.  This does seem to strip out a bunch
+        // of headers, though...
         result.identity = value.raw?.identity;
         result.headers = headersSerializer(result.headers);
         return result;
+    },
+    res: value => {
+        const req = value.raw.req;
+
+        // handle trace data
+        if (req.trace) {
+            const now = Date.now();
+            const start = value.raw[pinoHttp.startTime];
+
+            // log trace data if...
+            if (
+                req.trace.force ||                         // forced tracing
+                (now - start) > req.trace.threshold_ms ||  // time limit exceeded
+                value.statusCode >= 400                    // an error condition
+            ) {
+                value.trace = req.trace.format();
+            }
+        }
+
+        return value;
     },
     err: errorSerializer,
     cause: errorSerializer,
@@ -95,7 +118,7 @@ function getLogger () {
 
 // Export a logger proxy, so we can redirect logging calls to req.logger (a
 // child logger that has an additional reqID correlation parameter) if we're
-// called in the context of a request, otherwise pass the call onto the default
+// called in the context of a request.  Otherwise, pass the call onto the default
 // logger.
 module.exports = new Proxy (logger, {
     get (target, key, receiver) {
@@ -103,7 +126,7 @@ module.exports = new Proxy (logger, {
 
         const result = Reflect.get(logger, key, receiver);
         if (typeof result === 'function') {
-            return result.bind(logger); // bind so that we do not proxy inner calls
+            return result.bind(logger); // bind so that we do not proxy inner calls (??)
         }
 
         return result;

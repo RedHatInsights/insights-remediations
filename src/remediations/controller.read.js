@@ -6,6 +6,7 @@ const etag = require('etag');
 const JSZip = require('jszip');
 const errors = require('../errors');
 const log = require('../util/log');
+const trace = require('../util/trace');
 const issues = require('../issues');
 const queries = require('./remediations.queries');
 const format = require('./remediations.format');
@@ -15,7 +16,6 @@ const identifiers = require('../util/identifiers');
 const generator = require('../generator/generator.controller');
 const users = require('../connectors/users');
 const fifi = require('./fifi');
-const Trace = require('../util/trace');
 
 const notFound = res => res.status(404).json();
 const noContent = res => res.sendStatus(204);
@@ -101,11 +101,7 @@ function inferNeedsReboot (remediation) {
 }
 
 exports.list = errors.async(async function (req, res) {
-    // create a Trace object for this call and attach to req
-    const trace = new Trace('exports.list');
-    let log_trace_info = false;
-
-    req.trace = trace;
+    trace.enter('controller.read.list');
 
     trace.event('Get sort and query parms from url');
     const {column, asc} = format.parseSort(req.query.sort);
@@ -166,7 +162,6 @@ exports.list = errors.async(async function (req, res) {
     // Check for playbook_runs in fields query param:
     //    &fields[data]=playbook_runs
     if (_.get(req, 'query.fields.data', []).includes('playbook_runs')) {
-        log_trace_info = true;
         trace.event('Include playbook_runs data');
         let iteration = 1;
         await P.map(remediations, async (remediation) => {
@@ -203,10 +198,6 @@ exports.list = errors.async(async function (req, res) {
     const resp = format.list(remediations, count.length, limit, offset, req.query.sort, req.query.system);
 
     trace.leave();
-
-    if (log_trace_info) {
-        log.info({trace: trace.toString()}, 'trace data');
-    }
 
     return res.json(resp);
 });

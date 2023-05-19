@@ -10,6 +10,8 @@ const probes = require('../probes');
 
 const fifi = require('./fifi');
 
+const trace = require('../util/trace');
+
 const notMatching = res => res.sendStatus(412);
 const notFound = res => res.sendStatus(404);
 
@@ -30,21 +32,29 @@ exports.checkExecutable = errors.async(async function (req, res) {
 });
 
 exports.connection_status = errors.async(async function (req, res) {
+    trace.force = true;
+    trace.enter('controller.fifi')
+
+    trace.event('Fetch remediation and check for rhcEnabled');
     const [remediation, rhcEnabled] = await Promise.all([
         queries.get(req.params.id, req.user.tenant_org_id, req.user.username),
         fifi.checkRhcEnabled()
     ]);
 
     if (!remediation) {
+        trace.leave('Remediation not found');
         return notFound(res);
     }
 
+    trace.event('Get smart management status')
     const smartManagement = await fifi.checkSmartManagement(remediation, req.entitlements.smart_management);
 
     if (!smartManagement) {
+        trace.leave('Smart management is disabled!');
         throw new errors.Forbidden();
     }
 
+    trace.event('Get connection status');
     const status = await fifi.getConnectionStatus(
         remediation,
         req.identity.account_number,
@@ -54,7 +64,11 @@ exports.connection_status = errors.async(async function (req, res) {
     );
 
     res.set('etag', etag(JSON.stringify(status)));
-    res.json(format.connectionStatus(status));
+    const result = format.connectionStatus(status);
+
+    res.json(result);
+
+    trace.leave(`Return result: ${JSON.stringify(result)}`);
 });
 
 exports.executePlaybookRuns = errors.async(async function (req, res) {
