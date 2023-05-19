@@ -21,6 +21,7 @@ const cls = require("../util/cls");
 const probes = require('../probes');
 const read = require('./controller.read');
 const queries = require('./remediations.queries');
+const {rhcSatJobDispatched} = require("../probes");
 
 const SATELLITE_NAMESPACE = Object.freeze({namespace: 'satellite'});
 const MIN_SAT_RHC_VERSION = [6, 11, 0];
@@ -480,6 +481,7 @@ async function defineRHCEnabledExecutor (satellites, smart_management, rhc_enabl
                     rhcStatus: (rhc_enabled) ? CONNECTED : DISABLED
                 };
                 satellites.push(entry);
+                if (entry.rhcStatus === DISABLED) trace.force = true;
                 trace.event(`Added entry: ${JSON.stringify(entry)}`);
             }
 
@@ -492,6 +494,7 @@ async function defineRHCEnabledExecutor (satellites, smart_management, rhc_enabl
                     rhcStatus: (rhc_enabled) ? DISCONNECTED : DISABLED
                 };
                 satellites.push(entry);
+                if (entry.rhcStatus === DISABLED) trace.force = true;
                 trace.event(`Added entry: ${JSON.stringify(entry)}`);
             }
         }
@@ -502,23 +505,26 @@ async function defineRHCEnabledExecutor (satellites, smart_management, rhc_enabl
             const noSmartManagement = _.filter(partitionedSystems[1], system => !system.marketplace);
             if (!_.isEmpty(noSmartManagement)) {
                 const result = {id: null, systems: noSmartManagement, type: 'RHC', rhcStatus: 'no_smart_management'};
-                trace.event(`!smart_management && !system.marketplace: ${JSON.stringify(result)}`);
                 satellites.push(result);
+                trace.force = true;
+                trace.event(`!smart_management && !system.marketplace: ${JSON.stringify(result)}`);
             }
 
             const rhcNotConfigured = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client) && system.marketplace);
             if (!_.isEmpty(rhcNotConfigured)) {
                 const result = {id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'};
-                trace.event(`!smart_management && !system.rhc_client: ${JSON.stringify(result)}`);
                 satellites.push(result);
+                trace.force = true;
+                trace.event(`!smart_management && !system.rhc_client: ${JSON.stringify(result)}`);
             }
         } else {
             trace.event('Smart Management: ENABLED');
             const rhcNotConfigured = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client));
             if (!_.isEmpty(rhcNotConfigured)) {
                 const result = {id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'};
-                trace.event(`smart_management && !system.rhc_client: ${JSON.stringify(result)}`);
                 satellites.push(result);
+                trace.force = true;
+                trace.event(`smart_management && !system.rhc_client: ${JSON.stringify(result)}`);
             }
         }
     }

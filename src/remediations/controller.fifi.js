@@ -32,6 +32,7 @@ exports.checkExecutable = errors.async(async function (req, res) {
 });
 
 exports.connection_status = errors.async(async function (req, res) {
+    trace.force = true;
     trace.enter('controller.fifi')
 
     trace.event('Fetch remediation and check for rhcEnabled');
