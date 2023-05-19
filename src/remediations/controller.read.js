@@ -6,6 +6,7 @@ const etag = require('etag');
 const JSZip = require('jszip');
 const errors = require('../errors');
 const log = require('../util/log');
+const trace = require('../util/trace');
 const issues = require('../issues');
 const queries = require('./remediations.queries');
 const format = require('./remediations.format');
@@ -15,7 +16,6 @@ const identifiers = require('../util/identifiers');
 const generator = require('../generator/generator.controller');
 const users = require('../connectors/users');
 const fifi = require('./fifi');
-const Trace = require('../util/trace');
 
 const notFound = res => res.status(404).json();
 const noContent = res => res.sendStatus(204);
@@ -101,10 +101,7 @@ function inferNeedsReboot (remediation) {
 }
 
 exports.list = errors.async(async function (req, res) {
-    // grab trace object from req
-    const trace = req.trace || Trace.dummy;
-
-    trace.enter('exports.list');
+    trace.enter('controller.read.list');
 
     trace.event('Get sort and query parms from url');
     const {column, asc} = format.parseSort(req.query.sort);
