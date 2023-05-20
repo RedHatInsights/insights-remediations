@@ -80,7 +80,7 @@ const serializers = {
                 (now - start) > req.trace.threshold_ms ||  // time limit exceeded
                 value.statusCode >= 400                    // an error condition
             ) {
-                value.trace = req.trace.format();
+                value.trace = req.trace.toString();
             }
         }
 
