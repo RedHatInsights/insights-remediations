@@ -264,7 +264,7 @@ exports.getSystems = errors.async(async function (req, res) {
 exports.getSystemDetails = errors.async(async function (req, res) {
     trace.enter('controller.fifi.getSystemDetails');
     let system = await queries.getSystemDetails(
-        req.params.id,
+        req.params.id,  // Whaaaaat?.... req.params.id is the REMEDIATION id...
         req.params.playbook_run_id,
         req.params.system,
         req.user.tenant_org_id,
