@@ -311,7 +311,7 @@ exports.getRunHostDetails = async function (playbook_run_id, system_id) {
     trace.event(`playbook-dispatcher returned: ${JSON.stringify(rhcRuns)}`);
 
     if (!rhcRuns || !rhcRuns.data) {
-        trace.event('playbook-dispatcher returned nothing useful!');
+        trace.leave('playbook-dispatcher returned nothing useful!');
         return null; // didn't find any dispatcher runs for playbook_run_id...
     }
 
@@ -326,7 +326,7 @@ exports.getRunHostDetails = async function (playbook_run_id, system_id) {
         trace.event(`playbook-dispatcher/v1/run_hosts returned: ${JSON.stringify(rhcRunHosts)}`);
 
         if (!rhcRunHosts || !rhcRunHosts.data) {
-            trace.leave('No data for host in this run - continuing...');
+            trace.event('No data for host in this run - continuing...');
             continue; // didn't find any runHosts for dispatcher_run_id + system_id...
         }
 
