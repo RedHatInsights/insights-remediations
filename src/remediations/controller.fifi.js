@@ -262,8 +262,9 @@ exports.getSystems = errors.async(async function (req, res) {
 });
 
 exports.getSystemDetails = errors.async(async function (req, res) {
+    trace.enter('controller.fifi.getSystemDetails');
     let system = await queries.getSystemDetails(
-        req.params.id,
+        req.params.id,  // Whaaaaat?.... req.params.id is the REMEDIATION id...
         req.params.playbook_run_id,
         req.params.system,
         req.user.tenant_org_id,
@@ -272,21 +273,30 @@ exports.getSystemDetails = errors.async(async function (req, res) {
 
     if (system) {
         system = system.toJSON();
+        trace.event('Found (receptor?) db entry');
     }
 
     if (!system) {
         // rhc-direct or rhc-satellite system
+        trace.event('get RHC system/satellite details from playbook-dispatcher');
         system = await fifi.getRunHostDetails(req.params.playbook_run_id, req.params.system);
 
         if (!system) {
+            trace.leave('RHC system/satellite not found!');
+            trace.force = true;
             return notFound(res);
         }
     }
+
+    trace.event(`raw system info: ${JSON.stringify(system)}`);
 
     const formated = format.playbookSystemDetails(system);
     const currentEtag = etag(JSON.stringify(formated));
 
     res.set('etag', currentEtag);
 
+    trace.event(`returning: ${JSON.stringify(formated)}`);
+
+    trace.leave();
     res.status(200).send(formated);
 });

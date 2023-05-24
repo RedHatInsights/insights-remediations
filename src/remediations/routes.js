@@ -58,5 +58,5 @@ module.exports = function (router) {
         .get(openapi('getPlaybookRunSystems'), rbacRead, fifi.getSystems);
 
     router.route('/remediations/:id/playbook_runs/:playbook_run_id/systems/:system')
-        .get(openapi('getPlaybookRunSystemDetails'), rbacRead, fifi.getSystemDetails);
+        .get(trace, openapi('getPlaybookRunSystemDetails'), rbacRead, fifi.getSystemDetails);
 };
