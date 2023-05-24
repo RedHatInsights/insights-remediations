@@ -37,7 +37,7 @@ class Trace {
     }
 
     leave (message) {
-        const func = this.fn.pop();
+        const func = this.fn.pop() ?? {label: '<underflow>', timestamp: Date.now()};
         const internal_label = message ?? func.label;
         const now = Date.now();
         this.padding = '  '.repeat(this.fn.length);
