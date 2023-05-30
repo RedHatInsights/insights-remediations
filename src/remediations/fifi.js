@@ -221,18 +221,20 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
 exports.formatRunHosts = async function (rhcRuns, playbook_run_id) {
     let hosts = [];
 
-    for (const run of rhcRuns.data) {
-        // get dispatcher run hosts...
-        const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run.id);
-        const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
+    if (rhcRuns?.data) {
+        for (const run of rhcRuns.data) {
+            // get dispatcher run hosts...
+            const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run.id);
+            const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
 
-        hosts.push( ... _.map(rhcRunHosts.data, host => ({
-            system_id: host.inventory_id,
-            system_name: host.host,
-            status: (host.status === 'timeout' ? 'failure' : host.status),
-            updated_at: run.updated_at,
-            playbook_run_executor_id: playbook_run_id
-        })));
+            hosts.push(..._.map(rhcRunHosts.data, host => ({
+                system_id: host.inventory_id,
+                system_name: host.host,
+                status: (host.status === 'timeout' ? 'failure' : host.status),
+                updated_at: run.updated_at,
+                playbook_run_executor_id: playbook_run_id
+            })));
+        }
     }
 
     return hosts;
@@ -347,7 +349,7 @@ exports.combineHosts = async function (rhcRunHosts, systems, playbook_run_id, fi
     rhcRunHosts = await exports.formatRunHosts(rhcRunHosts, playbook_run_id);
 
     _.forEach(rhcRunHosts, host => {
-        if (!filter_hostname || host.system_name.indexOf(filter_hostname)) {
+        if (!filter_hostname || host.system_name.indexOf(filter_hostname) >= 0) {
             systems.push(host);
         }
     });
