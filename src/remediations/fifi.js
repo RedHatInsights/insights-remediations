@@ -249,10 +249,6 @@ function formatRHCHostDetails (host, details, playbook_run_id) {
     };
 }
 
-function pushRHCSystem (host, systems) {
-    systems.push(host);
-}
-
 function pushRHCExecutor (rhcRuns, satRun) {
     for (const rhcRun of rhcRuns) {
         satRun.executors.push({
@@ -315,6 +311,10 @@ exports.getRunHostDetails = async function (playbook_run_id, system_id) {
         return null; // didn't find any dispatcher runs for playbook_run_id...
     }
 
+    // TODO: Don't do this; it's really inefficient.  Determine the
+    //  playbook-dispatcher run_id for this host/playbook run and fetch the
+    //  results that way.
+
     // For each dispatcher run in rhcRuns
     //   get run_hosts for this run_id and system_id
     //   return the first match found
@@ -343,11 +343,13 @@ exports.getRunHostDetails = async function (playbook_run_id, system_id) {
     return null; // didn't find any systems...
 };
 
-exports.combineHosts = async function (rhcRunHosts, systems, playbook_run_id) {
+exports.combineHosts = async function (rhcRunHosts, systems, playbook_run_id, filter_hostname = null) {
     rhcRunHosts = await exports.formatRunHosts(rhcRunHosts, playbook_run_id);
 
     _.forEach(rhcRunHosts, host => {
-        pushRHCSystem(host, systems);
+        if (!filter_hostname || host.system_name.indexOf(filter_hostname)) {
+            systems.push(host);
+        }
     });
 };
 

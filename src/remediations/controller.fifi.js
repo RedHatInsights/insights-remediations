@@ -208,7 +208,7 @@ exports.getSystems = errors.async(async function (req, res) {
     const {column, asc} = format.parseSort(req.query.sort);
     const {limit, offset} = req.query;
     // eslint-disable-next-line prefer-const
-    let [systems, rhcRunHosts] = await Promise.all([
+    let [systems, rhcRuns] = await Promise.all([
         queries.getSystems(
             req.params.id,
             req.params.playbook_run_id,
@@ -220,18 +220,32 @@ exports.getSystems = errors.async(async function (req, res) {
         fifi.getRHCRuns(req.params.playbook_run_id)
     ]);
 
-    // combine RHC and receptor hosts if needed
-    if (!req.query.ansible_host && rhcRunHosts) {  // not scoped to a single system and we have rhc-direct hosts...
-        if (req.query.executor && _.isEmpty(systems)) { // scoped to an executor that's not receptor...
-            systems = await fifi.formatRunHosts(rhcRunHosts, req.params.playbook_run_id); // list of systems is just the rhc-direct hosts
-        }
+    // TODO: REMEDY-279 - ?ansible_host= is ignored for RHC hosts
+    // Ugh... so here are the possibilities:
+    //   systems are either:
+    //      RHC-direct   : from playbook-dispatcher (run_id)
+    //      RHC-sat      : from playbook-dispatcher (run_id)
+    //      receptor-sat : from db (run_id, ?executor)
+    //
+    //   ?ansible_host=<filter host substring>
+    //   ?executor=<executor uuid>
+    //
+    //   if ?ansible_host then we need to filter all queries (partial matches!)
+    //   if ?executor then we can stop searching when we find an executor match
 
-        if (!req.query.executor) { // not scoped to an executor, merge any rhc-direct and receptor hosts
-            await fifi.combineHosts(rhcRunHosts, systems, req.params.playbook_run_id);
-        }
+    if (!req.query.executor || _.isEmpty(systems)) {
+        // request not scoped to a single _receptor_ executor...
+        // merge RHC hosts, scoped to :executor with substring :ansible_host
+        // (N.B. executor_id === plabook_run_id for RHC)
+        await fifi.combineHosts(
+            rhcRuns,
+            systems,
+            req.params.playbook_run_id,
+            req.query.ansible_host);
     }
-
-    // perhaps we scoped this to a non-existent receptor host?
+    
+    // did we scope this to a non-existent host / executor or does the
+    // playbook run itself just not exist?
     if (_.isEmpty(systems)) {
         const remediation = await queries.getRunDetails(
             req.params.id,
@@ -240,6 +254,7 @@ exports.getSystems = errors.async(async function (req, res) {
             req.user.username
         );
 
+        // return 404 if the run just doesn't exist
         if (!remediation) {
             return notFound(res);
         }
