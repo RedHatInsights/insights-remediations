@@ -381,20 +381,35 @@ exports.combineRuns = async function (remediation) {
 };
 
 async function fetchRHCClientId (systems, systemIds) {
+    trace.enter('fifi.fetchRHCClientId');
+
+    trace.event(`Get system profile details for: ${systemIds}`);
     const systemProfileDetails = await inventory.getSystemProfileBatch(systemIds);
 
+    trace.event('Update rhc_client and marketplace');
     _.forEach(systems, system => {
         system.rhc_client = systemProfileDetails[system.id].system_profile.rhc_client_id;
         system.marketplace = systemProfileDetails[system.id].system_profile.is_marketplace;
     });
+
+    trace.event(`systems = ${JSON.stringify(systems)}`);
+    trace.leave();
 }
 
 async function fetchSatRHCClientId (systems) {
+    trace.enter('fifi.fetchSatRHCClientId');
+
     await P.map(systems, async system => {
+        trace.event(`Fetching details for: ${JSON.stringify(system)}`);
         if (checkSatVersionForRhc(system.satelliteVersion) && !_.isNull(system.satelliteId)) {
+            trace.event('Get satellite details from Sources');
             const sourcesDetails = await sources.getSourceInfo([system.satelliteId]);
+            trace.event(`details: ${JSON.stringify(sourcesDetails)}`);
+
             const id = _(sourcesDetails).get([system.satelliteId, 'id']);
+            trace.event(`Get sources connection details for satellite: ${id}`);
             const sourcesRHCDetails = await sources.getRHCConnections(id);
+            trace.event(`Connections: ${JSON.stringify(sourcesRHCDetails)}`);
 
             log.info({sourcesDetails: sourcesDetails}, 'sourcesDetails');
             log.info({sourcesRHCDetails: sourcesRHCDetails}, 'sourcesRHCDetails');
@@ -408,6 +423,9 @@ async function fetchSatRHCClientId (systems) {
             system.sat_rhc_client = null;
         }
     });
+
+    trace.event(`systems: ${JSON.stringify(systems)}`);
+    trace.leave();
 }
 
 async function defineDirectConnectedRHCSystems (executor, smart_management, org_id) {
