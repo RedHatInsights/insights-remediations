@@ -14,7 +14,7 @@ module.exports = class RemediationPlay extends Play {
 
     generateHeader () {
         return HEADER_TEMPLATE.render({
-            description: this.description,
+            description: this.description.split('\n'), // handle newlines
             identifier: `${this.id.full},${this.resolution.type}`,
             version: `${this.resolution.version || 'unknown'}`
         });
