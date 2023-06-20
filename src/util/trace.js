@@ -116,6 +116,18 @@ module.exports = new Proxy(dummy, {
 
         // return dummy object attr if no req.trace
         return Reflect.get(target, key, receiver);
+    },
+
+    set (obj, prop, value) {
+        const trace = cls.getReq()?.trace;
+
+        if (trace) {
+            return Reflect.set(trace, prop, value);
+        }
+
+        // return dummy object attr if no req.trace
+        this[prop] = Object.assign({}, );
+        return Reflect.set(obj, prop, value);
     }
 });
 
