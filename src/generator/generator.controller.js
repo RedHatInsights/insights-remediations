@@ -13,6 +13,7 @@ const identifiers = require('../util/identifiers');
 const erratumPlayAggregator = require('./erratumPlayAggregator');
 const issueManager = require('../issues');
 const log = require('../util/log');
+const trace = require('../util/trace');
 const db = require('../db');
 const probes = require('../probes');
 const { commit } = require('../util/version');
@@ -27,23 +28,37 @@ exports.normalizeIssues = function (issues) {
 };
 
 exports.playbookPipeline = async function ({issues, auto_reboot = true}, remediation = false, strict = true, localhost = false) {
-    await exports.resolveSystems(issues, strict);
-    _.forEach(issues, issue => issue.id = identifiers.parse(issue.id));
+    trace.enter('generator.controller.playbookPipeline');
 
+    trace.event('Fetch systems...');
+    await exports.resolveSystems(issues, strict);
+
+    trace.event('Parse issue identifiers...');
+    _.forEach(issues, issue => {
+        issue.id = identifiers.parse(issue.id);
+        trace.event(`issue.id = ${issue.id}`);
+    });
+
+    trace.event('Get play snippets for each issue...');
     issues = await P.map(issues, issue => issueManager.getPlayFactory(issue.id).createPlay(issue, strict).catch((e) => {
+        trace.event(`Caught error getting snippet for: ${JSON.stringify(issue.id)}`);
+
         if (strict) {
             probes.failedGeneration(issue.id);
             throw e;
         }
 
+        trace.event(`Skipping issue: ${issue.id}`);
         log.warn(e, `Skipping unknown issue: ${issue.id}`);
     })).filter(issue => issue);
 
     if (issues.length === 0) {
+        trace.leave('Returning: no issues');
         return;
     }
 
     if (localhost) {
+        trace.event('Set hosts to \'localhost\'...');
         issues.forEach(issue => {
             issue.hosts = ['localhost'];
         });
@@ -59,26 +74,41 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
             version: resolution.version || null,
             hosts}))
     };
+    trace.event(`Canonical definition: ${JSON.stringify(definition)}`);
 
+    trace.event('Aggregate erratum plays...');
     issues = erratumPlayAggregator.process(issues);
+
+    trace.event('Add reboot play...');
     issues = addRebootPlay(issues, auto_reboot, localhost);
 
     // post run check-in is already included in the localhost reboot snippet...
     if ( !(localhost && auto_reboot)) {
+        trace.event('Add post run check-in play...');
         issues = addPostRunCheckIn(issues);
     }
 
+    trace.event('Add dianosis play...');
     issues = addDiagnosisPlay(issues, remediation);
 
+    trace.event('Render yaml...');
     const yaml = format.render(issues, remediation);
+
+    trace.event('Validate yaml...')
     format.validate(yaml);
 
+    trace.leave();
     return { yaml, definition };
 };
 
 exports.generate = errors.async(async function (req, res) {
+    trace.enter('generator.controller.generate');
+
     const input = { ...req.body };
+    trace.event(`generate playbook for: ${JSON.stringify(input)}`);
     const playbook = await exports.playbookPipeline(input);
+
+    trace.leave();
     return exports.send(req, res, playbook);
 });
 
@@ -87,19 +117,28 @@ exports.systemToHost = function (system) {
 };
 
 exports.resolveSystems = async function (issues, strict = true) {
+    trace.enter('generator.controller.resolveSystems');
+
     const systemIds = _(issues).flatMap('systems').uniq().value();
+    trace.event(`System IDs: ${JSON.stringify(systemIds)}`);
 
     // bypass cache as ansible_host may change so we want to grab the latest one
+    trace.event('Get system details...');
     const systems = await inventory.getSystemDetailsBatch(systemIds, true);
+    trace.event(`Systems: ${systems}`);
 
     if (!strict) {
+        trace.event('Remove systems for which we have no inventory entry...');
         _.forEach(issues, issue => issue.systems = issue.systems.filter((id) => {
             // eslint-disable-next-line security/detect-object-injection
             return (systems.hasOwnProperty(id));
         }));
+        trace.event(`Filtered issues: ${JSON.stringify(issues)}`);
     }
 
+    trace.enter('Verify that there are no systems for which we have no inventory entry...');
     _.forEach(issues, issue => issue.hosts = issue.systems.map(id => {
+        trace.event(`Checking id: ${id}`);
         if (!systems.hasOwnProperty(id)) {
             probes.failedGeneration(issue.id);
             throw errors.unknownSystem(id);
@@ -110,11 +149,14 @@ exports.resolveSystems = async function (issues, strict = true) {
         const system = systems[id];
         return exports.systemToHost(system);
     }));
+    trace.leave('All systems verified!');
 
     if (!strict) {
+        trace.event('Remove issues with no systems...')
         issues = _.filter(issues, (issue) => (issue.systems.length > 0));
     }
 
+    trace.leave(`Returning: ${JSON.stringify(issues)}`);
     return issues;
 };
 
