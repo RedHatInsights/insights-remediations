@@ -407,6 +407,9 @@ async function fetchSatRHCClientId (systems) {
             trace.event(`details: ${JSON.stringify(sourcesDetails)}`);
 
             const id = _(sourcesDetails).get([system.satelliteId, 'id']);
+            if (!id) {
+                // sources can't find the satellite...
+            }
             trace.event(`Get sources connection details for satellite: ${id}`);
             const sourcesRHCDetails = await sources.getRHCConnections(id);
             trace.event(`Connections: ${JSON.stringify(sourcesRHCDetails)}`);
