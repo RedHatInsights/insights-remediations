@@ -6,6 +6,7 @@ const { host, revalidationInterval } = require('../../config').vmaas;
 const URI = require('urijs');
 const Connector = require('../Connector');
 const metrics = require('../metrics');
+const trace = require('../../util/trace');
 
 module.exports = new class extends Connector {
     constructor () {
@@ -28,23 +29,36 @@ module.exports = new class extends Connector {
     }
 
     getCve (id, refresh = false) {
+        trace.enter('connectors/vmaas/vmaas.getCve');
+
         const uri = new URI(host);
         uri.path('/api/v1/cves');
         uri.segment(id);
 
-        return this.doHttp({
+        const options = {
             uri: uri.toString(),
             method: 'GET',
             json: true,
             headers: this.getForwardedHeaders(false)
-        },
-        {
+        };
+
+        const caching = {
             refresh,
             revalidationInterval,
             cacheable: body => body.pages === 1 // only cache responses with exactly 1 match
-        },
-        this.metrics
-        ).then(res => _.get(res, ['cve_list', id], null));
+        };
+
+        trace.event(`GET options: ${options}`);
+        trace.event(`GET caching: ${caching}`);
+
+        const promise = this.doHttp(options, caching, this.metrics)
+            .then(res => {
+                trace.event(`GET results: ${JSON.stringify(res)}`);
+                return _.get(res, ['cve_list', id], null);
+            });
+
+        trace.leave(`Returning promise: ${JSON.stringify(promise)}`);
+        return promise;
     }
 
     getPackage (id, refresh = false) {
