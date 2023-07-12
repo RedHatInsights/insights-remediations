@@ -6,23 +6,36 @@ const Factory = require('./Factory');
 const ResolutionPlay = require('../plays/ResolutionPlay');
 const ErratumPlay = require('../plays/ErratumPlay');
 const ErratumResolution = require('../../resolutions/ErratumResolution');
+const trace = require('../../util/trace');
 
 module.exports = class CVEFactory extends Factory {
 
     async createPlay (issue, strict = true) {
+        trace.enter('CSAWFactory.createPlay');
+
+        trace.event(`Resolve resolutions for id: ${issue.id}`);
         const {id, hosts, resolution} = issue;
         const resolver = issues.getHandler(id).getResolutionResolver();
         const resolutions = await resolver.resolveResolutions(id, strict);
+        trace.event(`Resolutions: ${JSON.stringify(resolutions)}`);
 
         if (!resolutions.length) {
+            trace.leave('Unknown issue!');
             throw errors.unknownIssue(id);
         }
 
+        trace.event('Disambiguate resolutions...');
         const disambiguatedResolution = this.disambiguate(resolutions, resolution, id, strict);
+        trace.event(`Disambiguated resolution: ${JSON.stringify(disambiguatedResolution)}`);
+
         if (ErratumResolution.isErratumResolution(disambiguatedResolution)) {
-            return new ErratumPlay(id, hosts, disambiguatedResolution, disambiguatedResolution.description);
+            const result = new ErratumPlay(id, hosts, disambiguatedResolution, disambiguatedResolution.description);
+            trace.event(`Returning Erratum play: ${JSON.stringify(result)}`);
+            return result;
         }
 
-        return new ResolutionPlay(id, hosts, disambiguatedResolution);
+        const result = new ResolutionPlay(id, hosts, disambiguatedResolution);
+        trace.leave(`Returning Resolution play: ${JSON.stringify(result)}`);
+        return result;
     }
 };
