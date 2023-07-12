@@ -6,6 +6,7 @@ const assert = require('assert');
 const Connector = require('../Connector');
 const {host, insecure} = require('../../config').vulnerabilities;
 const metrics = require('../metrics');
+const trace = require('../../util/trace');
 
 module.exports = new class extends Connector {
     constructor () {
@@ -45,23 +46,33 @@ module.exports = new class extends Connector {
     }
 
     async getResolutions (issue) {
+        trace.enter('connectors/vulnerabilities/impl.getResolutions');
+
         const uri = this.buildUri(host, 'vulnerability', 'v1', 'playbooks', 'templates', issue);
 
-        const resolutions = await this.doHttp({
+        const options = {
             uri: uri.toString(),
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
             headers: this.getForwardedHeaders()
-        },
+        };
+
+        trace.event(`GET options: ${JSON.stringify(options)}`);
+
+        const resolutions = await this.doHttp(
+        options,
         false,
         this.systemsMetrics);
 
+        trace.event(`Fetched resolutions: ${JSON.stringify(resolutions)}`);
+
         if (!resolutions) {
+            trace.leave('No resolutions found!');
             return [];
         }
 
-        return _.map(resolutions.data, resolution =>
+        const result =  _.map(resolutions.data, resolution =>
             _(resolution)
             .pick(['description', 'play', 'resolution_type', 'resolution_risk', 'version'])
             .defaults({
@@ -71,6 +82,9 @@ module.exports = new class extends Connector {
             })
             .value()
         );
+
+        trace.leave(`Returning result: ${JSON.stringify(result)}`);
+        return result;
     }
 
     async ping () {
