@@ -42,6 +42,7 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
     trace.event('Get play snippets for each issue...');
     issues = await P.map(issues, issue => issueManager.getPlayFactory(issue.id).createPlay(issue, strict).catch((e) => {
         trace.event(`Caught error getting snippet for: ${JSON.stringify(issue.id)}`);
+        trace.event(`(error: ${JSON.stringify(e)})`)
 
         if (strict) {
             probes.failedGeneration(issue.id);
