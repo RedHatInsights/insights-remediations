@@ -2,7 +2,7 @@
 
 const cls = require('./cls');
 
-const DEFAULT_THRESHOLD = 500;  // default timeout in ms
+const DEFAULT_THRESHOLD = 1000;  // default timeout in ms
 
 // Simple tracing facility with elapsed timestamps, aggregates a series of entries
 // into one log message.
