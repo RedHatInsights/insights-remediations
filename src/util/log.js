@@ -36,25 +36,38 @@ function headersSerializer (headers) {
 }
 
 function buildTransport () {
-    if (!config.logging.cloudwatch.enabled) {
-        return {
+    let options = {};
+
+    if (config.logging.cloudwatch.enabled) {
+        options = {targets: [
+                {
+                    target: 'pino/file',
+                    options: { destination: 1}, // stdout
+                    level: config.logging.level
+                },
+                {
+                    target: 'pino-cloudwatch',
+                    level: config.logging.cloudwatch.level,
+                    options: { ...config.logging.cloudwatch.options }
+                }
+            ]};
+    }
+
+    else {
+        options = {
             target: 'pino-pretty',
             level: config.logging.level
         };
     }
 
-    return {targets: [
-            {
-                target: 'pino/file',
-                options: { destination: 1}, // stdout
-                level: config.logging.level
-            },
-            {
-                target: 'pino-cloudwatch',
-                level: config.logging.cloudwatch.level,
-                options: { ...config.logging.cloudwatch.options }
-            }
-        ]};
+    const transport = pino.transport(options);
+
+    // catch any transport errors so they don't take node down!
+    transport.on('error', err => {
+        console.error('Caught pino transport error', err);
+    });
+
+    return transport;
 }
 
 const serializers = {
@@ -91,12 +104,14 @@ const serializers = {
     options: optionsSerialized
 };
 
-const logger = pino({
-    name: 'remediations',
-    level: config.logging.level,
-    serializers,
-    transport: buildTransport()
-});
+const logger = pino(
+    {
+        name: 'remediations',
+        level: config.logging.level,
+        serializers
+    },
+    buildTransport()
+);
 
 if (config.logging.cloudwatch.enabled) {
     logger.info({group: config.logging.cloudwatch.options.group}, 'CloudWatch enabled');
