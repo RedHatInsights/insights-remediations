@@ -53,7 +53,7 @@ module.exports = new class extends Connector {
 
         const promise = this.doHttp(options, caching, this.metrics)
             .then(res => {
-                trace.event(`GET results: ${JSON.stringify(res)}`);
+                trace.event(`Got data back!`);
                 return _.get(res, ['cve_list', id], null);
             });
 

@@ -62,11 +62,6 @@ function buildTransport () {
 
     const transport = pino.transport(options);
 
-    // catch any transport errors so they don't take node down!
-    transport.on('error', err => {
-        console.error('Caught pino transport error', err);
-    });
-
     return transport;
 }
 
