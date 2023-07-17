@@ -6,6 +6,8 @@ const pinoHttp = require('pino-http');
 const config = require('../config');
 const cls = require('./cls');
 
+const MAX_MESSAGE_SIZE = 262140; // cloudwatch max = 262144
+
 // avoid writing down the entire response buffer
 function errorSerializer (e) {
     if (!e) {
@@ -88,7 +90,10 @@ const serializers = {
                 (now - start) > req.trace.threshold_ms ||  // time limit exceeded
                 value.statusCode >= 400                    // an error condition
             ) {
-                value.trace = req.trace.toString();
+                // limit trace message size!  Since the error is most likely to
+                // be at the end, drop characters from the front...
+                const max_trace_len = MAX_MESSAGE_SIZE - value.length;
+                value.trace = req.trace.toString().slice(-max_trace_len);
             }
         }
 
