@@ -6,7 +6,7 @@ const pinoHttp = require('pino-http');
 const config = require('../config');
 const cls = require('./cls');
 
-const MAX_MESSAGE_SIZE = 262140; // cloudwatch max = 262144
+const MAX_MESSAGE_SIZE = 200000; // cloudwatch max = 262144
 
 // avoid writing down the entire response buffer
 function errorSerializer (e) {
@@ -94,6 +94,7 @@ const serializers = {
                 // be at the end, drop characters from the front...
                 const max_trace_len = MAX_MESSAGE_SIZE - value.length;
                 value.trace = req.trace.toString().slice(-max_trace_len);
+                console.log('Trace data truncated.');
             }
         }
 

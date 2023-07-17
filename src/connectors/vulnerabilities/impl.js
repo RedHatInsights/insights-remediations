@@ -65,12 +65,12 @@ module.exports = new class extends Connector {
         false,
         this.systemsMetrics);
 
-        trace.event(`Fetched resolutions: ${JSON.stringify(resolutions)}`);
-
         if (!resolutions) {
             trace.leave('No resolutions found!');
             return [];
         }
+
+        trace.event(`Got data back!`);
 
         const result =  _.map(resolutions.data, resolution =>
             _(resolution)
@@ -83,7 +83,7 @@ module.exports = new class extends Connector {
             .value()
         );
 
-        trace.leave(`Returning result: ${JSON.stringify(result)}`);
+        trace.leave(`Returning results`);
         return result;
     }
 
