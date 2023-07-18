@@ -417,10 +417,10 @@ async function fetchSatRHCClientId (systems) {
             log.info({sourcesDetails: sourcesDetails}, 'sourcesDetails');
             log.info({sourcesRHCDetails: sourcesRHCDetails}, 'sourcesRHCDetails');
 
-            if (sourcesRHCDetails) {
-                system.sat_rhc_client = (sourcesRHCDetails[0].availability_status === "available") ? sourcesRHCDetails[0].rhc_id : null;
-            } else {
+            if (_.isEmpty(sourcesRHCDetails)) {
                 system.sat_rhc_client = null;
+            } else {
+                system.sat_rhc_client = (sourcesRHCDetails[0].availability_status === "available") ? sourcesRHCDetails[0].rhc_id : null;
             }
         } else {
             system.sat_rhc_client = null;
