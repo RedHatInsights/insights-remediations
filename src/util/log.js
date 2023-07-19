@@ -93,11 +93,18 @@ const serializers = {
             ) {
                 // limit trace message size!  Since the error is most likely to
                 // be at the end, drop characters from the front...
-                const max_trace_len = MAX_MESSAGE_SIZE - JSON.stringify(result).length;
-                result.trace_max_len = max_trace_len;
-                result.trace = req.trace.toString().slice(-max_trace_len);
-                result.trace_len = result.trace.length;
-                console.log(`Trace data truncated for request: ${req.id}`);
+                const result_length = JSON.stringify(result).length;
+                const max_trace_len = MAX_MESSAGE_SIZE - result_length;
+                const trace_message = req.trace.toString();
+
+                result.trace = trace_message.slice(-max_trace_len);
+
+                if (trace_message.length > max_trace_len) {
+                    console.log(`Trace data truncated for request: ${req.id}`);
+                    console.log(`(result length: ${result_length}, \
+                        trace message length: ${trace_message.length}, \
+                        truncated length: ${max_trace_len})`);
+                }
             }
         }
 
