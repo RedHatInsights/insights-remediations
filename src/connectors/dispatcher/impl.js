@@ -77,9 +77,7 @@ module.exports = new class extends Connector {
             options.headers.Authorization = `PSK ${auth}`;
         }
 
-        log.info({postDetails: options}, 'V2PlaybookRunRequests POST');
         const result = await this.doHttp (options, false, this.postV2RunRequests);
-        log.info({result: result}, 'V2PlaybookRunRequests results');
 
         if (_.isEmpty(result)) {
             return null;
