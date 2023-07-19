@@ -78,6 +78,7 @@ const serializers = {
     },
     res: value => {
         const req = value.raw.req;
+        const result = pino.stdSerializers.res(value);
 
         // handle trace data
         if (req.trace) {
@@ -93,12 +94,14 @@ const serializers = {
                 // limit trace message size!  Since the error is most likely to
                 // be at the end, drop characters from the front...
                 const max_trace_len = MAX_MESSAGE_SIZE - value.length;
-                value.trace = req.trace.toString().slice(-max_trace_len);
-                console.log('Trace data truncated.');
+                result.trace = req.trace.toString().slice(-max_trace_len);
+                result.trace_max_len = max_trace_len;
+                result.trace_len = value.trace.length;
+                console.log(`Trace data truncated for request: ${req.id}`);
             }
         }
 
-        return value;
+        return result;
     },
     err: errorSerializer,
     cause: errorSerializer,
