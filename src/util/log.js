@@ -84,6 +84,8 @@ const serializers = {
         if (req.trace) {
             const now = Date.now();
             const start = value.raw[pinoHttp.startTime];
+            const elapsed = Date.now() - value.raw[pinoHttp.startTime];
+            console.log(`elapsed time = ${elapsed}, threshold = ${req.trace.threshold_ms}`);
 
             // log trace data if...
             if (
