@@ -86,7 +86,7 @@ const serializers = {
             // log trace data if...
             if (
                 req.trace.force ||                         // forced tracing
-                elapsed > req.trace.threshold_ms ||  // time limit exceeded
+                elapsed > req.trace.threshold_ms ||        // time limit exceeded
                 value.statusCode >= 400                    // an error condition
             ){
                 // limit trace message size!  Since the error is most likely to
@@ -99,8 +99,6 @@ const serializers = {
                     console.log(`Trace data truncated for request: ${req.id}`);
                     console.log(`(trace message length: ${trace_message.length})`);
                 }
-
-                value.trace = '(trace data goes here!)';
             }
         }
 
