@@ -78,6 +78,7 @@ const serializers = {
     },
     res: value => {
         const req = value.raw.req;
+        const result = pino.stdSerializers.res(value);
 
         // handle trace data
         if (req.trace) {
@@ -96,7 +97,7 @@ const serializers = {
                 const max_trace_len = MAX_MESSAGE_SIZE - result_length;
                 const trace_message = req.trace.toString();
 
-                result.trace = trace_message.slice(-max_trace_len);
+                value.trace = trace_message.slice(-max_trace_len);
 
                 if (trace_message.length > max_trace_len) {
                     console.log(`Trace data truncated for request: ${req.id}`);
@@ -107,7 +108,7 @@ const serializers = {
             }
         }
 
-        return result;
+        return value;
     },
     err: errorSerializer,
     cause: errorSerializer,
