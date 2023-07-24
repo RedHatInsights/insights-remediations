@@ -78,7 +78,6 @@ const serializers = {
     },
     res: value => {
         const req = value.raw.req;
-        const result = pino.stdSerializers.res(value);
 
         // handle trace data
         if (req.trace) {
