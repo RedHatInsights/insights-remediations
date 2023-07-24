@@ -6,7 +6,7 @@ const pinoHttp = require('pino-http');
 const config = require('../config');
 const cls = require('./cls');
 
-const MAX_MESSAGE_SIZE = 200000; // cloudwatch max = 262144
+const MAX_TRACE_SIZE = 200000; // cloudwatch max = 262144
 
 // avoid writing down the entire response buffer
 function errorSerializer (e) {
@@ -78,36 +78,26 @@ const serializers = {
     },
     res: value => {
         const req = value.raw.req;
-        const result = pino.stdSerializers.res(value);
 
         // handle trace data
         if (req.trace) {
-            const now = Date.now();
-            const start = value.raw[pinoHttp.startTime];
             const elapsed = Date.now() - value.raw[pinoHttp.startTime];
-            console.log(`elapsed time = ${elapsed}, threshold = ${req.trace.threshold_ms}`);
 
             // log trace data if...
             if (
                 req.trace.force ||                         // forced tracing
-                (now - start) > req.trace.threshold_ms ||  // time limit exceeded
+                elapsed > req.trace.threshold_ms ||  // time limit exceeded
                 value.statusCode >= 400                    // an error condition
             ) {
                 // limit trace message size!  Since the error is most likely to
                 // be at the end, drop characters from the front...
-                const result_length = JSON.stringify(result).length;
-                const max_trace_len = MAX_MESSAGE_SIZE - result_length;
                 const trace_message = req.trace.toString();
 
-                console.log(`result_length = ${result_length}, max_trace_len = ${max_trace_len}`);
-                value.trace = trace_message.slice(-max_trace_len);
-                console.log(`value.trace = ${value.trace}`);
+                value.trace = trace_message.slice(-MAX_TRACE_SIZE);
 
-                if (trace_message.length > max_trace_len) {
+                if (trace_message.length > MAX_TRACE_SIZE) {
                     console.log(`Trace data truncated for request: ${req.id}`);
-                    console.log(`(result length: ${result_length}, \
-                        trace message length: ${trace_message.length}, \
-                        truncated length: ${max_trace_len})`);
+                    console.log(`(trace message length: ${trace_message.length})`);
                 }
             }
         }
