@@ -99,7 +99,9 @@ const serializers = {
                 const max_trace_len = MAX_MESSAGE_SIZE - result_length;
                 const trace_message = req.trace.toString();
 
+                console.log(`result_length = ${result_length}, max_trace_len = ${max_trace_len}`);
                 value.trace = trace_message.slice(-max_trace_len);
+                console.log(`value.trace = ${value.trace}`);
 
                 if (trace_message.length > max_trace_len) {
                     console.log(`Trace data truncated for request: ${req.id}`);
