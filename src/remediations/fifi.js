@@ -15,11 +15,13 @@ const configManager = require('../connectors/configManager');
 const receptorConnector = require('../connectors/receptor');
 const dispatcher = require('../connectors/dispatcher');
 const log = require('../util/log');
+const trace = require('../util/trace');
 const cls = require("../util/cls");
 
 const probes = require('../probes');
 const read = require('./controller.read');
 const queries = require('./remediations.queries');
+const {rhcSatJobDispatched} = require("../probes");
 
 const SATELLITE_NAMESPACE = Object.freeze({namespace: 'satellite'});
 const MIN_SAT_RHC_VERSION = [6, 11, 0];
@@ -219,18 +221,20 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
 exports.formatRunHosts = async function (rhcRuns, playbook_run_id) {
     let hosts = [];
 
-    for (const run of rhcRuns.data) {
-        // get dispatcher run hosts...
-        const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run.id);
-        const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
+    if (rhcRuns?.data) {
+        for (const run of rhcRuns.data) {
+            // get dispatcher run hosts...
+            const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run.id);
+            const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
 
-        hosts.push( ... _.map(rhcRunHosts.data, host => ({
-            system_id: host.inventory_id,
-            system_name: host.host,
-            status: (host.status === 'timeout' ? 'failure' : host.status),
-            updated_at: run.updated_at,
-            playbook_run_executor_id: playbook_run_id
-        })));
+            hosts.push(..._.map(rhcRunHosts.data, host => ({
+                system_id: host.inventory_id,
+                system_name: host.host,
+                status: (host.status === 'timeout' ? 'failure' : host.status),
+                updated_at: run.updated_at,
+                playbook_run_executor_id: playbook_run_id
+            })));
+        }
     }
 
     return hosts;
@@ -245,10 +249,6 @@ function formatRHCHostDetails (host, details, playbook_run_id) {
         console: details.data[0].stdout,
         executor_id: playbook_run_id
     };
-}
-
-function pushRHCSystem (host, systems) {
-    systems.push(host);
 }
 
 function pushRHCExecutor (rhcRuns, satRun) {
@@ -296,6 +296,7 @@ exports.getRHCRuns = async function (playbook_run_id = null) {
 };
 
 exports.getRunHostDetails = async function (playbook_run_id, system_id) {
+    trace.enter('fifi.getRunHostDetails');
     // So... given the remediations playbook_run_id and a system_id find the matching
     // dispatcher run_hosts entry.  /dispatcher/runs?playbook_run_id will return an
     // entry for every RHC-direct host that was part of the playbook run, and one for
@@ -303,11 +304,18 @@ exports.getRunHostDetails = async function (playbook_run_id, system_id) {
     // and the system_id to query dispatcher run_hosts...
 
     const runsFilter = createDispatcherRunsFilter(playbook_run_id);
+    trace.event(`fetch playbook-dispatcher/v1/runs with filter: ${JSON.stringify(runsFilter)}`);
     const rhcRuns = await dispatcher.fetchPlaybookRuns(runsFilter, RUNSFIELDS);
+    trace.event(`playbook-dispatcher returned: ${JSON.stringify(rhcRuns)}`);
 
     if (!rhcRuns || !rhcRuns.data) {
+        trace.leave('playbook-dispatcher returned nothing useful!');
         return null; // didn't find any dispatcher runs for playbook_run_id...
     }
+
+    // TODO: Don't do this; it's really inefficient.  Determine the
+    //  playbook-dispatcher run_id for this host/playbook run and fetch the
+    //  results that way.
 
     // For each dispatcher run in rhcRuns
     //   get run_hosts for this run_id and system_id
@@ -315,27 +323,35 @@ exports.getRunHostDetails = async function (playbook_run_id, system_id) {
 
     for (const run of rhcRuns.data) {
         const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run.id, system_id);
+        trace.event(`fetch playbook-dispatcher/v1/run_hosts with filter: ${JSON.stringify(runHostsFilter)}`);
         const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RUNHOSTFIELDS)
+        trace.event(`playbook-dispatcher/v1/run_hosts returned: ${JSON.stringify(rhcRunHosts)}`);
 
         if (!rhcRunHosts || !rhcRunHosts.data) {
-            return null; // didn't find any runHosts for dispatcher_run_id + system_id...
+            trace.event('No data for host in this run - continuing...');
+            continue; // didn't find any runHosts for dispatcher_run_id + system_id...
         }
 
         if (rhcRunHosts.data) {
             // there should only ever be one run_hosts entry for a given system_id in a
             // dispatcher run, right?  Just grab the first entry...
-            return formatRHCHostDetails(run, rhcRunHosts, playbook_run_id);
+            const result = formatRHCHostDetails(run, rhcRunHosts, playbook_run_id);
+            trace.leave(`Found a match - returning: ${JSON.stringify(result)}`);
+            return result;
         }
     }
 
+    trace.leave('data for system not found');
     return null; // didn't find any systems...
 };
 
-exports.combineHosts = async function (rhcRunHosts, systems, playbook_run_id) {
+exports.combineHosts = async function (rhcRunHosts, systems, playbook_run_id, filter_hostname = null) {
     rhcRunHosts = await exports.formatRunHosts(rhcRunHosts, playbook_run_id);
 
     _.forEach(rhcRunHosts, host => {
-        pushRHCSystem(host, systems);
+        if (!filter_hostname || host.system_name.indexOf(filter_hostname) >= 0) {
+            systems.push(host);
+        }
     });
 };
 
@@ -365,37 +381,64 @@ exports.combineRuns = async function (remediation) {
 };
 
 async function fetchRHCClientId (systems, systemIds) {
+    trace.enter('fifi.fetchRHCClientId');
+
+    trace.event(`Get system profile details for: ${systemIds}`);
     const systemProfileDetails = await inventory.getSystemProfileBatch(systemIds);
 
+    trace.event('Update rhc_client and marketplace');
     _.forEach(systems, system => {
         system.rhc_client = systemProfileDetails[system.id].system_profile.rhc_client_id;
         system.marketplace = systemProfileDetails[system.id].system_profile.is_marketplace;
     });
+
+    trace.event(`systems = ${JSON.stringify(systems)}`);
+    trace.leave();
 }
 
 async function fetchSatRHCClientId (systems) {
+    trace.enter('fifi.fetchSatRHCClientId');
+
     await P.map(systems, async system => {
+        trace.event(`Fetching details for: ${JSON.stringify(system)}`);
         if (checkSatVersionForRhc(system.satelliteVersion) && !_.isNull(system.satelliteId)) {
+            trace.event('Get satellite details from Sources');
             const sourcesDetails = await sources.getSourceInfo([system.satelliteId]);
+            trace.event(`details: ${JSON.stringify(sourcesDetails)}`);
+
             const id = _(sourcesDetails).get([system.satelliteId, 'id']);
+            if (!id) {
+                // sources can't find the satellite...
+            }
+            trace.event(`Get sources connection details for satellite: ${id}`);
             const sourcesRHCDetails = await sources.getRHCConnections(id);
+            trace.event(`Connections: ${JSON.stringify(sourcesRHCDetails)}`);
 
             log.info({sourcesDetails: sourcesDetails}, 'sourcesDetails');
             log.info({sourcesRHCDetails: sourcesRHCDetails}, 'sourcesRHCDetails');
 
-            if (sourcesRHCDetails) {
-                system.sat_rhc_client = (sourcesRHCDetails[0].availability_status === "available") ? sourcesRHCDetails[0].rhc_id : null;
-            } else {
+            if (_.isEmpty(sourcesRHCDetails)) {
                 system.sat_rhc_client = null;
+            } else {
+                system.sat_rhc_client = (sourcesRHCDetails[0].availability_status === "available") ? sourcesRHCDetails[0].rhc_id : null;
             }
         } else {
             system.sat_rhc_client = null;
         }
     });
+
+    trace.event(`systems: ${JSON.stringify(systems)}`);
+    trace.leave();
 }
 
 async function defineDirectConnectedRHCSystems (executor, smart_management, org_id) {
+    trace.enter('fifi.defineDirectConnectedRHCSystems');
+
+    // split executor systems in rhc client or not, based on presence of rhc_client
+    // considering smart management and marketplace settings.
     let rhcSystems = [];
+
+    trace.event('find all eligible rhc systems');
     if (smart_management) {
         rhcSystems = _.partition(executor.systems, system => !_.isUndefined(system.rhc_client));
     } else {
@@ -404,13 +447,17 @@ async function defineDirectConnectedRHCSystems (executor, smart_management, org_
 
     // If there are no systems to check, return rhcSystems
     if (_.isEmpty(rhcSystems[0])) {
+        trace.leave('No eligible rhc systems...');
         return rhcSystems;
     }
 
     const dispatcherStatusRequest = _.map(rhcSystems[0], system => { return {recipient: system.rhc_client, org_id: String(org_id) }; });
+    trace.event(`Get run status from playbook-dispatcher for recipients: ${JSON.stringify(dispatcherStatusRequest)}`)
     const requestStatuses = await dispatcher.getPlaybookRunRecipientStatus(dispatcherStatusRequest);
+    trace.event(`Statuses: ${JSON.stringify(requestStatuses)}`);
 
     // partition systems containing rhc_client_ids by connection status
+    trace.event('Partition elligible systems by status')
     _.forEach(rhcSystems[0], system => {
         if (!_.isNull(requestStatuses)) {
             if (requestStatuses[system.rhc_client]) {
@@ -422,8 +469,10 @@ async function defineDirectConnectedRHCSystems (executor, smart_management, org_
             system.rhcStatus = false;
         }
     });
+
     rhcSystems[0] = _.partition(rhcSystems[0], system => system.rhcStatus === true);
 
+    trace.leave(`RHC systems with status: ${JSON.stringify(rhcSystems)}`);
     return rhcSystems;
 }
 
@@ -447,38 +496,75 @@ function getSatelliteFacts (facts) {
 }
 
 async function defineRHCEnabledExecutor (satellites, smart_management, rhc_enabled, org_id) {
+    trace.enter('fifi.defineRHCEnabledExecutor');
+
+    trace.event('Look for satellites without an id (i.e. rhc direct)');
     const satlessExecutor = _.find(satellites, satellite => satellite.id === null);
     if (satlessExecutor) {
         const partitionedSystems = await defineDirectConnectedRHCSystems(satlessExecutor, smart_management, org_id);
+        trace.event('Remove redundant executors');
         _.remove(satellites, executor => executor === satlessExecutor); // Remove redundant satless executor
 
         if (!_.isEmpty(partitionedSystems[0])) {
+            trace.event('Process eligible systems')
             if (!_.isEmpty(partitionedSystems[0][0])) {
-                satellites.push({id: null, systems: partitionedSystems[0][0], type: 'RHC', rhcStatus: (rhc_enabled) ? CONNECTED : DISABLED});
+                trace.event('Add CONNECTED systems')
+                const entry = {
+                    id: null,
+                    systems: partitionedSystems[0][0],
+                    type: 'RHC',
+                    rhcStatus: (rhc_enabled) ? CONNECTED : DISABLED
+                };
+                satellites.push(entry);
+                if (entry.rhcStatus === DISABLED) trace.force = true;
+                trace.event(`Added entry: ${JSON.stringify(entry)}`);
             }
 
             if (!_.isEmpty(partitionedSystems[0][1])) {
-                satellites.push({id: null, systems: partitionedSystems[0][1], type: 'RHC', rhcStatus: (rhc_enabled) ? DISCONNECTED : DISABLED});
+                trace.event('Add DISCONNECTED systems');
+                const entry = {
+                    id: null,
+                    systems: partitionedSystems[0][1],
+                    type: 'RHC',
+                    rhcStatus: (rhc_enabled) ? DISCONNECTED : DISABLED
+                };
+                satellites.push(entry);
+                if (entry.rhcStatus === DISABLED) trace.force = true;
+                trace.event(`Added entry: ${JSON.stringify(entry)}`);
             }
         }
 
         if (!smart_management) {
+            trace.event('Smart Management: DISABLED');
+
             const noSmartManagement = _.filter(partitionedSystems[1], system => !system.marketplace);
             if (!_.isEmpty(noSmartManagement)) {
-                satellites.push({id: null, systems: noSmartManagement, type: 'RHC', rhcStatus: 'no_smart_management'});
+                const result = {id: null, systems: noSmartManagement, type: 'RHC', rhcStatus: 'no_smart_management'};
+                satellites.push(result);
+                trace.force = true;
+                trace.event(`!smart_management && !system.marketplace: ${JSON.stringify(result)}`);
             }
 
             const rhcNotConfigured = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client) && system.marketplace);
             if (!_.isEmpty(rhcNotConfigured)) {
-                satellites.push({id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'});
+                const result = {id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'};
+                satellites.push(result);
+                trace.force = true;
+                trace.event(`!smart_management && !system.rhc_client: ${JSON.stringify(result)}`);
             }
         } else {
+            trace.event('Smart Management: ENABLED');
             const rhcNotConfigured = _.filter(partitionedSystems[1], system => _.isUndefined(system.rhc_client));
             if (!_.isEmpty(rhcNotConfigured)) {
-                satellites.push({id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'});
+                const result = {id: null, systems: rhcNotConfigured, type: 'RHC', rhcStatus: 'no_rhc'};
+                satellites.push(result);
+                trace.force = true;
+                trace.event(`smart_management && !system.rhc_client: ${JSON.stringify(result)}`);
             }
         }
     }
+
+    trace.leave();
 }
 
 async function fetchRHCStatuses (satellites, org_id) {
@@ -724,14 +810,21 @@ exports.generateUuid = function () {
 };
 
 exports.getConnectionStatus = async function (remediation, account, org_id, smart_management, rhc_enabled) {
+    trace.enter(`fifi.getConnectionStatus`);
+
     // get list of system_ids
     // fetch system details for each system_id -> systems[]
     // get (sat_id, sat_org_id, sat_version) for each receptor satellite
     // get rhc_client_id for each rhc system
     // get sat_rhc_client (rhc_id) for rhc satellites
+
+    trace.event('Get system_ids');
     const systemsIds = _(remediation.issues).flatMap('systems').map('system_id').uniq().sort().value();
+
+    trace.event(`Get system details for system ids: ${systemsIds}`);
     const systems = await fetchSystems(systemsIds);
 
+    trace.event(`Populate satellite facts for: ${JSON.stringify(systems)}`);
     await P.map(systems, async system => {
         const satelliteFacts = await getSatelliteFacts(system.facts);
         system.satelliteId = satelliteFacts.satelliteId;
@@ -739,9 +832,18 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
         system.satelliteVersion = satelliteFacts.satelliteVersion;
     });
 
+    trace.event(`Get RHC client ids for systems`);
     await fetchRHCClientId(systems, systemsIds);
+
+    trace.event(`Get satellite RHC client ids for systems`);
     await fetchSatRHCClientId(systems);
+
+    trace.event(`systems: ${JSON.stringify(systems)}`);
+
+    trace.event('Group systems into rhc or receptor (& rhc direct)');
     const [rhcSatelliteSystems, receptorSatelliteSystems] = _.partition(systems, system => { return !_.isNull(system.sat_rhc_client); });
+
+    trace.event('Extract list of receptor satellites (& rhc direct)');
     const receptorSatellites = _(receptorSatelliteSystems).groupBy('satelliteId').mapValues(receptorSatelliteSystems => ({
         id: receptorSatelliteSystems[0].satelliteId,
         org_id: receptorSatelliteSystems[0].satelliteOrgId,
@@ -750,14 +852,17 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
         // only pick on one of them as we wouldn't be able to tell them apart based on responses from Satellite
         systems: _(receptorSatelliteSystems).sortBy('id').uniqBy(generator.systemToHost).value()
     })).values().value();
+    trace.event(`Recpetor satellites (& rhc direct): ${JSON.stringify(receptorSatellites)}`);
 
     let rhcSatellites = [];
     if (!_.isEmpty(rhcSatelliteSystems)) {
         rhcSatellites = await defineRHCSatellites(rhcSatelliteSystems, org_id);
+        trace.event(`rhc satellites: ${JSON.stringify(rhcSatellites)}`);
     }
 
     if (!_.isEmpty(receptorSatellites)) {
         await defineRHCEnabledExecutor(receptorSatellites, smart_management, rhc_enabled, org_id);
+        trace.event(`Defined receptor (& rhc direct) executors: ${JSON.stringify(receptorSatellites)}`);
     }
 
     if (smart_management) {
@@ -771,7 +876,11 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
     const concatSatellites = _.concat(rhcSatellites, receptorSatellites);
 
     // this seems to ommit sat_rhc_client :-/ ...
-    return normalize(concatSatellites, smart_management);
+    const result = normalize(concatSatellites, smart_management);
+
+    trace.leave(`return result: ${JSON.stringify(result)}`);
+
+    return result;
 };
 
 exports.filterIssuesPerExecutor = async function (systems, remediationIssues) {

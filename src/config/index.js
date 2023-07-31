@@ -261,6 +261,10 @@ function Config() {
             config.redis.host = loadedConfig.inMemoryDb.hostname;
             config.redis.port = loadedConfig.inMemoryDb.port;
             config.redis.password = loadedConfig.inMemoryDb.password;
+            if (config.redis.password != undefined) {
+                // if the password is set -> we're using TLS: https://github.com/luin/ioredis#tls-options
+                config.redis.tls = {}
+            }
         }
 
         if (loadedConfig.database.sslMode !== 'disable') {
@@ -302,6 +306,10 @@ function Config() {
             config.redis.host = env.REDIS_HOST || 'localhost';
             config.redis.port = parseIntEnv('REDIS_PORT', 6379);
             config.redis.password = env.REDIS_PASSWORD || undefined;
+            if (config.redis.password != undefined) {
+                // if the password is set -> we're using TLS: https://github.com/luin/ioredis#tls-options
+                config.redis.tls = {}
+            }
         }
 
         if (env.DB_SSL_ENABLED !== 'false' && env.DB_CA) {

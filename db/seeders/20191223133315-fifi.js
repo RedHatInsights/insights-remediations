@@ -137,6 +137,35 @@ exports.up = async q => {
         resolved: false
     }))));
 
+    // vulnerabilities resolution_type test
+    const vuln_remediation_id = await q.bulkInsert('remediations', [{
+        id: '0e1c1018-cb54-4459-945b-f5d946645b7a',
+        name: 'Vulnerabilities playbook',
+        auto_reboot: true,
+        account_number,
+        tenant_org_id,
+        created_by,
+        created_at: '2023-12-23T08:19:36.641Z',
+        updated_by: created_by,
+        updated_at: '2022-12-23T08:19:36.641Z'
+    }], opts);
+
+    const vuln_issue_id = await q.bulkInsert('remediation_issues', [{
+        remediation_id: vuln_remediation_id[0].id,
+        issue_id: 'vulnerabilities:CVE_2021_4034_polkit|CVE_2021_4034_POLKIT',
+        resolution: 'update'
+    }], opts);
+
+    await q.bulkInsert('remediation_issue_systems', [{
+        system_id: '2317adf3-911e-4db3-84fd-27fad9724196',
+        remediation_issue_id: vuln_issue_id[0].id,
+        resolved: false
+    }, {
+        system_id: '286f602a-157f-4095-8bf2-ad4849ab6c43',
+        remediation_issue_id: vuln_issue_id[0].id,
+        resolved: false
+    }]);
+
     const playbook_runs = await q.bulkInsert('playbook_runs', [{
         id: '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc',
         status: 'running',

@@ -196,6 +196,7 @@ objects:
     - name: floorist
       schedule: ${FLOORIST_SCHEDULE}
       suspend: ${{FLOORIST_SUSPEND}}
+      disabled: ${{FLOORIST_DISABLED}}
       concurrencyPolicy: Forbid
       podSpec:
         image: ${FLOORIST_IMAGE}:${FLOORIST_IMAGE_TAG}
@@ -271,14 +272,80 @@ objects:
           SELECT id as remediations_id,
                  name as remediations_name,
                  account_number as remediations_account_number,
+                 tenant_org_id as remediations_tenant_org_id,
                  created_by as remediations_created_by,
                  updated_by as remediations_updated_by,
+                 created_at as remediations_created_at,
+                 updated_at as remediations_updated_at,
                  auto_reboot as remediations_auto_reboot,
                  archived as remediations_archived
           FROM remediations
-          WHERE created_at >= TIMESTAMP 'yesterday'
-            AND created_at < TIMESTAMP 'today'
+          WHERE updated_at >= TIMESTAMP 'yesterday'
+            AND updated_at < TIMESTAMP 'today'
           ORDER BY account_number;
+      - prefix: insights/remediations/remediation_issues
+        query: >-
+          SELECT remediation_issues.id,
+                 remediation_issues.issue_id,
+                 remediation_issues.remediation_id,
+                 remediation_issues.resolution
+          FROM remediation_issues
+          INNER JOIN remediations ON remediation_id = remediations.id
+          WHERE remediations.updated_at >= TIMESTAMP 'yesterday'
+            AND remediations.updated_at < TIMESTAMP 'today'
+          ORDER BY remediation_id;
+      - prefix: insights/remediations/remediation_issue_systems
+        query: >-
+          SELECT remediation_issue_id,
+                 system_id,
+                 resolved
+          FROM remediation_issue_systems
+          INNER JOIN remediation_issues ON remediation_issue_id = remediation_issues.id     
+          INNER JOIN remediations ON remediation_issues.remediation_id = remediations.id
+          WHERE remediations.updated_at >= TIMESTAMP 'yesterday'
+            AND remediations.updated_at < TIMESTAMP 'today'
+          ORDER BY remediation_id;
+      - prefix: insights/remediations/playbook_runs
+        query: >-
+          SELECT id,
+                 status,
+                 remediation_id,
+                 created_by,
+                 created_at,
+                 updated_at
+          FROM playbook_runs
+          WHERE updated_at >= TIMESTAMP 'yesterday'
+            AND updated_at < TIMESTAMP 'today'
+          ORDER BY remediation_id;
+      - prefix: insights/remediations/playbook_run_executors
+        query: >-
+          SELECT playbook_runs.remediation_id,
+                 playbook_run_executors.id,
+                 playbook_run_executors.executor_id,
+                 playbook_run_executors.executor_name,
+                 playbook_run_executors.status,
+                 playbook_run_executors.playbook_run_id,
+                 playbook_run_executors.updated_at
+          FROM playbook_run_executors
+          INNER JOIN playbook_runs ON playbook_run_id = playbook_runs.id 
+          WHERE playbook_run_executors.updated_at >= TIMESTAMP 'yesterday'
+            AND playbook_run_executors.updated_at < TIMESTAMP 'today'
+          ORDER BY remediation_id;
+      - prefix: insights/remediations/playbook_run_systems
+        query: >-
+          SELECT playbook_runs.remediation_id,
+                 playbook_run_systems.id,
+                 playbook_run_systems.playbook_run_executor_id,
+                 playbook_run_systems.system_id,
+                 playbook_run_systems.system_name,
+                 playbook_run_systems.status,
+                 playbook_run_systems.updated_at
+          FROM playbook_run_systems
+          INNER JOIN playbook_run_executors ON playbook_run_executor_id = playbook_run_executors.id
+          INNER JOIN playbook_runs ON playbook_run_executors.playbook_run_id = playbook_runs.id 
+          WHERE playbook_run_systems.updated_at >= TIMESTAMP 'yesterday'
+            AND playbook_run_systems.updated_at < TIMESTAMP 'today'
+          ORDER BY remediation_id;
 
 parameters:
 - name: ADVISOR_IMPL
@@ -378,6 +445,9 @@ parameters:
   description: Disable Floorist cronjob execution
   required: true
   value: 'true'
+- name: FLOORIST_DISABLED
+  description: Determines whether to build the Floorist Job.
+  value: 'false'
 - description: Floorist image name
   name: FLOORIST_IMAGE
   value: quay.io/cloudservices/floorist

@@ -6,6 +6,7 @@ const fifi = require('./controller.fifi');
 const status = require('./controller.status');
 const openapi = require('../middleware/openapi');
 const rbac = require('../middleware/rbac');
+const trace = require("../util/trace").middleware;
 
 const rbacRead = rbac('remediations:remediation:read');
 const rbacWrite = rbac('remediations:remediation:write');
@@ -13,7 +14,7 @@ const rbacExecute = rbac('remediations:remediation:execute');
 
 module.exports = function (router) {
     router.route('/remediations')
-        .get(openapi('getRemediations'), rbacRead, read.list)
+        .get(trace, openapi('getRemediations'), rbacRead, read.list)
         .post(openapi('createRemediation'), rbacWrite, write.create)
         .delete(openapi('deleteRemediations'), rbacWrite, write.bulkRemove);
 
@@ -25,7 +26,7 @@ module.exports = function (router) {
         .delete(openapi('deleteRemediation'), rbacWrite, write.remove);
 
     router.route('/remediations/:id/status')
-        .get(rbacRead, status.status); // TODO: openapi mw
+        .get(trace, rbacRead, status.status); // TODO: openapi mw
 
     router.route('/remediations/:id/issues/:issue')
         .patch(openapi('updateRemediationIssue'), rbacWrite, write.patchIssue)
@@ -41,7 +42,7 @@ module.exports = function (router) {
         .get(openapi('checkExecutable'), rbacRead, fifi.checkExecutable);
 
     router.route('/remediations/:id/connection_status')
-        .get(openapi('getRemediationConnectionStatus'), rbacExecute, fifi.connection_status);
+        .get(trace, openapi('getRemediationConnectionStatus'), rbacExecute, fifi.connection_status);
 
     router.route('/remediations/:id/playbook_runs')
         .get(openapi('listPlaybookRuns'), rbacRead, fifi.listPlaybookRuns)
@@ -54,8 +55,8 @@ module.exports = function (router) {
         .post(openapi('cancelPlaybookRuns'), rbacExecute, fifi.cancelPlaybookRuns);
 
     router.route('/remediations/:id/playbook_runs/:playbook_run_id/systems')
-        .get(openapi('getPlaybookRunSystems'), rbacRead, fifi.getSystems);
+        .get(trace, openapi('getPlaybookRunSystems'), rbacRead, fifi.getSystems);
 
     router.route('/remediations/:id/playbook_runs/:playbook_run_id/systems/:system')
-        .get(openapi('getPlaybookRunSystemDetails'), rbacRead, fifi.getSystemDetails);
+        .get(trace, openapi('getPlaybookRunSystemDetails'), rbacRead, fifi.getSystemDetails);
 };

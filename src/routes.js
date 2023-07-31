@@ -3,6 +3,7 @@
 const express = require('express');
 
 const log = require('./util/log');
+const pinoHttp = require('pino-http');
 const prettyJson = require('./middleware/prettyJson');
 const httpContext = require('express-http-context');
 const identity = require('./middleware/identity/impl');
@@ -17,7 +18,7 @@ const docs = require('./docs');
 
 const errors = require('./errors');
 
-const pino = require('express-pino-logger')({
+const httpLogger = pinoHttp({
     logger: log,
     serializers: log.serializers,
     genReqId: req => req.headers['x-rh-insights-request-id']
@@ -27,6 +28,7 @@ module.exports = async function (app) {
     metrics.start(app);
 
     app.use((req, res, next) => {
+        res[httpLogger.startTime] = Date.now();  // record accurate start time
         log.trace({ req }, 'incoming request');
         next();
     });
@@ -39,13 +41,15 @@ module.exports = async function (app) {
         app.use(require('./middleware/identity/fallback'));
     }
 
-    app.use(reqId);
-    app.use(pino);
+    app.use(reqId); // ensure request has an id
 
     docs(app, config.path.base);
 
     app.use(identity);
     app.use(identitySwitcher);
+
+    app.use(httpLogger);
+
     app.use(bodyParser.json({
         limit: config.bodyParserLimit
     }));
@@ -72,7 +76,7 @@ module.exports = async function (app) {
     require('./resolutions/routes')(v1);
     require('./generator/routes')(v1);
 
-    // diagnosis, whoami, remediations/playbooks, /playbooks and /resolutions are the only path that accepts cert auth
+    // diagnosis, whoami, remediations/playbooks, /playbook and /resolutions (above) are the only path that accepts cert auth
     v1.use(userIdentity);
 
     [

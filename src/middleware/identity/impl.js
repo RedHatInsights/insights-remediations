@@ -37,8 +37,6 @@ module.exports = function (req, res, next) {
             };
         }
 
-        res.log = res.log.child({req});
-
         next();
     } catch (e) {
         log.debug({header: raw, error: e.message, reqId}, 'Error decoding identity header');

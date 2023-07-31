@@ -8,7 +8,7 @@ exports[`generates a playbook with block 1`] = `
 # they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
-# Add nodev Option to &#x2F;dev&#x2F;shm
+# Add nodev Option to /dev/shm
 # Identifier: (ssg:rhel7|ospp|xccdf_org.ssgproject.content_rule_mount_option_dev_shm_nodev,fix)
 # Version: NORMALIZED_PLACEHOLDER
 # platform = multi_platform_all
