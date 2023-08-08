@@ -220,6 +220,7 @@ objects:
       secretName: ${FLOORIST_BUCKET_SECRET_NAME}
     logLevel: ${FLOORIST_LOGLEVEL}
     suspend: ${{FLOORIST_SUSPEND}}
+    disabled: ${{FLOORIST_DISABLED}}
     queries:
     - prefix: insights/remediations/remediations_counts
       query: >-
@@ -398,13 +399,13 @@ parameters:
 - name: FLOORIST_DISABLED
   description: Determines whether to build the Floorist Job.
   value: 'false'
-- description: bucket secret name
-  name: FLOORIST_BUCKET_SECRET_NAME
+- name: FLOORIST_BUCKET_SECRET_NAME
+  description: bucket secret name
   required: true
   value: dummy-secret
 - name: FLOORIST_LOGLEVEL
   description: Floorist loglevel config
   value: 'INFO'
-- description: database secret name
-  name: FLOORIST_DB_SECRET_NAME
-  value: remediatios-db
+- name: FLOORIST_DB_SECRET_NAME
+  description: database secret name
+  value: remediations-db
