@@ -32,8 +32,7 @@ exports.checkExecutable = errors.async(async function (req, res) {
 });
 
 exports.connection_status = errors.async(async function (req, res) {
-    trace.force = true;
-    trace.enter('controller.fifi')
+    trace.enter('controller.fifi.connection_status')
 
     trace.event('Fetch remediation and check for rhcEnabled');
     const [remediation, rhcEnabled] = await Promise.all([
@@ -72,10 +71,14 @@ exports.connection_status = errors.async(async function (req, res) {
 });
 
 exports.executePlaybookRuns = errors.async(async function (req, res) {
-    //--------------------------------------------------
+    //==================================================
     // get remediation by id
     // get connection status of referenced systems
     // createPlaybookRun
+    //==================================================
+
+    //--------------------------------------------------
+    // get remediation by id
     //--------------------------------------------------
     const [remediation, rhcEnabled] = await Promise.all([
         queries.get(req.params.id, req.user.tenant_org_id, req.user.username),
@@ -92,6 +95,9 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
         throw new errors.Forbidden();
     }
 
+    //--------------------------------------------------
+    // get connection status of referenced systems
+    //--------------------------------------------------
     const status = await fifi.getConnectionStatus(
         remediation,
         req.identity.account_number,
@@ -108,6 +114,9 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
         return notMatching(res);
     }
 
+    //--------------------------------------------------
+    // createPlaybookRun
+    //--------------------------------------------------
     const result = await fifi.createPlaybookRun(
         status,
         remediation,

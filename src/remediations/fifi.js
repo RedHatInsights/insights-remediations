@@ -357,26 +357,25 @@ exports.combineHosts = async function (rhcRunHosts, systems, playbook_run_id, fi
 
 // add rhc playbook run data to remediation
 exports.combineRuns = async function (remediation) {
-    const trace = cls.getReq()?.trace;
     const iteration = remediation.iteration;
 
-    trace?.enter(`[${iteration}] fifi.combineRuns`);
+    trace.enter(`[${iteration}] fifi.combineRuns`);
 
     // array of playbook_run_id
     for (const run of remediation.playbook_runs) {
         // query playbook-dispatcher to see if there are any RHC direct or
         // RHC satellite hosts for this playbook run...
-        trace?.event(`[${iteration}] Fetch run details for run: ${run.id}`);
+        trace.event(`[${iteration}] Fetch run details for run: ${run.id}`);
         const rhcRuns = await exports.getRHCRuns(run.id); // run.id is playbook_run_id
 
         if (rhcRuns) {
-            trace?.event(`[${iteration}] Format run details and add it to the remediation`)
+            trace.event(`[${iteration}] Format run details and add it to the remediation`)
             const executors = await formatRHCRuns(rhcRuns, run.id);
             pushRHCExecutor(executors, run);
         }
     }
 
-    trace?.leave(`[${iteration}] fifi.combineRuns`);
+    trace.leave(`[${iteration}] fifi.combineRuns`);
     return remediation.playbook_runs;
 };
 
@@ -818,7 +817,7 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
     // get rhc_client_id for each rhc system
     // get sat_rhc_client (rhc_id) for rhc satellites
 
-    trace.event('Get system_ids');
+    trace.event('Extract list of system ids from remediation');
     const systemsIds = _(remediation.issues).flatMap('systems').map('system_id').uniq().sort().value();
 
     trace.event(`Get system details for system ids: ${systemsIds}`);
@@ -931,7 +930,7 @@ function prepareRHCRequest (executor, playbook_run_id, remediation) {
     const rhcWorkRequest = _.map(executor.systems, system => {
         return format.rhcWorkRequest(
             system.rhc_client,
-            remediation.account_number,
+            remediation.account_number,  // TODO: is this ok?
             remediation.id,
             system.id,
             playbook_run_id);
@@ -1126,16 +1125,16 @@ exports.createPlaybookRun = async function (status, remediation, username, tenan
     const splitRequests = _.groupBy(requests, 'executor.type');
 
     // Dispatch satellite requests if they exist
-    if (splitRequests.satellite) {
-        const satelliteRequests = splitRequests.satellite;
+    if (splitRequests['satellite']) {
+        const satelliteRequests = splitRequests['satellite'];
         const receptorResponses = await dispatchReceptorRequests(satelliteRequests, remediation, playbook_run_id);
 
         await storePlaybookRun(remediation, playbook_run_id, satelliteRequests, receptorResponses, username, text_update_full);
     }
 
     // Dispatch RHC requests if they exist
-    if (splitRequests.RHC) {
-        const rhcRequests = splitRequests.RHC[0]; // There should only ever be one
+    if (splitRequests['RHC']) {
+        const rhcRequests = splitRequests['RHC'][0]; // There should only ever be one
         await dispatchRHCRequests(rhcRequests, playbook_run_id);
 
         if (_.isEmpty(splitRequests.satellite)) {
