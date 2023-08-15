@@ -142,6 +142,7 @@ function Config() {
             impl: env.PLAYBOOK_DISPATCHER_IMPL,
             auth: env.PLAYBOOK_DISPATCHER_AUTH || '',
             insecure: (env.PLAYBOOK_DISPATCHER_INSECURE === 'true') ? true : false,
+            pageSize: parseIntEnv('PLAYBOOK_DISPATCHER_PAGE_SIZE', 50),
             revalidationInterval: parseIntEnv('PLAYBOOK_DISPATCHER_REVALIDATION_INTERVAL', 60 * 60) // 1 hour
         },
 
@@ -261,9 +262,9 @@ function Config() {
             config.redis.host = loadedConfig.inMemoryDb.hostname;
             config.redis.port = loadedConfig.inMemoryDb.port;
             config.redis.password = loadedConfig.inMemoryDb.password;
-            if (config.redis.password != undefined) {
+            if (config.redis.password !== undefined) {
                 // if the password is set -> we're using TLS: https://github.com/luin/ioredis#tls-options
-                config.redis.tls = {}
+                config.redis.tls = {};
             }
         }
 
@@ -306,9 +307,9 @@ function Config() {
             config.redis.host = env.REDIS_HOST || 'localhost';
             config.redis.port = parseIntEnv('REDIS_PORT', 6379);
             config.redis.password = env.REDIS_PASSWORD || undefined;
-            if (config.redis.password != undefined) {
+            if (config.redis.password !== undefined) {
                 // if the password is set -> we're using TLS: https://github.com/luin/ioredis#tls-options
-                config.redis.tls = {}
+                config.redis.tls = {};
             }
         }
 

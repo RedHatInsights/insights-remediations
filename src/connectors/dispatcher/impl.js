@@ -3,11 +3,12 @@
 const _ = require('lodash');
 const URI = require('urijs');
 const qs = require('qs');
-const {host, insecure, auth} = require('../../config').dispatcher;
+const {host, insecure, auth, pageSize} = require('../../config').dispatcher;
 
 const Connector = require('../Connector');
 const metrics = require('../metrics');
 const log = require('../../util/log');
+const P = require("bluebird");
 
 const QSOPTIONS = { encode: true, indices: false };
 
@@ -30,6 +31,14 @@ module.exports = new class extends Connector {
     }
 
     async postPlaybookRunRequests (dispatcherWorkRequest) {
+
+        // chunk this request if necessary...
+        if (dispatcherWorkRequest.length > pageSize) {
+            const chunks = _.chunk(dispatcherWorkRequest, pageSize);
+            const results = await P.map(chunks, chunk => this.postPlaybookRunRequests(chunk));
+            return _.assign({}, ...results);
+        }
+
         const uri = new URI(host);
         uri.segment('internal');
         uri.segment('dispatch');
