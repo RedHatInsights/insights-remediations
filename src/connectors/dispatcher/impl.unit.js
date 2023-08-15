@@ -6,6 +6,8 @@ const { mockRequest } = require('../testUtils');
 const request = require('../../util/request');
 const errors = require('../../errors');
 const Connector = require('../Connector');
+const URI = require("urijs");
+const _ = require("lodash");
 
 const DISPATCHERWORKREQUEST = [
     {
@@ -103,6 +105,49 @@ describe('dispatcher impl', function () {
         test('status code handling dispatcherWorkRequest', async function () {
             base.mockRequestStatusCode();
             await expect(impl.postPlaybookRunRequests(DISPATCHERWORKREQUEST)).rejects.toThrow(errors.DependencyError);
+        });
+
+        test('handles many requests', async function () {
+            // mock http request
+            base.getSandbox().stub(request, 'run').callsFake(params => {
+                if (params.body.length > 50) {
+                    return Promise.resolve({
+                        statusCode: 400,
+                        body: {},
+                        headers: {}
+                    });
+                }
+
+                const results = params.body.map((item) => ({
+                    code: 201,
+                    id: item.recipient
+                }));
+
+                return Promise.resolve({
+                    statusCode: 207,
+                    body: results,
+                    headers: {}
+                });
+            });
+
+            // build array of work requests
+            const workRequest = Array(250)
+                .fill(0)
+                .map((item, index) => {
+                    const recipient_id = `33a12856-a262-4e1e-b562-c099a735c${String(index).padStart(3, '0')}}`;
+                    return {
+                        recipient: recipient_id,
+                        account: 123456,
+                        url: `https://cloud.redhat.com/api/remediations/v1/playbook?hosts=${recipient_id}&localhost`,
+                        labels: {'playbook-run': 'ef7a1724-6adc-4370-b88c-bed7cb2d3fd2'}
+                    };
+                });
+
+            // submit work request
+            const result = await impl.postPlaybookRunRequests(workRequest);
+
+            // validate results
+            result.should.have.size(250);
         });
     });
 
