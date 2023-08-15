@@ -47,7 +47,7 @@ function buildRHCSatUrl(remediation_id, systems) {
     let url = new URI(`https://${config.platformHostname}`)
         .segment([config.path.prefix, config.path.app, 'v1', config.path.app, remediation_id, 'playbook'])
         .search({hosts: ids})
-        .toString()
+        .toString();
 
     return url;
 }
@@ -221,10 +221,10 @@ exports.rhcSatelliteWorkRequest = function (executor, remediation, username, ten
         let host = {"inventory_id": system.id};
 
         if (!_.isNull(system.ansible_host)) {
-            host.absible_host = system.ansible_host
+            host.absible_host = system.ansible_host;
         }
 
-        return host
+        return host;
     });
 
     const request = {
