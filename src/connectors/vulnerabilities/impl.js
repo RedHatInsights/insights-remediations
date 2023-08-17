@@ -30,7 +30,7 @@ module.exports = new class extends Connector {
         // get affected systems...
         do {
             // grab a page
-            trace.event('Fetch a page of affected systems from vulnerabilities');
+            trace.event(`Fetch ${uri}`);
             const batch = await this.doHttp({
                     uri: uri,
                     method: 'GET',
@@ -51,6 +51,7 @@ module.exports = new class extends Connector {
             inventory_ids.push(...batch_ids);
 
             // grab provided uri for next batch
+            trace.event(`links: ${JSON.stringify(batch.links)}`);
             uri = batch?.links?.next;
 
             if (uri) {
