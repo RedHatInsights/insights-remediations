@@ -23,6 +23,7 @@ module.exports = new class extends Connector {
         trace.enter('vulnerabilities_impl.getSystems');
         const _uri = this.buildUri(host, 'vulnerability', 'v1', 'cves', id, 'affected_systems', 'ids');
         _uri.query({limit: String(pageSize)});
+
         let uri = _uri.toString();
 
         const inventory_ids = [];
@@ -52,7 +53,7 @@ module.exports = new class extends Connector {
 
             // grab provided uri for next batch
             trace.event(`links: ${JSON.stringify(batch.links)}`);
-            uri = batch?.links?.next;
+            uri = _uri.resource(batch?.links?.next).toString();
 
             if (uri) {
                 // temporarily record this working for debug
