@@ -53,13 +53,10 @@ module.exports = new class extends Connector {
             inventory_ids.push(...batch_ids);
 
             // grab provided uri for next batch
-            trace.event(`links: ${JSON.stringify(batch.links)}`);
             next = batch?.links?.next;
 
             if (next) {
                 uri = _uri.resource(next).toString();
-                // temporarily record this working for debug
-                trace.force = true;
             }
         } while (next);
 
