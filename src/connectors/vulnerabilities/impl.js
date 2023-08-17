@@ -25,6 +25,7 @@ module.exports = new class extends Connector {
         _uri.query({limit: String(pageSize)});
 
         let uri = _uri.toString();
+        let next = "";
 
         const inventory_ids = [];
 
@@ -53,13 +54,14 @@ module.exports = new class extends Connector {
 
             // grab provided uri for next batch
             trace.event(`links: ${JSON.stringify(batch.links)}`);
-            uri = _uri.resource(batch?.links?.next).toString();
+            next = batch?.links?.next;
+            uri = _uri.resource(next).toString();
 
             if (uri) {
                 // temporarily record this working for debug
                 trace.force = true;
             }
-        } while (uri);
+        } while (next);
 
         trace.leave();
         return inventory_ids;
