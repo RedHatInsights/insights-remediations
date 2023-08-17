@@ -55,9 +55,9 @@ module.exports = new class extends Connector {
             // grab provided uri for next batch
             trace.event(`links: ${JSON.stringify(batch.links)}`);
             next = batch?.links?.next;
-            uri = _uri.resource(next).toString();
 
-            if (uri) {
+            if (next) {
+                uri = _uri.resource(next).toString();
                 // temporarily record this working for debug
                 trace.force = true;
             }
