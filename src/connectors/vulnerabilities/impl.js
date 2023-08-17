@@ -4,7 +4,7 @@ const _ = require('lodash');
 const assert = require('assert');
 
 const Connector = require('../Connector');
-const {host, insecure} = require('../../config').vulnerabilities;
+const {host, insecure, pageSize} = require('../../config').vulnerabilities;
 const metrics = require('../metrics');
 const trace = require('../../util/trace');
 
@@ -20,29 +20,47 @@ module.exports = new class extends Connector {
     }
 
     async getSystems (id) {
-        const uri = this.buildUri(host, 'vulnerability', 'v1', 'cves', id, 'affected_systems');
-        uri.addQuery('page_size', String(10000)); // TODO - implement pagination
+        trace.enter('vulnerabilities_impl.getSystems');
+        const _uri = this.buildUri(host, 'vulnerability', 'v1', 'cves', id, 'affected_systems', 'ids');
+        _uri.query({limit: String(pageSize)});
+        let uri = _uri.toString();
 
-        const data = await this.doHttp({
-            uri: uri.toString(),
-            method: 'GET',
-            json: true,
-            rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders()
-        },
-        false,
-        this.systemsMetrics);
+        const inventory_ids = [];
 
-        if (!data) {
-            return [];
-        }
+        // get affected systems...
+        do {
+            // grab a page
+            trace.event('Fetch a page of affected systems from vulnerabilities');
+            const batch = await this.doHttp({
+                    uri: uri,
+                    method: 'GET',
+                    json: true,
+                    rejectUnauthorized: !insecure,
+                    headers: this.getForwardedHeaders()
+                },
+                false,
+                this.systemsMetrics);
 
-        // We actually have CVEs with more than this many affected systems in
-        // prod, so I'm disabling this check.  This code needs to be redesigned
-        // a bit.
-        // assert(data.meta.total_items < 10001);
+            // bail if we got nothing back
+            if (!batch) {
+                break;
+            }
 
-        return _.map(data.data, 'id');
+            // extract inventory_ids, filter out nulls and push to list
+            const batch_ids = _(batch.data).map('inventory_id').filter(Boolean).value();
+            inventory_ids.push(...batch_ids);
+
+            // grab provided uri for next batch
+            uri = batch?.links?.next;
+
+            if (uri) {
+                // temporarily record this working for debug
+                trace.force = true;
+            }
+        } while (uri);
+
+        trace.leave();
+        return inventory_ids;
     }
 
     async getResolutions (issue) {

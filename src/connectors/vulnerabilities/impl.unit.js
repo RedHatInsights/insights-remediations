@@ -28,7 +28,7 @@ describe('vulnerabilities impl', function () {
                     data: [
                         {
                             type: 'system',
-                            id: '802cab91-410f-473b-b4c6-b1524c45ba8c',
+                            inventory_id: '802cab91-410f-473b-b4c6-b1524c45ba8c',
                             attributes: {
                                 inventory_id: '802cab91-410f-473b-b4c6-b1524c45ba8c',
                                 status_id: 0,
@@ -37,7 +37,7 @@ describe('vulnerabilities impl', function () {
                         },
                         {
                             type: 'system',
-                            id: '6ac1bb84-333d-48e5-bf02-7a9b0263d220',
+                            inventory_id: '6ac1bb84-333d-48e5-bf02-7a9b0263d220',
                             attributes: {
                                 inventory_id: '6ac1bb84-333d-48e5-bf02-7a9b0263d220',
                                 status_id: 0,
