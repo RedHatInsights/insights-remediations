@@ -169,6 +169,35 @@ exports.loadDetails = async function (tenant_org_id, created_by, rows) {
     return rows.map(row => _.assign(byId[row.id].toJSON(), row));
 };
 
+/*
+  Load specified remediation from database
+
+  returns: {
+    name: "remediation 1",
+    id: "66eec356-dd06-4c72-a3b6-ef27d1508a02",
+    auto_reboot: true,
+    archived: true,
+    account_number: "test",
+    tenant_org_id: "0000000",
+    created_by: "tuser@redhat.com",
+    created_at: "2018-10-04T08:19:36.641Z",
+    updated_by: "tuser@redhat.com",
+    updated_at: "2018-10-04T08:19:36.641Z",
+    resolved_count: 1,
+    issues: [
+      {
+        issue_id: "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+        resolution: null,
+        systems: [
+          {
+            system_id: "fc94beb8-21ee-403d-99b1-949ef7adb762",
+            resolved: true
+          }
+        ]
+      }
+    ]
+  }
+*/
 exports.get = function (id, tenant_org_id, created_by = null) {
     const query = {
         attributes: [
