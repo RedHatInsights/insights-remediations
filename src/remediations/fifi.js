@@ -382,6 +382,7 @@ exports.combineRuns = async function (remediation) {
 async function fetchRHCClientId (systems, systemIds) {
     trace.enter('fifi.fetchRHCClientId');
 
+    // Get owner_id, is_marketplace and rhc_client_id for each system
     trace.event(`Get system profile details for: ${systemIds}`);
     const systemProfileDetails = await inventory.getSystemProfileBatch(systemIds);
 
@@ -400,6 +401,8 @@ async function fetchSatRHCClientId (systems) {
 
     await P.map(systems, async system => {
         trace.event(`Fetching details for: ${JSON.stringify(system)}`);
+        // is this an rhc satellite?
+        // TODO: fix this once receptor support expires
         if (checkSatVersionForRhc(system.satelliteVersion) && !_.isNull(system.satelliteId)) {
             trace.event('Get satellite details from Sources');
             const sourcesDetails = await sources.getSourceInfo([system.satelliteId]);
@@ -488,7 +491,7 @@ function getSatelliteFacts (facts) {
     if (satelliteFacts) {
         parsedFacts.satelliteId = satelliteFacts.facts.satellite_instance_id;
         parsedFacts.satelliteOrgId = satelliteFacts.facts.organization_id;
-        parsedFacts. satelliteVersion = satelliteFacts.facts.satellite_version;
+        parsedFacts.satelliteVersion = satelliteFacts.facts.satellite_version;
     }
 
     return parsedFacts;
@@ -824,6 +827,8 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
     const systems = await fetchSystems(systemsIds);
 
     trace.event(`Populate satellite facts for: ${JSON.stringify(systems)}`);
+    // for every system, get satellite_instance_id, organization_id and satellite version from 'satellite' namespace
+    // in inventory details
     await P.map(systems, async system => {
         const satelliteFacts = await getSatelliteFacts(system.facts);
         system.satelliteId = satelliteFacts.satelliteId;
@@ -831,9 +836,10 @@ exports.getConnectionStatus = async function (remediation, account, org_id, smar
         system.satelliteVersion = satelliteFacts.satelliteVersion;
     });
 
-    trace.event(`Get RHC client ids for systems`);
+    trace.event(`Get rhc_client_id for each system`);
     await fetchRHCClientId(systems, systemsIds);
 
+    // rhc_id from sources...
     trace.event(`Get satellite RHC client ids for systems`);
     await fetchSatRHCClientId(systems);
 

@@ -97,47 +97,93 @@ module.exports = new class extends Connector {
     }
 
     async fetchPlaybookRuns (filter, fields, sort_by = null) {
-        const uri = this.buildUri(host, 'playbook-dispatcher', 'v1', 'runs');
-        uri.search(generateQueries(filter, fields));
+        const _uri = this.buildUri(host, 'playbook-dispatcher', 'v1', 'runs');
+        _uri.search(generateQueries(filter, fields));
 
         if (sort_by) {
-            uri.addQuery('sort_by', sort_by);
+            _uri.addQuery('sort_by', sort_by);
         }
 
+        let uri = _uri.toString();
+        let next = "";
+        const data = [];
         const options = {
-            uri: uri.toString(),
             method: 'GET',
             json: true,
             headers: this.getForwardedHeaders()
         };
 
-        const result = await this.doHttp (options, false, this.fetchRuns);
+        // get playbook runs...
+        do {
+            // grab a page
+            options.uri = uri;
+            const batch = await this.doHttp (options,
+                false,
+                this.fetchRuns);
 
-        if (_.isEmpty(result.data)) {
-            return null;
-        }
+            // bail if we got nothing
+            if (!batch?.data) {
+                break;
+            }
 
-        return result;
+            // extract data
+            data.push(...batch.data);
+
+            // check provided uri for next batch
+            next = batch?.links?.next;
+
+            if (next) {
+                uri = _uri.resource(next).toString();
+            }
+        } while (next);
+
+        // return the data
+        // TODO: just return array of playbook runs
+        return _.isEmpty(data) ? null : {data: data};
     }
 
     async fetchPlaybookRunHosts (filter, fields) {
-        const uri = this.buildUri(host, 'playbook-dispatcher', 'v1', 'run_hosts');
-        uri.search(generateQueries(filter, fields));
+        const _uri = this.buildUri(host, 'playbook-dispatcher', 'v1', 'run_hosts');
+        _uri.search(generateQueries(filter, fields));
 
+        let uri = _uri.toString();
+        let next = "";
+        const data = [];
         const options = {
-            uri: uri.toString(),
             method: 'GET',
             json: true,
             headers: this.getForwardedHeaders()
         };
 
-        const result = await this.doHttp (options, false, this.fetchRunHosts);
+        do {
+            // grab a page
+            options.uri = uri;
+            const batch = await this.doHttp (options,
+                false,
+                this.fetchRunHosts);
 
-        if (_.isEmpty(result.data)) {
+            // bail if we got nothing
+            if (!batch?.data) {
+                break;
+            }
+
+            // extract data
+            data.push(...batch.data);
+
+            // check provided uri for next batch
+            next = batch?.links?.next;
+
+            if (next) {
+                uri = _uri.resource(next).toString();
+            }
+        } while (next);
+
+        // TODO: just return array of playbook run hosts
+        if (_.isEmpty(data)) {
             return null;
         }
 
-        return result;
+        return {data: data};
     }
 
     async postPlaybookCancelRequest (cancelPlaybookRunsRequest) {
@@ -170,6 +216,7 @@ module.exports = new class extends Connector {
     }
 
     async getPlaybookRunRecipientStatus (dispatcherStatusRequest) {
+        // TODO: chunk this
         const uri = new URI(host);
         uri.segment('internal');
         uri.segment('v2');
