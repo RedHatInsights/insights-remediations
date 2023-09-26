@@ -106,7 +106,7 @@ module.exports = new class extends Connector {
 
         let uri = _uri.toString();
         let next = "";
-        const data = [];
+        const results = {};
         const options = {
             method: 'GET',
             json: true,
@@ -127,7 +127,7 @@ module.exports = new class extends Connector {
             }
 
             // extract data
-            data.push(...batch.data);
+            _.merge(results, batch);
 
             // check provided uri for next batch
             next = batch?.links?.next;
@@ -137,9 +137,13 @@ module.exports = new class extends Connector {
             }
         } while (next);
 
-        // return the data
-        // TODO: just return array of playbook runs
-        return _.isEmpty(data) ? null : {data: data};
+        if (_.isEmpty(results.data)) {
+            return null;
+        }
+
+        results.meta.count = results.data.length;
+
+        return results;
     }
 
     async fetchPlaybookRunHosts (filter, fields) {
@@ -148,7 +152,7 @@ module.exports = new class extends Connector {
 
         let uri = _uri.toString();
         let next = "";
-        const data = [];
+        const results = {};
         const options = {
             method: 'GET',
             json: true,
@@ -168,7 +172,7 @@ module.exports = new class extends Connector {
             }
 
             // extract data
-            data.push(...batch.data);
+            _.merge(results, batch);
 
             // check provided uri for next batch
             next = batch?.links?.next;
@@ -178,12 +182,14 @@ module.exports = new class extends Connector {
             }
         } while (next);
 
-        // TODO: just return array of playbook run hosts
-        if (_.isEmpty(data)) {
+        // return results
+        if (_.isEmpty(results.data)) {
             return null;
         }
 
-        return {data: data};
+        results.meta.count = results.data.length;
+
+        return results;
     }
 
     async postPlaybookCancelRequest (cancelPlaybookRunsRequest) {
