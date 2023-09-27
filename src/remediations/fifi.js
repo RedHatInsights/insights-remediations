@@ -144,6 +144,8 @@ function findRunStatus (run) {
 // Create array of maps: one representing all RCH-direct hosts, and one for each RHC-satellite
 // Compute aggregate system_count, status counts and overall status for each
 async function formatRHCRuns (rhcRuns, playbook_run_id) {
+    trace.enter('fifi.js[formatRHCRuns]');
+
     // rhcRuns contains all the dispatcher runs for this playbook_run_id
     // One for each RHC-(satellite, org), one for each RHC-direct host
 
@@ -162,6 +164,8 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
         count_success: 0,
         count_running: 0,
     }
+
+    trace.event(`processing ${rhcRuns.data.length} runs...`);
     
     for (const run of rhcRuns.data) {
         // get dispatcher run hosts
@@ -214,6 +218,7 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
         executors.push(rhcDirect);
     }
 
+    trace.leave();
     return executors;
 }
 
@@ -357,7 +362,7 @@ exports.combineHosts = async function (rhcRunHosts, systems, playbook_run_id, fi
 
 // add rhc playbook run data to remediation
 exports.combineRuns = async function (remediation) {
-    const iteration = remediation.iteration;
+    const iteration = remediation.iteration;  // this was added to make the logging prettier
 
     trace.enter(`[${iteration}] fifi.combineRuns`);
 
