@@ -226,7 +226,7 @@ module.exports = new class extends Connector {
         // chunk this request if necessary...
         if (dispatcherStatusRequest.length > pageSize) {
             const chunks = _.chunk(dispatcherStatusRequest, pageSize);
-            const results = await P.map(chunks, chunk => this.postPlaybookRunRequests(chunk));
+            const results = await P.map(chunks, chunk => this.getPlaybookRunRecipientStatus(chunk));
             return results.flat();
         }
 
