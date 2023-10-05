@@ -35,7 +35,7 @@ module.exports = new class extends Connector {
                 code: 202,
                 run_id: '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc'
             }
-        ]
+        ];
     }
 
     getPlaybookRunRecipientStatus () {

@@ -449,6 +449,7 @@ async function defineDirectConnectedRHCSystems (executor, smart_management, org_
     if (smart_management) {
         rhcSystems = _.partition(executor.systems, system => !_.isUndefined(system.rhc_client));
     } else {
+        // if no smart management only include marketplace systems...
         rhcSystems = _.partition(executor.systems, system => !_.isUndefined(system.rhc_client) && system.marketplace);
     }
 
@@ -509,8 +510,9 @@ async function defineRHCEnabledExecutor (satellites, smart_management, rhc_enabl
     const satlessExecutor = _.find(satellites, satellite => satellite.id === null);
     if (satlessExecutor) {
         const partitionedSystems = await defineDirectConnectedRHCSystems(satlessExecutor, smart_management, org_id);
+        // Remove satless executor because we're going to add a new one later...
         trace.event('Remove redundant executors');
-        _.remove(satellites, executor => executor === satlessExecutor); // Remove redundant satless executor
+        _.remove(satellites, executor => executor === satlessExecutor);
 
         if (!_.isEmpty(partitionedSystems[0])) {
             trace.event('Process eligible systems')
