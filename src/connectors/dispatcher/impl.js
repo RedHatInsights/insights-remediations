@@ -222,7 +222,14 @@ module.exports = new class extends Connector {
     }
 
     async getPlaybookRunRecipientStatus (dispatcherStatusRequest) {
-        // TODO: chunk this
+
+        // chunk this request if necessary...
+        if (dispatcherStatusRequest.length > pageSize) {
+            const chunks = _.chunk(dispatcherStatusRequest, pageSize);
+            const results = await P.map(chunks, chunk => this.postPlaybookRunRequests(chunk));
+            return results.flat();
+        }
+
         const uri = new URI(host);
         uri.segment('internal');
         uri.segment('v2');
