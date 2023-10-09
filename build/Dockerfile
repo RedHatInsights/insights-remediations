@@ -1,6 +1,6 @@
 #----------------------- base -----------------------
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.8-1037 AS base
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.8-1072.1696517598 AS base
 
 RUN microdnf module enable nodejs:16 && \
     microdnf install -y jq nodejs --nodocs && \
