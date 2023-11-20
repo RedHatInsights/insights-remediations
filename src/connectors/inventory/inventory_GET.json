@@ -1,0 +1,124 @@
+{
+  "total": 2,
+  "count": 2,
+  "page": 1,
+  "per_page": 50,
+  "results": [
+    {
+      "insights_id": "189c2de6-0f6c-41bc-a2b8-fc58be380f4e",
+      "subscription_manager_id": "8637cfad-b93a-49b0-9f91-f65432f853d7",
+      "satellite_id": null,
+      "bios_uuid": "1997c803-9e7b-473a-9f31-6ba58156eb50",
+      "ip_addresses": [
+        "2620:52:0:cc:f816:3eff:fe14:a54c",
+        "10.0.204.190",
+        "fe80::f816:3eff:fe14:a54c",
+        "127.0.0.1"
+      ],
+      "fqdn": "iqe-vm-lib-ffa13197-41a0-4ce7-b94b-7ce65fc546f9",
+      "mac_addresses": [
+        "fa:16:3e:14:a5:4c"
+      ],
+      "provider_id": null,
+      "provider_type": null,
+      "id": "9cc31c02-96f9-4d33-8d14-ea8467393b51",
+      "account": "6089719",
+      "org_id": "11789772",
+      "display_name": "iqe-vm-lib-ffa13197-41a0-4ce7-b94b-7ce65fc546f9",
+      "ansible_host": null,
+      "facts": [],
+      "reporter": "rhsm-system-profile-bridge",
+      "per_reporter_staleness": {
+        "cloud-connector": {
+          "check_in_succeeded": true,
+          "stale_timestamp": "2023-11-15T19:15:45+00:00",
+          "last_check_in": "2023-11-14T17:15:45.729394+00:00"
+        },
+        "rhsm-system-profile-bridge": {
+          "check_in_succeeded": true,
+          "stale_timestamp": "2023-11-16T18:01:11.875198+00:00",
+          "last_check_in": "2023-11-14T18:01:12.072846+00:00"
+        },
+        "puptoo": {
+          "check_in_succeeded": true,
+          "stale_timestamp": "2023-11-15T20:04:48.148477+00:00",
+          "last_check_in": "2023-11-14T15:04:48.383412+00:00"
+        }
+      },
+      "stale_timestamp": "2023-11-16T18:01:11.875198+00:00",
+      "stale_warning_timestamp": "2023-11-23T18:01:11.875198+00:00",
+      "culled_timestamp": "2023-11-30T18:01:11.875198+00:00",
+      "created": "2023-11-14T02:41:46.126022+00:00",
+      "updated": "2023-11-14T20:29:02.949362+00:00",
+      "system_profile": {
+        "is_marketplace": false,
+        "satellite_managed": false,
+        "rhc_client_id": "8637cfad-b93a-49b0-9f91-f65432f853d7"
+      },
+      "groups": []
+    },
+    {
+      "insights_id": "b68fbabf-e016-4374-a639-84de054aa336",
+      "subscription_manager_id": "ba12ef02-e3c9-4028-bcac-5c4a88a016b2",
+      "satellite_id": "ba12ef02-e3c9-4028-bcac-5c4a88a016b2",
+      "bios_uuid": "b68fbabf-e016-4374-a639-84de054aa336",
+      "ip_addresses": [
+        "10.1.2.254"
+      ],
+      "fqdn": "satphysical-965818f5-f623-4f18-b148-91cc6ea23abb",
+      "mac_addresses": [
+        "56:6f:0d:72:06:ae"
+      ],
+      "provider_id": null,
+      "provider_type": null,
+      "id": "2c9284a9-a489-43d4-a7bb-1ef43cf890b8",
+      "account": "6089719",
+      "org_id": "11789772",
+      "display_name": "satphysical-965818f5-f623-4f18-b148-91cc6ea23abb",
+      "ansible_host": null,
+      "facts": [
+        {
+          "namespace": "satellite",
+          "facts": {
+            "satellite_instance_id": "73d16eea-a587-4e82-b538-72879b708d80",
+            "is_simple_content_access": false,
+            "distribution_version": "7.8",
+            "satellite_version": "6.7.2",
+            "organization_id": 1,
+            "system_purpose_role": "",
+            "system_purpose_usage": "",
+            "is_hostname_obfuscated": false
+          }
+        },
+        {
+          "namespace": "yupana",
+          "facts": {
+            "report_platform_id": "af399023-a3e6-40b9-a3b7-fcacf13d0374",
+            "org_id": "11789772",
+            "report_slice_id": "5fdbd0b9-115b-4e66-a798-d65c2da0eece",
+            "source": "Satellite",
+            "yupana_host_id": "ee4e4f52-eb07-4891-a075-dc0c3e6b52ff",
+            "account": "6089719"
+          }
+        }
+      ],
+      "reporter": "yupana",
+      "per_reporter_staleness": {
+        "yupana": {
+          "check_in_succeeded": true,
+          "stale_timestamp": "2023-11-03T20:08:01.181000+00:00",
+          "last_check_in": "2023-11-02T15:08:01.209694+00:00"
+        }
+      },
+      "stale_timestamp": "2023-11-03T20:08:01.181000+00:00",
+      "stale_warning_timestamp": "2023-11-10T20:08:01.181000+00:00",
+      "culled_timestamp": "2023-11-17T20:08:01.181000+00:00",
+      "created": "2023-11-02T15:08:01.253312+00:00",
+      "updated": "2023-11-02T15:08:01.253316+00:00",
+      "system_profile": {
+        "satellite_managed": true
+      },
+      "groups": []
+    }
+  ]
+}
