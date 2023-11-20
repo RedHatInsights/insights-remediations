@@ -2,6 +2,8 @@
 
 const _ = require('lodash');
 const Connector = require('../Connector');
+const generator = require('../inventory/systemGenerator');
+
 /* eslint-disable max-len */
 
 const MOCKDISPATCHRESPONSE = [
@@ -103,6 +105,9 @@ const RUNSTATUSES = {
     }
 };
 
+const SAT_RHC_IDS = {};
+
+
 module.exports = new class extends Connector {
     constructor () {
         super(module);
@@ -196,6 +201,64 @@ module.exports = new class extends Connector {
 
     getPlaybookRunRecipientStatus () {
         return RUNSTATUSES;
+    }
+
+    getConnectionStatus (dispatcherConnectionStatusRequest) {
+        const hosts = dispatcherConnectionStatusRequest.hosts;
+
+        // get system data
+        const systems = hosts.map(host => generator.generateSystemInfo(host));
+
+        // 'satellite' -> extract sat systems, grouped by satId+satOrg
+        const satellite = _(systems)
+            .filter('satelliteId')
+            .groupBy(system => `${system.satelliteId}+${system.satelliteOrgId}`)
+            .map(hosts => ({
+                org_id: dispatcherConnectionStatusRequest.org_id,
+                recipient: hosts[0].satelliteId === generator.DISCONNECTED_SATELLITE ?
+                    null : (
+                        SAT_RHC_IDS[hosts[0].satelliteId] ??
+                            (SAT_RHC_IDS[hosts[0].satelliteId] = 'beefface' + hosts[0].satelliteId.slice(8))
+                    ),
+                recipient_type: 'satellite',
+                sat_id: hosts[0].satelliteId,
+                sat_org_id: hosts[0].satelliteOrgId,
+                status: hosts[0].satelliteId === generator.DISCONNECTED_SATELLITE ? 'disconnected' : 'connected',
+                systems: _(hosts).map('id').value()
+            }))
+            .value();
+
+        // 'directConnect' -> one per host
+        const direct = _(systems)
+            .filter('rhc_client')
+            .map(host => ({
+                org_id: dispatcherConnectionStatusRequest.org_id,
+                recipient: host.id,
+                recipient_type: 'directConnect',
+                sat_id: '',
+                sat_org_id: '',
+                status: host.id.startsWith('deadfeed') ? 'disconnected' : 'connected',
+                systems: [host.id]
+            }))
+            .value();
+
+        // 'none'
+        const none = _(systems)
+            .filter(system => (_.isEmpty(system.satelliteId) && _.isEmpty(system.rhc_client)))
+            .map(host => ({
+                org_id: dispatcherConnectionStatusRequest.org_id,
+                recipient: '',
+                recipient_type: 'none',
+                sat_id: '',
+                sat_org_id: '',
+                status: host.id.startsWith('deadfeed') ? 'disconnected' : 'connected',
+                systems: [host.id]
+            }))
+            .value();
+
+        const result = [...satellite, ...direct, ...none];
+
+        return result;
     }
 
     ping () {}
