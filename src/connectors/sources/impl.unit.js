@@ -80,7 +80,7 @@ describe('sources impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getEndoints(['1231']);
+            const results = await impl.getEndpoints(['1231']);
             results.should.have.size(1);
             results[0].should.have.property('receptor_node', 'dsasd');
 
@@ -97,7 +97,7 @@ describe('sources impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getEndoints(['1231']);
+            const results = await impl.getEndpoints(['1231']);
             (results === null).should.be.true();
         });
     });
