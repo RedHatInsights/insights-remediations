@@ -32,7 +32,6 @@ module.exports = new class extends Connector {
     }
 
     async postPlaybookRunRequests (dispatcherWorkRequest) {
-
         // chunk this request if necessary...
         if (dispatcherWorkRequest.length > pageSize) {
             const chunks = _.chunk(dispatcherWorkRequest, pageSize);
@@ -131,7 +130,13 @@ module.exports = new class extends Connector {
     }
 
     async postV2PlaybookRunRequests (dispatcherV2WorkRequests) {
-        // TODO: chunk if we have more that 50 satellites
+        // chunk this request if necessary...
+        if (dispatcherV2WorkRequests.length > pageSize) {
+            const chunks = _.chunk(dispatcherV2WorkRequests, pageSize);
+            const results = await P.map(chunks, chunk => this.postPlaybookRunRequests(chunk));
+            return results.flat();
+        }
+
         const uri = new URI(host);
         uri.segment('internal');
         uri.segment('v2');

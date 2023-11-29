@@ -137,6 +137,20 @@ exports.rhcSatJobDispatched = function (rhcSatWorkRequest, response, playbookRun
     });
 }
 
+exports.workRequest = function (workRequest, playbookRunId) {
+    log.debug({
+        work_request: workRequest,
+        playbook_run_id: playbookRunId
+    });
+}
+
+exports.JobDispatched = function (workRequest, response, playbookRunId) {
+    log.debug({
+        response,
+        playbook_run_id: playbookRunId
+    });
+}
+
 exports.splitPlaybookPerRHCEnabledSystems = function (rhcWorkRequest, systems, playbookRunId) {
     playbookExecutionCounter.inc();
     log.debug({
