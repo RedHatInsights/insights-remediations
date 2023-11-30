@@ -10,7 +10,6 @@ const probes = require("../probes");
 const dispatcher = require("../connectors/dispatcher");
 const log = require("../util/log");
 const queries = require("./remediations.queries");
-const {createPlaybookRun} = require("./fifi");
 
 // status constants
 const CONNECTED = 'connected';
@@ -21,6 +20,11 @@ const FAILURE = 'failure';
 const RUNNING = 'running';
 const SUCCESS = 'success';
 const CANCELED = 'canceled';
+
+// recipient types
+const DIRECT = 'directConnect';
+const SATELLITE = 'satellite';
+const NONE = 'none';
 
 
 exports.checkRhcEnabled = async function () {
@@ -34,38 +38,21 @@ exports.checkRhcEnabled = async function () {
 };
 
 
+//======================================================================================================================
+
+
+//--------------------------------------------
+// Perform a playbook run against recipients
+//--------------------------------------------
 exports.createPlaybookRun = async function (recipients, exclude, remediation, username) {
     // create UUID for this run
     const playbook_run_id = uuidv4();
 
     // TODO: check if excludes contains anything NOT in targets
+    validateExcludes(exclude, recipients);
 
-    // create request object for each valid item in targets array
-    const excludeDirectTargets = exclude.includes('RHC');
-
-    const workRequests = recipients.flatMap(recipient => {
-        switch (recipient.recipient_type) {
-            case 'satellite':
-                // skip any disconnected satellites or those in the exclude list
-                if (recipient.status !== 'connected' || exclude.includes(recipient.sat_id)) {
-                    return [];
-                }
-
-                return [format.rhcSatelliteWorkRequestV2(playbook_run_id, recipient, remediation, username)];
-
-            case 'directConnect':
-                // skip all direct connect if exclude contains 'RHC'
-                if (excludeDirectTargets) {
-                    return [];
-                }
-
-                return [format.rhcDirectWorkRequestV2(playbook_run_id, recipient, remediation, username)];
-
-            default:
-                // skip these
-                return [];
-        }
-    });
+    // create work requests
+    const workRequests = createWorkRequests(playbook_run_id, recipients, exclude, remediation, username);
 
     // return 422 if no work remains
     if (_.isEmpty(workRequests)) {
@@ -88,6 +75,67 @@ exports.createPlaybookRun = async function (recipients, exclude, remediation, us
 
 
 
+//----------------------------------------------------------------------------------
+// Verify that the exclude list does not contain sat_ids not in list of recipients
+//----------------------------------------------------------------------------------
+function validateExcludes (excludes, recipients) {
+    // throw error if any exclude not in recipients
+    const unknownExcludes = _.difference(excludes, _.filter(excludes, exclude_id => {
+        if (exclude_id === 'RHC') {
+            return _.find(recipients, recipient => recipient.type === DIRECT);
+        }
+
+        return _.find(recipients, recipient => recipient.satId === exclude_id);
+    }));
+
+    if (!_.isEmpty(unknownExcludes)) {
+        throw errors.unknownExclude(unknownExcludes);
+    }
+
+    return true;
+}
+
+
+
+//------------------------------------------------------------------------------------
+// Create playbook-dispatcher work requests given list of recipients and remediation
+//------------------------------------------------------------------------------------
+function createWorkRequests (playbook_run_id, recipients, exclude, remediation, username) {
+    const excludeDirectTargets = exclude.includes('RHC');
+
+    // create request object for each valid item in recipients array
+    const workRequests = recipients.flatMap(recipient => {
+        switch (recipient.recipient_type) {
+            case 'satellite':
+                // skip any disconnected satellites or those in the exclude list
+                if (recipient.status !== CONNECTED || exclude.includes(recipient.sat_id)) {
+                    return [];
+                }
+
+                return [format.rhcSatelliteWorkRequestV2(playbook_run_id, recipient, remediation, username)];
+
+            case 'directConnect':
+                // skip all direct connect if exclude contains 'RHC'
+                if (excludeDirectTargets || recipient.status !== CONNECTED) {
+                    return [];
+                }
+
+                return [format.rhcDirectWorkRequestV2(playbook_run_id, recipient, remediation, username)];
+
+            default:
+                // skip these
+                return [];
+        }
+    });
+
+    return workRequests;
+}
+
+
+
+//----------------------------------------------
+// Submit work requests to playbook-dispatcher
+//----------------------------------------------
 async function dispatchWorkRequests (workRequests, playbook_run_id) {
     try {
         probes.workRequest(workRequests, playbook_run_id);
@@ -110,6 +158,9 @@ async function dispatchWorkRequests (workRequests, playbook_run_id) {
 
 
 
+//----------------------------------------------
+// Create DB entry to record this playbook run
+//----------------------------------------------
 async function storePlaybookRun (playbook_run_id, remediation, username) {
     const run = {
         id: playbook_run_id,
