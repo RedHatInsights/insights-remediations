@@ -61,7 +61,9 @@ exports.connection_status = errors.async(async function (req, res) {
         hosts: systemIds
     };
 
+    log.debug(`connection status request: ${JSON.stringify(connectionStatusRequest)}`);
     const recipients = dispatcher.getConnectionStatus(connectionStatusRequest);
+    log.debug(`connection status requested status for ${systemIds.length} hosts, received: ${JSON.stringify(recipients)}`);
 
     //-----------------
     // process e-tag
