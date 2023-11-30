@@ -48,7 +48,7 @@ exports.createPlaybookRun = async function (recipients, exclude, remediation, us
     // create UUID for this run
     const playbook_run_id = uuidv4();
 
-    // TODO: check if excludes contains anything NOT in targets
+    // check if excludes contains anything NOT in targets
     validateExcludes(exclude, recipients);
 
     // create work requests
@@ -102,6 +102,10 @@ function validateExcludes (excludes, recipients) {
 //------------------------------------------------------------------------------------
 function createWorkRequests (playbook_run_id, recipients, exclude, remediation, username) {
     const excludeDirectTargets = exclude.includes('RHC');
+
+    if (_.isEmpty(recipients)) {
+        return [];
+    }
 
     // create request object for each valid item in recipients array
     const workRequests = recipients.flatMap(recipient => {
