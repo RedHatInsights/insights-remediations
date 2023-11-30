@@ -2,6 +2,84 @@
 
 const URI = require("urijs");
 const config = require("../config");
+const _ = require("lodash");
+
+const recipientTypeMap = {
+    'satellite': 'RHC-satellite',
+    'directConnect': 'RHC',
+    'none': 'none'
+};
+
+const recipientStatusMap = {
+    'connected': 'connected',
+    'disconnected': 'disconnected',
+    'rhc_not_configure': 'no_rhc',
+    'no_rhc': 'no_rhc'
+};
+
+
+exports.connectionStatus = function (recipients) {
+    // one entry for:
+    //   - each satellite
+    //   - all connected direct
+    //   - all disconnected direct
+    //   - all no-rhc direct
+    const data = _(recipients)
+        .groupBy(recipient => {
+            switch (recipient.recipient_type) {
+                case 'satellite':
+                    return `${recipient.sat_id} ${recipient.sat_org_id}`;
+
+                default:
+                    return recipient.recipient_type;
+            }
+        })
+        .map((targets) => {
+            const recipient = targets[0];
+            switch (recipient.recipient_type) {
+                case 'satellite':
+                    return {
+                        endpoint_id: null,
+                        executor_id: recipient.sat_id,
+                        executor_type: 'RHC-satellite',
+                        executor_name: `Satellite ${recipient.sat_id} Org ${recipient.sat_org_id}`,
+                        system_count: recipient.systems.length,
+                        connection_status: recipientStatusMap[recipient.status]
+                    };
+
+                case 'directConnect':
+                    return {
+                        endpoint_id: null,
+                        executor_id: null,
+                        executor_type: 'RHC',
+                        executor_name: null,
+                        system_count: targets.length,
+                        connection_status: recipientStatusMap[recipient.status]
+                    };
+
+                default:
+                    return {
+                        endpoint_id: null,
+                        executor_id: null,
+                        executor_type: 'None',
+                        executor_name: null,
+                        system_count: targets.length,
+                        connection_status: recipientStatusMap[recipient.status]
+                    };
+            }
+        })
+        .sortBy('executor_name')
+        .value();
+
+    return {
+        meta: {
+            count: data.length,
+            total: data.length
+        },
+        data
+    };
+};
+
 
 
 exports.rhcDirectWorkRequestV2 = function (playbookRunId, target, remediation, username) {
@@ -19,6 +97,8 @@ exports.rhcDirectWorkRequestV2 = function (playbookRunId, target, remediation, u
         labels: { 'playbook-run': playbookRunId }
     };
 };
+
+
 
 exports.rhcSatelliteWorkRequestV2 = function (playbookRunId, recipient, remediation, username) {
     return {

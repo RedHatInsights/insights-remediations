@@ -43,7 +43,7 @@ module.exports = function (router) {
         .get(openapi('checkExecutable'), rbacRead, fifi.checkExecutable);
 
     router.route('/remediations/:id/connection_status')
-        .get(trace, openapi('getRemediationConnectionStatus'), rbacExecute, fifi.connection_status);
+        .get(trace, openapi('getRemediationConnectionStatus'), rbacExecute, fifi2.connection_status);
 
     router.route('/remediations/:id/playbook_runs')
         .get(openapi('listPlaybookRuns'), rbacRead, fifi.listPlaybookRuns)

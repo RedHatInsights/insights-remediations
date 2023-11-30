@@ -7,9 +7,78 @@ const _ = require("lodash");
 const dispatcher = require("../connectors/dispatcher");
 const etag = require("etag");
 const probes = require("../probes");
+const trace = require("../util/trace");
+const format = require("./remediations.format_2");
 
 const notMatching = res => res.sendStatus(412);
 const notFound = res => res.sendStatus(404);
+
+
+//-------------------------------------------------------------------------------------
+
+
+exports.connection_status = errors.async(async function (req, res) {
+    const remediationId = req.params.id;
+    const tenantOrgId = req.user.tenant_org_id;
+    const username = req.user.username;
+    const exclude = req.body.exclude || [];
+
+    //----------------------------------------------------------------
+    // fetch remediation and GET enabled status from config-manager
+    //----------------------------------------------------------------
+    const [remediation, rhcEnabled] = await Promise.all([
+        queries.get(remediationId, tenantOrgId, username),
+        fifi.checkRhcEnabled()
+    ]);
+
+    if (!remediation) {
+        // 404 if remediation not found
+        return notFound(res);
+    }
+
+    if (!rhcEnabled) {
+        // 403 if remediations not enabled
+        throw new errors.Forbidden();
+    }
+
+    //--------------------------------------------------------------
+    // Extract unique, sorted list of system_ids from remediation
+    //--------------------------------------------------------------
+    const systemIds = [
+        ... new Set(
+            _(remediation.issues)
+                .flatMap('systems')
+                .map('system_id')
+                .value()
+        )
+    ].sort();
+
+    //-----------------------------------------------
+    // get connection status of referenced systems
+    //-----------------------------------------------
+    const connectionStatusRequest = {
+        org_id:  tenantOrgId,
+        hosts: systemIds
+    };
+
+    const recipients = dispatcher.getConnectionStatus(connectionStatusRequest);
+
+    //-----------------
+    // process e-tag
+    //-----------------
+    res.set('etag', etag(JSON.stringify(recipients)));
+
+
+    const result = format.connectionStatus(recipients);
+
+    res.json(result);
+
+    trace.leave(`Return result: ${JSON.stringify(result)}`);
+});
+
+
+//-------------------------------------------------------------------------------------
+
 
 exports.executePlaybookRuns = errors.async(async function (req, res) {
     const remediationId = req.params.id;
