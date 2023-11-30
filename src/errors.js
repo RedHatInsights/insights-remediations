@@ -75,6 +75,12 @@ exports.Forbidden = class Forbidden extends HttpError {
     }
 };
 
+exports.Unprocessable = class BadRequest extends HttpError {
+    constructor (code, title, details) {
+        super(422, code, title, details);
+    }
+};
+
 exports.DependencyError = class DependencyError extends HttpError {
     constructor (e, connector) {
         super(
@@ -177,7 +183,10 @@ exports.invalidOffset = (offset, max) =>
     new exports.BadRequest('INVALID_OFFSET', `Requested starting offset ${offset} out of range: [0, ${max}]`);
 
 exports.noExecutors = remediation =>
-    new exports.BadRequest('NO_EXECUTORS', `No executors available for Playbook "${remediation.name}" (${remediation.id})`);
+    new exports.Unprocessable('NO_EXECUTORS', `No executors available for Playbook "${remediation.name}" (${remediation.id})`);
+
+exports.noSystems = remediation =>
+    new exports.Unprocessable('NO_SYSTEMS', `Remediation ${remediation.id} contains no systems`);
 
 exports.unknownExclude = excluded =>
     new exports.BadRequest('UNKNOWN_EXCLUDE', `Excluded Executor [${excluded}] not found in list of identified executors`);

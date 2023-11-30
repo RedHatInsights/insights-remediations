@@ -23,6 +23,7 @@ module.exports = new class extends Connector {
     constructor () {
         super(module);
         this.postRunRequests = metrics.createConnectorMetric(this.getName(), 'postPlaybookRunRequests');
+        this.postV2ConnectionStatus = metrics.createConnectorMetric(this.getName(), 'getConnectionStatus');
         this.postV2RunRequests = metrics.createConnectorMetric(this.getName(), 'postV2PlaybookRunRequests');
         this.postPlaybookCancelRequests = metrics.createConnectorMetric(this.getName(), 'postPlaybookCancelRequests');
         this.fetchRuns = metrics.createConnectorMetric(this.getName(), 'fetchPlaybookRuns');
@@ -31,7 +32,6 @@ module.exports = new class extends Connector {
     }
 
     async postPlaybookRunRequests (dispatcherWorkRequest) {
-
         // chunk this request if necessary...
         if (dispatcherWorkRequest.length > pageSize) {
             const chunks = _.chunk(dispatcherWorkRequest, pageSize);
@@ -66,8 +66,77 @@ module.exports = new class extends Connector {
         return result;
     }
 
-    async postV2PlaybookRunRequests (dispatcherV2WorkRequest) {
-        // TODO: chunk if we have more that 50 satellites
+    // Given a list of hosts, returns an array of objects aggregating connection status:
+    //
+    // [
+    //     {
+    //         "org_id": "5318290",
+    //         "recipient": "d415fc2d-9700-4e30-9621-6a410ccc92d8",
+    //         "recipient_type": "satellite",
+    //         "sat_id": "bd54e0e9-5310-45be-b107-fd7c96672ce5",
+    //         "sat_org_id": "5",
+    //         "status": "connected",
+    //         "systems": [
+    //             "c484f980-ab8d-401b-90e7-aa1d4ccf8c0e",
+    //             "d0e03cfb-c2fe-4207-809d-6c203f7811c7"
+    //         ]
+    //     },
+    //     {
+    //         "org_id": "5318290",
+    //         "recipient": "32af5948-301f-449a-a25b-ff34c83264a2",
+    //         "recipient_type": "directConnect",
+    //         "sat_id": "",
+    //         "sat_org_id": "",
+    //         "status": "connected",
+    //         "systems": [
+    //             "fe30b997-c15a-44a9-89df-c236c3b5c540"
+    //         ]
+    //     }
+    // ]
+    //
+    //  - one object per satellite_instance_id, satellite_organization pair (recipient_type == satellite)
+    //  - one object for direct-connect hosts with status == connected (recipient_type == directConnect)
+    //  - one object for direct-connect hosts with status == disconnected (recipient_type == directConnect)
+    //  - one object for direct-connect hosts with status == rhc_not_configured (recipient_type == directConnect)
+    //  - one object for hosts with recipient_type == none (e.g. old receptor hosts)
+    async getConnectionStatus (dispatcherConnectionStatusRequest) {
+        // TODO: eh... we should chunk this if the number of hosts is ridonculous
+        const uri = new URI(host);
+        uri.segment('internal');
+        uri.segment('v2');
+        uri.segment('connection_status');
+
+        const options = {
+            uri: uri.toString(),
+            method: 'POST',
+            json: true,
+            rejectUnauthorized: !insecure,
+            headers: this.getForwardedHeaders(),
+            body: dispatcherConnectionStatusRequest
+        };
+
+        // This header should be sent to the playbook dispatcher for each internal request.
+        if (auth) {
+            options.headers.Authorization = `PSK ${auth}`;
+        }
+
+        const result = await this.doHttp (options, false, this.postV2ConnectionStatus);
+
+        if (_.isEmpty(result)) {
+            return [];
+        }
+
+        return result;
+    }
+
+    async postV2PlaybookRunRequests (dispatcherV2WorkRequests) {
+        // chunk this request if necessary...
+        if (dispatcherV2WorkRequests.length > pageSize) {
+            const chunks = _.chunk(dispatcherV2WorkRequests, pageSize);
+            const results = await P.map(chunks, chunk => this.postPlaybookRunRequests(chunk));
+            return results.flat();
+        }
+
         const uri = new URI(host);
         uri.segment('internal');
         uri.segment('v2');
@@ -79,7 +148,7 @@ module.exports = new class extends Connector {
             json: true,
             rejectUnauthorized: !insecure,
             headers: this.getForwardedHeaders(),
-            body: dispatcherV2WorkRequest
+            body: dispatcherV2WorkRequests
         };
 
         // This header should be sent to the playbook dispatcher for each internal request.
@@ -252,6 +321,7 @@ module.exports = new class extends Connector {
 
         log.info({request: dispatcherStatusRequest}, 'PRE RunRecipientStatus');
         const result = await this.doHttp (options, false, this.getRunRecipientStatus);
+        // TODO: ehh, we probably shouldn't be logging this...
         log.info({result: result}, 'POST RunRecipientStatus');
 
         if (_.isNull(result)) {

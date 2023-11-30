@@ -19,6 +19,8 @@ module.exports = new class extends Connector {
     }
 
     async findSources (ids) {
+        // TODO: Chunk this is list of ids is long
+
         if (ids.length === 0) {
             return {};
         }
@@ -47,7 +49,7 @@ module.exports = new class extends Connector {
         .value();
     }
 
-    async getEndoints (id) {
+    async getEndpoints (id) {
         const uri = this.buildUri(host, 'sources', 'v2.0', 'sources', String(id), 'endpoints');
 
         const result = await this.doHttp({
@@ -74,7 +76,7 @@ module.exports = new class extends Connector {
                 return source;
             }
 
-            source.endpoints = await this.getEndoints(source.id);
+            source.endpoints = await this.getEndpoints(source.id);
             return source;
         });
 
