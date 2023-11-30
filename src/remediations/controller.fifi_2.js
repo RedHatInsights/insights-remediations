@@ -7,7 +7,7 @@ const _ = require("lodash");
 const dispatcher = require("../connectors/dispatcher");
 const etag = require("etag");
 const probes = require("../probes");
-const trace = require("../util/trace");
+const log = require('../util/log');
 const format = require("./remediations.format_2");
 
 const notMatching = res => res.sendStatus(412);
@@ -72,8 +72,6 @@ exports.connection_status = errors.async(async function (req, res) {
     const result = format.connectionStatus(recipients);
 
     res.json(result);
-
-    trace.leave(`Return result: ${JSON.stringify(result)}`);
 });
 
 
@@ -130,7 +128,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
     };
 
     const recipients = dispatcher.getConnectionStatus(connectionStatusRequest);
-
+    log.debug(`Requested status for ${connectionStatusRequest.hosts.length} hosts, received: ${JSON.stringify(recipients)}`);
 
     //-----------------
     // process e-tag
