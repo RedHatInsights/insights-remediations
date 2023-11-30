@@ -61,9 +61,9 @@ exports.connection_status = errors.async(async function (req, res) {
         hosts: systemIds
     };
 
-    log.debug(`connection status request: ${JSON.stringify(connectionStatusRequest)}`);
+    log.error(`connection status request: ${JSON.stringify(connectionStatusRequest)}`);
     const recipients = dispatcher.getConnectionStatus(connectionStatusRequest);
-    log.debug(`connection status requested status for ${systemIds.length} hosts, received: ${JSON.stringify(recipients)}`);
+    log.error(`connection status requested status for ${systemIds.length} hosts, received: ${JSON.stringify(recipients)}`);
 
     //-----------------
     // process e-tag
@@ -130,7 +130,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
     };
 
     const recipients = dispatcher.getConnectionStatus(connectionStatusRequest);
-    log.debug(`Requested status for ${connectionStatusRequest.hosts.length} hosts, received: ${JSON.stringify(recipients)}`);
+    log.error(`Requested status for ${connectionStatusRequest.hosts.length} hosts, received: ${JSON.stringify(recipients)}`);
 
     //-----------------
     // process e-tag
