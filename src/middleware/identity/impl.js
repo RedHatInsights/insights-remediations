@@ -37,6 +37,15 @@ module.exports = function (req, res, next) {
             };
         }
 
+        if (req.identity.type === 'ServiceAccount') {
+            req.user = {
+                account_number: '',
+                tenant_org_id: req.identity.org_id,
+                username: req.identity.service_account.username,
+                is_internal: false
+            };
+        }
+
         next();
     } catch (e) {
         log.debug({header: raw, error: e.message, reqId}, 'Error decoding identity header');
