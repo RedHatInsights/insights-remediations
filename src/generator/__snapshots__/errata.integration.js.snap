@@ -23,36 +23,36 @@ exports[`aggregates multiple errata into a single play 1`] = `
     insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
-      RWNnZGpFS0NtbFJTVlpCZDFWQldrWjZOR0U0ZG5jMU9FUXJhalZ3VGtGUmFqRmhkeTh2WTJveWMw
-      TmFRbWR2VW5Cek0xTkpjazFFUkZWTGIxQTFWak14YlhrMVRUSUtUSFp0UzBac1FWZ3pPRzVTZUZw
-      UVpXSnViVUZJYWpoNE0weFdTVWxTY2pOTVdFUmxSVXB0YVdGWFZXVmtWV3QwUm01NllXRk1ORnA0
-      VkhoVFJGazBUQXBQYzNaU09XaFdkVm80UWpJMmFXbFdTM2RsY21WeFdUUkVaRWM1TUdoUldXUlFN
-      V3RFVTBSb1RWTlpVUzkyZEVoQ1NFbHFZemRpTlM5dldFUlRaMDFLQ210bVoyNVNjVGhsTlVObkww
-      RjVRV0paYURrMVJUSlZjbFIwTkRCR1VqRmhhbFI2VVZwSWMwOHhabTVSTUVKR1RqazFOMnB6V1dk
-      TlRVbDBZbWhQVlRRS1FWVlVTekZ4UTBVNFFYbHROMk40VEhCc1dWZGlkbVF2UTBWVVNsTmllR05o
-      Vm5sRU5GSjFSRTVGY0VaeFZXRnRhbTE2V2xKc2JESlZUVGMzVVZwT1FRcFNWMDQzYlROSWIwMWlk
-      VUV2WTJaUmFHRnlaMEpwVWtsWk5TdEJTVkYxWmtSa1FWbE9UMHR4ZWtSUlUyNVpVbFUwTDJWd2RV
-      MVVTVVpXVDBJM1JuSllDbGsxUkc4dldub3hlVE42ZGpGSGVtZElaRzV0U25CVmFEZFliV1pEUkVs
-      SFR6ZEZRWFZoV1RSVmVrTmxXRTlJZDJWS0swbHZiMWhCVFhSa05FSlRaVllLUlhCSloyRXJhV2RV
-      ZG5sUlFWQllNMjlWV0dGSGJ6bFRSa3BQZGxwS1JuaENVVWRuZUc1elNubFFjbFJYVDJwWE0yY3hO
-      Mk5vTTNwc1NYVmhTMUJ1ZFFwelFpOVNSemRTWW01R1kyRllTbEJSV0hGd1NHMDVUMHBrYVhJeGEz
-      bDNUSEp6TUhkcE9XOVdhWE00VWtSck9EZFpjVlpaSzFoSksyRjJabWxETURFeUNqWmFLMU42YVdW
-      c2VISnZRMWx2Yms4cmRWbzRkWGRKVUZCcFR6YzNOVTlzUnpOcmJtTk9XbTVyYlZGVlpHUldSWEJI
-      WldwSVREWllNbTVXVkVWeVJtMEtaamhJYlZoUk1EUkpXak5IZUhOeVUzQllZa2xqUkVwVWNtWnJT
-      azlCVXpjNWFYaHZVVEphYzI1WE5FUmFOVGRqYjNRd1JtOU5la2w1ZUhodVIxSkNZUXAwVDFreVkx
-      VnNReTk2TkQwS1BVazJUM2dLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
-      PQ==
+      RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU214dlJqY3pRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rt
+      TnhVVkF2TVhGTGFDOW5ZVk5YTTFNME5VVjNla2haU21kUWF5c0tabXczTUdvNVRtbElRalIzVVVO
+      SWExSm5OVlE0SzNJd1FsWndhRE13UjFWb2FEVk9NV1ZRVVVGSFNHcENSbXhWV0RSSlJEaG9SbTVM
+      TjFJMVpteHhhQXBIZDJ4UmFVRkhNakZQTVVVM1N6bFdUbXhtY21oSVIxUTVXak5zVG14UldWaFpP
+      SEl6Y201VWMyRnBlWEowZWsxMGRYUkJOR2hKUjBJd1RsaFlaMVl2Q2xadFNHbFVRbkJCWkVsR2VY
+      ZzVVRVZtVlZaUWRsUkVieXQ1YURsRFptSndkVEJyVkVaVE1sWkRhRFo1WTFKWU1rZFJjbXBMY0Zn
+      MFIzSjFlRzlEYXpnS2IyRlFWMlJYVHpVeWFXSlljM1JNZFVsUlJGRlZjR0Z4UlUxdFJFaEtUalpG
+      Y2xSQlYxZEhRbEZFZVdsWVVtRjZaa1pTUjJZeU5Xc3JWM2xuVTFSM2FRb3JORUY2ZFVScmEzRlFj
+      M3BZVTBOSmJESk1kWGxoYjBSRE9HcDVNSHA2YkUwNFEzUndXU3RJWjBkR2IwOUVka0k1TTNJd01I
+      WnpNemxFWkdwYVNsVjZDbEZXTkUxNE5tOUpkMVoyZEVSbGFqSXZZMWMwTldkelVXc3lUMlpxY1hS
+      RlNHNUNhVWREU20wMmFIcFRUM1psYzFKdGVEaEVlWGxYVVZGUVdEWTVUV1VLYTJkYU5WQlNPV05S
+      YjNSd2FVWlpPV2xOZVdOUmRraFlWRU5qUjI5VU1tMWhaV2hKU1RWVVNuUlNSVnB0Um5BeFVrZFNS
+      emRIVHpCRE0ydEZNbGxhTndwamJXTnhNazFRUkRObVMxUnFRMlppV21rMGVFcFNablUxYW5keFdu
+      VTBaVzVhTm1SV1YxaG5ObVpGVFN0TVZuaEZWMGhDYzNKalRtSlRNR0ZuTUdaTkNsWjBTMjVZWWxC
+      NlJHOTVPV1p5SzNobE5HY3dkbEJEUlhCVmJVOU5SeTg0Y2xaTmVuWmxjR00xVFhOcVZWaHJRa3c0
+      TWs1NE1YSTRSVXgxTWpCWllWa0tRblpvVnpsTmNraGhlVEZtVms1bVNGUnVPRGd5UkZCU2JqaE1j
+      VGhOYVdkM1kydDZWa1I0VUc5YWF6VldjV1FyUVdsMmJrVlBjMlk1YW5Ka2VHMTNOQXBKWVdrNFpH
+      OU5aV1kwTTNsNWNXVnZjbEZLZUFvOVpWWkZTQW90TFMwdExVVk9SQ0JRUjFBZ1UwbEhUa0ZVVlZK
+      RkxTMHRMUzBL
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
 
     - when: check_out.rc == 100
       name: set reboot fact
@@ -165,36 +165,36 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
     insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
-      RWNnZGpFS0NtbFJTVlpCZDFWQldrWjZOR0U0ZG5jMU9FUXJhalZ3VGtGUmFqRmhkeTh2WTJveWMw
-      TmFRbWR2VW5Cek0xTkpjazFFUkZWTGIxQTFWak14YlhrMVRUSUtUSFp0UzBac1FWZ3pPRzVTZUZw
-      UVpXSnViVUZJYWpoNE0weFdTVWxTY2pOTVdFUmxSVXB0YVdGWFZXVmtWV3QwUm01NllXRk1ORnA0
-      VkhoVFJGazBUQXBQYzNaU09XaFdkVm80UWpJMmFXbFdTM2RsY21WeFdUUkVaRWM1TUdoUldXUlFN
-      V3RFVTBSb1RWTlpVUzkyZEVoQ1NFbHFZemRpTlM5dldFUlRaMDFLQ210bVoyNVNjVGhsTlVObkww
-      RjVRV0paYURrMVJUSlZjbFIwTkRCR1VqRmhhbFI2VVZwSWMwOHhabTVSTUVKR1RqazFOMnB6V1dk
-      TlRVbDBZbWhQVlRRS1FWVlVTekZ4UTBVNFFYbHROMk40VEhCc1dWZGlkbVF2UTBWVVNsTmllR05o
-      Vm5sRU5GSjFSRTVGY0VaeFZXRnRhbTE2V2xKc2JESlZUVGMzVVZwT1FRcFNWMDQzYlROSWIwMWlk
-      VUV2WTJaUmFHRnlaMEpwVWtsWk5TdEJTVkYxWmtSa1FWbE9UMHR4ZWtSUlUyNVpVbFUwTDJWd2RV
-      MVVTVVpXVDBJM1JuSllDbGsxUkc4dldub3hlVE42ZGpGSGVtZElaRzV0U25CVmFEZFliV1pEUkVs
-      SFR6ZEZRWFZoV1RSVmVrTmxXRTlJZDJWS0swbHZiMWhCVFhSa05FSlRaVllLUlhCSloyRXJhV2RV
-      ZG5sUlFWQllNMjlWV0dGSGJ6bFRSa3BQZGxwS1JuaENVVWRuZUc1elNubFFjbFJYVDJwWE0yY3hO
-      Mk5vTTNwc1NYVmhTMUJ1ZFFwelFpOVNSemRTWW01R1kyRllTbEJSV0hGd1NHMDVUMHBrYVhJeGEz
-      bDNUSEp6TUhkcE9XOVdhWE00VWtSck9EZFpjVlpaSzFoSksyRjJabWxETURFeUNqWmFLMU42YVdW
-      c2VISnZRMWx2Yms4cmRWbzRkWGRKVUZCcFR6YzNOVTlzUnpOcmJtTk9XbTVyYlZGVlpHUldSWEJI
-      WldwSVREWllNbTVXVkVWeVJtMEtaamhJYlZoUk1EUkpXak5IZUhOeVUzQllZa2xqUkVwVWNtWnJT
-      azlCVXpjNWFYaHZVVEphYzI1WE5FUmFOVGRqYjNRd1JtOU5la2w1ZUhodVIxSkNZUXAwVDFreVkx
-      VnNReTk2TkQwS1BVazJUM2dLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
-      PQ==
+      RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU214dlJqY3pRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rt
+      TnhVVkF2TVhGTGFDOW5ZVk5YTTFNME5VVjNla2haU21kUWF5c0tabXczTUdvNVRtbElRalIzVVVO
+      SWExSm5OVlE0SzNJd1FsWndhRE13UjFWb2FEVk9NV1ZRVVVGSFNHcENSbXhWV0RSSlJEaG9SbTVM
+      TjFJMVpteHhhQXBIZDJ4UmFVRkhNakZQTVVVM1N6bFdUbXhtY21oSVIxUTVXak5zVG14UldWaFpP
+      SEl6Y201VWMyRnBlWEowZWsxMGRYUkJOR2hKUjBJd1RsaFlaMVl2Q2xadFNHbFVRbkJCWkVsR2VY
+      ZzVVRVZtVlZaUWRsUkVieXQ1YURsRFptSndkVEJyVkVaVE1sWkRhRFo1WTFKWU1rZFJjbXBMY0Zn
+      MFIzSjFlRzlEYXpnS2IyRlFWMlJYVHpVeWFXSlljM1JNZFVsUlJGRlZjR0Z4UlUxdFJFaEtUalpG
+      Y2xSQlYxZEhRbEZFZVdsWVVtRjZaa1pTUjJZeU5Xc3JWM2xuVTFSM2FRb3JORUY2ZFVScmEzRlFj
+      M3BZVTBOSmJESk1kWGxoYjBSRE9HcDVNSHA2YkUwNFEzUndXU3RJWjBkR2IwOUVka0k1TTNJd01I
+      WnpNemxFWkdwYVNsVjZDbEZXTkUxNE5tOUpkMVoyZEVSbGFqSXZZMWMwTldkelVXc3lUMlpxY1hS
+      RlNHNUNhVWREU20wMmFIcFRUM1psYzFKdGVEaEVlWGxYVVZGUVdEWTVUV1VLYTJkYU5WQlNPV05S
+      YjNSd2FVWlpPV2xOZVdOUmRraFlWRU5qUjI5VU1tMWhaV2hKU1RWVVNuUlNSVnB0Um5BeFVrZFNS
+      emRIVHpCRE0ydEZNbGxhTndwamJXTnhNazFRUkRObVMxUnFRMlppV21rMGVFcFNablUxYW5keFdu
+      VTBaVzVhTm1SV1YxaG5ObVpGVFN0TVZuaEZWMGhDYzNKalRtSlRNR0ZuTUdaTkNsWjBTMjVZWWxC
+      NlJHOTVPV1p5SzNobE5HY3dkbEJEUlhCVmJVOU5SeTg0Y2xaTmVuWmxjR00xVFhOcVZWaHJRa3c0
+      TWs1NE1YSTRSVXgxTWpCWllWa0tRblpvVnpsTmNraGhlVEZtVms1bVNGUnVPRGd5UkZCU2JqaE1j
+      VGhOYVdkM1kydDZWa1I0VUc5YWF6VldjV1FyUVdsMmJrVlBjMlk1YW5Ka2VHMTNOQXBKWVdrNFpH
+      OU5aV1kwTTNsNWNXVnZjbEZLZUFvOVpWWkZTQW90TFMwdExVVk9SQ0JRUjFBZ1UwbEhUa0ZVVlZK
+      RkxTMHRMUzBL
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
 
     - when: check_out.rc == 100
       name: set reboot fact
@@ -351,36 +351,36 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
     insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
-      RWNnZGpFS0NtbFJTVlpCZDFWQldrWjZOR0U0ZG5jMU9FUXJhalZ3VGtGUmFqRmhkeTh2WTJveWMw
-      TmFRbWR2VW5Cek0xTkpjazFFUkZWTGIxQTFWak14YlhrMVRUSUtUSFp0UzBac1FWZ3pPRzVTZUZw
-      UVpXSnViVUZJYWpoNE0weFdTVWxTY2pOTVdFUmxSVXB0YVdGWFZXVmtWV3QwUm01NllXRk1ORnA0
-      VkhoVFJGazBUQXBQYzNaU09XaFdkVm80UWpJMmFXbFdTM2RsY21WeFdUUkVaRWM1TUdoUldXUlFN
-      V3RFVTBSb1RWTlpVUzkyZEVoQ1NFbHFZemRpTlM5dldFUlRaMDFLQ210bVoyNVNjVGhsTlVObkww
-      RjVRV0paYURrMVJUSlZjbFIwTkRCR1VqRmhhbFI2VVZwSWMwOHhabTVSTUVKR1RqazFOMnB6V1dk
-      TlRVbDBZbWhQVlRRS1FWVlVTekZ4UTBVNFFYbHROMk40VEhCc1dWZGlkbVF2UTBWVVNsTmllR05o
-      Vm5sRU5GSjFSRTVGY0VaeFZXRnRhbTE2V2xKc2JESlZUVGMzVVZwT1FRcFNWMDQzYlROSWIwMWlk
-      VUV2WTJaUmFHRnlaMEpwVWtsWk5TdEJTVkYxWmtSa1FWbE9UMHR4ZWtSUlUyNVpVbFUwTDJWd2RV
-      MVVTVVpXVDBJM1JuSllDbGsxUkc4dldub3hlVE42ZGpGSGVtZElaRzV0U25CVmFEZFliV1pEUkVs
-      SFR6ZEZRWFZoV1RSVmVrTmxXRTlJZDJWS0swbHZiMWhCVFhSa05FSlRaVllLUlhCSloyRXJhV2RV
-      ZG5sUlFWQllNMjlWV0dGSGJ6bFRSa3BQZGxwS1JuaENVVWRuZUc1elNubFFjbFJYVDJwWE0yY3hO
-      Mk5vTTNwc1NYVmhTMUJ1ZFFwelFpOVNSemRTWW01R1kyRllTbEJSV0hGd1NHMDVUMHBrYVhJeGEz
-      bDNUSEp6TUhkcE9XOVdhWE00VWtSck9EZFpjVlpaSzFoSksyRjJabWxETURFeUNqWmFLMU42YVdW
-      c2VISnZRMWx2Yms4cmRWbzRkWGRKVUZCcFR6YzNOVTlzUnpOcmJtTk9XbTVyYlZGVlpHUldSWEJI
-      WldwSVREWllNbTVXVkVWeVJtMEtaamhJYlZoUk1EUkpXak5IZUhOeVUzQllZa2xqUkVwVWNtWnJT
-      azlCVXpjNWFYaHZVVEphYzI1WE5FUmFOVGRqYjNRd1JtOU5la2w1ZUhodVIxSkNZUXAwVDFreVkx
-      VnNReTk2TkQwS1BVazJUM2dLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
-      PQ==
+      RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU214dlJqY3pRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rt
+      TnhVVkF2TVhGTGFDOW5ZVk5YTTFNME5VVjNla2haU21kUWF5c0tabXczTUdvNVRtbElRalIzVVVO
+      SWExSm5OVlE0SzNJd1FsWndhRE13UjFWb2FEVk9NV1ZRVVVGSFNHcENSbXhWV0RSSlJEaG9SbTVM
+      TjFJMVpteHhhQXBIZDJ4UmFVRkhNakZQTVVVM1N6bFdUbXhtY21oSVIxUTVXak5zVG14UldWaFpP
+      SEl6Y201VWMyRnBlWEowZWsxMGRYUkJOR2hKUjBJd1RsaFlaMVl2Q2xadFNHbFVRbkJCWkVsR2VY
+      ZzVVRVZtVlZaUWRsUkVieXQ1YURsRFptSndkVEJyVkVaVE1sWkRhRFo1WTFKWU1rZFJjbXBMY0Zn
+      MFIzSjFlRzlEYXpnS2IyRlFWMlJYVHpVeWFXSlljM1JNZFVsUlJGRlZjR0Z4UlUxdFJFaEtUalpG
+      Y2xSQlYxZEhRbEZFZVdsWVVtRjZaa1pTUjJZeU5Xc3JWM2xuVTFSM2FRb3JORUY2ZFVScmEzRlFj
+      M3BZVTBOSmJESk1kWGxoYjBSRE9HcDVNSHA2YkUwNFEzUndXU3RJWjBkR2IwOUVka0k1TTNJd01I
+      WnpNemxFWkdwYVNsVjZDbEZXTkUxNE5tOUpkMVoyZEVSbGFqSXZZMWMwTldkelVXc3lUMlpxY1hS
+      RlNHNUNhVWREU20wMmFIcFRUM1psYzFKdGVEaEVlWGxYVVZGUVdEWTVUV1VLYTJkYU5WQlNPV05S
+      YjNSd2FVWlpPV2xOZVdOUmRraFlWRU5qUjI5VU1tMWhaV2hKU1RWVVNuUlNSVnB0Um5BeFVrZFNS
+      emRIVHpCRE0ydEZNbGxhTndwamJXTnhNazFRUkRObVMxUnFRMlppV21rMGVFcFNablUxYW5keFdu
+      VTBaVzVhTm1SV1YxaG5ObVpGVFN0TVZuaEZWMGhDYzNKalRtSlRNR0ZuTUdaTkNsWjBTMjVZWWxC
+      NlJHOTVPV1p5SzNobE5HY3dkbEJEUlhCVmJVOU5SeTg0Y2xaTmVuWmxjR00xVFhOcVZWaHJRa3c0
+      TWs1NE1YSTRSVXgxTWpCWllWa0tRblpvVnpsTmNraGhlVEZtVms1bVNGUnVPRGd5UkZCU2JqaE1j
+      VGhOYVdkM1kydDZWa1I0VUc5YWF6VldjV1FyUVdsMmJrVlBjMlk1YW5Ka2VHMTNOQXBKWVdrNFpH
+      OU5aV1kwTTNsNWNXVnZjbEZLZUFvOVpWWkZTQW90TFMwdExVVk9SQ0JRUjFBZ1UwbEhUa0ZVVlZK
+      RkxTMHRMUzBL
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
 
     - when: check_out.rc == 100
       name: set reboot fact
@@ -672,36 +672,36 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
     insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
-      RWNnZGpFS0NtbFJTVlpCZDFWQldrWjZOR0U0ZG5jMU9FUXJhalZ3VGtGUmFqRmhkeTh2WTJveWMw
-      TmFRbWR2VW5Cek0xTkpjazFFUkZWTGIxQTFWak14YlhrMVRUSUtUSFp0UzBac1FWZ3pPRzVTZUZw
-      UVpXSnViVUZJYWpoNE0weFdTVWxTY2pOTVdFUmxSVXB0YVdGWFZXVmtWV3QwUm01NllXRk1ORnA0
-      VkhoVFJGazBUQXBQYzNaU09XaFdkVm80UWpJMmFXbFdTM2RsY21WeFdUUkVaRWM1TUdoUldXUlFN
-      V3RFVTBSb1RWTlpVUzkyZEVoQ1NFbHFZemRpTlM5dldFUlRaMDFLQ210bVoyNVNjVGhsTlVObkww
-      RjVRV0paYURrMVJUSlZjbFIwTkRCR1VqRmhhbFI2VVZwSWMwOHhabTVSTUVKR1RqazFOMnB6V1dk
-      TlRVbDBZbWhQVlRRS1FWVlVTekZ4UTBVNFFYbHROMk40VEhCc1dWZGlkbVF2UTBWVVNsTmllR05o
-      Vm5sRU5GSjFSRTVGY0VaeFZXRnRhbTE2V2xKc2JESlZUVGMzVVZwT1FRcFNWMDQzYlROSWIwMWlk
-      VUV2WTJaUmFHRnlaMEpwVWtsWk5TdEJTVkYxWmtSa1FWbE9UMHR4ZWtSUlUyNVpVbFUwTDJWd2RV
-      MVVTVVpXVDBJM1JuSllDbGsxUkc4dldub3hlVE42ZGpGSGVtZElaRzV0U25CVmFEZFliV1pEUkVs
-      SFR6ZEZRWFZoV1RSVmVrTmxXRTlJZDJWS0swbHZiMWhCVFhSa05FSlRaVllLUlhCSloyRXJhV2RV
-      ZG5sUlFWQllNMjlWV0dGSGJ6bFRSa3BQZGxwS1JuaENVVWRuZUc1elNubFFjbFJYVDJwWE0yY3hO
-      Mk5vTTNwc1NYVmhTMUJ1ZFFwelFpOVNSemRTWW01R1kyRllTbEJSV0hGd1NHMDVUMHBrYVhJeGEz
-      bDNUSEp6TUhkcE9XOVdhWE00VWtSck9EZFpjVlpaSzFoSksyRjJabWxETURFeUNqWmFLMU42YVdW
-      c2VISnZRMWx2Yms4cmRWbzRkWGRKVUZCcFR6YzNOVTlzUnpOcmJtTk9XbTVyYlZGVlpHUldSWEJI
-      WldwSVREWllNbTVXVkVWeVJtMEtaamhJYlZoUk1EUkpXak5IZUhOeVUzQllZa2xqUkVwVWNtWnJT
-      azlCVXpjNWFYaHZVVEphYzI1WE5FUmFOVGRqYjNRd1JtOU5la2w1ZUhodVIxSkNZUXAwVDFreVkx
-      VnNReTk2TkQwS1BVazJUM2dLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
-      PQ==
+      RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU214dlJqY3pRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rt
+      TnhVVkF2TVhGTGFDOW5ZVk5YTTFNME5VVjNla2haU21kUWF5c0tabXczTUdvNVRtbElRalIzVVVO
+      SWExSm5OVlE0SzNJd1FsWndhRE13UjFWb2FEVk9NV1ZRVVVGSFNHcENSbXhWV0RSSlJEaG9SbTVM
+      TjFJMVpteHhhQXBIZDJ4UmFVRkhNakZQTVVVM1N6bFdUbXhtY21oSVIxUTVXak5zVG14UldWaFpP
+      SEl6Y201VWMyRnBlWEowZWsxMGRYUkJOR2hKUjBJd1RsaFlaMVl2Q2xadFNHbFVRbkJCWkVsR2VY
+      ZzVVRVZtVlZaUWRsUkVieXQ1YURsRFptSndkVEJyVkVaVE1sWkRhRFo1WTFKWU1rZFJjbXBMY0Zn
+      MFIzSjFlRzlEYXpnS2IyRlFWMlJYVHpVeWFXSlljM1JNZFVsUlJGRlZjR0Z4UlUxdFJFaEtUalpG
+      Y2xSQlYxZEhRbEZFZVdsWVVtRjZaa1pTUjJZeU5Xc3JWM2xuVTFSM2FRb3JORUY2ZFVScmEzRlFj
+      M3BZVTBOSmJESk1kWGxoYjBSRE9HcDVNSHA2YkUwNFEzUndXU3RJWjBkR2IwOUVka0k1TTNJd01I
+      WnpNemxFWkdwYVNsVjZDbEZXTkUxNE5tOUpkMVoyZEVSbGFqSXZZMWMwTldkelVXc3lUMlpxY1hS
+      RlNHNUNhVWREU20wMmFIcFRUM1psYzFKdGVEaEVlWGxYVVZGUVdEWTVUV1VLYTJkYU5WQlNPV05S
+      YjNSd2FVWlpPV2xOZVdOUmRraFlWRU5qUjI5VU1tMWhaV2hKU1RWVVNuUlNSVnB0Um5BeFVrZFNS
+      emRIVHpCRE0ydEZNbGxhTndwamJXTnhNazFRUkRObVMxUnFRMlppV21rMGVFcFNablUxYW5keFdu
+      VTBaVzVhTm1SV1YxaG5ObVpGVFN0TVZuaEZWMGhDYzNKalRtSlRNR0ZuTUdaTkNsWjBTMjVZWWxC
+      NlJHOTVPV1p5SzNobE5HY3dkbEJEUlhCVmJVOU5SeTg0Y2xaTmVuWmxjR00xVFhOcVZWaHJRa3c0
+      TWs1NE1YSTRSVXgxTWpCWllWa0tRblpvVnpsTmNraGhlVEZtVms1bVNGUnVPRGd5UkZCU2JqaE1j
+      VGhOYVdkM1kydDZWa1I0VUc5YWF6VldjV1FyUVdsMmJrVlBjMlk1YW5Ka2VHMTNOQXBKWVdrNFpH
+      OU5aV1kwTTNsNWNXVnZjbEZLZUFvOVpWWkZTQW90TFMwdExVVk9SQ0JRUjFBZ1UwbEhUa0ZVVlZK
+      RkxTMHRMUzBL
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,5}))\\\\\\\\s*)+') }}\\"
+      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
 
     - when: check_out.rc == 100
       name: set reboot fact
