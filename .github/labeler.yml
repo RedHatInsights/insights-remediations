@@ -1,2 +1,3 @@
 re-sign:
-  - src/templates/static/**/*
+  - changed-files
+    - any-glob-to-any-file: 'src/templates/static/**'
