@@ -54,6 +54,21 @@ test('generates a simple playbook with multiple erratum-based remediation', asyn
     expect(res.text).toMatchSnapshot();
 });
 
+test('generates a simple playbook with RHBA remediation with a 6-digit id', async () => {
+    const data = {
+        issues: [{
+            id: 'vulnerabilities:RHBA-2024:101234',
+            systems: ['53fbcd90-9c8f-11e8-98d0-529269fb1459']
+        }]
+    };
+
+    const res = await request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200);
+    expect(res.text).toMatchSnapshot();
+});
+
 test('aggregates multiple errata into a single play', async () => {
     const data = {
         issues: [{
