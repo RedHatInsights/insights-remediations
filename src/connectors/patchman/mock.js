@@ -33,6 +33,15 @@ const ERRATA = {
         id: 'RHBA-2019:2871',
         type: 'advisory'
     },
+    'RHBA-2024:101234': {
+        attributes: {
+            description: 'The sudo packages contain the sudo utility which allows system administrators to provide certain users with the permission to execute privileged commands, which are used for system management purposes, without having to log in as root.\n\nSecurity Fix(es):\n\n* A flaw was found in the way sudo parsed tty information from the process status file in the proc filesystem. A local user with privileges to execute commands via sudo could use this flaw to escalate their privileges to root. (CVE-2017-1000367)\n\nRed Hat would like to thank Qualys Security for reporting this issue.',
+            synopsis: 'sudo update',
+            reboot_required: false
+        },
+        id: 'RHBA-2024:101234',
+        type: 'advisory'
+    },
     'RHSA-2019:1873': {
         attributes: {
             description: 'Important: kernel security, bug fix and enhancement update',
