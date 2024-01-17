@@ -62,7 +62,7 @@ exports.connection_status = errors.async(async function (req, res) {
     };
 
     log.error(`connection status request: ${JSON.stringify(connectionStatusRequest)}`);
-    const recipients = dispatcher.getConnectionStatus(connectionStatusRequest);
+    const recipients = await dispatcher.getConnectionStatus(connectionStatusRequest);
     log.error(`connection status requested status for ${systemIds.length} hosts, received: ${JSON.stringify(recipients)}`);
 
     //-----------------
@@ -129,7 +129,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
         hosts: systemIds
     };
 
-    const recipients = dispatcher.getConnectionStatus(connectionStatusRequest);
+    const recipients = await dispatcher.getConnectionStatus(connectionStatusRequest);
     log.error(`Requested status for ${connectionStatusRequest.hosts.length} hosts, received: ${JSON.stringify(recipients)}`);
 
     //-----------------
