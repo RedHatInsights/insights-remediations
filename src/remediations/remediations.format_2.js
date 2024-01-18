@@ -3,6 +3,7 @@
 const URI = require("urijs");
 const config = require("../config");
 const _ = require("lodash");
+const {connectionStatus} = require("./remediations.format");
 
 const recipientTypeMap = {
     'satellite': 'RHC-satellite',
@@ -13,7 +14,7 @@ const recipientTypeMap = {
 const recipientStatusMap = {
     'connected': 'connected',
     'disconnected': 'disconnected',
-    'rhc_not_configure': 'no_rhc',
+    'rhc_not_configured': 'no_rhc',
     'no_rhc': 'no_rhc'
 };
 
@@ -63,7 +64,7 @@ exports.connectionStatus = function (recipients) {
                         executor_id: null,
                         executor_type: 'None',
                         executor_name: null,
-                        system_count: targets.length,
+                        system_count: recipient.systems.length,
                         connection_status: recipientStatusMap[recipient.status]
                     };
             }
