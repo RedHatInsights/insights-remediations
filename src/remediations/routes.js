@@ -46,7 +46,7 @@ module.exports = function (router) {
         .get(trace, openapi('getRemediationConnectionStatus'), rbacExecute, fifi2.connection_status);
 
     router.route('/remediations/:id/playbook_runs')
-        .get(trace, openapi('listPlaybookRuns'), rbacRead, fifi.listPlaybookRuns)
+        .get(openapi('listPlaybookRuns'), rbacRead, fifi.listPlaybookRuns)
         .post(openapi('runRemediation'), rbacExecute, fifi2.executePlaybookRuns);
 
     router.route('/remediations/:id/playbook_runs/:playbook_run_id')
