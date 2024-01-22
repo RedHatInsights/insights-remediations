@@ -324,7 +324,9 @@ exports.playbook = errors.async(async function (req, res) {
 
             all_systems.forEach(system => {
                 if (!_.has(batchProfileInfo, `[${system}].system_profile.owner_id`)) {
-                    log.error(`system_profile missing owner_id: ${JSON.stringify(batchProfileInfo)}`);
+                    log.error(`all_systems: ${JSON.stringify(all_systems)}\n
+                    system: ${JSON.stringify(system)}\n
+                    system_profile missing owner_id: ${JSON.stringify(batchProfileInfo)}`);
                     throw errors.internal.systemProfileMissing(null, `Missing profile for system: ${system}`);
                 }
 
