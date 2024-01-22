@@ -168,10 +168,11 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
     trace.event(`processing ${rhcRuns.data.length} runs...`);
     
     for (const run of rhcRuns.data) {
+trace.event(`rhcRuns: ${JSON.stringify(rhcRuns)}`); // TODO: delete me!
         // get dispatcher run hosts
         const runHostsFilter = createDispatcherRunHostsFilter(run.labels['playbook-run'], run.id);
         const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
-
+trace.event(`playbook run hosts: ${JSON.stringify(rhcRunHosts)}`); // TODO: delete me!
         // If host === 'localhost' then add to RHCDirect
         if (_.get(rhcRunHosts, 'data[0][host]') === 'localhost') {
             rhcDirect.playbook = run.url;
