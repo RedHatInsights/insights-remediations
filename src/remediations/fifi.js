@@ -180,7 +180,7 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
         }
 
         // else create a new sat executor
-        else if (!_.isEmpty(rhcRunsHosts)) {
+        else if (!_.isEmpty(rhcRunHosts)) {
             let satExecutor = {
                 name: 'RHC Satellite',
                 executor_id: playbook_run_id,
