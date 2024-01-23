@@ -2,6 +2,7 @@
 
 const URI = require("urijs");
 const config = require("../config");
+const log = require("../util/log");
 const _ = require("lodash");
 const {connectionStatus} = require("./remediations.format");
 
@@ -84,19 +85,20 @@ exports.connectionStatus = function (recipients) {
 
 
 exports.rhcDirectWorkRequestV2 = function (playbookRunId, target, remediation, username) {
-    return {
+    const work_request =  {
         recipient: target.recipient,
         org_id: target.org_id,
         url: new URI(`https://${config.platformHostname}`)
             .segment([config.path.prefix, config.path.app, `v1/remediations/${remediation.id}/playbook`])
-            .search({hosts: target.systems}) // there should only be one...
-            .search('localhost')
+            .search({hosts: target.systems, localhost: null}) 
             .toString(),
         name: remediation.name,
         principal: username,
         web_console_url: "https://console.redhat.com/insights/remediations",
         labels: { 'playbook-run': playbookRunId }
     };
+
+    return work_request;
 };
 
 
