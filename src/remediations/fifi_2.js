@@ -43,6 +43,36 @@ exports.checkRhcEnabled = async function () {
 
 //--------------------------------------------
 // Perform a playbook run against recipients
+//
+// recipients - array of recipients returned from dispatcher getConnectionStatus
+//   [
+//       {
+//           "org_id": "5318290",
+//           "recipient": "d415fc2d-9700-4e30-9621-6a410ccc92d8",
+//           "recipient_type": "satellite",
+//           "sat_id": "bd54e0e9-5310-45be-b107-fd7c96672ce5",
+//           "sat_org_id": "5",
+//           "status": "connected",
+//           "systems": [
+//               "c484f980-ab8d-401b-90e7-aa1d4ccf8c0e",
+//               "d0e03cfb-c2fe-4207-809d-6c203f7811c7"
+//           ]
+//       },
+//       {
+//           "org_id": "5318290",
+//           "recipient": "32af5948-301f-449a-a25b-ff34c83264a2",
+//           "recipient_type": "directConnect",
+//           "sat_id": "",
+//           "sat_org_id": "",
+//           "status": "connected",
+//           "systems": [
+//               "fe30b997-c15a-44a9-89df-c236c3b5c540"
+//           ]
+//       }
+//   ]
+// exclude - a list of host inventory ids to exclude
+// remediation - the id of the associated remediation
+// username - the username of the entity initiating the playbook run
 //--------------------------------------------
 exports.createPlaybookRun = async function (recipients, exclude, remediation, username) {
     // create UUID for this run
