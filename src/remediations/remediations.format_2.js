@@ -112,7 +112,10 @@ exports.rhcDirectWorkRequestV2 = function (playbookRunId, recipient, remediation
         name: remediation.name,
         principal: username,
         web_console_url: "https://console.redhat.com/insights/remediations",
-        labels: { 'playbook-run': playbookRunId },
+        labels: {
+            'playbook-run': playbookRunId,
+            'inventory-id': recipient.systems[0] // pending resolution of RHCLOUD-30669...
+        },
         // Removed pending resolution of RHCLOUD-30669...
         // hosts: [
         //     {
