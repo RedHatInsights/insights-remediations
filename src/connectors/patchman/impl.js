@@ -15,7 +15,7 @@ module.exports = new class extends Connector {
 
     getErratum (id, refresh = false) {
         const uri = new URI(host);
-        uri.path('/api/patch/v1/advisories');
+        uri.path('/api/patch/v3/advisories');
         uri.segment(id);
 
         return this.doHttp({
