@@ -908,7 +908,7 @@ describe('FiFi', function () {
                 await request
                     .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
                     .set(auth.fifi)
-                    .set('if-match', '"b3f-ap0xZBE6LAEw4CWgNSPJ+fei+6I"')
+                    .set('if-match', '"14d3-oEuP8tEpA8HcXXDPWOOrISoZRR4"')
                     .expect(201);
             });
 
@@ -953,7 +953,7 @@ describe('FiFi', function () {
                 await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
                 .set(auth.fifi)
-                .set('if-match', '"b3f-ap0xZBE6LAEw4CWgNSPJ+fei+6I"')
+                .set('if-match', '"14d3-oEuP8tEpA8HcXXDPWOOrISoZRR4"')
                 .expect(201);
             });
 
@@ -996,17 +996,17 @@ describe('FiFi', function () {
                 const {headers} = await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs?pretty')
                 .set(auth.fifi)
-                .set('if-match', '"b3f-ap0xZBE6LAEw4CWgNSPJ+fei+6I"')
+                .set('if-match', '"14d3-oEuP8tEpA8HcXXDPWOOrISoZRR4"')
                 .expect(201);
 
-                headers.etag.should.equal('"b3f-ap0xZBE6LAEw4CWgNSPJ+fei+6I"');
+                headers.etag.should.equal('"14d3-oEuP8tEpA8HcXXDPWOOrISoZRR4"');
             });
 
             test('201s on ETag match', async () => {
                 await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
                 .set(auth.fifi)
-                .set('if-match', '"b3f-ap0xZBE6LAEw4CWgNSPJ+fei+6I"')
+                .set('if-match', '"14d3-oEuP8tEpA8HcXXDPWOOrISoZRR4"')
                 .expect(201);
             });
 
@@ -1017,7 +1017,7 @@ describe('FiFi', function () {
                 .set('if-match', '"1062-Pl88DazTBuJo//SQVNUn6pZAlmk"')
                 .expect(412);
 
-                headers.etag.should.equal('"b3f-ap0xZBE6LAEw4CWgNSPJ+fei+6I"');
+                headers.etag.should.equal('"14d3-oEuP8tEpA8HcXXDPWOOrISoZRR4"');
             });
 
             test('if if-match is not present, proceed', async () => {
