@@ -47,7 +47,7 @@ module.exports = function (router) {
 
     router.route('/remediations/:id/playbook_runs')
         .get(openapi('listPlaybookRuns'), rbacRead, fifi.listPlaybookRuns)
-        .post(openapi('runRemediation'), rbacExecute, fifi2.executePlaybookRuns);
+        .post(openapi('runRemediation'), rbacExecute, fifi.executePlaybookRuns);
 
     router.route('/remediations/:id/playbook_runs/:playbook_run_id')
         .get(openapi('getPlaybookRunDetails'), rbacRead, fifi.getRunDetails);
