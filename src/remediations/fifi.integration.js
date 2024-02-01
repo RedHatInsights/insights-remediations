@@ -157,14 +157,14 @@ describe('FiFi', function () {
             .set(auth.fifi)
             .expect(200);
 
-            headers.etag.should.equal('"b3f-ap0xZBE6LAEw4CWgNSPJ+fei+6I"');
+            headers.etag.should.equal('"14d3-oEuP8tEpA8HcXXDPWOOrISoZRR4"');
         });
 
         test('304s on ETag match', async () => {
             await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
             .set(auth.fifi)
-            .set('if-none-match', '"b3f-ap0xZBE6LAEw4CWgNSPJ+fei+6I"')
+            .set('if-none-match', '"14d3-oEuP8tEpA8HcXXDPWOOrISoZRR4"')
             .expect(304);
         });
     });
