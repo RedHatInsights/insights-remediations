@@ -107,21 +107,20 @@ exports.rhcDirectWorkRequestV2 = function (playbookRunId, recipient, remediation
         org_id: recipient.org_id,
         url: new URI(`https://${config.platformHostname}`)
             .segment([config.path.prefix, config.path.app, `v1/remediations/${remediation.id}/playbook`])
-            .search({hosts: recipient.systems, localhost: null})
+            .search({hosts: recipient.systems, localhost: null}) // 'null' just adds &localhost (i.e. it has no value)
             .toString(),
         name: remediation.name,
         principal: username,
         web_console_url: "https://console.redhat.com/insights/remediations",
         labels: {
-            'playbook-run': playbookRunId,
-            'inventory-id': recipient.systems[0] // pending resolution of RHCLOUD-30669...
+            'playbook-run': playbookRunId
         },
-        // Removed pending resolution of RHCLOUD-30669...
-        // hosts: [
-        //     {
-        //         inventory_id: recipient.systems[0]  // there should only be one...
-        //     }
-        // ]
+        hosts: [
+            {
+                inventory_id: recipient.systems[0],  // there should only be one...
+                ansible_host: 'localhost'
+            }
+        ]
     };
 
     return work_request;
