@@ -198,7 +198,7 @@ function Config() {
         vulnerabilities: {
             impl: env.VULNERABILITIES_IMPL,
             auth: env.VULNERABILITIES_AUTH || '',
-            pageSize: parseIntEnv('VULNERABILITIES_PAGE_SIZE', 500),
+            pageSize: parseIntEnv('VULNERABILITIES_PAGE_SIZE', 100),
             insecure: (env.VULNERABILITIES_INSECURE === 'true') ? true : false
         },
 
