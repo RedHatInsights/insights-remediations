@@ -63,13 +63,9 @@ exports.checkSmartManagement = async function (remediation, smart_management) {
 };
 
 exports.checkRhcEnabled = async function () {
-    const rhcStates = await configManager.getCurrentState();
+    const rhcProfiles = await configManager.getCurrentProfile();
 
-    if (rhcStates.state.remediations === DISABLED) {
-        return false;
-    }
-
-    return true;
+    return !! rhcProfiles?.remediations;
 };
 
 exports.sortSystems = function (systems, column = 'system_name', asc = true) {
