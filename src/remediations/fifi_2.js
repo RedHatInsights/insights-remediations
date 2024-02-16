@@ -28,13 +28,9 @@ const NONE = 'none';
 
 
 exports.checkRhcEnabled = async function () {
-    const rhcStates = await configManager.getCurrentState();
+    const rhcProfiles = await configManager.getCurrentProfile();
 
-    if (rhcStates.state.remediations === DISABLED) {
-        return false;
-    }
-
-    return true;
+    return !! rhcProfiles?.remediations;
 };
 
 

@@ -114,13 +114,18 @@ describe('FiFi', function () {
 
         test.skip('get connection status with false smartManagement but not configured with config manager', async () => {
             base.getSandbox().stub(config, 'isMarketplace').value(true);
-            base.getSandbox().stub(configManager, 'getCurrentState').resolves({
-                account: '654321',
-                state: {
-                    remediations: 'disabled'
-                },
+            base.getSandbox().stub(configManager, 'getCurrentProfile').resolves({
+                account_id: '654321',
+                active: true,
+                created_at: '2024-02-14T16:05:43.373531Z',
+                creator: 'redhat',
+                name: '6089719-a2789bb0-3702-4d63-97de-a68374d871ad',
+                org_id: '11789772',
                 id: 'c5639a03-4640-4ae3-93ce-9966cae18df7',
-                label: 'b7839a03-4640-4ae3-93ce-9966cae18df8'
+                label: 'b7839a03-4640-4ae3-93ce-9966cae18df8',
+                compliance: true,
+                insights: true,
+                remediations: false
             });
             const {text} = await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
@@ -135,13 +140,18 @@ describe('FiFi', function () {
 
         test.skip('get connection status with smartManagement but not enabled with config manager', async () => {
             base.getSandbox().stub(config, 'isMarketplace').value(true);
-            base.getSandbox().stub(configManager, 'getCurrentState').resolves({
-                account: '654321',
-                state: {
-                    remediations: 'disabled'
-                },
+            base.getSandbox().stub(configManager, 'getCurrentProfile').resolves({
+                account_id: '654321',
+                active: true,
+                created_at: '2024-02-14T16:05:43.373531Z',
+                creator: 'redhat',
+                name: '6089719-a2789bb0-3702-4d63-97de-a68374d871ad',
+                org_id: '11789772',
                 id: 'c5639a03-4640-4ae3-93ce-9966cae18df7',
-                label: 'b7839a03-4640-4ae3-93ce-9966cae18df8'
+                label: 'b7839a03-4640-4ae3-93ce-9966cae18df8',
+                compliance: true,
+                insights: true,
+                remediations: false
             });
             const {text} = await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')

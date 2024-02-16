@@ -9,31 +9,39 @@ const errors = require('../../errors');
 describe('config manager impl', function () {
     beforeEach(mockRequest);
 
-    describe('getCurrentState', function () {
-        test('get state', async function () {
+    describe('getCurrentProfile', function () {
+        test('get profile', async function () {
             const http = base.getSandbox().stub(request, 'run').resolves({
                 statusCode: 200,
                 body: {
-                    account: '654321',
-                    state: {
-                        compliance_openscap: 'enabled',
-                        insights: 'enabled',
-                        remediations: 'enabled'
-                    },
+                    account_id: '654321',
+                    active: true,
+                    created_at: '2024-02-14T16:05:43.373531Z',
+                    creator: 'redhat',
+                    name: '6089719-a2789bb0-3702-4d63-97de-a68374d871ad',
+                    org_id: '11789772',
                     id: 'c5639a03-4640-4ae3-93ce-9966cae18df7',
-                    label: 'b7839a03-4640-4ae3-93ce-9966cae18df8'
+                    label: 'b7839a03-4640-4ae3-93ce-9966cae18df8',
+                    compliance: true,
+                    insights: true,
+                    remediations: true
                 },
                 headers: {}
             });
 
-            const result = await impl.getCurrentState();
+            const result = await impl.getCurrentProfile();
 
             result.should.have.property('id', 'c5639a03-4640-4ae3-93ce-9966cae18df7');
-            result.should.have.property('account', '654321');
+            result.should.have.property('account_id', '654321');
+            result.should.have.property('active', true);
+            result.should.have.property('created_at', '2024-02-14T16:05:43.373531Z');
+            result.should.have.property('creator', 'redhat');
+            result.should.have.property('name', '6089719-a2789bb0-3702-4d63-97de-a68374d871ad');
             result.should.have.property('label', 'b7839a03-4640-4ae3-93ce-9966cae18df8');
-            result.state.should.have.property('compliance_openscap', 'enabled');
-            result.state.should.have.property('insights', 'enabled');
-            result.state.should.have.property('remediations', 'enabled');
+            result.should.have.property('org_id', '11789772');
+            result.should.have.property('compliance', true);
+            result.should.have.property('insights', true);
+            result.should.have.property('remediations', true);
 
             http.callCount.should.equal(1);
             const options = http.args[0][0];
@@ -44,12 +52,12 @@ describe('config manager impl', function () {
 
         test('connection error handling', async function () {
             base.mockRequestError();
-            await expect(impl.getCurrentState()).rejects.toThrow(errors.DependencyError);
+            await expect(impl.getCurrentProfile()).rejects.toThrow(errors.DependencyError);
         });
 
         test('status code handling', async function () {
             base.mockRequestStatusCode();
-            await expect(impl.getCurrentState()).rejects.toThrow(errors.DependencyError);
+            await expect(impl.getCurrentProfile()).rejects.toThrow(errors.DependencyError);
         });
     });
 });
