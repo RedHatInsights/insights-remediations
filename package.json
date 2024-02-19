@@ -80,7 +80,7 @@
     "lint:openapi": "speccy lint src/api/openapi.yaml && node src/api/lint.js",
     "prod": "NODE_ENV=production node src/app.js",
     "start": "NODE_ENV=development nodemon --watch src  -e js,yaml src/app.js",
-    "test": "NODE_ENV=test npm run db:ims && jest -i",
+    "test": "NODE_ENV=test npm run db:ims && LOG_LEVEL=fatal jest -i",
     "test:ci": "NODE_ENV=test npm run db:ims && LOG_LEVEL=fatal jest -i",
     "test:unit": "NODE_ENV=test jest -i --testMatch='**/?(*.)+(unit).js'",
     "test:dc": "docker-compose -f build/docker-compose-unit_test.yml up --build --exit-code-from remediations",
