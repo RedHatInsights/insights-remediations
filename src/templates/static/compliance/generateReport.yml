@@ -1,0 +1,11 @@
+- name: generate Compliance report
+  hosts: "@@HOSTS@@"
+  become: true
+  gather_facts: false
+  vars:
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature:
+  tasks:
+    - name: generate Compliance report
+      command: insights-client --compliance
+      changed_when: false
