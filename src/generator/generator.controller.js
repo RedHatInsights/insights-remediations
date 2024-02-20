@@ -89,6 +89,13 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
         issues = addPostRunCheckIn(issues);
     }
 
+    // Add play that generates a new Compliance report when there are Compliance(ssg) issues  
+    const complianceIssue = _.some(issues, issue => issue.id.app === 'ssg');
+    if (complianceIssue) {
+        trace.event('Generate new Compliance report...');
+        issues = addComplianceReportPlay(issues);
+    }
+
     trace.event('Add dianosis play...');
     issues = addDiagnosisPlay(issues, remediation);
 
@@ -186,6 +193,11 @@ function addRebootPlay (plays, autoReboot = true, localhost = false) {
 function addPostRunCheckIn (plays) {
     const hosts = _(plays).flatMap('hosts').uniq().sort().value();
     return [...plays, new SpecialPlay('special:post-run-check-in', hosts, templates.special.postRunCheckIn)];
+}
+
+function addComplianceReportPlay (plays) {
+    const hosts = _(plays).flatMap('hosts').uniq().sort().value();
+    return [...plays, new SpecialPlay('compliance:generate-report', hosts, templates.compliance.generateReport)];
 }
 
 function addDiagnosisPlay (plays, remediation = false) {
