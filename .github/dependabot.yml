@@ -5,3 +5,4 @@ updates:
     directory: "/build"
     schedule:
       interval: "weekly"
+      day: "sunday"
