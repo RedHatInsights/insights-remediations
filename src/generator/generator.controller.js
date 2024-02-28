@@ -80,6 +80,13 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
     trace.event('Aggregate erratum plays...');
     issues = erratumPlayAggregator.process(issues);
 
+    // Add play that generates a new Compliance report when there are Compliance(ssg) issues  
+    const complianceIssue = _.some(issues, issue => issue.id.app === 'ssg');
+    if (complianceIssue) {
+        trace.event('Generate new Compliance report...');
+        issues = addComplianceReportPlay(issues);
+    }
+
     trace.event('Add reboot play...');
     issues = addRebootPlay(issues, auto_reboot, localhost);
 
@@ -87,13 +94,6 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
     if ( !(localhost && auto_reboot)) {
         trace.event('Add post run check-in play...');
         issues = addPostRunCheckIn(issues);
-    }
-
-    // Add play that generates a new Compliance report when there are Compliance(ssg) issues  
-    const complianceIssue = _.some(issues, issue => issue.id.app === 'ssg');
-    if (complianceIssue) {
-        trace.event('Generate new Compliance report...');
-        issues = addComplianceReportPlay(issues);
     }
 
     trace.event('Add dianosis play...');
