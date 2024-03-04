@@ -82,7 +82,7 @@ exports.createPlaybookRun = async function (recipients, exclude, remediation, us
 
     // return 422 if no work remains
     if (_.isEmpty(workRequests)) {
-        throw new errors.noExecutors(remediation);
+        throw errors.noExecutors(remediation);
     }
 
     // dispatch requests
