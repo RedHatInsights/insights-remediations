@@ -8,6 +8,7 @@ const utils = require('../middleware/identity/utils');
 const configManager = require('../connectors/configManager');
 const receptor = require('../connectors/receptor');
 const fifi = require('../remediations/fifi');
+const fifi_2 = require('../remediations/fifi_2');
 const base = require('../test');
 const errors = require('../errors');
 const rbac = require('../connectors/rbac');
@@ -1076,13 +1077,17 @@ describe('FiFi', function () {
                     'No executors available for Playbook "FiFI playbook 5" (63d92aeb-9351-4216-8d7c-044d171337bc)');
             });
 
-            test.skip('exclude one of the two connected executors', async function () {
+            test('exclude one of the connected executors', async function () {
                 mockDate();
                 mockUuid();
-                // do not create db record
-                base.getSandbox().stub(queries, 'insertPlaybookRun').returns();
 
-                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
+                // do not create db record
+                base.getSandbox().stub(queries, 'insertRHCPlaybookRun').returns();
+
+                // force uuid for snapshot test
+                base.getSandbox().stub(fifi_2, 'uuidv4').returns('b995e750-c1d3-4c5b-a3ec-eee897ee9065');
+
+                const spy = base.getSandbox().spy(dispatcher, 'postV2PlaybookRunRequests');
 
                 await request
                 .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
@@ -1092,12 +1097,11 @@ describe('FiFi', function () {
 
                 spy.callCount.should.equal(1);
 
-                const payload = JSON.parse(spy.firstCall.args[0].payload);
-                payload.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
-                payload.should.have.property('playbook_run_id', '249f142c-2ae3-4c3f-b2ec-c8c588999999');
-                payload.hosts[0].should.have.equal('35e9b452-e405-499c-9c6e-120010b7b465.example.com');
+                const payload = spy.firstCall.args[0];
 
-                expect(spy.args[0]).toMatchSnapshot();
+                payload.should.have.length(8);
+
+                expect(spy.args).toMatchSnapshot();
             });
 
             test.skip('exclude all connected connectors and return 400 NO_EXECUTORS', async function () {
