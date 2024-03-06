@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require("lodash");
-const {v4: uuidv4} = require("uuid");
+const uuid = require("uuid");
 
 const format = require("./remediations.format_2");
 const errors = require("../errors");
@@ -36,6 +36,10 @@ exports.checkRhcEnabled = async function () {
 
 //======================================================================================================================
 
+// This is just so we can stub uuid.v4 to force a uuid for snapshot testing
+exports.uuidv4 = function () {
+    return uuid.v4();
+};
 
 //--------------------------------------------
 // Perform a playbook run against recipients
@@ -72,7 +76,7 @@ exports.checkRhcEnabled = async function () {
 //--------------------------------------------
 exports.createPlaybookRun = async function (recipients, exclude, remediation, username) {
     // create UUID for this run
-    const playbook_run_id = uuidv4();
+    const playbook_run_id = exports.uuidv4();
 
     // check if excludes contains anything NOT in targets
     validateExcludes(exclude, recipients);
@@ -107,11 +111,11 @@ exports.createPlaybookRun = async function (recipients, exclude, remediation, us
 function validateExcludes (excludes, recipients) {
     // throw error if any exclude not in recipients
     const unknownExcludes = _.difference(excludes, _.filter(excludes, exclude_id => {
-        if (exclude_id === 'RHC') {
-            return _.find(recipients, recipient => recipient.type === DIRECT);
+        if (exclude_id.toUpperCase() === 'RHC') {
+            return _.find(recipients, recipient => recipient.recipient_type === DIRECT);
         }
 
-        return _.find(recipients, recipient => recipient.satId === exclude_id);
+        return _.find(recipients, recipient => recipient.sat_id === exclude_id);
     }));
 
     if (!_.isEmpty(unknownExcludes)) {
