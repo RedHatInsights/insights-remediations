@@ -139,7 +139,9 @@ exports.cancelPlaybookRuns = errors.async(async function (req, res) {
         queries.getRunDetails(req.params.id, req.params.playbook_run_id, req.user.tenant_org_id, req.user.username)
     ]);
 
-    if (_.isEmpty(executors) && !_.isEmpty(remediation.playbook_runs[0].executors)) {
+    const run_executor = _(remediation).get('playbook_runs[0].executors');
+
+    if (_.isEmpty(executors) && !_.isEmpty(run_executor)) {
         return notFound(res);
     }
 
