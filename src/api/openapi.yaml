@@ -4,7 +4,7 @@ openapi: 3.0.0
 info:
   title: Insights Remediations
   description: Insights Remediations Service
-  version: 1.3.4
+  version: 1.3.5
   contact:
     email: rewhite@redhat.com
 
@@ -351,6 +351,12 @@ paths:
           $ref: '#/components/responses/NotFound'
         '412':
           $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoExecutors'
 
   /remediations/{id}/playbook_runs/{playbook_run_id}:
     get:
@@ -1097,6 +1103,29 @@ components:
         id:
           type: string
           example: a8799a02-8be9-11e8-9eb6-529269fb1459
+
+    NoExecutors:
+      type: object
+      additionalProperties: false
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            properties:
+              id:
+                type: string
+                example: a8799a02-8be9-11e8-9eb6-529269fb1459
+              status:
+                type: integer
+                example: 422
+              code:
+                type: string
+                example: NO_EXECUTORS
+              title:
+                type: string
+                example: No executors available for Playbook "FiFI playbook 6" (64d92aeb-9351-4216-8d7c-044d171337bd)
 
     PlaybookRunsList:
       type: object

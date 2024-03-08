@@ -51,7 +51,7 @@ exports.connect = async function () {
     const models = loadModels(exports.s, path.join(__dirname, '..', 'remediations', 'models'));
     _.assign(exports, models);
 
-    log.info({ssl: config.ssl || false }, 'connected to database');
+    log.info({ssl: config.ssl || false }, `connected to database '${config.database}'`);
     return exports.s;
 };
 

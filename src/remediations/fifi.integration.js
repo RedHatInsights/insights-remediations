@@ -1104,20 +1104,41 @@ describe('FiFi', function () {
                 expect(spy.args).toMatchSnapshot();
             });
 
-            test.skip('exclude all connected connectors and return 400 NO_EXECUTORS', async function () {
+            test('exclude all connected connectors and return 400 NO_EXECUTORS', async function () {
                 const {body} = await request
                 .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
                 .send({exclude: [
                     '722ec903-f4b5-4b1f-9c2f-23fc7b0ba390',
+                    '72f44b25-64a7-4ee7-a94e-3beed9393972',
                     '63142926-46a5-498b-9614-01f2f66fd40b',
                     '893f2788-c7a6-4cc3-89bc-9066ffda695e',
+                    '01bf542e-6092-485c-ba04-c656d77f988a',
+                    '409dd231-6297-43a6-a726-5ce56923d624',
                     'RHC']})
                 .set(auth.fifi)
-                .expect(400);
+                .expect(422);
 
                 body.errors[0].should.have.property('code', 'NO_EXECUTORS');
                 body.errors[0].should.have.property('title',
                     'No executors available for Playbook "FiFI playbook 5" (63d92aeb-9351-4216-8d7c-044d171337bc)');
+            });
+
+            test('exclude RHC is case-insensitive', async function () {
+                // do not create db record
+                base.getSandbox().stub(queries, 'insertRHCPlaybookRun').returns();
+
+                // force uuid for snapshot test
+                base.getSandbox().stub(fifi_2, 'uuidv4').returns('b995e750-c1d3-4c5b-a3ec-eee897ee9065');
+
+                const spy = base.getSandbox().spy(dispatcher, 'postV2PlaybookRunRequests');
+
+                const {body} = await request
+                    .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
+                    .send({exclude: ['rHc']})
+                    .set(auth.fifi)
+                    .expect(201);
+
+                expect(spy.args).toMatchSnapshot();
             });
 
             test('post playbook_runs with wrong exclude statement', async function () {
