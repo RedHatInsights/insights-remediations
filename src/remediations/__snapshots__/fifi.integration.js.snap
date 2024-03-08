@@ -392,6 +392,222 @@ Array [
 ]
 `;
 
+exports[`FiFi playbook run POST exclude RHC is case-insensitive 1`] = `
+Array [
+  Array [
+    Array [
+      Object {
+        "hosts": Array [
+          Object {
+            "inventory_id": "2a708189-4b48-4642-9443-64bda5f38e5f",
+          },
+          Object {
+            "inventory_id": "36828b63-38f3-4b9a-ad08-0b7812e5df57",
+          },
+          Object {
+            "inventory_id": "6f6a889d-6bac-4d53-9bc1-ef75bc1a55ff",
+          },
+          Object {
+            "inventory_id": "938c5ce7-481f-4b82-815c-2973ca76a0ef",
+          },
+        ],
+        "labels": Object {
+          "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
+        },
+        "name": "FiFI playbook 5",
+        "org_id": "6666666",
+        "principal": "fifi",
+        "recipient": "beefface-c7a6-4cc3-89bc-9066ffda695e",
+        "recipient_config": Object {
+          "sat_id": "893f2788-c7a6-4cc3-89bc-9066ffda695e",
+          "sat_org_id": "6",
+        },
+        "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=2a708189-4b48-4642-9443-64bda5f38e5f&hosts=36828b63-38f3-4b9a-ad08-0b7812e5df57&hosts=6f6a889d-6bac-4d53-9bc1-ef75bc1a55ff&hosts=938c5ce7-481f-4b82-815c-2973ca76a0ef",
+        "web_console_url": "https://console.redhat.com/insights/remediations",
+      },
+      Object {
+        "hosts": Array [
+          Object {
+            "inventory_id": "34360dba-a2e7-4788-b9a2-44246a865c7e",
+          },
+          Object {
+            "inventory_id": "64ee45db-6f2b-4862-bc9a-40aea8f5ecbe",
+          },
+        ],
+        "labels": Object {
+          "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
+        },
+        "name": "FiFI playbook 5",
+        "org_id": "6666666",
+        "principal": "fifi",
+        "recipient": "beefface-c7a6-4cc3-89bc-9066ffda695e",
+        "recipient_config": Object {
+          "sat_id": "893f2788-c7a6-4cc3-89bc-9066ffda695e",
+          "sat_org_id": "2",
+        },
+        "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=34360dba-a2e7-4788-b9a2-44246a865c7e&hosts=64ee45db-6f2b-4862-bc9a-40aea8f5ecbe",
+        "web_console_url": "https://console.redhat.com/insights/remediations",
+      },
+      Object {
+        "hosts": Array [
+          Object {
+            "inventory_id": "355986a3-5f37-40f7-8f36-c3ac928ce190",
+          },
+          Object {
+            "inventory_id": "881256d7-8f99-4073-be6d-67ee42ba9af8",
+          },
+          Object {
+            "inventory_id": "b84f4322-a0b8-4fb9-a8dc-8abb9ee16bc0",
+          },
+        ],
+        "labels": Object {
+          "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
+        },
+        "name": "FiFI playbook 5",
+        "org_id": "6666666",
+        "principal": "fifi",
+        "recipient": "beefface-f4b5-4b1f-9c2f-23fc7b0ba390",
+        "recipient_config": Object {
+          "sat_id": "722ec903-f4b5-4b1f-9c2f-23fc7b0ba390",
+          "sat_org_id": "2",
+        },
+        "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=355986a3-5f37-40f7-8f36-c3ac928ce190&hosts=881256d7-8f99-4073-be6d-67ee42ba9af8&hosts=b84f4322-a0b8-4fb9-a8dc-8abb9ee16bc0",
+        "web_console_url": "https://console.redhat.com/insights/remediations",
+      },
+      Object {
+        "hosts": Array [
+          Object {
+            "inventory_id": "35e9b452-e405-499c-9c6e-120010b7b465",
+          },
+          Object {
+            "inventory_id": "8728dbf3-6500-44bb-a55c-4909a48673ed",
+          },
+          Object {
+            "inventory_id": "88d0ba73-0015-4e7d-a6d6-4b530cbfb4ad",
+          },
+          Object {
+            "inventory_id": "baaad5ad-1b8e-457e-ad43-39d1aea40d4d",
+          },
+          Object {
+            "inventory_id": "e4a0a6ff-0f01-4659-ad9d-44150ade51dd",
+          },
+        ],
+        "labels": Object {
+          "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
+        },
+        "name": "FiFI playbook 5",
+        "org_id": "6666666",
+        "principal": "fifi",
+        "recipient": "beefface-46a5-498b-9614-01f2f66fd40b",
+        "recipient_config": Object {
+          "sat_id": "63142926-46a5-498b-9614-01f2f66fd40b",
+          "sat_org_id": "2",
+        },
+        "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=35e9b452-e405-499c-9c6e-120010b7b465&hosts=8728dbf3-6500-44bb-a55c-4909a48673ed&hosts=88d0ba73-0015-4e7d-a6d6-4b530cbfb4ad&hosts=baaad5ad-1b8e-457e-ad43-39d1aea40d4d&hosts=e4a0a6ff-0f01-4659-ad9d-44150ade51dd",
+        "web_console_url": "https://console.redhat.com/insights/remediations",
+      },
+      Object {
+        "hosts": Array [
+          Object {
+            "inventory_id": "3fec343b-ecc0-4049-9e30-e4dc2bae9f62",
+          },
+          Object {
+            "inventory_id": "9574cba7-b9ce-4725-b392-e959afd3e69a",
+          },
+          Object {
+            "inventory_id": "bd91d212-91ae-4813-a406-d2af96fbeb52",
+          },
+        ],
+        "labels": Object {
+          "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
+        },
+        "name": "FiFI playbook 5",
+        "org_id": "6666666",
+        "principal": "fifi",
+        "recipient": "beefface-64a7-4ee7-a94e-3beed9393972",
+        "recipient_config": Object {
+          "sat_id": "72f44b25-64a7-4ee7-a94e-3beed9393972",
+          "sat_org_id": "2",
+        },
+        "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=3fec343b-ecc0-4049-9e30-e4dc2bae9f62&hosts=9574cba7-b9ce-4725-b392-e959afd3e69a&hosts=bd91d212-91ae-4813-a406-d2af96fbeb52",
+        "web_console_url": "https://console.redhat.com/insights/remediations",
+      },
+      Object {
+        "hosts": Array [
+          Object {
+            "inventory_id": "95c5ee0d-9599-475f-a8ef-c838545b9a73",
+          },
+        ],
+        "labels": Object {
+          "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
+        },
+        "name": "FiFI playbook 5",
+        "org_id": "6666666",
+        "principal": "fifi",
+        "recipient": "beefface-6092-485c-ba04-c656d77f988a",
+        "recipient_config": Object {
+          "sat_id": "01bf542e-6092-485c-ba04-c656d77f988a",
+          "sat_org_id": "2",
+        },
+        "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=95c5ee0d-9599-475f-a8ef-c838545b9a73",
+        "web_console_url": "https://console.redhat.com/insights/remediations",
+      },
+      Object {
+        "hosts": Array [
+          Object {
+            "ansible_host": "localhost",
+            "inventory_id": "0341e468-fbae-416c-b16f-5abb64d99834",
+          },
+        ],
+        "labels": Object {
+          "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
+        },
+        "name": "FiFI playbook 5",
+        "org_id": "6666666",
+        "principal": "fifi",
+        "recipient": "0341e468-fbae-416c-b16f-5abb64d99834",
+        "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=0341e468-fbae-416c-b16f-5abb64d99834&localhost",
+        "web_console_url": "https://console.redhat.com/insights/remediations",
+      },
+      Object {
+        "hosts": Array [
+          Object {
+            "ansible_host": "localhost",
+            "inventory_id": "750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4",
+          },
+        ],
+        "labels": Object {
+          "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
+        },
+        "name": "FiFI playbook 5",
+        "org_id": "6666666",
+        "principal": "fifi",
+        "recipient": "750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4",
+        "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4&localhost",
+        "web_console_url": "https://console.redhat.com/insights/remediations",
+      },
+      Object {
+        "hosts": Array [
+          Object {
+            "ansible_host": "localhost",
+            "inventory_id": "d5174274-4307-4fac-84fd-da2c3497657c",
+          },
+        ],
+        "labels": Object {
+          "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
+        },
+        "name": "FiFI playbook 5",
+        "org_id": "6666666",
+        "principal": "fifi",
+        "recipient": "d5174274-4307-4fac-84fd-da2c3497657c",
+        "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=d5174274-4307-4fac-84fd-da2c3497657c&localhost",
+        "web_console_url": "https://console.redhat.com/insights/remediations",
+      },
+    ],
+  ],
+]
+`;
+
 exports[`FiFi playbook run POST exclude one of the connected executors 1`] = `
 Array [
   Array [
