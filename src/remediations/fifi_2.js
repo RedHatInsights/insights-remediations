@@ -111,8 +111,7 @@ exports.createPlaybookRun = async function (recipients, exclude, remediation, us
 function validateExcludes (excludes, recipients) {
     // throw error if any exclude not in recipients
     const unknownExcludes = _.difference(excludes, _.filter(excludes, exclude_id => {
-        if (exclude_id.toUpperCase() === 'RHC') {
-            exclude_id = 'RHC';
+        if (exclude_id === 'RHC') {
             return _.find(recipients, recipient => recipient.recipient_type === DIRECT);
         }
 
