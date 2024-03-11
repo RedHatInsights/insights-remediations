@@ -10,15 +10,8 @@ module.exports = (sequelize, {BOOLEAN, STRING, UUID, TEXT}) => {
         },
         name: {
             type: STRING,
-            get() {
-                const value = this.getDataValue('name');
-
-                if (value === null) {
-                    return NULL_NAME_VALUE;
-                }
-
-                return value;
-            }
+            unique: 'name_and_tenant_org_id',
+            allowNull: false
         },
         account_number: {
             type: STRING,
@@ -26,6 +19,7 @@ module.exports = (sequelize, {BOOLEAN, STRING, UUID, TEXT}) => {
         },
         tenant_org_id: {
             type: TEXT,
+            unique: 'name_and_tenant_org_id',
             allowNull: false
         },
         created_by: {

@@ -14,7 +14,7 @@ const systems = [
 exports.up = async q => {
     const remediations = await q.bulkInsert('remediations', [{
         id: '66eec356-dd06-4c72-a3b6-ef27d1508a02',
-        name: 'remediation 1',
+        name: 'Test1',
         auto_reboot: true,
         archived: true,
         account_number,
@@ -25,7 +25,7 @@ exports.up = async q => {
         updated_at: '2018-10-04T08:19:36.641Z'
     }, {
         id: 'cbc782e4-e8ae-4807-82ab-505387981d2e',
-        name: 'remediation 2',
+        name: 'Test2',
         auto_reboot: true,
         account_number,
         tenant_org_id,
@@ -36,7 +36,7 @@ exports.up = async q => {
         updated_at: '2018-11-04T08:19:36.641Z'
     }, {
         id: 'e809526c-56f5-4cd8-a809-93328436ea23',
-        name: null,
+        name: 'Test3',
         auto_reboot: false,
         account_number,
         tenant_org_id,

@@ -42,7 +42,7 @@ describe('playbooks', function () {
             .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02/playbook')
             .expect(200);
 
-            headers['content-disposition'].should.match(/^attachment;filename="remediation-1-[0-9]+\.yml"$/);
+            headers['content-disposition'].should.match(/^attachment;filename="test1-[0-9]+\.yml"$/);
             expect(normalizePlaybookVersionForSnapshot(text)).toMatchSnapshot();
         });
 
@@ -52,7 +52,7 @@ describe('playbooks', function () {
             .get('/v1/remediations/e809526c-56f5-4cd8-a809-93328436ea23/playbook')
             .expect(200);
 
-            headers['content-disposition'].should.match(/^attachment;filename="unnamed-playbook-[0-9]+\.yml"$/);
+            headers['content-disposition'].should.match(/^attachment;filename="test3-[0-9]+\.yml"$/);
             expect(text).toMatchSnapshot();
         });
 
@@ -411,8 +411,8 @@ describe('playbooks', function () {
             });
         }
 
-        testCaching('pydata playbook', '66eec356-dd06-4c72-a3b6-ef27d1508a02', 'W/"5004-qk3EUuHcbnZSrChggMzpeonv/uQ"');
-        testCaching('no reboot playbook', 'e809526c-56f5-4cd8-a809-93328436ea23', 'W/"1771-rC4jtT7ig9lQT9CBLpMFkH4Eor8"');
+        testCaching('pydata playbook', '66eec356-dd06-4c72-a3b6-ef27d1508a02', 'W/"4ffc-pxrta+VOxCHDYMP7p3qcE9NP4Ak"');
+        testCaching('no reboot playbook', 'e809526c-56f5-4cd8-a809-93328436ea23', 'W/"1766-sjTxiTp0vYoco7hgKWo1DlnFheY"');
         testCaching('playbook with suppressed reboot', '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
             'W/"1937-gjoSqp1gpVt5Me22Yni745YaNIc"');
 

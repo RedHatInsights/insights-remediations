@@ -122,8 +122,8 @@ describe('remediations', function () {
 
             testSorting('updated_at', true, r66e, rcbc, re80, r178, r256);
             testSorting('updated_at', false, r256, r178, re80, rcbc, r66e);
-            testSorting('name', true, r66e, rcbc, r178, r256, re80);
-            testSorting('name', false, re80, r256, r178, rcbc, r66e);
+            testSorting('name', true, r178, r256, r66e, rcbc, re80);
+            testSorting('name', false, re80, rcbc, r66e, r256, r178);
             testSorting('issue_count', true, r256, r178, re80, rcbc, r66e);
             testSorting('issue_count', false, r66e, rcbc, r178, re80, r256);
             testSorting('system_count', true, r256, r178, rcbc, r66e, re80);
@@ -160,9 +160,9 @@ describe('remediations', function () {
 
         describe('filter', function () {
             testList('empty filter', '/v1/remediations?filter=&pretty', r256, r178, re80, rcbc, r66e);
-            testList('basic filter', '/v1/remediations?filter=remediation&pretty', r256, r178, rcbc, r66e);
+            testList('basic filter', '/v1/remediations?filter=remediation&pretty', r256, r178);
             testList('filter case does not matter', '/v1/remediations?filter=REBooT&pretty', r178);
-            testList('filter matches on default name', '/v1/remediations?filter=unnamed&pretty', re80);
+            testList('filter matches on name', '/v1/remediations?filter=Test&pretty', re80, rcbc, r66e);
             testList('filter matches on number', '/v1/remediations?filter=2&pretty', rcbc);
         });
 
@@ -224,7 +224,7 @@ describe('remediations', function () {
 
             body.should.eql({
                 id: 'e809526c-56f5-4cd8-a809-93328436ea23',
-                name: 'Unnamed Playbook',
+                name: 'Test3',
                 needs_reboot: false,
                 archived: false,
                 auto_reboot: false,

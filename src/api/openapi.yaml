@@ -849,8 +849,8 @@ components:
 
     RemediationName:
       type: string
-      nullable: true
-      pattern: ^$|^.*[\w\d]+.*$  # empty string or anything that contains at least one character
+      nullable: false
+      pattern: ^.*[\w]+.*$  # Anything that contains at least one character
       example: Fix Critical CVEs
 
     RemediationArchived:
