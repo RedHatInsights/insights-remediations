@@ -55,6 +55,8 @@ describe('users', function () {
                 'testReadSingleUser',
                 'testStatus',
                 'testWriteUser',
+                'testWriteUser2',
+                'testWriteUser3',
                 'tuser@redhat.com',
                 'bulkDeleteUser'
             ]));

@@ -289,7 +289,7 @@ exports[`remediations download remediations download zip with multiple remediati
 exports[`remediations get get remediation 1`] = `
 "{
     "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
-    "name": "remediation 1",
+    "name": "Test1",
     "needs_reboot": true,
     "auto_reboot": true,
     "archived": true,
@@ -2041,8 +2041,8 @@ exports[`remediations get get remediation with test namespace resolutions 1`] = 
 exports[`remediations list filter basic filter 1`] = `
 "{
     "meta": {
-        "count": 4,
-        "total": 4
+        "count": 2,
+        "total": 2
     },
     "links": {
         "first": "/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0",
@@ -2091,48 +2091,6 @@ exports[`remediations list filter basic filter 1`] = `
             "system_count": 1,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": true
-        },
-        {
-            "id": "cbc782e4-e8ae-4807-82ab-505387981d2e",
-            "name": "remediation 2",
-            "created_by": {
-                "username": "tuser@redhat.com",
-                "first_name": "test",
-                "last_name": "user"
-            },
-            "created_at": "2018-11-04T08:19:36.641Z",
-            "updated_by": {
-                "username": "tuser@redhat.com",
-                "first_name": "test",
-                "last_name": "user"
-            },
-            "updated_at": "2018-11-04T08:19:36.641Z",
-            "needs_reboot": true,
-            "system_count": 1,
-            "issue_count": 2,
-            "resolved_count": 0,
-            "archived": false
-        },
-        {
-            "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
-            "name": "remediation 1",
-            "created_by": {
-                "username": "tuser@redhat.com",
-                "first_name": "test",
-                "last_name": "user"
-            },
-            "created_at": "2018-10-04T08:19:36.641Z",
-            "updated_by": {
-                "username": "tuser@redhat.com",
-                "first_name": "test",
-                "last_name": "user"
-            },
-            "updated_at": "2018-10-04T08:19:36.641Z",
-            "needs_reboot": true,
-            "system_count": 2,
-            "issue_count": 6,
-            "resolved_count": 2,
             "archived": true
         }
     ]
@@ -2196,7 +2154,7 @@ exports[`remediations list filter empty filter 1`] = `
         },
         {
             "id": "e809526c-56f5-4cd8-a809-93328436ea23",
-            "name": "Unnamed Playbook",
+            "name": "Test3",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -2217,7 +2175,7 @@ exports[`remediations list filter empty filter 1`] = `
         },
         {
             "id": "cbc782e4-e8ae-4807-82ab-505387981d2e",
-            "name": "remediation 2",
+            "name": "Test2",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -2238,7 +2196,7 @@ exports[`remediations list filter empty filter 1`] = `
         },
         {
             "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
-            "name": "remediation 1",
+            "name": "Test1",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -2299,11 +2257,11 @@ exports[`remediations list filter filter case does not matter 1`] = `
 }"
 `;
 
-exports[`remediations list filter filter matches on default name 1`] = `
+exports[`remediations list filter filter matches on name 1`] = `
 "{
     "meta": {
-        "count": 1,
-        "total": 1
+        "count": 3,
+        "total": 3
     },
     "links": {
         "first": "/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0",
@@ -2314,7 +2272,7 @@ exports[`remediations list filter filter matches on default name 1`] = `
     "data": [
         {
             "id": "e809526c-56f5-4cd8-a809-93328436ea23",
-            "name": "Unnamed Playbook",
+            "name": "Test3",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -2332,6 +2290,48 @@ exports[`remediations list filter filter matches on default name 1`] = `
             "issue_count": 1,
             "resolved_count": 1,
             "archived": false
+        },
+        {
+            "id": "cbc782e4-e8ae-4807-82ab-505387981d2e",
+            "name": "Test2",
+            "created_by": {
+                "username": "tuser@redhat.com",
+                "first_name": "test",
+                "last_name": "user"
+            },
+            "created_at": "2018-11-04T08:19:36.641Z",
+            "updated_by": {
+                "username": "tuser@redhat.com",
+                "first_name": "test",
+                "last_name": "user"
+            },
+            "updated_at": "2018-11-04T08:19:36.641Z",
+            "needs_reboot": true,
+            "system_count": 1,
+            "issue_count": 2,
+            "resolved_count": 0,
+            "archived": false
+        },
+        {
+            "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
+            "name": "Test1",
+            "created_by": {
+                "username": "tuser@redhat.com",
+                "first_name": "test",
+                "last_name": "user"
+            },
+            "created_at": "2018-10-04T08:19:36.641Z",
+            "updated_by": {
+                "username": "tuser@redhat.com",
+                "first_name": "test",
+                "last_name": "user"
+            },
+            "updated_at": "2018-10-04T08:19:36.641Z",
+            "needs_reboot": true,
+            "system_count": 2,
+            "issue_count": 6,
+            "resolved_count": 2,
+            "archived": true
         }
     ]
 }"
@@ -2352,7 +2352,7 @@ exports[`remediations list filter filter matches on number 1`] = `
     "data": [
         {
             "id": "cbc782e4-e8ae-4807-82ab-505387981d2e",
-            "name": "remediation 2",
+            "name": "Test2",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -2375,7 +2375,7 @@ exports[`remediations list filter filter matches on number 1`] = `
 }"
 `;
 
-exports[`remediations list hide archived hide_archived 1`] = `"{"meta":{"count":3,"total":3},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"256ab1d3-58cf-1292-35e6-1a49c8b122d3","name":"Remediation with zero issues","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-06T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-06T08:19:36.641Z","needs_reboot":false,"system_count":0,"issue_count":0,"resolved_count":0,"archived":false},{"id":"e809526c-56f5-4cd8-a809-93328436ea23","name":"Unnamed Playbook","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-04T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-04T08:19:36.641Z","needs_reboot":false,"system_count":2,"issue_count":1,"resolved_count":1,"archived":false},{"id":"cbc782e4-e8ae-4807-82ab-505387981d2e","name":"remediation 2","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-11-04T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-11-04T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":2,"resolved_count":0,"archived":false}]}"`;
+exports[`remediations list hide archived hide_archived 1`] = `"{"meta":{"count":3,"total":3},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"256ab1d3-58cf-1292-35e6-1a49c8b122d3","name":"Remediation with zero issues","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-06T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-06T08:19:36.641Z","needs_reboot":false,"system_count":0,"issue_count":0,"resolved_count":0,"archived":false},{"id":"e809526c-56f5-4cd8-a809-93328436ea23","name":"Test3","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-04T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-04T08:19:36.641Z","needs_reboot":false,"system_count":2,"issue_count":1,"resolved_count":1,"archived":false},{"id":"cbc782e4-e8ae-4807-82ab-505387981d2e","name":"Test2","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-11-04T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-11-04T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":2,"resolved_count":0,"archived":false}]}"`;
 
 exports[`remediations list hide archived no query 1`] = `
 "{
@@ -2434,7 +2434,7 @@ exports[`remediations list hide archived no query 1`] = `
         },
         {
             "id": "e809526c-56f5-4cd8-a809-93328436ea23",
-            "name": "Unnamed Playbook",
+            "name": "Test3",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -2455,7 +2455,7 @@ exports[`remediations list hide archived no query 1`] = `
         },
         {
             "id": "cbc782e4-e8ae-4807-82ab-505387981d2e",
-            "name": "remediation 2",
+            "name": "Test2",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -2476,7 +2476,7 @@ exports[`remediations list hide archived no query 1`] = `
         },
         {
             "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
-            "name": "remediation 1",
+            "name": "Test1",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -2556,7 +2556,7 @@ exports[`remediations list list remediations 1`] = `
         },
         {
             "id": "e809526c-56f5-4cd8-a809-93328436ea23",
-            "name": "Unnamed Playbook",
+            "name": "Test3",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -2577,7 +2577,7 @@ exports[`remediations list list remediations 1`] = `
         },
         {
             "id": "cbc782e4-e8ae-4807-82ab-505387981d2e",
-            "name": "remediation 2",
+            "name": "Test2",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -2598,7 +2598,7 @@ exports[`remediations list list remediations 1`] = `
         },
         {
             "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
-            "name": "remediation 1",
+            "name": "Test1",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -2716,7 +2716,7 @@ exports[`remediations list pagination offset 1 1`] = `
         },
         {
             "id": "e809526c-56f5-4cd8-a809-93328436ea23",
-            "name": "Unnamed Playbook",
+            "name": "Test3",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -2754,7 +2754,7 @@ exports[`remediations list pagination offset 2 1`] = `
     "data": [
         {
             "id": "e809526c-56f5-4cd8-a809-93328436ea23",
-            "name": "Unnamed Playbook",
+            "name": "Test3",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -2775,7 +2775,7 @@ exports[`remediations list pagination offset 2 1`] = `
         },
         {
             "id": "cbc782e4-e8ae-4807-82ab-505387981d2e",
-            "name": "remediation 2",
+            "name": "Test2",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -2813,7 +2813,7 @@ exports[`remediations list pagination offset 3 1`] = `
     "data": [
         {
             "id": "cbc782e4-e8ae-4807-82ab-505387981d2e",
-            "name": "remediation 2",
+            "name": "Test2",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -2834,7 +2834,7 @@ exports[`remediations list pagination offset 3 1`] = `
         },
         {
             "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
-            "name": "remediation 1",
+            "name": "Test1",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -2973,7 +2973,7 @@ exports[`remediations list sorting default 1`] = `
         },
         {
             "id": "e809526c-56f5-4cd8-a809-93328436ea23",
-            "name": "Unnamed Playbook",
+            "name": "Test3",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -2994,7 +2994,7 @@ exports[`remediations list sorting default 1`] = `
         },
         {
             "id": "cbc782e4-e8ae-4807-82ab-505387981d2e",
-            "name": "remediation 2",
+            "name": "Test2",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -3015,7 +3015,7 @@ exports[`remediations list sorting default 1`] = `
         },
         {
             "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
-            "name": "remediation 1",
+            "name": "Test1",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -3074,7 +3074,7 @@ exports[`remediations list system filter filters out remediations not featuring 
         },
         {
             "id": "e809526c-56f5-4cd8-a809-93328436ea23",
-            "name": "Unnamed Playbook",
+            "name": "Test3",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -3095,7 +3095,7 @@ exports[`remediations list system filter filters out remediations not featuring 
         },
         {
             "id": "cbc782e4-e8ae-4807-82ab-505387981d2e",
-            "name": "remediation 2",
+            "name": "Test2",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -3116,7 +3116,7 @@ exports[`remediations list system filter filters out remediations not featuring 
         },
         {
             "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
-            "name": "remediation 1",
+            "name": "Test1",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -3154,7 +3154,7 @@ exports[`remediations list system filter filters out remediations not featuring 
     "data": [
         {
             "id": "e809526c-56f5-4cd8-a809-93328436ea23",
-            "name": "Unnamed Playbook",
+            "name": "Test3",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
@@ -3175,7 +3175,7 @@ exports[`remediations list system filter filters out remediations not featuring 
         },
         {
             "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
-            "name": "remediation 1",
+            "name": "Test1",
             "created_by": {
                 "username": "tuser@redhat.com",
                 "first_name": "test",
