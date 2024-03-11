@@ -84,7 +84,19 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
     const remediationId = req.params.id;
     const tenantOrgId = req.user.tenant_org_id;
     const username = req.user.username;
-    const exclude = req.body.exclude || [];
+    const req_exclude = req.body.exclude || [];
+
+    //----------------------------------------------------------------
+    // sanitize excludes - make rhc uppercase!
+    //----------------------------------------------------------------
+    const exclude = req_exclude.map(entry => {
+        if (entry.toUpperCase() === 'RHC') {
+            return 'RHC';
+        }
+        else {
+            return entry;
+        }
+    });
 
     //----------------------------------------------------------------
     // fetch remediation and GET enabled status from config-manager
