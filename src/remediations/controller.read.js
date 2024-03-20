@@ -105,7 +105,8 @@ exports.list = errors.async(async function (req, res) {
 
     trace.event('Get sort and query parms from url');
     const {column, asc} = format.parseSort(req.query.sort);
-    const {limit, offset, hide_archived} = req.query;
+    const {offset, hide_archived} = req.query;
+    var limit = req.query.limit;
 
     trace.event('Query db for list of remediations');
     const {count, rows} = await queries.list(
@@ -124,7 +125,7 @@ exports.list = errors.async(async function (req, res) {
         throw errors.invalidOffset(offset, count.length - 1);
     }
 
-    trace.event('Fetch associated system details from HBI');
+    trace.event('Fetch remediation details from DB');
     let remediations = await queries.loadDetails(req.user.tenant_org_id, req.user.username, rows);
 
     if (column === 'name') {
@@ -160,9 +161,13 @@ exports.list = errors.async(async function (req, res) {
     });
 
     // Check for playbook_runs in fields query param:
-    //    &fields[data]=playbook_runs
+    //    fields[data]=playbook_runs
     if (_.get(req, 'query.fields.data', []).includes('playbook_runs')) {
         trace.event('Include playbook_runs data');
+
+        // set limit to 1 if not explicitly set & fields[data]=playbook_runs
+        limit = limit || 1;
+
         let iteration = 1;
         await P.map(remediations, async (remediation) => {
             const local_iteration = iteration++;
@@ -173,7 +178,8 @@ exports.list = errors.async(async function (req, res) {
                 req.user.tenant_org_id,
                 req.user.username
             );
-            playbook_runs = playbook_runs.toJSON();
+
+            playbook_runs = playbook_runs?.toJSON();
 
             // Join rhcRuns and playbookRuns
             trace.event(`[${local_iteration}] Combine runs`);
