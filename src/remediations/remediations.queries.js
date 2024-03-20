@@ -5,6 +5,7 @@
 const db = require('../db');
 const {NULL_NAME_VALUE} = require('./models/remediation');
 const _ = require('lodash');
+const trace = require('../util/trace');
 
 const REMEDIATION_ATTRIBUTES = [
     'id',
@@ -140,6 +141,7 @@ exports.list = function (
 };
 
 exports.loadDetails = async function (tenant_org_id, created_by, rows) {
+    trace.enter('remediations.queries.loadDetails');
     const {Op, s: {literal}} = db;
 
     const query = {
@@ -166,7 +168,19 @@ exports.loadDetails = async function (tenant_org_id, created_by, rows) {
     const results = await db.remediation.findAll(query);
     const byId = _.keyBy(results, 'id');
 
-    return rows.map(row => _.assign(byId[row.id].toJSON(), row));
+    let result = [];
+
+    try {
+        result = rows.map(row => _.assign(byId[row.id].toJSON(), row));
+    }
+
+    catch (e) {
+        trace.event(`ERROR: results = ${JSON.stringify(results)},\nbyId = ${JSON.stringify(byId)},\nrows = ${JSON.stringify(rows)}`);
+        trace.force = true;
+    }
+
+    trace.leave();
+    return result;
 };
 
 /*
