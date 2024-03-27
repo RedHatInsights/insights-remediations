@@ -6,7 +6,7 @@ services:
       context: ../
       dockerfile: build/Dockerfile
     command: sh -c "echo 'Waiting 3s for db to start' && sleep 3 && npm run db:ims && node src/app.js"
-    links:
+    depends_on:
       - redis
       - db
     ports:
