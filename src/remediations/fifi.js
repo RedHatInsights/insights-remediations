@@ -162,7 +162,7 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
     }
 
     trace.event(`processing ${rhcRuns.data.length} runs...`);
-    
+
     for (const run of rhcRuns.data) {
         // get dispatcher run hosts
         const runHostsFilter = createDispatcherRunHostsFilter(run.labels['playbook-run'], run.id);

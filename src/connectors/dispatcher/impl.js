@@ -66,7 +66,7 @@ module.exports = new class extends Connector {
         return result;
     }
 
-    // Given a list of hosts, returns an array of objects aggregating connection status:
+    // Given a list of inventory ids, returns an array of recipient objects:
     //
     // [
     //     {
@@ -94,11 +94,9 @@ module.exports = new class extends Connector {
     //     }
     // ]
     //
-    //  - one object per satellite_instance_id, satellite_organization pair (recipient_type == satellite)
-    //  - one object for direct-connect hosts with status == connected (recipient_type == directConnect)
-    //  - one object for direct-connect hosts with status == disconnected (recipient_type == directConnect)
-    //  - one object for direct-connect hosts with status == rhc_not_configured (recipient_type == directConnect)
-    //  - one object for hosts with recipient_type == none (e.g. old receptor hosts)
+    //  - one object per satellite_organization (recipient_type == satellite)
+    //  - one object for each direct-connect hosts
+    //  - one object for hosts with recipient_type == none (e.g. old receptor hosts)?
     async getConnectionStatus (dispatcherConnectionStatusRequest) {
         // TODO: eh... we should chunk this if the number of hosts is ridonculous
         const uri = new URI(host);
@@ -175,7 +173,10 @@ module.exports = new class extends Connector {
 
         let uri = _uri.toString();
         let next = "";
-        const results = {};
+        const results = {
+            data: [],
+            meta: {}
+        };
         const options = {
             method: 'GET',
             json: true,
@@ -196,7 +197,7 @@ module.exports = new class extends Connector {
             }
 
             // extract data
-            _.merge(results, batch);
+            results.data = [...results.data, ...batch.data];
 
             // check provided uri for next batch
             next = batch?.links?.next;
@@ -221,7 +222,10 @@ module.exports = new class extends Connector {
 
         let uri = _uri.toString();
         let next = "";
-        const results = {};
+        const results = {
+            data: [],
+            meta: {}
+        };
         const options = {
             method: 'GET',
             json: true,
@@ -241,7 +245,7 @@ module.exports = new class extends Connector {
             }
 
             // extract data
-            _.merge(results, batch);
+            results.data = [...results.data, ...batch.data];
 
             // check provided uri for next batch
             next = batch?.links?.next;
