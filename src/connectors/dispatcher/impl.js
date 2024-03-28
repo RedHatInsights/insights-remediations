@@ -68,6 +68,16 @@ module.exports = new class extends Connector {
 
     // Given a list of inventory ids, returns an array of recipient objects:
     //
+    // input:
+    //
+    //     {
+    //         org_id:  tenantOrgId,
+    //         hosts: systemIds
+    //     };
+    //
+    //
+    // output:
+    //
     // [
     //     {
     //         "org_id": "5318290",
@@ -98,7 +108,20 @@ module.exports = new class extends Connector {
     //  - one object for each direct-connect hosts
     //  - one object for hosts with recipient_type == none (e.g. old receptor hosts)?
     async getConnectionStatus (dispatcherConnectionStatusRequest) {
-        // TODO: eh... we should chunk this if the number of hosts is ridonculous
+        // chunk this request if necessary...
+        if (dispatcherConnectionStatusRequest.hosts.length > pageSize) {
+            const hosts = _.chunk(dispatcherConnectionStatusRequest.hosts, pageSize);
+            const results = await P.map(hosts, chunk => {
+                const req = {
+                    org_id: dispatcherConnectionStatusRequest.org_id,
+                    hosts
+                };
+
+                this.postPlaybookRunRequests(req);
+            });
+            return results.flat();
+        }
+
         const uri = new URI(host);
         uri.segment('internal');
         uri.segment('v2');
