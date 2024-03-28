@@ -481,6 +481,107 @@ describe('remediations', function () {
                         title: 'At least one of "add", "name", "auto_reboot", "archived" needs to be specified'
                     }]);
                 });
+
+                test('400s when remediation is renamed to name that is used by existing remediation created by the same user', async () => {
+                    const name = 'duplicate name and same user';
+                    const {id, header} = reqId();
+
+                    const r1 = await request
+                    .post('/v1/remediations')
+                    .set(auth.testWrite)
+                    .send({name})
+
+                    const url = '/v1/remediations/8b427145-ac9f-4727-9543-76eb140222cd';
+
+                    const {body} = await request
+                    .patch(url)
+                    .set(header)
+                    .send({name})
+                    .set(auth.testWrite)
+                    .expect(400);
+
+                    body.errors.should.eql([{
+                        id,
+                        status: 400,
+                        code: 'DUPLICATE_NAME',
+                        title: 'Remediation name \"duplicate name and same user\" has already been taken'
+                    }]);
+                });
+
+                test('200s when remediation is renamed to a name used by existing remediation created by a different user', async () => {
+                    const name = 'duplicate name and different users';
+                    const {id, header} = reqId();
+
+                    const r1 = await request
+                    .post('/v1/remediations')
+                    .set(auth.default)
+                    .send({name})
+
+                    const url = '/v1/remediations/8b427145-ac9f-4727-9543-76eb140222cd';
+
+                    const {body} = await request
+                    .patch(url)
+                    .set(header)
+                    .send({name})
+                    .set(auth.testWrite)
+                    .expect(200);
+                });
+
+                test('400s when remediation name is updated to empty string', async () => {
+                    const name = '';
+                    const {id, header} = reqId();
+
+                    const url = '/v1/remediations/8b427145-ac9f-4727-9543-76eb140222cd';
+
+                    const {body} = await request
+                    .patch(url)
+                    .set(header)
+                    .send({name})
+                    .set(auth.testWrite)
+                    .expect(400);
+
+                    body.errors.should.eql([{
+                        id,
+                        status: 400,
+                        code: 'INVALID_NAME',
+                        title: 'Remediation name cannot be empty'
+                    }]);
+                });
+
+                test('400s when remediation name is updated to null', async () => {
+                    const name = null;
+                    const {id, header} = reqId();
+
+                    const url = '/v1/remediations/8b427145-ac9f-4727-9543-76eb140222cd';
+
+                    const {body} = await request
+                    .patch(url)
+                    .set(header)
+                    .send({name})
+                    .set(auth.testWrite)
+                    .expect(400);
+
+                    body.errors.should.eql([{
+                        id,
+                        status: 400,
+                        code: 'INVALID_NAME',
+                        title: 'Remediation name cannot be empty'
+                    }]);
+                });
+
+                test('200s when remediation name is undefined during update', async () => {
+                    const name = null;
+                    const {id, header} = reqId();
+
+                    const url = '/v1/remediations/8b427145-ac9f-4727-9543-76eb140222cd';
+
+                    const {body} = await request
+                    .patch(url)
+                    .set(header)
+                    .send({auto_reboot: false, archived: true})
+                    .set(auth.testWrite)
+                    .expect(200);
+                });
             });
 
             describe('properties', function () {

@@ -55,6 +55,25 @@ async function validateNewActions(add) {
     });
 }
 
+async function validateRemediationName(name, tenant_org_id, username, transaction) {
+    if ( !_.isEmpty(name) ) {
+        const existing_remediation = await db.remediation.findOne({
+            attributes: ['id'],
+            where: { tenant_org_id, created_by: username, name: name },
+        }, {
+            transaction
+        });
+
+        // Do not allow users to use duplicate names for more than one remediation
+        if (existing_remediation) {
+            throw new errors.BadRequest('DUPLICATE_NAME', `Remediation name "${name}" has already been taken`);
+        }
+    } else {
+        // Do not allow users to set the remediation name to empty string or null
+        throw new errors.BadRequest('INVALID_NAME', "Remediation name cannot be empty"); 
+    }
+}
+
 async function storeNewActions (remediation, add, transaction) {
     // need to diff against existing issues as postgresql does not have ON CONFLICT UPDATE implemented yet
     const existingIssuesById = _.keyBy(remediation.issues, 'issue_id');
@@ -160,6 +179,10 @@ exports.patch = errors.async(async function (req, res) {
         }, {
             transaction
         });
+
+        if ( !_.isUndefined(name) ) {
+            await validateRemediationName(name, tenant_org_id, username, transaction);
+        }
 
         if (!remediation) {
             return notFound(res);
