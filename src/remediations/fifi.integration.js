@@ -2,6 +2,8 @@
 'use strict';
 const P = require('bluebird');
 const _ = require('lodash');
+const URI = require('urijs');
+const queryString = require('querystring');
 
 const { request, auth, mockDate, mockUuid, buildRbacResponse } = require('../test');
 const utils = require('../middleware/identity/utils');
@@ -16,8 +18,90 @@ const queries = require('./remediations.queries');
 const dispatcher = require('../connectors/dispatcher');
 const dispatcher_impl = require('../connectors/dispatcher/impl');
 const dispatcher_mock = require('../connectors/dispatcher/mock');
+const Connector = require('../connectors/Connector');
 const config = require('../config');
 const db = require('../db');
+const { systems } = require('../connectors/inventory/impl.unit.data');
+
+// Helper functions
+function fake_doHttp(req) {
+    const uri = new URI(req.uri);
+    const path = uri.path();
+
+    if (path === '/api/playbook-dispatcher/v1/runs')
+        return fake_dispatcher_runs(req);
+
+    if (path === '/api/playbook-dispatcher/v1/run_hosts')
+        return fake_dispatcher_run_hosts(req);
+
+    return Promise.resolve({});
+}
+
+function fake_dispatcher_runs(req) {
+    const uri = new URI(req.uri);
+    const params = queryString.parse(uri.query());
+    const offset = parseInt(params.offset) || 0;
+
+    // grab next chunk of systems...
+    const ids = systems.slice(offset, offset + 50);
+
+    // construct response container
+    const resp = {
+        data: [],
+        links: {},
+        meta: {}
+    };
+
+    if ((offset + ids.length) < systems.length) {
+        params.offset = offset + 50;
+        uri.query(params);
+        resp.links.next = uri.toString();
+    }
+
+    resp.meta.count = ids.length;
+    resp.meta.total = systems.length;
+
+    resp.data = ids.map((id) => {
+        return {
+            "id": id,
+            "created_at": "2024-03-19T20:57:35.75356Z",
+            "updated_at": "2024-03-19T20:59:31.283793Z",
+            "labels": {
+                "playbook-run": "11f7f24a-346b-405c-8dcc-c953511fb21c"
+            },
+            "recipient": id,
+            "service": "remediations",
+            "status": "success",
+            "url": "https://cert.cloud.stage.redhat.com/api/remediations/v1/remediations/dd6a0b1b-5331-4e7b-92ec-9a01806fb181/playbook?hosts=6f23462c-df72-455f-8b2f-d5ae6f3b617b&localhost"
+        };
+    })
+
+    return Promise.resolve(resp);
+}
+
+// For now, this just fakes a single run host for direct targets
+function fake_dispatcher_run_hosts(req) {
+    const uri = new URI(req.uri);
+    const params = queryString.parse(uri.query());
+
+    // construct response
+    const resp = {
+        data: [{
+            "host": "localhost",
+            "inventory_id": params['filter[run][id]'],
+            "status": "success",
+            "stdout": "[WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not match 'all'\r\nPLAY [Set owner and permissions on /etc/sshd/sshd_config to root:root 0600] ****\r\nTASK [Gathering Facts] *********************************************************ok: [localhost]\r\nTASK [Set the owner and permissions of ssh config file to root:root 0600] ******changed: [localhost]\r\nPLAY [run insights] ************************************************************\r\nTASK [run insights] ************************************************************ok: [localhost]\r\nPLAY RECAP *********************************************************************\r\nlocalhost                  : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   \r\n"
+        }],
+        links: {},
+        meta: {
+            count: 1,
+            total:1
+        }
+    };
+
+    return Promise.resolve(resp);
+}
+
 
 // TODO: replace old receptor tests and improve rhc-satellite test coverage
 describe('FiFi', function () {
@@ -677,6 +761,26 @@ describe('FiFi', function () {
                 expect(text).toMatchSnapshot();
             });
 
+            test('playbook_runs/:playbook_run_id with >50 direct systems', async () => {
+                // use the impl version of dispatcher functions...
+                base.getSandbox().stub(dispatcher, 'fetchPlaybookRuns').callsFake(dispatcher_impl.fetchPlaybookRuns);
+                base.getSandbox().stub(dispatcher, 'fetchPlaybookRunHosts').callsFake(dispatcher_impl.fetchPlaybookRunHosts);
+
+                // replace doHttp() with our own function...
+                const spy = base.getSandbox().stub(Connector.prototype, 'doHttp');
+                spy.callsFake(fake_doHttp);
+
+                const {body} = await request
+                    .get('/v1/remediations/dd6a0b1b-5331-4e7b-92ec-9a01806fb181/playbook_runs/11f7f24a-346b-405c-8dcc-c953511fb21c')
+                    .set(auth.fifi)
+                    .expect(200);
+
+                expect(body).toMatchSnapshot();
+            });
+
+            // TODO: write this!
+            // test('playbook_runs/:playbook_run_id with >50 satellite systems', async () => {});
+
             test('400 on bad remediationID playbook_runs', async () => {
                 await request
                 .set(auth.fifi)
@@ -914,6 +1018,7 @@ describe('FiFi', function () {
 
         describe('POST', function () {
             test('post playbook run with 5k hosts', async () => {
+                // TODO: finish this!
                 base.getSandbox().stub(dispatcher, 'postPlaybookRunRequests').callsFake(dispatcher_impl.postRunRequests);
 
                 await request

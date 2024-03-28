@@ -87,6 +87,21 @@ module.exports.generateSystemProfile = function (id) {
     };
 };
 
+/** Returns:
+ *   null - if id === NON_EXISTENT_SYSTEM
+ *   SYSTEMS[id] - if id in SYSTEMS
+ *   <generated> - otherwise
+ *
+ *   Specific characters of id control generated system attributes.
+ *     xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+ *     │      │                           └─── satellite: (from SATELLITES[])
+ *     │      │                                  4 : direct-connected systems,
+ *     ├──────┴───────────────────────────────       rhc_client = 'beefedaf' + xxxxxxxx | null
+ *     │
+ *     └────────────────────────────────────── 0-8 : hostname = {id}.example.com | {id}
+ *                                               9 : display_name = {id}-system | null
+ *                                             1|9 : ansible_host = {id}.ansible.example.com | null
+ */
 module.exports.generateSystemInfo = function (id) {
     const satelliteIndex = parseInt(id[id.length - 1], 16) % SATELLITES.length;
 
