@@ -9,7 +9,6 @@ const Connector = require('../Connector');
 const metrics = require('../metrics');
 const log = require('../../util/log');
 const P = require("bluebird");
-const {stringify} = require("nodemon/lib/utils");
 
 const QSOPTIONS = { encode: true, indices: false };
 
