@@ -114,11 +114,12 @@ module.exports = new class extends Connector {
             const results = await P.map(hosts, chunk => {
                 const req = {
                     org_id: dispatcherConnectionStatusRequest.org_id,
-                    hosts
+                    hosts: chunk
                 };
 
-                this.postPlaybookRunRequests(req);
+                this.getConnectionStatus(req);
             });
+
             return results.flat();
         }
 
