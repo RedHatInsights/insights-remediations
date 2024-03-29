@@ -120,7 +120,11 @@ module.exports = new class extends Connector {
                 this.getConnectionStatus(req);
             });
 
-            return results.flat();
+            log.error(`results array: ${JSON.stringify(results)}`);
+            const result = results.flat();
+            log.error(`merged: ${JSON.stringify(result)}`);
+            
+            return result;
         }
 
         const uri = new URI(host);
