@@ -121,9 +121,10 @@ module.exports = new class extends Connector {
             });
 
             log.error(`results array: ${JSON.stringify(results)}`);
-            log.error(`merged: ${results.flat()}`);
+            const result = results.flat();
+            log.error(`merged: ${JSON.stringify(result)}`);
             
-            return results.flat();
+            return result;
         }
 
         const uri = new URI(host);
