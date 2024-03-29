@@ -114,11 +114,12 @@ module.exports = new class extends Connector {
             const results = await P.map(hosts, chunk => {
                 const req = {
                     org_id: dispatcherConnectionStatusRequest.org_id,
-                    hosts
+                    hosts: chunk
                 };
 
-                this.postPlaybookRunRequests(req);
+                this.getConnectionStatus(req);
             });
+            // TODO: this doesn't handle chunked satellite systems correctly - merge by recipient_id!!
             return results.flat();
         }
 
