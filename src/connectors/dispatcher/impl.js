@@ -149,7 +149,7 @@ module.exports = new class extends Connector {
             return [];
         }
 
-        log.error(`received dispatcher connection status: ${JSON,stringify(result)}`);
+        log.error(`received dispatcher connection status: ${JSON.stringify(result)}`);
         return result;
     }
 
