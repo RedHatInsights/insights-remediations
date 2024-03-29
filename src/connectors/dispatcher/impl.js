@@ -120,6 +120,9 @@ module.exports = new class extends Connector {
                 this.getConnectionStatus(req);
             });
 
+            log.error(`results array: ${JSON.stringify(results)}`);
+            log.error(`merged: ${results.flat()}`);
+            
             return results.flat();
         }
 
