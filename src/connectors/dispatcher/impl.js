@@ -110,21 +110,16 @@ module.exports = new class extends Connector {
     async getConnectionStatus (dispatcherConnectionStatusRequest) {
         // chunk this request if necessary...
         if (dispatcherConnectionStatusRequest.hosts.length > pageSize) {
-            const hosts = _.chunk(dispatcherConnectionStatusRequest.hosts, pageSize);
-            const results = await P.map(hosts, chunk => {
-                const req = {
-                    org_id: dispatcherConnectionStatusRequest.org_id,
-                    hosts: chunk
-                };
+            const chunks = _(dispatcherConnectionStatusRequest.hosts)
+            .chunk(pageSize)
+            .map(chunk => {
+                return {org_id: dispatcherConnectionStatusRequest.org_id, hosts: chunk};
+            })
+            .value();
 
-                this.getConnectionStatus(req);
-            });
+            const partials = await P.map(chunks, (chunk) => this.getConnectionStatus(chunk));
 
-            log.error(`results array: ${JSON.stringify(results)}`);
-            const result = results.flat();
-            log.error(`merged: ${JSON.stringify(result)}`);
-            
-            return result;
+            return partials.flat();
         }
 
         const uri = new URI(host);
@@ -149,18 +144,18 @@ module.exports = new class extends Connector {
         const result = await this.doHttp (options, false, this.postV2ConnectionStatus);
 
         if (_.isEmpty(result)) {
-            return [];
+            return P.resolve([]);
         }
 
         log.error(`received dispatcher connection status: ${JSON.stringify(result)}`);
-        return result;
+        return P.resolve(result);
     }
 
     async postV2PlaybookRunRequests (dispatcherV2WorkRequests) {
         // chunk this request if necessary...
         if (dispatcherV2WorkRequests.length > pageSize) {
             const chunks = _.chunk(dispatcherV2WorkRequests, pageSize);
-            const results = await P.map(chunks, chunk => this.postPlaybookRunRequests(chunk));
+            const results = await P.map(chunks, chunk => this.postV2PlaybookRunRequests(chunk));
             return results.flat();
         }
 
