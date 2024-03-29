@@ -9,6 +9,7 @@ const Connector = require('../Connector');
 const metrics = require('../metrics');
 const log = require('../../util/log');
 const P = require("bluebird");
+const {stringify} = require("nodemon/lib/utils");
 
 const QSOPTIONS = { encode: true, indices: false };
 
@@ -148,6 +149,7 @@ module.exports = new class extends Connector {
             return [];
         }
 
+        log.error(`received dispatcher connection status: ${JSON,stringify(result)}`);
         return result;
     }
 
