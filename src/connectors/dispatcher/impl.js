@@ -119,7 +119,7 @@ module.exports = new class extends Connector {
 
                 this.getConnectionStatus(req);
             });
-            // TODO: this doesn't handle chunked satellite systems correctly - merge by recipient_id!!
+
             return results.flat();
         }
 
