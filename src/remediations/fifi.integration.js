@@ -149,6 +149,23 @@ describe('FiFi', function () {
             expect(text).toMatchSnapshot();
         });
 
+        test('handles > 50 systems', async () => {
+            // use impl version
+            base.getSandbox().stub(dispatcher, 'getConnectionStatus').callsFake(dispatcher_impl.getConnectionStatus);
+
+            // replace doHttp() with our own function...
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp');
+            const dispatcherMock = require('../connectors/dispatcher/serviceMock');
+            spy.callsFake(dispatcherMock);
+
+
+            const result = await request
+            .get('/v1/remediations/dd6a0b1b-5331-4e7b-92ec-9a01806fb181/connection_status')
+            .set(auth.fifi);
+
+            expect(result.body).toMatchObject({});
+        });
+
         test('get connection status with false smartManagement but with system connected to RHC', async () => {
             base.getSandbox().stub(config, 'isMarketplace').value(true);
             const {text} = await request
