@@ -7,14 +7,14 @@ const NON_EXISTENT_SYSTEM = '1040856f-b772-44c7-83a9-eeeeeeeeeeee';
 const DISCONNECTED_SATELLITE = '409dd231-6297-43a6-a726-5ce56923d624';
 
 const SATELLITES = [
-    '722ec903-f4b5-4b1f-9c2f-23fc7b0ba390', // connected
-    DISCONNECTED_SATELLITE, // disconnected
-    '72f44b25-64a7-4ee7-a94e-3beed9393972', // no_receptor
-    '01bf542e-6092-485c-ba04-c656d77f988a', // no_source
-    null, // no_executor,
-    '63142926-46a5-498b-9614-01f2f66fd40b', // connected
-    '893f2788-c7a6-4cc3-89bc-9066ffda695e', // connected (Sat RHC, org_id 2)
-    '893f2788-c7a6-4cc3-89bc-9066ffda695e'  // connected (Sat RHC, org_id 6)
+    '722ec903-f4b5-4b1f-9c2f-23fc7b0ba390', // 0: connected
+    DISCONNECTED_SATELLITE,                 // 1: disconnected
+    '72f44b25-64a7-4ee7-a94e-3beed9393972', // 2: no_receptor
+    '01bf542e-6092-485c-ba04-c656d77f988a', // 3: no_source
+    null,                                   // 4: no_executor (direct),
+    '63142926-46a5-498b-9614-01f2f66fd40b', // 5: connected
+    '893f2788-c7a6-4cc3-89bc-9066ffda695e', // 6: connected (Sat RHC, org_id 2)
+    '893f2788-c7a6-4cc3-89bc-9066ffda695e'  // 7: connected (Sat RHC, org_id 6)
 ];
 
 const SYSTEMS = {
@@ -140,13 +140,13 @@ module.exports.generateSystemInfo = function (id) {
                 namespace: 'satellite',
                 facts: {
                     satellite_instance_id: satellite_instance_id,
-                    organization_id: (satelliteIndex === 7) ? '6' : '2',
-                    satellite_version: (satelliteIndex >= 6) ? '6.11.3' : '6.10.7'
+                    organization_id: !!(satellite_instance_id) ? ((satelliteIndex === 7) ? '6' : '2') : null,
+                    satellite_version: !!(satellite_instance_id) ? ((satelliteIndex >= 6) ? '6.11.3' : '6.10.7') : null
                 }
             }
         ],
         satelliteId: satellite_instance_id,
-        satelliteOrgId: (satelliteIndex === 7) ? '6' : '2',
+        satelliteOrgId: !!(satellite_instance_id) ? ((satelliteIndex === 7) ? '6' : '2') : null,
         satelliteVersion: (satelliteIndex >= 6) ? '6.11.3' : '6.10.7', // TODO: remove?
         rhc_client: satellite_instance_id ? null : 'beefedaf'+id.slice(8),
         marketplace: false,

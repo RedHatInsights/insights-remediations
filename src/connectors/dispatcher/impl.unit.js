@@ -2,10 +2,12 @@
 
 const impl = require('./impl');
 const base = require('../../test');
+const dispatcher = require('./serviceMock');
 const { mockRequest } = require('../testUtils');
 const request = require('../../util/request');
 const errors = require('../../errors');
 const Connector = require('../Connector');
+const {systems: host_list, mixed_systems} = require('../inventory/impl.unit.data');
 const URI = require("urijs");
 const _ = require("lodash");
 
@@ -50,6 +52,26 @@ const DISPATCHSTATUSREQUEST = [
     }
 ];
 
+const DISPATCHV2STATUSREUEST = {
+    org_id: '123456',
+    hosts: [
+        'b83f6247-d46a-478a-b395-008b12aa2314',
+        '50dc93a9-ca3d-4617-95f9-69e69e7e74a4',
+        'c457064a-423c-41ee-9298-9f91aab7e0c4',
+        '1f378e77-56a4-4b6d-8570-2e08196030e4'
+    ]
+};
+
+const LARGE_DIRECT_STATUS_REQ = {
+    org_id: '123456',
+    hosts: host_list
+};
+
+const LARGE_SAT_STATUS_REQ = {
+    org_id: '123456',
+    hosts: mixed_systems
+};
+
 const MOCKFILTER = {filter: {service: 'remediations'}};
 const MOCKFIELDS = {fields: {data: ['id']}};
 
@@ -59,7 +81,7 @@ describe('dispatcher impl', function () {
     beforeEach(mockRequest);
 
     describe('postPlaybookRunRequests', function () {
-        test('post run requests', async function () {
+        test('POST run requests', async function () {
             const http = base.getSandbox().stub(request, 'run').resolves({
                 statusCode: 207,
                 body: [
@@ -152,7 +174,7 @@ describe('dispatcher impl', function () {
     });
 
     describe('getPlaybookRuns', function () {
-        test('get list of runs', async function () {
+        test('GET list of runs', async function () {
             const http = base.getSandbox().stub(request, 'run').resolves({
                 statusCode: 200,
                 body: {
@@ -227,6 +249,9 @@ describe('dispatcher impl', function () {
             options.headers.should.have.property('x-rh-identity', 'identity');
         });
 
+        // TODO
+        test('merges paginated request', async () => {});
+
         test('returns null dispatcherWorkRequest is incorrect', async function () {
             base.getSandbox().stub(request, 'run').resolves({
                 statusCode: 200,
@@ -254,7 +279,7 @@ describe('dispatcher impl', function () {
     });
 
     describe('getPlaybookRunHosts', function () {
-        test('get list of run hosts', async function () {
+        test('GET list of run hosts', async function () {
             const http = base.getSandbox().stub(request, 'run').resolves({
                 statusCode: 200,
                 body: {
@@ -324,6 +349,9 @@ describe('dispatcher impl', function () {
             options.headers.should.have.property('x-rh-identity', 'identity');
         });
 
+        // TODO
+        test('merges paginated request', async () => {});
+
         test('returns null dispatcherWorkRequest is incorrect', async function () {
             base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
             await expect(impl.fetchPlaybookRunHosts(MOCKFILTER, MOCKFIELDS)).resolves.toBeNull();
@@ -341,7 +369,7 @@ describe('dispatcher impl', function () {
     });
 
     describe('postPlaybookCancelRequest', function () {
-        test('post successful cancel request', async function () {
+        test('POST successful cancel request', async function () {
             const http = base.getSandbox().stub(request, 'run').resolves({
                 statusCode: 207,
                 body: {
@@ -449,6 +477,59 @@ describe('dispatcher impl', function () {
         test('status code handling dispatcherStatusRequest', async function () {
             base.mockRequestStatusCode();
             await expect(impl.getPlaybookRunRecipientStatus(DISPATCHSTATUSREQUEST)).rejects.toThrow(errors.DependencyError);
+        });
+    });
+
+    describe('getConnectionStatus', () => {
+        test('GET system connection statuses', async () => {
+            base.getSandbox().stub(request, 'run').resolves({
+                statusCode: 200,
+                body: [
+                    {
+                        recipient: 'd415fc2d-9700-4e30-9621-6a410ccc92d8',
+                        org_id: '123456',
+                        sat_id: "aa3b1faa-56f3-4d14-8258-615d11e20060",
+                        sat_org_id: '2',
+                        recipient_type: 'satellite',
+                        systems: [
+                            'b83f6247-d46a-478a-b395-008b12aa2314',
+                            '50dc93a9-ca3d-4617-95f9-69e69e7e74a4',
+                            'c457064a-423c-41ee-9298-9f91aab7e0c4',
+                            '1f378e77-56a4-4b6d-8570-2e08196030e4'
+                        ],
+                        status: 'connected'
+                    }
+                ],
+                headers: {}
+            });
+
+            const results = await impl.getConnectionStatus(DISPATCHV2STATUSREUEST);
+
+            results.should.have.length(1);
+            results[0].systems.should.have.length(4);
+        });
+
+        test('chunks large request', async () => {
+            // verify correct collation (sat_a: 51+, sat_b: 2+, direct_a: 1, direct_b: 1)
+            base.getSandbox().stub(request, 'run').callsFake(dispatcher);
+            const results = await impl.getConnectionStatus(LARGE_SAT_STATUS_REQ);
+
+            expect(results.body).toMatchSnapshot();
+        });
+
+        test('returns empty array if no results', async () => {
+            base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(null);
+            await expect(impl.getConnectionStatus(DISPATCHV2STATUSREUEST)).resolves.toEqual([]);
+        });
+
+        test('connection error handling dispatcherV2StatusRequest', async () => {
+            base.mockRequestStatusCode();
+            await expect(impl.getConnectionStatus(DISPATCHV2STATUSREUEST)).rejects.toThrow(errors.DependencyError);
+        });
+
+        test('status code handling dispatcherV2StatusRequest', async () => {
+            base.mockRequestStatusCode();
+            await expect(impl.getConnectionStatus(DISPATCHV2STATUSREUEST)).rejects.toThrow(errors.DependencyError);
         });
     });
 });

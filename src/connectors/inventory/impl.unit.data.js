@@ -43,3 +43,72 @@ exports.systems = [
     'd3d1ae20-4b4a-437c-b3d5-eaa8f9d7dbc4', 'f0c9a3c3-2824-4f5c-9ea0-6b6a28a29794', '3897d989-db33-4bfe-a425-a4cbf0d2f124',
     '88d0345b-3b54-4e68-ac67-f34a997bc1f4', 'b9368719-a2ba-4860-9333-edac7db45a44', '622fa925-8521-41c1-b256-b3941f04ae14'
 ];
+
+exports.mixed_systems = [
+    //   ----- 50 systems -----
+    // 1 * sat_a, org_2, disconnected
+    'bee102db-2d6d-4c8a-a224-20acdfae8016',
+
+    // 20 * sat_a, org_2, connected
+    '70fa1c47-4cb5-4fa2-8c5d-f711c5e56106', '8d261f8a-c27b-40be-a852-47ecd3b1d006',
+    '537fb6e7-81a2-4d6e-933a-f9720c24ef06', 'b74a5c46-d6f4-4384-8e97-d030ca8c3c06', '0abbf407-d37e-4fa2-9144-77835491c806',
+    '8dbee992-d024-49d3-9dc8-81be0e18ac06', '134d3f33-edb9-4eb6-a35a-bd26b2cad106', '71ea6a1a-5b5a-4a49-8e2d-2db0ad95b706',
+    '39d18cd4-a522-4eb3-b0bd-58be450ad506', 'b8889292-a80b-498d-b150-337af15f5c06', 'b6125974-a07f-4ad1-aa8b-25fd3c37ac06',
+    '9634bd37-bc26-4109-b66b-0eb884247e06', '51aa351c-1334-4625-b402-3ace21ab8c06', '161725a8-ce59-4f9d-a9d2-1bc5d1af4f06',
+    'bfa10a4b-7c77-4b0b-81ef-0487ba2aa406', '3f6e91a8-899b-4951-970d-3ac6a3702606', '6955d0e1-e7e2-499f-aeb2-cc8ad331a706',
+    'f93e16a2-3876-47e5-99d0-8af2f3a21606', '80313ef1-3dd5-4e9a-b364-638814d9ca06', '726ed5f1-fab2-47c6-99ca-e6ad497d7706',
+
+    // 3 * direct, connected
+    '0f67c6f1-47a0-48fa-8171-ed38eb8cf104', 'ce434257-797c-44e4-a279-9cfa756af604', '3612c3d2-74b0-4615-965b-00bae5268d04',
+
+    // 1 * sat_a, org_2, disconnected
+    'eef49090-48d8-4fb1-bfd4-0320f2ccde16',
+
+    // 20 * sat_a, org_2, connected
+    '3411553b-190f-45b7-b015-99b4eae7dd06', '6d49f3e7-b04c-44db-b964-bffa0d670306',
+    'bb4ab2da-4a84-469f-b245-bd02887ab306', '38e09671-f870-4309-bd65-472cebc9de06', 'f6ad6f0a-70af-47b1-9c9e-688313911406',
+    '45a96e89-f80e-47d7-98b2-ca55e0143c06', '0a7f3e3b-509a-4099-8d11-50d477a8fe06', 'c382788b-5fd3-4070-9078-921d8178ab06',
+    'f73a31c4-94e4-42e2-88f7-2f608590d806', '7e537522-c443-4a94-a6e3-6bfc10102d06', '7b36bdce-8c19-4972-8724-fbec93d2ca06',
+    'aefb5a38-5024-4c2e-9854-07f93457d006', '7b11806c-4eb3-42f7-8868-b1842ece2c06', 'c3bbf8fa-7ea7-4651-b3bf-d0695da08b06',
+    'af66d62b-bdc3-4b81-bca9-4062d120e106', '07b9f43e-92f5-49e3-a8e7-4b52c8098f06', '2cf50432-f67c-46ab-8f28-8ebdb6ec9c06',
+    '3f26b905-be08-439f-a670-3ca5e0e47c06', '2c501636-c42f-4d20-96ff-39eac092ba06', 'a858a857-aedd-46f2-808f-1457de51d006',
+
+    // 2 * sat_a, org_6, connected
+    '89db7d19-1f48-4a9e-9f58-29c14efac407', '4a89aaf3-3ef5-4570-b339-ebe324dac607',
+
+    // 1 * sat_a, org_6, disconnected
+    'bc8af919-28a4-4467-a5fe-d15314df3917',
+
+    // 2 * sat_a, org_2, connected
+    '63266b2f-e083-4a44-86e9-203806be2806', '26ebe1ad-88d9-4d41-8aa4-3ecc04d19e06',
+
+    //   ----- 50 systems -----
+    // 40 * sat_a, org_2, connected
+    'ce089cf5-14a3-4c82-bc22-1cd795249006',
+    '1d1eadbf-d0b5-414a-9b04-0eb1a5414a06', '237e44a8-9600-421f-8551-23a492230106', '58f5c25b-1e89-42ef-9d49-7ec0aed4f106',
+    'cb0eb24e-c228-46bb-8e0d-3d82ee0c1b06', '66140259-8b99-4499-a27d-80069b198706', 'b310dcae-e084-4d5c-a234-ae36c4317606',
+    'c795f9f3-539a-4b13-8e33-369f3cfff906', '9a03cae1-6778-40f1-863f-f5bfd8aec106', '74a8a214-6955-448b-8bf7-3e4ad315b906',
+    'fe232c0b-e075-404d-a2de-85b517c3b306', 'ff9127c0-fd17-4a6c-928f-1bcf4649d606', 'c68a92f9-9a20-449e-ad53-b7207cbfc006',
+    '0f85e5ea-9b9e-4a59-951a-c41ae2ee3c06', 'df6726a7-1466-42ee-953f-72860eda1206', 'c0c3554b-d340-47b6-9d6d-a5cea1222406',
+    'fa2c642d-c9e7-491e-884e-90c6b1f95106', '380a651a-59a3-48a3-ab5a-64cd36c3b606', 'f1acfc59-412d-45b6-be52-3c68b111c506',
+    '168b3d26-485b-459e-b202-65438b278506', '08653470-35cc-4c96-a1f4-4fb0b916e506', '0078fd6c-ffe6-4d61-af36-f7aeac611706',
+    '01f1f738-b75c-4cbf-b71d-2f1100046e06', 'fb6d90cf-cca7-4f0b-8b4d-7a6bfd683b06', '8c4fdda1-5cb4-48b1-81a5-09ea963ce106',
+    '8f791171-fb73-4969-bfad-d0c950e0bb06', 'e8abc3d6-106d-40bc-8855-68ac60eb0706', '02bc7046-1367-45e1-a30a-7fe838fc6506',
+    'e6c3b1e0-e3ad-4fde-b622-de040944d506', '26d85495-b766-45c8-aa4b-7522c98ab306', 'c3c1aef1-3a63-4313-af73-62996f155c06',
+    '147ee761-e91d-44a8-b14f-7c006d2b8406', '830b89bd-c55f-4870-9786-1e64362b7f06', '2a866657-489e-475f-9c51-c66a04eff406',
+    '7651864a-5619-4607-b7f8-8222b5169006', '168c4434-c3c9-4ec7-9d5c-a25fcf732606', '82d714e8-85f9-4dc0-966c-228e8105ed06',
+    '24ee4210-0d1c-42bc-b380-8de7b6b13c06', '0cbb4694-614b-41c8-9623-2e842fc28c06', '2c1d9954-5c25-427a-89d2-e6e973c7d806',
+
+    // 2 * sat_a, org_6, connected
+    'f4ea838e-e859-45fd-91ad-a4d6ad22fb07', '335916d8-ef5c-46f7-ad4e-e0a2f1aa9b07',
+
+    // 1 * sat_a, org_6, disconnected
+    'fbb80e77-230e-4c6f-85a0-28fa7cf41417',
+
+    // 6 * sat_a, org_2, connected
+    '35f721b7-6a0a-4aee-a86f-7fe94f9c9f06', '5b36322a-92f4-4cfd-a93f-16c748d3f006', '9ae91f0e-a037-4251-9445-dbcb7b20c406',
+    '3296521f-5d76-464f-8af1-1593c4376806', '90089201-0bd9-41c0-b870-41f16049b406', '729eeb3b-1b06-49c5-9fa8-22f18f73e106',
+
+    // 1 * direct, rhc not configured
+    '4d2f57e6-1772-4260-a72d-a4b333265b24'
+];

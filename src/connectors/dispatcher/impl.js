@@ -110,16 +110,31 @@ module.exports = new class extends Connector {
     async getConnectionStatus (dispatcherConnectionStatusRequest) {
         // chunk this request if necessary...
         if (dispatcherConnectionStatusRequest.hosts.length > pageSize) {
-            const chunks = _(dispatcherConnectionStatusRequest.hosts)
-            .chunk(pageSize)
-            .map(chunk => {
-                return {org_id: dispatcherConnectionStatusRequest.org_id, hosts: chunk};
-            })
-            .value();
+            const chunks = _.chunk(dispatcherConnectionStatusRequest.hosts, pageSize);
 
-            const partials = await P.map(chunks, (chunk) => this.getConnectionStatus(chunk));
+            const results = await P.map(chunks, chunk => {
+                const req = {
+                    org_id: dispatcherConnectionStatusRequest.org_id,
+                    hosts: chunk
+                };
 
-            return partials.flat();
+                return this.getConnectionStatus(req);
+            });
+
+            // merge items with same recipient id & status
+            const merged = [];
+
+            // group by recipient id
+            _(results).flatten().groupBy('recipient').forEach(fragments => {
+                // group by status
+                _(fragments).groupBy('status').forEach(items => {
+                    const systems = _(items).map('systems').flatten().value();
+                    items[0].systems = [...systems];
+                    merged.push(items[0]);
+                });
+            });
+
+            return merged;
         }
 
         const uri = new URI(host);
@@ -144,11 +159,10 @@ module.exports = new class extends Connector {
         const result = await this.doHttp (options, false, this.postV2ConnectionStatus);
 
         if (_.isEmpty(result)) {
-            return P.resolve([]);
+            return [];
         }
 
-        log.error(`received dispatcher connection status: ${JSON.stringify(result)}`);
-        return P.resolve(result);
+        return result;
     }
 
     async postV2PlaybookRunRequests (dispatcherV2WorkRequests) {
