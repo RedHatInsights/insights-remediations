@@ -261,6 +261,12 @@ exports.get = errors.async(async function (req, res) {
     res.json(format.get(remediation));
 });
 
+exports.bulkPlaybook = errors.async(async function (req, res) {
+    // copy body array to request object and pass through to playbook()
+    req.query.hosts = req.body;
+    return exports.playbook(req, res);
+});
+
 exports.playbook = errors.async(async function (req, res) {
     const id = req.params.id;
     const selected_hosts = req.query.hosts;
