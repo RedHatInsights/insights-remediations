@@ -4,7 +4,7 @@ openapi: 3.0.0
 info:
   title: Insights Remediations
   description: Insights Remediations Service
-  version: 1.3.5
+  version: 1.4.0
   contact:
     email: rewhite@redhat.com
 
@@ -188,6 +188,29 @@ paths:
         - $ref: '#/components/parameters/SelectedHosts'
         - $ref: '#/components/parameters/SatOrgId'
         - $ref: '#/components/parameters/LocalHost'
+      responses:
+        200:
+          description: OK
+          content:
+            text/vnd.yaml:
+              schema:
+                type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags:
+        - remediations
+      summary: Fetch Remediation Plan Playbook
+      description: Fetch Ansible Playbook - for use with large list of target systems, RBAC permission {remediations:remediation:read}
+      operationId: bulkGetRemediationPlaybook
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/SatOrgId'
+        - $ref: '#/components/parameters/LocalHost'
+      requestBody:
+        $ref: '#/components/requestBodies/PlaybookSystems'
       responses:
         200:
           description: OK
@@ -772,6 +795,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/PlaybookRunsInput'
+    PlaybookSystems:
+      required: true
+      description: Array of system inventory identifiers.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SystemList'
 
   schemas:
     #
@@ -1019,6 +1049,11 @@ components:
           example:
             - 9197ba55-0abc-4028-9bbe-269e530f8bd5
             - 3df5ed22-4324-402c-b128-ea62debbde6c
+
+    SystemList:
+      type: array
+      items:
+        $ref: '#/components/schemas/SystemId'
 
     RemediationIssueIn:
       type: object

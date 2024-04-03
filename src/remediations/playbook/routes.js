@@ -7,9 +7,7 @@ const rbac = require('../../middleware/rbac');
 const rbacRead = rbac('remediations:remediation:read');
 
 module.exports = function (router) {
-    router.get(
-        '/remediations/:id/playbook',
-        openapi('getRemediationPlaybook'),
-        rbacRead,
-        read.playbook);
+    router.route('/remediations/:id/playbook')
+        .get(openapi('getRemediationPlaybook'), rbacRead, read.playbook)
+        .post(openapi('bulkGetRemediationPlaybook'), rbacRead, read.bulkPlaybook);
 };
