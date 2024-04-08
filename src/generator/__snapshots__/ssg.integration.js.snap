@@ -36,8 +36,8 @@ exports[`generates a playbook with block 1`] = `
       register: device_name
       failed_when: device_name.rc > 1
       changed_when: false
-      when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-        != \\"docker\\"
+      when: ansible_virtualization_role != "guest" or ansible_virtualization_type
+        != "docker"
 
     - name: create mount_info dictionary variable
       set_fact:
@@ -48,8 +48,8 @@ exports[`generates a playbook with block 1`] = `
       when:
         - device_name.stdout is defined and device_name.stdout_lines is defined
         - (device_name.stdout | length > 0)
-        - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-          \\"docker\\"
+        - ansible_virtualization_role != "guest" or ansible_virtualization_type !=
+          "docker"
 
     - name: Ensure permission nodev are set on /dev/shm
       mount:
@@ -61,12 +61,12 @@ exports[`generates a playbook with block 1`] = `
       when:
         - device_name.stdout is defined
         - (device_name.stdout | length > 0)
-        - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-          \\"docker\\"
+        - ansible_virtualization_role != "guest" or ansible_virtualization_type !=
+          "docker"
 
 
 - name: generate Compliance report
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -100,7 +100,7 @@ exports[`generates a playbook with block 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -132,7 +132,7 @@ exports[`generates a playbook with block 1`] = `
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -140,15 +140,15 @@ exports[`generates a playbook with block 1`] = `
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -267,13 +267,13 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
             enabled: 'yes'
             state: started
           when:
-            - '\\"rsyslog\\" in ansible_facts.packages'
-      when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-        != \\"docker\\"
+            - '"rsyslog" in ansible_facts.packages'
+      when: ansible_virtualization_role != "guest" or ansible_virtualization_type
+        != "docker"
 
 
 - name: generate Compliance report
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -307,7 +307,7 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -339,7 +339,7 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -347,15 +347,15 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -439,7 +439,7 @@ exports[`generates a simple playbook with single compliance remediation 1`] = `
 
 
 - name: generate Compliance report
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -473,7 +473,7 @@ exports[`generates a simple playbook with single compliance remediation 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -505,7 +505,7 @@ exports[`generates a simple playbook with single compliance remediation 1`] = `
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -513,15 +513,15 @@ exports[`generates a simple playbook with single compliance remediation 1`] = `
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -595,7 +595,7 @@ exports[`generates a simple playbook with uppercase profile name 1`] = `
           lineinfile:
             path: /etc/ssh/sshd_config
             create: false
-            regexp: (?i)^\\\\s*HostbasedAuthentication\\\\s+
+            regexp: (?i)^\\s*HostbasedAuthentication\\s+
             state: absent
 
         - name: Insert correct line to /etc/ssh/sshd_config
@@ -604,14 +604,14 @@ exports[`generates a simple playbook with uppercase profile name 1`] = `
             create: true
             line: HostbasedAuthentication no
             state: present
-            insertbefore: ^[#\\\\s]*Match
+            insertbefore: ^[#\\s]*Match
             validate: /usr/sbin/sshd -t -f %s
-      when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-        != \\"docker\\"
+      when: ansible_virtualization_role != "guest" or ansible_virtualization_type
+        != "docker"
 
 
 - name: generate Compliance report
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -645,7 +645,7 @@ exports[`generates a simple playbook with uppercase profile name 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -677,7 +677,7 @@ exports[`generates a simple playbook with uppercase profile name 1`] = `
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -685,15 +685,15 @@ exports[`generates a simple playbook with uppercase profile name 1`] = `
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
