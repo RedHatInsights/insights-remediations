@@ -10,7 +10,7 @@
   "author": "Jozef Hartinger",
   "dependencies": {
     "@godaddy/terminus": "^4.4.1",
-    "app-common-js": "^1.4.0",
+    "app-common-js": "^2.2.4",
     "bluebird": "^3.7.2",
     "body-parser": "^1.19.0",
     "cls-bluebird": "^2.1.0",
