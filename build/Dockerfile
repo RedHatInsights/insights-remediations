@@ -2,7 +2,7 @@
 
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.9-1161 AS base
 
-RUN microdnf module enable nodejs:16 && \
+RUN microdnf module enable nodejs:20 && \
     microdnf install -y jq nodejs --nodocs && \
     microdnf clean all
 
@@ -10,7 +10,7 @@ ENV APP_ROOT=/opt/app-root/src
 WORKDIR $APP_ROOT
 RUN mkdir -p $APP_ROOT/.npm/{_logs,_cacache} && chgrp -R 0 $APP_ROOT && chmod -R ug+rwX $APP_ROOT
 
-RUN npm install -g npm@8.19.3
+RUN npm install -g npm@10.5.1
 
 #--------------------- packages ---------------------
 

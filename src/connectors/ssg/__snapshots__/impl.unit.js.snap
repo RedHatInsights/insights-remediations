@@ -34,8 +34,8 @@ exports[`ssg impl returns template 1`] = `
             enabled: 'yes'
             state: started
           when:
-            - '\\"rsyslog\\" in ansible_facts.packages'
-      when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-        != \\"docker\\"
+            - '"rsyslog" in ansible_facts.packages'
+      when: ansible_virtualization_role != "guest" or ansible_virtualization_type
+        != "docker"
 "
 `;

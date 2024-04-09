@@ -17,10 +17,10 @@ exports[`patchman - package using patch-package generates a playbook with multip
 # Identifier: (patch-package:libgudev1-219-78.el7_9.3.x86_64,patch-package:libstdc++-8.3.1-5.1.el8.x86_64,patch-package:qemu-guest-agent-15:4.2.0-34.module+el8.3.0+8829+e7a0a3ea.1.x86_64,patch-package:rpm-4.14.2-37.el8.x86_64,patch-package:systemd-239-13.el8_0.5.x86_64,fix)
 # Version: test
 - name: update packages
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_issues: \\"libgudev1-219-78.el7_9.3.x86_64 libstdc++-8.3.1-5.1.el8.x86_64 qemu-guest-agent-15:4.2.0-34.module+el8.3.0+8829+e7a0a3ea.1.x86_64 rpm-4.14.2-37.el8.x86_64 systemd-239-13.el8_0.5.x86_64\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues\\"
+    insights_issues: "libgudev1-219-78.el7_9.3.x86_64 libstdc++-8.3.1-5.1.el8.x86_64 qemu-guest-agent-15:4.2.0-34.module+el8.3.0+8829+e7a0a3ea.1.x86_64 rpm-4.14.2-37.el8.x86_64 systemd-239-13.el8_0.5.x86_64"
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_issues"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTVlpCZDFWQldrWjZOR2RqZG5jMU9FUXJhalZ3VGtGUmFubDVVUzg1U0hoU1lq
@@ -45,14 +45,14 @@ exports[`patchman - package using patch-package generates a playbook with multip
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\\\\\\\\.([^-:.(/=<>;]+)$') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\\\\.([^-:.(/=<>;]+)$') }}"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\\\\\\\\.([^-:.(/=<>;]+)$') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\\\\.([^-:.(/=<>;]+)$') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
@@ -62,7 +62,7 @@ exports[`patchman - package using patch-package generates a playbook with multip
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -94,7 +94,7 @@ exports[`patchman - package using patch-package generates a playbook with multip
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -102,15 +102,15 @@ exports[`patchman - package using patch-package generates a playbook with multip
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -154,10 +154,10 @@ exports[`patchman - package using patch-package generates a simple playbook with
 # Identifier: (patch-package:rpm-4.14.2-37.el8.x86_64,fix)
 # Version: test
 - name: update packages
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_issues: \\"rpm-4.14.2-37.el8.x86_64\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues\\"
+    insights_issues: "rpm-4.14.2-37.el8.x86_64"
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_issues"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTVlpCZDFWQldrWjZOR2RqZG5jMU9FUXJhalZ3VGtGUmFubDVVUzg1U0hoU1lq
@@ -182,14 +182,14 @@ exports[`patchman - package using patch-package generates a simple playbook with
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\\\\\\\\.([^-:.(/=<>;]+)$') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\\\\.([^-:.(/=<>;]+)$') }}"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\\\\\\\\.([^-:.(/=<>;]+)$') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\\\\.([^-:.(/=<>;]+)$') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
@@ -199,7 +199,7 @@ exports[`patchman - package using patch-package generates a simple playbook with
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -231,7 +231,7 @@ exports[`patchman - package using patch-package generates a simple playbook with
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -239,15 +239,15 @@ exports[`patchman - package using patch-package generates a simple playbook with
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:

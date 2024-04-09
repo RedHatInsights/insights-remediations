@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`remediations remove bulk delete empty list 1`] = `
-Object {
-  "errors": Array [
-    Object {
+{
+  "errors": [
+    {
       "code": "minItems.openapi.validation",
       "id": "",
       "status": 400,
@@ -14,9 +14,9 @@ Object {
 `;
 
 exports[`remediations remove bulk delete missing body 1`] = `
-Object {
-  "errors": Array [
-    Object {
+{
+  "errors": [
+    {
       "code": "required.openapi.validation",
       "id": "",
       "status": 400,
@@ -27,9 +27,9 @@ Object {
 `;
 
 exports[`remediations remove bulk delete too many IDs 1`] = `
-Object {
-  "errors": Array [
-    Object {
+{
+  "errors": [
+    {
       "code": "maxItems.openapi.validation",
       "id": "",
       "status": 400,

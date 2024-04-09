@@ -9,10 +9,10 @@ exports[`does not mind extra whitespace in HOSTS variable declaration 1`] = `
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
 - name: run insights to obtain latest diagnosis info
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_remediation: \\"\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_remediation\\"
+    insights_remediation: ""
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_remediation"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRblZqZG5jMU9FUXJhalZ3VGtGUmFtRkdVa0ZCYTBSVWNu
@@ -37,7 +37,7 @@ exports[`does not mind extra whitespace in HOSTS variable declaration 1`] = `
   become: true
   tasks:
     - name: obtain diagnosis info
-      command: \\"insights-client --diagnosis{{ insights_remediation | regex_search('\\\\\\\\s[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
+      command: "insights-client --diagnosis{{ insights_remediation | regex_search('\\\\s[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}"
       register: insights_result
       changed_when: false
       check_mode: false
@@ -48,10 +48,10 @@ exports[`does not mind extra whitespace in HOSTS variable declaration 1`] = `
 # Identifier: (advisor:bond_config_issue|EXTRA_WHITESPACE,fix)
 # Version: a0e934f07d8167073546cbc5108c4345f92559a5
 - name: Correct Bonding Config Items
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   vars:
-    pydata: \\"{{ insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] }}\\"
+    pydata: "{{ insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] }}"
   tasks:
 
     - when: 
@@ -59,26 +59,26 @@ exports[`does not mind extra whitespace in HOSTS variable declaration 1`] = `
         - item.value == 2
       name: Add quotes around bonding options
       lineinfile:
-        dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
-        regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
+        dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}"
+        regexp: '(^\\s*BONDING_OPTS=)(.*)'
         backrefs: yes
-        line: '\\\\1\\"\\\\2\\"'
-      with_dict: \\"{{ pydata.interface_issue_dict }}\\"
+        line: '\\1"\\2"'
+      with_dict: "{{ pydata.interface_issue_dict }}"
 
     - when:
         - insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] is defined
         - item.value == 1
       name: lowercase yes in Slave option
       lineinfile:
-        dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
-        regexp: '(^\\\\s*SLAVE=)(\\"*YES\\"*)'
+        dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}"
+        regexp: '(^\\s*SLAVE=)("*YES"*)'
         backrefs: yes
-        line: '\\\\1yes'
-      with_dict: \\"{{ pydata.interface_issue_dict }}\\"
+        line: '\\1yes'
+      with_dict: "{{ pydata.interface_issue_dict }}"
 
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -119,10 +119,10 @@ exports[`generates a rule-based playbook 1`] = `
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
 - name: run insights to obtain latest diagnosis info
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_remediation: \\"\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_remediation\\"
+    insights_remediation: ""
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_remediation"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRblZqZG5jMU9FUXJhalZ3VGtGUmFtRkdVa0ZCYTBSVWNu
@@ -147,7 +147,7 @@ exports[`generates a rule-based playbook 1`] = `
   become: true
   tasks:
     - name: obtain diagnosis info
-      command: \\"insights-client --diagnosis{{ insights_remediation | regex_search('\\\\\\\\s[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
+      command: "insights-client --diagnosis{{ insights_remediation | regex_search('\\\\s[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}"
       register: insights_result
       changed_when: false
       check_mode: false
@@ -158,10 +158,10 @@ exports[`generates a rule-based playbook 1`] = `
 # Identifier: (advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE,fix)
 # Version: a0e934f07d8167073546cbc5108c4345f92559a5
 - name: Correct Bonding Config Items
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   vars:
-    pydata: \\"{{ insights_report.details['network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'] }}\\"
+    pydata: "{{ insights_report.details['network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'] }}"
 
   tasks:
     - when:
@@ -169,19 +169,19 @@ exports[`generates a rule-based playbook 1`] = `
       block:
         - name: Add quotes around bonding options
           lineinfile:
-            dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
-            regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
+            dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}"
+            regexp: '(^\\s*BONDING_OPTS=)(.*)'
             backrefs: yes
-            line: '\\\\1\\"\\\\2\\"'
-          with_dict: \\"{{ pydata.bond_config }}\\"
+            line: '\\1"\\2"'
+          with_dict: "{{ pydata.bond_config }}"
 
         - name: Restart Network Interfaces
           shell: ifdown {{item.key}}  && ifup {{item.key}}
-          with_dict: \\"{{ pydata.bond_config }}\\"
+          with_dict: "{{ pydata.bond_config }}"
 
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -222,10 +222,10 @@ exports[`puts quotes around hosts list 1`] = `
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
 - name: run insights to obtain latest diagnosis info
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_remediation: \\"\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_remediation\\"
+    insights_remediation: ""
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_remediation"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRblZqZG5jMU9FUXJhalZ3VGtGUmFtRkdVa0ZCYTBSVWNu
@@ -250,7 +250,7 @@ exports[`puts quotes around hosts list 1`] = `
   become: true
   tasks:
     - name: obtain diagnosis info
-      command: \\"insights-client --diagnosis{{ insights_remediation | regex_search('\\\\\\\\s[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
+      command: "insights-client --diagnosis{{ insights_remediation | regex_search('\\\\s[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}"
       register: insights_result
       changed_when: false
       check_mode: false
@@ -261,10 +261,10 @@ exports[`puts quotes around hosts list 1`] = `
 # Identifier: (advisor:bond_config_issue|NO_QUOTES,fix)
 # Version: a0e934f07d8167073546cbc5108c4345f92559a5
 - name: Correct Bonding Config Items
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   vars:
-    pydata: \\"{{ insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] }}\\"
+    pydata: "{{ insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] }}"
   tasks:
 
     - when: 
@@ -272,26 +272,26 @@ exports[`puts quotes around hosts list 1`] = `
         - item.value == 2
       name: Add quotes around bonding options
       lineinfile:
-        dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
-        regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
+        dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}"
+        regexp: '(^\\s*BONDING_OPTS=)(.*)'
         backrefs: yes
-        line: '\\\\1\\"\\\\2\\"'
-      with_dict: \\"{{ pydata.interface_issue_dict }}\\"
+        line: '\\1"\\2"'
+      with_dict: "{{ pydata.interface_issue_dict }}"
 
     - when:
         - insights_report.details['bond_config_issue|BOND_CONFIG_ISSUE'] is defined
         - item.value == 1
       name: lowercase yes in Slave option
       lineinfile:
-        dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
-        regexp: '(^\\\\s*SLAVE=)(\\"*YES\\"*)'
+        dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}"
+        regexp: '(^\\s*SLAVE=)("*YES"*)'
         backrefs: yes
-        line: '\\\\1yes'
-      with_dict: \\"{{ pydata.interface_issue_dict }}\\"
+        line: '\\1yes'
+      with_dict: "{{ pydata.interface_issue_dict }}"
 
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:

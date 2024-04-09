@@ -9,10 +9,10 @@ exports[`adds diagnosis play 1`] = `
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
 - name: run insights to obtain latest diagnosis info
-  hosts: \\"4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_remediation: \\"\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_remediation\\"
+    insights_remediation: ""
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_remediation"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRblZqZG5jMU9FUXJhalZ3VGtGUmFtRkdVa0ZCYTBSVWNu
@@ -37,7 +37,7 @@ exports[`adds diagnosis play 1`] = `
   become: true
   tasks:
     - name: obtain diagnosis info
-      command: \\"insights-client --diagnosis{{ insights_remediation | regex_search('\\\\\\\\s[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
+      command: "insights-client --diagnosis{{ insights_remediation | regex_search('\\\\s[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}"
       register: insights_result
       changed_when: false
       check_mode: false
@@ -48,10 +48,10 @@ exports[`adds diagnosis play 1`] = `
 # Identifier: (advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,selinux_mitigate)
 # Version: 3f74744ce9b66c20b55f6dd4e580d77d7e7039b1
 - name: Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: yes
   vars:
-    pydata: \\"{{insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074']}}\\"
+    pydata: "{{insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074']}}"
 
   tasks:
   - when: insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'] is defined
@@ -71,13 +71,13 @@ exports[`adds diagnosis play 1`] = `
       failed_when: false
 
     - name: remove selinux=0 and enforcing=0 from grub config file
-      command: /sbin/grubby --update-kernel=ALL --remove-args=\\"selinux enforcing\\"
+      command: /sbin/grubby --update-kernel=ALL --remove-args="selinux enforcing"
 
     - name: Set SELINUX=enforcing in /etc/selinux/config
       lineinfile:
         backup: true
         dest: /etc/selinux/config
-        regexp: '(?i)^\\\\s*SELINUX *=.*'
+        regexp: '(?i)^\\s*SELINUX *=.*'
         line: SELINUX=enforcing
         state: present
 
@@ -89,7 +89,7 @@ exports[`adds diagnosis play 1`] = `
         name: selinux-policy
         state: latest
 
-    - when: \\"getenforce.stdout == 'Disabled'\\"
+    - when: "getenforce.stdout == 'Disabled'"
       block:
       - name: SELinux relabel to be done on reboot (note, a relabel may take a while to complete)
         file:
@@ -105,10 +105,10 @@ exports[`adds diagnosis play 1`] = `
 # Identifier: (advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE,fix)
 # Version: a0e934f07d8167073546cbc5108c4345f92559a5
 - name: Correct Bonding Config Items
-  hosts: \\"4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com"
   become: true
   vars:
-    pydata: \\"{{ insights_report.details['network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'] }}\\"
+    pydata: "{{ insights_report.details['network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'] }}"
 
   tasks:
     - when:
@@ -116,26 +116,26 @@ exports[`adds diagnosis play 1`] = `
       block:
         - name: Add quotes around bonding options
           lineinfile:
-            dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
-            regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
+            dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}"
+            regexp: '(^\\s*BONDING_OPTS=)(.*)'
             backrefs: yes
-            line: '\\\\1\\"\\\\2\\"'
-          with_dict: \\"{{ pydata.bond_config }}\\"
+            line: '\\1"\\2"'
+          with_dict: "{{ pydata.bond_config }}"
 
         - name: Restart Network Interfaces
           shell: ifdown {{item.key}}  && ifup {{item.key}}
-          with_dict: \\"{{ pydata.bond_config }}\\"
+          with_dict: "{{ pydata.bond_config }}"
 
 
 # Apply RHSA-2018:0502
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: test
 - name: update packages
-  hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.ansible.example.com\\"
+  hosts: "11931d66-9a3f-11e8-9eb6-529269fb1459.ansible.example.com"
   vars:
-    insights_issues: \\"--advisory RHSA-2018:0502\\"
-    requires_reboot: \\"true\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
+    insights_issues: "--advisory RHSA-2018:0502"
+    requires_reboot: "true"
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU214dlJqY3pRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rt
@@ -160,24 +160,24 @@ exports[`adds diagnosis play 1`] = `
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: \\"{{requires_reboot}}\\"
+        insights_needs_reboot: "{{requires_reboot}}"
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.ansible.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "11931d66-9a3f-11e8-9eb6-529269fb1459.ansible.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -209,7 +209,7 @@ exports[`adds diagnosis play 1`] = `
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -217,15 +217,15 @@ exports[`adds diagnosis play 1`] = `
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"11931d66-9a3f-11e8-9eb6-529269fb1459.ansible.example.com,4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "11931d66-9a3f-11e8-9eb6-529269fb1459.ansible.example.com,4109fa1a-9a3f-11e8-9eb6-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -266,10 +266,10 @@ exports[`generates a CSAW playbook (rule only) 1`] = `
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
 - name: run insights to obtain latest diagnosis info
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_remediation: \\"\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_remediation\\"
+    insights_remediation: ""
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_remediation"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRblZqZG5jMU9FUXJhalZ3VGtGUmFtRkdVa0ZCYTBSVWNu
@@ -294,7 +294,7 @@ exports[`generates a CSAW playbook (rule only) 1`] = `
   become: true
   tasks:
     - name: obtain diagnosis info
-      command: \\"insights-client --diagnosis{{ insights_remediation | regex_search('\\\\\\\\s[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
+      command: "insights-client --diagnosis{{ insights_remediation | regex_search('\\\\s[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}"
       register: insights_result
       changed_when: false
       check_mode: false
@@ -305,10 +305,10 @@ exports[`generates a CSAW playbook (rule only) 1`] = `
 # Identifier: (vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,fix)
 # Version: unknown
 - name: Correct Bonding Config Items
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   vars:
-    pydata: \\"{{ insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'] }}\\"
+    pydata: "{{ insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'] }}"
 
   tasks:
     - when:
@@ -316,19 +316,19 @@ exports[`generates a CSAW playbook (rule only) 1`] = `
       block:
         - name: Add quotes around bonding options
           lineinfile:
-            dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
-            regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
+            dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}"
+            regexp: '(^\\s*BONDING_OPTS=)(.*)'
             backrefs: yes
-            line: '\\\\1\\"\\\\2\\"'
-          with_dict: \\"{{ pydata.bond_config }}\\"
+            line: '\\1"\\2"'
+          with_dict: "{{ pydata.bond_config }}"
 
         - name: Restart Network Interfaces
           shell: ifdown {{item.key}}  && ifup {{item.key}}
-          with_dict: \\"{{ pydata.bond_config }}\\"
+          with_dict: "{{ pydata.bond_config }}"
 
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -369,10 +369,10 @@ exports[`generates a CSAW playbook full id 1`] = `
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
 - name: run insights to obtain latest diagnosis info
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_remediation: \\"\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_remediation\\"
+    insights_remediation: ""
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_remediation"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRblZqZG5jMU9FUXJhalZ3VGtGUmFtRkdVa0ZCYTBSVWNu
@@ -397,7 +397,7 @@ exports[`generates a CSAW playbook full id 1`] = `
   become: true
   tasks:
     - name: obtain diagnosis info
-      command: \\"insights-client --diagnosis{{ insights_remediation | regex_search('\\\\\\\\s[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
+      command: "insights-client --diagnosis{{ insights_remediation | regex_search('\\\\s[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}"
       register: insights_result
       changed_when: false
       check_mode: false
@@ -408,10 +408,10 @@ exports[`generates a CSAW playbook full id 1`] = `
 # Identifier: (vulnerabilities:CVE-2017-6074:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,fix)
 # Version: unknown
 - name: Correct Bonding Config Items
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   vars:
-    pydata: \\"{{ insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'] }}\\"
+    pydata: "{{ insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'] }}"
 
   tasks:
     - when:
@@ -419,19 +419,19 @@ exports[`generates a CSAW playbook full id 1`] = `
       block:
         - name: Add quotes around bonding options
           lineinfile:
-            dest: \\"/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}\\"
-            regexp: '(^\\\\s*BONDING_OPTS=)(.*)'
+            dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.key }}"
+            regexp: '(^\\s*BONDING_OPTS=)(.*)'
             backrefs: yes
-            line: '\\\\1\\"\\\\2\\"'
-          with_dict: \\"{{ pydata.bond_config }}\\"
+            line: '\\1"\\2"'
+          with_dict: "{{ pydata.bond_config }}"
 
         - name: Restart Network Interfaces
           shell: ifdown {{item.key}}  && ifup {{item.key}}
-          with_dict: \\"{{ pydata.bond_config }}\\"
+          with_dict: "{{ pydata.bond_config }}"
 
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -475,9 +475,9 @@ exports[`generates a CVE playbook if CSAW rule is not found 1`] = `
 # Identifier: (vulnerabilities:CVE-2017-17712:CVE_2017_6075_kernel|UNDEFINED,fix)
 # Version: test
 - name: update vulnerable packages
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_issues: \\"--cve CVE-2017-17712\\"
+    insights_issues: "--cve CVE-2017-17712"
     insights_signature_exclude: /hosts,/vars/insights_signature,/vars/insights_issues
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
@@ -503,14 +503,14 @@ exports[`generates a CVE playbook if CSAW rule is not found 1`] = `
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\s*)+') }}"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} upgrade -v -y {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\s*)+') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
@@ -520,7 +520,7 @@ exports[`generates a CVE playbook if CSAW rule is not found 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -552,7 +552,7 @@ exports[`generates a CVE playbook if CSAW rule is not found 1`] = `
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -560,15 +560,15 @@ exports[`generates a CVE playbook if CSAW rule is not found 1`] = `
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -612,9 +612,9 @@ exports[`generates a CVE playbook over cert-auth 1`] = `
 # Identifier: (vulnerabilities:CVE-2017-17712:CVE_2017_6075_kernel|UNDEFINED,fix)
 # Version: test
 - name: update vulnerable packages
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_issues: \\"--cve CVE-2017-17712\\"
+    insights_issues: "--cve CVE-2017-17712"
     insights_signature_exclude: /hosts,/vars/insights_signature,/vars/insights_issues
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
@@ -640,14 +640,14 @@ exports[`generates a CVE playbook over cert-auth 1`] = `
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\s*)+') }}"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} upgrade -v -y {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} upgrade -v -y {{ insights_issues | regex_search('(--cve (CVE-[0-9]{4}-[0-9]+)\\\\s*)+') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
@@ -657,7 +657,7 @@ exports[`generates a CVE playbook over cert-auth 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -689,7 +689,7 @@ exports[`generates a CVE playbook over cert-auth 1`] = `
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -697,15 +697,15 @@ exports[`generates a CVE playbook over cert-auth 1`] = `
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -749,7 +749,7 @@ exports[`generates a pause playbook (1h) 1`] = `
 # Identifier: (test:pause1h,fix)
 # Version: unknown
 - name: pause
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
     insights_signature: !!binary |
@@ -779,7 +779,7 @@ exports[`generates a pause playbook (1h) 1`] = `
       with_sequence: start=0 end=60
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -823,9 +823,9 @@ exports[`generates a pause playbook (1m) 1`] = `
 # Identifier: (test:pause1m,fix)
 # Version: unknown
 - name: pause
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature\\"
+    insights_signature_exclude: "/hosts,/vars/insights_signature"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBSVGhOZG5jMU9FUXJhalZ3VGtGUmFEQkdaeTh2V21WMGFt
@@ -852,7 +852,7 @@ exports[`generates a pause playbook (1m) 1`] = `
         minutes: 1
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -896,7 +896,7 @@ exports[`generates a pause playbook (5m verbose) 1`] = `
 # Identifier: (test:pause5m,verbose)
 # Version: unknown
 - name: pause
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
     insights_signature: !!binary |
@@ -926,7 +926,7 @@ exports[`generates a pause playbook (5m verbose) 1`] = `
       with_sequence: start=0 end=100
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -970,7 +970,7 @@ exports[`generates a pause playbook (5m) 1`] = `
 # Identifier: (test:pause5m,fix)
 # Version: unknown
 - name: pause
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
     insights_signature: !!binary |
@@ -1000,7 +1000,7 @@ exports[`generates a pause playbook (5m) 1`] = `
       with_sequence: start=0 end=5
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -1044,7 +1044,7 @@ exports[`generates a pause playbook (6h) 1`] = `
 # Identifier: (test:pause6h,fix)
 # Version: unknown
 - name: pause
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
     insights_signature: !!binary |
@@ -1074,7 +1074,7 @@ exports[`generates a pause playbook (6h) 1`] = `
       with_sequence: start=0 end=360
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -1118,7 +1118,7 @@ exports[`generates a pause playbook (15m) 1`] = `
 # Identifier: (test:pause15m,fix)
 # Version: unknown
 - name: pause
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
     insights_signature: !!binary |
@@ -1148,7 +1148,7 @@ exports[`generates a pause playbook (15m) 1`] = `
       with_sequence: start=0 end=15
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -1192,7 +1192,7 @@ exports[`generates a pause playbook (Random15m) 1`] = `
 # Identifier: (test:pauseRandom15m,fix)
 # Version: unknown
 - name: pause
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
     insights_signature: !!binary |
@@ -1218,7 +1218,7 @@ exports[`generates a pause playbook (Random15m) 1`] = `
       PQ==
   tasks:
     - pause:
-        minutes: \\"{{ item }}\\"
+        minutes: "{{ item }}"
       with_random_choice:
         - 1
         - 2
@@ -1228,7 +1228,7 @@ exports[`generates a pause playbook (Random15m) 1`] = `
         - 13
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -1272,7 +1272,7 @@ exports[`generates a simple alwaysFail playbook 1`] = `
 # Identifier: (test:alwaysFail,fix)
 # Version: unknown
 - name: Always fail
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
     insights_signature: !!binary |
@@ -1302,7 +1302,7 @@ exports[`generates a simple alwaysFail playbook 1`] = `
         msg: Always fail
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -1346,7 +1346,7 @@ exports[`generates a simple failHalfTheTime  playbook 1`] = `
 # Identifier: (test:failHalfTheTime,fix)
 # Version: unknown
 - name: Sometimes fail
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
     insights_signature: !!binary |
@@ -1381,7 +1381,7 @@ exports[`generates a simple failHalfTheTime  playbook 1`] = `
       when: i_should_fail
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -1425,7 +1425,7 @@ exports[`generates a simple playbook 1`] = `
 # Identifier: (test:ping,fix)
 # Version: unknown
 - name: ping
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
     insights_signature: !!binary |
@@ -1453,7 +1453,7 @@ exports[`generates a simple playbook 1`] = `
     - ping:
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -1497,7 +1497,7 @@ exports[`generates a simple playbook where signature is invalid from incorrect e
 # Identifier: (test:invalidSignatureExclude,fix)
 # Version: unknown
 - name: ping
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
     insights_signature_exclude: /hosts,/vars/completely_incorrect
     insights_signature: !!binary |
@@ -1525,7 +1525,7 @@ exports[`generates a simple playbook where signature is invalid from incorrect e
     - ping:
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -1569,7 +1569,7 @@ exports[`generates a simple playbook where signature is invalid from incorrect t
 # Identifier: (test:invalidSignatureTasks,fix)
 # Version: unknown
 - name: ping
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
     insights_signature: !!binary |
@@ -1597,7 +1597,7 @@ exports[`generates a simple playbook where signature is invalid from incorrect t
     - pingggggg:
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -1641,13 +1641,13 @@ exports[`generates a simple playbook where signature is invalid from incorrect v
 # Identifier: (test:invalidSignatureVars,fix)
 # Version: unknown
 - name: ping
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
   tasks:
     - ping:
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -1691,7 +1691,7 @@ exports[`generates a simple playbook where signature is valid 1`] = `
 # Identifier: (test:validSignature,fix)
 # Version: unknown
 - name: ping
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
     insights_signature: !!binary |
@@ -1719,7 +1719,7 @@ exports[`generates a simple playbook where signature is valid 1`] = `
     - ping:
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -1763,7 +1763,7 @@ exports[`generates a simple playbook with reboot 1`] = `
 # Identifier: (test:reboot,fix)
 # Version: unknown
 - name: Trigger reboot
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com"
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
     insights_signature: !!binary |
@@ -1795,7 +1795,7 @@ exports[`generates a simple playbook with reboot 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com"
   become: true
   gather_facts: false
   vars:
@@ -1827,7 +1827,7 @@ exports[`generates a simple playbook with reboot 1`] = `
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -1835,15 +1835,15 @@ exports[`generates a simple playbook with reboot 1`] = `
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com"
   become: true
   gather_facts: false
   vars:
@@ -1887,7 +1887,7 @@ exports[`generates a simple playbook with suppressed reboot 1`] = `
 # Identifier: (test:reboot,fix)
 # Version: unknown
 - name: Trigger reboot
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com"
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
     insights_signature: !!binary |
@@ -1919,7 +1919,7 @@ exports[`generates a simple playbook with suppressed reboot 1`] = `
 # Automatic system reboot was suppressed for this playbook.
 # This play lists the systems that need to be rebooted manually for the changes to take effect.
 - name: Reboot reminder
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com"
   gather_facts: false
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
@@ -1946,13 +1946,13 @@ exports[`generates a simple playbook with suppressed reboot 1`] = `
       PQ==
   tasks:
     - debug:
-        msg: \\"Automatic system reboot was suppressed for this playbook. Reboot {{inventory_hostname}} manually for the changes to take effect.\\"
+        msg: "Automatic system reboot was suppressed for this playbook. Reboot {{inventory_hostname}} manually for the changes to take effect."
       when:
         - insights_needs_reboot is defined
         - insights_needs_reboot
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com,936ef48c-8f05-11e8-9eb6-529269fb1459.ansible.example.com"
   become: true
   gather_facts: false
   vars:
@@ -1996,11 +1996,11 @@ exports[`generates an erratum-based playbook 1`] = `
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: test
 - name: update packages
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_issues: \\"--advisory RHSA-2018:0502\\"
-    requires_reboot: \\"true\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
+    insights_issues: "--advisory RHSA-2018:0502"
+    requires_reboot: "true"
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU214dlJqY3pRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rt
@@ -2025,24 +2025,24 @@ exports[`generates an erratum-based playbook 1`] = `
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: \\"{{requires_reboot}}\\"
+        insights_needs_reboot: "{{requires_reboot}}"
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -2074,7 +2074,7 @@ exports[`generates an erratum-based playbook 1`] = `
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -2082,15 +2082,15 @@ exports[`generates an erratum-based playbook 1`] = `
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -2134,7 +2134,7 @@ exports[`host sanitation handles commas 1`] = `
 # Identifier: (test:reboot,fix)
 # Version: unknown
 - name: Trigger reboot
-  hosts: \\"foobarexample.com\\"
+  hosts: "foobarexample.com"
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
     insights_signature: !!binary |
@@ -2166,7 +2166,7 @@ exports[`host sanitation handles commas 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"foobarexample.com\\"
+  hosts: "foobarexample.com"
   become: true
   gather_facts: false
   vars:
@@ -2198,7 +2198,7 @@ exports[`host sanitation handles commas 1`] = `
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -2206,15 +2206,15 @@ exports[`host sanitation handles commas 1`] = `
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"foobarexample.com\\"
+  hosts: "foobarexample.com"
   become: true
   gather_facts: false
   vars:
@@ -2258,7 +2258,7 @@ exports[`host sanitation handles newline 1`] = `
 # Identifier: (test:reboot,fix)
 # Version: unknown
 - name: Trigger reboot
-  hosts: \\"foo.example.comabc\\"
+  hosts: "foo.example.comabc"
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
     insights_signature: !!binary |
@@ -2290,7 +2290,7 @@ exports[`host sanitation handles newline 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"foo.example.comabc\\"
+  hosts: "foo.example.comabc"
   become: true
   gather_facts: false
   vars:
@@ -2322,7 +2322,7 @@ exports[`host sanitation handles newline 1`] = `
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -2330,15 +2330,15 @@ exports[`host sanitation handles newline 1`] = `
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"foo.example.comabc\\"
+  hosts: "foo.example.comabc"
   become: true
   gather_facts: false
   vars:
@@ -2382,7 +2382,7 @@ exports[`host sanitation handles quotes 1`] = `
 # Identifier: (test:reboot,fix)
 # Version: unknown
 - name: Trigger reboot
-  hosts: \\"foo.example.com&quot;abc\\"
+  hosts: "foo.example.com&quot;abc"
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
     insights_signature: !!binary |
@@ -2414,7 +2414,7 @@ exports[`host sanitation handles quotes 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"foo.example.com&quot;abc\\"
+  hosts: "foo.example.com&quot;abc"
   become: true
   gather_facts: false
   vars:
@@ -2446,7 +2446,7 @@ exports[`host sanitation handles quotes 1`] = `
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -2454,15 +2454,15 @@ exports[`host sanitation handles quotes 1`] = `
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"foo.example.com&quot;abc\\"
+  hosts: "foo.example.com&quot;abc"
   become: true
   gather_facts: false
   vars:
@@ -2506,7 +2506,7 @@ exports[`host sanitation handles whitespace 1`] = `
 # Identifier: (test:reboot,fix)
 # Version: unknown
 - name: Trigger reboot
-  hosts: \\"foo.example.com\\"
+  hosts: "foo.example.com"
   vars:
     insights_signature_exclude: /hosts,/vars/insights_signature
     insights_signature: !!binary |
@@ -2538,7 +2538,7 @@ exports[`host sanitation handles whitespace 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"foo.example.com\\"
+  hosts: "foo.example.com"
   become: true
   gather_facts: false
   vars:
@@ -2570,7 +2570,7 @@ exports[`host sanitation handles whitespace 1`] = `
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -2578,15 +2578,15 @@ exports[`host sanitation handles whitespace 1`] = `
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"foo.example.com\\"
+  hosts: "foo.example.com"
   become: true
   gather_facts: false
   vars:
@@ -2630,11 +2630,11 @@ exports[`sorts the hosts line 1`] = `
 # Identifier: (vulnerabilities:RHSA-2018:0502,fix)
 # Version: test
 - name: update packages
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,d2c8db4e-bd6a-11e8-a355-529269fb1459\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com,d2c8db4e-bd6a-11e8-a355-529269fb1459"
   vars:
-    insights_issues: \\"--advisory RHSA-2018:0502\\"
-    requires_reboot: \\"true\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
+    insights_issues: "--advisory RHSA-2018:0502"
+    requires_reboot: "true"
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU214dlJqY3pRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rt
@@ -2659,24 +2659,24 @@ exports[`sorts the hosts line 1`] = `
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: \\"{{requires_reboot}}\\"
+        insights_needs_reboot: "{{requires_reboot}}"
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,d2c8db4e-bd6a-11e8-a355-529269fb1459\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com,d2c8db4e-bd6a-11e8-a355-529269fb1459"
   become: true
   gather_facts: false
   vars:
@@ -2708,7 +2708,7 @@ exports[`sorts the hosts line 1`] = `
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -2716,15 +2716,15 @@ exports[`sorts the hosts line 1`] = `
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com,d2c8db4e-bd6a-11e8-a355-529269fb1459\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com,d2c8db4e-bd6a-11e8-a355-529269fb1459"
   become: true
   gather_facts: false
   vars:

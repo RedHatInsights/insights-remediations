@@ -15,11 +15,11 @@ exports[`patchman aggregates multiple advisories into a single play 1`] = `
 # Identifier: (patch-advisory:RHBA-2019:0689,patch-advisory:RHBA-2019:2871,patch-advisory:RHBA-2019:4105,fix)
 # Version: test
 - name: update packages
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_issues: \\"--advisory RHBA-2019:0689 --advisory RHBA-2019:2871 --advisory RHBA-2019:4105\\"
-    requires_reboot: \\"false\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
+    insights_issues: "--advisory RHBA-2019:0689 --advisory RHBA-2019:2871 --advisory RHBA-2019:4105"
+    requires_reboot: "false"
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU214dlJqY3pRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rt
@@ -44,22 +44,22 @@ exports[`patchman aggregates multiple advisories into a single play 1`] = `
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: \\"{{requires_reboot}}\\"
+        insights_needs_reboot: "{{requires_reboot}}"
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -105,11 +105,11 @@ exports[`patchman generates a playbook including EPEL advisory 1`] = `
 # Identifier: (patch-advisory:FEDORA-EPEL-2021-1ad3a13e05,patch-advisory:RHBA-2019:4105,fix)
 # Version: test
 - name: update packages
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_issues: \\"--advisory FEDORA-EPEL-2021-1ad3a13e05 --advisory RHBA-2019:4105\\"
-    requires_reboot: \\"false\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
+    insights_issues: "--advisory FEDORA-EPEL-2021-1ad3a13e05 --advisory RHBA-2019:4105"
+    requires_reboot: "false"
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU214dlJqY3pRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rt
@@ -134,22 +134,22 @@ exports[`patchman generates a playbook including EPEL advisory 1`] = `
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: \\"{{requires_reboot}}\\"
+        insights_needs_reboot: "{{requires_reboot}}"
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -193,11 +193,11 @@ exports[`patchman generates a playbook with patchman advisory remediation with a
 # Identifier: (patch-advisory:RHBA-2024:101234,fix)
 # Version: test
 - name: update packages
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_issues: \\"--advisory RHBA-2024:101234\\"
-    requires_reboot: \\"false\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
+    insights_issues: "--advisory RHBA-2024:101234"
+    requires_reboot: "false"
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU214dlJqY3pRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rt
@@ -222,22 +222,22 @@ exports[`patchman generates a playbook with patchman advisory remediation with a
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: \\"{{requires_reboot}}\\"
+        insights_needs_reboot: "{{requires_reboot}}"
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -281,11 +281,11 @@ exports[`patchman generates a simple playbook with multiple patchman advisory re
 # Identifier: (patch-advisory:RHBA-2019:4105,fix)
 # Version: test
 - name: update packages
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_issues: \\"--advisory RHBA-2019:4105\\"
-    requires_reboot: \\"false\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
+    insights_issues: "--advisory RHBA-2019:4105"
+    requires_reboot: "false"
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU214dlJqY3pRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rt
@@ -310,19 +310,19 @@ exports[`patchman generates a simple playbook with multiple patchman advisory re
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: \\"{{requires_reboot}}\\"
+        insights_needs_reboot: "{{requires_reboot}}"
 
 # Upgrade the following packages:
 #   - Apply RHBA-2019:0689
@@ -330,11 +330,11 @@ exports[`patchman generates a simple playbook with multiple patchman advisory re
 # Identifier: (patch-advisory:RHBA-2019:0689,patch-advisory:RHBA-2019:2871,fix)
 # Version: test
 - name: update packages
-  hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com\\"
+  hosts: "53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com"
   vars:
-    insights_issues: \\"--advisory RHBA-2019:0689 --advisory RHBA-2019:2871\\"
-    requires_reboot: \\"false\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
+    insights_issues: "--advisory RHBA-2019:0689 --advisory RHBA-2019:2871"
+    requires_reboot: "false"
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU214dlJqY3pRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rt
@@ -359,22 +359,22 @@ exports[`patchman generates a simple playbook with multiple patchman advisory re
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: \\"{{requires_reboot}}\\"
+        insights_needs_reboot: "{{requires_reboot}}"
 
 - name: run insights
-  hosts: \\"53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "53fbcd90-9c8f-11e8-98d0-529269fb1459.example.com,68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -418,11 +418,11 @@ exports[`patchman generates a simple playbook with single patchman advisory reme
 # Identifier: (patch-advisory:RHBA-2019:4105,fix)
 # Version: test
 - name: update packages
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_issues: \\"--advisory RHBA-2019:4105\\"
-    requires_reboot: \\"false\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot\\"
+    insights_issues: "--advisory RHBA-2019:4105"
+    requires_reboot: "false"
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_issues,/vars/requires_reboot"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU214dlJqY3pRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rt
@@ -447,22 +447,22 @@ exports[`patchman generates a simple playbook with single patchman advisory reme
   become: true
   tasks:
     - name: check for update
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} check-update -q {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
       check_mode: no
       register: check_out
       failed_when: check_out.rc != 0 and check_out.rc != 100
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: \\"{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\\\\\w-]+)|(RH[SBE]A-20[\\\\\\\\d]{2}:[\\\\\\\\d]{4,6}))\\\\\\\\s*)+') }}\\"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
       set_fact:
-        insights_needs_reboot: \\"{{requires_reboot}}\\"
+        insights_needs_reboot: "{{requires_reboot}}"
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:

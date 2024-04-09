@@ -30,8 +30,8 @@ exports[`compliance impl returns template 1`] = `
       register: service_file_exists
       changed_when: false
       ignore_errors: true
-      when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-        != \\"docker\\"
+      when: ansible_virtualization_role != "guest" or ansible_virtualization_type
+        != "docker"
 
     - name: Disable service autofs
       systemd:
@@ -40,17 +40,17 @@ exports[`compliance impl returns template 1`] = `
         state: stopped
         masked: 'yes'
       when:
-        - '\\"autofs.service\\" in service_file_exists.stdout_lines[1]'
-        - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-          \\"docker\\"
+        - '"autofs.service" in service_file_exists.stdout_lines[1]'
+        - ansible_virtualization_role != "guest" or ansible_virtualization_type !=
+          "docker"
 
     - name: Unit Socket Exists - autofs.socket
       command: systemctl list-unit-files autofs.socket
       register: socket_file_exists
       changed_when: false
       ignore_errors: true
-      when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-        != \\"docker\\"
+      when: ansible_virtualization_role != "guest" or ansible_virtualization_type
+        != "docker"
 
     - name: Disable socket autofs
       systemd:
@@ -59,9 +59,9 @@ exports[`compliance impl returns template 1`] = `
         state: stopped
         masked: 'yes'
       when:
-        - '\\"autofs.socket\\" in socket_file_exists.stdout_lines[1]'
-        - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-          \\"docker\\"
+        - '"autofs.socket" in socket_file_exists.stdout_lines[1]'
+        - ansible_virtualization_role != "guest" or ansible_virtualization_type !=
+          "docker"
 "
 `;
 
@@ -95,8 +95,8 @@ exports[`compliance impl returns template for multiple issues 1`] = `
       register: service_file_exists
       changed_when: false
       ignore_errors: true
-      when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-        != \\"docker\\"
+      when: ansible_virtualization_role != "guest" or ansible_virtualization_type
+        != "docker"
 
     - name: Disable service autofs
       systemd:
@@ -105,17 +105,17 @@ exports[`compliance impl returns template for multiple issues 1`] = `
         state: stopped
         masked: 'yes'
       when:
-        - '\\"autofs.service\\" in service_file_exists.stdout_lines[1]'
-        - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-          \\"docker\\"
+        - '"autofs.service" in service_file_exists.stdout_lines[1]'
+        - ansible_virtualization_role != "guest" or ansible_virtualization_type !=
+          "docker"
 
     - name: Unit Socket Exists - autofs.socket
       command: systemctl list-unit-files autofs.socket
       register: socket_file_exists
       changed_when: false
       ignore_errors: true
-      when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-        != \\"docker\\"
+      when: ansible_virtualization_role != "guest" or ansible_virtualization_type
+        != "docker"
 
     - name: Disable socket autofs
       systemd:
@@ -124,9 +124,9 @@ exports[`compliance impl returns template for multiple issues 1`] = `
         state: stopped
         masked: 'yes'
       when:
-        - '\\"autofs.socket\\" in socket_file_exists.stdout_lines[1]'
-        - ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type !=
-          \\"docker\\"
+        - '"autofs.socket" in socket_file_exists.stdout_lines[1]'
+        - ansible_virtualization_role != "guest" or ansible_virtualization_type !=
+          "docker"
 "
 `;
 
@@ -164,8 +164,8 @@ exports[`compliance impl returns template for multiple issues 2`] = `
             enabled: 'yes'
             state: started
           when:
-            - '\\"rsyslog\\" in ansible_facts.packages'
-      when: ansible_virtualization_role != \\"guest\\" or ansible_virtualization_type
-        != \\"docker\\"
+            - '"rsyslog" in ansible_facts.packages'
+      when: ansible_virtualization_role != "guest" or ansible_virtualization_type
+        != "docker"
 "
 `;
