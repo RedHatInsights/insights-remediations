@@ -3,7 +3,7 @@
 set -x
 
 # run our tests...
-docker-compose -f build/docker-compose-unit_test.yml up --build --exit-code-from remediations
+docker-compose -f build/docker-compose-unit_test.yml up --build --exit-code-from remediations-api
 
 # save result...
 result=$?
