@@ -3,42 +3,48 @@
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.9-1161 AS base
 
 RUN microdnf module enable nodejs:20 && \
-    microdnf install -y jq nodejs --nodocs && \
+    microdnf install -y shadow-utils jq nodejs --nodocs && \
     microdnf clean all
 
-ENV APP_ROOT=/opt/app-root/src
+ENV APP_ROOT=/opt/app-root
 WORKDIR $APP_ROOT
 RUN mkdir -p $APP_ROOT/.npm/{_logs,_cacache} && chgrp -R 0 $APP_ROOT && chmod -R ug+rwX $APP_ROOT
 
-RUN npm install -g npm@10.5.1
+RUN npm install -g npm@10.5.2
 
-#--------------------- packages ---------------------
+RUN useradd -r -u 1001 -g 0 -m -d $APP_ROOT app_user
+USER app_user
 
-FROM base AS packages
+#---------------------- build -----------------------
 
-USER 1001
+FROM base AS build
 
-COPY package.json package-lock.json .npmrc ./
-
-#----------------------- test -----------------------
-
-FROM packages AS test
+COPY ./certs ./certs
+COPY ./db ./db
+COPY ./src ./src
+COPY package.json package-lock.json .npmrc jest.config.js gulpfile.js .sequelizerc ./
 
 RUN npm ci
 
-COPY . .
-
 RUN npm run build
+
+#----------------------- test -----------------------
+
+FROM base AS test
+
+COPY --from=build $APP_ROOT/dist ./
+COPY --from=build $APP_ROOT/test ./
+COPY --from=build $APP_ROOT/node_modules ./node_modules
 
 ENV NODE_ENV=test
 
 #----------------------- dist -----------------------
 
-FROM packages AS dist
+FROM base AS dist
+
+COPY --from=build $APP_ROOT/dist ./
 
 RUN npm ci --omit=dev && npm cache clean --force
-
-COPY --from=test /opt/app-root/src/dist ./
 
 EXPOSE 9002
 ENV NODE_ENV=production
