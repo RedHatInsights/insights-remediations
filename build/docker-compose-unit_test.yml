@@ -6,6 +6,7 @@ services:
       context: ../
       dockerfile: build/Dockerfile
       target: test
+    image: localhost/remediations-test
     command: sh -c "npm run test:ci"
     depends_on:
       - db
