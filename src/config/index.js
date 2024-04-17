@@ -272,7 +272,7 @@ function Config() {
         if (loadedConfig.database.sslMode !== 'disable') {
             config.db.ssl = true;
             config.db.dialectOptions.ssl = {
-                ca: fs.readFileSync(loadedConfig.database.rdsCa) // eslint-disable-line security/detect-non-literal-fs-filename
+                ca: loadedConfig.database.rdsCa
             };
         }
 
