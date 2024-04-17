@@ -1,12 +1,11 @@
 version: '3.4'
 
 services:
-  remediations:
+  remediations-api:
     build:
       context: ../
       dockerfile: build/Dockerfile
       target: test
-    image: localhost/remediations-test
     command: sh -c "npm run test:ci"
     depends_on:
       - db

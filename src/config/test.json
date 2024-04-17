@@ -45,7 +45,7 @@
     "pgPass": "testing",
     "adminUsername": "adminusername",
     "adminPassword": "adminpassword",
-    "rdsCa": "src/config/test.ca",
+    "rdsCa": "=== CERTIFICATE ===",
     "sslMode": "verify-full"
   },
   "inMemoryDb": {
