@@ -29,6 +29,8 @@ const test_image_files = [
     'src/**/*.contract.js',
     'src/api/lint.js',
     'src/config/test.js',
+    'src/config/test.json',
+    'src/config/test.ca',
     'src/connectors/inventory/systemGenerator.js',
     'src/connectors/inventory/inventory_GET.json',
     'src/connectors/ssg/mock/**',
