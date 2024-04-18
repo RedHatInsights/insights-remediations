@@ -12,8 +12,10 @@ RUN mkdir -p $APP_ROOT/.npm/{_logs,_cacache} && chgrp -R 0 $APP_ROOT && chmod -R
 
 RUN npm install -g npm@10.5.2
 
-RUN useradd -r -u 1001 -g 0 -m -d $APP_ROOT app_user
-USER app_user
+USER 1001
+
+# make npm happy....
+ENV HOME=$APP_ROOT
 
 #---------------------- build -----------------------
 
