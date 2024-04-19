@@ -153,10 +153,10 @@ describe('FiFi', function () {
             // use impl version
             base.getSandbox().stub(dispatcher, 'getConnectionStatus').callsFake(dispatcher_impl.getConnectionStatus);
 
-            // replace doHttp() with our own function...
-            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp');
+            // replace request() with our own function...
+            const http_request = require('../util/request');
             const dispatcherMock = require('../connectors/dispatcher/serviceMock');
-            spy.callsFake(dispatcherMock);
+            base.getSandbox().stub(http_request, 'run').callsFake(dispatcherMock);
 
 
             const result = await request
