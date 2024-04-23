@@ -312,13 +312,37 @@ paths:
       tags:
         - remediations
       summary: Pre-flight check
-      description: Get satellite connection status for a given host, RBAC permission {remediations:remediation:execute}
+      description: |
+        Get connection status for remediation plan targets, RBAC permission {remediations:remediation:execute}
+        
+        Returns an array of the following objects:
+        
+        - One object for all systems belonging to a unique satellite organization
+        - One object for all direct-connected systems in each of the status categories:
+        
+          - connected
+          - disconnected
+          - no_rhc
+
       operationId: getRemediationConnectionStatus
       parameters:
         - $ref: '#/components/parameters/RemediationId'
       responses:
         '200':
-          description: OK
+          description: |
+            OK
+            
+            connection_status is one of:
+            
+            - connected
+            - disconnected
+            - no_rhc (system not registered to RHC)
+
+            executor_type is one of:
+            
+            - RHC-satellite
+            - RHC
+            - None
           content:
             application/json:
               schema:
@@ -1037,6 +1061,7 @@ components:
 
     RemediationsList:
       type: object
+      additionalProperties: false
       required:
         - remediation_ids
       properties:
@@ -1142,12 +1167,16 @@ components:
     NoExecutors:
       type: object
       additionalProperties: false
+      required:
+        - errors
       properties:
         errors:
           type: array
           items:
             type: object
-            additionalProperties: true
+            additionalProperties: false
+            required:
+              - id
             properties:
               id:
                 type: string
@@ -1436,6 +1465,8 @@ components:
     MultipleDelete:
       type: object
       additionalProperties: false
+      required:
+        - deleted_count
       properties:
         deleted_count:
           type: integer
@@ -1589,6 +1620,7 @@ components:
         - executor_type
         - executor_name
         - system_count
+        - system_ids
         - connection_status
       properties:
         endpoint_id:
@@ -1602,25 +1634,24 @@ components:
         executor_type:
           type: string
           nullable: true
-          example: satellite
+          example: RHC-satellite
         executor_name:
           type: string
           nullable: true
-          example: Satellite 11234
+          example: Satellite 11234 Org 1
         system_count:
           type: integer
-          example: 12
+          example: 1
+        system_ids:
+          type: array
+          items:
+            $ref: '#/components/schemas/SystemId'
         connection_status:
           type: string
-          example: ready
+          example: connected
           enum:
             - connected
-            - disabled
             - disconnected
-            - no_executor
-            - no_source
-            - no_receptor
-            - no_smart_management
             - no_rhc
 
     SystemOut:

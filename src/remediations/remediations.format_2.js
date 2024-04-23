@@ -5,40 +5,25 @@ const config = require("../config");
 const log = require("../util/log");
 const _ = require("lodash");
 
-const recipientTypeMap = {
-    'satellite': 'RHC-satellite',
-    'directConnect': 'RHC',
-    'none': 'none'
-};
+const PD_TYPE_SATELLITE = 'satellite';
+const REM_TYPE_SATELLITE = 'RHC-satellite';
+const PD_TYPE_DIRECT = 'directConnect';
+const REM_TYPE_DIRECT = 'RHC';
+const PD_TYPE_NONE = 'none';
+const REM_TYPE_NONE = 'None';
 
-const recipientStatusMap = {
-    'connected': 'connected',
-    'disconnected': 'disconnected',
-    'rhc_not_configured': 'no_rhc',
-    'no_rhc': 'no_rhc'
-};
+const PD_STATUS_CONNECTED = 'connected';
+const REM_STATUS_CONNECTED = 'connected';
+const PD_STATUS_DISCONNECTED = 'disconnected';
+const REM_STATUS_DISCONNECTED = 'disconnected';
+const PD_STATUS_NOT_CONFIGURED = 'rhc_not_configured';
+const REM_STATUS_NOT_CONFIGURED = 'no_rhc';
 
-
-//============================================================================================================
-//  Helper functions
-//============================================================================================================
-
-
-function computeStatus(recipients) {
-    // calculate aggregate status:
-    // > 0 connected -> connected
-    if (_.find(recipients, {status: 'connected'})) {
-        return recipientStatusMap.connected;
-    }
-
-    // > 0 disconnected -> disconnected
-    if (_.find(recipients, {status: 'disconnected'})) {
-        return recipientStatusMap.disconnected;
-    }
-
-    // else not_configured -> not_configured
-    return recipientStatusMap.rhc_not_configured;
-}
+const recipientStatusMap = {};
+recipientStatusMap[PD_STATUS_CONNECTED] = REM_STATUS_CONNECTED;
+recipientStatusMap[PD_STATUS_DISCONNECTED] = REM_STATUS_DISCONNECTED;
+recipientStatusMap[PD_STATUS_NOT_CONFIGURED] = REM_STATUS_NOT_CONFIGURED;
+recipientStatusMap['no_rhc'] = 'no_rhc';
 
 
 //============================================================================================================
@@ -52,52 +37,79 @@ exports.connectionStatus = function (recipients) {
     //   - all connected direct
     //   - all disconnected direct
     //   - all no-rhc direct
+
     const data = _(recipients)
-        .groupBy(recipient => {
-            switch (recipient.recipient_type) {
-                case 'satellite':
-                    return `${recipient.sat_id} ${recipient.sat_org_id}`;
+    .groupBy(recipient => {
+        // key will either be one of recipientStatusMap or a recipient_id UUID
+        switch (recipient.recipient_type) {
+            case PD_TYPE_DIRECT:
+                return recipient.status;
 
-                default:
-                    return recipient.recipient_type;
-            }
-        })
-        .map((targets) => {
-            const recipient = targets[0];
-            switch (recipient.recipient_type) {
-                case 'satellite':
-                    return {
-                        endpoint_id: null,
-                        executor_id: recipient.sat_id,
-                        executor_type: 'RHC-satellite',
-                        executor_name: `Satellite ${recipient.sat_id} Org ${recipient.sat_org_id}`,
-                        system_count: recipient.systems.length,
-                        connection_status: recipientStatusMap[recipient.status]
-                    };
+            case PD_TYPE_SATELLITE:
+                return `${recipient.sat_id} ${recipient.sat_org_id}`;
 
-                case 'directConnect':
-                    return {
-                        endpoint_id: null,
-                        executor_id: null,
-                        executor_type: 'RHC',
-                        executor_name: null,
-                        system_count: targets.length,
-                        connection_status: computeStatus(targets)
-                    };
+            default:
+                return PD_STATUS_NOT_CONFIGURED;
+        }
+    })
+    .map((items, group) => {
+        const system_ids = _(items).map('systems').flatten().value();
 
-                default:
-                    return {
-                        endpoint_id: null,
-                        executor_id: null,
-                        executor_type: 'None',
-                        executor_name: null,
-                        system_count: recipient.systems.length,
-                        connection_status: recipientStatusMap[recipient.status]
-                    };
-            }
-        })
-        .sortBy('executor_name')
-        .value();
+        switch (group) {
+            case PD_STATUS_CONNECTED:
+                // return one item for all connected rhc-direct systems
+                return {
+                    endpoint_id: null,
+                    executor_id: null,
+                    executor_type: REM_TYPE_DIRECT,
+                    executor_name: null,
+                    system_count: system_ids.length,
+                    system_ids: system_ids,
+                    connection_status: REM_STATUS_CONNECTED
+                };
+
+            // return one item for all disconnected rhc-direct systems
+            case PD_STATUS_DISCONNECTED:
+                return {
+                    endpoint_id: null,
+                    executor_id: null,
+                    executor_type: REM_TYPE_DIRECT,
+                    executor_name: null,
+                    system_count: system_ids.length,
+                    system_ids: system_ids,
+                    connection_status: REM_STATUS_DISCONNECTED
+                };
+
+            // return one item for all non-rhc systems
+            case PD_STATUS_NOT_CONFIGURED:
+                return {
+                    endpoint_id: null,
+                    executor_id: null,
+                    executor_type: REM_TYPE_NONE,
+                    executor_name: null,
+                    system_count: system_ids.length,
+                    system_ids: system_ids,
+                    connection_status: REM_STATUS_NOT_CONFIGURED
+                };
+
+            default:
+                if (items.length > 1) {
+                    log.error(`Duplicate recipient id!\nid = ${group}\nrecipients = ${JSON.stringify(recipients)}`);
+                }
+                const sat = items[0];
+                return {
+                    endpoint_id: null,
+                    executor_id: sat.sat_id,
+                    executor_type: REM_TYPE_SATELLITE,
+                    executor_name: `Satellite ${sat.sat_id} Org ${sat.sat_org_id}`,
+                    system_count: sat.systems.length,
+                    system_ids: sat.systems,
+                    connection_status: recipientStatusMap[sat.status]
+                };
+        }
+    })
+    .sortBy('executor_name')
+    .value();
 
     return {
         meta: {
