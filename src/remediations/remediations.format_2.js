@@ -69,7 +69,7 @@ exports.connectionStatus = function (recipients) {
                 return {
                     endpoint_id: null,
                     executor_id: null,
-                    executor_type: REM_TYPE_DIRECT,
+                    executor_type: (group === PD_STATUS_NOT_CONFIGURED) ? REM_TYPE_NONE : REM_TYPE_DIRECT,
                     executor_name: null,
                     system_count: system_ids.length,
                     system_ids: system_ids,
