@@ -26,17 +26,22 @@ recipientStatusMap[PD_STATUS_NOT_CONFIGURED] = REM_STATUS_NOT_CONFIGURED;
 recipientStatusMap['no_rhc'] = 'no_rhc';
 
 
-//============================================================================================================
-//  Exported functions
-//============================================================================================================
+//======================================================================================================================
+//          Exported functions
+//======================================================================================================================
 
 
+//----------------------------------------------------------------------------------------------------------------------
+// Construct an array of status objects for recipients returned by playbook-dispatcher.
+//
+// The recipient list from playbook-dispatcher will include one item for each satellite organization, with a list
+// of systems in that organization, and one item for each system not managed by a satellite (direct and unconnected
+// systems).  For the non-satellite systems, we group the systems into three categories: connected, disconnected and
+// no_rhc [no_rhc means RHC is not configured on the system and these systems are essentially unreachable - the only
+// way to remediate them is to download a playbook and run it manually].  Systems managed by a satellite all have the
+// same connection status
+//----------------------------------------------------------------------------------------------------------------------
 exports.connectionStatus = function (recipients) {
-    // one entry for:
-    //   - each satellite
-    //   - all connected direct
-    //   - all disconnected direct
-    //   - all no-rhc direct
 
     const data = _(recipients)
     .groupBy(recipient => {
@@ -53,23 +58,14 @@ exports.connectionStatus = function (recipients) {
         }
     })
     .map((items, group) => {
-        const system_ids = _(items).map('systems').flatten().value();
-
         switch (group) {
+            // handle direct disconnected, connected, and non-rhc systems
             case PD_STATUS_CONNECTED:
-                // return one item for all connected rhc-direct systems
-                return {
-                    endpoint_id: null,
-                    executor_id: null,
-                    executor_type: REM_TYPE_DIRECT,
-                    executor_name: null,
-                    system_count: system_ids.length,
-                    system_ids: system_ids,
-                    connection_status: REM_STATUS_CONNECTED
-                };
-
-            // return one item for all disconnected rhc-direct systems
             case PD_STATUS_DISCONNECTED:
+            case PD_STATUS_NOT_CONFIGURED:
+
+                const system_ids = _(items).map('systems').flatten().value();
+
                 return {
                     endpoint_id: null,
                     executor_id: null,
@@ -77,22 +73,11 @@ exports.connectionStatus = function (recipients) {
                     executor_name: null,
                     system_count: system_ids.length,
                     system_ids: system_ids,
-                    connection_status: REM_STATUS_DISCONNECTED
-                };
-
-            // return one item for all non-rhc systems
-            case PD_STATUS_NOT_CONFIGURED:
-                return {
-                    endpoint_id: null,
-                    executor_id: null,
-                    executor_type: REM_TYPE_NONE,
-                    executor_name: null,
-                    system_count: system_ids.length,
-                    system_ids: system_ids,
-                    connection_status: REM_STATUS_NOT_CONFIGURED
+                    connection_status: recipientStatusMap[group] // because our enums don't match dispatcher's
                 };
 
             default:
+                // handle RHC-satellites
                 if (items.length > 1) {
                     log.error(`Duplicate recipient id!\nid = ${group}\nrecipients = ${JSON.stringify(recipients)}`);
                 }
