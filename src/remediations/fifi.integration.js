@@ -153,17 +153,17 @@ describe('FiFi', function () {
             // use impl version
             base.getSandbox().stub(dispatcher, 'getConnectionStatus').callsFake(dispatcher_impl.getConnectionStatus);
 
-            // replace doHttp() with our own function...
-            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp');
+            // replace request() with our own function...
+            const http_request = require('../util/request');
             const dispatcherMock = require('../connectors/dispatcher/serviceMock');
-            spy.callsFake(dispatcherMock);
+            base.getSandbox().stub(http_request, 'run').callsFake(dispatcherMock);
 
 
             const result = await request
             .get('/v1/remediations/dd6a0b1b-5331-4e7b-92ec-9a01806fb181/connection_status')
             .set(auth.fifi);
 
-            expect(result.body).toMatchObject({});
+            expect(result.body).toMatchSnapshot();
         });
 
         test('get connection status with false smartManagement but with system connected to RHC', async () => {
@@ -269,14 +269,14 @@ describe('FiFi', function () {
             .set(auth.fifi)
             .expect(200);
 
-            headers.etag.should.equal('"b3f-ap0xZBE6LAEw4CWgNSPJ+fei+6I"');
+            headers.etag.should.equal('"b48-TyVONjo4V6eLe5E3p90RxLra8So"');
         });
 
         test('304s on ETag match', async () => {
             await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
             .set(auth.fifi)
-            .set('if-none-match', '"b3f-ap0xZBE6LAEw4CWgNSPJ+fei+6I"')
+            .set('if-none-match', '"b48-TyVONjo4V6eLe5E3p90RxLra8So"')
             .expect(304);
         });
     });
@@ -1041,7 +1041,7 @@ describe('FiFi', function () {
                 await request
                     .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
                     .set(auth.fifi)
-                    .set('if-match', '"b3f-ap0xZBE6LAEw4CWgNSPJ+fei+6I"')
+                    .set('if-match', '"b48-TyVONjo4V6eLe5E3p90RxLra8So"')
                     .expect(201);
             });
 
@@ -1086,7 +1086,7 @@ describe('FiFi', function () {
                 await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
                 .set(auth.fifi)
-                .set('if-match', '"b3f-ap0xZBE6LAEw4CWgNSPJ+fei+6I"')
+                .set('if-match', '"b48-TyVONjo4V6eLe5E3p90RxLra8So"')
                 .expect(201);
             });
 
@@ -1129,10 +1129,10 @@ describe('FiFi', function () {
                 const {headers} = await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs?pretty')
                 .set(auth.fifi)
-                .set('if-match', '"b3f-ap0xZBE6LAEw4CWgNSPJ+fei+6I"')
+                .set('if-match', '"b48-TyVONjo4V6eLe5E3p90RxLra8So"')
                 .expect(201);
 
-                headers.etag.should.equal('"b3f-ap0xZBE6LAEw4CWgNSPJ+fei+6I"');
+                headers.etag.should.equal('"b48-TyVONjo4V6eLe5E3p90RxLra8So"');
             });
 
             test('201s on ETag match', async () => {
@@ -1140,7 +1140,7 @@ describe('FiFi', function () {
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
                 .set(auth.fifi)
 
-                .set('if-match', '"b3f-ap0xZBE6LAEw4CWgNSPJ+fei+6I"')
+                .set('if-match', '"b48-TyVONjo4V6eLe5E3p90RxLra8So"')
                 .expect(201);
             });
 
@@ -1151,7 +1151,7 @@ describe('FiFi', function () {
                 .set('if-match', '"1062-Pl88DazTBuJo//SQVNUn6pZAlmk"')
                 .expect(412);
 
-                headers.etag.should.equal('"b3f-ap0xZBE6LAEw4CWgNSPJ+fei+6I"');
+                headers.etag.should.equal('"b48-TyVONjo4V6eLe5E3p90RxLra8So"');
             });
 
             test('if if-match is not present, proceed', async () => {
@@ -1709,7 +1709,7 @@ describe('FiFi', function () {
             const {body: post} = await request
             .post('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs')
             .set(auth.fifi)
-            .set('if-match', '"b3f-ap0xZBE6LAEw4CWgNSPJ+fei+6I"')
+            .set('if-match', '"b48-TyVONjo4V6eLe5E3p90RxLra8So"')
             .expect(201);
 
             const {body: run} = await request

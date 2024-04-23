@@ -251,7 +251,7 @@ module.exports = new class extends Connector {
                 recipient_type: 'none',
                 sat_id: '',
                 sat_org_id: '',
-                status: host.id.startsWith('deadfeed') ? 'disconnected' : 'connected',
+                status: 'rhc_not_configured',
                 systems: [host.id]
             }))
             .value();
