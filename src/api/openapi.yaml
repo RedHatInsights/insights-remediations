@@ -46,7 +46,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RemediationList'
+                oneOf:
+                  - $ref: '#/components/schemas/RemediationList'
+                  - $ref: '#/components/schemas/RemediationNameList'
         400:
           $ref: '#/components/responses/BadRequest'
     post:
@@ -720,16 +722,18 @@ components:
     Fields:
       in: query
       name: fields[data]
-      description: Add playbook run data to the response
+      description: |
+        Include specified items
+        - name: list all remediation plan names in organization (cannot be combined with other fields)
+        - playbook_runs: include playbook run data in the response
       required: false
       schema:
         type: array
         items:
           type: string
           enum:
+            - name
             - playbook_runs
-        default:
-          - playbook_runs
     SelectedHosts:
       in: query
       name: hosts
@@ -1596,6 +1600,47 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PlaybookRunDetails'
+    
+    RemediationNameList:
+      type: object
+      additionalProperties: false
+      required: [data, meta, links]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RemediationNameListItem'
+        meta:
+          $ref: '#/components/schemas/Meta'
+        links:
+          type: object
+          additionalProperties: false
+          required: [first, last, next, previous]
+          properties:
+            first:
+              type: string
+              description: relative link to the first page of the query results
+            last:
+              type: string
+              description: relative link to the last page of the query results
+            next:
+              type: string
+              nullable: true
+              description: relative link to the next page of the query results (or null if this is the last page)
+            previous:
+              type: string
+              nullable: true
+              description: relative link to the previous page of the query results (or null if this is the first page)
+          example:
+            $ref: '#/components/examples/RemediationLinks'
+
+    RemediationNameListItem:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name:
+          $ref: '#/components/schemas/RemediationName'
 
     RemediationConnectionStatus:
       type: object

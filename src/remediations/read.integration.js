@@ -89,6 +89,26 @@ describe('remediations', function () {
             }
         });
 
+        test('list remediation plan names for org', async () => {
+            const {body} = await request
+            .get('/v1/remediations?fields[data]=name')
+            .set(auth.fifi)
+            .expect(200);
+
+            // items in list should only have 'name' field
+            for (const item of body.data) {
+                expect(Object.keys(item)).toHaveLength(1);
+                expect(item).toHaveProperty('name');
+            }
+        });
+
+        test('fields[data]=names cannot be combined', async () => {
+            const {body} = await request
+            .get('/v1/remediations?fields[data]=playbook_runs&fields[data]=name')
+            .set(auth.fifi)
+            .expect(400);
+        });
+
         test('does not leak data outside of the account', async () => {
             const {body} = await request
             .get('/v1/remediations?username=99999')

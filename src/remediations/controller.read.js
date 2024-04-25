@@ -103,6 +103,10 @@ function inferNeedsReboot (remediation) {
 exports.list = errors.async(async function (req, res) {
     trace.enter('controller.read.list');
 
+    if (_.get(req, 'query.fields.data', []).includes('name') && Array.isArray(_.get(req, 'query.fields.data', []))) {
+        throw new errors.BadRequest('INVALID_REQUEST', `'name' cannot be combined with other fields.`);
+    }
+
     trace.event('Get sort and query parms from url');
     const {column, asc} = format.parseSort(req.query.sort);
     const {offset, hide_archived} = req.query;
@@ -127,6 +131,27 @@ exports.list = errors.async(async function (req, res) {
 
     trace.event('Fetch remediation details from DB');
     let remediations = await queries.loadDetails(req.user.tenant_org_id, req.user.username, rows);
+
+    // Check for name in fields query param:
+    // fields[data]=name
+    if (_.get(req, 'query.fields.data', []).includes('name')) {
+        trace.event('Include name data');
+        let plan_names = await queries.getPlanNames(
+            req.user.tenant_org_id
+        );
+
+        plan_names = _.map(plan_names, name => name.toJSON())
+
+        const total = fifi.getListSize(plan_names);
+        limit = limit || 1;
+        
+        trace.event('Format response');
+        const resp = format.planNames(plan_names, count.length, limit, offset, req.query.sort, req.query.system)
+
+        trace.leave();
+
+        return res.json(resp);
+    }
 
     if (column === 'name') {
         trace.event('Accomodate sort ordering for null names');

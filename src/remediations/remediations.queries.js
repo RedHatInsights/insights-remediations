@@ -184,6 +184,19 @@ exports.loadDetails = async function (tenant_org_id, created_by, rows) {
     return result;
 };
 
+exports.getPlanNames = function (tenant_org_id) {
+    const query = {
+        attributes: [
+            'name'
+        ],
+        where: {
+            tenant_org_id: tenant_org_id
+        }
+    };
+
+    return db.remediation.findAll(query);
+};
+
 /*
   Load specified remediation from database
 

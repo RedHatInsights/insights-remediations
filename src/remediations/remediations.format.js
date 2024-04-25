@@ -373,3 +373,15 @@ exports.issueSystems = function (issue, total) {
         data: formatted
     };
 };
+
+exports.planNames = function (names, total, limit, offset, sort, system) {
+    return {
+        meta: {
+            count: 1,
+            total
+        },
+        data: names,
+        links: buildListLinks(total, limit, offset, sort, system),
+    };
+};
+
