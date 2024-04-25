@@ -146,7 +146,7 @@ exports.list = errors.async(async function (req, res) {
         limit = limit || 1;
         
         trace.event('Format response');
-        const resp = format.planNames(plan_names, count.length, limit, offset, req.query.sort, req.query.system)
+        const resp = format.planNames(plan_names, total, limit, offset, req.query.sort, req.query.system)
 
         trace.leave();
 

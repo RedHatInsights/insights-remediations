@@ -377,7 +377,7 @@ exports.issueSystems = function (issue, total) {
 exports.planNames = function (names, total, limit, offset, sort, system) {
     return {
         meta: {
-            count: 1,
+            count: names.length,
             total
         },
         data: names,
