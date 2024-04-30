@@ -165,6 +165,7 @@ module.exports = new Proxy(dummy, {
 module.exports.middleware = function (req_or_timeout, res, next) {
     // Are we being called as middleware?
     if (res) {
+        return next(); // disable this for the moment
         req_or_timeout.trace ??= new Trace(DEFAULT_THRESHOLD);
         res.trace ??= req_or_timeout.trace;
         return next();
@@ -172,6 +173,7 @@ module.exports.middleware = function (req_or_timeout, res, next) {
 
     else {
         return (req, res, next) => {
+            return next(); // disable this for the moment
             req.trace ??= new Trace(req_or_timeout);
             res.trace ??= req.trace;
             next();
