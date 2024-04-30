@@ -64,6 +64,10 @@ function buildTransport () {
 
     const transport = pino.transport(options);
 
+    transport.on('error', err => {
+        console.error('caught pino transport error:', err);
+    });
+
     return transport;
 }
 
