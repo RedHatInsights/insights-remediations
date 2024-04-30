@@ -136,20 +136,26 @@ exports.list = errors.async(async function (req, res) {
     // fields[data]=name
     if (_.get(req, 'query.fields.data', []).includes('name')) {
         trace.event('Include name data');
+        log.error('rewhite - processing names...');
+        log.error('rewhite - fetch from db...');
         let plan_names = await queries.getPlanNames(
             req.user.tenant_org_id
         );
 
+        log.error('rewhite - map names...');
         plan_names = _.map(plan_names, name => name.toJSON())
 
+        log.error('rewhite - getListSize...');
         const total = fifi.getListSize(plan_names);
         limit = limit || 1;
         
         trace.event('Format response');
+        log.error('rewhite - format response...');
         const resp = format.planNames(plan_names, total, limit, offset, req.query.sort, req.query.system)
 
         trace.leave();
 
+        log.error('rewhite - return response...');
         return res.json(resp);
     }
 
