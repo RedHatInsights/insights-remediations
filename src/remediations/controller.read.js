@@ -112,6 +112,27 @@ exports.list = errors.async(async function (req, res) {
     const {offset, hide_archived} = req.query;
     var limit = req.query.limit;
 
+    // Check for name in fields query param:
+    // fields[data]=name
+    if (_.get(req, 'query.fields.data', []).includes('name')) {
+        trace.event('Include name data');
+        let plan_names = await queries.getPlanNames(
+            req.user.tenant_org_id
+        );
+
+        plan_names = _.map(plan_names, name => name.toJSON())
+
+        const total = fifi.getListSize(plan_names);
+        limit = limit || 1;
+
+        trace.event('Format response');
+        const resp = format.planNames(plan_names, total, limit, offset, req.query.sort, req.query.system)
+
+        trace.leave();
+
+        return res.json(resp);
+    }
+
     trace.event('Query db for list of remediations');
     const {count, rows} = await queries.list(
         req.user.tenant_org_id,
@@ -131,33 +152,6 @@ exports.list = errors.async(async function (req, res) {
 
     trace.event('Fetch remediation details from DB');
     let remediations = await queries.loadDetails(req.user.tenant_org_id, req.user.username, rows);
-
-    // Check for name in fields query param:
-    // fields[data]=name
-    if (_.get(req, 'query.fields.data', []).includes('name')) {
-        trace.event('Include name data');
-        log.error('rewhite - processing names...');
-        log.error('rewhite - fetch from db...');
-        let plan_names = await queries.getPlanNames(
-            req.user.tenant_org_id
-        );
-
-        log.error('rewhite - map names...');
-        plan_names = _.map(plan_names, name => name.toJSON())
-
-        log.error('rewhite - getListSize...');
-        const total = fifi.getListSize(plan_names);
-        limit = limit || 1;
-        
-        trace.event('Format response');
-        log.error('rewhite - format response...');
-        const resp = format.planNames(plan_names, total, limit, offset, req.query.sort, req.query.system)
-
-        trace.leave();
-
-        log.error('rewhite - return response...');
-        return res.json(resp);
-    }
 
     if (column === 'name') {
         trace.event('Accomodate sort ordering for null names');
