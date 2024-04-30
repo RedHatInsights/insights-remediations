@@ -64,10 +64,6 @@ function buildTransport () {
 
     const transport = pino.transport(options);
 
-    transport.on('error', err => {
-        console.error('caught pino transport error:', err);
-    });
-
     return transport;
 }
 
@@ -117,7 +113,12 @@ const logger = pino(
     {
         name: 'remediations',
         level: config.logging.level,
-        serializers
+        serializers,
+        formatters: {
+            log: (log) => {
+                return log;
+            }
+        }
     },
     buildTransport()
 );
