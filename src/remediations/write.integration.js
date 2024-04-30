@@ -101,7 +101,7 @@ describe('remediations', function () {
                 id,
                 status: 400,
                 code: 'pattern.openapi.validation',
-                title: 'should match pattern \"^.*[\\w]+.*$\" (location: body, path: name)'
+                title: 'should match pattern \"^[^\\s].*[^\\s]$\" (location: body, path: name)'
             }]);
         });
 
@@ -306,6 +306,40 @@ describe('remediations', function () {
             .expect(201);
         });
 
+        test('400s when remediation plan name has leading/trailing whitespace', async () => {
+            const name_1 = ' duplicate plan for whitespace test';
+            const name_2 = 'duplicate plan for whitespace test ';
+            const {id, header} = reqId();
+
+            const {body: body_1} = await request
+                .post('/v1/remediations')
+                .set(header)
+                .set(auth.testWrite)
+                .send({name: name_1})
+                .expect(400);
+
+            body_1.errors.should.eql([{
+                id,
+                status: 400,
+                code: 'pattern.openapi.validation',
+                title: 'should match pattern "^[^\\s].*[^\\s]$" (location: body, path: name)'
+            }]);
+
+            const {body: body_2} = await request
+                .post('/v1/remediations')
+                .set(header)
+                .set(auth.testWrite)
+                .send({name: name_2})
+                .expect(400);
+
+            body_2.errors.should.eql([{
+                id,
+                status: 400,
+                code: 'pattern.openapi.validation',
+                title: 'should match pattern "^[^\\s].*[^\\s]$" (location: body, path: name)'
+            }]);
+        });
+
         test('400s when remediation name is set to empty string', async () => {
             const name = '';
             const {id, header} = reqId();
@@ -321,7 +355,7 @@ describe('remediations', function () {
                 id,
                 status: 400,
                 code: 'pattern.openapi.validation',
-                title: 'should match pattern \"^.*[\\w]+.*$\" (location: body, path: name)'
+                title: 'should match pattern \"^[^\\s].*[^\\s]$\" (location: body, path: name)'
             }]);
         });
 
@@ -697,7 +731,7 @@ describe('remediations', function () {
                         id,
                         status: 400,
                         code: 'pattern.openapi.validation',
-                        title: 'should match pattern \"^.*[\\w]+.*$\" (location: body, path: name)'
+                        title: 'should match pattern \"^[^\\s].*[^\\s]$\" (location: body, path: name)'
                     }]);
                 });
 
