@@ -47,8 +47,8 @@ paths:
             application/json:
               schema:
                 anyOf:
-                  - $ref: '#/components/schemas/RemediationList'
                   - $ref: '#/components/schemas/RemediationNameList'
+                  - $ref: '#/components/schemas/RemediationList'
         400:
           $ref: '#/components/responses/BadRequest'
     post:
@@ -878,7 +878,7 @@ components:
     RemediationName:
       type: string
       nullable: false
-      pattern: ^[^\s].*[^\s]$  # can't start or end with whitespace
+      pattern: ^(?!\s).+(?<!\s)$  # can't start or end with whitespace
       example: Fix Critical CVEs
 
     RemediationArchived:
