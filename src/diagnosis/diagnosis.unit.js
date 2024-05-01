@@ -88,8 +88,8 @@ const mockInventory = require('../connectors/inventory/mock');
             body.errors.should.eql([{
                 id,
                 status: 400,
-                code: 'format.openapi.validation',
-                title: 'should match format "uuid" (location: query, path: remediation)'
+                code: 'format.openapi.requestValidation',
+                title: 'must match format "uuid" (location: query, path: remediation)'
             }]);
         });
 
@@ -104,8 +104,8 @@ const mockInventory = require('../connectors/inventory/mock');
             body.errors.should.eql([{
                 id,
                 status: 400,
-                code: 'format.openapi.validation',
-                title: 'should match format "uuid" (location: query, path: branch_id)'
+                code: 'format.openapi.requestValidation',
+                title: 'must match format "uuid" (location: query, path: branch_id)'
             }]);
         });
     });

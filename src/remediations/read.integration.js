@@ -152,8 +152,8 @@ describe('remediations', function () {
             test400(
                 'invalid column',
                 '/v1/remediations?pretty&sort=foo',
-                'enum.openapi.validation',
-                'should be equal to one of the allowed values (location: query, path: sort)'
+                'enum.openapi.requestValidation',
+                'must be equal to one of the allowed values (location: query, path: sort)'
             );
         });
 
@@ -173,8 +173,8 @@ describe('remediations', function () {
             test400(
                 '400s on invalid format',
                 '/v1/remediations?system=foo',
-                'format.openapi.validation',
-                'should match format "uuid" (location: query, path: system)'
+                'format.openapi.requestValidation',
+                'must match format "uuid" (location: query, path: system)'
             );
         });
 
@@ -196,22 +196,22 @@ describe('remediations', function () {
             test400(
                 '400s on zero limit',
                 '/v1/remediations?limit=0',
-                'minimum.openapi.validation',
-                'should be >= 1 (location: query, path: limit)'
+                'minimum.openapi.requestValidation',
+                'must be >= 1 (location: query, path: limit)'
             );
 
             test400(
                 '400s on huge limit',
                 '/v1/remediations?limit=24000000',
-                'maximum.openapi.validation',
-                'should be <= 200 (location: query, path: limit)'
+                'maximum.openapi.requestValidation',
+                'must be <= 200 (location: query, path: limit)'
             );
 
             test400(
                 '400s on invalid offset type',
                 '/v1/remediations?offset=false',
-                'type.openapi.validation',
-                'should be number (location: query, path: offset)'
+                'type.openapi.requestValidation',
+                'must be number (location: query, path: offset)'
             );
 
             test400(
@@ -552,43 +552,43 @@ describe('remediations', function () {
         test400(
             '400 on giant limit',
             '/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:ping/systems?limit=2000000000000000',
-            'maximum.openapi.validation',
-            'should be <= 200 (location: query, path: limit)'
+            'maximum.openapi.requestValidation',
+            'must be <= 200 (location: query, path: limit)'
         );
 
         test400(
             '400 on bad remediation_id',
             '/v1/remediations/f7ee704e-4d66-49c8-849a-d2/issues/test:ping/systems',
-            'format.openapi.validation',
-            'should match format "uuid" (location: path, path: id)'
+            'format.openapi.requestValidation',
+            'must match format "uuid" (location: path, path: id)'
         );
 
         test400(
             '400 on bad issue_id',
             '/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:/systems',
-            'pattern.openapi.validation',
-            'should match pattern "^(advisor|vulnerabilities|ssg|test|patch-advisory|patch-package):[\\w\\d_|:\\.+-]+$" (location: path, path: issue)'
+            'pattern.openapi.requestValidation',
+            'must match pattern "^(advisor|vulnerabilities|ssg|test|patch-advisory|patch-package):[\\w\\d_|:\\.+-]+$" (location: path, path: issue)'
         );
 
         test400(
             '400 when limit=0',
             '/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:ping/systems?limit=0',
-            'minimum.openapi.validation',
-            'should be >= 1 (location: query, path: limit)'
+            'minimum.openapi.requestValidation',
+            'must be >= 1 (location: query, path: limit)'
         );
 
         test400(
             '400 on bad limit',
             '/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:ping/systems?limit=egg',
-            'type.openapi.validation',
-            'should be number (location: query, path: limit)'
+            'type.openapi.requestValidation',
+            'must be number (location: query, path: limit)'
         );
 
         test400(
             '400 on bad offset',
             '/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:ping/systems?offset=salad',
-            'type.openapi.validation',
-            'should be number (location: query, path: offset)'
+            'type.openapi.requestValidation',
+            'must be number (location: query, path: offset)'
         );
     });
 
@@ -684,7 +684,7 @@ describe('remediations', function () {
             .expect(400);
 
             body.errors[0].title.should.equal(
-                'should match format "uuid" (location: query, path: selected_remediations[0])'
+                'must match format "uuid" (location: query, path: selected_remediations.0)'
             );
         });
 
