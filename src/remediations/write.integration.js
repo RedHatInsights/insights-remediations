@@ -101,7 +101,7 @@ describe('remediations', function () {
                 id,
                 status: 400,
                 code: 'pattern.openapi.requestValidation',
-                title: 'must match pattern \"^[^\\s].*[^\\s]$\" (location: body, path: name)'
+                title: 'must match pattern \"^(?!\\s).+(?<!\\s)$\" (location: body, path: name)'
             }]);
         });
 
@@ -322,7 +322,7 @@ describe('remediations', function () {
                 id,
                 status: 400,
                 code: 'pattern.openapi.requestValidation',
-                title: 'must match pattern \"^[^\\s].*[^\\s]$\" (location: body, path: name)'
+                title: 'must match pattern \"^(?!\\s).+(?<!\\s)$\" (location: body, path: name)'
             }]);
 
             const {body: body_2} = await request
@@ -336,7 +336,7 @@ describe('remediations', function () {
                 id,
                 status: 400,
                 code: 'pattern.openapi.requestValidation',
-                title: 'must match pattern \"^[^\\s].*[^\\s]$\" (location: body, path: name)'
+                title: 'must match pattern \"^(?!\\s).+(?<!\\s)$\" (location: body, path: name)'
             }]);
         });
 
@@ -355,7 +355,7 @@ describe('remediations', function () {
                 id,
                 status: 400,
                 code: 'pattern.openapi.requestValidation',
-                title: 'must match pattern \"^[^\\s].*[^\\s]$\" (location: body, path: name)'
+                title: 'must match pattern \"^(?!\\s).+(?<!\\s)$\" (location: body, path: name)'
             }]);
         });
 
@@ -731,7 +731,7 @@ describe('remediations', function () {
                         id,
                         status: 400,
                         code: 'pattern.openapi.requestValidation',
-                        title: 'must match pattern \"^[^\\s].*[^\\s]$\" (location: body, path: name)'
+                        title: 'must match pattern \"^(?!\\s).+(?<!\\s)$\" (location: body, path: name)'
                     }]);
                 });
 
