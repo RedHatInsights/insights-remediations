@@ -13,6 +13,7 @@ const prod_image_files = [
     'src/**/*.js',
     'src/**/*.yaml',
     'src/**/*.yml',
+    'src/**/noop.js',
     'certs/**/*',
     'db/**/*',
     '.sequelizerc',
@@ -20,7 +21,6 @@ const prod_image_files = [
 ];
 const test_image_files = [
     'src/**/__snapshots__/*',
-    'src/**/noop.js',
     'src/**/mock.js',
     'src/**/serviceMock.js',
     'src/**/*.unit.js',
