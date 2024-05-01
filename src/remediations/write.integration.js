@@ -100,8 +100,8 @@ describe('remediations', function () {
             body.errors.should.eql([{
                 id,
                 status: 400,
-                code: 'pattern.openapi.validation',
-                title: 'should match pattern \"^[^\\s].*[^\\s]$\" (location: body, path: name)'
+                code: 'pattern.openapi.requestValidation',
+                title: 'must match pattern \"^[^\\s].*[^\\s]$\" (location: body, path: name)'
             }]);
         });
 
@@ -192,8 +192,8 @@ describe('remediations', function () {
             body.errors.should.eql([{
                 id,
                 status: 400,
-                code: 'additionalProperties.openapi.validation',
-                title: 'should NOT have additional properties (location: body, path: undefined)'
+                code: 'additionalProperties.openapi.requestValidation',
+                title: 'must NOT have additional properties (location: body, path: undefined)'
             }]);
         });
 
@@ -321,8 +321,8 @@ describe('remediations', function () {
             body_1.errors.should.eql([{
                 id,
                 status: 400,
-                code: 'pattern.openapi.validation',
-                title: 'should match pattern "^[^\\s].*[^\\s]$" (location: body, path: name)'
+                code: 'pattern.openapi.requestValidation',
+                title: 'must match pattern \"^[^\\s].*[^\\s]$\" (location: body, path: name)'
             }]);
 
             const {body: body_2} = await request
@@ -335,8 +335,8 @@ describe('remediations', function () {
             body_2.errors.should.eql([{
                 id,
                 status: 400,
-                code: 'pattern.openapi.validation',
-                title: 'should match pattern "^[^\\s].*[^\\s]$" (location: body, path: name)'
+                code: 'pattern.openapi.requestValidation',
+                title: 'must match pattern \"^[^\\s].*[^\\s]$\" (location: body, path: name)'
             }]);
         });
 
@@ -354,8 +354,8 @@ describe('remediations', function () {
             body.errors.should.eql([{
                 id,
                 status: 400,
-                code: 'pattern.openapi.validation',
-                title: 'should match pattern \"^[^\\s].*[^\\s]$\" (location: body, path: name)'
+                code: 'pattern.openapi.requestValidation',
+                title: 'must match pattern \"^[^\\s].*[^\\s]$\" (location: body, path: name)'
             }]);
         });
 
@@ -373,8 +373,8 @@ describe('remediations', function () {
             body.errors.should.eql([{
                 id,
                 status: 400,
-                code: 'type.openapi.validation',
-                title: 'should be string (location: body, path: name)'
+                code: 'type.openapi.requestValidation',
+                title: 'must be string (location: body, path: name)'
             }]);
         });
 
@@ -576,8 +576,8 @@ describe('remediations', function () {
                     body.errors.should.eql([{
                         id,
                         status: 400,
-                        code: 'required.openapi.validation',
-                        title: 'should have required property \'id\' (location: body, path: add.issues[0].id)'
+                        code: 'required.openapi.requestValidation',
+                        title: 'must have required property \'id\' (location: body, path: add.issues.0.id)'
                     }]);
                 });
 
@@ -591,8 +591,8 @@ describe('remediations', function () {
                     body.errors.should.eql([{
                         id,
                         status: 400,
-                        code: 'minItems.openapi.validation',
-                        title: 'should NOT have fewer than 1 items (location: body, path: add.issues)'
+                        code: 'minItems.openapi.requestValidation',
+                        title: 'must NOT have fewer than 1 items (location: body, path: add.issues)'
                     }]);
                 });
 
@@ -730,8 +730,8 @@ describe('remediations', function () {
                     body.errors.should.eql([{
                         id,
                         status: 400,
-                        code: 'pattern.openapi.validation',
-                        title: 'should match pattern \"^[^\\s].*[^\\s]$\" (location: body, path: name)'
+                        code: 'pattern.openapi.requestValidation',
+                        title: 'must match pattern \"^[^\\s].*[^\\s]$\" (location: body, path: name)'
                     }]);
                 });
 
@@ -752,8 +752,8 @@ describe('remediations', function () {
                     body.errors.should.eql([{
                         id,
                         status: 400,
-                        code: 'type.openapi.validation',
-                        title: 'should be string (location: body, path: name)'
+                        code: 'type.openapi.requestValidation',
+                        title: 'must be string (location: body, path: name)'
                     }]);
                 });
 
