@@ -147,7 +147,7 @@ module.exports = function (operationId) {
         };
 
         coercer.coerce(req);
-        const errors = reqValidator.validate(req);
+        const errors = reqValidator.validateRequest(req);
 
         if (errors) {
             const transformer = transformError(req, 400);
