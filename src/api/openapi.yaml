@@ -878,7 +878,7 @@ components:
     RemediationName:
       type: string
       nullable: false
-      pattern: ^(?!\s).+(?<!\s)$  # can't start or end with whitespace
+      pattern: ^.*[\w]+.*$  # Anything that contains at least one character
       example: Fix Critical CVEs
 
     RemediationArchived:
