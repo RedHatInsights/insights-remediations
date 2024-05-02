@@ -3,9 +3,12 @@
 module.exports = {
   up: async (q, {STRING}) => {
     // Fix plan names of the form " - 1"
-    const fix_invalid_names = "UPDATE remediations SET name = 'Blank' || name WHERE name LIKE ' %';";
+    const fix_blank_names = "UPDATE remediations SET name = 'Blank' || name WHERE name LIKE ' -%';";
+    await q.sequelize.query(fix_blank_names);
 
-    await q.sequelize.query(fix_invalid_names);
+    // remove leading blanks from plan names
+    const remove_spaces = "UPDATE remediations SET name = TRIM(name) WHERE name LIKE ' %';";
+    await q.sequelize.query(remove_spaces);
   },
 
   down: async (q, Sequelize) => {
