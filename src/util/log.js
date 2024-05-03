@@ -113,12 +113,7 @@ const logger = pino(
     {
         name: 'remediations',
         level: config.logging.level,
-        serializers,
-        formatters: {
-            log: (log) => {
-                return log;
-            }
-        }
+        serializers
     },
     buildTransport()
 );
