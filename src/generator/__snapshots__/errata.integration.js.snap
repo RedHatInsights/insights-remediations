@@ -52,7 +52,7 @@ exports[`aggregates multiple errata into a single play 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update-minimal -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
@@ -194,7 +194,7 @@ exports[`aggregates multiple errata-based issues into advisory/cve plays 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update-minimal -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
@@ -380,7 +380,7 @@ exports[`generates a simple playbook with RHBA remediation with a 6-digit id 1`]
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update-minimal -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
@@ -518,7 +518,7 @@ exports[`generates a simple playbook with multiple erratum-based remediation 1`]
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update-minimal -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
@@ -839,7 +839,7 @@ exports[`generates a simple playbook with single RHSA remediation 1`] = `
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update-minimal -d 2 -y {{ insights_issues | regex_search('(--advisory ((FEDORA-EPEL-[\\\\w-]+)|(RH[SBE]A-20[\\\\d]{2}:[\\\\d]{4,6}))\\\\s*)+') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact

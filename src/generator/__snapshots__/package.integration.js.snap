@@ -52,7 +52,7 @@ exports[`patchman - package using patch-package generates a playbook with multip
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\\\\.([^-:.(/=<>;]+)$') }}"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update-minimal -d 2 -y {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\\\\.([^-:.(/=<>;]+)$') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
@@ -189,7 +189,7 @@ exports[`patchman - package using patch-package generates a simple playbook with
 
     - when: check_out.rc == 100
       name: upgrade package
-      shell: "{{ ansible_facts['pkg_mgr'] }} update -d 2 -y {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\\\\.([^-:.(/=<>;]+)$') }}"
+      shell: "{{ ansible_facts['pkg_mgr'] }} update-minimal -d 2 -y {{ insights_issues | regex_search('^(([0-9]+):)?([^:(/=<>;]+)-(([0-9]+):)?([^-:(/=<>;]+)-([^-:(/=<>;]+)\\\\.([^-:.(/=<>;]+)$') }}"
 
     - when: check_out.rc == 100
       name: set reboot fact
