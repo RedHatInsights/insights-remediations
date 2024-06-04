@@ -411,7 +411,7 @@ describe('playbooks', function () {
             });
         }
 
-        testCaching('pydata playbook', '66eec356-dd06-4c72-a3b6-ef27d1508a02', 'W/"5004-nbKW38/rzvcVbESNyaxBTq+Z4YY"');
+        testCaching('pydata playbook', '66eec356-dd06-4c72-a3b6-ef27d1508a02', 'W/"5004-7pWgLEfku0r++x4oct0LujSGwvQ"');
         testCaching('no reboot playbook', 'e809526c-56f5-4cd8-a809-93328436ea23', 'W/"1766-sjTxiTp0vYoco7hgKWo1DlnFheY"');
         testCaching('playbook with suppressed reboot', '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
             'W/"1937-gjoSqp1gpVt5Me22Yni745YaNIc"');
