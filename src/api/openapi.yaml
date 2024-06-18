@@ -47,8 +47,8 @@ paths:
             application/json:
               schema:
                 anyOf:
-                  - $ref: '#/components/schemas/RemediationNameList'
                   - $ref: '#/components/schemas/RemediationList'
+                  - $ref: '#/components/schemas/RemediationNameList'
         400:
           $ref: '#/components/responses/BadRequest'
     post:
