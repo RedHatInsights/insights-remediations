@@ -204,7 +204,7 @@ exports.list = errors.async(async function (req, res) {
                 req.user.username
             );
 
-            playbook_runs = playbook_runs?.toJSON();
+            playbook_runs = playbook_runs?.toJSON() || {};
 
             // Join rhcRuns and playbookRuns
             trace.event(`[${local_iteration}] Combine runs`);
