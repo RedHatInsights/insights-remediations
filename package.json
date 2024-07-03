@@ -21,7 +21,7 @@
     "express-http-context": "^1.2.4",
     "express-prom-bundle": "^5.1.5",
     "graphql-request": "^2.0.0",
-    "ioredis": "^4.19.2",
+    "ioredis": "^5.4.1",
     "js-yaml": "^3.14.0",
     "jszip": "^3.10.1",
     "lodash": "^4.17.21",
