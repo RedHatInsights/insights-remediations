@@ -324,8 +324,8 @@ objects:
                r.updated_at,
                r.auto_reboot,
                r.archived,
-               ri.issue_id,
-               ris.system_id,
+               ri.issue_id::TEXT,
+               ris.system_id::TEXT,
                ris.resolved
         FROM remediations AS r
         LEFT JOIN remediation_issues AS ri ON ri.remediation_id = r.id
@@ -335,12 +335,12 @@ objects:
       chunksize: 200000
       query: >-
         SELECT pr.id,
-               pr.remediation_id,
+               pr.remediation_id::TEXT,
                r.tenant_org_id as org_id,
                pr.status,
                pr.created_at,
                pr.updated_at,
-               ri.issue_id
+               ri.issue_id::TEXT
         FROM playbook_runs AS pr
         LEFT JOIN remediations AS r ON r.id = pr.remediation_id
         LEFT JOIN remediation_issues AS ri ON ri.remediation_id = r.id
