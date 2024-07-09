@@ -3,14 +3,42 @@
 const cls = require('./cls');
 
 const DEFAULT_THRESHOLD = 1000;  // default timeout in ms
+const MAX_ARRAY_SIZE = 250;
+
+class SizedArray {
+    constructor(max_size) {
+        this.max_size = max_size;
+        this.items = [];
+        this.nextIndex = 0;
+        this.iterationCount = 0;
+    }
+
+    push (item) {
+        return this.items.push(item);
+    }
+
+    pop () {
+        return this.items.pop();
+    }
+
+    [Symbol.iterator]() {
+        var index = -1;
+        var data  = this.items;
+
+        return {
+            next: () => ({ value: data[++index], done: !(index in data) })
+        };
+    };
+}
+
 
 // Simple tracing facility with elapsed timestamps, aggregates a series of entries
 // into one log message.
 class Trace {
     constructor(threshold_ms) {
         this.threshold_ms = threshold_ms ?? 0;
-        this.traceEvents = [];
-        this.fn = [];
+        this.traceEvents = new SizedArray(MAX_ARRAY_SIZE);
+        this.fn = new SizedArray(MAX_ARRAY_SIZE);
         this.initialTimestamp = Date.now();
         this.padding = '';
         this.force = false;

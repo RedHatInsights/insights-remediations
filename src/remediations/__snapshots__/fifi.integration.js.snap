@@ -85,82 +85,123 @@ exports[`FiFi connection status get connection status with false smartManagement
 
 exports[`FiFi connection status get connection status with false smartManagement but with system connected to RHC 1`] = `
 "{
-    \\"meta\\": {
-        \\"count\\": 9,
-        \\"total\\": 9
+    "meta": {
+        "count": 9,
+        "total": 9
     },
-    \\"data\\": [
+    "data": [
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": \\"01bf542e-6092-485c-ba04-c656d77f988a\\",
-            \\"executor_type\\": \\"RHC-satellite\\",
-            \\"executor_name\\": \\"Satellite 01bf542e-6092-485c-ba04-c656d77f988a Org 2\\",
-            \\"system_count\\": 1,
-            \\"connection_status\\": \\"connected\\"
+            "endpoint_id": null,
+            "executor_id": "01bf542e-6092-485c-ba04-c656d77f988a",
+            "executor_type": "RHC-satellite",
+            "executor_name": "Satellite 01bf542e-6092-485c-ba04-c656d77f988a Org 2",
+            "system_count": 1,
+            "system_ids": [
+                "95c5ee0d-9599-475f-a8ef-c838545b9a73"
+            ],
+            "connection_status": "connected"
         },
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": \\"409dd231-6297-43a6-a726-5ce56923d624\\",
-            \\"executor_type\\": \\"RHC-satellite\\",
-            \\"executor_name\\": \\"Satellite 409dd231-6297-43a6-a726-5ce56923d624 Org 2\\",
-            \\"system_count\\": 1,
-            \\"connection_status\\": \\"disconnected\\"
+            "endpoint_id": null,
+            "executor_id": "409dd231-6297-43a6-a726-5ce56923d624",
+            "executor_type": "RHC-satellite",
+            "executor_name": "Satellite 409dd231-6297-43a6-a726-5ce56923d624 Org 2",
+            "system_count": 1,
+            "system_ids": [
+                "a9b3af62-8404-4b2a-9084-9ed37da6baf1"
+            ],
+            "connection_status": "disconnected"
         },
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": \\"63142926-46a5-498b-9614-01f2f66fd40b\\",
-            \\"executor_type\\": \\"RHC-satellite\\",
-            \\"executor_name\\": \\"Satellite 63142926-46a5-498b-9614-01f2f66fd40b Org 2\\",
-            \\"system_count\\": 5,
-            \\"connection_status\\": \\"connected\\"
+            "endpoint_id": null,
+            "executor_id": "63142926-46a5-498b-9614-01f2f66fd40b",
+            "executor_type": "RHC-satellite",
+            "executor_name": "Satellite 63142926-46a5-498b-9614-01f2f66fd40b Org 2",
+            "system_count": 5,
+            "system_ids": [
+                "35e9b452-e405-499c-9c6e-120010b7b465",
+                "8728dbf3-6500-44bb-a55c-4909a48673ed",
+                "88d0ba73-0015-4e7d-a6d6-4b530cbfb4ad",
+                "baaad5ad-1b8e-457e-ad43-39d1aea40d4d",
+                "e4a0a6ff-0f01-4659-ad9d-44150ade51dd"
+            ],
+            "connection_status": "connected"
         },
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": \\"722ec903-f4b5-4b1f-9c2f-23fc7b0ba390\\",
-            \\"executor_type\\": \\"RHC-satellite\\",
-            \\"executor_name\\": \\"Satellite 722ec903-f4b5-4b1f-9c2f-23fc7b0ba390 Org 2\\",
-            \\"system_count\\": 3,
-            \\"connection_status\\": \\"connected\\"
+            "endpoint_id": null,
+            "executor_id": "722ec903-f4b5-4b1f-9c2f-23fc7b0ba390",
+            "executor_type": "RHC-satellite",
+            "executor_name": "Satellite 722ec903-f4b5-4b1f-9c2f-23fc7b0ba390 Org 2",
+            "system_count": 3,
+            "system_ids": [
+                "355986a3-5f37-40f7-8f36-c3ac928ce190",
+                "881256d7-8f99-4073-be6d-67ee42ba9af8",
+                "b84f4322-a0b8-4fb9-a8dc-8abb9ee16bc0"
+            ],
+            "connection_status": "connected"
         },
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": \\"72f44b25-64a7-4ee7-a94e-3beed9393972\\",
-            \\"executor_type\\": \\"RHC-satellite\\",
-            \\"executor_name\\": \\"Satellite 72f44b25-64a7-4ee7-a94e-3beed9393972 Org 2\\",
-            \\"system_count\\": 3,
-            \\"connection_status\\": \\"connected\\"
+            "endpoint_id": null,
+            "executor_id": "72f44b25-64a7-4ee7-a94e-3beed9393972",
+            "executor_type": "RHC-satellite",
+            "executor_name": "Satellite 72f44b25-64a7-4ee7-a94e-3beed9393972 Org 2",
+            "system_count": 3,
+            "system_ids": [
+                "3fec343b-ecc0-4049-9e30-e4dc2bae9f62",
+                "9574cba7-b9ce-4725-b392-e959afd3e69a",
+                "bd91d212-91ae-4813-a406-d2af96fbeb52"
+            ],
+            "connection_status": "connected"
         },
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": \\"893f2788-c7a6-4cc3-89bc-9066ffda695e\\",
-            \\"executor_type\\": \\"RHC-satellite\\",
-            \\"executor_name\\": \\"Satellite 893f2788-c7a6-4cc3-89bc-9066ffda695e Org 2\\",
-            \\"system_count\\": 2,
-            \\"connection_status\\": \\"connected\\"
+            "endpoint_id": null,
+            "executor_id": "893f2788-c7a6-4cc3-89bc-9066ffda695e",
+            "executor_type": "RHC-satellite",
+            "executor_name": "Satellite 893f2788-c7a6-4cc3-89bc-9066ffda695e Org 2",
+            "system_count": 2,
+            "system_ids": [
+                "34360dba-a2e7-4788-b9a2-44246a865c7e",
+                "64ee45db-6f2b-4862-bc9a-40aea8f5ecbe"
+            ],
+            "connection_status": "connected"
         },
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": \\"893f2788-c7a6-4cc3-89bc-9066ffda695e\\",
-            \\"executor_type\\": \\"RHC-satellite\\",
-            \\"executor_name\\": \\"Satellite 893f2788-c7a6-4cc3-89bc-9066ffda695e Org 6\\",
-            \\"system_count\\": 4,
-            \\"connection_status\\": \\"connected\\"
+            "endpoint_id": null,
+            "executor_id": "893f2788-c7a6-4cc3-89bc-9066ffda695e",
+            "executor_type": "RHC-satellite",
+            "executor_name": "Satellite 893f2788-c7a6-4cc3-89bc-9066ffda695e Org 6",
+            "system_count": 4,
+            "system_ids": [
+                "2a708189-4b48-4642-9443-64bda5f38e5f",
+                "36828b63-38f3-4b9a-ad08-0b7812e5df57",
+                "6f6a889d-6bac-4d53-9bc1-ef75bc1a55ff",
+                "938c5ce7-481f-4b82-815c-2973ca76a0ef"
+            ],
+            "connection_status": "connected"
         },
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": null,
-            \\"executor_type\\": \\"RHC\\",
-            \\"executor_name\\": null,
-            \\"system_count\\": 3,
-            \\"connection_status\\": \\"connected\\"
+            "endpoint_id": null,
+            "executor_id": null,
+            "executor_type": "RHC",
+            "executor_name": null,
+            "system_count": 3,
+            "system_ids": [
+                "0341e468-fbae-416c-b16f-5abb64d99834",
+                "750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4",
+                "d5174274-4307-4fac-84fd-da2c3497657c"
+            ],
+            "connection_status": "connected"
         },
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": null,
-            \\"executor_type\\": \\"None\\",
-            \\"executor_name\\": null,
-            \\"system_count\\": 1,
-            \\"connection_status\\": \\"connected\\"
+            "endpoint_id": null,
+            "executor_id": null,
+            "executor_type": "None",
+            "executor_name": null,
+            "system_count": 1,
+            "system_ids": [
+                "35f36364-6007-4ecc-9666-c4f8d354be9f"
+            ],
+            "connection_status": "no_rhc"
         }
     ]
 }"
@@ -249,126 +290,361 @@ exports[`FiFi connection status get connection status with smartManagement but n
 }"
 `;
 
+exports[`FiFi connection status handles > 50 systems 1`] = `
+{
+  "data": [
+    {
+      "connection_status": "no_rhc",
+      "endpoint_id": null,
+      "executor_id": null,
+      "executor_name": null,
+      "executor_type": "None",
+      "system_count": 38,
+      "system_ids": [
+        "01ea786d-8570-469a-b0dc-a725ce877db4",
+        "0707ae4e-a591-4d51-874d-d00985c0d184",
+        "0a9d8d89-1e7a-44e1-9af2-b3fc0a0ecd24",
+        "0c7d3cbb-2be0-45f3-9c4a-4f043bb481b4",
+        "1f378e77-56a4-4b6d-8570-2e08196030e4",
+        "1fb1069d-6e3d-4aee-b02b-ef47d5908284",
+        "25d6c4df-1ac3-4e1c-85de-a49a1a011c54",
+        "2f9725d2-4018-4126-aa9f-be4f313a77b4",
+        "346a90d9-23cb-4d46-8744-8563443b7e84",
+        "3897d989-db33-4bfe-a425-a4cbf0d2f124",
+        "3a431d37-76b9-490c-a636-3c8bbf23a8e4",
+        "3e75b90c-03c4-409a-8bde-b21c9eac1c84",
+        "422a36a4-f8f0-4878-ab4d-6e4311c14754",
+        "56b23efe-505b-4589-bc87-a51f3a5d99b4",
+        "64a700c8-36cc-4143-9c93-49c3c2347524",
+        "6d43197d-3e6a-4fb3-b292-5a69944411e4",
+        "7515f8d2-1af9-4964-a89a-e972cae3d654",
+        "784a81f6-52cc-43dc-a876-39f22ec11c24",
+        "78e5cbf3-3477-49a3-b403-c4af010deab4",
+        "78e85c78-c1dc-4c69-b19f-0be0f978a3e4",
+        "7ac21781-a6b4-4cd1-8a15-3e9a893982e4",
+        "82d8725f-a24a-4f4e-9773-b6c533680fb4",
+        "82fd3b12-de80-48cf-866a-1a7ce9aaf5e4",
+        "8c344f62-9aa4-4adf-a976-c1b9a6aeacb4",
+        "8d14b5e0-6b2b-47ae-a76b-62b3721eb184",
+        "8e8fe36b-e5e1-4fe7-801d-4f3040af2ce4",
+        "979614aa-6955-464a-9be9-2a6995711ae4",
+        "a22d9386-6911-4ecf-bcab-485c768f1324",
+        "a6aa1bc1-0d1c-499c-8baa-e68872ab71b4",
+        "a87dc1cf-f2df-4f94-8651-2a0272a77de4",
+        "ab9c6683-60ba-4a64-89e7-aa5f0a2e41e4",
+        "ace7147d-7e9d-4153-91cc-aa8765f5af84",
+        "bb9be11d-c3b1-4b85-9491-b4576733a784",
+        "d0dbd068-fc5e-4702-9a85-c80393a10584",
+        "d17a54f9-6ae0-42c7-82b4-449ae2474184",
+        "e41f91a7-814e-4ae5-b08c-902049dc52b4",
+        "f1a1da73-8acb-4a26-8ab4-a5d053116254",
+        "f7cf5ee3-76c0-448f-be68-350c534c4084",
+      ],
+    },
+    {
+      "connection_status": "disconnected",
+      "endpoint_id": null,
+      "executor_id": null,
+      "executor_name": null,
+      "executor_type": "RHC",
+      "system_count": 46,
+      "system_ids": [
+        "042a4f54-9481-4e62-ac2d-5411357c53d4",
+        "06efb533-a22e-4000-b55b-ab291f178c44",
+        "08943343-ac14-4ca0-99b4-7e98f7904f14",
+        "1161f382-16a0-4a8d-9bc4-664cc44cabd4",
+        "212b6b25-1dd0-42e5-8a59-1821d1faf8a4",
+        "22935f9f-c7dc-4005-9245-fd7a82c0eed4",
+        "27f2d60a-fb30-4c19-998e-af2e83ae1c14",
+        "2a92a131-f37a-47ae-9592-95295d9f4244",
+        "2ae7304d-db5b-4e65-8108-3698e8ed0c74",
+        "300f04e2-6b7e-4592-82e8-1c0361f6ed74",
+        "3af93369-54fa-407d-aaa3-d8e993654944",
+        "3b37fb93-d993-47bb-a488-6d836a6348a4",
+        "43860de9-7628-4489-8e80-e80a5559da44",
+        "45407d84-dcff-4854-9ec8-1fd84c43a2a4",
+        "49ec7b2a-0968-43f2-8f1b-a2a5c396fd74",
+        "4c065bf6-cba8-4d92-8368-9a66ebbb2474",
+        "50dc93a9-ca3d-4617-95f9-69e69e7e74a4",
+        "5a0c6e54-8112-41b4-9950-92580076f144",
+        "5a7e14c5-4d9b-4b76-97b7-10ae91f1c2d4",
+        "622fa925-8521-41c1-b256-b3941f04ae14",
+        "6427853a-bf81-4d0f-a13d-96b177d0c244",
+        "71da82ef-a7d4-4226-baff-774b8cbc6d74",
+        "741ddc5f-6d4e-484e-879f-321a4c8c9344",
+        "7f429aad-a79c-47a1-a42d-2a92c6708814",
+        "83c32f3f-5f4e-4fc8-ab00-1eb4243d2d74",
+        "8aed788a-9c43-4652-9ef4-b7824d36b344",
+        "92851128-ce3c-4585-ad49-c26ecc7ef6d4",
+        "b434b851-77ec-48ca-ab59-1eda494d9914",
+        "b82eb945-cc56-4ceb-83d5-41cd97e013d4",
+        "b83f6247-d46a-478a-b395-008b12aa2314",
+        "b84c29be-b1c8-4ca4-941d-a78c6f178ba4",
+        "b9368719-a2ba-4860-9333-edac7db45a44",
+        "ba336d89-3385-4479-a97b-e027513baf14",
+        "c1aaac25-5890-4582-b372-5083dd51e414",
+        "c27e13a2-06db-460e-b3d0-340f20f76174",
+        "c33c8700-0e1a-41aa-a45f-37955b78ada4",
+        "c4cac491-fdbd-43cc-bf44-108da6265da4",
+        "c6851dfe-8acc-4ca8-8fe9-276c03185214",
+        "ca2ea17b-df42-441f-8830-a0a7e62cefd4",
+        "cabbc5b4-8a75-42c8-ab70-bd529f65f8a4",
+        "d0fedc29-6a2f-4a13-a67a-410da8b05bd4",
+        "ed833f2d-0435-4a69-bdbd-b1d06b30dc14",
+        "ee808b57-0969-4293-b153-edcebb982514",
+        "f91cb665-e84c-4225-b29a-978da6386014",
+        "fb189ec5-01a5-48db-ac78-b8ffa0fb4444",
+        "fb660d98-0b33-49ad-ba1e-1ff3148af814",
+      ],
+    },
+    {
+      "connection_status": "connected",
+      "endpoint_id": null,
+      "executor_id": null,
+      "executor_name": null,
+      "executor_type": "RHC",
+      "system_count": 36,
+      "system_ids": [
+        "1e3030c0-2956-49a0-9b3e-6af700f92334",
+        "2cbc4976-ba00-48ec-a595-a1c7ea443434",
+        "39b413f6-a8b8-4cdf-9d10-4527f9206134",
+        "3d1779d9-dd31-4ba3-933c-1a9b0b803564",
+        "409e6d4e-4666-4a6f-a133-a8f322c02134",
+        "45938c96-bf25-4375-b835-cfff57c16d64",
+        "45bbc047-b32c-4749-b408-f4b7e78e24f4",
+        "5361a94b-a907-4269-a451-d2ce99e1b934",
+        "56e6f668-0f75-4519-848d-0cab1030b0c4",
+        "5b1cfc23-04a6-4373-ad7a-46bbc19c9104",
+        "6dd46f63-2e20-417e-a5bb-f5d243974ec4",
+        "7f16d20d-409a-47fc-bd8f-3ccf7c963ec4",
+        "80752636-223a-4c59-bd30-3899d4eec204",
+        "88d0345b-3b54-4e68-ac67-f34a997bc1f4",
+        "896f55dd-8538-4b4e-93c7-91c7d6b0fbc4",
+        "8a298566-1332-4e5d-a674-66cc110b7864",
+        "ac4afcb6-f843-47be-aa69-c88496079a04",
+        "b300fe09-c6ea-4731-a698-f65eecff5d94",
+        "bb035278-1fde-4595-8b68-73a628810734",
+        "c457064a-423c-41ee-9298-9f91aab7e0c4",
+        "c4f5295b-21dd-47c1-aa94-6491cfd9eb04",
+        "cc920af6-f94c-45c8-8ff4-ed6e55a7c364",
+        "d1dd33f9-3bee-4344-b4e0-81905dd380c4",
+        "d3d1ae20-4b4a-437c-b3d5-eaa8f9d7dbc4",
+        "d515a183-1b22-4327-8e54-bad99d8af8c4",
+        "e08087f3-7e01-4f64-bcbb-e7ea9c1112f4",
+        "e1da824a-21f6-4750-b782-05336fc53594",
+        "e2c7de44-ba6c-4c78-a3ff-a3a91edb4294",
+        "e5af5aef-acee-4a84-ae36-cde39521e534",
+        "e87df82c-f386-4a93-9a49-76c8357ab904",
+        "f0c9a3c3-2824-4f5c-9ea0-6b6a28a29794",
+        "f2843a4c-15d2-4c08-b84c-d5c6ae6c3b34",
+        "f435e9c6-ddb8-4246-aef8-cfac60f31604",
+        "fc18d170-5116-4ff1-9de8-e03946f34ac4",
+        "fceaf090-9596-4f16-b0f3-e926d63ea7c4",
+        "fceea461-3666-4dcd-95d7-ac09ad66a994",
+      ],
+    },
+  ],
+  "meta": {
+    "count": 3,
+    "total": 3,
+  },
+}
+`;
+
 exports[`FiFi connection status obtains connection status 1`] = `
 "{
-    \\"meta\\": {
-        \\"count\\": 9,
-        \\"total\\": 9
+    "meta": {
+        "count": 9,
+        "total": 9
     },
-    \\"data\\": [
+    "data": [
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": \\"01bf542e-6092-485c-ba04-c656d77f988a\\",
-            \\"executor_type\\": \\"RHC-satellite\\",
-            \\"executor_name\\": \\"Satellite 01bf542e-6092-485c-ba04-c656d77f988a Org 2\\",
-            \\"system_count\\": 1,
-            \\"connection_status\\": \\"connected\\"
+            "endpoint_id": null,
+            "executor_id": "01bf542e-6092-485c-ba04-c656d77f988a",
+            "executor_type": "RHC-satellite",
+            "executor_name": "Satellite 01bf542e-6092-485c-ba04-c656d77f988a Org 2",
+            "system_count": 1,
+            "system_ids": [
+                "95c5ee0d-9599-475f-a8ef-c838545b9a73"
+            ],
+            "connection_status": "connected"
         },
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": \\"409dd231-6297-43a6-a726-5ce56923d624\\",
-            \\"executor_type\\": \\"RHC-satellite\\",
-            \\"executor_name\\": \\"Satellite 409dd231-6297-43a6-a726-5ce56923d624 Org 2\\",
-            \\"system_count\\": 1,
-            \\"connection_status\\": \\"disconnected\\"
+            "endpoint_id": null,
+            "executor_id": "409dd231-6297-43a6-a726-5ce56923d624",
+            "executor_type": "RHC-satellite",
+            "executor_name": "Satellite 409dd231-6297-43a6-a726-5ce56923d624 Org 2",
+            "system_count": 1,
+            "system_ids": [
+                "a9b3af62-8404-4b2a-9084-9ed37da6baf1"
+            ],
+            "connection_status": "disconnected"
         },
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": \\"63142926-46a5-498b-9614-01f2f66fd40b\\",
-            \\"executor_type\\": \\"RHC-satellite\\",
-            \\"executor_name\\": \\"Satellite 63142926-46a5-498b-9614-01f2f66fd40b Org 2\\",
-            \\"system_count\\": 5,
-            \\"connection_status\\": \\"connected\\"
+            "endpoint_id": null,
+            "executor_id": "63142926-46a5-498b-9614-01f2f66fd40b",
+            "executor_type": "RHC-satellite",
+            "executor_name": "Satellite 63142926-46a5-498b-9614-01f2f66fd40b Org 2",
+            "system_count": 5,
+            "system_ids": [
+                "35e9b452-e405-499c-9c6e-120010b7b465",
+                "8728dbf3-6500-44bb-a55c-4909a48673ed",
+                "88d0ba73-0015-4e7d-a6d6-4b530cbfb4ad",
+                "baaad5ad-1b8e-457e-ad43-39d1aea40d4d",
+                "e4a0a6ff-0f01-4659-ad9d-44150ade51dd"
+            ],
+            "connection_status": "connected"
         },
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": \\"722ec903-f4b5-4b1f-9c2f-23fc7b0ba390\\",
-            \\"executor_type\\": \\"RHC-satellite\\",
-            \\"executor_name\\": \\"Satellite 722ec903-f4b5-4b1f-9c2f-23fc7b0ba390 Org 2\\",
-            \\"system_count\\": 3,
-            \\"connection_status\\": \\"connected\\"
+            "endpoint_id": null,
+            "executor_id": "722ec903-f4b5-4b1f-9c2f-23fc7b0ba390",
+            "executor_type": "RHC-satellite",
+            "executor_name": "Satellite 722ec903-f4b5-4b1f-9c2f-23fc7b0ba390 Org 2",
+            "system_count": 3,
+            "system_ids": [
+                "355986a3-5f37-40f7-8f36-c3ac928ce190",
+                "881256d7-8f99-4073-be6d-67ee42ba9af8",
+                "b84f4322-a0b8-4fb9-a8dc-8abb9ee16bc0"
+            ],
+            "connection_status": "connected"
         },
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": \\"72f44b25-64a7-4ee7-a94e-3beed9393972\\",
-            \\"executor_type\\": \\"RHC-satellite\\",
-            \\"executor_name\\": \\"Satellite 72f44b25-64a7-4ee7-a94e-3beed9393972 Org 2\\",
-            \\"system_count\\": 3,
-            \\"connection_status\\": \\"connected\\"
+            "endpoint_id": null,
+            "executor_id": "72f44b25-64a7-4ee7-a94e-3beed9393972",
+            "executor_type": "RHC-satellite",
+            "executor_name": "Satellite 72f44b25-64a7-4ee7-a94e-3beed9393972 Org 2",
+            "system_count": 3,
+            "system_ids": [
+                "3fec343b-ecc0-4049-9e30-e4dc2bae9f62",
+                "9574cba7-b9ce-4725-b392-e959afd3e69a",
+                "bd91d212-91ae-4813-a406-d2af96fbeb52"
+            ],
+            "connection_status": "connected"
         },
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": \\"893f2788-c7a6-4cc3-89bc-9066ffda695e\\",
-            \\"executor_type\\": \\"RHC-satellite\\",
-            \\"executor_name\\": \\"Satellite 893f2788-c7a6-4cc3-89bc-9066ffda695e Org 2\\",
-            \\"system_count\\": 2,
-            \\"connection_status\\": \\"connected\\"
+            "endpoint_id": null,
+            "executor_id": "893f2788-c7a6-4cc3-89bc-9066ffda695e",
+            "executor_type": "RHC-satellite",
+            "executor_name": "Satellite 893f2788-c7a6-4cc3-89bc-9066ffda695e Org 2",
+            "system_count": 2,
+            "system_ids": [
+                "34360dba-a2e7-4788-b9a2-44246a865c7e",
+                "64ee45db-6f2b-4862-bc9a-40aea8f5ecbe"
+            ],
+            "connection_status": "connected"
         },
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": \\"893f2788-c7a6-4cc3-89bc-9066ffda695e\\",
-            \\"executor_type\\": \\"RHC-satellite\\",
-            \\"executor_name\\": \\"Satellite 893f2788-c7a6-4cc3-89bc-9066ffda695e Org 6\\",
-            \\"system_count\\": 4,
-            \\"connection_status\\": \\"connected\\"
+            "endpoint_id": null,
+            "executor_id": "893f2788-c7a6-4cc3-89bc-9066ffda695e",
+            "executor_type": "RHC-satellite",
+            "executor_name": "Satellite 893f2788-c7a6-4cc3-89bc-9066ffda695e Org 6",
+            "system_count": 4,
+            "system_ids": [
+                "2a708189-4b48-4642-9443-64bda5f38e5f",
+                "36828b63-38f3-4b9a-ad08-0b7812e5df57",
+                "6f6a889d-6bac-4d53-9bc1-ef75bc1a55ff",
+                "938c5ce7-481f-4b82-815c-2973ca76a0ef"
+            ],
+            "connection_status": "connected"
         },
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": null,
-            \\"executor_type\\": \\"RHC\\",
-            \\"executor_name\\": null,
-            \\"system_count\\": 3,
-            \\"connection_status\\": \\"connected\\"
+            "endpoint_id": null,
+            "executor_id": null,
+            "executor_type": "RHC",
+            "executor_name": null,
+            "system_count": 3,
+            "system_ids": [
+                "0341e468-fbae-416c-b16f-5abb64d99834",
+                "750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4",
+                "d5174274-4307-4fac-84fd-da2c3497657c"
+            ],
+            "connection_status": "connected"
         },
         {
-            \\"endpoint_id\\": null,
-            \\"executor_id\\": null,
-            \\"executor_type\\": \\"None\\",
-            \\"executor_name\\": null,
-            \\"system_count\\": 1,
-            \\"connection_status\\": \\"connected\\"
+            "endpoint_id": null,
+            "executor_id": null,
+            "executor_type": "None",
+            "executor_name": null,
+            "system_count": 1,
+            "system_ids": [
+                "35f36364-6007-4ecc-9666-c4f8d354be9f"
+            ],
+            "connection_status": "no_rhc"
         }
     ]
 }"
 `;
 
-exports[`FiFi playbook run GET /v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?ansible_host=1 1`] = `"{\\"meta\\":{\\"count\\":1,\\"total\\":1},\\"data\\":[{\\"system_id\\":\\"7b136dd2-4824-43cf-af6c-ad0ee42f9f97\\",\\"system_name\\":\\"system-1\\",\\"status\\":\\"running\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd\\"}]}"`;
+exports[`FiFi playbook run GET /v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?ansible_host=1 1`] = `"{"meta":{"count":1,"total":1},"data":[{"system_id":"7b136dd2-4824-43cf-af6c-ad0ee42f9f97","system_name":"system-1","status":"running","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd"}]}"`;
 
-exports[`FiFi playbook run GET /v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?ansible_host=system-1 1`] = `"{\\"meta\\":{\\"count\\":1,\\"total\\":1},\\"data\\":[{\\"system_id\\":\\"7b136dd2-4824-43cf-af6c-ad0ee42f9f97\\",\\"system_name\\":\\"system-1\\",\\"status\\":\\"running\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd\\"}]}"`;
+exports[`FiFi playbook run GET /v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?ansible_host=system-1 1`] = `"{"meta":{"count":1,"total":1},"data":[{"system_id":"7b136dd2-4824-43cf-af6c-ad0ee42f9f97","system_name":"system-1","status":"running","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd"}]}"`;
 
-exports[`FiFi playbook run GET /v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?sort=-system_name 1`] = `"{\\"meta\\":{\\"count\\":3,\\"total\\":3},\\"data\\":[{\\"system_id\\":\\"a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f\\",\\"system_name\\":\\"system-24\\",\\"status\\":\\"pending\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd\\"},{\\"system_id\\":\\"6e64bc58-09be-4f49-b717-c1d469d1ae9c\\",\\"system_name\\":\\"system-23\\",\\"status\\":\\"running\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd\\"},{\\"system_id\\":\\"a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f\\",\\"system_name\\":\\"system-22\\",\\"status\\":\\"pending\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd\\"}]}"`;
+exports[`FiFi playbook run GET /v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?sort=-system_name 1`] = `"{"meta":{"count":3,"total":3},"data":[{"system_id":"a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f","system_name":"system-24","status":"pending","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd"},{"system_id":"6e64bc58-09be-4f49-b717-c1d469d1ae9c","system_name":"system-23","status":"running","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd"},{"system_id":"a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f","system_name":"system-22","status":"pending","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd"}]}"`;
 
-exports[`FiFi playbook run GET /v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?sort=system_name 1`] = `"{\\"meta\\":{\\"count\\":3,\\"total\\":3},\\"data\\":[{\\"system_id\\":\\"a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f\\",\\"system_name\\":\\"system-22\\",\\"status\\":\\"pending\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd\\"},{\\"system_id\\":\\"6e64bc58-09be-4f49-b717-c1d469d1ae9c\\",\\"system_name\\":\\"system-23\\",\\"status\\":\\"running\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd\\"},{\\"system_id\\":\\"a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f\\",\\"system_name\\":\\"system-24\\",\\"status\\":\\"pending\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd\\"}]}"`;
+exports[`FiFi playbook run GET /v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?sort=system_name 1`] = `"{"meta":{"count":3,"total":3},"data":[{"system_id":"a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f","system_name":"system-22","status":"pending","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd"},{"system_id":"6e64bc58-09be-4f49-b717-c1d469d1ae9c","system_name":"system-23","status":"running","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd"},{"system_id":"a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f","system_name":"system-24","status":"pending","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd"}]}"`;
 
-exports[`FiFi playbook run GET pagination playbook_runs/:playbook_run_id/systems?limit=1&offset=1 1`] = `"{\\"meta\\":{\\"count\\":1,\\"total\\":3},\\"data\\":[{\\"system_id\\":\\"6e64bc58-09be-4f49-b717-c1d469d1ae9c\\",\\"system_name\\":\\"system-23\\",\\"status\\":\\"running\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd\\"}]}"`;
+exports[`FiFi playbook run GET pagination playbook_runs/:playbook_run_id/systems?limit=1&offset=1 1`] = `"{"meta":{"count":1,"total":3},"data":[{"system_id":"6e64bc58-09be-4f49-b717-c1d469d1ae9c","system_name":"system-23","status":"running","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd"}]}"`;
 
-exports[`FiFi playbook run GET pagination playbook_runs/:playbook_run_id/systems?limit=1&offset=2 1`] = `"{\\"meta\\":{\\"count\\":1,\\"total\\":3},\\"data\\":[{\\"system_id\\":\\"a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f\\",\\"system_name\\":\\"system-24\\",\\"status\\":\\"pending\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd\\"}]}"`;
+exports[`FiFi playbook run GET pagination playbook_runs/:playbook_run_id/systems?limit=1&offset=2 1`] = `"{"meta":{"count":1,"total":3},"data":[{"system_id":"a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f","system_name":"system-24","status":"pending","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd"}]}"`;
 
-exports[`FiFi playbook run GET pagination playbook_runs/:playbook_run_id/systems?limit=2 1`] = `"{\\"meta\\":{\\"count\\":2,\\"total\\":3},\\"data\\":[{\\"system_id\\":\\"a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f\\",\\"system_name\\":\\"system-22\\",\\"status\\":\\"pending\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd\\"},{\\"system_id\\":\\"6e64bc58-09be-4f49-b717-c1d469d1ae9c\\",\\"system_name\\":\\"system-23\\",\\"status\\":\\"running\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd\\"}]}"`;
+exports[`FiFi playbook run GET pagination playbook_runs/:playbook_run_id/systems?limit=2 1`] = `"{"meta":{"count":2,"total":3},"data":[{"system_id":"a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f","system_name":"system-22","status":"pending","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd"},{"system_id":"6e64bc58-09be-4f49-b717-c1d469d1ae9c","system_name":"system-23","status":"running","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd"}]}"`;
 
-exports[`FiFi playbook run GET pagination playbook_runs?limit=1 1`] = `"{\\"meta\\":{\\"count\\":1,\\"total\\":2},\\"data\\":[{\\"id\\":\\"55d0ba73-0015-4e7d-a6d6-4b530cbfb6de\\",\\"status\\":\\"running\\",\\"remediation_id\\":\\"63d92aeb-9351-4216-8d7c-044d171337bc\\",\\"created_by\\":{\\"username\\":\\"fifi\\",\\"first_name\\":\\"test\\",\\"last_name\\":\\"user\\"},\\"created_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"updated_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"executors\\":[{\\"executor_id\\":\\"99c0ba73-1015-4e7d-a6d6-4b530cbfb7bd\\",\\"executor_name\\":\\"executor-9\\",\\"status\\":\\"running\\",\\"system_count\\":1,\\"counts\\":{\\"pending\\":1,\\"running\\":0,\\"success\\":0,\\"failure\\":0,\\"canceled\\":0}}]}]}"`;
+exports[`FiFi playbook run GET pagination playbook_runs?limit=1 1`] = `"{"meta":{"count":1,"total":2},"data":[{"id":"55d0ba73-0015-4e7d-a6d6-4b530cbfb6de","status":"running","remediation_id":"63d92aeb-9351-4216-8d7c-044d171337bc","created_by":{"username":"fifi","first_name":"test","last_name":"user"},"created_at":"2019-12-23T08:19:36.641Z","updated_at":"2019-12-23T08:19:36.641Z","executors":[{"executor_id":"99c0ba73-1015-4e7d-a6d6-4b530cbfb7bd","executor_name":"executor-9","status":"running","system_count":1,"counts":{"pending":1,"running":0,"success":0,"failure":0,"canceled":0}}]}]}"`;
 
-exports[`FiFi playbook run GET pagination playbook_runs?limit=2 1`] = `"{\\"meta\\":{\\"count\\":2,\\"total\\":2},\\"data\\":[{\\"id\\":\\"55d0ba73-0015-4e7d-a6d6-4b530cbfb6de\\",\\"status\\":\\"running\\",\\"remediation_id\\":\\"63d92aeb-9351-4216-8d7c-044d171337bc\\",\\"created_by\\":{\\"username\\":\\"fifi\\",\\"first_name\\":\\"Fi\\",\\"last_name\\":\\"Fi\\"},\\"created_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"updated_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"executors\\":[{\\"executor_id\\":\\"99c0ba73-1015-4e7d-a6d6-4b530cbfb7bd\\",\\"executor_name\\":\\"executor-9\\",\\"status\\":\\"running\\",\\"system_count\\":1,\\"counts\\":{\\"pending\\":1,\\"running\\":0,\\"success\\":0,\\"failure\\":0,\\"canceled\\":0}}]},{\\"id\\":\\"99d0ba73-0015-4e7d-a6d6-4b530cbfb6de\\",\\"status\\":\\"running\\",\\"remediation_id\\":\\"63d92aeb-9351-4216-8d7c-044d171337bc\\",\\"created_by\\":{\\"username\\":\\"fifi\\",\\"first_name\\":\\"Fi\\",\\"last_name\\":\\"Fi\\"},\\"created_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"updated_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"executors\\":[{\\"executor_id\\":\\"77c0ba73-1015-4e7d-a6d6-4b530cbfb7bd\\",\\"executor_name\\":\\"executor-3\\",\\"status\\":\\"running\\",\\"system_count\\":1,\\"counts\\":{\\"pending\\":1,\\"running\\":0,\\"success\\":0,\\"failure\\":0,\\"canceled\\":0}}]}]}"`;
+exports[`FiFi playbook run GET pagination playbook_runs?limit=2 1`] = `"{"meta":{"count":2,"total":2},"data":[{"id":"55d0ba73-0015-4e7d-a6d6-4b530cbfb6de","status":"running","remediation_id":"63d92aeb-9351-4216-8d7c-044d171337bc","created_by":{"username":"fifi","first_name":"Fi","last_name":"Fi"},"created_at":"2019-12-23T08:19:36.641Z","updated_at":"2019-12-23T08:19:36.641Z","executors":[{"executor_id":"99c0ba73-1015-4e7d-a6d6-4b530cbfb7bd","executor_name":"executor-9","status":"running","system_count":1,"counts":{"pending":1,"running":0,"success":0,"failure":0,"canceled":0}}]},{"id":"99d0ba73-0015-4e7d-a6d6-4b530cbfb6de","status":"running","remediation_id":"63d92aeb-9351-4216-8d7c-044d171337bc","created_by":{"username":"fifi","first_name":"Fi","last_name":"Fi"},"created_at":"2019-12-23T08:19:36.641Z","updated_at":"2019-12-23T08:19:36.641Z","executors":[{"executor_id":"77c0ba73-1015-4e7d-a6d6-4b530cbfb7bd","executor_name":"executor-3","status":"running","system_count":1,"counts":{"pending":1,"running":0,"success":0,"failure":0,"canceled":0}}]}]}"`;
 
-exports[`FiFi playbook run GET pagination playbook_runs?offset=1 1`] = `"{\\"meta\\":{\\"count\\":1,\\"total\\":2},\\"data\\":[{\\"id\\":\\"99d0ba73-0015-4e7d-a6d6-4b530cbfb6de\\",\\"status\\":\\"running\\",\\"remediation_id\\":\\"63d92aeb-9351-4216-8d7c-044d171337bc\\",\\"created_by\\":{\\"username\\":\\"fifi\\",\\"first_name\\":\\"test\\",\\"last_name\\":\\"user\\"},\\"created_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"updated_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"executors\\":[{\\"executor_id\\":\\"77c0ba73-1015-4e7d-a6d6-4b530cbfb7bd\\",\\"executor_name\\":\\"executor-3\\",\\"status\\":\\"running\\",\\"system_count\\":1,\\"counts\\":{\\"pending\\":1,\\"running\\":0,\\"success\\":0,\\"failure\\":0,\\"canceled\\":0}}]}]}"`;
+exports[`FiFi playbook run GET pagination playbook_runs?offset=1 1`] = `"{"meta":{"count":1,"total":2},"data":[{"id":"99d0ba73-0015-4e7d-a6d6-4b530cbfb6de","status":"running","remediation_id":"63d92aeb-9351-4216-8d7c-044d171337bc","created_by":{"username":"fifi","first_name":"test","last_name":"user"},"created_at":"2019-12-23T08:19:36.641Z","updated_at":"2019-12-23T08:19:36.641Z","executors":[{"executor_id":"77c0ba73-1015-4e7d-a6d6-4b530cbfb7bd","executor_name":"executor-3","status":"running","system_count":1,"counts":{"pending":1,"running":0,"success":0,"failure":0,"canceled":0}}]}]}"`;
 
-exports[`FiFi playbook run GET playbook_runs 1`] = `"{\\"meta\\":{\\"count\\":2,\\"total\\":2},\\"data\\":[{\\"id\\":\\"31a70e85-378a-4436-96e9-677cd6fba660\\",\\"status\\":\\"running\\",\\"remediation_id\\":\\"249f142c-2ae3-4c3f-b2ec-c8c5881f8561\\",\\"created_by\\":{\\"username\\":\\"fifi\\",\\"first_name\\":\\"Fi\\",\\"last_name\\":\\"Fi\\"},\\"created_at\\":\\"2020-02-23T06:19:36.641Z\\",\\"updated_at\\":\\"2020-02-23T06:19:36.641Z\\",\\"executors\\":[{\\"executor_id\\":\\"3ee8f640-ec08-46eb-be77-b80785c476d9\\",\\"executor_name\\":\\"executor-25\\",\\"status\\":\\"pending\\",\\"system_count\\":1,\\"counts\\":{\\"pending\\":1,\\"running\\":0,\\"success\\":0,\\"failure\\":0,\\"canceled\\":0}},{\\"executor_id\\":\\"31a70e85-378a-4436-96e9-677cd6fba660\\",\\"executor_name\\":\\"Direct connected\\",\\"status\\":\\"running\\",\\"system_count\\":1,\\"counts\\":{\\"pending\\":0,\\"running\\":1,\\"success\\":0,\\"failure\\":0,\\"canceled\\":0}}]},{\\"id\\":\\"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc\\",\\"status\\":\\"running\\",\\"remediation_id\\":\\"249f142c-2ae3-4c3f-b2ec-c8c5881f8561\\",\\"created_by\\":{\\"username\\":\\"fifi\\",\\"first_name\\":\\"Fi\\",\\"last_name\\":\\"Fi\\"},\\"created_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"updated_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"executors\\":[{\\"executor_id\\":\\"21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd\\",\\"executor_name\\":\\"executor-2\\",\\"status\\":\\"running\\",\\"system_count\\":5,\\"counts\\":{\\"pending\\":0,\\"running\\":0,\\"success\\":0,\\"failure\\":3,\\"canceled\\":2}},{\\"executor_id\\":\\"77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd\\",\\"executor_name\\":\\"executor-1\\",\\"status\\":\\"running\\",\\"system_count\\":6,\\"counts\\":{\\"pending\\":2,\\"running\\":1,\\"success\\":3,\\"failure\\":0,\\"canceled\\":0}},{\\"executor_id\\":\\"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc\\",\\"executor_name\\":\\"Direct connected\\",\\"status\\":\\"running\\",\\"system_count\\":1,\\"counts\\":{\\"pending\\":0,\\"running\\":1,\\"success\\":0,\\"failure\\":0,\\"canceled\\":0}}]}]}"`;
+exports[`FiFi playbook run GET playbook_runs 1`] = `"{"meta":{"count":2,"total":2},"data":[{"id":"31a70e85-378a-4436-96e9-677cd6fba660","status":"running","remediation_id":"249f142c-2ae3-4c3f-b2ec-c8c5881f8561","created_by":{"username":"fifi","first_name":"Fi","last_name":"Fi"},"created_at":"2020-02-23T06:19:36.641Z","updated_at":"2020-02-23T06:19:36.641Z","executors":[{"executor_id":"3ee8f640-ec08-46eb-be77-b80785c476d9","executor_name":"executor-25","status":"pending","system_count":1,"counts":{"pending":1,"running":0,"success":0,"failure":0,"canceled":0}},{"executor_id":"31a70e85-378a-4436-96e9-677cd6fba660","executor_name":"Direct connected","status":"running","system_count":1,"counts":{"pending":0,"running":1,"success":0,"failure":0,"canceled":0}}]},{"id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc","status":"running","remediation_id":"249f142c-2ae3-4c3f-b2ec-c8c5881f8561","created_by":{"username":"fifi","first_name":"Fi","last_name":"Fi"},"created_at":"2019-12-23T08:19:36.641Z","updated_at":"2019-12-23T08:19:36.641Z","executors":[{"executor_id":"21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd","executor_name":"executor-2","status":"running","system_count":5,"counts":{"pending":0,"running":0,"success":0,"failure":3,"canceled":2}},{"executor_id":"77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd","executor_name":"executor-1","status":"running","system_count":6,"counts":{"pending":2,"running":1,"success":3,"failure":0,"canceled":0}},{"executor_id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc","executor_name":"Direct connected","status":"running","system_count":1,"counts":{"pending":0,"running":1,"success":0,"failure":0,"canceled":0}}]}]}"`;
 
-exports[`FiFi playbook run GET playbook_runs/:playbook_run_id 1`] = `"{\\"id\\":\\"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc\\",\\"status\\":\\"running\\",\\"remediation_id\\":\\"249f142c-2ae3-4c3f-b2ec-c8c5881f8561\\",\\"created_by\\":{\\"username\\":\\"fifi\\",\\"first_name\\":\\"test\\",\\"last_name\\":\\"user\\"},\\"created_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"updated_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"executors\\":[{\\"executor_id\\":\\"77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd\\",\\"executor_name\\":\\"executor-1\\",\\"updated_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"playbook\\":\\"---\\\\n# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you\\\\n# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically\\\\n# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as\\\\n# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not\\\\n# responsible for any adverse outcomes related to these recommendations or Playbooks.\\\\n#\\\\n# FiFI playbook 3\\\\n# https://console.redhat.com/insights/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561\\\\n# Generated by Red Hat Insights on Wed, 12 Feb 2020 18:21:15 GMT\\\\n\\\\n# Fixes test:ping\\\\n# Identifier: (test:ping,fix)\\\\n# Version: unknown\\\\n- name: ping\\\\n  hosts: \\\\\\"355986a3-5f37-40f7-8f36-c3ac928ce190.example.com\\\\\\"\\\\n  tasks:\\\\n    - ping:\\\\n\\\\n- name: run insights\\\\n  hosts: \\\\\\"355986a3-5f37-40f7-8f36-c3ac928ce190.example.com\\\\\\"\\\\n  become: True\\\\n  gather_facts: False\\\\n  tasks:\\\\n    - name: run insights\\\\n      command: insights-client\\\\n      changed_when: false\\",\\"playbook_run_id\\":\\"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc\\",\\"status\\":\\"running\\",\\"system_count\\":6,\\"counts\\":{\\"pending\\":2,\\"running\\":1,\\"success\\":3,\\"failure\\":0,\\"canceled\\":0}},{\\"executor_id\\":\\"21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd\\",\\"executor_name\\":\\"executor-2\\",\\"updated_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"playbook\\":\\"---\\\\n# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you\\\\n# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically\\\\n# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as\\\\n# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not\\\\n# responsible for any adverse outcomes related to these recommendations or Playbooks.\\\\n#\\\\n# FiFI playbook 3\\\\n# https://console.redhat.com/insights/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561\\\\n# Generated by Red Hat Insights on Wed, 12 Feb 2020 18:21:15 GMT\\\\n\\\\n# Fixes test:ping\\\\n# Identifier: (test:ping,fix)\\\\n# Version: unknown\\\\n- name: ping\\\\n  hosts: \\\\\\"355986a3-5f37-40f7-8f36-c3ac928ce190.example.com\\\\\\"\\\\n  tasks:\\\\n    - ping:\\\\n\\\\n- name: run insights\\\\n  hosts: \\\\\\"355986a3-5f37-40f7-8f36-c3ac928ce190.example.com\\\\\\"\\\\n  become: True\\\\n  gather_facts: False\\\\n  tasks:\\\\n    - name: run insights\\\\n      command: insights-client\\\\n      changed_when: false\\",\\"playbook_run_id\\":\\"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc\\",\\"status\\":\\"running\\",\\"system_count\\":5,\\"counts\\":{\\"pending\\":0,\\"running\\":0,\\"success\\":0,\\"failure\\":3,\\"canceled\\":2}},{\\"executor_id\\":\\"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc\\",\\"executor_name\\":\\"Direct connected\\",\\"updated_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"playbook\\":\\"https://console.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=9574cba7-b9ce-4725-b392-e959afd3e69a&localhost\\",\\"playbook_run_id\\":\\"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc\\",\\"status\\":\\"running\\",\\"system_count\\":1,\\"counts\\":{\\"pending\\":0,\\"running\\":1,\\"success\\":0,\\"failure\\":0,\\"canceled\\":0}}]}"`;
+exports[`FiFi playbook run GET playbook_runs/:playbook_run_id 1`] = `"{"id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc","status":"running","remediation_id":"249f142c-2ae3-4c3f-b2ec-c8c5881f8561","created_by":{"username":"fifi","first_name":"test","last_name":"user"},"created_at":"2019-12-23T08:19:36.641Z","updated_at":"2019-12-23T08:19:36.641Z","executors":[{"executor_id":"77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd","executor_name":"executor-1","updated_at":"2019-12-23T08:19:36.641Z","playbook":"---\\n# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you\\n# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically\\n# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as\\n# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not\\n# responsible for any adverse outcomes related to these recommendations or Playbooks.\\n#\\n# FiFI playbook 3\\n# https://console.redhat.com/insights/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561\\n# Generated by Red Hat Insights on Wed, 12 Feb 2020 18:21:15 GMT\\n\\n# Fixes test:ping\\n# Identifier: (test:ping,fix)\\n# Version: unknown\\n- name: ping\\n  hosts: \\"355986a3-5f37-40f7-8f36-c3ac928ce190.example.com\\"\\n  tasks:\\n    - ping:\\n\\n- name: run insights\\n  hosts: \\"355986a3-5f37-40f7-8f36-c3ac928ce190.example.com\\"\\n  become: True\\n  gather_facts: False\\n  tasks:\\n    - name: run insights\\n      command: insights-client\\n      changed_when: false","playbook_run_id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc","status":"running","system_count":6,"counts":{"pending":2,"running":1,"success":3,"failure":0,"canceled":0}},{"executor_id":"21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd","executor_name":"executor-2","updated_at":"2019-12-23T08:19:36.641Z","playbook":"---\\n# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you\\n# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically\\n# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as\\n# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not\\n# responsible for any adverse outcomes related to these recommendations or Playbooks.\\n#\\n# FiFI playbook 3\\n# https://console.redhat.com/insights/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561\\n# Generated by Red Hat Insights on Wed, 12 Feb 2020 18:21:15 GMT\\n\\n# Fixes test:ping\\n# Identifier: (test:ping,fix)\\n# Version: unknown\\n- name: ping\\n  hosts: \\"355986a3-5f37-40f7-8f36-c3ac928ce190.example.com\\"\\n  tasks:\\n    - ping:\\n\\n- name: run insights\\n  hosts: \\"355986a3-5f37-40f7-8f36-c3ac928ce190.example.com\\"\\n  become: True\\n  gather_facts: False\\n  tasks:\\n    - name: run insights\\n      command: insights-client\\n      changed_when: false","playbook_run_id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc","status":"running","system_count":5,"counts":{"pending":0,"running":0,"success":0,"failure":3,"canceled":2}},{"executor_id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc","executor_name":"Direct connected","updated_at":"2019-12-23T08:19:36.641Z","playbook":"https://console.redhat.com/api/remediations/v1/remediations/f376d664-5725-498d-8cf9-bbfaa51b80ca/playbook?hosts=9574cba7-b9ce-4725-b392-e959afd3e69a&localhost","playbook_run_id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc","status":"running","system_count":1,"counts":{"pending":0,"running":1,"success":0,"failure":0,"canceled":0}}]}"`;
 
-exports[`FiFi playbook run GET playbook_runs/:playbook_run_id/systems 1`] = `"{\\"meta\\":{\\"count\\":3,\\"total\\":3},\\"data\\":[{\\"system_id\\":\\"a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f\\",\\"system_name\\":\\"system-22\\",\\"status\\":\\"pending\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd\\"},{\\"system_id\\":\\"6e64bc58-09be-4f49-b717-c1d469d1ae9c\\",\\"system_name\\":\\"system-23\\",\\"status\\":\\"running\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd\\"},{\\"system_id\\":\\"a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f\\",\\"system_name\\":\\"system-24\\",\\"status\\":\\"pending\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd\\"}]}"`;
+exports[`FiFi playbook run GET playbook_runs/:playbook_run_id with >50 direct systems 1`] = `
+{
+  "created_at": "2019-12-24T08:19:36.641Z",
+  "created_by": {
+    "first_name": "test",
+    "last_name": "user",
+    "username": "fifi",
+  },
+  "executors": [
+    {
+      "counts": {
+        "canceled": 0,
+        "failure": 0,
+        "pending": 0,
+        "running": 0,
+        "success": 120,
+      },
+      "executor_id": "11f7f24a-346b-405c-8dcc-c953511fb21c",
+      "executor_name": "Direct connected",
+      "playbook": "https://cert.cloud.stage.redhat.com/api/remediations/v1/remediations/dd6a0b1b-5331-4e7b-92ec-9a01806fb181/playbook?hosts=6f23462c-df72-455f-8b2f-d5ae6f3b617b&localhost",
+      "playbook_run_id": "11f7f24a-346b-405c-8dcc-c953511fb21c",
+      "status": "success",
+      "system_count": 120,
+      "updated_at": "2019-12-24T08:19:36.641Z",
+    },
+  ],
+  "id": "11f7f24a-346b-405c-8dcc-c953511fb21c",
+  "remediation_id": "dd6a0b1b-5331-4e7b-92ec-9a01806fb181",
+  "status": "success",
+  "updated_at": "2019-12-24T08:19:36.641Z",
+}
+`;
 
-exports[`FiFi playbook run GET playbook_runs/:playbook_run_id/systems with RHC systems 1`] = `"{\\"meta\\":{\\"count\\":12,\\"total\\":12},\\"data\\":[{\\"system_id\\":\\"07adc41a-a6c6-426a-a0d5-c7ba08954153\\",\\"system_name\\":\\"localhost\\",\\"status\\":\\"running\\",\\"updated_at\\":\\"2018-10-04T08:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc\\"},{\\"system_id\\":\\"7b136dd2-4824-43cf-af6c-ad0ee42f9f97\\",\\"system_name\\":\\"system-1\\",\\"status\\":\\"running\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd\\"},{\\"system_id\\":\\"3590ba1a-e0df-4092-9c23-bca863b28573\\",\\"system_name\\":\\"system-2\\",\\"status\\":\\"success\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd\\"},{\\"system_id\\":\\"d6306be7-57eb-4734-8f27-9faf0186bc06\\",\\"system_name\\":\\"system-28\\",\\"status\\":\\"failure\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"55c0ba73-0215-4e7d-a6d6-4b530cbfb5bd\\"},{\\"system_id\\":\\"f33a7ff9-bbad-4660-90c2-d0964c581bfe\\",\\"system_name\\":\\"system-29\\",\\"status\\":\\"failure\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"55c0ba73-0215-4e7d-a6d6-4b530cbfb5bd\\"},{\\"system_id\\":\\"6d08f590-dff9-473b-88d4-45316cbf5545\\",\\"system_name\\":\\"system-3\\",\\"status\\":\\"success\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd\\"},{\\"system_id\\":\\"5969570e-3185-4070-92be-7b4c49974da6\\",\\"system_name\\":\\"system-4\\",\\"status\\":\\"success\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd\\"},{\\"system_id\\":\\"4da7a4ac-2945-4e41-911a-c1f25d8137af\\",\\"system_name\\":\\"system-5\\",\\"status\\":\\"pending\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd\\"},{\\"system_id\\":\\"3abc1295-6326-46bb-9b6c-c8ac1bc1cbd9\\",\\"system_name\\":\\"system-6\\",\\"status\\":\\"pending\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd\\"},{\\"system_id\\":\\"a68f36f4-b9b1-4eae-b0ad-dc528bf6b16f\\",\\"system_name\\":\\"system-7\\",\\"status\\":\\"failure\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"55c0ba73-0215-4e7d-a6d6-4b530cbfb5bd\\"},{\\"system_id\\":\\"29f94400-012e-4222-90d3-f6a040c5b89e\\",\\"system_name\\":\\"system-8\\",\\"status\\":\\"canceled\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"55c0ba73-0215-4e7d-a6d6-4b530cbfb5bd\\"},{\\"system_id\\":\\"3f39215e-a463-464e-a987-aaab0e50349a\\",\\"system_name\\":\\"system-9\\",\\"status\\":\\"canceled\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"55c0ba73-0215-4e7d-a6d6-4b530cbfb5bd\\"}]}"`;
+exports[`FiFi playbook run GET playbook_runs/:playbook_run_id/systems 1`] = `"{"meta":{"count":3,"total":3},"data":[{"system_id":"a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f","system_name":"system-22","status":"pending","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd"},{"system_id":"6e64bc58-09be-4f49-b717-c1d469d1ae9c","system_name":"system-23","status":"running","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd"},{"system_id":"a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f","system_name":"system-24","status":"pending","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd"}]}"`;
 
-exports[`FiFi playbook run GET playbook_runs/:playbook_run_id/systems/:system 1`] = `"{\\"system_id\\":\\"7b136dd2-4824-43cf-af6c-ad0ee42f9f97\\",\\"system_name\\":\\"system-1\\",\\"status\\":\\"running\\",\\"console\\":\\"These are the logs for console-5\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd\\"}"`;
+exports[`FiFi playbook run GET playbook_runs/:playbook_run_id/systems with RHC systems 1`] = `"{"meta":{"count":12,"total":12},"data":[{"system_id":"07adc41a-a6c6-426a-a0d5-c7ba08954153","system_name":"localhost","status":"running","updated_at":"2018-10-04T08:19:36.641Z","playbook_run_executor_id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc"},{"system_id":"7b136dd2-4824-43cf-af6c-ad0ee42f9f97","system_name":"system-1","status":"running","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd"},{"system_id":"3590ba1a-e0df-4092-9c23-bca863b28573","system_name":"system-2","status":"success","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd"},{"system_id":"d6306be7-57eb-4734-8f27-9faf0186bc06","system_name":"system-28","status":"failure","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"55c0ba73-0215-4e7d-a6d6-4b530cbfb5bd"},{"system_id":"f33a7ff9-bbad-4660-90c2-d0964c581bfe","system_name":"system-29","status":"failure","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"55c0ba73-0215-4e7d-a6d6-4b530cbfb5bd"},{"system_id":"6d08f590-dff9-473b-88d4-45316cbf5545","system_name":"system-3","status":"success","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd"},{"system_id":"5969570e-3185-4070-92be-7b4c49974da6","system_name":"system-4","status":"success","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd"},{"system_id":"4da7a4ac-2945-4e41-911a-c1f25d8137af","system_name":"system-5","status":"pending","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd"},{"system_id":"3abc1295-6326-46bb-9b6c-c8ac1bc1cbd9","system_name":"system-6","status":"pending","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd"},{"system_id":"a68f36f4-b9b1-4eae-b0ad-dc528bf6b16f","system_name":"system-7","status":"failure","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"55c0ba73-0215-4e7d-a6d6-4b530cbfb5bd"},{"system_id":"29f94400-012e-4222-90d3-f6a040c5b89e","system_name":"system-8","status":"canceled","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"55c0ba73-0215-4e7d-a6d6-4b530cbfb5bd"},{"system_id":"3f39215e-a463-464e-a987-aaab0e50349a","system_name":"system-9","status":"canceled","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"55c0ba73-0215-4e7d-a6d6-4b530cbfb5bd"}]}"`;
 
-exports[`FiFi playbook run GET playbook_runs/:playbook_run_id/systems/:system with RHC system 1`] = `"{\\"system_id\\":\\"17adc41a-a6c6-426a-a0d5-c7ba08954154\\",\\"system_name\\":\\"localhost\\",\\"status\\":\\"running\\",\\"console\\":\\"console log goes here\\",\\"updated_at\\":\\"2018-10-04T08:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"31a70e85-378a-4436-96e9-677cd6fba660\\"}"`;
+exports[`FiFi playbook run GET playbook_runs/:playbook_run_id/systems/:system 1`] = `"{"system_id":"7b136dd2-4824-43cf-af6c-ad0ee42f9f97","system_name":"system-1","status":"running","console":"These are the logs for console-5","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd"}"`;
 
-exports[`FiFi playbook run GET playbook_runs/:playbook_run_id/systems?:executor 1`] = `"{\\"meta\\":{\\"count\\":2,\\"total\\":2},\\"data\\":[{\\"system_id\\":\\"a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f\\",\\"system_name\\":\\"system-22\\",\\"status\\":\\"pending\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd\\"},{\\"system_id\\":\\"6e64bc58-09be-4f49-b717-c1d469d1ae9c\\",\\"system_name\\":\\"system-23\\",\\"status\\":\\"running\\",\\"updated_at\\":\\"2019-12-23T18:19:36.641Z\\",\\"playbook_run_executor_id\\":\\"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd\\"}]}"`;
+exports[`FiFi playbook run GET playbook_runs/:playbook_run_id/systems/:system with RHC system 1`] = `"{"system_id":"17adc41a-a6c6-426a-a0d5-c7ba08954154","system_name":"localhost","status":"running","console":"console log goes here","updated_at":"2018-10-04T08:19:36.641Z","playbook_run_executor_id":"31a70e85-378a-4436-96e9-677cd6fba660"}"`;
 
-exports[`FiFi playbook run GET sort playbook_runs?sort=-updated_at 1`] = `"{\\"meta\\":{\\"count\\":2,\\"total\\":2},\\"data\\":[{\\"id\\":\\"31a70e85-378a-4436-96e9-677cd6fba660\\",\\"status\\":\\"running\\",\\"remediation_id\\":\\"249f142c-2ae3-4c3f-b2ec-c8c5881f8561\\",\\"created_by\\":{\\"username\\":\\"fifi\\",\\"first_name\\":\\"Fi\\",\\"last_name\\":\\"Fi\\"},\\"created_at\\":\\"2020-02-23T06:19:36.641Z\\",\\"updated_at\\":\\"2020-02-23T06:19:36.641Z\\",\\"executors\\":[{\\"executor_id\\":\\"3ee8f640-ec08-46eb-be77-b80785c476d9\\",\\"executor_name\\":\\"executor-25\\",\\"status\\":\\"pending\\",\\"system_count\\":1,\\"counts\\":{\\"pending\\":1,\\"running\\":0,\\"success\\":0,\\"failure\\":0,\\"canceled\\":0}},{\\"executor_id\\":\\"31a70e85-378a-4436-96e9-677cd6fba660\\",\\"executor_name\\":\\"Direct connected\\",\\"status\\":\\"running\\",\\"system_count\\":1,\\"counts\\":{\\"pending\\":0,\\"running\\":1,\\"success\\":0,\\"failure\\":0,\\"canceled\\":0}}]},{\\"id\\":\\"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc\\",\\"status\\":\\"running\\",\\"remediation_id\\":\\"249f142c-2ae3-4c3f-b2ec-c8c5881f8561\\",\\"created_by\\":{\\"username\\":\\"fifi\\",\\"first_name\\":\\"Fi\\",\\"last_name\\":\\"Fi\\"},\\"created_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"updated_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"executors\\":[{\\"executor_id\\":\\"21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd\\",\\"executor_name\\":\\"executor-2\\",\\"status\\":\\"running\\",\\"system_count\\":5,\\"counts\\":{\\"pending\\":0,\\"running\\":0,\\"success\\":0,\\"failure\\":3,\\"canceled\\":2}},{\\"executor_id\\":\\"77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd\\",\\"executor_name\\":\\"executor-1\\",\\"status\\":\\"running\\",\\"system_count\\":6,\\"counts\\":{\\"pending\\":2,\\"running\\":1,\\"success\\":3,\\"failure\\":0,\\"canceled\\":0}},{\\"executor_id\\":\\"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc\\",\\"executor_name\\":\\"Direct connected\\",\\"status\\":\\"running\\",\\"system_count\\":1,\\"counts\\":{\\"pending\\":0,\\"running\\":1,\\"success\\":0,\\"failure\\":0,\\"canceled\\":0}}]}]}"`;
+exports[`FiFi playbook run GET playbook_runs/:playbook_run_id/systems?:executor 1`] = `"{"meta":{"count":2,"total":2},"data":[{"system_id":"a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f","system_name":"system-22","status":"pending","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd"},{"system_id":"6e64bc58-09be-4f49-b717-c1d469d1ae9c","system_name":"system-23","status":"running","updated_at":"2019-12-23T18:19:36.641Z","playbook_run_executor_id":"66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd"}]}"`;
 
-exports[`FiFi playbook run GET sort playbook_runs?sort=updated_at 1`] = `"{\\"meta\\":{\\"count\\":2,\\"total\\":2},\\"data\\":[{\\"id\\":\\"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc\\",\\"status\\":\\"running\\",\\"remediation_id\\":\\"249f142c-2ae3-4c3f-b2ec-c8c5881f8561\\",\\"created_by\\":{\\"username\\":\\"fifi\\",\\"first_name\\":\\"Fi\\",\\"last_name\\":\\"Fi\\"},\\"created_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"updated_at\\":\\"2019-12-23T08:19:36.641Z\\",\\"executors\\":[{\\"executor_id\\":\\"21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd\\",\\"executor_name\\":\\"executor-2\\",\\"status\\":\\"running\\",\\"system_count\\":5,\\"counts\\":{\\"pending\\":0,\\"running\\":0,\\"success\\":0,\\"failure\\":3,\\"canceled\\":2}},{\\"executor_id\\":\\"77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd\\",\\"executor_name\\":\\"executor-1\\",\\"status\\":\\"running\\",\\"system_count\\":6,\\"counts\\":{\\"pending\\":2,\\"running\\":1,\\"success\\":3,\\"failure\\":0,\\"canceled\\":0}},{\\"executor_id\\":\\"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc\\",\\"executor_name\\":\\"Direct connected\\",\\"status\\":\\"running\\",\\"system_count\\":1,\\"counts\\":{\\"pending\\":0,\\"running\\":1,\\"success\\":0,\\"failure\\":0,\\"canceled\\":0}}]},{\\"id\\":\\"31a70e85-378a-4436-96e9-677cd6fba660\\",\\"status\\":\\"running\\",\\"remediation_id\\":\\"249f142c-2ae3-4c3f-b2ec-c8c5881f8561\\",\\"created_by\\":{\\"username\\":\\"fifi\\",\\"first_name\\":\\"Fi\\",\\"last_name\\":\\"Fi\\"},\\"created_at\\":\\"2020-02-23T06:19:36.641Z\\",\\"updated_at\\":\\"2020-02-23T06:19:36.641Z\\",\\"executors\\":[{\\"executor_id\\":\\"3ee8f640-ec08-46eb-be77-b80785c476d9\\",\\"executor_name\\":\\"executor-25\\",\\"status\\":\\"pending\\",\\"system_count\\":1,\\"counts\\":{\\"pending\\":1,\\"running\\":0,\\"success\\":0,\\"failure\\":0,\\"canceled\\":0}},{\\"executor_id\\":\\"31a70e85-378a-4436-96e9-677cd6fba660\\",\\"executor_name\\":\\"Direct connected\\",\\"status\\":\\"running\\",\\"system_count\\":1,\\"counts\\":{\\"pending\\":0,\\"running\\":1,\\"success\\":0,\\"failure\\":0,\\"canceled\\":0}}]}]}"`;
+exports[`FiFi playbook run GET sort playbook_runs?sort=-updated_at 1`] = `"{"meta":{"count":2,"total":2},"data":[{"id":"31a70e85-378a-4436-96e9-677cd6fba660","status":"running","remediation_id":"249f142c-2ae3-4c3f-b2ec-c8c5881f8561","created_by":{"username":"fifi","first_name":"Fi","last_name":"Fi"},"created_at":"2020-02-23T06:19:36.641Z","updated_at":"2020-02-23T06:19:36.641Z","executors":[{"executor_id":"3ee8f640-ec08-46eb-be77-b80785c476d9","executor_name":"executor-25","status":"pending","system_count":1,"counts":{"pending":1,"running":0,"success":0,"failure":0,"canceled":0}},{"executor_id":"31a70e85-378a-4436-96e9-677cd6fba660","executor_name":"Direct connected","status":"running","system_count":1,"counts":{"pending":0,"running":1,"success":0,"failure":0,"canceled":0}}]},{"id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc","status":"running","remediation_id":"249f142c-2ae3-4c3f-b2ec-c8c5881f8561","created_by":{"username":"fifi","first_name":"Fi","last_name":"Fi"},"created_at":"2019-12-23T08:19:36.641Z","updated_at":"2019-12-23T08:19:36.641Z","executors":[{"executor_id":"21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd","executor_name":"executor-2","status":"running","system_count":5,"counts":{"pending":0,"running":0,"success":0,"failure":3,"canceled":2}},{"executor_id":"77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd","executor_name":"executor-1","status":"running","system_count":6,"counts":{"pending":2,"running":1,"success":3,"failure":0,"canceled":0}},{"executor_id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc","executor_name":"Direct connected","status":"running","system_count":1,"counts":{"pending":0,"running":1,"success":0,"failure":0,"canceled":0}}]}]}"`;
+
+exports[`FiFi playbook run GET sort playbook_runs?sort=updated_at 1`] = `"{"meta":{"count":2,"total":2},"data":[{"id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc","status":"running","remediation_id":"249f142c-2ae3-4c3f-b2ec-c8c5881f8561","created_by":{"username":"fifi","first_name":"Fi","last_name":"Fi"},"created_at":"2019-12-23T08:19:36.641Z","updated_at":"2019-12-23T08:19:36.641Z","executors":[{"executor_id":"21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd","executor_name":"executor-2","status":"running","system_count":5,"counts":{"pending":0,"running":0,"success":0,"failure":3,"canceled":2}},{"executor_id":"77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd","executor_name":"executor-1","status":"running","system_count":6,"counts":{"pending":2,"running":1,"success":3,"failure":0,"canceled":0}},{"executor_id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc","executor_name":"Direct connected","status":"running","system_count":1,"counts":{"pending":0,"running":1,"success":0,"failure":0,"canceled":0}}]},{"id":"31a70e85-378a-4436-96e9-677cd6fba660","status":"running","remediation_id":"249f142c-2ae3-4c3f-b2ec-c8c5881f8561","created_by":{"username":"fifi","first_name":"Fi","last_name":"Fi"},"created_at":"2020-02-23T06:19:36.641Z","updated_at":"2020-02-23T06:19:36.641Z","executors":[{"executor_id":"3ee8f640-ec08-46eb-be77-b80785c476d9","executor_name":"executor-25","status":"pending","system_count":1,"counts":{"pending":1,"running":0,"success":0,"failure":0,"canceled":0}},{"executor_id":"31a70e85-378a-4436-96e9-677cd6fba660","executor_name":"Direct connected","status":"running","system_count":1,"counts":{"pending":0,"running":1,"success":0,"failure":0,"canceled":0}}]}]}"`;
 
 exports[`FiFi playbook run POST check object being send to receptor connector 1`] = `
 Array [
@@ -393,159 +669,159 @@ Array [
 `;
 
 exports[`FiFi playbook run POST exclude RHC is case-insensitive 1`] = `
-Array [
-  Array [
-    Array [
-      Object {
-        "hosts": Array [
-          Object {
+[
+  [
+    [
+      {
+        "hosts": [
+          {
             "inventory_id": "2a708189-4b48-4642-9443-64bda5f38e5f",
           },
-          Object {
+          {
             "inventory_id": "36828b63-38f3-4b9a-ad08-0b7812e5df57",
           },
-          Object {
+          {
             "inventory_id": "6f6a889d-6bac-4d53-9bc1-ef75bc1a55ff",
           },
-          Object {
+          {
             "inventory_id": "938c5ce7-481f-4b82-815c-2973ca76a0ef",
           },
         ],
-        "labels": Object {
+        "labels": {
           "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
         },
         "name": "FiFI playbook 5",
         "org_id": "6666666",
         "principal": "fifi",
         "recipient": "beefface-c7a6-4cc3-89bc-9066ffda695e",
-        "recipient_config": Object {
+        "recipient_config": {
           "sat_id": "893f2788-c7a6-4cc3-89bc-9066ffda695e",
           "sat_org_id": "6",
         },
         "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=2a708189-4b48-4642-9443-64bda5f38e5f&hosts=36828b63-38f3-4b9a-ad08-0b7812e5df57&hosts=6f6a889d-6bac-4d53-9bc1-ef75bc1a55ff&hosts=938c5ce7-481f-4b82-815c-2973ca76a0ef",
         "web_console_url": "https://console.redhat.com/insights/remediations",
       },
-      Object {
-        "hosts": Array [
-          Object {
+      {
+        "hosts": [
+          {
             "inventory_id": "34360dba-a2e7-4788-b9a2-44246a865c7e",
           },
-          Object {
+          {
             "inventory_id": "64ee45db-6f2b-4862-bc9a-40aea8f5ecbe",
           },
         ],
-        "labels": Object {
+        "labels": {
           "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
         },
         "name": "FiFI playbook 5",
         "org_id": "6666666",
         "principal": "fifi",
         "recipient": "beefface-c7a6-4cc3-89bc-9066ffda695e",
-        "recipient_config": Object {
+        "recipient_config": {
           "sat_id": "893f2788-c7a6-4cc3-89bc-9066ffda695e",
           "sat_org_id": "2",
         },
         "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=34360dba-a2e7-4788-b9a2-44246a865c7e&hosts=64ee45db-6f2b-4862-bc9a-40aea8f5ecbe",
         "web_console_url": "https://console.redhat.com/insights/remediations",
       },
-      Object {
-        "hosts": Array [
-          Object {
+      {
+        "hosts": [
+          {
             "inventory_id": "355986a3-5f37-40f7-8f36-c3ac928ce190",
           },
-          Object {
+          {
             "inventory_id": "881256d7-8f99-4073-be6d-67ee42ba9af8",
           },
-          Object {
+          {
             "inventory_id": "b84f4322-a0b8-4fb9-a8dc-8abb9ee16bc0",
           },
         ],
-        "labels": Object {
+        "labels": {
           "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
         },
         "name": "FiFI playbook 5",
         "org_id": "6666666",
         "principal": "fifi",
         "recipient": "beefface-f4b5-4b1f-9c2f-23fc7b0ba390",
-        "recipient_config": Object {
+        "recipient_config": {
           "sat_id": "722ec903-f4b5-4b1f-9c2f-23fc7b0ba390",
           "sat_org_id": "2",
         },
         "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=355986a3-5f37-40f7-8f36-c3ac928ce190&hosts=881256d7-8f99-4073-be6d-67ee42ba9af8&hosts=b84f4322-a0b8-4fb9-a8dc-8abb9ee16bc0",
         "web_console_url": "https://console.redhat.com/insights/remediations",
       },
-      Object {
-        "hosts": Array [
-          Object {
+      {
+        "hosts": [
+          {
             "inventory_id": "35e9b452-e405-499c-9c6e-120010b7b465",
           },
-          Object {
+          {
             "inventory_id": "8728dbf3-6500-44bb-a55c-4909a48673ed",
           },
-          Object {
+          {
             "inventory_id": "88d0ba73-0015-4e7d-a6d6-4b530cbfb4ad",
           },
-          Object {
+          {
             "inventory_id": "baaad5ad-1b8e-457e-ad43-39d1aea40d4d",
           },
-          Object {
+          {
             "inventory_id": "e4a0a6ff-0f01-4659-ad9d-44150ade51dd",
           },
         ],
-        "labels": Object {
+        "labels": {
           "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
         },
         "name": "FiFI playbook 5",
         "org_id": "6666666",
         "principal": "fifi",
         "recipient": "beefface-46a5-498b-9614-01f2f66fd40b",
-        "recipient_config": Object {
+        "recipient_config": {
           "sat_id": "63142926-46a5-498b-9614-01f2f66fd40b",
           "sat_org_id": "2",
         },
         "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=35e9b452-e405-499c-9c6e-120010b7b465&hosts=8728dbf3-6500-44bb-a55c-4909a48673ed&hosts=88d0ba73-0015-4e7d-a6d6-4b530cbfb4ad&hosts=baaad5ad-1b8e-457e-ad43-39d1aea40d4d&hosts=e4a0a6ff-0f01-4659-ad9d-44150ade51dd",
         "web_console_url": "https://console.redhat.com/insights/remediations",
       },
-      Object {
-        "hosts": Array [
-          Object {
+      {
+        "hosts": [
+          {
             "inventory_id": "3fec343b-ecc0-4049-9e30-e4dc2bae9f62",
           },
-          Object {
+          {
             "inventory_id": "9574cba7-b9ce-4725-b392-e959afd3e69a",
           },
-          Object {
+          {
             "inventory_id": "bd91d212-91ae-4813-a406-d2af96fbeb52",
           },
         ],
-        "labels": Object {
+        "labels": {
           "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
         },
         "name": "FiFI playbook 5",
         "org_id": "6666666",
         "principal": "fifi",
         "recipient": "beefface-64a7-4ee7-a94e-3beed9393972",
-        "recipient_config": Object {
+        "recipient_config": {
           "sat_id": "72f44b25-64a7-4ee7-a94e-3beed9393972",
           "sat_org_id": "2",
         },
         "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=3fec343b-ecc0-4049-9e30-e4dc2bae9f62&hosts=9574cba7-b9ce-4725-b392-e959afd3e69a&hosts=bd91d212-91ae-4813-a406-d2af96fbeb52",
         "web_console_url": "https://console.redhat.com/insights/remediations",
       },
-      Object {
-        "hosts": Array [
-          Object {
+      {
+        "hosts": [
+          {
             "inventory_id": "95c5ee0d-9599-475f-a8ef-c838545b9a73",
           },
         ],
-        "labels": Object {
+        "labels": {
           "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
         },
         "name": "FiFI playbook 5",
         "org_id": "6666666",
         "principal": "fifi",
         "recipient": "beefface-6092-485c-ba04-c656d77f988a",
-        "recipient_config": Object {
+        "recipient_config": {
           "sat_id": "01bf542e-6092-485c-ba04-c656d77f988a",
           "sat_org_id": "2",
         },
@@ -558,147 +834,147 @@ Array [
 `;
 
 exports[`FiFi playbook run POST exclude one of the connected executors 1`] = `
-Array [
-  Array [
-    Array [
-      Object {
-        "hosts": Array [
-          Object {
+[
+  [
+    [
+      {
+        "hosts": [
+          {
             "inventory_id": "2a708189-4b48-4642-9443-64bda5f38e5f",
           },
-          Object {
+          {
             "inventory_id": "36828b63-38f3-4b9a-ad08-0b7812e5df57",
           },
-          Object {
+          {
             "inventory_id": "6f6a889d-6bac-4d53-9bc1-ef75bc1a55ff",
           },
-          Object {
+          {
             "inventory_id": "938c5ce7-481f-4b82-815c-2973ca76a0ef",
           },
         ],
-        "labels": Object {
+        "labels": {
           "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
         },
         "name": "FiFI playbook 5",
         "org_id": "6666666",
         "principal": "fifi",
         "recipient": "beefface-c7a6-4cc3-89bc-9066ffda695e",
-        "recipient_config": Object {
+        "recipient_config": {
           "sat_id": "893f2788-c7a6-4cc3-89bc-9066ffda695e",
           "sat_org_id": "6",
         },
         "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=2a708189-4b48-4642-9443-64bda5f38e5f&hosts=36828b63-38f3-4b9a-ad08-0b7812e5df57&hosts=6f6a889d-6bac-4d53-9bc1-ef75bc1a55ff&hosts=938c5ce7-481f-4b82-815c-2973ca76a0ef",
         "web_console_url": "https://console.redhat.com/insights/remediations",
       },
-      Object {
-        "hosts": Array [
-          Object {
+      {
+        "hosts": [
+          {
             "inventory_id": "34360dba-a2e7-4788-b9a2-44246a865c7e",
           },
-          Object {
+          {
             "inventory_id": "64ee45db-6f2b-4862-bc9a-40aea8f5ecbe",
           },
         ],
-        "labels": Object {
+        "labels": {
           "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
         },
         "name": "FiFI playbook 5",
         "org_id": "6666666",
         "principal": "fifi",
         "recipient": "beefface-c7a6-4cc3-89bc-9066ffda695e",
-        "recipient_config": Object {
+        "recipient_config": {
           "sat_id": "893f2788-c7a6-4cc3-89bc-9066ffda695e",
           "sat_org_id": "2",
         },
         "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=34360dba-a2e7-4788-b9a2-44246a865c7e&hosts=64ee45db-6f2b-4862-bc9a-40aea8f5ecbe",
         "web_console_url": "https://console.redhat.com/insights/remediations",
       },
-      Object {
-        "hosts": Array [
-          Object {
+      {
+        "hosts": [
+          {
             "inventory_id": "35e9b452-e405-499c-9c6e-120010b7b465",
           },
-          Object {
+          {
             "inventory_id": "8728dbf3-6500-44bb-a55c-4909a48673ed",
           },
-          Object {
+          {
             "inventory_id": "88d0ba73-0015-4e7d-a6d6-4b530cbfb4ad",
           },
-          Object {
+          {
             "inventory_id": "baaad5ad-1b8e-457e-ad43-39d1aea40d4d",
           },
-          Object {
+          {
             "inventory_id": "e4a0a6ff-0f01-4659-ad9d-44150ade51dd",
           },
         ],
-        "labels": Object {
+        "labels": {
           "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
         },
         "name": "FiFI playbook 5",
         "org_id": "6666666",
         "principal": "fifi",
         "recipient": "beefface-46a5-498b-9614-01f2f66fd40b",
-        "recipient_config": Object {
+        "recipient_config": {
           "sat_id": "63142926-46a5-498b-9614-01f2f66fd40b",
           "sat_org_id": "2",
         },
         "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=35e9b452-e405-499c-9c6e-120010b7b465&hosts=8728dbf3-6500-44bb-a55c-4909a48673ed&hosts=88d0ba73-0015-4e7d-a6d6-4b530cbfb4ad&hosts=baaad5ad-1b8e-457e-ad43-39d1aea40d4d&hosts=e4a0a6ff-0f01-4659-ad9d-44150ade51dd",
         "web_console_url": "https://console.redhat.com/insights/remediations",
       },
-      Object {
-        "hosts": Array [
-          Object {
+      {
+        "hosts": [
+          {
             "inventory_id": "3fec343b-ecc0-4049-9e30-e4dc2bae9f62",
           },
-          Object {
+          {
             "inventory_id": "9574cba7-b9ce-4725-b392-e959afd3e69a",
           },
-          Object {
+          {
             "inventory_id": "bd91d212-91ae-4813-a406-d2af96fbeb52",
           },
         ],
-        "labels": Object {
+        "labels": {
           "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
         },
         "name": "FiFI playbook 5",
         "org_id": "6666666",
         "principal": "fifi",
         "recipient": "beefface-64a7-4ee7-a94e-3beed9393972",
-        "recipient_config": Object {
+        "recipient_config": {
           "sat_id": "72f44b25-64a7-4ee7-a94e-3beed9393972",
           "sat_org_id": "2",
         },
         "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=3fec343b-ecc0-4049-9e30-e4dc2bae9f62&hosts=9574cba7-b9ce-4725-b392-e959afd3e69a&hosts=bd91d212-91ae-4813-a406-d2af96fbeb52",
         "web_console_url": "https://console.redhat.com/insights/remediations",
       },
-      Object {
-        "hosts": Array [
-          Object {
+      {
+        "hosts": [
+          {
             "inventory_id": "95c5ee0d-9599-475f-a8ef-c838545b9a73",
           },
         ],
-        "labels": Object {
+        "labels": {
           "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
         },
         "name": "FiFI playbook 5",
         "org_id": "6666666",
         "principal": "fifi",
         "recipient": "beefface-6092-485c-ba04-c656d77f988a",
-        "recipient_config": Object {
+        "recipient_config": {
           "sat_id": "01bf542e-6092-485c-ba04-c656d77f988a",
           "sat_org_id": "2",
         },
         "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=95c5ee0d-9599-475f-a8ef-c838545b9a73",
         "web_console_url": "https://console.redhat.com/insights/remediations",
       },
-      Object {
-        "hosts": Array [
-          Object {
+      {
+        "hosts": [
+          {
             "ansible_host": "localhost",
             "inventory_id": "0341e468-fbae-416c-b16f-5abb64d99834",
           },
         ],
-        "labels": Object {
+        "labels": {
           "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
         },
         "name": "FiFI playbook 5",
@@ -708,14 +984,14 @@ Array [
         "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=0341e468-fbae-416c-b16f-5abb64d99834&localhost",
         "web_console_url": "https://console.redhat.com/insights/remediations",
       },
-      Object {
-        "hosts": Array [
-          Object {
+      {
+        "hosts": [
+          {
             "ansible_host": "localhost",
             "inventory_id": "750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4",
           },
         ],
-        "labels": Object {
+        "labels": {
           "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
         },
         "name": "FiFI playbook 5",
@@ -725,14 +1001,14 @@ Array [
         "url": "https://hostname/api/remediations/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook?hosts=750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4&localhost",
         "web_console_url": "https://console.redhat.com/insights/remediations",
       },
-      Object {
-        "hosts": Array [
-          Object {
+      {
+        "hosts": [
+          {
             "ansible_host": "localhost",
             "inventory_id": "d5174274-4307-4fac-84fd-da2c3497657c",
           },
         ],
-        "labels": Object {
+        "labels": {
           "playbook-run": "b995e750-c1d3-4c5b-a3ec-eee897ee9065",
         },
         "name": "FiFI playbook 5",

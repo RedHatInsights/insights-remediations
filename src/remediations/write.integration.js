@@ -100,8 +100,8 @@ describe('remediations', function () {
             body.errors.should.eql([{
                 id,
                 status: 400,
-                code: 'pattern.openapi.validation',
-                title: 'should match pattern "^$|^.*[\\w\\d]+.*$" (location: body, path: name)'
+                code: 'pattern.openapi.requestValidation',
+                title: 'must match pattern \"^(?!\\s).+(?<!\\s)$\" (location: body, path: name)'
             }]);
         });
 
@@ -149,7 +149,7 @@ describe('remediations', function () {
         });
 
         test('creates a new remediation with 20k systems', async () => {
-            const name = 'new remediation with issues';
+            const name = `new remediation with issues 2`;
             const systems = _.times(20000, () => uuid.v4());
 
             const {body: {id}} = await request
@@ -192,8 +192,8 @@ describe('remediations', function () {
             body.errors.should.eql([{
                 id,
                 status: 400,
-                code: 'additionalProperties.openapi.validation',
-                title: 'should NOT have additional properties (location: body, path: undefined)'
+                code: 'additionalProperties.openapi.requestValidation',
+                title: 'must NOT have additional properties (location: body, path: undefined)'
             }]);
         });
 
@@ -232,6 +232,167 @@ describe('remediations', function () {
                 status: 400,
                 code: 'VALIDATION_ERROR',
                 title: 'Unsupported Content-Type application/xml (location: undefined, path: undefined)'
+            }]);
+        });
+
+        test('400s when remediation is created with name that is used by existing remediation created by the same user', async () => {
+            const name = 'duplicate name and same user for create';
+            const {id, header} = reqId();
+
+            const r1 = await request
+            .post('/v1/remediations')
+            .set(header)
+            .set(auth.testWrite)
+            .send({name})
+            .expect(201);
+
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(header)
+            .set(auth.testWrite)
+            .send({name})
+            .expect(400);
+
+            body.errors.should.eql([{
+                id,
+                status: 400,
+                code: 'SequelizeUniqueConstraintError',
+                title: 'Remediation name must be unique within organization. duplicate name and same user for create already exists within org 3333333.'
+            }]);
+        });
+
+        test('400s when remediation is created with name used by existing remediation created by a different user within the same org', async () => {
+            const name = 'duplicate name and different users within the same org for create'
+            const {id, header} = reqId();
+
+            const r1 = await request
+            .post('/v1/remediations')
+            .set(header)
+            .set(auth.testWrite2)
+            .send({name})
+            .expect(201);
+
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(header)
+            .set(auth.testWrite)
+            .send({name})
+            .expect(400);
+
+            body.errors.should.eql([{
+                id,
+                status: 400,
+                code: 'SequelizeUniqueConstraintError',
+                title: 'Remediation name must be unique within organization. duplicate name and different users within the same org for create already exists within org 3333333.'
+            }]);
+        });
+
+        test('201s when remediation is created with name used by existing remediation created by a different user in a different org', async () => {
+            const name = 'duplicate name and different users in different orgs for create'
+            const {id, header} = reqId();
+
+            const r1 = await request
+            .post('/v1/remediations')
+            .set(header)
+            .set(auth.testWrite3)
+            .send({name})
+            .expect(201);
+
+            const r2 = await request
+            .post('/v1/remediations')
+            .set(header)
+            .set(auth.testWrite)
+            .send({name})
+            .expect(201);
+        });
+
+        test.skip('400s when remediation plan name has leading/trailing whitespace', async () => {
+            const name_1 = ' duplicate plan for whitespace test';
+            const name_2 = 'duplicate plan for whitespace test ';
+            const {id, header} = reqId();
+
+            const {body: body_1} = await request
+                .post('/v1/remediations')
+                .set(header)
+                .set(auth.testWrite)
+                .send({name: name_1})
+                .expect(400);
+
+            body_1.errors.should.eql([{
+                id,
+                status: 400,
+                code: 'pattern.openapi.requestValidation',
+                title: 'must match pattern \"^(?!\\s).+(?<!\\s)$\" (location: body, path: name)'
+            }]);
+
+            const {body: body_2} = await request
+                .post('/v1/remediations')
+                .set(header)
+                .set(auth.testWrite)
+                .send({name: name_2})
+                .expect(400);
+
+            body_2.errors.should.eql([{
+                id,
+                status: 400,
+                code: 'pattern.openapi.requestValidation',
+                title: 'must match pattern \"^(?!\\s).+(?<!\\s)$\" (location: body, path: name)'
+            }]);
+        });
+
+        test('400s when remediation name is set to empty string', async () => {
+            const name = '';
+            const {id, header} = reqId();
+
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(header)
+            .set(auth.testWrite)
+            .send({name})
+            .expect(400);
+
+            body.errors.should.eql([{
+                id,
+                status: 400,
+                code: 'pattern.openapi.requestValidation',
+                title: 'must match pattern \"^(?!\\s).+(?<!\\s)$\" (location: body, path: name)'
+            }]);
+        });
+
+        test('400s when remediation name is set to null', async () => {
+            const name = null;
+            const {id, header} = reqId();
+
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(header)
+            .set(auth.testWrite)
+            .send({name})
+            .expect(400);
+
+            body.errors.should.eql([{
+                id,
+                status: 400,
+                code: 'type.openapi.requestValidation',
+                title: 'must be string (location: body, path: name)'
+            }]);
+        });
+
+        test('400s when remediation name is undefined upon creation', async () => {
+            const {id, header} = reqId();
+
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(header)
+            .send({auto_reboot: false})
+            .set(auth.testWrite)
+            .expect(400);
+
+            body.errors.should.eql([{
+                id,
+                status: 400,
+                code: 'SequelizeValidationError',
+                title: 'Remediation name cannot be null.'
             }]);
         });
     });
@@ -415,8 +576,8 @@ describe('remediations', function () {
                     body.errors.should.eql([{
                         id,
                         status: 400,
-                        code: 'required.openapi.validation',
-                        title: 'should have required property \'id\' (location: body, path: add.issues[0].id)'
+                        code: 'required.openapi.requestValidation',
+                        title: 'must have required property \'id\' (location: body, path: add.issues.0.id)'
                     }]);
                 });
 
@@ -430,8 +591,8 @@ describe('remediations', function () {
                     body.errors.should.eql([{
                         id,
                         status: 400,
-                        code: 'minItems.openapi.validation',
-                        title: 'should NOT have fewer than 1 items (location: body, path: add.issues)'
+                        code: 'minItems.openapi.requestValidation',
+                        title: 'must NOT have fewer than 1 items (location: body, path: add.issues)'
                     }]);
                 });
 
@@ -480,6 +641,133 @@ describe('remediations', function () {
                         code: 'EMPTY_REQUEST',
                         title: 'At least one of "add", "name", "auto_reboot", "archived" needs to be specified'
                     }]);
+                });
+
+                test('400s when remediation is renamed to name that is used by existing remediation created by the same user', async () => {
+                    const name = 'duplicate name and same user';
+                    const {id, header} = reqId();
+
+                    await request
+                    .post('/v1/remediations')
+                    .set(auth.testWrite)
+                    .send({name})
+
+                    const url = '/v1/remediations/8b427145-ac9f-4727-9543-76eb140222cd';
+
+                    const {body} = await request
+                    .patch(url)
+                    .set(header)
+                    .send({name})
+                    .set(auth.testWrite)
+                    .expect(400);
+
+                    body.errors.should.eql([{
+                        id,
+                        status: 400,
+                        code: 'SequelizeUniqueConstraintError',
+                        title: 'Remediation name must be unique within organization. duplicate name and same user already exists within org 3333333.'
+                    }]);
+                });
+
+                test('400s when remediation is renamed to a name used by existing remediation created by a different user within the same org', async () => {
+                    const name = 'duplicate name and different users within the same org';
+                    const {id, header} = reqId();
+
+                    const r1 = await request
+                    .post('/v1/remediations')
+                    .set(auth.testWrite2)
+                    .send({name})
+
+                    const url = '/v1/remediations/8b427145-ac9f-4727-9543-76eb140222cd';
+
+                    const {body} = await request
+                    .patch(url)
+                    .set(header)
+                    .send({name})
+                    .set(auth.testWrite)
+                    .expect(400);
+
+                    body.errors.should.eql([{
+                        id,
+                        status: 400,
+                        code: 'SequelizeUniqueConstraintError',
+                        title: 'Remediation name must be unique within organization. duplicate name and different users within the same org already exists within org 3333333.'
+                    }]);
+                });
+
+                test('200s when remediation is renamed to a name used by existing remediation created by a different user within a different org', async () => {
+                    const name = 'duplicate name and different users within different orgs';
+                    const {id, header} = reqId();
+
+                    const r1 = await request
+                    .post('/v1/remediations')
+                    .set(auth.testWrite3)
+                    .send({name})
+
+                    const url = '/v1/remediations/8b427145-ac9f-4727-9543-76eb140222cd';
+
+                    const {body} = await request
+                    .patch(url)
+                    .set(header)
+                    .send({name})
+                    .set(auth.testWrite)
+                    .expect(200);
+                });
+
+                test('400s when remediation name is updated to empty string', async () => {
+                    const name = '';
+                    const {id, header} = reqId();
+
+                    const url = '/v1/remediations/8b427145-ac9f-4727-9543-76eb140222cd';
+
+                    const {body} = await request
+                    .patch(url)
+                    .set(header)
+                    .send({name})
+                    .set(auth.testWrite)
+                    .expect(400);
+
+                    body.errors.should.eql([{
+                        id,
+                        status: 400,
+                        code: 'pattern.openapi.requestValidation',
+                        title: 'must match pattern \"^(?!\\s).+(?<!\\s)$\" (location: body, path: name)'
+                    }]);
+                });
+
+                test('400s when remediation name is updated to null', async () => {
+                    const {id, header} = reqId();
+
+                    const url = '/v1/remediations/8b427145-ac9f-4727-9543-76eb140222cd';
+
+                    const {body} = await request
+                    .patch(url)
+                    .set(header)
+                    .send({
+                        name: null
+                    })
+                    .set(auth.testWrite)
+                    .expect(400);
+
+                    body.errors.should.eql([{
+                        id,
+                        status: 400,
+                        code: 'type.openapi.requestValidation',
+                        title: 'must be string (location: body, path: name)'
+                    }]);
+                });
+
+                test('200s when remediation name is undefined during update', async () => {
+                    const {id, header} = reqId();
+
+                    const url = '/v1/remediations/8b427145-ac9f-4727-9543-76eb140222cd';
+
+                    const {body} = await request
+                    .patch(url)
+                    .set(header)
+                    .send({auto_reboot: false, archived: true})
+                    .set(auth.testWrite)
+                    .expect(200);
                 });
             });
 

@@ -151,6 +151,16 @@ exports.handler = (error, req, res, next) => {
         return error.writeResponse(req, res);
     }
 
+    if (error.name === 'SequelizeUniqueConstraintError') {
+        const errors = error.errors;
+        return errorResponse(req, res, 400, error.name, `Remediation name must be unique within organization. ${error.errors[0].value} already exists within org ${error.errors[1].value}.`);
+    }
+
+    if (error.name === 'SequelizeValidationError') {
+        const errors = error.errors;
+        return errorResponse(req, res, 400, error.name, `Remediation name cannot be null.`);
+    }
+
     log.error(error, 'caught internal error');
     errorResponse(req, res, 500, 'INTERNAL_ERROR', 'Internal Server Error');
 };

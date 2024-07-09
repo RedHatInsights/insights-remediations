@@ -1,0 +1,37 @@
+'use strict';
+
+const dispatcher_mock = require("./mock");
+
+const TEST_DATA = {
+    org_id: '12345',
+    hosts: [
+        '22ecb605-9edb-464a-84dd-5f04d9b88a76',  // sat_1, org_2
+        '8f75807b-ec2b-4b5f-97db-2b18273ff006',  // sat_1, org_2
+        '72a7651a-a091-4244-87c9-6e3e67a37a46',  // sat_1, org_2
+        'd3a881aa-bb10-48cc-b288-9388cadbf9b7',  // sat_1, org_6
+        '8050118c-a6c8-4693-9812-7c8dfeb8d947',  // sat_1, org_6
+        '55a77c70-c49b-44c1-82f2-bdfd75ae5491',  // sat_2 (disconnected)
+        '48df8af0-6b2f-4d17-a935-bc9687236951',  // sat_2 (disconnected)
+        '48df8af0-6b2f-4d17-a935-bc9687236951',  // sat_2 (disconnected)
+        '1fc82531-19c2-425a-ad10-2a4c0e472a44',  // direct 1
+        '48df8af0-6b2f-4d17-a935-bc9687236954',  // direct 2
+        'bc5faf05-9475-4e1f-970b-fc014f8881f4',  // direct 3
+        'ff7790e7-e609-49eb-8326-d1ba0d9c2464',  // direct 4
+        '8bf3c01d-794d-40ab-9e2d-f4cdebfdad04',  // direct 5
+        'deadfeed-65dc-4cc3-b948-0fefadd003a4',  // direct disconnected 1
+        'deadfeed-41f1-4b8e-b7d3-05492d62a0c4',  // direct disconnected 2
+        'fc94beb8-21ee-403d-99b1-949ef7adb762',  // no_rhc
+        '4bb19a8a-0c07-4ee6-a78c-504dab783cc8',  // no_rhc
+    ]
+};
+
+
+//
+// 263f4a3a-5cb7-44eb-a17c-d71b8fea248d
+// 6bdcae10-875f-4d76-b8a8-434f929e3271
+// cbc4e887-2dbb-41a7-8e58-ff5e766ea6e7
+// c061da50-e9eb-43be-9cea-751a8d64d8d9
+// b76f065b-2ec6-4022-8bde-91dc1df6b344
+
+const result = dispatcher_mock.getConnectionStatus(TEST_DATA);
+

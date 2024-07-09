@@ -6,7 +6,7 @@ services:
       context: ../
       dockerfile: build/Dockerfile
     command: sh -c "echo 'Waiting 3s for db to start' && sleep 3 && npm run db:ims && node src/app.js"
-    links:
+    depends_on:
       - redis
       - db
     ports:
@@ -27,7 +27,7 @@ services:
     restart: always
 
   db:
-    image: quay.io/cloudservices/postgresql-rds:14-1
+    image: quay.io/cloudservices/postgresql-rds:14
     ports:
       - 5432:5432
     environment:

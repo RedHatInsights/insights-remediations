@@ -1,13 +1,13 @@
 version: '3.4'
 
 services:
-  remediations:
+  remediations-api:
     build:
       context: ../
       dockerfile: build/Dockerfile
       target: test
     command: sh -c "npm run test:ci"
-    links:
+    depends_on:
       - db
     ports:
       - "9002:9002"
@@ -17,7 +17,7 @@ services:
     restart: "no"
 
   db:
-    image: quay.io/cloudservices/postgresql-rds:14-1
+    image: quay.io/cloudservices/postgresql-rds:14
     ports:
       - "5432:5432"
     environment:

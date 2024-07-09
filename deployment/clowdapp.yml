@@ -302,6 +302,58 @@ objects:
           AND playbook_run_systems.updated_at < TIMESTAMP 'today'
         ORDER BY remediation_id;
 
+- apiVersion: metrics.console.redhat.com/v1alpha1
+  kind: FloorPlan
+  metadata:
+    name: remediations-hms
+  spec:
+    database:
+      secretName: ${FLOORIST_DB_SECRET_NAME}
+    objectStore:
+      secretName: ${FLOORIST_HMS_BUCKET_SECRET_NAME}
+    logLevel: ${FLOORIST_LOGLEVEL}
+    suspend: ${{FLOORIST_SUSPEND}}
+    disabled: ${{FLOORIST_DISABLED}}
+    queries:
+    - prefix: hms_analytics/remediations/remediations
+      chunksize: 50000
+      query: >-
+        SELECT r.id,
+               r.tenant_org_id as org_id,
+               r.created_at,
+               r.updated_at,
+               r.auto_reboot,
+               r.archived,
+               ri.issue_id,
+               ris.system_id,
+               ris.resolved
+        FROM remediations AS r
+        LEFT JOIN remediation_issues AS ri ON ri.remediation_id = r.id
+        LEFT JOIN remediation_issue_systems AS ris ON ris.remediation_issue_id = ri.id
+        WHERE r.updated_at > (CURRENT_DATE - INTERVAL '30 days');
+    - prefix: hms_analytics/remediations/playbook_runs
+      chunksize: 200000
+      query: >-
+        SELECT pr.id,
+               pr.remediation_id,
+               r.tenant_org_id as org_id,
+               pr.status,
+               pr.created_at,
+               pr.updated_at,
+               ri.issue_id
+        FROM playbook_runs AS pr
+        LEFT JOIN remediations AS r ON r.id = pr.remediation_id
+        LEFT JOIN remediation_issues AS ri ON ri.remediation_id = r.id
+        WHERE pr.updated_at > (CURRENT_DATE - INTERVAL '30 days');
+    - prefix: hms_analytics/remediations/playbook_archives
+      chunksize: 300000
+      query: >-
+        SELECT id,
+               tenant_org_id AS org_id,
+               created_at
+        FROM playbook_archive
+        WHERE created_at > (CURRENT_DATE - INTERVAL '30 days');
+
 parameters:
 - name: ADVISOR_IMPL
   value: impl
@@ -403,6 +455,9 @@ parameters:
   description: bucket secret name
   required: true
   value: dummy-secret
+- name: FLOORIST_HMS_BUCKET_SECRET_NAME
+  description: HMS bucket secret name
+  value: floorist-bucket
 - name: FLOORIST_LOGLEVEL
   description: Floorist loglevel config
   value: 'INFO'

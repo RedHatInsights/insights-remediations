@@ -12,16 +12,16 @@ exports[`generates a rule-based playbook 1`] = `
 # Identifier: (advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,kernel_update)
 # Version: 3f74744ce9b66c20b55f6dd4e580d77d7e7039b1
 - name: Update system to the latest kernel and reboot
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   vars:
     # determine if we need to update the 'kernel' package or 'kernel-rt' package
-    kernel_pkg: \\"{{'kernel-rt' if 'rt' in ansible_kernel else 'kernel'}}\\"
+    kernel_pkg: "{{'kernel-rt' if 'rt' in ansible_kernel else 'kernel'}}"
 
   tasks:
     - name: Update kernel
       yum:
-        name: \\"{{kernel_pkg}}\\"
+        name: "{{kernel_pkg}}"
         state: latest
       register: yum
 
@@ -35,7 +35,7 @@ exports[`generates a rule-based playbook 1`] = `
       # by buildtime and select the one with the most recent build time
       block:
       - name: get latest installed {{kernel_pkg}} package version
-        shell: rpm -q {{kernel_pkg}} --queryformat=\\"%{buildtime}\\\\t%{version}-%{release}.%{arch}\\\\n\\" | sort -nr | head -1 | cut -f2
+        shell: rpm -q {{kernel_pkg}} --queryformat="%{buildtime}\\t%{version}-%{release}.%{arch}\\n" | sort -nr | head -1 | cut -f2
         register: latest_kernel
         check_mode: no
 
@@ -59,7 +59,7 @@ exports[`generates a rule-based playbook 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -91,7 +91,7 @@ exports[`generates a rule-based playbook 1`] = `
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -99,15 +99,15 @@ exports[`generates a rule-based playbook 1`] = `
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -148,10 +148,10 @@ exports[`generates a rule-based playbook with resolution preference 1`] = `
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
 - name: run insights to obtain latest diagnosis info
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   vars:
-    insights_remediation: \\"\\"
-    insights_signature_exclude: \\"/hosts,/vars/insights_signature,/vars/insights_remediation\\"
+    insights_remediation: ""
+    insights_signature_exclude: "/hosts,/vars/insights_signature,/vars/insights_remediation"
     insights_signature: !!binary |
       TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
       RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRblZqZG5jMU9FUXJhalZ3VGtGUmFtRkdVa0ZCYTBSVWNu
@@ -176,7 +176,7 @@ exports[`generates a rule-based playbook with resolution preference 1`] = `
   become: true
   tasks:
     - name: obtain diagnosis info
-      command: \\"insights-client --diagnosis{{ insights_remediation | regex_search('\\\\\\\\s[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}\\"
+      command: "insights-client --diagnosis{{ insights_remediation | regex_search('\\\\s[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}') }}"
       register: insights_result
       changed_when: false
       check_mode: false
@@ -187,10 +187,10 @@ exports[`generates a rule-based playbook with resolution preference 1`] = `
 # Identifier: (advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074,selinux_mitigate)
 # Version: 3f74744ce9b66c20b55f6dd4e580d77d7e7039b1
 - name: Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: yes
   vars:
-    pydata: \\"{{insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074']}}\\"
+    pydata: "{{insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074']}}"
 
   tasks:
   - when: insights_report.details['CVE_2017_6074_kernel|KERNEL_CVE_2017_6074'] is defined
@@ -210,13 +210,13 @@ exports[`generates a rule-based playbook with resolution preference 1`] = `
       failed_when: false
 
     - name: remove selinux=0 and enforcing=0 from grub config file
-      command: /sbin/grubby --update-kernel=ALL --remove-args=\\"selinux enforcing\\"
+      command: /sbin/grubby --update-kernel=ALL --remove-args="selinux enforcing"
 
     - name: Set SELINUX=enforcing in /etc/selinux/config
       lineinfile:
         backup: true
         dest: /etc/selinux/config
-        regexp: '(?i)^\\\\s*SELINUX *=.*'
+        regexp: '(?i)^\\s*SELINUX *=.*'
         line: SELINUX=enforcing
         state: present
 
@@ -228,7 +228,7 @@ exports[`generates a rule-based playbook with resolution preference 1`] = `
         name: selinux-policy
         state: latest
 
-    - when: \\"getenforce.stdout == 'Disabled'\\"
+    - when: "getenforce.stdout == 'Disabled'"
       block:
       - name: SELinux relabel to be done on reboot (note, a relabel may take a while to complete)
         file:
@@ -243,7 +243,7 @@ exports[`generates a rule-based playbook with resolution preference 1`] = `
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
 - name: Reboot system (if applicable)
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:
@@ -275,7 +275,7 @@ exports[`generates a rule-based playbook with resolution preference 1`] = `
         - insights_needs_reboot
       block:
         - name: Reboot system
-          shell: sleep 2 && shutdown -r now \\"Ansible triggered reboot\\"
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
           async: 1
           poll: 0
           ignore_errors: true
@@ -283,15 +283,15 @@ exports[`generates a rule-based playbook with resolution preference 1`] = `
         - name: Wait for system to boot up
           local_action:
             module: wait_for
-            host: \\"{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}\\"
-            port: \\"{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}\\"
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
             delay: 15
             search_regex: OpenSSH
             timeout: 300
           become: false
 
 - name: run insights
-  hosts: \\"68799a02-8be9-11e8-9eb6-529269fb1459.example.com\\"
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
   become: true
   gather_facts: false
   vars:

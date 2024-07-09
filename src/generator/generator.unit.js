@@ -318,8 +318,8 @@ test('400s on invalid body parameters', () => {
         body.errors.should.eql([{
             id,
             status: 400,
-            code: 'required.openapi.validation',
-            title: 'should have required property \'issues\' (location: body, path: issues)'
+            code: 'required.openapi.requestValidation',
+            title: 'must have required property \'issues\' (location: body, path: issues)'
         }]);
     });
 });
@@ -336,8 +336,8 @@ test('400s on no body', () => {
         body.errors.should.eql([{
             id,
             status: 400,
-            code: 'required.openapi.validation',
-            title: 'should have required property \'issues\' (location: body, path: issues)'
+            code: 'required.openapi.requestValidation',
+            title: 'must have required property \'issues\' (location: body, path: issues)'
         }]);
     });
 });
@@ -356,8 +356,8 @@ test('400s on empty issue list', () => {
         body.errors.should.eql([{
             id,
             status: 400,
-            code: 'minItems.openapi.validation',
-            title: 'should NOT have fewer than 1 items (location: body, path: issues)'
+            code: 'minItems.openapi.requestValidation',
+            title: 'must NOT have fewer than 1 items (location: body, path: issues)'
         }]);
     });
 });
@@ -379,8 +379,8 @@ test('400s on empty system list', () => {
         body.errors.should.eql([{
             id,
             status: 400,
-            code: 'minItems.openapi.validation',
-            title: 'should NOT have fewer than 1 items (location: body, path: issues[0].systems)'
+            code: 'minItems.openapi.requestValidation',
+            title: 'must NOT have fewer than 1 items (location: body, path: issues.0.systems)'
         }]);
     });
 });
@@ -405,8 +405,8 @@ test('400s on additional property', async () => {
     body.errors.should.eql([{
         id,
         status: 400,
-        code: 'additionalProperties.openapi.validation',
-        title: 'should NOT have additional properties (location: body, path: undefined)'
+        code: 'additionalProperties.openapi.requestValidation',
+        title: 'must NOT have additional properties (location: body, path: undefined)'
     }]);
 });
 

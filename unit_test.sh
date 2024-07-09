@@ -3,13 +3,13 @@
 set -x
 
 # run our tests...
-docker-compose -f build/docker-compose-unit_test.yml up --build --exit-code-from remediations
+podman-compose -f build/docker-compose-unit_test.yml up --build --exit-code-from remediations-api
 
 # save result...
 result=$?
 
 # tidy up...
-docker-compose -f build/docker-compose-unit_test.yml down
+podman-compose -f build/docker-compose-unit_test.yml down
 
 # TODO: add unittest-xml-reporting to rbac so that junit results can be parsed by jenkins
 mkdir -p $WORKSPACE/artifacts

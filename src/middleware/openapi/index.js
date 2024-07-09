@@ -115,13 +115,6 @@ module.exports = function (operationId) {
         ...operation.responses
     };
 
-    // TODO: this may be a bug in openapi
-    parameters.forEach(parameter => {
-        if (_.has(parameter.schema, 'default')) {
-            parameter.default = parameter.schema.default;
-        }
-    });
-
     const reqValidator = buildReqValidator(operation, parameters, spec);
     const coercer = buildCoercer(parameters);
     const defaulter = buildDefaulter(parameters);
@@ -154,7 +147,7 @@ module.exports = function (operationId) {
         };
 
         coercer.coerce(req);
-        const errors = reqValidator.validate(req);
+        const errors = reqValidator.validateRequest(req);
 
         if (errors) {
             const transformer = transformError(req, 400);

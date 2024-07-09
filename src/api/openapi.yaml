@@ -4,7 +4,7 @@ openapi: 3.0.0
 info:
   title: Insights Remediations
   description: Insights Remediations Service
-  version: 1.3.5
+  version: 1.5.0
   contact:
     email: rewhite@redhat.com
 
@@ -46,7 +46,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RemediationList'
+                anyOf:
+                  - $ref: '#/components/schemas/RemediationList'
+                  - $ref: '#/components/schemas/RemediationNameList'
         400:
           $ref: '#/components/responses/BadRequest'
     post:
@@ -199,6 +201,29 @@ paths:
           $ref: '#/components/responses/BadRequest'
         404:
           $ref: '#/components/responses/NotFound'
+    post:
+      tags:
+        - remediations
+      summary: Fetch Remediation Plan Playbook
+      description: Fetch Ansible Playbook - for use with large list of target systems, RBAC permission {remediations:remediation:read}
+      operationId: bulkGetRemediationPlaybook
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/SatOrgId'
+        - $ref: '#/components/parameters/LocalHost'
+      requestBody:
+        $ref: '#/components/requestBodies/PlaybookSystems'
+      responses:
+        200:
+          description: OK
+          content:
+            text/vnd.yaml:
+              schema:
+                type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
 
   /remediations/{id}/issues/{issue}:
     patch:
@@ -289,13 +314,37 @@ paths:
       tags:
         - remediations
       summary: Pre-flight check
-      description: Get satellite connection status for a given host, RBAC permission {remediations:remediation:execute}
+      description: |
+        Get connection status for remediation plan targets, RBAC permission {remediations:remediation:execute}
+        
+        Returns an array of the following objects:
+        
+        - One object for all systems belonging to a unique satellite organization
+        - One object for all direct-connected systems in each of the status categories:
+        
+          - connected
+          - disconnected
+          - no_rhc
+
       operationId: getRemediationConnectionStatus
       parameters:
         - $ref: '#/components/parameters/RemediationId'
       responses:
         '200':
-          description: OK
+          description: |
+            OK
+            
+            connection_status is one of:
+            
+            - connected
+            - disconnected
+            - no_rhc (system not registered to RHC)
+
+            executor_type is one of:
+            
+            - RHC-satellite
+            - RHC
+            - None
           content:
             application/json:
               schema:
@@ -673,16 +722,18 @@ components:
     Fields:
       in: query
       name: fields[data]
-      description: Add playbook run data to the response
+      description: |
+        Include specified items
+        - name: list all remediation plan names in organization (cannot be combined with other fields)
+        - playbook_runs: include playbook run data in the response
       required: false
       schema:
         type: array
         items:
           type: string
           enum:
+            - name
             - playbook_runs
-        default:
-          - playbook_runs
     SelectedHosts:
       in: query
       name: hosts
@@ -772,6 +823,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/PlaybookRunsInput'
+    PlaybookSystems:
+      required: true
+      description: Array of system inventory identifiers.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SystemList'
 
   schemas:
     #
@@ -819,8 +877,8 @@ components:
 
     RemediationName:
       type: string
-      nullable: true
-      pattern: ^$|^.*[\w\d]+.*$  # empty string or anything that contains at least one character
+      nullable: false
+      pattern: ^(?!\s).+(?<!\s)$  # can't start or end with whitespace
       example: Fix Critical CVEs
 
     RemediationArchived:
@@ -1007,6 +1065,7 @@ components:
 
     RemediationsList:
       type: object
+      additionalProperties: false
       required:
         - remediation_ids
       properties:
@@ -1019,6 +1078,11 @@ components:
           example:
             - 9197ba55-0abc-4028-9bbe-269e530f8bd5
             - 3df5ed22-4324-402c-b128-ea62debbde6c
+
+    SystemList:
+      type: array
+      items:
+        $ref: '#/components/schemas/SystemId'
 
     RemediationIssueIn:
       type: object
@@ -1107,12 +1171,16 @@ components:
     NoExecutors:
       type: object
       additionalProperties: false
+      required:
+        - errors
       properties:
         errors:
           type: array
           items:
             type: object
-            additionalProperties: true
+            additionalProperties: false
+            required:
+              - id
             properties:
               id:
                 type: string
@@ -1401,6 +1469,8 @@ components:
     MultipleDelete:
       type: object
       additionalProperties: false
+      required:
+        - deleted_count
       properties:
         deleted_count:
           type: integer
@@ -1530,6 +1600,47 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PlaybookRunDetails'
+    
+    RemediationNameList:
+      type: object
+      additionalProperties: false
+      required: [data, meta, links]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RemediationNameListItem'
+        meta:
+          $ref: '#/components/schemas/Meta'
+        links:
+          type: object
+          additionalProperties: false
+          required: [first, last, next, previous]
+          properties:
+            first:
+              type: string
+              description: relative link to the first page of the query results
+            last:
+              type: string
+              description: relative link to the last page of the query results
+            next:
+              type: string
+              nullable: true
+              description: relative link to the next page of the query results (or null if this is the last page)
+            previous:
+              type: string
+              nullable: true
+              description: relative link to the previous page of the query results (or null if this is the first page)
+          example:
+            $ref: '#/components/examples/RemediationLinks'
+
+    RemediationNameListItem:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name:
+          $ref: '#/components/schemas/RemediationName'
 
     RemediationConnectionStatus:
       type: object
@@ -1554,6 +1665,7 @@ components:
         - executor_type
         - executor_name
         - system_count
+        - system_ids
         - connection_status
       properties:
         endpoint_id:
@@ -1567,25 +1679,24 @@ components:
         executor_type:
           type: string
           nullable: true
-          example: satellite
+          example: RHC-satellite
         executor_name:
           type: string
           nullable: true
-          example: Satellite 11234
+          example: Satellite 11234 Org 1
         system_count:
           type: integer
-          example: 12
+          example: 1
+        system_ids:
+          type: array
+          items:
+            $ref: '#/components/schemas/SystemId'
         connection_status:
           type: string
-          example: ready
+          example: connected
           enum:
             - connected
-            - disabled
             - disconnected
-            - no_executor
-            - no_source
-            - no_receptor
-            - no_smart_management
             - no_rhc
 
     SystemOut:

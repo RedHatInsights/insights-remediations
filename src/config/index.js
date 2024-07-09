@@ -47,9 +47,11 @@ function getHostForApp(dependencyEndpoints, appName, deploymentName, envar) {
 }
 
 function Config() {
-    const loadedConfig = (acgConfig) ? require('app-common-js').LoadedConfig : '';
-    const dependencyEndpoints = (acgConfig) ? require('app-common-js').DependencyEndpoints : '';
-    const privateDepencencyEndpoints = (acgConfig) ? require('app-common-js').PrivateDependencyEndpoints : '';
+    const app_config = (acgConfig) ? new (require('app-common-js').Config)() : null;
+
+    const loadedConfig = app_config ? app_config.LoadedConfig() : '';
+    const dependencyEndpoints = app_config ? app_config.DependencyEndpoints() : '';
+    const privateDepencencyEndpoints = app_config ? app_config.PrivateDependencyEndpoints() : '';
 
     const config = {
 
@@ -103,14 +105,14 @@ function Config() {
 
         cache: {
             ttl: parseIntEnv('CACHE_TTL', 24 * 60 * 60), // 24 hours
-            revalidationInterval: parseIntEnv('CACHE_REVALIDATION_INVERVAL', 10 * 60) // 10 mins
+            revalidationInterval: parseIntEnv('CACHE_REVALIDATION_INTERVAL', 10 * 60) // 10 mins
         },
 
         advisor: {
             impl: env.ADVISOR_IMPL,
             auth: env.ADVISOR_AUTH || '',
             insecure: (env.ADVISOR_INSECURE === 'true') ? true : false,
-            revalidationInterval: parseIntEnv('ADVISOR_REVALIDATION_INVERVAL', 60 * 60) // 1 hour
+            revalidationInterval: parseIntEnv('ADVISOR_REVALIDATION_INTERVAL', 60 * 60) // 1 hour
         },
 
         bop: {
@@ -121,7 +123,7 @@ function Config() {
         compliance: {
             impl: env.COMPLIANCE_IMPL,
             insecure: (env.COMPLIANCE_INSECURE === 'true') ? true : false,
-            revalidationInterval: parseIntEnv('COMPLIANCE_REVALIDATION_INVERVAL', 60 * 60) // 1 hour
+            revalidationInterval: parseIntEnv('COMPLIANCE_REVALIDATION_INTERVAL', 60 * 60) // 1 hour
         },
 
         configManager: {
@@ -135,7 +137,7 @@ function Config() {
             impl: env.CONTENT_SERVER_IMPL,
             auth: env.CONTENT_SERVER_AUTH || '',
             insecure: (env.CONTENT_SERVER_INSECURE === 'false') ? false : true,
-            revalidationInterval: parseIntEnv('CONTENT_SERVER_REVALIDATION_INVERVAL', 60 * 60) // 1 hour
+            revalidationInterval: parseIntEnv('CONTENT_SERVER_REVALIDATION_INTERVAL', 60 * 60) // 1 hour
         },
 
         dispatcher: {
@@ -149,14 +151,14 @@ function Config() {
         inventory: {
             impl: env.INVENTORY_IMPL,
             insecure: (env.INVENTORY_INSECURE === 'true') ? true : false,
-            revalidationInterval: parseIntEnv('INVENTORY_REVALIDATION_INVERVAL', 60 * 60), // 1 hour
+            revalidationInterval: parseIntEnv('INVENTORY_REVALIDATION_INTERVAL', 60 * 60), // 1 hour
             pageSize: parseIntEnv('INVENTORY_PAGE_SIZE', 100),
             xjoinHost: env.XJOIN_SEARCH_URL || 'http://localhost:4000/graphql'
         },
 
         patchman: {
             impl: env.PATCHMAN_IMPL,
-            revalidationInterval: parseIntEnv('PATCHMAN_REVALIDATION_INVERVAL', 60 * 60 * 12) // 12 hours
+            revalidationInterval: parseIntEnv('PATCHMAN_REVALIDATION_INTERVAL', 60 * 60 * 12) // 12 hours
         },
 
         rbac: {
@@ -185,14 +187,12 @@ function Config() {
             env: env.USERS_ENV || 'prod',
             testAccount: env.USERS_TEST_ACCOUNT || 'someUsername',
             insecure: (env.USERS_INSECURE === 'true') ? true : false,
-            revalidationInterval: parseIntEnv('USERS_REVALIDATION_INVERVAL', 60 * 60 * 12) // 12 hours
-            // TODO: pretty sure this is a typo -------------------------^
+            revalidationInterval: parseIntEnv('USERS_REVALIDATION_INTERVAL', 60 * 60 * 12) // 12 hours
         },
 
         vmaas: {
             impl: env.VMAAS_IMPL,
-            revalidationInterval: parseIntEnv('VMAAS_REVALIDATION_INVERVAL', 60 * 60 * 12) // 12 hours
-            // TODO: pretty sure this is a typo -------------------------^
+            revalidationInterval: parseIntEnv('VMAAS_REVALIDATION_INTERVAL', 60 * 60 * 12) // 12 hours
         },
 
         vulnerabilities: {
@@ -272,7 +272,7 @@ function Config() {
         if (loadedConfig.database.sslMode !== 'disable') {
             config.db.ssl = true;
             config.db.dialectOptions.ssl = {
-                ca: fs.readFileSync(loadedConfig.rdsCa()) // eslint-disable-line security/detect-non-literal-fs-filename
+                ca: loadedConfig.database.rdsCa
             };
         }
 

@@ -1,39 +1,39 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`remediations remove bulk delete empty list 1`] = `
-Object {
-  "errors": Array [
-    Object {
-      "code": "minItems.openapi.validation",
+{
+  "errors": [
+    {
+      "code": "minItems.openapi.requestValidation",
       "id": "",
       "status": 400,
-      "title": "should NOT have fewer than 1 items (location: body, path: remediation_ids)",
+      "title": "must NOT have fewer than 1 items (location: body, path: remediation_ids)",
     },
   ],
 }
 `;
 
 exports[`remediations remove bulk delete missing body 1`] = `
-Object {
-  "errors": Array [
-    Object {
-      "code": "required.openapi.validation",
+{
+  "errors": [
+    {
+      "code": "required.openapi.requestValidation",
       "id": "",
       "status": 400,
-      "title": "should have required property 'remediation_ids' (location: body, path: remediation_ids)",
+      "title": "must have required property 'remediation_ids' (location: body, path: remediation_ids)",
     },
   ],
 }
 `;
 
 exports[`remediations remove bulk delete too many IDs 1`] = `
-Object {
-  "errors": Array [
-    Object {
-      "code": "maxItems.openapi.validation",
+{
+  "errors": [
+    {
+      "code": "maxItems.openapi.requestValidation",
       "id": "",
       "status": 400,
-      "title": "should NOT have more than 100 items (location: body, path: remediation_ids)",
+      "title": "must NOT have more than 100 items (location: body, path: remediation_ids)",
     },
   ],
 }

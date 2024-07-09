@@ -66,7 +66,17 @@ module.exports = new class extends Connector {
         return result;
     }
 
-    // Given a list of hosts, returns an array of objects aggregating connection status:
+    // Given a list of inventory ids, returns an array of recipient objects:
+    //
+    // input:
+    //
+    //     {
+    //         org_id:  tenantOrgId,
+    //         hosts: systemIds
+    //     };
+    //
+    //
+    // output:
     //
     // [
     //     {
@@ -94,13 +104,39 @@ module.exports = new class extends Connector {
     //     }
     // ]
     //
-    //  - one object per satellite_instance_id, satellite_organization pair (recipient_type == satellite)
-    //  - one object for direct-connect hosts with status == connected (recipient_type == directConnect)
-    //  - one object for direct-connect hosts with status == disconnected (recipient_type == directConnect)
-    //  - one object for direct-connect hosts with status == rhc_not_configured (recipient_type == directConnect)
-    //  - one object for hosts with recipient_type == none (e.g. old receptor hosts)
+    //  - one object per satellite_organization (recipient_type == satellite)
+    //  - one object for each direct-connect hosts
+    //  - one object for hosts with recipient_type == none (e.g. old receptor hosts, no_rhc)
     async getConnectionStatus (dispatcherConnectionStatusRequest) {
-        // TODO: eh... we should chunk this if the number of hosts is ridonculous
+        // chunk this request if necessary...
+        if (dispatcherConnectionStatusRequest.hosts.length > pageSize) {
+            const chunks = _.chunk(dispatcherConnectionStatusRequest.hosts, pageSize);
+
+            const results = await P.map(chunks, chunk => {
+                const req = {
+                    org_id: dispatcherConnectionStatusRequest.org_id,
+                    hosts: chunk
+                };
+
+                return this.getConnectionStatus(req);
+            });
+
+            // merge items with same recipient id & status
+            const merged = [];
+
+            // group by recipient id
+            _(results).flatten().groupBy('recipient').forEach(fragments => {
+                // group by status
+                _(fragments).groupBy('status').forEach(items => {
+                    const systems = _(items).map('systems').flatten().value();
+                    items[0].systems = [...systems];
+                    merged.push(items[0]);
+                });
+            });
+
+            return merged;
+        }
+
         const uri = new URI(host);
         uri.segment('internal');
         uri.segment('v2');
@@ -133,7 +169,7 @@ module.exports = new class extends Connector {
         // chunk this request if necessary...
         if (dispatcherV2WorkRequests.length > pageSize) {
             const chunks = _.chunk(dispatcherV2WorkRequests, pageSize);
-            const results = await P.map(chunks, chunk => this.postPlaybookRunRequests(chunk));
+            const results = await P.map(chunks, chunk => this.postV2PlaybookRunRequests(chunk));
             return results.flat();
         }
 
@@ -175,7 +211,10 @@ module.exports = new class extends Connector {
 
         let uri = _uri.toString();
         let next = "";
-        const results = {};
+        const results = {
+            data: [],
+            meta: {}
+        };
         const options = {
             method: 'GET',
             json: true,
@@ -196,7 +235,7 @@ module.exports = new class extends Connector {
             }
 
             // extract data
-            _.merge(results, batch);
+            results.data = [...results.data, ...batch.data];
 
             // check provided uri for next batch
             next = batch?.links?.next;
@@ -221,7 +260,10 @@ module.exports = new class extends Connector {
 
         let uri = _uri.toString();
         let next = "";
-        const results = {};
+        const results = {
+            data: [],
+            meta: {}
+        };
         const options = {
             method: 'GET',
             json: true,
@@ -241,7 +283,7 @@ module.exports = new class extends Connector {
             }
 
             // extract data
-            _.merge(results, batch);
+            results.data = [...results.data, ...batch.data];
 
             // check provided uri for next batch
             next = batch?.links?.next;

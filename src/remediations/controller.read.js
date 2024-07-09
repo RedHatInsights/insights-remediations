@@ -103,10 +103,35 @@ function inferNeedsReboot (remediation) {
 exports.list = errors.async(async function (req, res) {
     trace.enter('controller.read.list');
 
+    if (_.get(req, 'query.fields.data', []).includes('name') && Array.isArray(_.get(req, 'query.fields.data', []))) {
+        throw new errors.BadRequest('INVALID_REQUEST', `'name' cannot be combined with other fields.`);
+    }
+
     trace.event('Get sort and query parms from url');
     const {column, asc} = format.parseSort(req.query.sort);
     const {offset, hide_archived} = req.query;
     var limit = req.query.limit;
+
+    // Check for name in fields query param:
+    // fields[data]=name
+    if (_.get(req, 'query.fields.data', []).includes('name')) {
+        trace.event('Include name data');
+        let plan_names = await queries.getPlanNames(
+            req.user.tenant_org_id
+        );
+
+        plan_names = _.map(plan_names, name => name.toJSON())
+
+        const total = fifi.getListSize(plan_names);
+        limit = limit || 1;
+
+        trace.event('Format response');
+        const resp = format.planNames(plan_names, total, limit, offset, req.query.sort, req.query.system)
+
+        trace.leave();
+
+        return res.json(resp);
+    }
 
     trace.event('Query db for list of remediations');
     const {count, rows} = await queries.list(
@@ -259,6 +284,12 @@ exports.get = errors.async(async function (req, res) {
     remediation.needs_reboot = inferNeedsReboot(remediation);
 
     res.json(format.get(remediation));
+});
+
+exports.bulkPlaybook = errors.async(async function (req, res) {
+    // copy body array to request object and pass through to playbook()
+    req.query.hosts = req.body;
+    return exports.playbook(req, res);
 });
 
 exports.playbook = errors.async(async function (req, res) {

@@ -171,9 +171,10 @@ exports.loadDetails = async function (tenant_org_id, created_by, rows) {
     let result = [];
 
     try {
-        result = rows.map(row => _.assign(byId[row.id].toJSON(), row));
+        result = rows.map(row => _.assign(byId[row.id]?.toJSON(), row));
     }
 
+    // TODO: delete this debug try/catch...
     catch (e) {
         trace.event(`ERROR: results = ${JSON.stringify(results)},\nbyId = ${JSON.stringify(byId)},\nrows = ${JSON.stringify(rows)}`);
         trace.force = true;
@@ -181,6 +182,19 @@ exports.loadDetails = async function (tenant_org_id, created_by, rows) {
 
     trace.leave();
     return result;
+};
+
+exports.getPlanNames = function (tenant_org_id) {
+    const query = {
+        attributes: [
+            'name'
+        ],
+        where: {
+            tenant_org_id: tenant_org_id
+        }
+    };
+
+    return db.remediation.findAll(query);
 };
 
 /*
