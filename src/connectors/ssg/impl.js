@@ -4,6 +4,7 @@ const URI = require('urijs');
 const Connector = require('../Connector');
 const metrics = require('../metrics');
 const assert = require('assert');
+const trace = require('../../util/trace');
 
 const {host} = require('../../config').ssg;
 const VERSION_HEADER = 'x-ssg-version';
@@ -15,6 +16,7 @@ module.exports = new class extends Connector {
     }
 
     getTemplate (platform, profile, rule) {
+        trace.enter('ssg_impl.getTemplate');
         const uri = new URI(host);
         uri.segment('/playbooks');
         uri.segment(platform);
@@ -22,13 +24,19 @@ module.exports = new class extends Connector {
         uri.segment(profile);
         uri.segment(`${rule}.yml`);
 
-        return this.doHttp(
+        trace.event(`Fetching: ${platform}|${profile}|${rule}`);
+
+        const result = this.doHttp(
             { uri: uri.toString() },
             false,
             this.metrics,
             // eslint-disable-next-line security/detect-object-injection
             res => res === null ? null : ({template: res.body, version: res.headers[VERSION_HEADER]})
         );
+
+        trace.leave();
+
+        return result;
     }
 
     async ping () {
