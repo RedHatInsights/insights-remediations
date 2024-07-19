@@ -3,7 +3,9 @@
 set -x
 
 # run our tests...
-podman-compose -f build/docker-compose-unit_test.yml up -d --build --exit-code-from remediations-api
+podman-compose -f build/docker-compose-unit_test.yml down
+podman-compose -f build/docker-compose-unit_test.yml up db
+podman-compose -f build/docker-compose-unit_test.yml run remediations-api
 
 # save result...
 result=$?
