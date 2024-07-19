@@ -4,7 +4,7 @@
 const config = require('../config').db;
 const pg = require('pg');
 
-const RETRIES = 5;
+const RETRIES = 10;
 const DELAY = 3000;
 const SUCCESS = 0;
 const FAILURE = -1;
