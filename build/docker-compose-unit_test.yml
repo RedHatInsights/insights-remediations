@@ -14,7 +14,7 @@ services:
     environment:
       - NODE_ENV=test
       - DB_HOST=db
-    restart: no
+    restart: "no"
 
   db:
     image: quay.io/cloudservices/postgresql-rds:14
