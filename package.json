@@ -9,7 +9,6 @@
   },
   "author": "Jozef Hartinger",
   "dependencies": {
-    "express-http-context": "^1.2.4",
     "@godaddy/terminus": "^4.4.1",
     "app-common-js": "^2.2.4",
     "bluebird": "^3.7.2",
@@ -66,7 +65,7 @@
   "scripts": {
     "build": "gulp build",
     "coverage": "NODE_ENV=test npm run db:ims && jest -i --coverage",
-    "db:ims": "npm-run-all db:init db:migrate db:seed",
+    "db:ims": "npm-run-all db:wait db:init db:migrate db:seed",
     "db:create": "sequelize db:create",
     "db:drop": "sequelize db:drop",
     "db:hello": "sequelize",
@@ -75,6 +74,7 @@
     "db:migrate:undo": "sequelize db:migrate:undo",
     "db:migrate:undo:all": "sequelize db:migrate:undo:all",
     "db:seed": "sequelize db:seed:all",
+    "db:wait": "node src/db/wait.js",
     "lint": "npm-run-all lint:js lint:openapi",
     "lint:js": "eslint *.js db src",
     "lint:yaml": "yamllint src/api/openapi.yaml",
