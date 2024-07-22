@@ -63,7 +63,7 @@ fi
 #-----------------------------------
 podman build -f $DOCKERFILE --target test -t $API_IMAGE .
 
-$API_CONTAINER_ID=$(run -d \
+$API_CONTAINER_ID=$(podman run -d \
   --name "${API_CONTAINER_NAME}" \
   --network "${NETWORK}" \
   -e NODE_ENV="test" \
