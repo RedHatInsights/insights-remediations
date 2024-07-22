@@ -35,7 +35,7 @@ trap "tidy_up" EXIT SIGINT SIGTERM
 #---------------------
 echo '----> Create network...'
 
-docker network create --driver bridge $NETWORK
+podman network create --driver bridge $NETWORK
 
 if [ $? -ne 0 ]; then
 	echo '====> FAILED creating test network'
