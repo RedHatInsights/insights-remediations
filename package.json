@@ -65,7 +65,7 @@
   "scripts": {
     "build": "gulp build",
     "coverage": "NODE_ENV=test npm run db:ims && jest -i --coverage",
-    "db:ims": "npm-run-all db:init db:migrate db:seed",
+    "db:ims": "npm-run-all db:wait db:init db:migrate db:seed",
     "db:create": "sequelize db:create",
     "db:drop": "sequelize db:drop",
     "db:hello": "sequelize",

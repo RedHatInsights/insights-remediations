@@ -54,7 +54,7 @@ DB_CONTAINER_ID=$(podman run -d \
 	--network "${NETWORK}" \
 	-e POSTGRESQL_USER="postgres_user" \
 	-e POSTGRESQL_PASSWORD="remediations" \
-	-e POSTGRESQL_DATABASE="remediations" \
+	-e POSTGRESQL_DATABASE="remediationstest" \
 	${DB_IMAGE} || echo "0")
 
 if [[ "$DB_CONTAINER_ID" == "0" ]]; then
@@ -74,9 +74,6 @@ API_CONTAINER_ID=$(podman run -d \
   --network "${NETWORK}" \
   -e NODE_ENV="test" \
   -e DB_HOST="${DB_CONTAINER_NAME}" \
-  -e DB_USER="postgres_user" \
-  -e DB_PASSWORD="remediations" \
-  -e DB_DATABASE="remediations" \
   $API_IMAGE \
   /bin/bash -c 'sleep infinity' || echo "0")
 
