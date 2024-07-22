@@ -21,6 +21,7 @@ function wait (retries) {
     if (retries > 0) {
         const client = new pg.Client(pg_config);
 
+        console.log(`Connecting to DB: ${pg_config.database}, HOST: ${pg_config.host}:${pg_config.port}, USER: ${pg_config.user}...`);
         client.connect()
         .then(() => {
             client.query("SELECT 'DB is alive!' AS result;")
