@@ -45,7 +45,7 @@ fi
 #--------------------
 # start db container
 #--------------------
-echo '----> pull BD image...'
+echo '----> pull DB image...'
 podman pull $DB_IMAGE
 
 echo '----> start db container...'
@@ -98,13 +98,8 @@ fi
 # report results
 #----------------
 echo '----> record results...'
-# TODO: add unittest-xml-reporting to rbac so that junit results can be parsed by jenkins
 mkdir -p $WORKSPACE/artifacts
-cat << EOF > $WORKSPACE/artifacts/junit-dummy.xml
-<testsuite tests="1">
-    <testcase classname="dummy" name="dummytest"/>
-</testsuite>
-EOF
+podman cp $API_CONTAINER_ID:/opt/app-root/artifacts/. $WORKSPACE/artifacts
 
 echo '====> unit tests PASSED'
 
