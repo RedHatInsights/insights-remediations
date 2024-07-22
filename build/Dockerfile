@@ -40,6 +40,8 @@ COPY --from=build $APP_ROOT/node_modules ./node_modules
 
 ENV NODE_ENV=test
 
+CMD [ "sh", "-c", "npm run test:ci" ]
+
 #----------------------- dist -----------------------
 
 FROM base AS dist

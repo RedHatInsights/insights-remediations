@@ -1,16 +1,83 @@
 #!/bin/bash
 
-set -x
+# The following are defined outside of this script:
+# DOCKERFILE
+# APP_ROOT
 
-# run our tests...
-podman-compose -f build/docker-compose-unit_test.yml up --build --exit-code-from remediations-api
+cd $APP_ROOT
 
-# save result...
-result=$?
+API_IMAGE="local/remediations-test-${IMAGE_TAG}"
+API_CONTAINER_NAME="remediations-test-${IMAGE_TAG}"
 
-# tidy up...
-podman-compose -f build/docker-compose-unit_test.yml down
+DB_IMAGE="quay.io/cloudservices/postgresql-rds:cyndi-15-1"
+DB_CONTAINER_NAME="remediations-db-${IMAGE_TAG}"
 
+NETWORK="remediations-test-${IMAGE_TAG}"
+
+# cleanup function to tidy up after the test run
+function tidy_up {
+	podman rm -f $DB_CONTAINER_ID || true
+	podman rm -f $API_CONTAINER_ID || true
+	podman network rm $NETWORK || true
+
+  podman rmi -f $API_IMAGE || true
+  podman rmi -f $DB_IMAGE || true
+
+  podman container prune --force || true
+}
+
+trap "tidy_up" EXIT SIGINT SIGTERM
+
+#---------------------
+# create test network
+#---------------------
+docker network create --driver bridge $NETWORK
+
+if [ $? -ne 0 ]; then
+	echo '====> FAILED creating test network'
+	exit 1
+fi
+
+#--------------------
+# start db container
+#--------------------
+podman pull $DB_IMAGE
+
+DB_CONTAINER_ID=$(podman run -d \
+	--name "${DB_CONTAINER_NAME}" \
+	--network "${NETWORK}" \
+	-e POSTGRESQL_USER="postgres_user" \
+	-e POSTGRESQL_PASSWORD="remediations" \
+	-e POSTGRESQL_DATABASE="remediations" \
+	${DB_IMAGE} || echo "0")
+
+if [[ "$DB_CONTAINER_ID" == "0" ]]; then
+	echo "====> FAILED to start DB container"
+	exit 1
+fi
+
+#-------------------------------------
+# run remediations-tests in container
+#-------------------------------------
+podman build -f $DOCKERFILE --target test -t $API_IMAGE .
+
+podman run -t \
+  --name "${API_CONTAINER_NAME}" \
+  --network "${NETWORK}" \
+  -e NODE_ENV="test" \
+  -e DB_HOST="${DB_CONTAINER_NAME}" \
+  $API_IMAGE
+
+TEST_RESULT = $?
+
+if [ $TEST_RESULT -ne 0 ]; then
+	echo '====> unit tests FAILED'
+	exit 1
+fi
+
+#----------------
+# report results
+#----------------
 # TODO: add unittest-xml-reporting to rbac so that junit results can be parsed by jenkins
 mkdir -p $WORKSPACE/artifacts
 cat << EOF > $WORKSPACE/artifacts/junit-dummy.xml
@@ -19,4 +86,6 @@ cat << EOF > $WORKSPACE/artifacts/junit-dummy.xml
 </testsuite>
 EOF
 
-set +x
+echo '====> unit tests PASSED'
+
+tidy_up
