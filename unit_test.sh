@@ -9,16 +9,18 @@ cd $APP_ROOT
 API_IMAGE="local/remediations-test-${IMAGE_TAG}"
 API_CONTAINER_NAME="remediations-test-${IMAGE_TAG}"
 
-DB_IMAGE="quay.io/cloudservices/postgresql-rds:cyndi-15-1"
+DB_IMAGE="quay.io/cloudservices/postgresql-rds:14"
 DB_CONTAINER_NAME="remediations-db-${IMAGE_TAG}"
 
 NETWORK="remediations-test-${IMAGE_TAG}"
 
 # cleanup function to tidy up after the test run
 function tidy_up {
+  echo 'Tidying up...'
+
 	podman rm -f $DB_CONTAINER_ID || true
 	podman rm -f $API_CONTAINER_ID || true
-	podman network rm $NETWORK || true
+	podman network rm -f $NETWORK || true
 
   podman rmi -f $API_IMAGE || true
   podman rmi -f $DB_IMAGE || true
@@ -56,19 +58,29 @@ if [[ "$DB_CONTAINER_ID" == "0" ]]; then
 	exit 1
 fi
 
-#-------------------------------------
-# run remediations-tests in container
-#-------------------------------------
+#-----------------------------------
+# start remediations-test container
+#-----------------------------------
 podman build -f $DOCKERFILE --target test -t $API_IMAGE .
 
-podman run -t \
+$API_CONTAINER_ID=$(run -d \
   --name "${API_CONTAINER_NAME}" \
   --network "${NETWORK}" \
   -e NODE_ENV="test" \
   -e DB_HOST="${DB_CONTAINER_NAME}" \
-  $API_IMAGE
+  $API_IMAGE \
+  /bin/bash -c 'sleep infinity' || echo "0")
 
-TEST_RESULT = $?
+if [[ "$API_CONTAINER_ID" == "0" ]]; then
+	echo "Failed to start api container"
+	exit 1
+fi
+
+#-------------------------------------
+# run remediations-tests in container
+#-------------------------------------
+podman exec $API_CONTAINER_ID /bin/bash -c 'npm run test:ci'
+TEST_RESULT=$?
 
 if [ $TEST_RESULT -ne 0 ]; then
 	echo '====> unit tests FAILED'
