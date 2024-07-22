@@ -16,7 +16,7 @@ NETWORK="remediations-test-${IMAGE_TAG}"
 
 # cleanup function to tidy up after the test run
 function tidy_up {
-  echo 'Tidying up...'
+  echo '----> Tidying up...'
 
 	podman rm -f $DB_CONTAINER_ID || true
 	podman rm -f $API_CONTAINER_ID || true
@@ -33,6 +33,8 @@ trap "tidy_up" EXIT SIGINT SIGTERM
 #---------------------
 # create test network
 #---------------------
+echo '----> Create network...'
+
 docker network create --driver bridge $NETWORK
 
 if [ $? -ne 0 ]; then
@@ -43,8 +45,10 @@ fi
 #--------------------
 # start db container
 #--------------------
+echo '----> pull BD image...'
 podman pull $DB_IMAGE
 
+echo '----> start db container...'
 DB_CONTAINER_ID=$(podman run -d \
 	--name "${DB_CONTAINER_NAME}" \
 	--network "${NETWORK}" \
@@ -61,9 +65,11 @@ fi
 #-----------------------------------
 # start remediations-test container
 #-----------------------------------
+echo '----> build api test image...'
 podman build -f $DOCKERFILE --target test -t $API_IMAGE .
 
-$API_CONTAINER_ID=$(podman run -d \
+echo '----> start api test container...'
+API_CONTAINER_ID=$(podman run -d \
   --name "${API_CONTAINER_NAME}" \
   --network "${NETWORK}" \
   -e NODE_ENV="test" \
@@ -79,6 +85,7 @@ fi
 #-------------------------------------
 # run remediations-tests in container
 #-------------------------------------
+echo '----> run api tests...'
 podman exec $API_CONTAINER_ID /bin/bash -c 'npm run test:ci'
 TEST_RESULT=$?
 
@@ -90,6 +97,7 @@ fi
 #----------------
 # report results
 #----------------
+echo '----> record results...'
 # TODO: add unittest-xml-reporting to rbac so that junit results can be parsed by jenkins
 mkdir -p $WORKSPACE/artifacts
 cat << EOF > $WORKSPACE/artifacts/junit-dummy.xml
