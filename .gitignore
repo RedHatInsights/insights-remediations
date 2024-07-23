@@ -3,7 +3,7 @@ node_modules
 dist
 test
 .npm
-coverage
+artifacts
 
 \.vscode/
 .idea
