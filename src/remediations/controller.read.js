@@ -293,6 +293,7 @@ exports.bulkPlaybook = errors.async(async function (req, res) {
 });
 
 exports.playbook = errors.async(async function (req, res) {
+    trace.enter('controller.read(playbook)');
     const id = req.params.id;
     const selected_hosts = req.query.hosts;
     const localhost = req.query.localhost;
@@ -302,6 +303,7 @@ exports.playbook = errors.async(async function (req, res) {
     const tenant_org_id = req.identity.org_id;
     const creator = cert_auth ? null : req.user.username;
 
+    trace.event('Get remediation plan from db');
     const remediation = await queries.get(id, tenant_org_id, creator);
 
     if (!remediation) {
@@ -314,6 +316,7 @@ exports.playbook = errors.async(async function (req, res) {
         return noContent(res);
     }
 
+    trace.event('Normalize issues');
     let normalizedIssues = generator.normalizeIssues(issues);
 
     if (_.isEmpty(normalizedIssues)) {
@@ -321,6 +324,7 @@ exports.playbook = errors.async(async function (req, res) {
     }
 
     // remove any hosts not in selected_host list
+    trace.event('Remove non-selected hosts');
     if (selected_hosts) {
         _.forEach(normalizedIssues, issue => {
             issue.systems = _.filter(issue.systems, system => selected_hosts.includes(system));
@@ -328,6 +332,7 @@ exports.playbook = errors.async(async function (req, res) {
     }
 
     if (sat_org_id || cert_auth) {
+        trace.event('do sat / cert-auth stuff...');
         // get list of unique systems from issues
         const all_systems = _(normalizedIssues)
         .map('systems')
@@ -374,12 +379,14 @@ exports.playbook = errors.async(async function (req, res) {
     }
 
     // If any issues have 0 systems based on the changes above filter them out
+    trace.event('Prune empty issues');
     normalizedIssues = _.filter(normalizedIssues, issue => !_.isEmpty(issue.systems));
 
     if (_.isEmpty(normalizedIssues)) { // If all issues are filtered return 404
         return notFound(res);
     }
 
+    trace.event('Generate playbook')
     const playbook = await generator.playbookPipeline({
         issues: normalizedIssues,
         auto_reboot: remediation.auto_reboot
@@ -389,7 +396,10 @@ exports.playbook = errors.async(async function (req, res) {
         return noContent(res);
     }
 
+    trace.event('Send playbook!');
     generator.send(req, res, playbook, format.playbookName(remediation));
+
+    trace.leave();
 });
 
 exports.downloadPlaybooks = errors.async(async function (req, res) {
