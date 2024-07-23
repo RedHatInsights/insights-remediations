@@ -3,7 +3,7 @@
 const read = require('../controller.read');
 const openapi = require('../../middleware/openapi');
 const rbac = require('../../middleware/rbac');
-const trace = require("../util/trace").middleware;
+const trace = require("../../util/trace").middleware;
 
 const rbacRead = rbac('remediations:remediation:read');
 
