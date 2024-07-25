@@ -176,7 +176,8 @@ function Config() {
         },
 
         ssg: {
-            impl: env.SSG_IMPL
+            impl: env.SSG_IMPL,
+            revalidationInterval: parseIntEnv('SSG_REVALIDATION_INTERVAL', 60 * 60) // 1 hour
         },
 
         users: {

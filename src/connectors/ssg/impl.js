@@ -6,7 +6,7 @@ const metrics = require('../metrics');
 const assert = require('assert');
 const trace = require('../../util/trace');
 
-const {host} = require('../../config').ssg;
+const {host, revalidationInterval } = require('../../config').ssg;
 const VERSION_HEADER = 'x-ssg-version';
 
 module.exports = new class extends Connector {
@@ -28,7 +28,7 @@ module.exports = new class extends Connector {
 
         const result = this.doHttp(
             { uri: uri.toString() },
-            false,
+            { revalidationInterval },
             this.metrics,
             // eslint-disable-next-line security/detect-object-injection
             res => res === null ? null : ({template: res.body, version: res.headers[VERSION_HEADER]})
