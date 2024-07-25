@@ -166,6 +166,8 @@ objects:
             value: ${SSG_IMPL}
           - name: SSG_HOST
             value: ${SSG_HOST}
+          - name: SSG_REVALIDATION_INTERVAL
+            value: ${SSG_REVALIDATION_INTERVAL}
           - name: TENANT_TRANSLATOR_HOST
             value: ${TENANT_TRANSLATOR_HOST}
           - name: TENANT_TRANSLATOR_PORT
@@ -428,6 +430,7 @@ parameters:
 - name: SSG_IMPL
   value: impl
 - name: SSG_HOST
+- name: SSG_REVALIDATION_INTERVAL
 - name: TENANT_TRANSLATOR_HOST
 - name: TENANT_TRANSLATOR_PORT
 - name: USERS_IMPL
