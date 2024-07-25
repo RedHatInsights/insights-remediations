@@ -40,3 +40,7 @@ services:
       interval: 10s
       retries: 6
 
+  ssg:
+    image: quay.io/cloudservices/compliance-ssg
+    ports:
+      - 8090:8080
