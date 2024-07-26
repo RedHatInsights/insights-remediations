@@ -100,19 +100,23 @@ async function run (options, useCache = false, metrics = false, responseTransfor
     }
 
     if (res.statusCode === 304) {
+        // the etag still matches so just re-insert the old value...
         log.trace({key}, 'revalidated');
         saveCachedEntry(cache.get(), key, cached.etag, cached.body);
         return cached.body;
     }
 
     if (useCache.cacheable && res.body && !useCache.cacheable(res.body)) {
+        // this isn't cacheable so just transform the results and return that...
         log.trace({key}, 'not cacheable');
-        return res.body;
+        return responseTransformer(res);
     }
 
+    // update cache with transformed result
     log.trace({key}, 'saved to cache');
-    saveCachedEntry(cache.get(), key, res.headers.etag, res.body);
-    return responseTransformer(res);
+    const value = responseTransformer(res);
+    saveCachedEntry(cache.get(), key, res.headers.etag, value);
+    return value;
 }
 
 module.exports.request = run;

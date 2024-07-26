@@ -28,7 +28,10 @@ module.exports = new class extends Connector {
 
         const result = this.doHttp(
             { uri: uri.toString() },
-            { revalidationInterval },
+            {
+                key: `remediations|http-cache|ssg|${uri.path()}`,
+                revalidationInterval
+            },
             this.metrics,
             // eslint-disable-next-line security/detect-object-injection
             res => res === null ? null : ({template: res.body, version: res.headers[VERSION_HEADER]})
