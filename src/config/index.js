@@ -207,6 +207,9 @@ function Config() {
         * Dependencies
         */
         db: {
+            cache: {
+                ttl: parseIntEnv('DB_CACHE_TTL', 5 * 60) // 5 minutes
+            },
             dialect: 'postgres',
             benchmark: true,
             logging: true,

@@ -42,6 +42,9 @@ exports[`Configuration Verify app-common-js function 1`] = `
   },
   "db": {
     "benchmark": true,
+    "cache": {
+      "ttl": 300,
+    },
     "database": "remediationstest",
     "define": {
       "charset": "utf8",

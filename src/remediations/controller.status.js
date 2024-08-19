@@ -39,8 +39,6 @@ exports.status = errors.async(async function (req, res) {
         return res.status(404).json();
     }
 
-    remediation = remediation.toJSON();
-
     trace.event(`Collect array of issues with parsed identifier and system_ids: ${remediation.issues}`);
     const issues = _.map(remediation.issues, issue => ({
         ...issue,
