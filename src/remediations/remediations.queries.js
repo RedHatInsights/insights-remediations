@@ -2,10 +2,14 @@
 
 /*eslint-disable max-len*/
 
+const config = require('../config');
+const cache = require('../cache');
 const db = require('../db');
 const {NULL_NAME_VALUE} = require('./models/remediation');
 const _ = require('lodash');
 const trace = require('../util/trace');
+
+const CACHE_TTL = config.db.cache.ttl;
 
 const REMEDIATION_ATTRIBUTES = [
     'id',
@@ -200,7 +204,9 @@ exports.getPlanNames = function (tenant_org_id) {
 /*
   Load specified remediation from database
 
-  returns: {
+  Returns a Promise for the following JSON:
+
+  {
     name: "remediation 1",
     id: "66eec356-dd06-4c72-a3b6-ef27d1508a02",
     auto_reboot: true,
@@ -226,7 +232,11 @@ exports.getPlanNames = function (tenant_org_id) {
     ]
   }
 */
-exports.get = function (id, tenant_org_id, created_by = null) {
+exports.get = async function (id, tenant_org_id, created_by = null, useCache = false) {
+    // This gets called with a high degree of concurrency during playbook runs with RHC direct systems.
+    // Remediation plan changes during a playbook run are undesireable anyway so allow for caching these results
+    // to ease the load on the database.
+
     const query = {
         attributes: [
             ...REMEDIATION_ATTRIBUTES,
@@ -261,7 +271,43 @@ exports.get = function (id, tenant_org_id, created_by = null) {
         query.where.created_by = created_by;
     }
 
-    return db.remediation.findOne(query);
+    if (useCache && config.redis.enabled && cache.get().status === 'ready') {
+        // we were asked to use the cache, check that first
+        const key = `remediations|db-cache|remediation|${id}`;
+        const redis = cache.get();
+        let result = await redis.get(key);
+
+        if (result) {
+            result = JSON.parse(result);
+
+            // make sure tenant_org_id and created_by match - Remediation plans are scoped to a particular user.
+            if (result?.tenant_org_id !== tenant_org_id || result?.created_by !== created_by) {
+                result = null;
+            }
+        }
+
+        else {
+            // not found in cache, query db
+            result = await db.remediation.findOne(query);
+
+            // add non-null entry to cache
+            if (result) {
+                result = result.toJSON();
+                redis.setex(key, CACHE_TTL, JSON.stringify(result));
+            }
+        }
+
+        return result;
+    }
+
+    else {
+        // cache wasn't requested so just query the db...
+        const result = await db.remediation.findOne(query);
+
+        // we don't use the DAOs anyway so just return JSON if non-null...
+        return result ? result.toJSON() : result;
+
+    }
 };
 
 exports.getIssueSystems = function (id, tenant_org_id, created_by, issueId) {

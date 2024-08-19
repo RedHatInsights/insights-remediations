@@ -2,20 +2,25 @@ version: '3.4'
 
 services:
   remediations:
+    image: localhost/remediations-api:latest
     build:
       context: ../
       dockerfile: build/Dockerfile
-    command: sh -c "echo 'Waiting 3s for db to start' && sleep 3 && npm run db:ims && node src/app.js"
+      target: test
+    command: sh -c "node src/db/wait.js && node src/app.js"
     depends_on:
       - redis
       - db
+      - ssg
     ports:
-      - 9002:9002
+      - 9002:9003
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=test
       - REDIS_ENABLED=true
       - REDIS_HOST=redis
-      - LOG_LEVEL=trace
+      - SSG_IMPL=impl
+      - SSG_HOST=http://ssg:8080
+      - LOG_LEVEL=debug
       - DB_HOST=db
       - DEMO_MODE=true
     restart: unless-stopped

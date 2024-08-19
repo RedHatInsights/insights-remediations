@@ -269,8 +269,6 @@ exports.get = errors.async(async function (req, res) {
         return notFound(res);
     }
 
-    remediation = remediation.toJSON();
-
     await P.all([
         resolveSystems(remediation),
         resolveResolutions(remediation),
@@ -303,14 +301,14 @@ exports.playbook = errors.async(async function (req, res) {
     const tenant_org_id = req.identity.org_id;
     const creator = cert_auth ? null : req.user.username;
 
-    trace.event('Get remediation plan from db');
-    const remediation = await queries.get(id, tenant_org_id, creator);
+    trace.event('Get remediation plan from db (w/caching)');
+    const remediation = await queries.get(id, tenant_org_id, creator, true);
 
     if (!remediation) {
         return notFound(res);
     }
 
-    const issues = remediation.toJSON().issues;
+    const issues = remediation.issues;
 
     if (issues.length === 0) {
         return noContent(res);
@@ -418,7 +416,7 @@ exports.downloadPlaybooks = errors.async(async function (req, res) {
             return notFound(res);
         }
 
-        const issues = remediation.toJSON().issues;
+        const issues = remediation.issues;
 
         if (issues.length === 0) {
             generateZip = false;

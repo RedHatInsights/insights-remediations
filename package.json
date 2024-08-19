@@ -9,7 +9,6 @@
   },
   "author": "Jozef Hartinger",
   "dependencies": {
-    "express-http-context": "^1.2.4",
     "@godaddy/terminus": "^4.4.1",
     "app-common-js": "^2.2.4",
     "bluebird": "^3.7.2",
