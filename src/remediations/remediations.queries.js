@@ -58,13 +58,18 @@ function systemSubquery (system_id) {
 function resolvedCountSubquery () {
     const {s: { literal } } = db;
 
-    return literal(`(SELECT CAST(COUNT(remediation_issues.id) AS INT) FROM remediation_issues ` +
-    `WHERE NOT EXISTS(SELECT * FROM remediation_issue_systems ` +
-    `WHERE remediation_issues.id = remediation_issue_systems.remediation_issue_id ` +
-    `AND remediation_issue_systems.resolved = false) ` +
-    `AND remediation_issues.remediation_id = "remediation"."id" ` +
-    `AND EXISTS(SELECT * FROM remediation_issue_systems ` +
-    `WHERE remediation_issues.id = remediation_issue_systems.remediation_issue_id))`);
+    return literal(
+        `(` +
+           `SELECT CAST(COUNT(remediation_issues.id) AS INT) ` +
+           `FROM remediation_issues ` +
+           `WHERE remediation_issues.remediation_id = "remediation"."id" ` +
+           `AND EXISTS(` +
+              `SELECT * FROM remediation_issue_systems ` +
+              `WHERE remediation_issues.id = remediation_issue_systems.remediation_issue_id ` +
+              `AND remediation_issue_systems.resolved = true` +
+           `)` +
+        `)`
+    );
 }
 
 exports.list = function (
