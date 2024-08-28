@@ -286,7 +286,8 @@ exports.get = async function (id, tenant_org_id, created_by = null, useCache = f
             result = JSON.parse(result);
 
             // make sure tenant_org_id and created_by match - Remediation plans are scoped to a particular user.
-            if (result?.tenant_org_id !== tenant_org_id || result?.created_by !== created_by) {
+            // created_by will be null for cert auth "users"
+            if (result?.tenant_org_id !== tenant_org_id || (created_by && result?.created_by !== created_by)) {
                 result = null;
             }
         }
