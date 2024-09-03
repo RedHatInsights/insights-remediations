@@ -19,7 +19,6 @@ objects:
     - config-manager
     - patchman
     - playbook-dispatcher
-    - receptor
     - sources-api
     - vmaas
     - vulnerability-engine
