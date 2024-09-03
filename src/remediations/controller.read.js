@@ -301,8 +301,11 @@ exports.playbook = errors.async(async function (req, res) {
     const tenant_org_id = req.identity.org_id;
     const creator = cert_auth ? null : req.user.username;
 
+    const USE_CACHE = true;
+    const EXCLUDE_RESOLVED_COUNT = false;
+
     trace.event('Get remediation plan from db (w/caching)');
-    const remediation = await queries.get(id, tenant_org_id, creator, true);
+    const remediation = await queries.get(id, tenant_org_id, creator, EXCLUDE_RESOLVED_COUNT, USE_CACHE);
 
     if (!remediation) {
         return notFound(res);

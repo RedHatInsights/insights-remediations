@@ -237,15 +237,14 @@ exports.getPlanNames = function (tenant_org_id) {
     ]
   }
 */
-exports.get = async function (id, tenant_org_id, created_by = null, useCache = false) {
+exports.get = async function (id, tenant_org_id, created_by = null, includeResolvedCount = true, useCache = false) {
     // This gets called with a high degree of concurrency during playbook runs with RHC direct systems.
     // Remediation plan changes during a playbook run are undesireable anyway so allow for caching these results
     // to ease the load on the database.
 
     const query = {
         attributes: [
-            ...REMEDIATION_ATTRIBUTES,
-            [resolvedCountSubquery(), 'resolved_count']
+            ...REMEDIATION_ATTRIBUTES
         ],
         include: [{
             attributes: ISSUE_ATTRIBUTES,
@@ -271,6 +270,10 @@ exports.get = async function (id, tenant_org_id, created_by = null, useCache = f
             [db.issue, db.issue.associations.systems, 'system_id']
         ]
     };
+
+    if (includeResolvedCount) {
+        query.attributes.push([resolvedCountSubquery(), 'resolved_count']);
+    }
 
     if (created_by) {
         query.where.created_by = created_by;
