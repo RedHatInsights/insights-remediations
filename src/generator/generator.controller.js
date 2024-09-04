@@ -133,7 +133,6 @@ exports.resolveSystems = async function (issues, strict = true) {
     // bypass cache as ansible_host may change so we want to grab the latest one
     trace.event('Get system details...');
     const systems = await inventory.getSystemDetailsBatch(systemIds, true);
-    trace.event(`Systems: ${systems}`);
 
     if (!strict) {
         trace.event('Remove systems for which we have no inventory entry...');
@@ -141,13 +140,12 @@ exports.resolveSystems = async function (issues, strict = true) {
             // eslint-disable-next-line security/detect-object-injection
             return (systems.hasOwnProperty(id));
         }));
-        trace.event(`Filtered issues: ${JSON.stringify(issues)}`);
     }
 
-    trace.enter('Verify that there are no systems for which we have no inventory entry...');
+    trace.event('Verify that there are no systems for which we have no inventory entry...');
     _.forEach(issues, issue => issue.hosts = issue.systems.map(id => {
-        trace.event(`Checking id: ${id}`);
         if (!systems.hasOwnProperty(id)) {
+            trace.event(`Found no data for system: ${id}`);
             probes.failedGeneration(issue.id);
             throw errors.unknownSystem(id);
         }
@@ -157,14 +155,14 @@ exports.resolveSystems = async function (issues, strict = true) {
         const system = systems[id];
         return exports.systemToHost(system);
     }));
-    trace.leave('All systems verified!');
+    trace.event('All systems verified!');
 
     if (!strict) {
         trace.event('Remove issues with no systems...')
         issues = _.filter(issues, (issue) => (issue.systems.length > 0));
     }
 
-    trace.leave(`Returning: ${JSON.stringify(issues)}`);
+    trace.leave();
     return issues;
 };
 
@@ -212,7 +210,7 @@ function addDiagnosisPlay (plays, remediation = false) {
     return [new SpecialPlay('special:diagnosis', hosts, templates.special.diagnosis, params), ...plays];
 }
 
-exports.send = function (req, res, {yaml, definition}, attachment = false) {
+exports.send = async function (req, res, {yaml, definition}, attachment = false) {
     res.set('Content-type', 'text/vnd.yaml');
     res.set('etag', playbookEtag(yaml));
 
@@ -221,9 +219,9 @@ exports.send = function (req, res, {yaml, definition}, attachment = false) {
     }
 
     if (req.stale) {
-        res.send(yaml).end();
         probes.playbookGenerated(req, definition, attachment);
-        storePlaybookDefinition(req, definition, attachment);
+        await storePlaybookDefinition(req, definition, attachment);
+        res.send(yaml).end();
     } else {
         res.status(304).end();
     }
