@@ -46,7 +46,10 @@ const RESOLUTIONS = Object.freeze({
         templates.test.invalidSignatureVars,
         'fix',
         'Template with invalid signature due to incorrect vars field'
-    )]
+    )],
+    largePlaybook1mb: [new Resolution(templates.test.largePlaybook1mb, 'fix', 'Run Ansible large playbook module with 1 MB output')],
+    largePlaybook2mb: [new Resolution(templates.test.largePlaybook2mb, 'fix', 'Run Ansible large playbook module with 2 MB output')],
+    largePlaybook5mb: [new Resolution(templates.test.largePlaybook5mb, 'fix', 'Run Ansible large playbook module with 5 MB output')],
 });
 
 module.exports = class TestResolver extends Resolver {
