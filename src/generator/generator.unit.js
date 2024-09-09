@@ -50,6 +50,51 @@ test('generates a simple failHalfTheTime  playbook', () => {
     .then(res => expect(res.text).toMatchSnapshot());
 });
 
+test('generates a playbook with 1 MB of playbook output', () => {
+    const data = {
+        issues: [{
+            id: 'test:largePlaybook1mb',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200)
+    .then(res => expect(res.text).toMatchSnapshot());
+});
+
+test('generates a playbook with 2 MB of playbook output', () => {
+    const data = {
+        issues: [{
+            id: 'test:largePlaybook2mb',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200)
+    .then(res => expect(res.text).toMatchSnapshot());
+});
+
+test('generates a playbook with 5 MB of playbook output', () => {
+    const data = {
+        issues: [{
+            id: 'test:largePlaybook5mb',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200)
+    .then(res => expect(res.text).toMatchSnapshot());
+});
+
 ['1m', '5m', '15m', '1h', '6h', 'Random15m'].forEach(delay =>
     test(`generates a pause playbook (${delay})`, () => {
         const data = {

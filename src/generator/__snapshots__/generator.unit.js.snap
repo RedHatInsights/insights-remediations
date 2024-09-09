@@ -1260,6 +1260,231 @@ exports[`generates a pause playbook (Random15m) 1`] = `
       changed_when: false"
 `;
 
+exports[`generates a playbook with 1 MB of playbook output 1`] = `
+"---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
+# Fixes test:largePlaybook1mb
+# Identifier: (test:largePlaybook1mb,fix)
+# Version: unknown
+- name: generate 1 MB playbook output
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
+  become: true
+  gather_facts: false
+  vars:
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU213elMyZFlRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rq
+      a3djMUZCU1dwWVVsWklhUzh5WkdRclFrdzRhRnBCVXlzNGJrd0tjbUp5WkhobWRra3ZhM1p3TWxj
+      eGNrMWtNbkJ0YmpsV1owOURXVll6YzI5Nk1FNURjRTVKZUhsUFFuZFpXVmhOYkdwYU5XcGhOSE5F
+      TkZVME5HbzFRUXBQUmxWTE1IQmxaR3QwVTJseVVsbDJhbTFsVm1oU1YyRnhURzE0VnpJeFFVdDNN
+      bmR5YTBRM1EwNVRjM1JtYmxWMlRtUkJabU5LYjFGV2NHODJOM2RyQ2sxUFNUaFJZMlo2ZFdJMWNu
+      aHlTSFV3ZUM5eFZqVnROa3RPZVZORFptaFlLelo0SzFkMWFqQk1ibEZqYTJ4WVYyVkZVM2hQV1N0
+      blRrMUJNMFkxYkU4S1dXcHdSMmhVU25oeFkzSXpTRWh0TURsV1RWTk1aeTkwTjNFNGRqaERWMlp1
+      Wms1M2VVcDBOazVsYVV0MGFVYzVUa2hKV1d0M1NFZ3lOMFZZTlhORk9Rb3pSakEyWWs5NlpsQkdT
+      RWRaUzBzeFlYTmplamhvTDNOMVRtMDRiWFJ4Ym5CQmIycHNkM1JZVDNKWmFVaG1hV1JsTWtSaWEz
+      VjNOUzl0ZDBGSFFXZFVDbGhtTWtJMGMybFBVSHBpWWxvMVUzUjJSbFk0YzBaMVVrMTFjWEpHVTJj
+      M2FsSkpkbkpQT1ZjeE5YQTBiV04xUnpkSWVDOVJRMVpvUmpkb1FuUkZUMG9LVFhCdmFYVjBOVlpx
+      ZGxsVFkwcEJUM05tTUdsYU5FaFlRWEZtVEVWWWVtdzFja1ZzUmtoek1GSnlWRkJsWVZoSmRqTmti
+      bkpUV0dkNFNUZFVTVUpUYVFwYWJtTkNZalpMVUdkNWFVSXJibWRQV0ZCbFEyMUhNbmRMVm5CSGVI
+      ZDFkV0pXTWtScE5FdGxhWHB0V25KcWNtMVFPRlJLWjJWb2QyRktSMmt5TlZwakNrcFpVMlpGTVU5
+      T1pucDVaR2gxVmxscVltSnhabkppZGxKWU4zaExlV1JNTVhWQlRucG9Ua05wY2pSRk0xcHRaRloy
+      UlVSd04wNVNhalIwTmpReldrY0tTVGxSYnpGRldEazNlR001YmtwYU0wMDVWME5zYVhSa2MwUTJh
+      V1JQWlhCU1FuRlBhSFJIU0hoRlkxVkJUMHgxWkUwelNVNDNNM1pDVlRCa1dsbFVXQXByYVhwNVRV
+      VXJibGxEUmxKSk9XWjFaemx2ZGdvOVVtcGxWZ290TFMwdExVVk9SQ0JRUjFBZ1UwbEhUa0ZVVlZK
+      RkxTMHRMUzBL
+  tasks:
+    - name: generate 1 MB playbook output
+      shell: "dd if=/dev/urandom of=/dev/stdout bs=256 count=1000 status=none | od -t x1"
+
+- name: run insights
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
+  become: true
+  gather_facts: false
+  vars:
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
+`;
+
+exports[`generates a playbook with 2 MB of playbook output 1`] = `
+"---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
+# Fixes test:largePlaybook2mb
+# Identifier: (test:largePlaybook2mb,fix)
+# Version: unknown
+- name: generate 2 MB playbook output
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
+  become: true
+  gather_facts: false
+  vars:
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU213elMyZFlRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rq
+      a3djMUZCU1dwWVVsWklhUzh5WkdRclFrdzRhRnBCVXlzNGJrd0tjbUp5WkhobWRra3ZhM1p3TWxj
+      eGNrMWtNbkJ0YmpsV1owOURXVll6YzI5Nk1FNURjRTVKZUhsUFFuZFpXVmhOYkdwYU5XcGhOSE5F
+      TkZVME5HbzFRUXBQUmxWTE1IQmxaR3QwVTJseVVsbDJhbTFsVm1oU1YyRnhURzE0VnpJeFFVdDNN
+      bmR5YTBRM1EwNVRjM1JtYmxWMlRtUkJabU5LYjFGV2NHODJOM2RyQ2sxUFNUaFJZMlo2ZFdJMWNu
+      aHlTSFV3ZUM5eFZqVnROa3RPZVZORFptaFlLelo0SzFkMWFqQk1ibEZqYTJ4WVYyVkZVM2hQV1N0
+      blRrMUJNMFkxYkU4S1dXcHdSMmhVU25oeFkzSXpTRWh0TURsV1RWTk1aeTkwTjNFNGRqaERWMlp1
+      Wms1M2VVcDBOazVsYVV0MGFVYzVUa2hKV1d0M1NFZ3lOMFZZTlhORk9Rb3pSakEyWWs5NlpsQkdT
+      RWRaUzBzeFlYTmplamhvTDNOMVRtMDRiWFJ4Ym5CQmIycHNkM1JZVDNKWmFVaG1hV1JsTWtSaWEz
+      VjNOUzl0ZDBGSFFXZFVDbGhtTWtJMGMybFBVSHBpWWxvMVUzUjJSbFk0YzBaMVVrMTFjWEpHVTJj
+      M2FsSkpkbkpQT1ZjeE5YQTBiV04xUnpkSWVDOVJRMVpvUmpkb1FuUkZUMG9LVFhCdmFYVjBOVlpx
+      ZGxsVFkwcEJUM05tTUdsYU5FaFlRWEZtVEVWWWVtdzFja1ZzUmtoek1GSnlWRkJsWVZoSmRqTmti
+      bkpUV0dkNFNUZFVTVUpUYVFwYWJtTkNZalpMVUdkNWFVSXJibWRQV0ZCbFEyMUhNbmRMVm5CSGVI
+      ZDFkV0pXTWtScE5FdGxhWHB0V25KcWNtMVFPRlJLWjJWb2QyRktSMmt5TlZwakNrcFpVMlpGTVU5
+      T1pucDVaR2gxVmxscVltSnhabkppZGxKWU4zaExlV1JNTVhWQlRucG9Ua05wY2pSRk0xcHRaRloy
+      UlVSd04wNVNhalIwTmpReldrY0tTVGxSYnpGRldEazNlR001YmtwYU0wMDVWME5zYVhSa2MwUTJh
+      V1JQWlhCU1FuRlBhSFJIU0hoRlkxVkJUMHgxWkUwelNVNDNNM1pDVlRCa1dsbFVXQXByYVhwNVRV
+      VXJibGxEUmxKSk9XWjFaemx2ZGdvOVVtcGxWZ290TFMwdExVVk9SQ0JRUjFBZ1UwbEhUa0ZVVlZK
+      RkxTMHRMUzBL
+  tasks:
+    - name: generate 2 MB playbook output
+      shell: "dd if=/dev/urandom of=/dev/stdout bs=256 count=2000 status=none | od -t x1"
+
+- name: run insights
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
+  become: true
+  gather_facts: false
+  vars:
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
+`;
+
+exports[`generates a playbook with 5 MB of playbook output 1`] = `
+"---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
+# Fixes test:largePlaybook5mb
+# Identifier: (test:largePlaybook5mb,fix)
+# Version: unknown
+- name: generate 5 MB playbook output
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
+  become: true
+  gather_facts: false
+  vars:
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU213elMyZFlRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rq
+      a3djMUZCU1dwWVVsWklhUzh5WkdRclFrdzRhRnBCVXlzNGJrd0tjbUp5WkhobWRra3ZhM1p3TWxj
+      eGNrMWtNbkJ0YmpsV1owOURXVll6YzI5Nk1FNURjRTVKZUhsUFFuZFpXVmhOYkdwYU5XcGhOSE5F
+      TkZVME5HbzFRUXBQUmxWTE1IQmxaR3QwVTJseVVsbDJhbTFsVm1oU1YyRnhURzE0VnpJeFFVdDNN
+      bmR5YTBRM1EwNVRjM1JtYmxWMlRtUkJabU5LYjFGV2NHODJOM2RyQ2sxUFNUaFJZMlo2ZFdJMWNu
+      aHlTSFV3ZUM5eFZqVnROa3RPZVZORFptaFlLelo0SzFkMWFqQk1ibEZqYTJ4WVYyVkZVM2hQV1N0
+      blRrMUJNMFkxYkU4S1dXcHdSMmhVU25oeFkzSXpTRWh0TURsV1RWTk1aeTkwTjNFNGRqaERWMlp1
+      Wms1M2VVcDBOazVsYVV0MGFVYzVUa2hKV1d0M1NFZ3lOMFZZTlhORk9Rb3pSakEyWWs5NlpsQkdT
+      RWRaUzBzeFlYTmplamhvTDNOMVRtMDRiWFJ4Ym5CQmIycHNkM1JZVDNKWmFVaG1hV1JsTWtSaWEz
+      VjNOUzl0ZDBGSFFXZFVDbGhtTWtJMGMybFBVSHBpWWxvMVUzUjJSbFk0YzBaMVVrMTFjWEpHVTJj
+      M2FsSkpkbkpQT1ZjeE5YQTBiV04xUnpkSWVDOVJRMVpvUmpkb1FuUkZUMG9LVFhCdmFYVjBOVlpx
+      ZGxsVFkwcEJUM05tTUdsYU5FaFlRWEZtVEVWWWVtdzFja1ZzUmtoek1GSnlWRkJsWVZoSmRqTmti
+      bkpUV0dkNFNUZFVTVUpUYVFwYWJtTkNZalpMVUdkNWFVSXJibWRQV0ZCbFEyMUhNbmRMVm5CSGVI
+      ZDFkV0pXTWtScE5FdGxhWHB0V25KcWNtMVFPRlJLWjJWb2QyRktSMmt5TlZwakNrcFpVMlpGTVU5
+      T1pucDVaR2gxVmxscVltSnhabkppZGxKWU4zaExlV1JNTVhWQlRucG9Ua05wY2pSRk0xcHRaRloy
+      UlVSd04wNVNhalIwTmpReldrY0tTVGxSYnpGRldEazNlR001YmtwYU0wMDVWME5zYVhSa2MwUTJh
+      V1JQWlhCU1FuRlBhSFJIU0hoRlkxVkJUMHgxWkUwelNVNDNNM1pDVlRCa1dsbFVXQXByYVhwNVRV
+      VXJibGxEUmxKSk9XWjFaemx2ZGdvOVVtcGxWZ290TFMwdExVVk9SQ0JRUjFBZ1UwbEhUa0ZVVlZK
+      RkxTMHRMUzBL
+  tasks:
+    - name: generate 5 MB playbook output
+      shell: "dd if=/dev/urandom of=/dev/stdout bs=256 count=5000 status=none | od -t x1"
+
+- name: run insights
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
+  become: true
+  gather_facts: false
+  vars:
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
+`;
+
 exports[`generates a simple alwaysFail playbook 1`] = `
 "---
 # Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
