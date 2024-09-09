@@ -53,7 +53,7 @@ test('generates a simple failHalfTheTime  playbook', () => {
 test('generates a playbook with 1 MB of playbook output', () => {
     const data = {
         issues: [{
-            id: 'test:largePlaybook1mb',
+            id: 'test:largePlaybook1MB',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
@@ -68,7 +68,7 @@ test('generates a playbook with 1 MB of playbook output', () => {
 test('generates a playbook with 2 MB of playbook output', () => {
     const data = {
         issues: [{
-            id: 'test:largePlaybook2mb',
+            id: 'test:largePlaybook2MB',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
@@ -83,7 +83,7 @@ test('generates a playbook with 2 MB of playbook output', () => {
 test('generates a playbook with 5 MB of playbook output', () => {
     const data = {
         issues: [{
-            id: 'test:largePlaybook5mb',
+            id: 'test:largePlaybook5MB',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
