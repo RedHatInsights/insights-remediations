@@ -72,6 +72,102 @@ const DATA = Object.freeze({
 
     'xccdf_org.ssgproject.content_rule_rsyslog_remote_loghost': {
         title: 'Ensure Logs Sent To Remote Host'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv6_conf_default_accept_source_route': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_kernel_randomize_va_space': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_kernel_yama_ptrace_scope': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_conf_all_accept_redirects': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_conf_all_accept_source_route': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_conf_all_log_martians': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_conf_all_rp_filter': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_conf_all_secure_redirects': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_conf_all_send_redirects': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_conf_default_accept_redirects': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_conf_default_accept_source_route': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_conf_default_log_martians': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_conf_default_rp_filter': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_conf_default_secure_redirects': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_conf_default_send_redirects': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_icmp_echo_ignore_broadcasts': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_icmp_ignore_bogus_error_responses': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_ip_forward': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_tcp_syncookies': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv6_conf_all_accept_ra': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv6_conf_all_accept_redirects': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv6_conf_all_forwarding': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv6_conf_default_accept_ra': {
+        title: 'Test SSG issue'
+    },
+
+    'xccdf_org.ssgproject.content_rule_sysctl_net_ipv6_conf_default_accept_redirects': {
+        title: 'Test SSG issue'
     }
 });
 
