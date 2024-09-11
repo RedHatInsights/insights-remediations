@@ -2861,345 +2861,6 @@ data:
           "type": "timeseries"
         },
         {
-          "datasource": {
-            "uid": "$datasource"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "mappings": [
-                {
-                  "options": {
-                    "match": "null",
-                    "result": {
-                      "text": "N/A"
-                    }
-                  },
-                  "type": "special"
-                }
-              ],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "#299c46",
-                    "value": null
-                  },
-                  {
-                    "color": "rgba(237, 129, 40, 0.89)",
-                    "value": 0.1
-                  },
-                  {
-                    "color": "#d44a3a",
-                    "value": 2
-                  }
-                ]
-              },
-              "unit": "none"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 2,
-            "w": 3,
-            "x": 3,
-            "y": 22
-          },
-          "id": 86,
-          "maxDataPoints": 100,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "orientation": "horizontal",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showPercentChange": false,
-            "textMode": "auto",
-            "wideLayout": true
-          },
-          "pluginVersion": "10.4.1",
-          "targets": [
-            {
-              "datasource": {
-                "uid": "$datasource"
-              },
-              "expr": "sum(increase(remediations_consumer_receptor_executor_not_found[$__range]))",
-              "format": "time_series",
-              "groupBy": [
-                {
-                  "params": [
-                    "$__interval"
-                  ],
-                  "type": "time"
-                },
-                {
-                  "params": [
-                    "null"
-                  ],
-                  "type": "fill"
-                }
-              ],
-              "instant": true,
-              "intervalFactor": 1,
-              "orderByTime": "ASC",
-              "policy": "default",
-              "refId": "A",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  },
-                  {
-                    "params": [],
-                    "type": "mean"
-                  }
-                ]
-              ],
-              "tags": []
-            }
-          ],
-          "title": "executor misses",
-          "type": "stat"
-        },
-        {
-          "datasource": {
-            "uid": "$datasource"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "mappings": [
-                {
-                  "options": {
-                    "match": "null",
-                    "result": {
-                      "text": "N/A"
-                    }
-                  },
-                  "type": "special"
-                }
-              ],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "#299c46",
-                    "value": null
-                  },
-                  {
-                    "color": "rgba(237, 129, 40, 0.89)",
-                    "value": 0.1
-                  },
-                  {
-                    "color": "#d44a3a",
-                    "value": 0.1
-                  }
-                ]
-              },
-              "unit": "none"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 2,
-            "w": 3,
-            "x": 6,
-            "y": 22
-          },
-          "id": 82,
-          "maxDataPoints": 100,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "orientation": "horizontal",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showPercentChange": false,
-            "textMode": "auto",
-            "wideLayout": true
-          },
-          "pluginVersion": "10.4.1",
-          "targets": [
-            {
-              "datasource": {
-                "uid": "$datasource"
-              },
-              "expr": "sum(increase(remediations_consumer_receptor_total{result=\"error_parse\"}[$__range]))",
-              "format": "time_series",
-              "groupBy": [
-                {
-                  "params": [
-                    "$__interval"
-                  ],
-                  "type": "time"
-                },
-                {
-                  "params": [
-                    "null"
-                  ],
-                  "type": "fill"
-                }
-              ],
-              "instant": true,
-              "intervalFactor": 1,
-              "orderByTime": "ASC",
-              "policy": "default",
-              "refId": "A",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  },
-                  {
-                    "params": [],
-                    "type": "mean"
-                  }
-                ]
-              ],
-              "tags": []
-            }
-          ],
-          "title": "parser errors",
-          "type": "stat"
-        },
-        {
-          "datasource": {
-            "uid": "$datasource"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "mappings": [
-                {
-                  "options": {
-                    "match": "null",
-                    "result": {
-                      "text": "N/A"
-                    }
-                  },
-                  "type": "special"
-                }
-              ],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "#299c46",
-                    "value": null
-                  },
-                  {
-                    "color": "rgba(237, 129, 40, 0.89)",
-                    "value": 0.1
-                  },
-                  {
-                    "color": "#d44a3a",
-                    "value": 10
-                  }
-                ]
-              },
-              "unit": "none"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 2,
-            "w": 3,
-            "x": 9,
-            "y": 22
-          },
-          "id": 90,
-          "maxDataPoints": 100,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "orientation": "horizontal",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showPercentChange": false,
-            "textMode": "auto",
-            "wideLayout": true
-          },
-          "pluginVersion": "10.4.1",
-          "targets": [
-            {
-              "datasource": {
-                "uid": "$datasource"
-              },
-              "expr": "sum(max_over_time(remediations_cleaner_updated_total{entity=\"executors\", app!=\"prometheus-push\", job=~\"remediations-prod\\\\|.*\"}[$__range]))",
-              "format": "time_series",
-              "groupBy": [
-                {
-                  "params": [
-                    "$__interval"
-                  ],
-                  "type": "time"
-                },
-                {
-                  "params": [
-                    "null"
-                  ],
-                  "type": "fill"
-                }
-              ],
-              "instant": true,
-              "intervalFactor": 1,
-              "orderByTime": "ASC",
-              "policy": "default",
-              "refId": "A",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  },
-                  {
-                    "params": [],
-                    "type": "mean"
-                  }
-                ]
-              ],
-              "tags": []
-            }
-          ],
-          "title": "executors cleaned",
-          "type": "stat"
-        },
-        {
           "collapsed": false,
           "datasource": {
             "type": "prometheus",
@@ -3209,7 +2870,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 24
+            "y": 22
           },
           "id": 79,
           "panels": [],
@@ -3270,7 +2931,7 @@ data:
             "h": 2,
             "w": 3,
             "x": 0,
-            "y": 25
+            "y": 23
           },
           "id": 94,
           "maxDataPoints": 100,
@@ -3383,7 +3044,7 @@ data:
             "h": 2,
             "w": 3,
             "x": 3,
-            "y": 25
+            "y": 23
           },
           "id": 99,
           "maxDataPoints": 100,
@@ -3495,7 +3156,7 @@ data:
             "h": 2,
             "w": 3,
             "x": 6,
-            "y": 25
+            "y": 23
           },
           "id": 83,
           "maxDataPoints": 100,
@@ -3608,7 +3269,7 @@ data:
             "h": 2,
             "w": 3,
             "x": 9,
-            "y": 25
+            "y": 23
           },
           "id": 91,
           "maxDataPoints": 100,
@@ -3742,7 +3403,7 @@ data:
             "h": 6,
             "w": 12,
             "x": 12,
-            "y": 25
+            "y": 23
           },
           "id": 88,
           "options": {
@@ -3825,7 +3486,7 @@ data:
             "h": 2,
             "w": 3,
             "x": 0,
-            "y": 27
+            "y": 25
           },
           "id": 95,
           "maxDataPoints": 100,
@@ -3938,7 +3599,7 @@ data:
             "h": 2,
             "w": 3,
             "x": 3,
-            "y": 27
+            "y": 25
           },
           "id": 85,
           "maxDataPoints": 100,
@@ -4051,7 +3712,7 @@ data:
             "h": 2,
             "w": 3,
             "x": 6,
-            "y": 27
+            "y": 25
           },
           "id": 84,
           "maxDataPoints": 100,
@@ -4164,7 +3825,7 @@ data:
             "h": 2,
             "w": 3,
             "x": 9,
-            "y": 27
+            "y": 25
           },
           "id": 89,
           "maxDataPoints": 100,
@@ -4277,7 +3938,7 @@ data:
             "h": 2,
             "w": 3,
             "x": 0,
-            "y": 29
+            "y": 27
           },
           "id": 93,
           "maxDataPoints": 100,
@@ -4343,6 +4004,345 @@ data:
             }
           ],
           "title": "lock mismatch",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "uid": "$datasource"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "N/A"
+                    }
+                  },
+                  "type": "special"
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#299c46",
+                    "value": null
+                  },
+                  {
+                    "color": "rgba(237, 129, 40, 0.89)",
+                    "value": 0.1
+                  },
+                  {
+                    "color": "#d44a3a",
+                    "value": 2
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 2,
+            "w": 3,
+            "x": 3,
+            "y": 27
+          },
+          "id": 86,
+          "maxDataPoints": 100,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "uid": "$datasource"
+              },
+              "expr": "sum(increase(remediations_consumer_receptor_executor_not_found[$__range]))",
+              "format": "time_series",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "instant": true,
+              "intervalFactor": 1,
+              "orderByTime": "ASC",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            }
+          ],
+          "title": "executor misses",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "uid": "$datasource"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "N/A"
+                    }
+                  },
+                  "type": "special"
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#299c46",
+                    "value": null
+                  },
+                  {
+                    "color": "rgba(237, 129, 40, 0.89)",
+                    "value": 0.1
+                  },
+                  {
+                    "color": "#d44a3a",
+                    "value": 0.1
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 2,
+            "w": 3,
+            "x": 6,
+            "y": 27
+          },
+          "id": 82,
+          "maxDataPoints": 100,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "uid": "$datasource"
+              },
+              "expr": "sum(increase(remediations_consumer_receptor_total{result=\"error_parse\"}[$__range]))",
+              "format": "time_series",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "instant": true,
+              "intervalFactor": 1,
+              "orderByTime": "ASC",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            }
+          ],
+          "title": "parser errors",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "uid": "$datasource"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "N/A"
+                    }
+                  },
+                  "type": "special"
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#299c46",
+                    "value": null
+                  },
+                  {
+                    "color": "rgba(237, 129, 40, 0.89)",
+                    "value": 0.1
+                  },
+                  {
+                    "color": "#d44a3a",
+                    "value": 10
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 2,
+            "w": 3,
+            "x": 9,
+            "y": 27
+          },
+          "id": 90,
+          "maxDataPoints": 100,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "uid": "$datasource"
+              },
+              "expr": "sum(max_over_time(remediations_cleaner_updated_total{entity=\"executors\", app!=\"prometheus-push\", job=~\"remediations-prod\\\\|.*\"}[$__range]))",
+              "format": "time_series",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "instant": true,
+              "intervalFactor": 1,
+              "orderByTime": "ASC",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            }
+          ],
+          "title": "executors cleaned",
           "type": "stat"
         },
         {
@@ -4451,7 +4451,7 @@ data:
             "h": 4,
             "w": 12,
             "x": 0,
-            "y": 31
+            "y": 29
           },
           "id": 81,
           "options": {
@@ -4583,7 +4583,7 @@ data:
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 31
+            "y": 29
           },
           "id": 102,
           "options": {
@@ -4691,7 +4691,7 @@ data:
             "h": 4,
             "w": 12,
             "x": 0,
-            "y": 35
+            "y": 33
           },
           "hideTimeOverride": false,
           "id": 80,
@@ -4827,7 +4827,7 @@ data:
             "h": 5,
             "w": 12,
             "x": 0,
-            "y": 39
+            "y": 37
           },
           "hideTimeOverride": false,
           "id": 92,
@@ -4971,7 +4971,7 @@ data:
             "h": 5,
             "w": 12,
             "x": 12,
-            "y": 39
+            "y": 37
           },
           "hideTimeOverride": false,
           "id": 96,
@@ -5054,7 +5054,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 44
+            "y": 42
           },
           "id": 70,
           "panels": [],
@@ -5134,7 +5134,7 @@ data:
             "h": 6,
             "w": 12,
             "x": 0,
-            "y": 45
+            "y": 43
           },
           "id": 68,
           "options": {
@@ -5264,7 +5264,7 @@ data:
             "h": 6,
             "w": 12,
             "x": 12,
-            "y": 45
+            "y": 43
           },
           "id": 101,
           "options": {
@@ -5397,7 +5397,7 @@ data:
             "h": 6,
             "w": 12,
             "x": 0,
-            "y": 51
+            "y": 49
           },
           "id": 77,
           "options": {
@@ -5582,7 +5582,7 @@ data:
             "h": 6,
             "w": 12,
             "x": 12,
-            "y": 51
+            "y": 49
           },
           "id": 71,
           "options": {
@@ -5625,7 +5625,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 57
+            "y": 55
           },
           "id": 44,
           "panels": [],
@@ -5682,7 +5682,7 @@ data:
             "h": 2,
             "w": 3,
             "x": 0,
-            "y": 58
+            "y": 56
           },
           "id": 4,
           "maxDataPoints": 100,
@@ -5791,7 +5791,7 @@ data:
             "h": 2,
             "w": 3,
             "x": 3,
-            "y": 58
+            "y": 56
           },
           "id": 6,
           "maxDataPoints": 100,
@@ -5904,7 +5904,7 @@ data:
             "h": 2,
             "w": 3,
             "x": 6,
-            "y": 58
+            "y": 56
           },
           "id": 54,
           "maxDataPoints": 100,
@@ -6036,7 +6036,7 @@ data:
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 58
+            "y": 56
           },
           "id": 14,
           "options": {
@@ -6166,7 +6166,7 @@ data:
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 60
+            "y": 58
           },
           "id": 45,
           "options": {
@@ -6296,7 +6296,7 @@ data:
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 67
+            "y": 65
           },
           "id": 15,
           "options": {
@@ -6371,7 +6371,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 76
+            "y": 74
           },
           "id": 39,
           "panels": [],
@@ -6452,7 +6452,7 @@ data:
             "h": 5,
             "w": 12,
             "x": 0,
-            "y": 77
+            "y": 75
           },
           "id": 32,
           "options": {
@@ -6584,7 +6584,7 @@ data:
             "h": 5,
             "w": 12,
             "x": 12,
-            "y": 77
+            "y": 75
           },
           "id": 40,
           "options": {
@@ -6682,7 +6682,7 @@ data:
             "h": 7,
             "w": 12,
             "x": 0,
-            "y": 82
+            "y": 80
           },
           "id": 17,
           "options": {
@@ -6783,7 +6783,7 @@ data:
             "h": 7,
             "w": 12,
             "x": 12,
-            "y": 82
+            "y": 80
           },
           "id": 41,
           "options": {
@@ -6849,7 +6849,7 @@ data:
             "h": 7,
             "w": 12,
             "x": 0,
-            "y": 89
+            "y": 87
           },
           "heatmap": {},
           "hideZeroBuckets": false,
@@ -7027,7 +7027,7 @@ data:
             "h": 7,
             "w": 12,
             "x": 12,
-            "y": 89
+            "y": 87
           },
           "id": 2,
           "options": {
@@ -7151,7 +7151,7 @@ data:
       "timezone": "utc",
       "title": "Remediations",
       "uid": "KDvc-DmWk",
-      "version": 2,
+      "version": 4,
       "weekStart": ""
     }
 kind: ConfigMap
