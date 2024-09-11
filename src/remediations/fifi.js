@@ -208,8 +208,6 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
         }
     }
 
-    // include canceled counts in count_failure
-
     // return array of executors
     if (rhcDirect.system_count > 0) {
         // timeouts also count as errors since count_timeout doesn't get propogated
