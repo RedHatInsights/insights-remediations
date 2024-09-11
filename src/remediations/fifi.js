@@ -30,7 +30,7 @@ const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_
 const RUNSFIELDS = Object.freeze({fields: {data: ['id', 'labels', 'status', 'service', 'created_at', 'updated_at', 'url']}});
 const RUNHOSTFIELDS = Object.freeze({fields: {data: ['host', 'stdout', 'inventory_id']}});
 const RHCRUNFIELDS = Object.freeze({fields: {data: ['host', 'status', 'inventory_id']}});
-const RHCSTATUSES = ['timeout', 'failure', 'success', 'running'];
+const RHCSTATUSES = ['timeout', 'failure', 'success', 'running', 'canceled'];
 
 const DIFF_MODE = false;
 const FULL_MODE = true;
@@ -159,6 +159,7 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
         count_failure: 0,
         count_success: 0,
         count_running: 0,
+        count_canceled: 0
     }
 
     trace.event(`processing ${rhcRuns.data.length} runs...`);
@@ -189,6 +190,7 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
                 count_failure: 0,
                 count_success: 0,
                 count_running: 0,
+                count_canceled: 0
             };
 
             // Assign each status count
@@ -206,8 +208,13 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
         }
     }
 
+    // include canceled counts in count_failure
+
     // return array of executors
     if (rhcDirect.system_count > 0) {
+        // timeouts also count as errors since count_timeout doesn't get propogated
+        rhcDirect.count_failure += rhcDirect.count_timeout;
+
         // Status of executor
         rhcDirect.status = findRunStatus(rhcDirect);
         executors.push(rhcDirect);
@@ -265,7 +272,7 @@ function pushRHCExecutor (rhcRuns, satRun) {
             count_success: rhcRun.count_success,
             count_running: rhcRun.count_running,
             count_pending: 0, // RHC does not return the status pending
-            count_canceled: 0 // RHC does not currently return status canceled
+            count_canceled: rhcRun.count_canceled
         });
     }
 }

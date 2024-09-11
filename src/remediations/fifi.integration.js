@@ -517,6 +517,27 @@ describe('FiFi', function () {
                 expect(text).toMatchSnapshot();
             });
 
+            // TODO: write this!
+            test('playbook_runs/:playbook_run_id RHC-direct status aggregation', async () => {
+                // Playbook-Dispatcher status: running, success, failure, timeout, canceled
+
+                // create a seed remediation with direct systems
+                // remediation_id = 'efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3'
+
+                // create playbook run in dispatcher mock
+
+                // create hosts in dispatcher mock for playbook run?
+
+                mockUuid();
+                const {body, text} = await request
+                    .get('/v1/remediations/efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3/playbook_runs/8ff5717a-cce8-4738-907b-a89eaa559275')
+                    .set(auth.testStatus)
+                    .expect(200);
+
+                expect(text).toMatchSnapshot();
+
+            });
+
             test('playbook_runs/:playbook_run_id/systems', async () => {
                 mockUuid();
                 const {body, text} = await request
