@@ -17,6 +17,7 @@ objects:
     - compliance
     - compliance-ssg
     - config-manager
+    - cloud-connector
     - patchman
     - playbook-dispatcher
     - sources-api
