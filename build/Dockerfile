@@ -2,7 +2,7 @@
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:9.4-1227.1725849298 AS base
 
-RUN microdnf module enable nodejs:20 && \
+RUN microdnf module enable -y nodejs:20 && \
     microdnf install -y shadow-utils jq nodejs --nodocs && \
     microdnf clean all
 
