@@ -24,6 +24,7 @@ objects:
     - vulnerability-engine
     database:
       name: remediations
+      version: 14
     inMemoryDb: true
     deployments:
     - name: api
