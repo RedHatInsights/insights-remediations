@@ -177,7 +177,3 @@ exports.normalizePlaybookVersionForSnapshot = function (text) {
     text = text.replace(/^# Version: mock$/mg, '# Version: NORMALIZED_PLACEHOLDER');
     return text;
 };
-
-exports.mockUuid = () => exports.sandbox.stub(
-    fifi, 'generateUuid').returns('249f142c-2ae3-4c3f-b2ec-c8c588999999'
-);

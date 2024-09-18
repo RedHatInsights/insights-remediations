@@ -5,7 +5,7 @@ const _ = require('lodash');
 const URI = require('urijs');
 const queryString = require('querystring');
 
-const { request, auth, mockDate, mockUuid, buildRbacResponse } = require('../test');
+const { request, auth, mockDate, buildRbacResponse } = require('../test');
 const utils = require('../middleware/identity/utils');
 const configManager = require('../connectors/configManager');
 const receptor = require('../connectors/receptor');
@@ -284,7 +284,6 @@ describe('FiFi', function () {
     describe('playbook run', function () {
         describe('GET', function () {
             test('playbook_runs', async () => {
-                mockUuid();
                 const {body, text} = await request
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
                 .set(auth.fifi)
@@ -403,7 +402,6 @@ describe('FiFi', function () {
             });
 
             test('sort playbook_runs?sort=-updated_at', async() => {
-                mockUuid();
                 const {body, text} = await request
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs?sort=-updated_at')
                 .set(auth.fifi)
@@ -443,7 +441,6 @@ describe('FiFi', function () {
             });
 
             test('sort playbook_runs?sort=updated_at', async() => {
-                mockUuid();
                 const {body, text} = await request
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs?sort=updated_at')
                 .set(auth.fifi)
@@ -483,7 +480,6 @@ describe('FiFi', function () {
             });
 
             test('playbook_runs/:playbook_run_id', async () => {
-                mockUuid();
                 const {body, text} = await request
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc')
                 .set(auth.fifi)
@@ -520,7 +516,6 @@ describe('FiFi', function () {
             test('playbook_runs/:playbook_run_id RHC-direct status aggregation', async () => {
                 // remediation id: efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3 is a remediation plan
                 // with two direct hosts for each Playbook-Dispatcher status: running, success, failure, timeout, canceled
-                mockUuid();
                 const {body, text} = await request
                     .get('/v1/remediations/efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3/playbook_runs/8ff5717a-cce8-4738-907b-a89eaa559275')
                     .set(auth.testStatus)
@@ -530,7 +525,6 @@ describe('FiFi', function () {
             });
 
             test('playbook_runs/:playbook_run_id/systems', async () => {
-                mockUuid();
                 const {body, text} = await request
                 .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems')
                 .set(auth.fifi)
@@ -556,7 +550,6 @@ describe('FiFi', function () {
             });
 
             test('playbook_runs/:playbook_run_id/systems with RHC systems', async () => {
-                mockUuid();
                 const {body, text} = await request
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems')
                 .set(auth.fifi)
@@ -709,7 +702,6 @@ describe('FiFi', function () {
             });
 
             test('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?sort=system_name', async () => {
-                mockUuid();
                 const {body, text} = await request
                 .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?sort=system_name')
                 .set(auth.fifi)
@@ -735,7 +727,6 @@ describe('FiFi', function () {
             });
 
             test('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?sort=-system_name', async () => {
-                mockUuid();
                 const {body, text} = await request
                 .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?sort=-system_name')
                 .set(auth.fifi)
@@ -775,7 +766,6 @@ describe('FiFi', function () {
             });
 
             test('playbook_runs/:playbook_run_id/systems/:system with RHC system', async () => {
-                mockUuid();
                 const {body, text} = await request
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/31a70e85-378a-4436-96e9-677cd6fba660/systems/17adc41a-a6c6-426a-a0d5-c7ba08954154')
                 .set(auth.fifi)
@@ -1175,7 +1165,6 @@ describe('FiFi', function () {
 
             test.skip('check object being send to receptor connector', async function () {
                 mockDate();
-                mockUuid();
                 // do not create db record
                 base.getSandbox().stub(queries, 'insertPlaybookRun').returns();
 
@@ -1213,7 +1202,6 @@ describe('FiFi', function () {
 
             test('exclude one of the connected executors', async function () {
                 mockDate();
-                mockUuid();
 
                 // do not create db record
                 base.getSandbox().stub(queries, 'insertRHCPlaybookRun').returns();
@@ -1406,7 +1394,6 @@ describe('FiFi', function () {
 
             test.skip('post playbook_runs with response_mode: diff and exclude executors', async function () {
                 mockDate();
-                mockUuid();
                 // do not create db record
                 base.getSandbox().stub(queries, 'insertPlaybookRun').returns();
 
@@ -1432,7 +1419,6 @@ describe('FiFi', function () {
 
             test.skip('dynamic post playbook_runs with < 200 executors', async function () {
                 mockDate();
-                mockUuid();
 
                 const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
                 base.getSandbox().stub(config.fifi, 'text_update_full').value(false);
@@ -1470,7 +1456,6 @@ describe('FiFi', function () {
 
             test.skip('dynamic post playbook_runs with < 400 executors', async function () {
                 mockDate();
-                mockUuid();
 
                 const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
                 base.getSandbox().stub(config.fifi, 'text_update_full').value(false);
@@ -1508,7 +1493,6 @@ describe('FiFi', function () {
 
             test.skip('dynamic post playbook_runs with >= 400 executors', async function () {
                 mockDate();
-                mockUuid();
 
                 const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
                 base.getSandbox().stub(config.fifi, 'text_update_full').value(false);
