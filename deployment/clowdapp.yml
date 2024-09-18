@@ -18,6 +18,8 @@ objects:
     - compliance-ssg
     - config-manager
     - cloud-connector
+    # add MQTT mock (mosquitto) from cloud-connector
+    - mosquitto
     - patchman
     - playbook-dispatcher
     - sources-api
