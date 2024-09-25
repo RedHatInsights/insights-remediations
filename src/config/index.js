@@ -243,11 +243,11 @@ function Config() {
         config.logging.cloudwatch.options.aws_region = loadedConfig.logging.cloudwatch.region || env.LOG_CW_REGION;
         config.logging.cloudwatch.options.group = loadedConfig.logging.cloudwatch.logGroup || env.LOG_CW_GROUP;
 
-        config.advisor.host = getHostForApp(dependencyEndpoints, 'advisor', 'service', 'ADVISOR') || env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
+        config.advisor.host = getHostForApp(dependencyEndpoints, 'advisor-backend', 'api', 'ADVISOR') || env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
         config.bop.host = getHostForApp(dependencyEndpoints, 'bop', 'service', 'TENANT_TRANSLATOR') || `http://${env.TENANT_TRANSLATOR_HOST}:${env.TENANT_TRANSLATOR_PORT}` || 'http://gateway.3scale-dev.svc.cluster.local:8892';
         config.compliance.host = getHostForApp(dependencyEndpoints, 'compliance', 'service', 'COMPLIANCE') || env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
         config.configManager.host = getHostForApp(dependencyEndpoints, 'config-manager', 'service', 'CONFIG_MANAGER') || env.CONFIG_MANAGER_HOST || 'http://config-manager-service.config-manager-ci.svc.cluster.local:8081';
-        config.contentServer.host = getHostForApp(dependencyEndpoints, 'advisor', 'service', 'CONTENT_SERVER') || env.CONTENT_SERVER_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
+        config.contentServer.host = getHostForApp(dependencyEndpoints, 'advisor-backend', 'api', 'CONTENT_SERVER') || env.CONTENT_SERVER_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
         config.dispatcher.host = getHostForApp(dependencyEndpoints, 'playbook-dispatcher', 'api', 'PLAYBOOK_DISPATCHER') || env.PLAYBOOK_DISPATCHER_HOST || 'http://playbook-dispatcher-api.playbook-dispatcher-ci.svc.cluster.local:8000';
         config.inventory.host = getHostForApp(dependencyEndpoints, 'host-inventory', 'service', 'INVENTORY') || env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';
         config.patchman.host = getHostForApp(dependencyEndpoints, 'patchman', 'manager', 'PATCHMAN') || env.PATCHMAN_HOST || 'http://localhost:8080';
