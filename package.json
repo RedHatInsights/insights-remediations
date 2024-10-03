@@ -8,6 +8,7 @@
     "url": "git@github.com:RedHatInsights/insights-remediations.git"
   },
   "author": "Jozef Hartinger",
+  "license": "Apache-2.0",
   "dependencies": {
     "@godaddy/terminus": "^4.4.1",
     "app-common-js": "^2.2.4",
