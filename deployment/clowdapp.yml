@@ -393,6 +393,7 @@ parameters:
   required: true
 - name: IMAGE
   required: true
+  value: "quay.io/redhat-services-prod/insights-management-tenant/insights-remediations/remediations-backend"
 - name: INVENTORY_IMPL
   value: impl
 - name: HOST_INVENTORY_HOST
