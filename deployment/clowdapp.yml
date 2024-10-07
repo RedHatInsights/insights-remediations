@@ -38,7 +38,7 @@ objects:
           enabled: true
           apiPath: remediations
       podSpec:
-        image: quay.io/cloudservices/remediations:${IMAGE_TAG}
+        image: ${IMAGE}:${IMAGE_TAG}
         initContainers:
           - env:
             - name: INIT_CONTAINER
@@ -390,6 +390,8 @@ parameters:
 - name: DEMO_MODE
   value: 'false'
 - name: IMAGE_TAG
+  required: true
+- name: IMAGE
   required: true
 - name: INVENTORY_IMPL
   value: impl
