@@ -62,7 +62,10 @@
     "supertest": "^4.0.2"
   },
   "overrides": {
-    "loader-utils": "^3.2.1"
+    "loader-utils": "^3.2.1",
+    "pino-cloudwatch": {
+      "async": "^3.2.6"
+    }
   },
   "scripts": {
     "build": "gulp build",
