@@ -24,9 +24,10 @@ FROM base AS build
 COPY ./certs ./certs
 COPY ./db ./db
 COPY ./src ./src
-COPY package.json package-lock.json .npmrc jest.config.js gulpfile.js .sequelizerc ./
+COPY package.json package-lock.json .npmrc .cleanmodules jest.config.js gulpfile.js .sequelizerc ./
 
 RUN npm ci
+RUN npx clean-modules -y
 
 RUN npm run build
 
