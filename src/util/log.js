@@ -122,8 +122,8 @@ if (config.logging.cloudwatch.enabled) {
     logger.info({group: config.logging.cloudwatch.options.group}, 'CloudWatch enabled');
 }
 
-function getLogger () {
-    const req = cls.getReq();
+function getLogger (req) {
+    // const req = cls.getReq();
 
     if (!req) {
         return logger; // outside of request, fallback to default logger
@@ -140,9 +140,11 @@ function getLogger () {
 // child logger that has an additional reqID correlation parameter) if we're
 // called in the context of a request.  Otherwise, pass the call onto the default
 // logger.
+
+// How do we get the reqest here
 module.exports = new Proxy (logger, {
-    get (target, key, receiver) {
-        const logger = getLogger();
+    get (target, key, receiver, req) {
+        const logger = getLogger(req);
 
         const result = Reflect.get(logger, key, receiver);
         if (typeof result === 'function') {

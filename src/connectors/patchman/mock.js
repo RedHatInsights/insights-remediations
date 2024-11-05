@@ -67,11 +67,11 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    getErratum (id) {
+    getErratum (req, id) {
         return P.resolve(ERRATA[id]);
     }
 
-    ping () {
-        return this.getErratum('RHBA-2019:4105');
+    ping (req) {
+        return this.getErratum(req, 'RHBA-2019:4105');
     }
 }();
