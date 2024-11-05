@@ -14,6 +14,15 @@ const RECEPTORWORKREQUEST = {
     directive: 'receptor_satellite:execute'
 };
 
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
+
 describe('receptor impl', function () {
     beforeEach(mockRequest);
 
@@ -25,7 +34,7 @@ describe('receptor impl', function () {
                 headers: {}
             });
 
-            const result = await impl.getConnectionStatus('540155', 'node-a');
+            const result = await impl.getConnectionStatus(REQ, '540155', 'node-a');
             result.should.have.property('status', 'connected');
 
             const options = http.args[0][0];
@@ -42,22 +51,22 @@ describe('receptor impl', function () {
 
         test('returns null when account or node is incorrect', async function () {
             base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
-            await expect(impl.getConnectionStatus('540155', 'node-a')).resolves.toBeNull();
+            await expect(impl.getConnectionStatus(REQ, '540155', 'node-a')).resolves.toBeNull();
         });
 
         test('ping', async function () {
             base.getSandbox().stub(Connector.prototype, 'doHttp').resolves({status: 'connected'});
-            await impl.ping();
+            await impl.ping(REQ);
         });
 
         test('connection error handling', async function () {
             base.mockRequestError();
-            await expect(impl.getConnectionStatus('540155', 'node-a')).rejects.toThrow(errors.DependencyError);
+            await expect(impl.getConnectionStatus(REQ, '540155', 'node-a')).rejects.toThrow(errors.DependencyError);
         });
 
         test('status code handling', async function () {
             base.mockRequestStatusCode();
-            await expect(impl.getConnectionStatus('540155', 'node-a')).rejects.toThrow(errors.DependencyError);
+            await expect(impl.getConnectionStatus(REQ, '540155', 'node-a')).rejects.toThrow(errors.DependencyError);
         });
     });
 
@@ -69,7 +78,7 @@ describe('receptor impl', function () {
                 headers: {}
             });
 
-            const result = await impl.postInitialRequest(RECEPTORWORKREQUEST);
+            const result = await impl.postInitialRequest(REQ, RECEPTORWORKREQUEST);
             result.should.have.property('id', '355986a3-5f37-40f7-8f36-c3ac928ce190');
 
             const options = http.args[0][0];
@@ -87,17 +96,17 @@ describe('receptor impl', function () {
 
         test('returns null receptorWorkRequest is incorrect', async function () {
             base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
-            await expect(impl.postInitialRequest(RECEPTORWORKREQUEST)).resolves.toBeNull();
+            await expect(impl.postInitialRequest(REQ, RECEPTORWORKREQUEST)).resolves.toBeNull();
         });
 
         test('connection error handling receptorWorkRequest', async function () {
             base.mockRequestError();
-            await expect(impl.postInitialRequest(RECEPTORWORKREQUEST)).rejects.toThrow(errors.DependencyError);
+            await expect(impl.postInitialRequest(REQ, RECEPTORWORKREQUEST)).rejects.toThrow(errors.DependencyError);
         });
 
         test('status code handling receptorWorkRequest', async function () {
             base.mockRequestStatusCode();
-            await expect(impl.postInitialRequest(RECEPTORWORKREQUEST)).rejects.toThrow(errors.DependencyError);
+            await expect(impl.postInitialRequest(REQ, RECEPTORWORKREQUEST)).rejects.toThrow(errors.DependencyError);
         });
     });
 });

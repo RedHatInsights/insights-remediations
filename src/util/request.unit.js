@@ -6,6 +6,15 @@ const request = require('./request');
 const version = require('../version/version.controller');
 const config = require('../config');
 
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
+
 // stub getVersions for the request to take at least 50ms
 beforeEach(() => base.sandbox.stub(version, 'get').callsFake((req, res) => P.delay(50).then(() => res.end())));
 

@@ -11,9 +11,9 @@ module.exports = class Resolver {
         throw new Error('not implemented');
     }
 
-    async isRebootNeeded (id, resolutionId) {
-        const resolutions = await this.resolveResolutions(id);
-        const resolution = disambiguator.disambiguate(resolutions, resolutionId, id, false, false);
+    async isRebootNeeded (req, id, resolutionId) {
+        const resolutions = await this.resolveResolutions(req, id);
+        const resolution = disambiguator.disambiguate(req, resolutions, resolutionId, id, false, false);
 
         if (resolution) {
             return resolution.needsReboot;

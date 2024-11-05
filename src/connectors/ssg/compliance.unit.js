@@ -10,6 +10,15 @@ const base = require('../../test');
 const { mockRequest } = require('../testUtils');
 const request = require('../../util/request');
 
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
+
 describe('compliance impl', function () {
     beforeEach(mockRequest);
 
@@ -25,7 +34,7 @@ describe('compliance impl', function () {
             }
         });
 
-        const { template, version } = await compliance.getTemplate('rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled');
+        const { template, version } = await compliance.getTemplate(REQ, 'rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled');
 
         version.should.equal('unit');
         expect(template).toMatchSnapshot();
@@ -48,8 +57,8 @@ describe('compliance impl', function () {
         });
 
         const pending = [
-            compliance.getTemplate('rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled'),
-            compliance.getTemplate('rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsylog_enabled.yml')
+            compliance.getTemplate(REQ, 'rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled'),
+            compliance.getTemplate(REQ, 'rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsylog_enabled.yml')
         ];
 
         const results = await P.all(pending);

@@ -31,11 +31,11 @@ const catchErrorCode = (code, fn) => e => {
     throw e;
 };
 
-function resolveResolutions (...remediations) {
+function resolveResolutions (req, ...remediations) {
     return P.all(_(remediations).flatMap('issues').map(async issue => {
-        const id = identifiers.parse(issue.issue_id);
-        const resolutions = await issues.getHandler(id).getResolutionResolver().resolveResolutions(id);
-        const resolution = disambiguator.disambiguate(resolutions, issue.resolution, id, false, false);
+        const id = identifiers.parse(req, issue.issue_id);
+        const resolutions = await issues.getHandler(id, req).getResolutionResolver().resolveResolutions(req, id);
+        const resolution = disambiguator.disambiguate(req, resolutions, issue.resolution, id, false, false);
 
         if (resolution) {
             issue.resolution = resolution;
@@ -46,10 +46,10 @@ function resolveResolutions (...remediations) {
     }).value());
 }
 
-function resolveResolutionsNeedReboot (...remediations) {
+function resolveResolutionsNeedReboot (req, ...remediations) {
     return P.all(_(remediations).flatMap('issues').map(async issue => {
-        const id = identifiers.parse(issue.issue_id);
-        const needsReboot = await issues.getHandler(id).getResolutionResolver().isRebootNeeded(id, issue.resolution);
+        const id = identifiers.parse(req, issue.issue_id);
+        const needsReboot = await issues.getHandler(id, req).getResolutionResolver().isRebootNeeded(req, id, issue.resolution);
 
         if (needsReboot !== null) {
             issue.resolution = { needsReboot };
@@ -68,7 +68,7 @@ exports.getUsers = async function (req, usernames) {
         };
     }
 
-    const resolvedUsers = await P.map(usernames, username => users.getUser(username));
+    const resolvedUsers = await P.map(usernames, username => users.getUser(req, username));
     return _.keyBy(resolvedUsers, 'username');
 };
 
@@ -104,7 +104,7 @@ exports.list = errors.async(async function (req, res) {
     trace.enter('controller.read.list');
 
     if (_.get(req, 'query.fields.data', []).includes('name') && Array.isArray(_.get(req, 'query.fields.data', []))) {
-        throw new errors.BadRequest('INVALID_REQUEST', `'name' cannot be combined with other fields.`);
+        throw new errors.BadRequest(req, 'INVALID_REQUEST', `'name' cannot be combined with other fields.`);
     }
 
     trace.event('Get sort and query parms from url');
@@ -147,7 +147,7 @@ exports.list = errors.async(async function (req, res) {
 
     trace.event('Validate offset query parm');
     if (offset >= Math.max(count.length, 1)) {
-        throw errors.invalidOffset(offset, count.length - 1);
+        throw errors.invalidOffset(req, offset, count.length - 1);
     }
 
     trace.event('Fetch remediation details from DB');
@@ -162,13 +162,13 @@ exports.list = errors.async(async function (req, res) {
 
     trace.event('Resolve user names and reboot flag');
     await P.all([
-        resolveResolutionsNeedReboot(...remediations),
+        resolveResolutionsNeedReboot(req, ...remediations),
         resolveUsers(req, ...remediations)
     ]);
 
     // Add 'details' if they exist to each issue in remediation.issues
     trace.event('Fetch issue details');
-    await P.map(remediations, remediation => resolveIssues(remediation));
+    await P.map(remediations, remediation => resolveIssues(remediation, req));
 
     trace.event('Remove empty issues');
     remediations.forEach(remediation => {
@@ -209,7 +209,7 @@ exports.list = errors.async(async function (req, res) {
             // Join rhcRuns and playbookRuns
             trace.event(`[${local_iteration}] Combine runs`);
             playbook_runs.iteration = local_iteration;
-            playbook_runs.playbook_runs = await fifi.combineRuns(playbook_runs);
+            playbook_runs.playbook_runs = await fifi.combineRuns(req, playbook_runs);
 
             trace.event(`[${local_iteration}] Resolve users`);
             playbook_runs = await fifi.resolveUsers(req, playbook_runs);
@@ -233,11 +233,11 @@ exports.list = errors.async(async function (req, res) {
     return res.json(resp);
 });
 
-async function resolveSystems (remediation) {
+async function resolveSystems (remediation, req) {
     const systems = _.flatMap(remediation.issues, 'systems');
     const ids = _(systems).map('system_id').uniq().value();
 
-    const resolvedSystems = await inventory.getSystemDetailsBatch(ids);
+    const resolvedSystems = await inventory.getSystemDetailsBatch(req, ids);
 
     remediation.issues.forEach(issue => issue.systems = issue.systems
     .filter(({system_id}) => _.has(resolvedSystems, system_id)) // filter out systems not found in inventory
@@ -249,10 +249,10 @@ async function resolveSystems (remediation) {
     }));
 }
 
-function resolveIssues (remediation) {
+function resolveIssues (remediation, req) {
     return P.map(remediation.issues, async issue => {
-        const id = identifiers.parse(issue.issue_id);
-        return issues.getIssueDetails(id)
+        const id = identifiers.parse(req, issue.issue_id);
+        return issues.getIssueDetails(id, req)
         .then(result => issue.details = result)
         .catch(catchErrorCode('UNKNOWN_ISSUE', () => issue.details = false));
     });
@@ -270,9 +270,9 @@ exports.get = errors.async(async function (req, res) {
     }
 
     await P.all([
-        resolveSystems(remediation),
-        resolveResolutions(remediation),
-        resolveIssues(remediation),
+        resolveSystems(remediation, req),
+        resolveResolutions(req, remediation),
+        resolveIssues(remediation, req),
         resolveUsers(req, remediation)
     ]);
 
@@ -343,7 +343,7 @@ exports.playbook = errors.async(async function (req, res) {
 
         // remove any systems not in specified satellite organization
         if (sat_org_id) {
-            const batchDetailInfo = await inventory.getSystemDetailsBatch(all_systems);
+            const batchDetailInfo = await inventory.getSystemDetailsBatch(req, all_systems);
             _.forEach(normalizedIssues, issue => {
                 issue.systems = _.filter(issue.systems, system => {
                     // eslint-disable-next-line security/detect-object-injection
@@ -359,7 +359,7 @@ exports.playbook = errors.async(async function (req, res) {
 
         // validate system ownership if using certificate authentication
         if (cert_auth) {
-            const batchProfileInfo = await inventory.getSystemProfileBatch(all_systems);
+            const batchProfileInfo = await inventory.getSystemProfileBatch(req, all_systems);
 
             if (_.isEmpty(batchProfileInfo)) {
                 return notFound(res); // Eh, this is really more of an internal error...
@@ -373,7 +373,7 @@ exports.playbook = errors.async(async function (req, res) {
                 // eslint-disable-next-line security/detect-object-injection
                 const ownerId = batchProfileInfo[system].system_profile.owner_id;
                 if (!_.isEqual(req.identity.system.cn, ownerId)) {
-                    throw errors.unauthorizedGeneration(req.identity.system.cn);
+                    throw errors.unauthorizedGeneration(req, req.identity.system.cn);
                 }
             });
         }
@@ -391,7 +391,7 @@ exports.playbook = errors.async(async function (req, res) {
     const playbook = await generator.playbookPipeline({
         issues: normalizedIssues,
         auto_reboot: remediation.auto_reboot
-    }, remediation, false, localhost);
+    }, req, remediation, false, localhost);
 
     if (!playbook) {
         return noContent(res);
@@ -431,7 +431,7 @@ exports.downloadPlaybooks = errors.async(async function (req, res) {
         const playbook = await generator.playbookPipeline({
             issues: normalizedIssues,
             auto_reboot: remediation.auto_reboot
-        }, remediation, false);
+        }, req, remediation, false);
 
         if (!playbook) {
             generateZip = false;
@@ -467,7 +467,7 @@ exports.getIssueSystems = errors.async(async function (req, res) {
         return notFound(res);
     }
 
-    await resolveSystems(remediation);
+    await resolveSystems(remediation, req);
 
     // filter out issues with 0 systems
     remediation.issues = remediation.issues.filter(issue => issue.systems.length);
@@ -483,7 +483,7 @@ exports.getIssueSystems = errors.async(async function (req, res) {
     remediation.issues[0].systems = await fifi.pagination(remediation.issues[0].systems, total, limit, offset);
 
     if (_.isNull(remediation.issues[0].systems)) {
-        throw errors.invalidOffset(offset, total);
+        throw errors.invalidOffset(req, offset, total);
     }
 
     res.json(format.issueSystems(remediation.issues[0], total));
