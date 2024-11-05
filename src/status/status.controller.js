@@ -27,9 +27,9 @@ const CONNECTORS = _([
     'bop'
 ]).keyBy().mapValues(id => require(`../connectors/${id}`)).value(); // eslint-disable-line security/detect-non-literal-require
 
-async function getConnectorStatus (connector) {
+async function getConnectorStatus (connector, req) {
     try {
-        await connector.ping();
+        await connector.ping(req);
         return OK;
     } catch (e) {
         log.warn(e, 'ping failed');
@@ -65,7 +65,7 @@ async function getDb () {
 exports.status = errors.async(async function (req, res) {
     const [connectors, db] = await P.all([
         P.props(_.mapValues(CONNECTORS, async connector => {
-            const status = await getConnectorStatus(connector);
+            const status = await getConnectorStatus(connector, req);
 
             return {
                 status,

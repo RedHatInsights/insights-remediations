@@ -20,7 +20,7 @@ exports.getDiagnosis = errors.async(async function (req, res) {
     // 3) get report details from advisor, vulnerabilities
     // 4) optimize based on req.swagger.params.remediation.value
 
-    const systems = await inventory.getSystemsByInsightsId(insightsId);
+    const systems = await inventory.getSystemsByInsightsId(insightsId, req);
     const sorted = _.orderBy(systems, ['updated'], ['desc']);
 
     if (!sorted.length) {
@@ -31,7 +31,7 @@ exports.getDiagnosis = errors.async(async function (req, res) {
     assert(system.tenant_org_id === req.identity.org_id);
     assert(system.insights_id === insightsId, system.insights_id);
 
-    const advisorDiagnosis = await advisor.getDiagnosis(system.id, branchId);
+    const advisorDiagnosis = await advisor.getDiagnosis(req, system.id, branchId);
     res.json({
         id: system.id,
         insights_id: system.insights_id,

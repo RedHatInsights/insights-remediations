@@ -32,7 +32,7 @@ module.exports = new class extends Connector {
         return ORG_IDS_2;
     }
 
-    async getEBSAccounts() {
+    async getEBSAccounts(req) {
         return EBS_ACCOUNTS;
     }
 
