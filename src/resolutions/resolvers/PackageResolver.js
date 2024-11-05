@@ -9,7 +9,8 @@ module.exports = class PackageResolver extends CVEResolver {
         return ErratumResolution.forPackage(id, '');
     }
 
-    async resolveResolutions (id) {
+   // probably dont need to pass req here
+    async resolveResolutions (req, id) {
         return [this.build(id)];
     }
 };

@@ -5,6 +5,15 @@ const base = require('../../test');
 const { mockRequest, mockCache } = require('../testUtils');
 const request = require('../../util/request');
 
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
+
 /* eslint-disable max-len */
 describe('vulnerabilities impl', function () {
 
@@ -49,7 +58,7 @@ describe('vulnerabilities impl', function () {
                 headers: {}
             });
 
-            await expect(impl.getSystems('rule')).resolves.toEqual([
+            await expect(impl.getSystems('rule', REQ)).resolves.toEqual([
                 '802cab91-410f-473b-b4c6-b1524c45ba8c',
                 '6ac1bb84-333d-48e5-bf02-7a9b0263d220'
             ]);
@@ -78,7 +87,7 @@ describe('vulnerabilities impl', function () {
                 headers: {}
             });
 
-            await expect(impl.getSystems('unknown-rule')).resolves.toEqual([]);
+            await expect(impl.getSystems('unknown-rule', REQ)).resolves.toEqual([]);
 
             http.callCount.should.equal(1);
             cache.get.callCount.should.equal(0);
@@ -112,7 +121,7 @@ describe('vulnerabilities impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getResolutions('rule');
+            const results = await impl.getResolutions(REQ, 'rule');
             http.callCount.should.equal(1);
 
             const resolution = results[0];
@@ -142,7 +151,7 @@ describe('vulnerabilities impl', function () {
                 headers: {}
             });
 
-            await expect(impl.getResolutions('unknown-rule')).resolves.toEqual([]);
+            await expect(impl.getResolutions(REQ, 'unknown-rule')).resolves.toEqual([]);
 
             http.callCount.should.equal(1);
             cache.get.callCount.should.equal(0);

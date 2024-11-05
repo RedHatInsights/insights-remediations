@@ -178,11 +178,11 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    getRule (id) {
+    getRule (req, id) {
         return P.resolve(DATA[id]); // eslint-disable-line security/detect-object-injection
     }
 
-    ping () {
-        return this.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
+    ping (req) {
+        return this.getRule(req, 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
     }
 }();

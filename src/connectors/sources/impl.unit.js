@@ -5,6 +5,15 @@ const base = require('../../test');
 const { mockRequest } = require('../testUtils');
 const request = require('../../util/request');
 
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
+
 describe('sources impl', function () {
     beforeEach(mockRequest);
 
@@ -39,7 +48,7 @@ describe('sources impl', function () {
                 headers: {}
             });
 
-            const results = await impl.findSources([
+            const results = await impl.findSources(REQ, [
                 '72e67490-010a-4c69-a445-97017ef2a696', 'de91d755-e1da-4ae2-b173-7d56f5df7c86'
             ]);
             results.should.have.size(2);
@@ -80,7 +89,7 @@ describe('sources impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getEndpoints(['1231']);
+            const results = await impl.getEndpoints(['1231'], REQ);
             results.should.have.size(1);
             results[0].should.have.property('receptor_node', 'dsasd');
 
@@ -97,7 +106,7 @@ describe('sources impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getEndpoints(['1231']);
+            const results = await impl.getEndpoints(['1231'], REQ);
             (results === null).should.be.true();
         });
     });
@@ -165,7 +174,7 @@ describe('sources impl', function () {
 
             const results = await impl.getSourceInfo([
                 '72e67490-010a-4c69-a445-97017ef2a696', 'de91d755-e1da-4ae2-b173-7d56f5df7c86'
-            ]);
+            ], REQ);
             results.should.have.size(2);
             results.should.have.property('72e67490-010a-4c69-a445-97017ef2a696');
             const first = results['72e67490-010a-4c69-a445-97017ef2a696'];
@@ -182,7 +191,7 @@ describe('sources impl', function () {
         test('does not call anything on an empty list', async function () {
             const spy = base.getSandbox().spy(request, 'run');
 
-            const results = await impl.getSourceInfo([]);
+            const results = await impl.getSourceInfo([], REQ);
             results.should.be.empty();
             spy.callCount.should.equal(0);
         });
@@ -211,7 +220,7 @@ describe('sources impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getRHCConnections('5');
+            const results = await impl.getRHCConnections('5', REQ);
             results.should.have.size(1);
 
             const result = results[0];
@@ -232,7 +241,7 @@ describe('sources impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getRHCConnections('1231');
+            const results = await impl.getRHCConnections('1231', REQ);
             (results === null).should.be.true();
         });
     });

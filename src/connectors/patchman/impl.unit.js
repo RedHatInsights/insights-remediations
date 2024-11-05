@@ -7,6 +7,15 @@ const base = require('../../test');
 const { mockRequest, mockCache } = require('../testUtils');
 const request = require('../../util/request');
 
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
+
 describe('patchman impl', function () {
 
     beforeEach(mockRequest);
@@ -37,7 +46,7 @@ describe('patchman impl', function () {
             headers: {}
         });
 
-        const result = await impl.getErratum('RHBA-2019:2871');
+        const result = await impl.getErratum(REQ, 'RHBA-2019:2871');
         result.should.have.property('id', 'RHBA-2019:2871');
         result.should.have.property('attributes');
         result.attributes.should.have.property('description', 'The tzdata packages contain data files with rules for various time zones.\n\nThe tzdata packages have been updated to version 2019c, which addresses recent\ntime zone changes. Notably:\n\n* Fiji will observe the daylight saving time (DST) from November 10, 2019 to January 12, 2020. \n\n* Norfolk Island will start to observe Australian-style DST on November 06, 2019.\n(BZ#1751551, BZ#1751737, BZ#1751402, BZ#1751404)\n\nUsers of tzdata are advised to upgrade to these updated packages, which add\nthese enhancements.');
@@ -51,7 +60,7 @@ describe('patchman impl', function () {
         cache.get.callCount.should.equal(1);
         cache.setex.callCount.should.equal(1);
 
-        await impl.getErratum('RHBA-2019:2871');
+        await impl.getErratum(REQ, 'RHBA-2019:2871');
         cache.get.callCount.should.equal(2);
         cache.setex.callCount.should.equal(1);
     });
@@ -67,7 +76,7 @@ describe('patchman impl', function () {
             headers: {}
         });
 
-        await expect(impl.getErratum('RHBA-2019:2872')).resolves.toBeNull();
+        await expect(impl.getErratum(REQ, 'RHBA-2019:2872')).resolves.toBeNull();
 
         http.callCount.should.equal(1);
         cache.get.callCount.should.equal(1);

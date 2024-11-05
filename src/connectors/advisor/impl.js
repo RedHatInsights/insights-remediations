@@ -25,18 +25,18 @@ module.exports = new class extends Connector {
         return this.buildUri(host, 'advisor', 'v1');
     }
 
-    getRule (id, refresh = false) {
+    getRule (req, id, refresh = false) {
         const uri = this.buildBaseUri(host, 'advisor', 'v1');
         uri.segment('rule');
         uri.segment(id);
 
-        return this.doHttp({
+        return this.doHttp(req, {
             uri: uri.toString(),
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
             headers: {
-                ...this.getForwardedHeaders()
+                ...this.getForwardedHeaders(req)
             }
         }, {
             refresh,
@@ -45,7 +45,7 @@ module.exports = new class extends Connector {
         this.ruleMetrics);
     }
 
-    async getDiagnosis (system, branchId = null) {
+    async getDiagnosis (req, system, branchId = null) {
         const uri = this.buildBaseUri();
         uri.segment('system');
         uri.segment(system);
@@ -56,13 +56,13 @@ module.exports = new class extends Connector {
             uri.query({branch_id: branchId});
         }
 
-        const data = await this.doHttp({
+        const data = await this.doHttp(req, {
             uri: uri.toString(),
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
             headers: {
-                ...this.getForwardedHeaders()
+                ...this.getForwardedHeaders(req)
             }
         }, false, this.diagnosisMetrics);
 
@@ -87,18 +87,18 @@ module.exports = new class extends Connector {
         .value();
     }
 
-    async getSystems (id) {
+    async getSystems (id, req) {
         const uri = this.buildBaseUri(host, 'advisor', 'v1');
         uri.segment('rule');
         uri.segment(id);
         uri.segment('systems');
 
-        const data = await this.doHttp({
+        const data = await this.doHttp(req, {
             uri: uri.toString(),
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders()
+            headers: this.getForwardedHeaders(req)
         },
         false,
         this.systemsMetrics);
@@ -110,8 +110,8 @@ module.exports = new class extends Connector {
         return data.host_ids;
     }
 
-    async ping () {
-        const result = await this.getRule('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE', true);
+    async ping (req) {
+        const result = await this.getRule(req, 'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE', true);
         assert(result !== null);
     }
 }();

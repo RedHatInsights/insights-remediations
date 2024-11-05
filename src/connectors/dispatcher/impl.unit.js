@@ -75,6 +75,15 @@ const LARGE_SAT_STATUS_REQ = {
 const MOCKFILTER = {filter: {service: 'remediations'}};
 const MOCKFIELDS = {fields: {data: ['id']}};
 
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
+
 /* eslint-disable max-len */
 describe('dispatcher impl', function () {
 
@@ -96,7 +105,7 @@ describe('dispatcher impl', function () {
                 headers: {}
             });
 
-            const results = await impl.postPlaybookRunRequests(DISPATCHERWORKREQUEST);
+            const results = await impl.postPlaybookRunRequests(REQ, DISPATCHERWORKREQUEST);
             results.should.have.size(2);
 
             const result1 = results[0];
@@ -116,17 +125,17 @@ describe('dispatcher impl', function () {
 
         test('returns null dispatcherWorkRequest is incorrect', async function () {
             base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
-            await expect(impl.postPlaybookRunRequests(DISPATCHERWORKREQUEST)).resolves.toBeNull();
+            await expect(impl.postPlaybookRunRequests(REQ, DISPATCHERWORKREQUEST)).resolves.toBeNull();
         });
 
         test('connection error handling dispatcherWorkRequest', async function () {
             base.mockRequestError();
-            await expect(impl.postPlaybookRunRequests(DISPATCHERWORKREQUEST)).rejects.toThrow(errors.DependencyError);
+            await expect(impl.postPlaybookRunRequests(REQ, DISPATCHERWORKREQUEST)).rejects.toThrow(errors.DependencyError);
         });
 
         test('status code handling dispatcherWorkRequest', async function () {
             base.mockRequestStatusCode();
-            await expect(impl.postPlaybookRunRequests(DISPATCHERWORKREQUEST)).rejects.toThrow(errors.DependencyError);
+            await expect(impl.postPlaybookRunRequests(REQ, DISPATCHERWORKREQUEST)).rejects.toThrow(errors.DependencyError);
         });
 
         test('handles many requests', async function () {
@@ -166,7 +175,7 @@ describe('dispatcher impl', function () {
                 });
 
             // submit work request
-            const result = await impl.postPlaybookRunRequests(workRequest);
+            const result = await impl.postPlaybookRunRequests(REQ, workRequest);
 
             // validate results
             result.should.have.size(250);
@@ -215,7 +224,7 @@ describe('dispatcher impl', function () {
                 headers: {}
             });
 
-            const results = await impl.fetchPlaybookRuns(MOCKFILTER, MOCKFIELDS);
+            const results = await impl.fetchPlaybookRuns(REQ, MOCKFILTER, MOCKFIELDS);
             results.data.should.have.size(2);
 
             const result1 = results.data[0];
@@ -264,17 +273,17 @@ describe('dispatcher impl', function () {
                 headers: {}
             });
 
-            await expect(impl.fetchPlaybookRuns(MOCKFILTER, MOCKFIELDS)).resolves.toBeNull();
+            await expect(impl.fetchPlaybookRuns(REQ, MOCKFILTER, MOCKFIELDS)).resolves.toBeNull();
         });
 
         test('connection error handling dispatcherWorkRequest', async function () {
             base.mockRequestError();
-            await expect(impl.fetchPlaybookRuns(MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
+            await expect(impl.fetchPlaybookRuns(REQ, MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
         });
 
         test('status code handling dispatcherWorkRequest', async function () {
             base.mockRequestStatusCode();
-            await expect(impl.fetchPlaybookRuns(MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
+            await expect(impl.fetchPlaybookRuns(REQ, MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
         });
     });
 
@@ -327,7 +336,7 @@ describe('dispatcher impl', function () {
                 headers: {}
             });
 
-            const results = await impl.fetchPlaybookRunHosts(MOCKFILTER, MOCKFIELDS);
+            const results = await impl.fetchPlaybookRunHosts(REQ, MOCKFILTER, MOCKFIELDS);
             results.data.should.have.size(2);
 
             const result1 = results.data[0];
@@ -354,17 +363,17 @@ describe('dispatcher impl', function () {
 
         test('returns null dispatcherWorkRequest is incorrect', async function () {
             base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
-            await expect(impl.fetchPlaybookRunHosts(MOCKFILTER, MOCKFIELDS)).resolves.toBeNull();
+            await expect(impl.fetchPlaybookRunHosts(REQ, MOCKFILTER, MOCKFIELDS)).resolves.toBeNull();
         });
 
         test('connection error handling dispatcherWorkRequest', async function () {
             base.mockRequestError();
-            await expect(impl.fetchPlaybookRunHosts(MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
+            await expect(impl.fetchPlaybookRunHosts(REQ, MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
         });
 
         test('status code handling dispatcherWorkRequest', async function () {
             base.mockRequestStatusCode();
-            await expect(impl.fetchPlaybookRunHosts(MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
+            await expect(impl.fetchPlaybookRunHosts(REQ, MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
         });
     });
 
@@ -386,7 +395,7 @@ describe('dispatcher impl', function () {
                 headers: {}
             });
 
-            const results = await impl.postPlaybookCancelRequest(MOCKCANCELREQUEST);
+            const results = await impl.postPlaybookCancelRequest(REQ, MOCKCANCELREQUEST);
             results.data.should.have.size(1);
 
             const result1 = results.data[0];
@@ -402,17 +411,17 @@ describe('dispatcher impl', function () {
 
         test('returns null playbookCancelRequest is incorrect', async function () {
             base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
-            await expect(impl.postPlaybookCancelRequest(MOCKCANCELREQUEST)).resolves.toBeNull();
+            await expect(impl.postPlaybookCancelRequest(REQ, MOCKCANCELREQUEST)).resolves.toBeNull();
         });
 
         test('connection error handling playbookCancelRequest', async function () {
             base.mockRequestError();
-            await expect(impl.postPlaybookCancelRequest(MOCKCANCELREQUEST)).rejects.toThrow(errors.DependencyError);
+            await expect(impl.postPlaybookCancelRequest(REQ, MOCKCANCELREQUEST)).rejects.toThrow(errors.DependencyError);
         });
 
         test('status code handling playbookCancelRequest', async function () {
             base.mockRequestStatusCode();
-            await expect(impl.postPlaybookCancelRequest(MOCKCANCELREQUEST)).rejects.toThrow(errors.DependencyError);
+            await expect(impl.postPlaybookCancelRequest(REQ, MOCKCANCELREQUEST)).rejects.toThrow(errors.DependencyError);
         });
     });
 
@@ -440,7 +449,7 @@ describe('dispatcher impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getPlaybookRunRecipientStatus(DISPATCHSTATUSREQUEST);
+            const results = await impl.getPlaybookRunRecipientStatus(REQ, DISPATCHSTATUSREQUEST);
 
             const result1 = results['d415fc2d-9700-4e30-9621-6a410ccc92d8'];
             result1.should.have.property('recipient', 'd415fc2d-9700-4e30-9621-6a410ccc92d8');
@@ -466,17 +475,17 @@ describe('dispatcher impl', function () {
 
         test('returns null dispatcherStatusRequest is incorrect', async function () {
             base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(null);
-            await expect(impl.getPlaybookRunRecipientStatus(DISPATCHSTATUSREQUEST)).resolves.toBeNull();
+            await expect(impl.getPlaybookRunRecipientStatus(REQ, DISPATCHSTATUSREQUEST)).resolves.toBeNull();
         });
 
         test('connection error handling dispatcherStatusRequest', async function () {
             base.mockRequestError();
-            await expect(impl.getPlaybookRunRecipientStatus(DISPATCHSTATUSREQUEST)).rejects.toThrow(errors.DependencyError);
+            await expect(impl.getPlaybookRunRecipientStatus(REQ, DISPATCHSTATUSREQUEST)).rejects.toThrow(errors.DependencyError);
         });
 
         test('status code handling dispatcherStatusRequest', async function () {
             base.mockRequestStatusCode();
-            await expect(impl.getPlaybookRunRecipientStatus(DISPATCHSTATUSREQUEST)).rejects.toThrow(errors.DependencyError);
+            await expect(impl.getPlaybookRunRecipientStatus(REQ, DISPATCHSTATUSREQUEST)).rejects.toThrow(errors.DependencyError);
         });
     });
 
@@ -503,7 +512,7 @@ describe('dispatcher impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getConnectionStatus(DISPATCHV2STATUSREUEST);
+            const results = await impl.getConnectionStatus(REQ, DISPATCHV2STATUSREUEST);
 
             results.should.have.length(1);
             results[0].systems.should.have.length(4);
@@ -512,24 +521,24 @@ describe('dispatcher impl', function () {
         test('chunks large request', async () => {
             // verify correct collation (sat_a: 51+, sat_b: 2+, direct_a: 1, direct_b: 1)
             base.getSandbox().stub(request, 'run').callsFake(dispatcher);
-            const results = await impl.getConnectionStatus(LARGE_SAT_STATUS_REQ);
+            const results = await impl.getConnectionStatus(REQ, LARGE_SAT_STATUS_REQ);
 
             expect(results.body).toMatchSnapshot();
         });
 
         test('returns empty array if no results', async () => {
             base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(null);
-            await expect(impl.getConnectionStatus(DISPATCHV2STATUSREUEST)).resolves.toEqual([]);
+            await expect(impl.getConnectionStatus(REQ, DISPATCHV2STATUSREUEST)).resolves.toEqual([]);
         });
 
         test('connection error handling dispatcherV2StatusRequest', async () => {
             base.mockRequestStatusCode();
-            await expect(impl.getConnectionStatus(DISPATCHV2STATUSREUEST)).rejects.toThrow(errors.DependencyError);
+            await expect(impl.getConnectionStatus(REQ, DISPATCHV2STATUSREUEST)).rejects.toThrow(errors.DependencyError);
         });
 
         test('status code handling dispatcherV2StatusRequest', async () => {
             base.mockRequestStatusCode();
-            await expect(impl.getConnectionStatus(DISPATCHV2STATUSREUEST)).rejects.toThrow(errors.DependencyError);
+            await expect(impl.getConnectionStatus(REQ, DISPATCHV2STATUSREUEST)).rejects.toThrow(errors.DependencyError);
         });
     });
 });

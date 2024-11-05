@@ -15,13 +15,13 @@ const disambiguator = require('../resolutions/disambiguator');
 
 const notFound = res => res.status(404).json();
 
-async function validateResolution (id, resolutionId) {
-    const identifier = identifiers.parse(id);
-    const resolutions = await issues.getHandler(identifier).getResolutionResolver().resolveResolutions(identifier);
-    disambiguator.disambiguate(resolutions, resolutionId, identifier);
+async function validateResolution (id, resolutionId, req) {
+    const identifier = identifiers.parse(req, id);
+    const resolutions = await issues.getHandler(identifier, req).getResolutionResolver().resolveResolutions(req, identifier);
+    disambiguator.disambiguate(req, resolutions, resolutionId, identifier);
 }
 
-async function validateNewActions(add) {
+async function validateNewActions(add, req) {
     // normalize and validate
     add.issues.forEach(issue => {
         if (!issue.systems && add.systems) {
@@ -29,13 +29,13 @@ async function validateNewActions(add) {
         }
 
         if (!issue.systems || !issue.systems.length) {
-            throw new errors.BadRequest('NO_SYSTEMS', `Systems not specified for "${issue.id}"`);
+            throw new errors.BadRequest(req, 'NO_SYSTEMS', `Systems not specified for "${issue.id}"`);
         }
     });
 
     const duplicateIssues = _(add.issues).groupBy('id').pickBy(value => value.length > 1).value();
     if (_.size(duplicateIssues)) {
-        throw new errors.BadRequest('DUPLICATE_ISSUE',
+        throw new errors.BadRequest(req, 'DUPLICATE_ISSUE',
             `Issue "${Object.keys(duplicateIssues)[0]}" specified more than once in the issue list`);
     }
 
@@ -43,14 +43,14 @@ async function validateNewActions(add) {
 
     // TODO: might be better to call these before the transaction
     const [systemsById] = await P.all([
-        inventory.getSystemDetailsBatch(systems),
-        P.all(add.issues.map(issue => validateResolution(issue.id, issue.resolution)))
+        inventory.getSystemDetailsBatch(req, systems),
+        P.all(add.issues.map(issue => validateResolution(issue.id, issue.resolution, req)))
     ]);
 
     // verify systems identifiers are valid
     systems.forEach(system => {
         if (!systemsById.hasOwnProperty(system)) {
-            throw errors.unknownSystem(system);
+            throw errors.unknownSystem(req, system);
         }
     });
 }
@@ -107,7 +107,7 @@ exports.create = errors.async(async function (req, res) {
     const {add, name, auto_reboot} = req.body;
 
     if (add) {
-        await validateNewActions(add);
+        await validateNewActions(add, req);
     }
 
     const id = uuid.v4();
@@ -142,11 +142,11 @@ exports.patch = errors.async(async function (req, res) {
 
     if (_.isUndefined(add) && _.isUndefined(name) && _.isUndefined(auto_reboot) && _.isUndefined(archived)) {
         // eslint-disable-next-line max-len
-        throw new errors.BadRequest('EMPTY_REQUEST', 'At least one of "add", "name", "auto_reboot", "archived" needs to be specified');
+        throw new errors.BadRequest(req, 'EMPTY_REQUEST', 'At least one of "add", "name", "auto_reboot", "archived" needs to be specified');
     }
 
     if (add) {
-        await validateNewActions(add);
+        await validateNewActions(add, req);
     }
 
     const result = await db.s.transaction(async transaction => {
@@ -195,7 +195,7 @@ exports.patchIssue = errors.async(async function (req, res) {
     const { resolution: rid } = req.body;
 
     // validate that the given resolution exists
-    await validateResolution(iid, rid);
+    await validateResolution(iid, rid, req);
 
     const result = await db.s.transaction(async transaction => {
         const issue = await db.issue.findOne(findIssueQuery(req), {transaction});

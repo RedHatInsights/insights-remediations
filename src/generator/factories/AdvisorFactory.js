@@ -8,15 +8,15 @@ const Factory = require('./Factory');
 
 module.exports = class AdvisorFactory extends Factory {
 
-    async createPlay ({id, resolution, hosts}, strict = true) {
-        const handler = issues.getHandler(id);
+    async createPlay ({id, resolution, hosts}, req, strict = true) {
+        const handler = issues.getHandler(id, req);
 
         const [resolutions, rule] = await P.all([
-            handler.getResolutionResolver().resolveResolutions(id),
-            handler.getIssueDetails(id)
+            handler.getResolutionResolver().resolveResolutions(req, id),
+            handler.getIssueDetails(id, req)
         ]);
 
-        const disambiguatedResolution = this.disambiguate(resolutions, resolution, id, strict);
+        const disambiguatedResolution = this.disambiguate(req, resolutions, resolution, id, strict);
         return new ResolutionPlay(id, hosts, disambiguatedResolution, rule.description);
     }
 };

@@ -10,22 +10,22 @@ const trace = require('../../util/trace');
 
 module.exports = class CVEFactory extends Factory {
 
-    async createPlay (issue, strict = true) {
+    async createPlay (issue, req, strict = true) {
         trace.enter('CSAWFactory.createPlay');
 
         trace.event(`Resolve resolutions for id: ${issue.id}`);
         const {id, hosts, resolution} = issue;
-        const resolver = issues.getHandler(id).getResolutionResolver();
-        const resolutions = await resolver.resolveResolutions(id, strict);
+        const resolver = issues.getHandler(id, req).getResolutionResolver();
+        const resolutions = await resolver.resolveResolutions(req, id, strict);
         trace.event(`Resolutions: ${JSON.stringify(resolutions)}`);
 
         if (!resolutions.length) {
             trace.leave('Unknown issue!');
-            throw errors.unknownIssue(id);
+            throw errors.unknownIssue(req, id);
         }
 
         trace.event('Disambiguate resolutions...');
-        const disambiguatedResolution = this.disambiguate(resolutions, resolution, id, strict);
+        const disambiguatedResolution = this.disambiguate(req, resolutions, resolution, id, strict);
         trace.event(`Disambiguated resolution: ${JSON.stringify(disambiguatedResolution)}`);
 
         if (ErratumResolution.isErratumResolution(disambiguatedResolution)) {

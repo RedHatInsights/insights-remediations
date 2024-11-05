@@ -7,6 +7,15 @@ const request = require('../../util/request');
 const errors = require('../../errors');
 const RequestError = require('request-promise-core/errors').RequestError;
 
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
+
 /* eslint-disable max-len */
 describe('compliance impl', function () {
 
@@ -37,7 +46,7 @@ describe('compliance impl', function () {
             headers: {}
         });
 
-        const result = await impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
+        const result = await impl.getRule(REQ, 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
         result.should.property('ref_id', 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
         result.should.property('title', 'Disable SSH Root Login');
 
@@ -49,7 +58,7 @@ describe('compliance impl', function () {
         cache.get.callCount.should.equal(1);
         cache.setex.callCount.should.equal(1);
 
-        await impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
+        await impl.getRule(REQ, 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
         cache.get.callCount.should.equal(2);
         cache.setex.callCount.should.equal(1);
     });
@@ -82,7 +91,7 @@ describe('compliance impl', function () {
             headers: {}
         });
 
-        const result = await impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
+        const result = await impl.getRule(REQ, 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
         result.should.property('ref_id', 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
         result.should.property('title', 'Disable SSH Root Login');
 
@@ -94,7 +103,7 @@ describe('compliance impl', function () {
         cache.get.callCount.should.equal(3);
         cache.setex.callCount.should.equal(1);
 
-        await impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
+        await impl.getRule(REQ, 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
         cache.get.callCount.should.equal(4);
         cache.setex.callCount.should.equal(1);
     });
@@ -108,7 +117,7 @@ describe('compliance impl', function () {
             headers: {}
         });
 
-        await expect(impl.getRule('unknown-rule')).resolves.toBeNull();
+        await expect(impl.getRule(REQ, 'unknown-rule')).resolves.toBeNull();
 
         http.callCount.should.equal(1);
         cache.get.callCount.should.equal(1);
@@ -117,11 +126,11 @@ describe('compliance impl', function () {
 
     test('status code handling', async function () {
         base.mockRequestStatusCode();
-        await expect(impl.getRule('unknown-rule')).rejects.toThrow(errors.DependencyError);
+        await expect(impl.getRule(REQ, 'unknown-rule')).rejects.toThrow(errors.DependencyError);
     });
 
     test('403 response handling', async function () {
         base.mockRequestStatusCode(403);
-        await expect(impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login')).resolves.toBeNull();
+        await expect(impl.getRule(REQ, 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login')).resolves.toBeNull();
     });
 });

@@ -21,11 +21,11 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    async getUser (id, refresh = false) {
+    async getUser (req, id, refresh = false) {
         const uri = new URI(host);
         uri.path('/v1/users');
 
-        const result = await this.doHttp({
+        const result = await this.doHttp(req, {
             uri: uri.toString(),
             method: 'POST',
             json: true,
@@ -36,7 +36,7 @@ module.exports = new class extends Connector {
                 'x-rh-apitoken': auth,
                 'x-rh-insights-env': env,
                 'x-rh-clientid': clientId,
-                ...this.getForwardedHeaders(false)
+                ...this.getForwardedHeaders(req, false)
             },
             body: {
                 users: [id]
@@ -55,16 +55,16 @@ module.exports = new class extends Connector {
         return result[0];
     }
 
-    async ping () {
-        const req = cls.getReq();
+    async ping (req) {
+        // const req = cls.getReq();
 
         if (req.identity.type === 'User') {
-            const result = await this.getUser(req.identity.user.username, true);
+            const result = await this.getUser(req, req.identity.user.username, true);
             assert(result.username === req.identity.user.username);
         }
 
         else {
-            const result = await this.getUser(testAccount, true);
+            const result = await this.getUser(req, testAccount, true);
             assert(result.username === testAccount);
         }
     }

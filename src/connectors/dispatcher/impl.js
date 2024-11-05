@@ -31,11 +31,12 @@ module.exports = new class extends Connector {
         this.getRunRecipientStatus = metrics.createConnectorMetric(this.getName(), 'getPlaybookRunRecipientStatus');
     }
 
-    async postPlaybookRunRequests (dispatcherWorkRequest) {
+    // Maybe change these parameters because dispatcherWorkRequest is part of the req
+    async postPlaybookRunRequests (req, dispatcherWorkRequest) {
         // chunk this request if necessary...
         if (dispatcherWorkRequest.length > pageSize) {
             const chunks = _.chunk(dispatcherWorkRequest, pageSize);
-            const results = await P.map(chunks, chunk => this.postPlaybookRunRequests(chunk));
+            const results = await P.map(chunks, chunk => this.postPlaybookRunRequests(req, chunk));
             return results.flat();
         }
 
@@ -48,7 +49,7 @@ module.exports = new class extends Connector {
             method: 'POST',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders(),
+            headers: this.getForwardedHeaders(req),
             body: dispatcherWorkRequest
         };
 
@@ -57,7 +58,7 @@ module.exports = new class extends Connector {
             options.headers.Authorization = `PSK ${auth}`;
         }
 
-        const result = await this.doHttp (options, false, this.postRunRequests);
+        const result = await this.doHttp (req, options, false, this.postRunRequests);
 
         if (_.isEmpty(result)) {
             return null;
@@ -107,7 +108,8 @@ module.exports = new class extends Connector {
     //  - one object per satellite_organization (recipient_type == satellite)
     //  - one object for each direct-connect hosts
     //  - one object for hosts with recipient_type == none (e.g. old receptor hosts, no_rhc)
-    async getConnectionStatus (dispatcherConnectionStatusRequest) {
+    // Maybe change these parameters because dispatcherWorkRequest is part of the request
+    async getConnectionStatus (request, dispatcherConnectionStatusRequest) {
         // chunk this request if necessary...
         if (dispatcherConnectionStatusRequest.hosts.length > pageSize) {
             const chunks = _.chunk(dispatcherConnectionStatusRequest.hosts, pageSize);
@@ -118,7 +120,7 @@ module.exports = new class extends Connector {
                     hosts: chunk
                 };
 
-                return this.getConnectionStatus(req);
+                return this.getConnectionStatus(request, req);
             });
 
             // merge items with same recipient id & status
@@ -147,7 +149,7 @@ module.exports = new class extends Connector {
             method: 'POST',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders(),
+            headers: this.getForwardedHeaders(request),
             body: dispatcherConnectionStatusRequest
         };
 
@@ -156,7 +158,7 @@ module.exports = new class extends Connector {
             options.headers.Authorization = `PSK ${auth}`;
         }
 
-        const result = await this.doHttp (options, false, this.postV2ConnectionStatus);
+        const result = await this.doHttp (request, options, false, this.postV2ConnectionStatus);
 
         if (_.isEmpty(result)) {
             return [];
@@ -165,11 +167,11 @@ module.exports = new class extends Connector {
         return result;
     }
 
-    async postV2PlaybookRunRequests (dispatcherV2WorkRequests) {
+    async postV2PlaybookRunRequests (req, dispatcherV2WorkRequests) {
         // chunk this request if necessary...
         if (dispatcherV2WorkRequests.length > pageSize) {
             const chunks = _.chunk(dispatcherV2WorkRequests, pageSize);
-            const results = await P.map(chunks, chunk => this.postV2PlaybookRunRequests(chunk));
+            const results = await P.map(chunks, chunk => this.postV2PlaybookRunRequests(req, chunk));
             return results.flat();
         }
 
@@ -183,7 +185,7 @@ module.exports = new class extends Connector {
             method: 'POST',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders(),
+            headers: this.getForwardedHeaders(req),
             body: dispatcherV2WorkRequests
         };
 
@@ -192,7 +194,7 @@ module.exports = new class extends Connector {
             options.headers.Authorization = `PSK ${auth}`;
         }
 
-        const result = await this.doHttp (options, false, this.postV2RunRequests);
+        const result = await this.doHttp (req, options, false, this.postV2RunRequests);
 
         if (_.isEmpty(result)) {
             return null;
@@ -201,7 +203,7 @@ module.exports = new class extends Connector {
         return result;
     }
 
-    async fetchPlaybookRuns (filter, fields, sort_by = null) {
+    async fetchPlaybookRuns (req, filter, fields, sort_by = null) {
         const _uri = this.buildUri(host, 'playbook-dispatcher', 'v1', 'runs');
         _uri.search(generateQueries(filter, fields));
 
@@ -218,16 +220,14 @@ module.exports = new class extends Connector {
         const options = {
             method: 'GET',
             json: true,
-            headers: this.getForwardedHeaders()
+            headers: this.getForwardedHeaders(req)
         };
 
         // get playbook runs...
         do {
             // grab a page
             options.uri = uri;
-            const batch = await this.doHttp (options,
-                false,
-                this.fetchRuns);
+            const batch = await this.doHttp (req, options, false, this.fetchRuns);
 
             // bail if we got nothing
             if (!batch?.data) {
@@ -254,7 +254,7 @@ module.exports = new class extends Connector {
         return results;
     }
 
-    async fetchPlaybookRunHosts (filter, fields) {
+    async fetchPlaybookRunHosts (req, filter, fields) {
         const _uri = this.buildUri(host, 'playbook-dispatcher', 'v1', 'run_hosts');
         _uri.search(generateQueries(filter, fields));
 
@@ -267,13 +267,13 @@ module.exports = new class extends Connector {
         const options = {
             method: 'GET',
             json: true,
-            headers: this.getForwardedHeaders()
+            headers: this.getForwardedHeaders(req)
         };
 
         do {
             // grab a page
             options.uri = uri;
-            const batch = await this.doHttp (options,
+            const batch = await this.doHttp (req, options,
                 false,
                 this.fetchRunHosts);
 
@@ -303,7 +303,7 @@ module.exports = new class extends Connector {
         return results;
     }
 
-    async postPlaybookCancelRequest (cancelPlaybookRunsRequest) {
+    async postPlaybookCancelRequest (req, cancelPlaybookRunsRequest) {
         const uri = new URI(host);
         uri.segment('internal');
         uri.segment('v2');
@@ -314,7 +314,7 @@ module.exports = new class extends Connector {
             method: 'POST',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders(),
+            headers: this.getForwardedHeaders(req),
             body: cancelPlaybookRunsRequest
         };
 
@@ -323,7 +323,7 @@ module.exports = new class extends Connector {
             options.headers.Authorization = `PSK ${auth}`;
         }
 
-        const result = await this.doHttp (options, false, this.postPlaybookCancelRequests);
+        const result = await this.doHttp (req, options, false, this.postPlaybookCancelRequests);
 
         if (_.isEmpty(result.data)) {
             return null;
@@ -332,12 +332,13 @@ module.exports = new class extends Connector {
         return result;
     }
 
-    async getPlaybookRunRecipientStatus (dispatcherStatusRequest) {
+// Is this necessary?
+    async getPlaybookRunRecipientStatus (req, dispatcherStatusRequest) {
 
         // chunk this request if necessary...
         if (dispatcherStatusRequest.length > pageSize) {
             const chunks = _.chunk(dispatcherStatusRequest, pageSize);
-            const results = await P.map(chunks, chunk => this.getPlaybookRunRecipientStatus(chunk));
+            const results = await P.map(chunks, chunk => this.getPlaybookRunRecipientStatus(req, chunk));
             return results.flat();
         }
 
@@ -352,7 +353,7 @@ module.exports = new class extends Connector {
             method: 'POST',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders(),
+            headers: this.getForwardedHeaders(req),
             body: dispatcherStatusRequest
         };
 
@@ -362,7 +363,7 @@ module.exports = new class extends Connector {
         }
 
         log.info({request: dispatcherStatusRequest}, 'PRE RunRecipientStatus');
-        const result = await this.doHttp (options, false, this.getRunRecipientStatus);
+        const result = await this.doHttp (req, options, false, this.getRunRecipientStatus);
         // TODO: ehh, we probably shouldn't be logging this...
         log.info({result: result}, 'POST RunRecipientStatus');
 

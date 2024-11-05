@@ -7,19 +7,19 @@ const Resolver = require('./Resolver');
 
 module.exports = class CVEResolver extends Resolver {
 
-    fetch (id) {
-        return vmaas.getCve(id.issue);
+    fetch (req, id) {
+        return vmaas.getCve(req, id.issue);
     }
 
     build(id, entity) {
         return ErratumResolution.forCve(id, entity);
     }
 
-    async resolveResolutions (id) {
+    async resolveResolutions (req, id) {
         trace.enter('CVEResolver.resolveResolutions');
 
         trace.event(`Fetch resolutions for: ${id}`);
-        const entity = await this.fetch(id);
+        const entity = await this.fetch(req, id);
         trace.event(`Resolutions: ${JSON.stringify(entity)}`);
 
         if (!entity) {

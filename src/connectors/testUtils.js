@@ -7,19 +7,30 @@ const cls = require('../util/cls');
 const cache = require('../cache');
 const config = require('../config');
 
-exports.mockRequest = function (headers = {
-    'x-rh-identity': 'identity',
-    'x-rh-insights-request-id': 'request-id'
-}, user = {
-    username: 'test',
-    account_number: 'test'
-}, identity = {type: 'test'}) {
-    base.getSandbox().stub(cls, 'getReq').returns({
-        headers,
-        identity,
-        user
-    });
+exports.mockRequest = function () {
+    const request = {
+        headers: {
+          'x-rh-identity': 'identity',
+          'x-rh-insights-request-id': 'request-id'
+        },
+        identity: { type: 'test' },
+        user: { username: 'test', account_number: 'test' }
+    }
+    return request
 };
+//     headers = {
+//     'x-rh-identity': 'identity',
+//     'x-rh-insights-request-id': 'request-id'
+// }, user = {
+//     username: 'test',
+//     account_number: 'test'
+// }, identity = {type: 'test'}) {
+//     base.getSandbox().stub(cls, 'getReq').returns({
+//         headers,
+//         identity,
+//         user
+//     });
+// };
 
 exports.mockCache = function () {
     const data = {};

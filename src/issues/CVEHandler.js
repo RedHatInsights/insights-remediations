@@ -10,15 +10,15 @@ const cveFactory = new(require('../generator/factories/CVEFactory'))();
 
 module.exports = class CVEHandler extends Handler {
 
-    getIssueDetailsInternal (id) {
-        return vmaas.getCve(id.issue);
+    getIssueDetailsInternal (req, id) {
+        return vmaas.getCve(req, id.issue);
     }
 
-    async getIssueDetails (id) {
-        const raw = await this.getIssueDetailsInternal(id);
+    async getIssueDetails (id, req) {
+        const raw = await this.getIssueDetailsInternal(req, id);
 
         if (!raw) {
-            throw errors.unknownIssue(id);
+            throw errors.unknownIssue(req, id);
         }
 
         return {
@@ -31,12 +31,12 @@ module.exports = class CVEHandler extends Handler {
         return cveResolver;
     }
 
-    getPlayFactory () {
+    getPlayFactory (id, req) {
         return cveFactory;
     }
 
-    getSystems (id) {
-        return vulnerabilities.getSystems(id.issue);
+    getSystems (id, req) {
+        return vulnerabilities.getSystems(id.issue, req);
     }
 };
 

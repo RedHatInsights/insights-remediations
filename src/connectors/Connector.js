@@ -36,20 +36,19 @@ module.exports = class Connector {
         return uri;
     }
 
-    async doHttp (options, caching, metrics = false, responseTransformer) {
+    async doHttp (req, options, caching, metrics = false, responseTransformer) {
         try {
-            const result = await http.request(options, caching, metrics, responseTransformer);
+            const result = await http.request(req, options, caching, metrics, responseTransformer);
             return result;
         } catch (e) {
             log.trace(e, 'dependency error');
             metrics && metrics.error.inc();
-            throw errors.internal.dependencyError(e, this);
+            throw errors.internal.dependencyError(req, e, this);
         }
     }
 
-    getForwardedHeaders (identity = true) {
-        const req = cls.getReq();
-        assert(req, 'request not available in CLS');
+    getForwardedHeaders (req, identity = true) {
+        // const req1 = cls.getReq();
         const toPick = [REQ_ID_HEADER];
         if (identity) {
             toPick.push(IDENTITY_HEADER);

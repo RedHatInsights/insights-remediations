@@ -17,7 +17,7 @@ module.exports = function (permission) {
             // Should cert-auth be used on the '/playbooks' endpoint skip the RBAC middleware check
             if (req.identity.type !== 'System') {
                 try {
-                    const access = await rbacConnector.getRemediationsAccess();
+                    const access = await rbacConnector.getRemediationsAccess(req);
                     const accessPermissions = _.map(access.data, 'permission');
 
                     if (_.includes(accessPermissions, `remediations:*:*`) ||
@@ -30,6 +30,7 @@ module.exports = function (permission) {
                     probes.rbacErrorCount(permission, accessPermissions);
 
                     return next(new errors.Forbidden(
+                        req, 
                         `Permission remediations:${srcPermission.resource}:${srcPermission.resourceType} is required for this operation`
                     ));
                 }

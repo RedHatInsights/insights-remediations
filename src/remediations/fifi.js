@@ -45,7 +45,8 @@ const SUCCESS = 'success';
 const CANCELED = 'canceled';
 const SERVICE = 'remediations';
 
-exports.checkSmartManagement = async function (remediation, smart_management) {
+// Aren't we removing this?
+exports.checkSmartManagement = async function (req, remediation, smart_management) {
     // if customer has smart_management entitlement fastlane them
     if (smart_management) {
         return true;
@@ -57,7 +58,7 @@ exports.checkSmartManagement = async function (remediation, smart_management) {
     }
 
     const systemsIds = _(remediation.issues).flatMap('systems').map('system_id').uniq().sort().value();
-    const systemsProfiles = await inventory.getSystemProfileBatch(systemsIds);
+    const systemsProfiles = await inventory.getSystemProfileBatch(req, systemsIds);
 
     return _.some(systemsProfiles, system => system.system_profile.is_marketplace === true);
 };
@@ -133,7 +134,7 @@ function findRunStatus (run) {
 
 // Create array of maps: one representing all RCH-direct hosts, and one for each RHC-satellite
 // Compute aggregate system_count, status counts and overall status for each
-async function formatRHCRuns (rhcRuns, playbook_run_id) {
+async function formatRHCRuns (req, rhcRuns, playbook_run_id) {
     trace.enter('fifi.js[formatRHCRuns]');
 
     // rhcRuns contains all the dispatcher runs for this playbook_run_id
@@ -161,7 +162,7 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
     for (const run of rhcRuns.data) {
         // get dispatcher run hosts
         const runHostsFilter = createDispatcherRunHostsFilter(run.labels['playbook-run'], run.id);
-        const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
+        const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(req, runHostsFilter, RHCRUNFIELDS);
         // If host === 'localhost' then add to RHCDirect
         if (_.get(rhcRunHosts, 'data[0][host]') === 'localhost') {
             rhcDirect.playbook = run.url;
@@ -217,14 +218,14 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
 }
 
 
-exports.formatRunHosts = async function (rhcRuns, playbook_run_id) {
+exports.formatRunHosts = async function (rhcRuns, playbook_run_id, req) {
     let hosts = [];
 
     if (rhcRuns?.data) {
         for (const run of rhcRuns.data) {
             // get dispatcher run hosts...
             const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run.id);
-            const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
+            const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(req, runHostsFilter, RHCRUNFIELDS);
 
             hosts.push(..._.map(rhcRunHosts.data, host => ({
                 system_id: host.inventory_id,
@@ -269,14 +270,14 @@ function pushRHCExecutor (rhcRuns, satRun) {
     }
 }
 
-exports.getRHCRuns = async function (playbook_run_id = null) {
+exports.getRHCRuns = async function (req, playbook_run_id = null) {
     const filter = createDispatcherRunsFilter(playbook_run_id);
-    const rhcRuns = await dispatcher.fetchPlaybookRuns(filter, RUNSFIELDS);
+    const rhcRuns = await dispatcher.fetchPlaybookRuns(req, filter, RUNSFIELDS);
 
     return rhcRuns;
 };
 
-exports.getRunHostDetails = async function (playbook_run_id, system_id) {
+exports.getRunHostDetails = async function (playbook_run_id, system_id, req) {
     trace.enter('fifi.getRunHostDetails');
     // So... given the remediations playbook_run_id and a system_id find the matching
     // dispatcher run_hosts entry.  /dispatcher/runs?playbook_run_id will return an
@@ -286,7 +287,7 @@ exports.getRunHostDetails = async function (playbook_run_id, system_id) {
 
     const runsFilter = createDispatcherRunsFilter(playbook_run_id);
     trace.event(`fetch playbook-dispatcher/v1/runs with filter: ${JSON.stringify(runsFilter)}`);
-    const rhcRuns = await dispatcher.fetchPlaybookRuns(runsFilter, RUNSFIELDS);
+    const rhcRuns = await dispatcher.fetchPlaybookRuns(req, runsFilter, RUNSFIELDS);
     trace.event(`playbook-dispatcher returned: ${JSON.stringify(rhcRuns)}`);
 
     if (!rhcRuns || !rhcRuns.data) {
@@ -305,7 +306,7 @@ exports.getRunHostDetails = async function (playbook_run_id, system_id) {
     for (const run of rhcRuns.data) {
         const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run.id, system_id);
         trace.event(`fetch playbook-dispatcher/v1/run_hosts with filter: ${JSON.stringify(runHostsFilter)}`);
-        const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RUNHOSTFIELDS)
+        const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(req, runHostsFilter, RUNHOSTFIELDS)
         trace.event(`playbook-dispatcher/v1/run_hosts returned: ${JSON.stringify(rhcRunHosts)}`);
 
         if (!rhcRunHosts || !rhcRunHosts.data) {
@@ -326,8 +327,8 @@ exports.getRunHostDetails = async function (playbook_run_id, system_id) {
     return null; // didn't find any systems...
 };
 
-exports.combineHosts = async function (rhcRunHosts, systems, playbook_run_id, filter_hostname = null) {
-    rhcRunHosts = await exports.formatRunHosts(rhcRunHosts, playbook_run_id);
+exports.combineHosts = async function (req, rhcRunHosts, systems, playbook_run_id, filter_hostname = null) {
+    rhcRunHosts = await exports.formatRunHosts(rhcRunHosts, playbook_run_id, req);
 
     _.forEach(rhcRunHosts, host => {
         if (!filter_hostname || host.system_name.indexOf(filter_hostname) >= 0) {
@@ -337,7 +338,7 @@ exports.combineHosts = async function (rhcRunHosts, systems, playbook_run_id, fi
 };
 
 // add rhc playbook run data to remediation
-exports.combineRuns = async function (remediation) {
+exports.combineRuns = async function (req, remediation) {
     const iteration = remediation.iteration;  // this was added to make the logging prettier
 
     trace.enter(`[${iteration}] fifi.combineRuns`);
@@ -347,11 +348,11 @@ exports.combineRuns = async function (remediation) {
         // query playbook-dispatcher to see if there are any RHC direct or
         // RHC satellite hosts for this playbook run...
         trace.event(`[${iteration}] Fetch run details for run: ${run.id}`);
-        const rhcRuns = await exports.getRHCRuns(run.id); // run.id is playbook_run_id
+        const rhcRuns = await exports.getRHCRuns(req, run.id); // run.id is playbook_run_id
 
         if (rhcRuns) {
             trace.event(`[${iteration}] Format run details and add it to the remediation`)
-            const executors = await formatRHCRuns(rhcRuns, run.id);
+            const executors = await formatRHCRuns(req, rhcRuns, run.id);
             pushRHCExecutor(executors, run);
         }
     }
@@ -411,10 +412,10 @@ function prepareRHCCancelRequest (org_id, playbook_run_id, username) {
     return { run_id: playbook_run_id, org_id, principal: username};
 }
 
-function dispatchReceptorCancelRequests (requests, playbook_run_id) {
+function dispatchReceptorCancelRequests (req, requests, playbook_run_id) {
     return P.mapSeries(requests, async ({ executor, receptorCancelRequest }) => {
         try {
-            const response = await receptorConnector.postInitialRequest(receptorCancelRequest);
+            const response = await receptorConnector.postInitialRequest(req, receptorCancelRequest);
             probes.receptorCancelDispatched(receptorCancelRequest, executor, response, playbook_run_id);
             return response;
         } catch (e) {
@@ -423,9 +424,9 @@ function dispatchReceptorCancelRequests (requests, playbook_run_id) {
     });
 }
 
-async function dispatchRHCCancelRequests (dispatcherCancelRequest, playbook_run_id) {
+async function dispatchRHCCancelRequests (req, dispatcherCancelRequest, playbook_run_id) {
     try {
-        const response = await dispatcher.postPlaybookCancelRequest(dispatcherCancelRequest);
+        const response = await dispatcher.postPlaybookCancelRequest(req, dispatcherCancelRequest);
         probes.dispatcherCancelDispatched(dispatcherCancelRequest);
         return response;
     } catch (e) {
@@ -433,12 +434,12 @@ async function dispatchRHCCancelRequests (dispatcherCancelRequest, playbook_run_
     }
 }
 
-exports.cancelPlaybookRun = async function (account_number, org_id, playbook_run_id, username, executors) {
+exports.cancelPlaybookRun = async function (req, account_number, org_id, playbook_run_id, username, executors) {
     if (_.isEmpty(executors)) {
         const request = [prepareRHCCancelRequest(org_id, playbook_run_id, username)];
-        await dispatchRHCCancelRequests(request);
+        await dispatchRHCCancelRequests(req, request);
     } else {
         const requests = executors.map(executor => prepareReceptorCancelRequest(account_number, executor, playbook_run_id));
-        await dispatchReceptorCancelRequests(requests, playbook_run_id);
+        await dispatchReceptorCancelRequests(req, requests, playbook_run_id);
     }
 };

@@ -8,6 +8,15 @@ const { mockRequest, mockCache } = require('../testUtils');
 const request = require('../../util/request');
 const errors = require('../../errors');
 
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
+
 /* eslint-disable max-len */
 describe('advisor impl', function () {
 
@@ -68,7 +77,7 @@ describe('advisor impl', function () {
                 headers: {}
             });
 
-            const result = await impl.getRule('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+            const result = await impl.getRule(REQ, 'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
             result.should.have.property('summary', 'Bonding will not fail over to the backup link when bonding options are partially read.\n');
 
             http.callCount.should.equal(1);
@@ -79,7 +88,7 @@ describe('advisor impl', function () {
             cache.get.callCount.should.equal(1);
             cache.setex.callCount.should.equal(1);
 
-            await impl.getRule('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+            await impl.getRule(REQ, 'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
             cache.get.callCount.should.equal(2);
             cache.setex.callCount.should.equal(1);
         });
@@ -95,7 +104,7 @@ describe('advisor impl', function () {
                 headers: {}
             });
 
-            await expect(impl.getRule('unknown-rule')).resolves.toBeNull();
+            await expect(impl.getRule(REQ, 'unknown-rule')).resolves.toBeNull();
 
             http.callCount.should.equal(1);
             cache.get.callCount.should.equal(1);
@@ -104,7 +113,7 @@ describe('advisor impl', function () {
 
         test('status code handling', async function () {
             base.mockRequestStatusCode();
-            await expect(impl.getRule('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE')).rejects.toThrow(errors.DependencyError);
+            await expect(impl.getRule(REQ, 'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE')).rejects.toThrow(errors.DependencyError);
         });
     });
 
@@ -112,7 +121,7 @@ describe('advisor impl', function () {
         test('parses diagnosis reports', async function () {
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(data.diagnosis1);
 
-            const diagnosis = await impl.getDiagnosis('id', 'branchId');
+            const diagnosis = await impl.getDiagnosis(REQ, 'id', 'branchId');
 
             spy.callCount.should.equal(1);
             diagnosis.should.eql({
@@ -155,7 +164,7 @@ describe('advisor impl', function () {
                 headers: {}
             });
 
-            await expect(impl.getSystems('rule')).resolves.toEqual([
+            await expect(impl.getSystems('rule', REQ)).resolves.toEqual([
                 '7de3c608-8553-4625-90c7-d27f1d29327f',
                 '0d962e11-ff3c-4db1-b06c-c4674d90069b'
             ]);
@@ -173,7 +182,7 @@ describe('advisor impl', function () {
                 headers: {}
             });
 
-            await expect(impl.getSystems('unknown-rule')).resolves.toEqual([]);
+            await expect(impl.getSystems('unknown-rule', REQ)).resolves.toEqual([]);
 
             http.callCount.should.equal(1);
             cache.get.callCount.should.equal(0);

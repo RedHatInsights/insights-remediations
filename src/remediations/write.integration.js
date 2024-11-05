@@ -198,7 +198,7 @@ describe('remediations', function () {
         });
 
         test('400s on post with invalid json body format', async () => {
-            const {header} = reqId();
+            const {id, header} = reqId();
 
             const {body} = await request
             .post('/v1/remediations')
@@ -209,7 +209,7 @@ describe('remediations', function () {
             .expect(400);
 
             body.errors.should.eql([{
-                id: 'unknown',
+                id,
                 status: 400,
                 code: 'INVALID_CONTENT_TYPE',
                 title: 'The request body must be in JSON format.'

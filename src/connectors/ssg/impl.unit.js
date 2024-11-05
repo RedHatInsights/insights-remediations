@@ -7,6 +7,15 @@ const base = require('../../test');
 const { mockRequest } = require('../testUtils');
 const request = require('../../util/request');
 
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
+
 describe('ssg impl', function () {
     beforeEach(mockRequest);
 
@@ -22,7 +31,7 @@ describe('ssg impl', function () {
             }
         });
 
-        const { template, version } = await impl.getTemplate('rhel7', 'standard', 'sshd_disable_root_login');
+        const { template, version } = await impl.getTemplate(REQ, 'rhel7', 'standard', 'sshd_disable_root_login');
         version.should.equal('unit');
         expect(template).toMatchSnapshot();
         http.callCount.should.equal(1);

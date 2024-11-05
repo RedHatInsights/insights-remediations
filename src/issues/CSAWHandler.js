@@ -10,27 +10,27 @@ const csawFactory = new(require('../generator/factories/CSAWFactory'))();
 
 module.exports = class CVEHandler extends Handler {
 
-    getCSAWIssueDetailsInternal (id) {
-        return vulnerabilities.getResolutions(id.issue);
+    getCSAWIssueDetailsInternal (id, req) {
+        return vulnerabilities.getResolutions(req, id.issue);
     }
 
-    getCVEIssueDetailsInternal (id) {
-        return vmaas.getCve(id.issue);
+    getCVEIssueDetailsInternal (req, id) {
+        return vmaas.getCve(req, id.issue);
     }
 
-    async getIssueDetails (id) {
-        const parsed = identifiers.parseCSAW(id);
+    async getIssueDetails (id, req) {
+        const parsed = identifiers.parseCSAW(req, id);
         id.issue = parsed.csaw;
 
-        let raw = await this.getCSAWIssueDetailsInternal(id);
+        let raw = await this.getCSAWIssueDetailsInternal(id, req);
 
         if (!raw && parsed.cve) {
             id.issue = parsed.cve;
-            raw = await this.getCVEIssueDetailsInternal(id);
+            raw = await this.getCVEIssueDetailsInternal(req, id);
         }
 
         if (!raw) {
-            throw errors.unknownIssue(id);
+            throw errors.unknownIssue(req, id);
         }
 
         return {
@@ -43,7 +43,7 @@ module.exports = class CVEHandler extends Handler {
         return csawResolver;
     }
 
-    getPlayFactory () {
+    getPlayFactory (id, req) {
         return csawFactory;
     }
 };

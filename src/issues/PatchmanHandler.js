@@ -6,7 +6,7 @@ const patchFactory = new(require('../generator/factories/PatchmanFactory'))();
 
 module.exports = class PatchmanHandler extends Handler {
 
-    async getIssueDetails (id) {
+    async getIssueDetails (id, req) {
         return {
             description: id.issue
         };
@@ -16,7 +16,7 @@ module.exports = class PatchmanHandler extends Handler {
         return patchResolver;
     }
 
-    getPlayFactory () {
+    getPlayFactory (id, req) {
         return patchFactory;
     }
 };

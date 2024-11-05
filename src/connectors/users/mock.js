@@ -72,7 +72,7 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    async getUser (id) {
+    async getUser (req, id) {
         return MOCK_USERS[id];
     }
 

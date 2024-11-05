@@ -17,7 +17,7 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    async getTemplate (platform, profile, rule) {
+    async getTemplate (req, platform, profile, rule) {
         switch (`${platform}|${profile}|${rule}`) {
             case 'rhel7|pci-dss|disable_prelink':
                 return read('pci-dss', 'disable_prelink');
@@ -41,7 +41,7 @@ module.exports = new class extends Connector {
         }
     }
 
-    ping () {
+    ping (req) {
         return true;
     }
 }();

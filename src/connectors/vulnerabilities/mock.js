@@ -56,7 +56,7 @@ module.exports = new class extends Connector {
         ];
     }
 
-    getResolutions (id) {
+    getResolutions (req, id) {
         if (_.has(RESOLUTION_DATA, id)) {
             // eslint-disable-next-line security/detect-object-injection
             return RESOLUTION_DATA[id];

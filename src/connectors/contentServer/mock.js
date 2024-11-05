@@ -53,7 +53,7 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    getResolutions (id) {
+    getResolutions (req, id) {
         if (_.has(DATA, id)) {
             return DATA[id]; // eslint-disable-line security/detect-object-injection
         }
@@ -61,8 +61,8 @@ module.exports = new class extends Connector {
         return [];
     }
 
-    ping () {
-        return this.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+    ping (req) {
+        return this.getResolutions(req, 'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
     }
 }();
 

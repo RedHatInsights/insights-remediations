@@ -56,7 +56,7 @@ module.exports = async function (app) {
     /*eslint-disable no-unused-vars*/
     app.use((err, req, res, next) => {
         if (err.type === 'entity.parse.failed') {
-            throw new errors.BadRequest('INVALID_CONTENT_TYPE', 'The request body must be in JSON format.');
+            throw new errors.BadRequest(req, 'INVALID_CONTENT_TYPE', 'The request body must be in JSON format.');
         } else {
             throw err;
         }

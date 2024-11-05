@@ -11,7 +11,7 @@ module.exports = function (req, res, next) {
 
     if (raw === undefined) {
         log.info({headers: req.headers, reqId}, 'rejecting request due to missing identity header');
-        return next(new errors.Unauthorized());
+        return next(new errors.Unauthorized(req));
     }
 
     try {
@@ -25,7 +25,7 @@ module.exports = function (req, res, next) {
 
         // allow for anemic tenants (org_id present but no account_number)
         if (!(req.identity.account_number || req.identity.org_id)) {
-            return next(new errors.Unauthorized());
+            return next(new errors.Unauthorized(req));
         }
 
         if (req.identity.type === 'User') {
@@ -49,6 +49,6 @@ module.exports = function (req, res, next) {
         next();
     } catch (e) {
         log.debug({header: raw, error: e.message, reqId}, 'Error decoding identity header');
-        next(new errors.BadRequest('IDENTITY_HEADER', 'Invalid identity header'));
+        next(new errors.BadRequest(req, 'IDENTITY_HEADER', 'Invalid identity header'));
     }
 };

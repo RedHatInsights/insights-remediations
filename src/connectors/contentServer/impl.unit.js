@@ -6,6 +6,15 @@ const { mockRequest, mockCache } = require('../testUtils');
 const request = require('../../util/request');
 const errors = require('../../errors');
 
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
+
 /* eslint-disable max-len */
 describe('content server impl', function () {
 
@@ -26,7 +35,7 @@ describe('content server impl', function () {
             headers: {}
         });
 
-        const result = await impl.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+        const result = await impl.getResolutions(REQ, 'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
         result.should.have.length(1);
         const resolution = result[0];
         resolution.should.have.size(5);
@@ -43,7 +52,7 @@ describe('content server impl', function () {
         cache.get.callCount.should.equal(1);
         cache.setex.callCount.should.equal(1);
 
-        await impl.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+        await impl.getResolutions(REQ, 'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
         cache.get.callCount.should.equal(2);
         cache.setex.callCount.should.equal(1);
     });
@@ -57,7 +66,7 @@ describe('content server impl', function () {
             headers: {}
         });
 
-        await expect(impl.getResolutions('unknown-resolution')).resolves.toEqual([]);
+        await expect(impl.getResolutions(REQ, 'unknown-resolution')).resolves.toEqual([]);
 
         http.callCount.should.equal(1);
         cache.get.callCount.should.equal(1);
@@ -66,7 +75,7 @@ describe('content server impl', function () {
 
     test('status code handling', async function () {
         base.mockRequestStatusCode();
-        await expect(impl.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE')).rejects.toThrow(errors.DependencyError);
+        await expect(impl.getResolutions(REQ, 'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE')).rejects.toThrow(errors.DependencyError);
     });
 
     test('deals with null play field', async function () {
@@ -88,7 +97,7 @@ describe('content server impl', function () {
             headers: {}
         });
 
-        const result = await impl.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+        const result = await impl.getResolutions(REQ, 'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
         result.should.have.length(1);
         const resolution = result[0];
         resolution.should.have.property('resolution_type', 'fix');

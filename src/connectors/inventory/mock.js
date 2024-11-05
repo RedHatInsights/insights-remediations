@@ -9,7 +9,7 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    getSystemDetailsBatch (systems) {
+    getSystemDetailsBatch (req, systems) {
         return Promise.resolve(_(systems)
         .keyBy()
         .mapValues(generator.generateSystem)
@@ -25,7 +25,7 @@ module.exports = new class extends Connector {
             .value());
     }
 
-    getSystemProfileBatch (systems) {
+    getSystemProfileBatch (req, systems) {
         return Promise.resolve(_(systems)
         .keyBy()
         .mapValues(generator.generateSystemProfile)

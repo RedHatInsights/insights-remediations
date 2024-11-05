@@ -15,7 +15,7 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    getTemplate (platform, profile, rule) {
+    getTemplate (req, platform, profile, rule) {
         trace.enter('ssg_impl.getTemplate');
         const uri = new URI(host);
         uri.segment('/playbooks');
@@ -26,8 +26,9 @@ module.exports = new class extends Connector {
 
         trace.event(`Fetching: ${platform}|${profile}|${rule}`);
 
-        const result = this.doHttp(
-            { uri: uri.toString() },
+        const result = this.doHttp(req, {
+                uri: uri.toString()
+            },
             {
                 key: `remediations|http-cache|ssg|${uri.path()}`,
                 revalidationInterval
@@ -42,8 +43,8 @@ module.exports = new class extends Connector {
         return result;
     }
 
-    async ping () {
-        const result = await this.getTemplate('rhel7', 'pci-dss', 'file_owner_etc_passwd');
+    async ping (req) {
+        const result = await this.getTemplate(req, 'rhel7', 'pci-dss', 'file_owner_etc_passwd');
         assert(result !== null);
     }
 }();

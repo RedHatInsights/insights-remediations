@@ -22,7 +22,7 @@ const packageHandler = new(require('./PackageHandler'))();
 const csawHandler = new(require('./CSAWHandler'))();
 
 /* eslint no-fallthrough: off */
-function getHandler (id) {
+function getHandler (id, req) {
     switch (id.app) {
         case 'advisor': return advisorHandler;
         case 'ssg': return ssgHandler;
@@ -39,7 +39,7 @@ function getHandler (id) {
                 return erratumHandler;
             }
 
-            throw errors.unknownIssue(id);
+            throw errors.unknownIssue(req, id);
 
         case 'test': return testHandler;
         case 'patch-advisory':
@@ -47,24 +47,24 @@ function getHandler (id) {
                 return patchmanHandler;
             }
 
-            throw errors.unknownIssue(id);
+            throw errors.unknownIssue(req, id);
         case 'patch-package':
             if (NEVRA_PATTERN.test(id.issue)) {
                 return packageHandler;
             }
 
-            throw errors.unknownIssue(id);
+            throw errors.unknownIssue(req, id);
         default:
-            throw errors.unknownIssue(id);
+            throw errors.unknownIssue(req, id);
     }
 }
 
 exports.getHandler = getHandler;
 
-exports.getIssueDetails = function (id) {
-    return getHandler(id).getIssueDetails(id);
+exports.getIssueDetails = function (id, req) {
+    return getHandler(id, req).getIssueDetails(id, req);
 };
 
-exports.getPlayFactory = function (id) {
-    return getHandler(id).getPlayFactory(id);
+exports.getPlayFactory = function (id, req) {
+    return getHandler(id, req).getPlayFactory(id, req);
 };
