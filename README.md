@@ -30,7 +30,7 @@ Insights Remediations supports the following types of remediations:
 
 ## Documentation
 
-* [API Documentation](https://remediations-ci.5a9f.insights-dev.openshiftapps.com)
+* [API Documentation](https://console.redhat.com/docs/api/remediations)
 * [Analysis and Design document](https://docs.google.com/document/d/13uOO5UWSkQl3AgphY-FgSnHdxi0RIrk4jeC6CqFrpec/edit?usp=sharing)
 * [Insights Playbooks Wiki](https://github.com/redhatinsights/insights-playbooks/wiki)
 
