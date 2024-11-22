@@ -66,6 +66,9 @@
     "loader-utils": "^3.2.1",
     "pino-cloudwatch": {
       "async": "^3.2.6"
+    },
+    "os-locale": {
+      "execa": "^9.5.1"
     }
   },
   "scripts": {
