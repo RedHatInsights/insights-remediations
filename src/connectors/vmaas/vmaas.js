@@ -14,21 +14,21 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    getErratum (id) {
+    getErratum (req, id) {
         const uri = new URI(host);
         uri.path('/api/v1/errata');
         uri.segment(id);
 
-        return this.doHttp({
+        return this.doHttp(req, {
             uri: uri.toString(),
             method: 'GET',
             json: true,
-            headers: this.getForwardedHeaders(false)
+            headers: this.getForwardedHeaders(req, false)
         }, false)
         .then(res => _.get(res, ['errata_list', id], null));
     }
 
-    getCve (id, refresh = false) {
+    getCve (req, id, refresh = false) {
         trace.enter('connectors/vmaas/vmaas.getCve');
 
         const uri = new URI(host);
@@ -39,7 +39,7 @@ module.exports = new class extends Connector {
             uri: uri.toString(),
             method: 'GET',
             json: true,
-            headers: this.getForwardedHeaders(false)
+            headers: this.getForwardedHeaders(req, false)
         };
 
         const caching = {
@@ -51,7 +51,7 @@ module.exports = new class extends Connector {
         trace.event(`GET options: ${options}`);
         trace.event(`GET caching: ${caching}`);
 
-        const promise = this.doHttp(options, caching, this.metrics)
+        const promise = this.doHttp(req, options, caching, this.metrics)
             .then(res => {
                 trace.event(`Got data back!`);
                 return _.get(res, ['cve_list', id], null);
@@ -61,16 +61,17 @@ module.exports = new class extends Connector {
         return promise;
     }
 
-    getPackage (id, refresh = false) {
+    // Not being used??
+    getPackage (req, id, refresh = false) {
         const uri = new URI(host);
         uri.path('/api/v1/packages');
         uri.segment(id);
 
-        return this.doHttp({
+        return this.doHttp(req, {
             uri: uri.toString(),
             method: 'GET',
             json: true,
-            headers: this.getForwardedHeaders(false)
+            headers: this.getForwardedHeaders(req, false)
         },
         {
             refresh,
@@ -81,8 +82,8 @@ module.exports = new class extends Connector {
         ).then(res => _.get(res, ['package_list', id], null));
     }
 
-    async ping () {
-        const result = await this.getCve('CVE-2017-17712', true);
+    async ping (req) {
+        const result = await this.getCve(req, 'CVE-2017-17712', true);
         assert(result.synopsis === 'CVE-2017-17712');
     }
 }();

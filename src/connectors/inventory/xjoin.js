@@ -32,14 +32,14 @@ module.exports = new class extends Connector {
         this.xjoinOwnerIdMetrics = metrics.createConnectorMetric(this.getName(), 'getSystemsByOwnerId');
     }
 
-    async getSystemDetailsBatch (ids = [], refresh = false, retries = 2) {
+    async getSystemDetailsBatch (req, ids = [], refresh = false, retries = 2) {
         if (ids.length === 0) {
             return {};
         }
 
         if (ids.length > pageSize) {
             const chunks = _.chunk(ids, pageSize);
-            const results = await P.map(chunks, chunk => this.getSystemDetailsBatch(chunk, refresh));
+            const results = await P.map(chunks, chunk => this.getSystemDetailsBatch(req, chunk, refresh));
             return _.assign({}, ...results);
         }
 
@@ -47,17 +47,17 @@ module.exports = new class extends Connector {
         const queryIds = ids.map(identifier => ({id: {eq: identifier}}));
 
         try {
-            response = await queries.runQuery(BATCH_DETAILS_QUERY, {
+            response = await queries.runQuery(req, BATCH_DETAILS_QUERY, {
                 filter: {OR: queryIds},
                 order_by: 'display_name',
                 order_how: 'ASC',
                 limit: pageSize,
                 offset: 0
-            }, this.getForwardedHeaders(), this.xjoinDetailsMetrics);
+            }, this.getForwardedHeaders(req), this.xjoinDetailsMetrics);
         } catch (e) {
             if (retries > 0) {
                 log.warn({ error: e, ids, retries }, 'Xjoin fetch failed. Retrying');
-                return this.getSystemDetailsBatch(ids, true, retries - 1);
+                return this.getSystemDetailsBatch(req, ids, true, retries - 1);
             }
 
             throw e;
@@ -72,14 +72,14 @@ module.exports = new class extends Connector {
         return validate(transformed);
     }
 
-    async getSystemProfileBatch(ids = [], refresh = false, retries = 2) {
+    async getSystemProfileBatch(req, ids = [], refresh = false, retries = 2) {
         if (ids.length === 0) {
             return {};
         }
 
         if (ids.length > pageSize) {
             const chunks = _.chunk(ids, pageSize);
-            const results = await P.map(chunks, chunk => this.getSystemProfileBatch(chunk, refresh));
+            const results = await P.map(chunks, chunk => this.getSystemProfileBatch(req, chunk, refresh));
             return _.assign({}, ...results);
         }
 
@@ -87,17 +87,17 @@ module.exports = new class extends Connector {
         const queryIds = ids.map(identifier => ({id: {eq: identifier}}));
 
         try {
-            response = await queries.runQuery(BATCH_PROFILE_QUERY, {
+            response = await queries.runQuery(req, BATCH_PROFILE_QUERY, {
                 filter: {OR: queryIds},
                 order_by: 'display_name',
                 order_how: 'ASC',
                 limit: pageSize,
                 offset: 0
-            }, this.getForwardedHeaders(), this.xjoinSystemProfileMetrics);
+            }, this.getForwardedHeaders(req), this.xjoinSystemProfileMetrics);
         } catch (e) {
             if (retries > 0) {
                 log.warn({ error: e, ids, retries }, 'Xjoin fetch failed. Retrying');
-                return this.getSystemProfileBatch(ids, true, retries - 1);
+                return this.getSystemProfileBatch(req, ids, true, retries - 1);
             }
 
             throw e;
@@ -112,10 +112,10 @@ module.exports = new class extends Connector {
         return transformed;
     }
 
-    async getSystemsByInsightsId (id) {
-        const response = await queries.runQuery(INSIGHTS_ID_QUERY, {
+    async getSystemsByInsightsId (id, req) {
+        const response = await queries.runQuery(req, INSIGHTS_ID_QUERY, {
             insights_id: id
-        }, this.getForwardedHeaders(), this.xjoinInsightsIdMetrics);
+        }, this.getForwardedHeaders(req), this.xjoinInsightsIdMetrics);
 
         const transformed = _(response.data.hosts.data)
         .map(({id, display_name, canonical_facts, account, updated, ansible_host}) =>
@@ -126,10 +126,10 @@ module.exports = new class extends Connector {
         return transformed;
     }
 
-    async getSystemsByOwnerId (owner_id) {
-        const response = await queries.runQuery(OWNER_ID_QUERY, {
+    async getSystemsByOwnerId (owner_id, req) {
+        const response = await queries.runQuery(req, OWNER_ID_QUERY, {
             owner_id
-        }, this.getForwardedHeaders(), this.xjoinOwnerIdMetrics);
+        }, this.getForwardedHeaders(req), this.xjoinOwnerIdMetrics);
 
         const transformed = _(response.data.hosts.data)
         .map(({id, display_name, canonical_facts, account, updated, ansible_host}) =>
@@ -140,8 +140,8 @@ module.exports = new class extends Connector {
         return transformed;
     }
 
-    async ping () {
-        const response = queries.runQuery(BATCH_DETAILS_QUERY, {limit: 1}, this.getForwardedHeaders());
+    async ping (req) {
+        const response = queries.runQuery(req, BATCH_DETAILS_QUERY, {limit: 1}, this.getForwardedHeaders(req));
         assert(Array.isArray(response.data.hosts.data));
     }
 }();

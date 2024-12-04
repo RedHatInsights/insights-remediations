@@ -38,9 +38,9 @@ module.exports = new class extends Connector {
         ];
     }
 
-    getPlaybookRunRecipientStatus () {
-        return null;
-    }
+    // getPlaybookRunRecipientStatus () {
+    //     return null;
+    // }
 
     ping () {}
 }();
