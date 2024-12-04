@@ -20,14 +20,14 @@ module.exports = class CVEFactory extends Factory {
             throw errors.unknownIssue(id);
         }
 
-        trace.event(`Disambiguate resolution: ${JSON.stringify(resolutions)}`);
+        trace.event(`Disambiguate resolution...`);
         const disambiguatedResolution = this.disambiguate(resolutions, resolution, id, strict);
-        trace.event(`Disambiguated resolution: ${disambiguatedResolution}`);
+        trace.event(`Disambiguated resolution.`);
 
         trace.event('Create erratum play...');
         const result = new ErratumPlay(id, hosts, disambiguatedResolution, disambiguatedResolution.description);
 
-        trace.leave(`Returning: ${JSON.stringify(result)}`);
+        trace.leave();
         return result;
     }
 };
