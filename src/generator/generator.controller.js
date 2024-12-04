@@ -75,7 +75,6 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
             version: resolution.version || null,
             hosts}))
     };
-    trace.event(`Canonical definition: ${JSON.stringify(definition)}`);
 
     trace.event('Aggregate erratum plays...');
     issues = erratumPlayAggregator.process(issues);
@@ -128,7 +127,9 @@ exports.resolveSystems = async function (issues, strict = true) {
     trace.enter('generator.controller.resolveSystems');
 
     const systemIds = _(issues).flatMap('systems').uniq().value();
-    trace.event(`System IDs: ${JSON.stringify(systemIds)}`);
+    if (systemIds.length <= 25) { // avoid logging huge list...
+        trace.event(`System IDs: ${JSON.stringify(systemIds)}`);
+    }
 
     // bypass cache as ansible_host may change so we want to grab the latest one
     trace.event('Get system details...');
