@@ -8,6 +8,15 @@ const request = require('../../util/request');
 const errors = require('../../errors');
 const RequestError = require('request-promise-core/errors').RequestError;
 
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
+
 describe('rbac impl', function () {
     beforeEach(mockRequest);
 
@@ -37,7 +46,7 @@ describe('rbac impl', function () {
             headers: {}
         });
 
-        const result = await impl.getRemediationsAccess();
+        const result = await impl.getRemediationsAccess(REQ);
         result.meta.should.have.property('count', 1);
         result.meta.should.have.property('limit', 10);
         result.meta.should.have.property('offset', 0);
@@ -94,7 +103,7 @@ describe('rbac impl', function () {
             headers: {}
         });
 
-        const result = await impl.getRemediationsAccess();
+        const result = await impl.getRemediationsAccess(REQ);
         result.meta.should.have.property('count', 1);
         result.meta.should.have.property('limit', 10);
         result.meta.should.have.property('offset', 0);
@@ -124,7 +133,7 @@ describe('rbac impl', function () {
 
     test('returns null when operation failed', async function () {
         base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
-        await expect(impl.getRemediationsAccess()).resolves.toBeNull();
+        await expect(impl.getRemediationsAccess(REQ)).resolves.toBeNull();
     });
 
     test('ping', async function () {
@@ -150,16 +159,16 @@ describe('rbac impl', function () {
             }
         );
 
-        await impl.ping();
+        await impl.ping(REQ);
     });
 
     test('access error handling', async function () {
         base.mockRequestError();
-        await expect(impl.getRemediationsAccess()).rejects.toThrow(errors.DependencyError);
+        await expect(impl.getRemediationsAccess(REQ)).rejects.toThrow(errors.DependencyError);
     });
 
     test('status code handling', async function () {
         base.mockRequestStatusCode();
-        await expect(impl.getRemediationsAccess()).rejects.toThrow(errors.DependencyError);
+        await expect(impl.getRemediationsAccess(REQ)).rejects.toThrow(errors.DependencyError);
     });
 });

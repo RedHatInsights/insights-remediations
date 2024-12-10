@@ -23,22 +23,31 @@ const config = require('../config');
 const db = require('../db');
 const { systems } = require('../connectors/inventory/impl.unit.data');
 
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
+
 // Helper functions
-function fake_doHttp(req) {
-    const uri = new URI(req.uri);
+function fake_doHttp(req, options) {
+    const uri = new URI(options.uri);
     const path = uri.path();
 
     if (path === '/api/playbook-dispatcher/v1/runs')
-        return fake_dispatcher_runs(req);
+        return fake_dispatcher_runs(req, options);
 
     if (path === '/api/playbook-dispatcher/v1/run_hosts')
-        return fake_dispatcher_run_hosts(req);
+        return fake_dispatcher_run_hosts(req, options);
 
     return Promise.resolve({});
 }
 
-function fake_dispatcher_runs(req) {
-    const uri = new URI(req.uri);
+function fake_dispatcher_runs(req, options) {
+    const uri = new URI(options.uri);
     const params = queryString.parse(uri.query());
     const offset = parseInt(params.offset) || 0;
 
@@ -80,8 +89,8 @@ function fake_dispatcher_runs(req) {
 }
 
 // For now, this just fakes a single run host for direct targets
-function fake_dispatcher_run_hosts(req) {
-    const uri = new URI(req.uri);
+function fake_dispatcher_run_hosts(req, options) {
+    const uri = new URI(options.uri);
     const params = queryString.parse(uri.query());
 
     // construct response
@@ -1076,7 +1085,7 @@ describe('FiFi', function () {
                 // c061da50-e9eb-43be-9cea-751a8d64d8d9
                 // b76f065b-2ec6-4022-8bde-91dc1df6b344
 
-                const result = dispatcher_mock.getConnectionStatus(TEST_DATA);
+                const result = dispatcher_mock.getConnectionStatus(REQ, TEST_DATA);
 
                 // await request
                 //     .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
@@ -1219,11 +1228,11 @@ describe('FiFi', function () {
 
                 spy.callCount.should.equal(1);
 
-                const payload = spy.firstCall.args[0];
+                const payload = spy.firstCall.args[1];
 
                 payload.should.have.length(8);
 
-                expect(spy.args).toMatchSnapshot();
+                expect(spy.args[0][1]).toMatchSnapshot();
             });
 
             test('exclude all connected connectors and return 400 NO_EXECUTORS', async function () {
@@ -1260,7 +1269,7 @@ describe('FiFi', function () {
                     .set(auth.fifi)
                     .expect(201);
 
-                expect(spy.args).toMatchSnapshot();
+                expect(spy.args[0][1]).toMatchSnapshot();
             });
 
             test('post playbook_runs with wrong exclude statement', async function () {
@@ -1554,7 +1563,7 @@ describe('FiFi', function () {
 
             test.skip('if 1st executor result from receptor connector is request error', async function () {
                 base.getSandbox().stub(receptor, 'postInitialRequest')
-                .rejects(errors.internal.dependencyError(new Error('receptor down'), receptor));
+                .rejects(errors.internal.dependencyError(REQ, new Error('receptor down'), receptor));
 
                 const {body} = await request
                 .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
@@ -1569,7 +1578,7 @@ describe('FiFi', function () {
             test('if 2nd executor result from receptor is request error', async function () {
                 const stub = base.getSandbox().stub(receptor, 'postInitialRequest');
                 stub.callThrough();
-                stub.onSecondCall().rejects(errors.internal.dependencyError(new Error('receptor down'), receptor));
+                stub.onSecondCall().rejects(errors.internal.dependencyError(REQ, new Error('receptor down'), receptor));
 
                 const {body} =  await request
                 .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
@@ -1587,14 +1596,14 @@ describe('FiFi', function () {
                 .expect(202);
 
                 spy.callCount.should.equal(2);
-                spy.firstCall.args[0].should.eql({
+                spy.firstCall.args[1].should.eql({
                     account: 'fifi',
                     recipient: 'Job-1',
                     payload: '{"type":"playbook_run_cancel","playbook_run_id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc"}',
                     directive: 'receptor_satellite:cancel'
                 });
 
-                spy.secondCall.args[0].should.eql({
+                spy.secondCall.args[1].should.eql({
                     account: 'fifi',
                     recipient: 'Job-2',
                     payload: '{"type":"playbook_run_cancel","playbook_run_id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc"}',
@@ -1611,7 +1620,7 @@ describe('FiFi', function () {
 
                 spy.callCount.should.equal(1);
 
-                spy.firstCall.args[0].should.eql([{
+                spy.firstCall.args[1].should.eql([{
                     run_id: '88d0ba73-0015-4e7d-a6d6-4b530cbfb7bc',
                     org_id: '6666666',
                     principal: 'fifi'
@@ -1677,8 +1686,18 @@ describe('FiFi', function () {
         });
 
         test('if RBAC connector fails a dependency error is returned', async function () {
+            const ID_REQ = {
+                headers: {
+                    'x-rh-identity': 'identity',
+                    'x-rh-insights-request-id': 'request-id'
+                },
+                id: '77d92aeb-9351-4216-8d7c-044d171437bc',
+                identity: { type: 'test' },
+                user: { username: 'test', account_number: 'test' }
+            };
+
             base.getSandbox().stub(rbac, 'getRemediationsAccess')
-            .rejects(errors.internal.dependencyError(new Error('rbac down'), rbac));
+            .rejects(errors.internal.dependencyError(ID_REQ, new Error('rbac down'), rbac));
 
             const {body} = await request
             .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
@@ -1789,7 +1808,7 @@ describe('FiFi', function () {
         test('create playbook run (with 2nd executor failing)', async () => {
             const stub = base.getSandbox().stub(receptor, 'postInitialRequest');
             stub.callThrough();
-            stub.onSecondCall().rejects(errors.internal.dependencyError(new Error('receptor down'), receptor));
+            stub.onSecondCall().rejects(errors.internal.dependencyError(REQ, new Error('receptor down'), receptor));
 
             const {body: post} = await request
             .post('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs')

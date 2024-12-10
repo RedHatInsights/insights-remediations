@@ -11,6 +11,15 @@ const request = require('../../util/request');
 const RequestError = require('request-promise-core/errors').RequestError;
 const inventory_GET = require('./inventory_GET.json');
 
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
+
 function inventoryResponse (results, total = results.length) {
     return {
         results,
@@ -28,7 +37,7 @@ describe('inventory impl', function () {
 
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(inventory_GET);
 
-            const result = await impl.getSystemInfoBatch([
+            const result = await impl.getSystemInfoBatch(REQ, [
                 "9cc31c02-96f9-4d33-8d14-ea8467393b51",
                 "2c9284a9-a489-43d4-a7bb-1ef43cf890b8"
             ]);
@@ -43,7 +52,7 @@ describe('inventory impl', function () {
     describe('getSystemDetailsBatch', function () {
         test('does not make a call for empty list', async function () {
             const spy = base.getSandbox().spy(http, 'request');
-            const result = await impl.getSystemDetailsBatch([]);
+            const result = await impl.getSystemDetailsBatch(REQ, []);
 
             result.should.be.empty();
             spy.called.should.be.false();
@@ -52,7 +61,7 @@ describe('inventory impl', function () {
         test('forwards request headers', async function () {
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(inventoryResponse([]));
 
-            await impl.getSystemDetailsBatch(['id']);
+            await impl.getSystemDetailsBatch(REQ, ['id']);
             const headers = spy.args[0][0].headers;
             headers.should.have.size(2);
             headers.should.have.property('x-rh-identity', 'identity');
@@ -103,7 +112,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getSystemDetailsBatch(['id']);
+            const results = await impl.getSystemDetailsBatch(REQ, ['id']);
             results.should.have.size(1);
             results.should.have.property('9615dda7-5868-4957-88ba-c3064c86d332');
             const result = results['9615dda7-5868-4957-88ba-c3064c86d332'];
@@ -120,7 +129,7 @@ describe('inventory impl', function () {
             cache.get.callCount.should.equal(1);
             cache.setex.callCount.should.equal(1);
 
-            await impl.getSystemDetailsBatch(['id']);
+            await impl.getSystemDetailsBatch(REQ, ['id']);
             cache.get.callCount.should.equal(2);
             cache.setex.callCount.should.equal(1);
         });
@@ -165,7 +174,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getSystemDetailsBatch(['id']);
+            const results = await impl.getSystemDetailsBatch(REQ, ['id']);
             results.should.have.size(1);
             results.should.have.property('9615dda7-5868-4957-88ba-c3064c86d332');
             const result = results['9615dda7-5868-4957-88ba-c3064c86d332'];
@@ -181,7 +190,7 @@ describe('inventory impl', function () {
             cache.get.callCount.should.equal(3);
             cache.setex.callCount.should.equal(1);
 
-            await impl.getSystemDetailsBatch(['id']);
+            await impl.getSystemDetailsBatch(REQ, ['id']);
             cache.get.callCount.should.equal(4);
             cache.setex.callCount.should.equal(1);
         });
@@ -201,7 +210,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            await expect(impl.getSystemDetailsBatch(['id'])).resolves.toEqual({});
+            await expect(impl.getSystemDetailsBatch(REQ, ['id'])).resolves.toEqual({});
 
             http.callCount.should.equal(1);
             cache.get.callCount.should.equal(1);
@@ -240,7 +249,7 @@ describe('inventory impl', function () {
 
             const ids = Array(250).fill(0).map((value, key) => `84762eb3-0bbb-4bd8-ab11-f420c50e9${String(key).padStart(3, '0')}`);
 
-            const result = await impl.getSystemDetailsBatch(ids);
+            const result = await impl.getSystemDetailsBatch(REQ, ids);
             result.should.have.size(250);
             ids.forEach(id => _.has(result, id).should.be.true());
         });
@@ -249,7 +258,7 @@ describe('inventory impl', function () {
     describe('getSystemsProfileBatch', function () {
         test('does not make a call for empty list', async function () {
             const spy = base.getSandbox().spy(http, 'request');
-            const result = await impl.getSystemProfileBatch([]);
+            const result = await impl.getSystemProfileBatch(REQ, []);
 
             result.should.be.empty();
             spy.called.should.be.false();
@@ -258,7 +267,7 @@ describe('inventory impl', function () {
         test('forwards request headers', async function () {
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(inventoryResponse([]));
 
-            await impl.getSystemProfileBatch(['id']);
+            await impl.getSystemProfileBatch(REQ, ['id']);
             const headers = spy.args[0][0].headers;
             headers.should.have.size(2);
             headers.should.have.property('x-rh-identity', 'identity');
@@ -285,7 +294,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getSystemProfileBatch(['id']);
+            const results = await impl.getSystemProfileBatch(REQ, ['id']);
             results.should.have.size(1);
             results.should.have.property('9dae9304-86a8-4f66-baa3-a1b27dfdd479');
             const result = results['9dae9304-86a8-4f66-baa3-a1b27dfdd479'];
@@ -302,7 +311,7 @@ describe('inventory impl', function () {
             cache.get.callCount.should.equal(1);
             cache.setex.callCount.should.equal(1);
 
-            await impl.getSystemProfileBatch(['id']);
+            await impl.getSystemProfileBatch(REQ, ['id']);
             cache.get.callCount.should.equal(2);
             cache.setex.callCount.should.equal(1);
         });
@@ -331,7 +340,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getSystemProfileBatch(['id']);
+            const results = await impl.getSystemProfileBatch(REQ, ['id']);
             results.should.have.size(1);
             results.should.have.property('9dae9304-86a8-4f66-baa3-a1b27dfdd479');
             const result = results['9dae9304-86a8-4f66-baa3-a1b27dfdd479'];
@@ -348,7 +357,7 @@ describe('inventory impl', function () {
             cache.get.callCount.should.equal(3);
             cache.setex.callCount.should.equal(1);
 
-            await impl.getSystemProfileBatch(['id']);
+            await impl.getSystemProfileBatch(REQ, ['id']);
             cache.get.callCount.should.equal(4);
             cache.setex.callCount.should.equal(1);
         });
@@ -368,7 +377,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            await expect(impl.getSystemProfileBatch(['id'])).resolves.toEqual({});
+            await expect(impl.getSystemProfileBatch(REQ, ['id'])).resolves.toEqual({});
 
             http.callCount.should.equal(1);
             cache.get.callCount.should.equal(1);
@@ -380,7 +389,7 @@ describe('inventory impl', function () {
         test('forwards request headers', async function () {
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(inventoryResponse([]));
 
-            await impl.getSystemsByOwnerId('id');
+            await impl.getSystemsByOwnerId(REQ, 'id');
             const headers = spy.args[0][0].headers;
             headers.should.have.size(2);
             headers.should.have.property('x-rh-identity', 'identity');
@@ -431,7 +440,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getSystemsByOwnerId('id');
+            const results = await impl.getSystemsByOwnerId(REQ, 'id');
             results.should.have.size(1);
             const result = results[0];
             result.should.have.property('id', '9615dda7-5868-4957-88ba-c3064c86d332');
@@ -446,7 +455,7 @@ describe('inventory impl', function () {
             cache.get.callCount.should.equal(1);
             cache.setex.callCount.should.equal(1);
 
-            await impl.getSystemsByOwnerId('id');
+            await impl.getSystemsByOwnerId(REQ, 'id');
             cache.get.callCount.should.equal(2);
             cache.setex.callCount.should.equal(1);
         });
@@ -491,7 +500,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getSystemsByOwnerId('id');
+            const results = await impl.getSystemsByOwnerId(REQ, 'id');
             results.should.have.size(1);
             const result = results[0];
             result.should.have.property('id', '9615dda7-5868-4957-88ba-c3064c86d332');
@@ -506,7 +515,7 @@ describe('inventory impl', function () {
             cache.get.callCount.should.equal(3);
             cache.setex.callCount.should.equal(1);
 
-            await impl.getSystemsByOwnerId('id');
+            await impl.getSystemsByOwnerId(REQ, 'id');
             cache.get.callCount.should.equal(4);
             cache.setex.callCount.should.equal(1);
         });
@@ -526,7 +535,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            await expect(impl.getSystemsByOwnerId('id')).resolves.toEqual([]);
+            await expect(impl.getSystemsByOwnerId(REQ, 'id')).resolves.toEqual([]);
 
             http.callCount.should.equal(1);
             cache.get.callCount.should.equal(1);
@@ -555,7 +564,7 @@ describe('inventory impl', function () {
                 total: 1
             });
 
-            const result = await impl.getSystemsByInsightsId('3ecd82fb-abdd-471c-9ca2-249c055644b8');
+            const result = await impl.getSystemsByInsightsId('3ecd82fb-abdd-471c-9ca2-249c055644b8', REQ);
             result.should.has.size(2);
             result[0].should.have.property('insights_id', '3ecd82fb-abdd-471c-9ca2-249c055644b8');
             result[1].should.have.property('insights_id', '3ecd82fb-abdd-471c-9ca2-249c055644b8');

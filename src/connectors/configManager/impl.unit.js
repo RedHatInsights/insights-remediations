@@ -6,6 +6,15 @@ const { mockRequest } = require('../testUtils');
 const request = require('../../util/request');
 const errors = require('../../errors');
 
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
+
 describe('config manager impl', function () {
     beforeEach(mockRequest);
 
@@ -29,7 +38,7 @@ describe('config manager impl', function () {
                 headers: {}
             });
 
-            const result = await impl.getCurrentProfile();
+            const result = await impl.getCurrentProfile(REQ);
 
             result.should.have.property('id', 'c5639a03-4640-4ae3-93ce-9966cae18df7');
             result.should.have.property('account_id', '654321');
@@ -52,12 +61,12 @@ describe('config manager impl', function () {
 
         test('connection error handling', async function () {
             base.mockRequestError();
-            await expect(impl.getCurrentProfile()).rejects.toThrow(errors.DependencyError);
+            await expect(impl.getCurrentProfile(REQ)).rejects.toThrow(errors.DependencyError);
         });
 
         test('status code handling', async function () {
             base.mockRequestStatusCode();
-            await expect(impl.getCurrentProfile()).rejects.toThrow(errors.DependencyError);
+            await expect(impl.getCurrentProfile(REQ)).rejects.toThrow(errors.DependencyError);
         });
     });
 });

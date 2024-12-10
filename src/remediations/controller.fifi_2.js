@@ -38,7 +38,7 @@ exports.connection_status = errors.async(async function (req, res) {
 
     if (!rhcEnabled) {
         // 403 if remediations not enabled
-        throw new errors.Forbidden();
+        throw new errors.Forbidden(req);
     }
 
     //--------------------------------------------------------------
@@ -61,7 +61,7 @@ exports.connection_status = errors.async(async function (req, res) {
         hosts: systemIds
     };
 
-    const recipients = await dispatcher.getConnectionStatus(connectionStatusRequest);
+    const recipients = await dispatcher.getConnectionStatus(req, connectionStatusRequest);
 
     //-----------------
     // process e-tag
@@ -111,7 +111,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
 
     if (!rhcEnabled) {
         // 403 if remediations not enabled
-        throw new errors.Forbidden();
+        throw new errors.Forbidden(req);
     }
 
     //--------------------------------------------------------------
@@ -128,7 +128,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
 
     if (systemIds.length === 0) {
         // no systems
-        throw errors.noSystems(remediation);
+        throw errors.noSystems(req, remediation);
     }
 
     //-----------------------------------------------
@@ -139,7 +139,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
         hosts: systemIds
     };
 
-    const recipients = await dispatcher.getConnectionStatus(connectionStatusRequest);
+    const recipients = await dispatcher.getConnectionStatus(req, connectionStatusRequest);
     log.error(`Requested status for ${connectionStatusRequest.hosts.length} hosts, received: ${JSON.stringify(recipients)}`);
 
     //-----------------
@@ -158,6 +158,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
     // createPlaybookRun
     //--------------------------------------------------
     const result = await fifi.createPlaybookRun(
+        req,
         recipients,
         exclude,
         remediation,
@@ -165,7 +166,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
     );
 
     if (_.isNull(result)) {
-        throw errors.noExecutors(remediation);
+        throw errors.noExecutors(req, remediation);
     }
 
     res.status(201).send({id: result});

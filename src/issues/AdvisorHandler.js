@@ -9,11 +9,11 @@ const contentServerResolver = new(require('../resolutions/resolvers/ContentServe
 
 module.exports = class AdvisorHandler extends Handler {
 
-    async getIssueDetails (id) {
-        const raw = await advisor.getRule(id.issue);
+    async getIssueDetails (id, req) {
+        const raw = await advisor.getRule(req, id.issue);
 
         if (!raw) {
-            throw errors.unknownIssue(id);
+            throw errors.unknownIssue(req, id);
         }
 
         return {
@@ -26,11 +26,11 @@ module.exports = class AdvisorHandler extends Handler {
         return contentServerResolver;
     }
 
-    getPlayFactory () {
+    getPlayFactory (id, req) {
         return advisorFactory;
     }
 
-    getSystems (id) {
-        return advisor.getSystems(id.issue);
+    getSystems (id, req) {
+        return advisor.getSystems(id.issue, req);
     }
 };
