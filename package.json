@@ -17,7 +17,7 @@
     "cls-bluebird": "^2.1.0",
     "dedent-js": "^1.0.1",
     "etag": "^1.8.1",
-    "express": "^4.21.1",
+    "express": "^4.21.2",
     "express-http-context": "^1.2.4",
     "express-prom-bundle": "^5.1.5",
     "graphql-request": "^2.0.0",
@@ -74,7 +74,7 @@
   "scripts": {
     "build": "gulp build",
     "coverage": "NODE_ENV=test npm run db:ims && jest -i --coverage",
-    "db:ims": "npm-run-all db:wait db:init db:migrate db:seed",
+    "db:ims": "npm-run-all db:init db:migrate db:seed",
     "db:create": "sequelize db:create",
     "db:drop": "sequelize db:drop",
     "db:hello": "sequelize",
