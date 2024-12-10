@@ -87,7 +87,7 @@ exports.OWNER_ID_QUERY = `
     }
 `;
 
-exports.runQuery = async function (query, variables, headers = {[IDENTITY_HEADER]: createIdentityHeader()}, metrics = false) {
+exports.runQuery = async function (req, query, variables, headers = {[IDENTITY_HEADER]: createIdentityHeader()}, metrics = false) {
     try {
         const client = new GraphQLClient(xjoinHost, { headers });
         const before = new Date();
@@ -101,6 +101,6 @@ exports.runQuery = async function (query, variables, headers = {[IDENTITY_HEADER
     } catch (e) {
         log.trace(e, 'dependency error');
         metrics && metrics.error.inc();
-        throw errors.internal.dependencyError(e, this);
+        throw errors.internal.dependencyError(req, e, this);
     }
 };

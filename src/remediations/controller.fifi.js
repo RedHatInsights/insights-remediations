@@ -17,15 +17,14 @@ const notFound = res => res.sendStatus(404);
 
 exports.checkExecutable = errors.async(async function (req, res) {
     const remediation = await queries.get(req.params.id, req.user.tenant_org_id, req.user.username);
-
     if (!remediation) {
         return notFound(res);
     }
 
-    const executable = await fifi.checkSmartManagement(remediation, req.entitlements.smart_management);
+    const executable = await fifi.checkSmartManagement(req, remediation, req.entitlements.smart_management);
 
     if (!executable) {
-        throw new errors.Forbidden();
+        throw new errors.Forbidden(req);
     }
 
     res.sendStatus(200);
@@ -44,6 +43,7 @@ exports.cancelPlaybookRuns = errors.async(async function (req, res) {
     }
 
     await fifi.cancelPlaybookRun(
+        req,
         req.user.account_number,
         req.identity.org_id,
         req.params.playbook_run_id,
@@ -65,14 +65,14 @@ exports.listPlaybookRuns = errors.async(async function (req, res) {
     remediation = remediation.toJSON();
 
     // Join rhcRuns and playbookRuns
-    remediation.playbook_runs = await fifi.combineRuns(remediation);
+    remediation.playbook_runs = await fifi.combineRuns(req, remediation);
 
     const total = fifi.getListSize(remediation.playbook_runs);
 
     remediation.playbook_runs = await fifi.pagination(remediation.playbook_runs, total, limit, offset);
 
     if (_.isNull(remediation)) {
-        throw errors.invalidOffset(offset, total);
+        throw errors.invalidOffset(req, offset, total);
     }
 
     remediation = await fifi.resolveUsers(req, remediation);
@@ -101,7 +101,7 @@ exports.getRunDetails = errors.async(async function (req, res) {
     remediation = remediation.toJSON();
 
     // Join rhcRuns and playbookRuns
-    remediation.playbook_runs = await fifi.combineRuns(remediation);
+    remediation.playbook_runs = await fifi.combineRuns(req, remediation);
 
     remediation = await fifi.resolveUsers(req, remediation);
 
@@ -130,7 +130,7 @@ exports.getSystems = errors.async(async function (req, res) {
             req.user.tenant_org_id,
             req.user.username
         ),
-        fifi.getRHCRuns(req.params.playbook_run_id)
+        fifi.getRHCRuns(req, req.params.playbook_run_id)
     ]);
 
     // Ugh... so here are the possibilities:
@@ -155,10 +155,12 @@ exports.getSystems = errors.async(async function (req, res) {
         if (!_.isEmpty(rhcRuns)) {
             trace.event('Combine rhc and receptor systems...')
             await fifi.combineHosts(
+                req,
                 rhcRuns,
                 systems,
                 req.params.playbook_run_id,
-                req.query.ansible_host);
+                req.query.ansible_host
+            );
         }
     }
 
@@ -186,7 +188,7 @@ exports.getSystems = errors.async(async function (req, res) {
     trace.event('paginate...');
     const total = fifi.getListSize(systems);
     if (offset >= Math.max(total, 1)) {
-        throw errors.invalidOffset(offset, total);
+        throw errors.invalidOffset(req, offset, total);
     }
 
     systems = fifi.pagination(systems, total, limit, offset);
@@ -219,7 +221,7 @@ exports.getSystemDetails = errors.async(async function (req, res) {
     if (!system) {
         // rhc-direct or rhc-satellite system
         trace.event('get RHC system/satellite details from playbook-dispatcher');
-        system = await fifi.getRunHostDetails(req.params.playbook_run_id, req.params.system);
+        system = await fifi.getRunHostDetails(req.params.playbook_run_id, req.params.system, req);
 
         if (!system) {
             trace.leave('RHC system/satellite not found!');

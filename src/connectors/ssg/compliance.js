@@ -19,7 +19,7 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    async getTemplate (id, refresh = false) {
+    async getTemplate (req, id, refresh = false) {
         const p = new Promise(function(resolve, reject) {
             PROMISES.push({resolve, reject});
         });
@@ -27,7 +27,7 @@ module.exports = new class extends Connector {
         if (_.isEmpty(REQUESTS)) {
             REQUESTS.push(id);
 
-            setTimeout(() => {this.flush(refresh);}, 200);
+            setTimeout(() => {this.flush(req, refresh);}, 200);
         } else {
             REQUESTS.push(id);
         }
@@ -35,25 +35,25 @@ module.exports = new class extends Connector {
         return p;
     }
 
-    async flush(refresh = false) {
+    async flush(req, refresh = false) {
         const copyIds = REQUESTS;
         const copyPromises = PROMISES;
         REQUESTS = [];
         PROMISES = [];
 
-        const req = cls.getReq();
+        // const req = cls.getReq();
         const uri = this.buildUri(host, 'compliance', 'rules');
         uri.segment(copyIds.join());
 
         try {
-            const results = await this.doHttp({
+            const results = await this.doHttp(req, {
                 uri: uri.toString(),
                 method: 'POST',
                 json: true,
                 body: { copyIds },
                 rejectUnauthorized: !insecure,
                 headers: {
-                    ...this.getForwardedHeaders()
+                    ...this.getForwardedHeaders(req)
                 }
             },
             {
@@ -72,8 +72,8 @@ module.exports = new class extends Connector {
         }
     }
 
-    async ping () {
-        const result = await this.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', true);
+    async ping (req) {
+        const result = await this.getRule(req, 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login', true);
         assert(result !== null);
     }
 };
