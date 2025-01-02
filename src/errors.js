@@ -6,9 +6,9 @@ const cls = require('./util/cls');
 const RequestSpecValidationError = require('./middleware/openapi/RequestSpecValidationError');
 
 class HttpError extends Error {
-    constructor (status, code, title, details) {
+    constructor (req, status, code, title, details) {
         super(title);
-        const req = cls.getReq();
+        // const req = cls.getReq();
         this.name = this.constructor.name;
         this.error = {
             id: req ? req.id : 'unknown',
@@ -58,32 +58,33 @@ class CompositeError extends Error {
 exports.CompositeError = CompositeError;
 
 exports.BadRequest = class BadRequest extends HttpError {
-    constructor (code, title, details) {
-        super(400, code, title, details);
+    constructor (req, code, title, details) {
+        super(req, 400, code, title, details);
     }
 };
 
 exports.Unauthorized = class Unauthorized extends HttpError {
-    constructor () {
-        super(401, 'UNAUTHORIZED', 'Authorization headers missing');
+    constructor (req) {
+        super(req, 401, 'UNAUTHORIZED', 'Authorization headers missing');
     }
 };
 
 exports.Forbidden = class Forbidden extends HttpError {
-    constructor (message) {
-        super(403, 'FORBIDDEN', 'Access forbidden', {message});
+    constructor (req, message) {
+        super(req, 403, 'FORBIDDEN', 'Access forbidden', {message});
     }
 };
 
 exports.Unprocessable = class BadRequest extends HttpError {
-    constructor (code, title, details) {
-        super(422, code, title, details);
+    constructor (req, code, title, details) {
+        super(req, 422, code, title, details);
     }
 };
 
 exports.DependencyError = class DependencyError extends HttpError {
-    constructor (e, connector) {
+    constructor (req, e, connector) {
         super(
+            req,
             503,
             'DEPENDENCY_UNAVAILABLE',
             // eslint-disable-next-line max-len
@@ -139,16 +140,16 @@ exports.handler = (error, req, res, next) => {
     }
 
     if (error instanceof exports.DependencyError) {
-        log.error(error, 'rejecting request due to DependencyError');
+        log.error(req, error, 'rejecting request due to DependencyError');
         return error.writeResponse(res);
     } else if (error instanceof HttpError) {
-        log.debug(error, 'rejecting request due to HttpError');
+        log.debug(req, error, 'rejecting request due to HttpError');
         return error.writeResponse(res);
     }
 
     if (error instanceof RequestSpecValidationError) {
         log.debug(error.errors, 'rejecting request due to RequestSpecValidationError');
-        return error.writeResponse(req, res);
+        return error.writeResponse(res);
     }
 
     if (error.name === 'SequelizeUniqueConstraintError') {
@@ -175,34 +176,35 @@ exports.async = fn => (req, res, next) => {
     return result;
 };
 
-exports.unknownIssue = id =>
-    new exports.BadRequest('UNKNOWN_ISSUE', `Unknown issue identifier "${id.full}"`);
+exports.unknownIssue = (req, id) =>
+    new exports.BadRequest(req, 'UNKNOWN_ISSUE', `Unknown issue identifier "${id.full}"`);
 
-exports.unknownSystem = id =>
-    new exports.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${id}"`);
+exports.unknownSystem = (req, id) =>
+    new exports.BadRequest(req, 'UNKNOWN_SYSTEM', `Unknown system identifier "${id}"`);
 
-exports.unsupportedIssue = id =>
-    new exports.BadRequest('UNSUPPORTED_ISSUE', `Issue "${id.full}" does not have Ansible support`);
+exports.unsupportedIssue = (req, id) =>
+    new exports.BadRequest(req, 'UNSUPPORTED_ISSUE', `Issue "${id.full}" does not have Ansible support`);
 
-exports.unknownResolution = (id, resolution) =>
-    new exports.BadRequest('UNKNOWN_RESOLUTION', `Issue "${id.full}" does not have Ansible resolution "${resolution}"`);
+exports.unknownResolution = (req, id, resolution) =>
+    new exports.BadRequest(req, 'UNKNOWN_RESOLUTION', `Issue "${id.full}" does not have Ansible resolution "${resolution}"`);
 
-exports.invalidIssueId = (id) => new exports.BadRequest('INVALID_ISSUE_IDENTIFIER', `"${id}" is not a valid issue identifier.`);
+exports.invalidIssueId = (req, id) =>
+    new exports.BadRequest(req, 'INVALID_ISSUE_IDENTIFIER', `"${id}" is not a valid issue identifier.`);
 
-exports.invalidOffset = (offset, max) =>
-    new exports.BadRequest('INVALID_OFFSET', `Requested starting offset ${offset} out of range: [0, ${max}]`);
+exports.invalidOffset = (req, offset, max) =>
+    new exports.BadRequest(req, 'INVALID_OFFSET', `Requested starting offset ${offset} out of range: [0, ${max}]`);
 
-exports.noExecutors = remediation =>
-    new exports.Unprocessable('NO_EXECUTORS', `No executors available for Playbook "${remediation.name}" (${remediation.id})`);
+exports.noExecutors = (req, remediation) =>
+    new exports.Unprocessable(req, 'NO_EXECUTORS', `No executors available for Playbook "${remediation.name}" (${remediation.id})`);
 
-exports.noSystems = remediation =>
-    new exports.Unprocessable('NO_SYSTEMS', `Remediation ${remediation.id} contains no systems`);
+exports.noSystems = (req, remediation) =>
+    new exports.Unprocessable(req, 'NO_SYSTEMS', `Remediation ${remediation.id} contains no systems`);
 
-exports.unknownExclude = excluded =>
-    new exports.BadRequest('UNKNOWN_EXCLUDE', `Excluded Executor [${excluded}] not found in list of identified executors`);
+exports.unknownExclude = (req, excluded) =>
+    new exports.BadRequest(req, 'UNKNOWN_EXCLUDE', `Excluded Executor [${excluded}] not found in list of identified executors`);
 
-exports.unauthorizedGeneration = cn =>
-    new exports.Forbidden(`Host certificate ${cn} is unauthorized to access this playbook`);
+exports.unauthorizedGeneration = (req, cn) =>
+    new exports.Forbidden(req, `Host certificate ${cn} is unauthorized to access this playbook`);
 
 exports.internal = {
     invalidTemplate (msg) {
@@ -221,8 +223,8 @@ exports.internal = {
         return new InternalError('PLAYBOOK_RENDERING_FAILED', `Playbook rendering failed for template ${template}`, {cause: e});
     },
 
-    dependencyError (e, connector) {
-        return new exports.DependencyError(e, connector);
+    dependencyError (req, e, connector) {
+        return new exports.DependencyError(req, e, connector);
     },
 
     preconditionFailed (msg) {

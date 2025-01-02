@@ -58,7 +58,7 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    async getRule (id) {
+    async getRule (req, id) {
         if (_.has(DATA, id)) {
             // eslint-disable-next-line security/detect-object-injection
             return DATA[id];
@@ -67,7 +67,7 @@ module.exports = new class extends Connector {
         return null;
     }
 
-    async getDiagnosis (system, branchId) {
+    async getDiagnosis (req, system, branchId) {
         if (system === 'none') {
             return {};
         }
@@ -86,7 +86,7 @@ module.exports = new class extends Connector {
         ];
     }
 
-    ping () {
-        return this.getRule('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
+    ping (req) {
+        return this.getRule(req, 'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
     }
 }();

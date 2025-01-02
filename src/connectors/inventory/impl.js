@@ -42,14 +42,15 @@ module.exports = new class extends Connector {
         return this.buildUri(host, 'inventory', 'api', 'v1', 'hosts');
     }
 
-    async getSystemInfoBatch (ids = [], refresh = false, retries = 2) {
+// Is this being used?
+    async getSystemInfoBatch (req, ids = [], refresh = false, retries = 2) {
         if (ids.length === 0) {
             return {};
         }
 
         if (ids.length > pageSize) {
             const chunks = _.chunk(ids, pageSize);
-            const results = await P.map(chunks, chunk => this.getSystemInfoBatch(chunk, refresh));
+            const results = await P.map(chunks, chunk => this.getSystemInfoBatch(req, chunk, refresh));
             return _.assign({}, ...results);
         }
 
@@ -61,12 +62,12 @@ module.exports = new class extends Connector {
         let response = null;
 
         try {
-            response = await this.doHttp({
+            response = await this.doHttp(req, {
                     uri: uri.toString(),
                     method: 'GET',
                     json: true,
                     rejectUnauthorized: !insecure,
-                    headers: this.getForwardedHeaders()
+                    headers: this.getForwardedHeaders(req)
                 },
                 {
                     key: `remediations|http-cache|inventory|${ids.join()}`,
@@ -78,7 +79,7 @@ module.exports = new class extends Connector {
         } catch (e) {
             if (retries > 0) {
                 log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
-                return this.getSystemInfoBatch(ids, true, retries - 1);
+                return this.getSystemInfoBatch(req, ids, true, retries - 1);
             }
 
             throw e;
@@ -113,7 +114,7 @@ module.exports = new class extends Connector {
         return result;
     }
 
-    async getSystemDetailsBatch (ids = [], refresh = false, retries = 2) {
+    async getSystemDetailsBatch (req, ids = [], refresh = false, retries = 2) {
         if (ids.length === 0) {
             return {};
         }
@@ -122,7 +123,7 @@ module.exports = new class extends Connector {
 
         if (ids.length > pageSize) {
             const chunks = _.chunk(ids, pageSize);
-            const results = await P.map(chunks, chunk => this.getSystemDetailsBatch(chunk, refresh));
+            const results = await P.map(chunks, chunk => this.getSystemDetailsBatch(req, chunk, refresh));
             return _.assign({}, ...results);
         }
 
@@ -133,12 +134,12 @@ module.exports = new class extends Connector {
         let response = null;
 
         try {
-            response = await this.doHttp({
+            response = await this.doHttp(req, {
                 uri: uri.toString(),
                 method: 'GET',
                 json: true,
                 rejectUnauthorized: !insecure,
-                headers: this.getForwardedHeaders()
+                headers: this.getForwardedHeaders(req)
             },
             {
                 key: `remediations|http-cache|inventory|${ids.join()}`,
@@ -150,7 +151,7 @@ module.exports = new class extends Connector {
         } catch (e) {
             if (retries > 0) {
                 log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
-                return this.getSystemDetailsBatch(ids, true, retries - 1);
+                return this.getSystemDetailsBatch(req, ids, true, retries - 1);
             }
 
             throw e;
@@ -165,7 +166,7 @@ module.exports = new class extends Connector {
         return validate(transformed);
     }
 
-    async getSystemProfileBatch (ids = [], refresh = false, retries = 2) {
+    async getSystemProfileBatch (req, ids = [], refresh = false, retries = 2) {
         if (ids.length === 0) {
             return {};
         }
@@ -174,7 +175,7 @@ module.exports = new class extends Connector {
 
         if (ids.length > pageSize) {
             const chunks = _.chunk(ids, pageSize);
-            const results = await P.map(chunks, chunk => this.getSystemProfileBatch(chunk, refresh));
+            const results = await P.map(chunks, chunk => this.getSystemProfileBatch(req, chunk, refresh));
             return _.assign({}, ...results);
         }
 
@@ -187,12 +188,12 @@ module.exports = new class extends Connector {
         let response = null;
 
         try {
-            response = await this.doHttp({
+            response = await this.doHttp(req, {
                 uri: uri.toString(),
                 method: 'GET',
                 json: true,
                 rejectUnauthorized: !insecure,
-                headers: this.getForwardedHeaders()
+                headers: this.getForwardedHeaders(req)
             },
             {
                 key: `remediations|http-cache|inventory|system_profile|${ids.join()}`,
@@ -204,7 +205,7 @@ module.exports = new class extends Connector {
         } catch (e) {
             if (retries > 0) {
                 log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
-                return this.getSystemProfileBatch(ids, true, retries - 1);
+                return this.getSystemProfileBatch(req, ids, true, retries - 1);
             }
 
             throw e;
@@ -219,17 +220,17 @@ module.exports = new class extends Connector {
         return transformed;
     }
 
-    async getSystemsByInsightsId (id) {
+    async getSystemsByInsightsId (id, req) {
         const uri = this.buildHostsUri();
         uri.addQuery('per_page', String(pageSize));
         uri.addQuery('insights_id', id);
 
-        const response = await this.doHttp({
+        const response = await this.doHttp(req, {
             uri: uri.toString(),
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders()
+            headers: this.getForwardedHeaders(req)
         }, false);
 
         assert(response.total <= pageSize, `results exceed page (${response.total})`);
@@ -243,7 +244,8 @@ module.exports = new class extends Connector {
         return transformed;
     }
 
-    async getSystemsByOwnerId (owner_id, refresh = false, retries = 2) {
+// Maybe remove? not being used
+    async getSystemsByOwnerId (req, owner_id, refresh = false, retries = 2) {
         const uri = this.buildHostsUri();
         uri.addQuery('per_page', String(pageSize));
         uri.addQuery('filter[system_profile][owner_id]', owner_id);
@@ -251,12 +253,12 @@ module.exports = new class extends Connector {
         let response = null;
 
         try {
-            response = await this.doHttp({
+            response = await this.doHttp(req, {
                 uri: uri.toString(),
                 method: 'GET',
                 json: true,
                 rejectUnauthorized: !insecure,
-                headers: this.getForwardedHeaders()
+                headers: this.getForwardedHeaders(req)
             },
             {
                 key: `remediations|http-cache|inventory|owner-id|${owner_id}`,
@@ -268,7 +270,7 @@ module.exports = new class extends Connector {
         } catch (e) {
             if (retries > 0) {
                 log.warn({ error: e, retries }, 'Inventory fetch failed. Retrying');
-                return this.getSystemsByOwnerId(owner_id, false, retries - 1);
+                return this.getSystemsByOwnerId(req, owner_id, false, retries - 1);
             }
 
             throw e;
@@ -283,16 +285,16 @@ module.exports = new class extends Connector {
         return transformed;
     }
 
-    async ping () {
+    async ping (req) {
         const uri = this.buildHostsUri();
         uri.addQuery('per_page', String(1));
 
-        const response = await this.doHttp({
+        const response = await this.doHttp(req, {
             uri: uri.toString(),
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders()
+            headers: this.getForwardedHeaders(req)
         });
 
         assert(Array.isArray(response.results));

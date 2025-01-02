@@ -5,9 +5,16 @@ const base = require('../../test');
 const { mockRequest, mockCache } = require('../testUtils');
 const request = require('../../util/request');
 
-describe('vmaas impl', function () {
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
 
-    beforeEach(mockRequest);
+describe('vmaas impl', function () {
 
     test('obtains CVE info', async function () {
         const cache = mockCache();
@@ -42,7 +49,7 @@ describe('vmaas impl', function () {
             headers: {}
         });
 
-        const result = await impl.getCve('CVE-2017-5715');
+        const result = await impl.getCve(REQ, 'CVE-2017-5715');
         result.should.have.property('description', 'An industry-wide issue was found in the way many modern microprocessor.');
         result.should.have.property('synopsis', 'CVE-2017-5715');
 
@@ -53,7 +60,7 @@ describe('vmaas impl', function () {
         cache.get.callCount.should.equal(1);
         cache.setex.callCount.should.equal(1);
 
-        await impl.getCve('CVE-2017-5715');
+        await impl.getCve(REQ, 'CVE-2017-5715');
         cache.get.callCount.should.equal(2);
         cache.setex.callCount.should.equal(1);
     });
@@ -72,7 +79,7 @@ describe('vmaas impl', function () {
             headers: {}
         });
 
-        await expect(impl.getCve('CVE-2017-57155')).resolves.toBeNull();
+        await expect(impl.getCve(REQ, 'CVE-2017-57155')).resolves.toBeNull();
 
         http.callCount.should.equal(1);
         cache.get.callCount.should.equal(1);

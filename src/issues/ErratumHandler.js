@@ -7,8 +7,8 @@ const erratumResolver = new(require('../resolutions/resolvers/ErratumResolver'))
 
 module.exports = class ErratumHandler extends CVEHandler {
 
-    getIssueDetailsInternal (id) {
-        return vmaas.getErratum(id.issue);
+    getIssueDetailsInternal (req, id) {
+        return vmaas.getErratum(req, id.issue);
     }
 
     getResolutionResolver () {

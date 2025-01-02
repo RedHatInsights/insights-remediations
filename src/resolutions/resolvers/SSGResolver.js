@@ -23,19 +23,19 @@ function testPlaceholders (raw) {
 }
 
 module.exports = class SSGResolver extends Resolver {
-    async resolveResolutions (id) {
-        const {platform, profile, rule} = identifiers.parseSSG(id);
+    async resolveResolutions (req, id) {
+        const {platform, profile, rule} = identifiers.parseSSG(req, id);
         let raw = {};
 
         // RHCLOUD-4280: disable rule "rsyslog_remote_loghost"
         if (id.issue.includes('rsyslog_remote_loghost')) {return [];}
 
         if (config.ssg.impl === 'compliance') {
-            raw = await ssg.getTemplate(id.issue);
+            raw = await ssg.getTemplate(req, id.issue);
         } else {
             const [primary, fallback] = await P.all([
-                ssg.getTemplate(platform, profile, rule),
-                ssg.getTemplate(platform, FALLBACK_PROFILE, rule)
+                ssg.getTemplate(req, platform, profile, rule),
+                ssg.getTemplate(req, platform, FALLBACK_PROFILE, rule)
             ]);
 
             raw = primary || fallback;

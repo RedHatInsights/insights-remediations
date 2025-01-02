@@ -15,6 +15,15 @@ const MOCK_CACHE = {
     del () {}
 };
 
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
+
 describe('connector caching', function () {
     beforeEach(() => {
         base.sandbox.stub(config.redis, 'enabled').value(true);
@@ -34,7 +43,7 @@ describe('connector caching', function () {
         base.sandbox.spy(MOCK_CACHE, 'setex');
         base.sandbox.spy(request, 'run');
 
-        const result = await http.request({
+        const result = await http.request(REQ, {
             uri: 'https://example.com'
         }, true);
 
@@ -58,7 +67,7 @@ describe('connector caching', function () {
         });
         base.sandbox.spy(MOCK_CACHE, 'setex');
 
-        const result = await http.request({
+        const result = await http.request(REQ, {
             uri: 'https://example.com'
         }, true);
 
@@ -88,7 +97,7 @@ describe('connector caching', function () {
         });
         base.sandbox.spy(MOCK_CACHE, 'setex');
 
-        const result = await http.request({
+        const result = await http.request(REQ, {
             uri: 'https://example.com'
         }, true);
 
@@ -115,7 +124,7 @@ describe('connector caching', function () {
         base.sandbox.spy(MOCK_CACHE, 'setex');
         base.sandbox.spy(MOCK_CACHE, 'del');
 
-        const result = await http.request({
+        const result = await http.request(REQ, {
             uri: 'https://example.com'
         }, true);
 
@@ -139,7 +148,7 @@ describe('connector caching', function () {
         });
         base.sandbox.spy(MOCK_CACHE, 'setex');
 
-        const result = await http.request({
+        const result = await http.request(REQ, {
             uri: 'https://example.com'
         }, true);
 
@@ -157,7 +166,7 @@ describe('connector caching', function () {
         });
         base.sandbox.spy(MOCK_CACHE, 'setex');
 
-        const result = await http.request({
+        const result = await http.request(REQ, {
             uri: 'https://example.com'
         }, true);
 
@@ -174,7 +183,7 @@ describe('connector caching', function () {
         });
         base.sandbox.stub(MOCK_CACHE, 'setex').resolves(null);
 
-        await expect(http.request({
+        await expect(http.request(REQ, {
             uri: 'https://example.com'
         }, true)).rejects.toThrow(StatusCodeError);
 
@@ -188,7 +197,7 @@ describe('connector caching', function () {
         base.sandbox.stub(request, 'run').rejects(new Error('socket timeout'));
         base.sandbox.stub(MOCK_CACHE, 'setex').resolves(null);
 
-        await expect(http.request({
+        await expect(http.request(REQ, {
             uri: 'https://example.com'
         }, true)).rejects.toThrow('socket timeout');
 
@@ -204,7 +213,7 @@ describe('connector caching', function () {
         });
         base.sandbox.stub(MOCK_CACHE, 'setex').resolves(null);
 
-        await http.request({
+        await http.request(REQ, {
             uri: 'https://example.com'
         });
 

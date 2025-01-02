@@ -11,7 +11,7 @@ const StatusCodeError = require('./StatusCodeError');
 const CACHE_TTL = config.cache.ttl;
 const REVALIDATION_INTERVAL = config.cache.revalidationInterval;
 
-function doHttp (options, cached, metrics) {
+function doHttp (req, options, cached, metrics) {
     const opts = {
         resolveWithFullResponse: true,
         simple: false,
@@ -64,17 +64,17 @@ function saveCachedEntry (redis, key, etag, body) {
     }));
 }
 
-async function run (options, useCache = false, metrics = false, responseTransformer = res => res === null ? null : res.body) {
+async function run (req, options, useCache = false, metrics = false, responseTransformer = res => res === null ? null : res.body) {
     if (!useCache || !config.redis.enabled || cache.get().status !== 'ready') {
         metrics && metrics.miss.inc();
-        return doHttp(options, false, metrics).then(responseTransformer);
+        return doHttp(req, options, false, metrics).then(responseTransformer);
     }
 
     const uri = notNil(options.uri);
     const key = useCache.key || cacheKey(uri);
     const revalidationInterval = useCache.revalidationInterval || REVALIDATION_INTERVAL; // seconds
-
     const cached = await loadCachedEntry(cache.get(), key, revalidationInterval);
+
 
     if (useCache.refresh) {
         log.trace({key}, 'forced refresh');
@@ -89,7 +89,7 @@ async function run (options, useCache = false, metrics = false, responseTransfor
     }
 
     metrics && metrics.miss.inc();
-    const res = await doHttp(options, cached, metrics);
+    const res = await doHttp(req, options, cached, metrics);
 
     if (!res) { // 404
         if (cached) {
