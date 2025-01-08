@@ -6,7 +6,7 @@ module.exports = class RequestSpecValidationError {
         this.errors = errors;
     }
 
-    writeResponse (req, res) {
+    writeResponse (res) {
         res.status(this.status).json({
             errors: this.errors
         }).end();

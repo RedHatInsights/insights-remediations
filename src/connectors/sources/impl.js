@@ -17,8 +17,8 @@ module.exports = new class extends Connector {
         this.endpointMetrics = metrics.createConnectorMetric(this.getName(), 'getEndpoints');
         this.rhcConnectionsMetrics = metrics.createConnectorMetric(this.getName(), 'getRHCConnections');
     }
-
-    async findSources (ids) {
+// Do we need this?
+    async findSources (req, ids) {
         // TODO: Chunk this is list of ids is long
 
         if (ids.length === 0) {
@@ -32,12 +32,12 @@ module.exports = new class extends Connector {
             'filter[source_ref][eq][]': ids
         });
 
-        const result = await this.doHttp({
+        const result = await this.doHttp(req, {
             uri: uri.toString(),
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders()
+            headers: this.getForwardedHeaders(req)
         }, false, this.sourcesMetrics);
 
         assert(result.meta.count <= result.meta.limit);
@@ -49,15 +49,16 @@ module.exports = new class extends Connector {
         .value();
     }
 
-    async getEndpoints (id) {
+// Do we need this?
+    async getEndpoints (id, req) {
         const uri = this.buildUri(host, 'sources', 'v2.0', 'sources', String(id), 'endpoints');
 
-        const result = await this.doHttp({
+        const result = await this.doHttp(req, {
             uri: uri.toString(),
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders()
+            headers: this.getForwardedHeaders(req)
         }, false, this.endpointMetrics);
 
         if (!result) {
@@ -68,30 +69,32 @@ module.exports = new class extends Connector {
         return result.data;
     }
 
-    async getSourceInfo (ids) {
-        const sources = await this.findSources(ids);
+// Not being used???
+    async getSourceInfo (ids, req) {
+        const sources = await this.findSources(req, ids);
 
         await P.map(_.values(sources), async source => {
             if (source === null) {
                 return source;
             }
 
-            source.endpoints = await this.getEndpoints(source.id);
+            source.endpoints = await this.getEndpoints(source.id, req);
             return source;
         });
 
         return sources;
     }
 
-    async getRHCConnections (id) {
+
+    async getRHCConnections (id, req) {
         const uri = this.buildUri(host, 'sources', 'v3.1', 'sources', String(id), 'rhc_connections');
 
-        const result = await this.doHttp({
+        const result = await this.doHttp(req, {
             uri: uri.toString(),
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders()
+            headers: this.getForwardedHeaders(req)
         }, false, this.rhcConnectionsMetrics);
 
         if (!result) {
@@ -102,7 +105,7 @@ module.exports = new class extends Connector {
         return result.data;
     }
 
-    async ping () {
-        await this.findSources('test');
+    async ping (req) {
+        await this.findSources(req, 'test');
     }
 }();

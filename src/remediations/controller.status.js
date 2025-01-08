@@ -10,15 +10,15 @@ const AdvisorHandler = require('../issues/AdvisorHandler');
 const CVEHandler = require('../issues/CVEHandler');
 const trace = require("../util/trace");
 
-async function resolveStatus (issue) {
+async function resolveStatus (issue, req) {
     trace.enter('status.resolveStatus');
 
     trace.event(`Get handler for issue: ${issue.id}`);
-    const handler = issues.getHandler(issue.id);
+    const handler = issues.getHandler(issue.id, req);
 
     if (handler instanceof AdvisorHandler || handler instanceof CVEHandler) {
         trace.event('Get systems for Advisor or CVE issues');
-        const affectedSystems = await handler.getSystems(issue.id);
+        const affectedSystems = await handler.getSystems(issue.id, req);
         // TODO: this is quite inefficient
         trace.event(`Filter issue systems: ${issue.systems}`);
         issue.systems = _.mapValues(issue.systems, (value, key) => !affectedSystems.includes(key));
@@ -42,12 +42,12 @@ exports.status = errors.async(async function (req, res) {
     trace.event(`Collect array of issues with parsed identifier and system_ids: ${remediation.issues}`);
     const issues = _.map(remediation.issues, issue => ({
         ...issue,
-        id: identifiers.parse(issue.issue_id),
+        id: identifiers.parse(req, issue.issue_id),
         systems: _(issue.systems).keyBy('system_id').mapValues(() => null).value()
     }));
 
     trace.event(`Resolve status of all issues: ${issues}`);
-    await P.map(issues, resolveStatus);
+    await P.map(issues, issue => resolveStatus(issue, req));
 
     const result = {
         summary: {

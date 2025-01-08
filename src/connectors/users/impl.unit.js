@@ -23,6 +23,15 @@ const MOCK_USER = {
     is_internal: true
 };
 
+const REQ = {
+    headers: {
+        'x-rh-identity': 'identity',
+        'x-rh-insights-request-id': 'request-id'
+    },
+    identity: { type: 'test' },
+    user: { username: 'test', account_number: 'test' }
+};
+
 describe('users impl', function () {
 
     beforeEach(mockRequest);
@@ -34,7 +43,7 @@ describe('users impl', function () {
             headers: {}
         });
 
-        const result = await impl.getUser('someUsername');
+        const result = await impl.getUser(REQ, 'someUsername');
         result.should.have.property('username', 'someUsername');
         result.should.have.property('first_name', 'Jozef');
         result.should.have.property('last_name', 'Hartinger');
@@ -50,12 +59,12 @@ describe('users impl', function () {
 
     test('returns null when user does not exist', async function () {
         base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
-        await expect(impl.getUser('someUsername')).resolves.toBeNull();
+        await expect(impl.getUser(REQ, 'someUsername')).resolves.toBeNull();
     });
 
     test('ping', async function () {
         base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([MOCK_USER]);
-        await impl.ping();
+        await impl.ping(REQ);
     });
 
     test('caches retrieved info', async function () {
@@ -67,13 +76,13 @@ describe('users impl', function () {
 
         const cache = mockCache();
 
-        await impl.getUser('someUsername');
+        await impl.getUser(REQ, 'someUsername');
         http.callCount.should.equal(1);
         cache.get.callCount.should.equal(1);
         cache.get.args[0][0].should.equal('remediations|http-cache|users|someUsername');
         cache.setex.callCount.should.equal(1);
 
-        await impl.getUser('someUsername');
+        await impl.getUser(REQ, 'someUsername');
         http.callCount.should.equal(1);
         cache.get.callCount.should.equal(2);
         cache.get.args[1][0].should.equal('remediations|http-cache|users|someUsername');
@@ -89,7 +98,7 @@ describe('users impl', function () {
 
         const cache = mockCache();
 
-        await impl.getUser('non-existent-user');
+        await impl.getUser(REQ, 'non-existent-user');
         http.callCount.should.equal(1);
         cache.get.callCount.should.equal(1);
         cache.get.args[0][0].should.equal('remediations|http-cache|users|non-existent-user');
@@ -98,11 +107,11 @@ describe('users impl', function () {
 
     test('connection error handling', async function () {
         base.mockRequestError();
-        await expect(impl.getUser('someUsername')).rejects.toThrow(errors.DependencyError);
+        await expect(impl.getUser(REQ, 'someUsername')).rejects.toThrow(errors.DependencyError);
     });
 
     test('status code handling', async function () {
         base.mockRequestStatusCode();
-        await expect(impl.getUser('someUsername')).rejects.toThrow(errors.DependencyError);
+        await expect(impl.getUser(REQ, 'someUsername')).rejects.toThrow(errors.DependencyError);
     });
 });

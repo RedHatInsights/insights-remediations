@@ -74,23 +74,23 @@ exports.uuidv4 = function () {
 // remediation - the id of the associated remediation
 // username - the username of the entity initiating the playbook run
 //--------------------------------------------
-exports.createPlaybookRun = async function (recipients, exclude, remediation, username) {
+exports.createPlaybookRun = async function (req, recipients, exclude, remediation, username) {
     // create UUID for this run
     const playbook_run_id = exports.uuidv4();
 
     // check if excludes contains anything NOT in targets
-    validateExcludes(exclude, recipients);
+    validateExcludes(req, exclude, recipients);
 
     // create work requests
     const workRequests = createWorkRequests(playbook_run_id, recipients, exclude, remediation, username);
 
     // return 422 if no work remains
     if (_.isEmpty(workRequests)) {
-        throw errors.noExecutors(remediation);
+        throw errors.noExecutors(req, remediation);
     }
 
     // dispatch requests
-    const response = await dispatchWorkRequests(workRequests, playbook_run_id);
+    const response = await dispatchWorkRequests(req, workRequests, playbook_run_id);
 
     if (response === null) {
         return null;
@@ -108,7 +108,7 @@ exports.createPlaybookRun = async function (recipients, exclude, remediation, us
 //----------------------------------------------------------------------------------
 // Verify that the exclude list does not contain sat_ids not in list of recipients
 //----------------------------------------------------------------------------------
-function validateExcludes (excludes, recipients) {
+function validateExcludes (req, excludes, recipients) {
     // throw error if any exclude not in recipients
     const unknownExcludes = _.difference(excludes, _.filter(excludes, exclude_id => {
         if (exclude_id === 'RHC') {
@@ -119,7 +119,7 @@ function validateExcludes (excludes, recipients) {
     }));
 
     if (!_.isEmpty(unknownExcludes)) {
-        throw errors.unknownExclude(unknownExcludes);
+        throw errors.unknownExclude(req, unknownExcludes);
     }
 
     return true;
@@ -170,10 +170,10 @@ function createWorkRequests (playbook_run_id, recipients, exclude, remediation, 
 //----------------------------------------------
 // Submit work requests to playbook-dispatcher
 //----------------------------------------------
-async function dispatchWorkRequests (workRequests, playbook_run_id) {
+async function dispatchWorkRequests (req, workRequests, playbook_run_id) {
     try {
         probes.workRequest(workRequests, playbook_run_id);
-        const response = await dispatcher.postV2PlaybookRunRequests(workRequests);
+        const response = await dispatcher.postV2PlaybookRunRequests(req, workRequests);
         probes.JobDispatched(response, playbook_run_id);
 
         // handle aggregate responses

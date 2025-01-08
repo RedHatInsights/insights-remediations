@@ -19,7 +19,7 @@ module.exports = new class extends Connector {
         throw new Error('not implemented');
     }
 
-    async getSystems (id) {
+    async getSystems (id, req) {
         trace.enter('vulnerabilities_impl.getSystems');
         const _uri = this.buildUri(host, 'vulnerability', 'v1', 'cves', id, 'affected_systems', 'ids');
         _uri.query({limit: String(pageSize)});
@@ -33,12 +33,12 @@ module.exports = new class extends Connector {
         do {
             // grab a page
             trace.event(`Fetch ${uri}`);
-            const batch = await this.doHttp({
+            const batch = await this.doHttp(req, {
                     uri: uri,
                     method: 'GET',
                     json: true,
                     rejectUnauthorized: !insecure,
-                    headers: this.getForwardedHeaders()
+                    headers: this.getForwardedHeaders(req)
                 },
                 false,
                 this.systemsMetrics);
@@ -64,7 +64,7 @@ module.exports = new class extends Connector {
         return inventory_ids;
     }
 
-    async getResolutions (issue) {
+    async getResolutions (req, issue) {
         trace.enter('connectors/vulnerabilities/impl.getResolutions');
 
         const uri = this.buildUri(host, 'vulnerability', 'v1', 'playbooks', 'templates', issue);
@@ -74,12 +74,13 @@ module.exports = new class extends Connector {
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders()
+            headers: this.getForwardedHeaders(req)
         };
 
         trace.event(`GET options: ${JSON.stringify(options)}`);
 
         const resolutions = await this.doHttp(
+        req,
         options,
         false,
         this.systemsMetrics);
