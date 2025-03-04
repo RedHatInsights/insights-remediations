@@ -32,7 +32,7 @@ sequenceDiagram
        note right of pd: (see: /doc/responses/playbook-dispatcher/runs.json)
        loop for each pd_run
            rect rgba(191, 223, 255, .1)
-              rem -->> pd: GET v1/run_hosts?filter[run][labels][playbook-run]=run_id
+              rem -->> pd: GET v1/run_hosts?filter[run][labels][playbook-run]=run_id<br/>&filter[run][id]=pd_run.id
               pd ->> rem: [system]
            end
            note right of pd: (see: /doc/responses/playbook-dispatcher/run_hosts.json)
