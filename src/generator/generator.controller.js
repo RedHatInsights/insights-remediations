@@ -207,8 +207,7 @@ function addDiagnosisPlay (plays, remediation = false) {
     }
 
     const hosts = _(diagnosisPlays).flatMap('hosts').uniq().sort().value();
-    const params = {REMEDIATION: remediation ? ` ${remediation.id}` : ''};
-    return [new SpecialPlay('special:diagnosis', hosts, templates.special.diagnosis, params), ...plays];
+    return [new SpecialPlay('special:diagnosis', hosts, templates.special.diagnosis), ...plays];
 }
 
 exports.send = async function (req, res, {yaml, definition}, attachment = false) {
