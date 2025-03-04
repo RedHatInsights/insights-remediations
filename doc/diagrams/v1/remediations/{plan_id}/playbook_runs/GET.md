@@ -4,7 +4,7 @@
 2. For each run_id:
    1. (paginated) GET /playbook-dispatcher/v1/runs?[labels][playbook-run]=run_id
    2. for each pd_run:
-      1. (paginated) GET /playbook-dispatcher/v1/run_hosts?[labels][playbook-run]=run_id
+      1. (paginated) GET /playbook-dispatcher/v1/run_hosts?[labels][playbook-run]=run_id&filter[run][id]=pd_run.id
       2. For each system: 
          1. Group by executor
 6. Paginate by run_id
