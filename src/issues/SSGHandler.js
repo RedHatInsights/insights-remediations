@@ -11,7 +11,7 @@ const identifiers = require('../util/identifiers');
 module.exports = class ComplianceHandler extends Handler {
     async getIssueDetails (id) {
         const ssgId = identifiers.parseSSG(id);
-        const raw = await compliance.getRule(ssgId.ruleRef);
+        const raw = await compliance.getRule(ssgId.ruleRef, ssgId.securityGuideId);
 
         if (!raw) {
             throw errors.unknownIssue(id);

@@ -14,10 +14,15 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    async getRule (id, refresh = false, retries = 2) {
+    async getRule (id, securityGuideId = null, refresh = false, retries = 2) {
         id = id.replace(/\./g, '-'); // compliance API limitation
+        let uri;
 
-        const uri = this.buildUri(host, 'compliance', 'rules', id);
+        if (!securityGuideId) {
+            uri = this.buildUri(host, 'compliance', 'rules', id);
+        } else {
+            uri = this.buildUri(host, 'compliance', 'v2', 'security_guides', securityGuideId, 'rules', id);
+        }
 
         try {
             const result = await this.doHttp({
@@ -40,7 +45,7 @@ module.exports = new class extends Connector {
         } catch (e) {
             if (retries > 0) {
                 log.warn({ error: e, id, retries }, 'Compliance fetch failed. Retrying');
-                return this.getRule(id, true, retries - 1);
+                return this.getRule(id, securityGuideId, true, retries - 1);
             }
 
             throw e;
@@ -48,7 +53,7 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        const result = await this.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', true);
+        const result = await this.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', null, true);
         assert(result !== null);
     }
 }();
