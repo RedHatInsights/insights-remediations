@@ -177,6 +177,23 @@ describe('resolve ssg resolutions', function () {
             }]
         });
     });
+
+    test('resolution info (3)', async () => {
+        const {body} = await request
+            .get('/v1/resolutions/ssg:rhel7|0021d5a8-6573-4766-8bfd-5f5eab59015c|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink')
+            .expect(200);
+
+        body.should.eql({
+            id: 'ssg:rhel7|0021d5a8-6573-4766-8bfd-5f5eab59015c|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
+            resolution_risk: -1,
+            resolutions: [{
+                description: 'Disable Prelinking',
+                id: 'fix',
+                needs_reboot: true,
+                resolution_risk: -1
+            }]
+        });
+    });
 });
 
 describe('resolve patchman resolutions', function () {
