@@ -27,20 +27,20 @@ exports.normalizeIssues = function (issues) {
     return issues;
 };
 
-exports.playbookPipeline = async function ({issues, auto_reboot = true}, remediation = false, strict = true, localhost = false) {
+exports.playbookPipeline = async function ({issues, auto_reboot = true}, req, remediation = false, strict = true, localhost = false) {
     trace.enter('generator.controller.playbookPipeline');
 
     trace.event('Fetch systems...');
-    await exports.resolveSystems(issues, strict);
+    await exports.resolveSystems(issues, req, strict);
 
     trace.event('Parse issue identifiers...');
     _.forEach(issues, issue => {
-        issue.id = identifiers.parse(issue.id);
+        issue.id = identifiers.parse(req, issue.id);
         trace.event(`issue.id = ${issue.id}`);
     });
 
     trace.event('Get play snippets for each issue...');
-    issues = await P.map(issues, issue => issueManager.getPlayFactory(issue.id).createPlay(issue, strict).catch((e) => {
+    issues = await P.map(issues, issue => issueManager.getPlayFactory(issue.id, req).createPlay(issue, req, strict).catch((e) => {
         trace.event(`Caught error getting snippet for: ${JSON.stringify(issue.id)}`);
         trace.event(`(error: ${JSON.stringify(e)})`)
 
@@ -79,7 +79,7 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
     trace.event('Aggregate erratum plays...');
     issues = erratumPlayAggregator.process(issues);
 
-    // Add play that generates a new Compliance report when there are Compliance(ssg) issues  
+    // Add play that generates a new Compliance report when there are Compliance(ssg) issues
     const complianceIssue = _.some(issues, issue => issue.id.app === 'ssg');
     if (complianceIssue) {
         trace.event('Generate new Compliance report...');
@@ -113,7 +113,7 @@ exports.generate = errors.async(async function (req, res) {
 
     const input = { ...req.body };
     trace.event(`generate playbook for: ${JSON.stringify(input)}`);
-    const playbook = await exports.playbookPipeline(input);
+    const playbook = await exports.playbookPipeline(input, req);
 
     trace.leave();
     return exports.send(req, res, playbook);
@@ -123,7 +123,7 @@ exports.systemToHost = function (system) {
     return system.ansible_host || system.hostname || system.id;
 };
 
-exports.resolveSystems = async function (issues, strict = true) {
+exports.resolveSystems = async function (issues, req, strict = true) {
     trace.enter('generator.controller.resolveSystems');
 
     const systemIds = _(issues).flatMap('systems').uniq().value();
@@ -133,7 +133,7 @@ exports.resolveSystems = async function (issues, strict = true) {
 
     // bypass cache as ansible_host may change so we want to grab the latest one
     trace.event('Get system details...');
-    const systems = await inventory.getSystemDetailsBatch(systemIds, true);
+    const systems = await inventory.getSystemDetailsBatch(req, systemIds, true);
 
     if (!strict) {
         trace.event('Remove systems for which we have no inventory entry...');
@@ -148,7 +148,7 @@ exports.resolveSystems = async function (issues, strict = true) {
         if (!systems.hasOwnProperty(id)) {
             trace.event(`Found no data for system: ${id}`);
             probes.failedGeneration(issue.id);
-            throw errors.unknownSystem(id);
+            throw errors.unknownSystem(req, id);
         }
 
         // validated by openapi middleware and also above

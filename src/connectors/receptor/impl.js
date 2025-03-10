@@ -15,16 +15,16 @@ module.exports = new class extends Connector {
         this.statusMetrics = metrics.createConnectorMetric(this.getName(), 'postInitialRequest');
     }
 
-    async getConnectionStatus (account_num, node) {
+    async getConnectionStatus (req, account_num, node) {
         const uri = new URI(host);
         uri.path('/connection/status');
 
-        const result = await this.doHttp ({
+        const result = await this.doHttp (req, {
             uri: uri.toString(),
             method: 'POST',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders(),
+            headers: this.getForwardedHeaders(req),
             body: {
                 account: account_num,
                 node_id: node
@@ -38,16 +38,16 @@ module.exports = new class extends Connector {
         return result;
     }
 
-    async postInitialRequest (receptorWorkRequest) {
+    async postInitialRequest (req, receptorWorkRequest) {
         const uri = new URI(host);
         uri.path('/job');
 
-        const result = await this.doHttp ({
+        const result = await this.doHttp (req, {
             uri: uri.toString(),
             method: 'POST',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders(),
+            headers: this.getForwardedHeaders(req),
             body: receptorWorkRequest
         }, false, this.statusMetrics);
 
@@ -58,7 +58,7 @@ module.exports = new class extends Connector {
         return result;
     }
 
-    async ping () {
-        await this.getConnectionStatus('540155', 'node-a');
+    async ping (req) {
+        await this.getConnectionStatus(req, '540155', 'node-a');
     }
 }();

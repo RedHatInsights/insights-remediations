@@ -125,9 +125,11 @@ const dummy = new Trace();
 // Returns a Proxy object that directs calls to either the trace object attached
 // to the current request or a dummy trace object that does nothing.  This is
 // useful for functions that might be called outside the context of a request.
+
+// How do we get the request here
 module.exports = new Proxy(dummy, {
-    apply (target, thisArg, args) {
-        const trace = cls.getReq()?.trace;
+    apply (target, thisArg, args, req) {
+        const trace = req?.trace;
 
         if (trace) {
             return Reflect.apply(trace, thisArg, args);
@@ -135,8 +137,8 @@ module.exports = new Proxy(dummy, {
         // do nothing if there was no req.trace
     },
 
-    get (target, key, receiver) {
-        const trace = cls.getReq()?.trace;
+    get (target, key, receiver, req) {
+        const trace = req?.trace;
 
         if (trace) {
             return Reflect.get(trace, key, receiver);
@@ -146,15 +148,15 @@ module.exports = new Proxy(dummy, {
         return Reflect.get(target, key, receiver);
     },
 
-    set (obj, prop, value) {
-        const trace = cls.getReq()?.trace;
+    set (obj, prop, value, req) {
+        const trace = req?.trace;
 
         if (trace) {
             return Reflect.set(trace, prop, value);
         }
 
         // return dummy object attr if no req.trace
-        this[prop] = Object.assign({}, );
+        this[prop] = Object.assign({});
         return Reflect.set(obj, prop, value);
     }
 });

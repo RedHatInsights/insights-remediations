@@ -6,8 +6,8 @@ const CVEResolver = require('./CVEResolver');
 
 module.exports = class ErratumResolver extends CVEResolver {
 
-    fetch (id) {
-        return vmaas.getErratum(id.issue);
+    fetch (req, id) {
+        return vmaas.getErratum(req, id.issue);
     }
 
     build(id, entity) {

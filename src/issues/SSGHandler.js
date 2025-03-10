@@ -9,12 +9,12 @@ const resolver = new(require('../resolutions/resolvers/SSGResolver'))();
 const identifiers = require('../util/identifiers');
 
 module.exports = class ComplianceHandler extends Handler {
-    async getIssueDetails (id) {
-        const ssgId = identifiers.parseSSG(id);
-        const raw = await compliance.getRule(ssgId.ruleRef);
+    async getIssueDetails (id, req) {
+        const ssgId = identifiers.parseSSG(req, id);
+        const raw = await compliance.getRule(req, ssgId.ruleRef);
 
         if (!raw) {
-            throw errors.unknownIssue(id);
+            throw errors.unknownIssue(req, id);
         }
 
         return {
@@ -27,7 +27,7 @@ module.exports = class ComplianceHandler extends Handler {
         return resolver;
     }
 
-    getPlayFactory () {
+    getPlayFactory (id, req) {
         return complianceFactory;
     }
 };

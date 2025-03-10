@@ -6,10 +6,10 @@ const SSG_PATTERN = /^([\w-]+)\|([\w-]+)\|xccdf_org\.ssgproject\.content_rule_([
 const CSAW_PATTERN = /^(CVE-20[\d]{2}-[\d]{4,}):(\w+\|[A-Z\d_]+)$/;
 const CSAW_RULE_PATTERN = /^(\w+\|[A-Z\d_]+)$/;
 
-function match (id) {
+function match (req, id) {
     const match = PATTERN.exec(id);
     if (!match) {
-        throw errors.invalidIssueId(id);
+        throw errors.invalidIssueId(req, id);
     }
 
     return match;
@@ -29,15 +29,15 @@ exports.Identifier = class Identifier {
     }
 };
 
-exports.parse = function (id) {
-    const result = match(id);
+exports.parse = function (req, id) {
+    const result = match(req, id);
 
     return new exports.Identifier(result[1], result[2], id);
 };
 
-exports.parseCSAW = function (id) {
+exports.parseCSAW = function (req, id) {
     if (!(id instanceof exports.Identifier)) {
-        id = exports.parse(id);
+        id = exports.parse(req, id);
     }
 
     const csawResult = CSAW_PATTERN.exec(id.issue);
@@ -54,18 +54,18 @@ exports.parseCSAW = function (id) {
         };
     }
 
-    throw errors.invalidIssueId(id);
+    throw errors.invalidIssueId(req, id);
 };
 
-exports.parseSSG = function (id) {
+exports.parseSSG = function (req, id) {
     if (!(id instanceof exports.Identifier)) {
-        id = exports.parse(id);
+        id = exports.parse(req, id);
     }
 
     const result = SSG_PATTERN.exec(id.issue);
 
     if (!result || result.length !== 4) {
-        throw errors.invalidIssueId(id);
+        throw errors.invalidIssueId(req, id);
     }
 
     return {
@@ -76,4 +76,4 @@ exports.parseSSG = function (id) {
     };
 };
 
-exports.toExternal = id => match(id)[2];
+exports.toExternal = (req, id) => match(req, id)[2];
