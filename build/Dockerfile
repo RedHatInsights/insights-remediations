@@ -51,6 +51,7 @@ FROM base AS dist
 COPY --from=build $APP_ROOT/dist ./
 
 RUN npm ci --omit=dev && npm cache clean --force
+RUN npx clean-modules -y
 
 EXPOSE 9002
 ENV NODE_ENV=production
