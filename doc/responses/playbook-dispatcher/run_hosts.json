@@ -1,0 +1,30 @@
+{
+  "data": [
+    {
+      "host": "8aab9fa1-0cfe-41bf-aa0a-af89504fcdda",
+      "inventory_id": "8aab9fa1-0cfe-41bf-aa0a-af89504fcdda",
+      "run": {
+        "id": "776a8cc9-2db7-4451-a9a9-fcff4f6a8737"
+      },
+      "status": "success",
+      "stdout": "[DEPRECATION WARNING]: ANSIBLE_CALLBACK_WHITELIST option, normalizing names to \n\nnew standard, use ANSIBLE_CALLBACKS_ENABLED instead. This feature will be \n\nremoved from ansible-core in version 2.15. Deprecation warnings can be disabled\n\n by setting deprecation_warnings=False in ansible.cfg.\n\n[WARNING]: Collection redhat.satellite does not support Ansible version 2.14.17\n\n[WARNING]: Callback disabled by environment. Disabling the Foreman callback\r\nplugin.\n\n\n\n\r\nPLAY [Set owner and permissions on /etc/sshd/sshd_config to root:root 0600] ****\n\n\r\nTASK [Gathering Facts] *********************************************************\n\n\n\nok: [ci-vm-10-0-133-59.hosted.upshift.rdu2.redhat.com]\n\n\r\nTASK [Set the owner and permissions of ssh config file to root:root 0600] ******\n\n\n\nok: [ci-vm-10-0-133-59.hosted.upshift.rdu2.redhat.com]\n\n\r\nPLAY [run insights] ************************************************************\n\n\r\nTASK [run insights] ************************************************************\n\n\n\nok: [ci-vm-10-0-133-59.hosted.upshift.rdu2.redhat.com]\n\nPLAY RECAP *********************************************************************\nci-vm-10-0-133-59.hosted.upshift.rdu2.redhat.com : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   \nExit status: 0"
+    },
+    {
+      "host": "b500a58d-af7f-48ef-8109-203ba390683f",
+      "inventory_id": "b500a58d-af7f-48ef-8109-203ba390683f",
+      "run": {
+        "id": "776a8cc9-2db7-4451-a9a9-fcff4f6a8737"
+      },
+      "status": "success",
+      "stdout": "[DEPRECATION WARNING]: ANSIBLE_CALLBACK_WHITELIST option, normalizing names to \n\nnew standard, use ANSIBLE_CALLBACKS_ENABLED instead. This feature will be \n\nremoved from ansible-core in version 2.15. Deprecation warnings can be disabled\n\n by setting deprecation_warnings=False in ansible.cfg.\n\n[WARNING]: Collection redhat.satellite does not support Ansible version 2.14.17\n\n[WARNING]: Callback disabled by environment. Disabling the Foreman callback\r\nplugin.\n\n\n\n\r\nPLAY [Set owner and permissions on /etc/sshd/sshd_config to root:root 0600] ****\n\n\r\nTASK [Gathering Facts] *********************************************************\n\n\n\nok: [ci-vm-10-0-133-86.hosted.upshift.rdu2.redhat.com]\n\n\r\nTASK [Set the owner and permissions of ssh config file to root:root 0600] ******\n\n\n\nok: [ci-vm-10-0-133-86.hosted.upshift.rdu2.redhat.com]\n\n\r\nPLAY [run insights] ************************************************************\n\n\r\nTASK [run insights] ************************************************************\n\n\n\nok: [ci-vm-10-0-133-86.hosted.upshift.rdu2.redhat.com]\n\nPLAY RECAP *********************************************************************\nci-vm-10-0-133-86.hosted.upshift.rdu2.redhat.com : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0\nExit status: 0"
+    }
+  ],
+  "links": {
+    "first": "/api/playbook-dispatcher/v1/run_hosts?fields%5Bdata%5D=host%2Crun%2Cinventory_id%2Cstdout%2Cstatus&filter%5Brun%5D%5Blabels%5D%5Bplaybook-run%5D=32dbbf87-b8f8-4d24-a248-d704bacfe606&filter%5Brun%5D%5Bservice%5D=remediations&limit=50&offset=0",
+    "last": "/api/playbook-dispatcher/v1/run_hosts?fields%5Bdata%5D=host%2Crun%2Cinventory_id%2Cstdout%2Cstatus&filter%5Brun%5D%5Blabels%5D%5Bplaybook-run%5D=32dbbf87-b8f8-4d24-a248-d704bacfe606&filter%5Brun%5D%5Bservice%5D=remediations&limit=50&offset=0"
+  },
+  "meta": {
+    "count": 2,
+    "total": 2
+  }
+}
