@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "system_id": "8aab9fa1-0cfe-41bf-aa0a-af89504fcdda",
+      "system_name": "prod_db_1.example.com",
+      "status": "success",
+      "updated_at": "2025-02-19T17:27:58.222428Z",
+      "playbook_run_executor_id": "32dbbf87-b8f8-4d24-a248-d704bacfe606"
+    },
+    {
+      "system_id": "b500a58d-af7f-48ef-8109-203ba390683f",
+      "system_name": "stage_db_05.example.com",
+      "status": "success",
+      "updated_at": "2025-02-19T17:27:58.222428Z",
+      "playbook_run_executor_id": "32dbbf87-b8f8-4d24-a248-d704bacfe606"
+    }
+  ],
+  "meta": {
+    "count": 2,
+    "total": 2
+  }
+}
