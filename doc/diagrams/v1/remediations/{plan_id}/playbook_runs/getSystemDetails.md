@@ -32,14 +32,14 @@ sequenceDiagram
        rect rgba(191, 223, 255, .1)
           rem -->> pd: GET v1/runs?filter[labels][playbook-run]=run_id
           pd ->> rem: [pd_run]
+          note left of pd: (see: /doc/responses/playbook-dispatcher/runs.json)
        end
-       note right of pd: (see: /doc/responses/playbook-dispatcher/runs.json)
        loop Check each pd_run until system found
           rect rgba(191, 223, 255, .1)
              rem -->> pd: GET v1/run_hosts?filter[run][labels][playbook-run]=run_id&filter[run][id]=run.id&filter[inventory_id]=system_id
              pd ->> rem: (host, stdout, inventory_id)
+             note left of pd: (see: /doc/responses/playbook-dispatcher/run_hosts.json)
           end
-          note right of pd: (see: /doc/responses/playbook-dispatcher/run_hosts.json)
        end
 
     else No system found

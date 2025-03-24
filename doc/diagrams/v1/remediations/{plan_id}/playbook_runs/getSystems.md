@@ -20,7 +20,7 @@
 sequenceDiagram
     actor u as User
     participant rem as Remediations
-    participant db as Database
+    participant db as Remediations<br>Database
     participant pd as Playbook-Dispatcher
 
     u ->> + rem: GET v1/remediations/:plan_id/playbook_runs/:run_id/systems?executor=xxx&ansible_host=yyy
@@ -31,14 +31,14 @@ sequenceDiagram
     rect rgba(191, 223, 255, .1)
        rem -->> pd: GET /playbook-dispatcher/v1/runs?filter[labels][playbook-run]=run_id
        pd ->> rem: [pd_run]
+       note left of pd: (see: /doc/responses/playbook-dispatcher/runs.json)
     end
-    note right of pd: (see: /doc/responses/playbook-dispatcher/runs.json)
     loop for each pd_run
         rect rgba(191, 223, 255, .1)
            rem -->> pd: GET v1/run_hosts?filter[run][labels][playbook-run]=run_id<br/>&filter[run][id]=pd_run.id
            pd ->> rem: [system]
+           note left of pd: (see: /doc/responses/playbook-dispatcher/run_hosts.json)
         end
-        note right of pd: (see: /doc/responses/playbook-dispatcher/run_hosts.json)
         loop for each system
             rem ->> rem: construct system object (status: timeout -> failure)
         end
