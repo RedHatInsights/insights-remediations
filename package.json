@@ -73,6 +73,15 @@
     },
     "cls-hooked": {
       "semver": "^5.7.2"
+    },
+    "execa": {
+      "cross-spawn": "^7.0.5"
+    },
+    "eslint": {
+      "cross-spawn": "^7.0.5"
+    },
+    "npm-run-all2": {
+      "cross-spawn": "^7.0.5"
     }
   },
   "scripts": {
