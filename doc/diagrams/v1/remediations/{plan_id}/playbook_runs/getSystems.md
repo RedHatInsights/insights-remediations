@@ -45,12 +45,12 @@ sequenceDiagram
     end
     rem ->> rem: filter systems
     alt no systems remain && plan / run doesn't exist
-        rem ->> u: 404
+        rem ->> u: HTTP 404
     else
        rem ->> rem: paginate results
        rem ->> rem: sort results
        rem ->> rem: format response
-       rem ->> - u: Response
+       rem ->> - u: HTTP 200
        note left of rem: (see: /doc/responses/remediations/single_playbook_run_systems.json)
     end
 ```
