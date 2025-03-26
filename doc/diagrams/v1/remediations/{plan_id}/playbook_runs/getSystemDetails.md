@@ -43,11 +43,11 @@ sequenceDiagram
        end
 
     else No system found
-       rem ->> u: 404
+       rem ->> u: HTTP 404
     end
  
     rem ->> rem: Format response
     rem ->> rem: Calculate etag
-    rem ->> u: Response
+    rem ->> - u: HTTP 200
     note left of rem: (see: /doc/responses/remediations/playbook_run_host.json)
 ```

@@ -47,6 +47,6 @@ sequenceDiagram
     rem -->> rem: resolve users
     rem ->> rem: compute aggregate status
     rem ->> rem: format response
-    rem ->> - u: Response
+    rem ->> - u: HTTP 200
     note left of rem: (see: /doc/responses/remediations/playbook_runs.json)
 ```
