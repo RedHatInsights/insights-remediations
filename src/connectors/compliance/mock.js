@@ -178,9 +178,7 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    // Mock data doesn't contain securityGuideId and there isn't value in adding it since we're just testing a mock of Compliance service
-    // But we want this mock function to accept the securityGuideId anyway to align with the actual getRule() function 
-    getRule (id, securityGuideId) {
+    getRule (id) {
         return P.resolve(DATA[id]); // eslint-disable-line security/detect-object-injection
     }
 

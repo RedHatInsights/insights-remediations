@@ -29,23 +29,6 @@ exports[`batch csaw id validation (full and rule) 1`] = `
 }
 `;
 
-exports[`batch ssg id validation (id with security guide id) 1`] = `
-{
-  "ssg:rhel7|0021d5a8-6573-4766-8bfd-5f5eab59015c|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink": {
-    "id": "ssg:rhel7|0021d5a8-6573-4766-8bfd-5f5eab59015c|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink",
-    "resolution_risk": -1,
-    "resolutions": [
-      {
-        "description": "Disable Prelinking",
-        "id": "fix",
-        "needs_reboot": true,
-        "resolution_risk": -1,
-      },
-    ],
-  },
-}
-`;
-
 exports[`batch template batch resource 1`] = `
 {
   "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074": {
