@@ -660,11 +660,25 @@ components:
     RemediationSort:
       in: query
       name: sort
-      description: Sort order
+      description: Sort order. Use `-` before a field name for descending order (e.g., `?-system_count`).
       required: false
       schema:
         type: string
-        enum: [updated_at, -updated_at, name, -name, system_count, -system_count, issue_count, -issue_count]
+        enum: 
+          - updated_at
+          - -updated_at
+          - created_at
+          - -created_at
+          - last_run_at
+          - -last_run_at
+          - name
+          - -name
+          - system_count
+          - -system_count
+          - issue_count
+          - -issue_count
+          - status
+          - -status
         default: -updated_at
     RemediationSystem:
       in: query
@@ -677,10 +691,37 @@ components:
     RemediationFilter:
       in: query
       name: filter
-      description: Remediation name filter. If specified only remediations whose name matches the given string will be returned.
+      description: Allows filtering remediations based on various criteria including name, creation time, last run time, status, and update time.
       required: false
       schema:
-        type: string
+        anyOf:
+          - type: string
+            description: Simple string filter (e.g., name filtering)
+          - type: object
+            properties:
+              name:
+                type: string
+                description: Filter by remediation name (partial match allowed)
+              created_after:
+                type: string
+                format: date-time
+                description: Filter remediations created after this timestamp (ISO 8601 format)
+              last_run_after:
+                oneOf:
+                  - type: string
+                    format: date-time
+                    description: Filter remediations with last run after this timestamp (ISO 8601 format)
+                  - type: string
+                    enum: ["never"]
+                    description: Filter remediations that have never run. Case insensitive.
+              updated_after:
+                type: string
+                format: date-time
+                description: Filter remediations updated after this timestamp (ISO 8601 format)
+              status:
+                $ref: '#/components/schemas/PlaybookRunStatus'
+      style: deepObject
+      explode: true
     SystemId:
       in: path
       name: system
