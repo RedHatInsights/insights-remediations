@@ -103,14 +103,21 @@ function inferNeedsReboot (remediation) {
 exports.list = errors.async(async function (req, res) {
     trace.enter('controller.read.list');
 
-    if (_.get(req, 'query.fields.data', []).includes('name') && Array.isArray(_.get(req, 'query.fields.data', []))) {
-        throw new errors.BadRequest('INVALID_REQUEST', `'name' cannot be combined with other fields.`);
-    }
-
     trace.event('Get sort and query parms from url');
     const {column, asc} = format.parseSort(req.query.sort);
     const {offset, hide_archived} = req.query;
     var limit = req.query.limit;
+    var filter = req.query.filter;
+
+    // filter looks like either '?filter=<name>' or 'filter[<item>]=<value>'.  Convert first style to an object...
+    if (_.isString(filter)) {
+        filter = {name: filter};
+    }
+
+    // ?fields[data]=name cannot be combined with other data fields...
+    if (_.get(req, 'query.fields.data', []).includes('name') && Array.isArray(_.get(req, 'query.fields.data', []))) {
+        throw new errors.BadRequest('INVALID_REQUEST', `'name' cannot be combined with other fields.`);
+    }
 
     // Check for name in fields query param:
     // fields[data]=name
@@ -140,7 +147,7 @@ exports.list = errors.async(async function (req, res) {
         req.query.system,
         column,
         asc,
-        req.query.filter,
+        filter?.name,
         hide_archived,
         limit,
         offset);
