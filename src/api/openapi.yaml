@@ -660,11 +660,25 @@ components:
     RemediationSort:
       in: query
       name: sort
-      description: Sort order
+      description: Sort order. Use `-` before a field name for descending order (e.g., `?-system_count`).
       required: false
       schema:
         type: string
-        enum: [updated_at, -updated_at, name, -name, system_count, -system_count, issue_count, -issue_count]
+        enum:
+          - updated_at
+          - -updated_at
+          - created_at
+          - -created_at
+          - last_run_at
+          - -last_run_at
+          - name
+          - -name
+          - system_count
+          - -system_count
+          - issue_count
+          - -issue_count
+          - status
+          - -status
         default: -updated_at
     RemediationSystem:
       in: query
@@ -677,10 +691,53 @@ components:
     RemediationFilter:
       in: query
       name: filter
-      description: Remediation name filter. If specified only remediations whose name matches the given string will be returned.
+      description: |
+        For filtering by various criteria.
+
+        There are two styles of filter: legacy and new.
+        
+        Legacy filtering allows for filtering by remediation plan name and is of the form: `?filter=plan name`.
+        If specified, only remediations whose name matches the given string will be returned.
+        
+        New style filters allow for filtering by various criteria and are of the form: `?filter[<field>]=<value>`.
+        
+        Available filter fields:
+        - name: plan names matching string, `?filter[name]=my plan name`
+        - created_after: created on or after date-time, `filter[created_after]=2025-03-31T08:19:36.641Z`
+        - updated_after: modified on or after date-time, `filter[updated_after]=2025-03-31T08:19:36.641Z`
+        - last_run_after: executed on or after date-time or 'never', `filter[last_run_after]=never` 
+        - status: status matching one of [running, success, failure], `filter[status]=failure`
       required: false
       schema:
-        type: string
+        anyOf:
+          - type: string
+            description: (legacy) Filter by plan name (allows partial match)
+          - type: object
+            properties:
+              name:
+                type: string
+                description: Filter by plan name (allows partial match)
+              last_run_after:
+                oneOf:
+                  - type: string
+                    format: date-time
+                    description: Filter remediations with last run on or after this timestamp (ISO 8601 format)
+                  - type: string
+                    enum: ['never']
+                    description: Filter remediations that have never run
+              created_after:
+                type: string
+                format: date-time
+                description: Filter remediations created on or after this timestamp (ISO 8601 format)
+              status:
+                type: string
+                enum: [running, success, failure]
+              updated_after:
+                type: string
+                format: date-time
+                description: Filter remediations updated on or after this timestamp (ISO 8601 format)
+      style: deepObject
+      explode: true
     SystemId:
       in: path
       name: system

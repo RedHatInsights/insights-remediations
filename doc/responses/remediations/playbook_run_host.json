@@ -1,0 +1,8 @@
+{
+  "system_id": "6d2b07aa-a22a-494c-bb39-039917b0b166",
+  "system_name": "localhost",
+  "status": "success",
+  "console": "[WARNING]: provided hosts list is empty, only localhost is available. Note thatthe implicit localhost does not match 'all'\r\nPLAY [Set owner and permissions on /etc/sshd/sshd_config to root:root 0600] ****\r\nTASK [Gathering Facts] *********************************************************ok: [localhost]\r\nTASK [Set the owner and permissions of ssh config file to root:root 0600] ******changed: [localhost]\r\nPLAY RECAP *********************************************************************\r\nlocalhost                  : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   \r\n",
+  "updated_at": "2022-09-15T15:26:06.292421Z",
+  "playbook_run_executor_id": "d2c25318-672d-4531-84a0-75bff5927814"
+}

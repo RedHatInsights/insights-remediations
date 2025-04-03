@@ -1,0 +1,30 @@
+{
+  "id": "32dbbf87-b8f8-4d24-a248-d704bacfe606",
+  "status": "success",
+  "remediation_id": "b9da8579-02d7-4486-a48e-ef51be4462a1",
+  "created_by": {
+    "username": "insights-qa",
+    "first_name": "Insights",
+    "last_name": "QA"
+  },
+  "created_at": "2025-02-19T17:26:55.465Z",
+  "updated_at": "2025-02-19T17:26:55.465Z",
+  "executors": [
+    {
+      "executor_id": "32dbbf87-b8f8-4d24-a248-d704bacfe606",
+      "executor_name": "RHC Satellite",
+      "updated_at": "2025-02-19T17:26:55.465Z",
+      "playbook": "https://cert.cloud.stage.redhat.com/api/remediations/v1/remediations/b9da8579-02d7-4486-a48e-ef51be4462a1/playbook?hosts=8aab9fa1-0cfe-41bf-aa0a-af89504fcdda&hosts=b500a58d-af7f-48ef-8109-203ba390683f",
+      "playbook_run_id": "32dbbf87-b8f8-4d24-a248-d704bacfe606",
+      "status": "success",
+      "system_count": 2,
+      "counts": {
+        "pending": 0,
+        "running": 0,
+        "success": 2,
+        "failure": 0,
+        "canceled": 0
+      }
+    }
+  ]
+}

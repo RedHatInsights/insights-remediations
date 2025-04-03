@@ -201,7 +201,8 @@ exports.list = errors.async(async function (req, res) {
             let playbook_runs = await queries.getPlaybookRuns(
                 remediation.id,
                 req.user.tenant_org_id,
-                req.user.username
+                req.user.username,
+                'created_at'
             );
 
             playbook_runs = playbook_runs?.toJSON();
