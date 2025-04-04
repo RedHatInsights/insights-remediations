@@ -545,7 +545,7 @@ paths:
         400:
           $ref: '#/components/responses/BadRequest'
 
-  /diagnosis/{system}:
+  /diagnosis/{system insights_id}:
     get:
       tags:
         - diagnosis
@@ -553,7 +553,7 @@ paths:
       description: Provides host-specific diagnosis information
       operationId: getDiagnosis
       parameters:
-        - $ref: '#/components/parameters/SystemId'
+        - $ref: '#/components/parameters/InsightsId'
         - $ref: '#/components/parameters/RemediationIdQuery'
         - $ref: '#/components/parameters/BranchId'
       responses:
@@ -739,6 +739,16 @@ components:
                 description: Filter remediations updated on or after this timestamp (ISO 8601 format)
       style: deepObject
       explode: true
+    InsightsId:
+      in: path
+      name: system
+      description: |
+        System Insights identifier (uuid)
+        
+        `insights_id` as returned from `/api/inventory/v1/hosts/{system_id}`
+      required: true
+      schema:
+        $ref: '#/components/schemas/InsightsId'
     SystemId:
       in: path
       name: system
