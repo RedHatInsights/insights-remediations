@@ -147,7 +147,7 @@ exports.list = errors.async(async function (req, res) {
         req.query.system,
         column,
         asc,
-        filter?.name,
+        filter,
         hide_archived,
         limit,
         offset);

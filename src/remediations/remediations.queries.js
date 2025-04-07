@@ -130,13 +130,26 @@ exports.list = function (
     }
 
     if (filter) {
-        filter = `%${filter}%`;
+        // name filter
+        if (filter.name) {
+            const filterName = `%${filter.name}%`;
 
-        query.where[Op.or] = [{
-            name: {
-                [Op.iLike]: filter
-            }
-        }];
+            query.where[Op.or] = [{
+                name: {
+                    [Op.iLike]: filterName
+                }
+            }];
+        }
+
+        // created_after filter
+        if (filter.created_after) {
+            query.where["created_at"] = { [Op.gt]: new Date(filter.created_after) };
+        }
+
+        // updated_after filter
+        if (filter.updated_after) {
+            query.where["updated_at"] = { [Op.gt]: new Date(filter.updated_after) };
+        }
     }
 
     return db.remediation.findAndCountAll(query);
