@@ -49,8 +49,8 @@ describe('remediations', function () {
         async function testList (desc, url, ...ids) {
             test(desc, async () => {
                 const {body, text} = await request
-                .get(url);
-                // .expect(200);
+                .get(url)
+                .expect(200);
 
                 body.should.have.property('data');
                 _.map(body.data, 'id').should.eql(ids);
@@ -187,22 +187,38 @@ describe('remediations', function () {
 
             describe('test new style filters', () => {
                 describe('supported options', function () {
-                    // testList('name query', '/v1/remediations?filter[name]=REBoot', r178);
-                    testList('name query', '/v1/remediations?filter[name]=REBoot&filter[last_run_at]=never', r178);
-                    // testList('created_after=<date-time> query', '/v1/remediations?filter[created_after]=2025-03-31T08:19:36.641Z');
-                    // testList('created_after=never query', '/v1/remediations?filter[last_run_at]=never');
+                    testList('name query with match', '/v1/remediations?filter[name]=REBoot', r178);
+                    testList('name query no match', '/v1/remediations?filter[name]=REBootNoMatch');
+                    testList("created_after=date/time query with match", '/v1/remediations?filter[created_after]=2018-12-04T08:19:36.641Z', r256, r178);
+                    testList("created_after=date/time query no match", '/v1/remediations?filter[created_after]=2025-03-31T08:19:36.641Z');
+                    testList("updated_after=date/time query with match", '/v1/remediations?filter[updated_after]=2018-12-04T08:19:36.641Z', r256, r178);
+                    testList("updated_after=date/time query no match", '/v1/remediations?filter[updated_after]=2025-03-31T08:19:36.641Z');
+                    testList('name and created_after query with match', '/v1/remediations?filter[name]=REBoot&filter[created_after]=2018-12-04T08:19:36.641Z', r178);
+                    testList('name and created_after query no match', '/v1/remediations?filter[name]=REBootNoMatch&filter[created_after]=2018-12-04T08:19:36.641Z');
+                    // testList('last_run_at=never query', '/v1/remediations?filter[last_run_at]=never');
                     // testList('status query', '/v1/remediations?filter[status]=failure');
                 });
 
-                // describe('invalid options', function () {
-                //     test400(
-                //         'unknown filter field',
-                //         '/v1/remediations?filter[bob]=uncle',
-                //         'type.openapi.requestValidation',
-                //         'must be string (location: query, path: filter)'
-                //     );
-                //     // testList('bad status query', '/v1/remediations?filter[status]=timeout');
-                // });
+                describe('invalid options', function () {
+                    test400(
+                        'unknown filter field',
+                        '/v1/remediations?filter[bob]=uncle',
+                        'type.openapi.requestValidation',
+                        'must be string (location: query, path: filter)'
+                    );
+                    test400(
+                        'bad date query',
+                        '/v1/remediations?filter[created_after]=123',
+                        'type.openapi.requestValidation',
+                        'must be string (location: query, path: filter)'
+                    );
+                    // test400(
+                    //     'bad status query',
+                    //     '/v1/remediations?filter[status]=timeout',
+                    //     'type.openapi.requestValidation',
+                    //     'must be string (location: query, path: filter)'
+                    // );
+                });
             });
         });
 
