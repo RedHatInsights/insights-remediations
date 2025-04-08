@@ -180,6 +180,172 @@ exports[`generates a playbook with block 1`] = `
       changed_when: false"
 `;
 
+exports[`generates a simple playbook with issue id that contains a security guide id 1`] = `
+"---
+# Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
+# deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
+# generated an Ansible Playbook for you. Please review and test the recommended actions and the Playbook as
+# they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
+# responsible for any adverse outcomes related to these recommendations or Playbooks.
+
+# Disable Prelinking
+# Identifier: (ssg:xccdf_org.ssgproject.content_benchmark_RHEL-8|0.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink,fix)
+# Version: NORMALIZED_PLACEHOLDER
+# platform = multi_platform_rhel,multi_platform_fedora,multi_platform_ol
+# complexity = low
+# strategy = restrict
+# reboot = false
+# disruption = low
+- name: Disable Prelinking
+  hosts: '68799a02-8be9-11e8-9eb6-529269fb1459.example.com'
+  become: true
+  tags:
+    - CCE-27078-5
+    - CJIS-5.10.1.3
+    - NIST-800-171-3.13.11
+    - NIST-800-53-CM-6(3)
+    - NIST-800-53-CM-6(d)
+    - NIST-800-53-IA-7
+    - NIST-800-53-SC-13
+    - NIST-800-53-SC-28
+    - NIST-800-53-SI-7
+    - PCI-DSS-Req-11.5
+    - disable_prelink
+    - low_complexity
+    - low_disruption
+    - medium_severity
+    - no_reboot_needed
+    - restrict_strategy
+  tasks:
+
+    - name: Does prelink file exist
+      stat:
+        path: /etc/sysconfig/prelink
+      register: prelink_exists
+
+    - name: disable prelinking
+      lineinfile:
+        path: /etc/sysconfig/prelink
+        regexp: ^PRELINKING=
+        line: PRELINKING=no
+      when: prelink_exists.stat.exists
+
+
+- name: generate Compliance report
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
+  become: true
+  gather_facts: false
+  vars:
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU213elMyZFlRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rq
+      a3djMUZCU1dwWVVsWklhUzh5WkdRclFrdzRhRnBCVXlzNGJrd0tjbUp5WkhobWRra3ZhM1p3TWxj
+      eGNrMWtNbkJ0YmpsV1owOURXVll6YzI5Nk1FNURjRTVKZUhsUFFuZFpXVmhOYkdwYU5XcGhOSE5F
+      TkZVME5HbzFRUXBQUmxWTE1IQmxaR3QwVTJseVVsbDJhbTFsVm1oU1YyRnhURzE0VnpJeFFVdDNN
+      bmR5YTBRM1EwNVRjM1JtYmxWMlRtUkJabU5LYjFGV2NHODJOM2RyQ2sxUFNUaFJZMlo2ZFdJMWNu
+      aHlTSFV3ZUM5eFZqVnROa3RPZVZORFptaFlLelo0SzFkMWFqQk1ibEZqYTJ4WVYyVkZVM2hQV1N0
+      blRrMUJNMFkxYkU4S1dXcHdSMmhVU25oeFkzSXpTRWh0TURsV1RWTk1aeTkwTjNFNGRqaERWMlp1
+      Wms1M2VVcDBOazVsYVV0MGFVYzVUa2hKV1d0M1NFZ3lOMFZZTlhORk9Rb3pSakEyWWs5NlpsQkdT
+      RWRaUzBzeFlYTmplamhvTDNOMVRtMDRiWFJ4Ym5CQmIycHNkM1JZVDNKWmFVaG1hV1JsTWtSaWEz
+      VjNOUzl0ZDBGSFFXZFVDbGhtTWtJMGMybFBVSHBpWWxvMVUzUjJSbFk0YzBaMVVrMTFjWEpHVTJj
+      M2FsSkpkbkpQT1ZjeE5YQTBiV04xUnpkSWVDOVJRMVpvUmpkb1FuUkZUMG9LVFhCdmFYVjBOVlpx
+      ZGxsVFkwcEJUM05tTUdsYU5FaFlRWEZtVEVWWWVtdzFja1ZzUmtoek1GSnlWRkJsWVZoSmRqTmti
+      bkpUV0dkNFNUZFVTVUpUYVFwYWJtTkNZalpMVUdkNWFVSXJibWRQV0ZCbFEyMUhNbmRMVm5CSGVI
+      ZDFkV0pXTWtScE5FdGxhWHB0V25KcWNtMVFPRlJLWjJWb2QyRktSMmt5TlZwakNrcFpVMlpGTVU5
+      T1pucDVaR2gxVmxscVltSnhabkppZGxKWU4zaExlV1JNTVhWQlRucG9Ua05wY2pSRk0xcHRaRloy
+      UlVSd04wNVNhalIwTmpReldrY0tTVGxSYnpGRldEazNlR001YmtwYU0wMDVWME5zYVhSa2MwUTJh
+      V1JQWlhCU1FuRlBhSFJIU0hoRlkxVkJUMHgxWkUwelNVNDNNM1pDVlRCa1dsbFVXQXByYVhwNVRV
+      VXJibGxEUmxKSk9XWjFaemx2ZGdvOVVtcGxWZ290TFMwdExVVk9SQ0JRUjFBZ1UwbEhUa0ZVVlZK
+      RkxTMHRMUzBL
+  tasks:
+    - name: generate Compliance report
+      command: insights-client --compliance
+      changed_when: false
+
+# Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
+# The variable can be overridden to suppress this behavior.
+- name: Reboot system (if applicable)
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
+  become: true
+  gather_facts: false
+  vars:
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRMVk0ZG5jMU9FUXJhalZ3VGtGUmFrMUVRa0ZCYTJOeE1W
+      WlhVbEF3VUVoMGRIRjBWMGt4UkZSdU4zcE1kbFUyU0hKd2QxSUtUbkJ3Um5SWGJWRktiM2xxYm1w
+      bE5XUmFSemMxUTNCU1kzZGFPRU5XVW5sRlRVRXpVREExZW1Kc1UzSnFWbTUxVW5oNlpVeG1SbTFy
+      YW1SRVJWcHdjZ3ByWTJ0d2FFazJSVUpIYWtJemEyaGFUalJ5YTNwUWRWQm1PR1pMUVdsSE1ESmxk
+      SGhXVFZWV01tZHRkV3c0UjBJMmRIcEpkRk5uVFRGQlFYQkdORTFRQ2s1NFRDOUpUMlY2ZFdRMGFt
+      VlFaV05KZWpGS1dtMTVkVGgzWTNoVFZqWkpTbTVPU1VGSGVHYzVWRUpVYzNNMFEwbHVaVlZXY0RG
+      VWRrUlFPUzlHVXk4S2VGaFlaMFphWlM5VlZuQjBaRzA1ZDJkbmRVOXRiR2hvWVZCTVZHNU5Tbkoy
+      UVRsV2FVUnZRVzV2WWt0b1VIbEtZMHBSYjJOTFdrRlRjVTF6ZWs1VWNncHVNek5JYlRoUk9IQnRW
+      VTFLYldobU9VRnZkM2x4VW5GWVVHeHpXVGwzT0UxRU1WQkZjR3htY2pJeVlYTjFMMHhvYjNGNlIz
+      TmtOMUUxTTJwdFMyNXBDaXM1Y0VjeWEzVkNSVXhpVVhoblRHcERiVlZsUzFCdmJuaFhjM0JuVFZs
+      M2VYQjFaVFJvYnl0dmFsZG5WRGR2ZG1GbFRFNVRTMkV2UkZOS2JEWldRaThLZEd4YUwxUXJPRFZr
+      Ym5ZclNWb3phbEJTZFM5bVpuZFBkVVpVV2xoNmVGTkJUalZSV1M5ak15c3hhbUZSTDBKeFdYTmhi
+      M2RpUkZreGRXUXZVeXRsYVFwa2FEa3JWRkV5TlVKa1NYa3hibGh3ZWpoV1JHbHpjbEp3Y0VrNWFs
+      SldWakkwTVVVelRVWkhka1ZaTm1aVFYzSlZWMWMzY0RKbFpUbGphelpOVlUweUNrNUZjRXBLWm5G
+      UFNFdHBjRXRPZVRKdVFVRTJURmcxTHpNeGFWSk9VSEZZVXpKRVdqSlpkbVZTUTJOMmVDOHZPVTlo
+      UzFWd1FsZElZVmxYYW5STU4wWUtSWFJWVEZGeFZESkJPVTF3WjFSU1RtOU5WbEZ4Y1haQ01GUlBP
+      WE00TmxoTmRuUkdRa1IzYW5SbWIxSm9NRnBEYlUwME1FRlhRMHBxT0RKNlduTlRZUXBCYXpkUEsy
+      UkpkMFl5VVQwS1BWcEtiallLTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
+  tasks:
+    - when:
+        - insights_needs_reboot is defined
+        - insights_needs_reboot
+      block:
+        - name: Reboot system
+          shell: sleep 2 && shutdown -r now "Ansible triggered reboot"
+          async: 1
+          poll: 0
+          ignore_errors: true
+
+        - name: Wait for system to boot up
+          local_action:
+            module: wait_for
+            host: "{{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_ssh_host'], true) | default(inventory_hostname, true) }}"
+            port: "{{ hostvars[inventory_hostname]['ansible_port'] | default(hostvars[inventory_hostname]['ansible_ssh_port'], true) | default('22', true) }}"
+            delay: 15
+            search_regex: OpenSSH
+            timeout: 300
+          become: false
+
+- name: run insights
+  hosts: "68799a02-8be9-11e8-9eb6-529269fb1459.example.com"
+  become: true
+  gather_facts: false
+  vars:
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTVlpCZDFWQldVaHBRaXR6ZG5jMU9FUXJhalZ3VGtGUmFXdDRaeTh2WmtaRFoz
+      QXlTblIxVEd0UU5qQnNTa3BZYm1GU1JGTjVjVVYwU0ZSNlRGY0tOVlZSVlc5MWEyUmpVRFJVUlZn
+      d01EaDFhRkJHUzFaSmVrdFVTR2RsYTFOaU1UUXlkMjlQYm5sR2VUUnpRbEJrZEZoaGREVlliWEp0
+      VGxsR1EwaEVWZ28xYVhSdlNrcDBPVzg1UWtkQlJVaDVZMFJ3SzBoNVNqWXphM0paZVRGUk1rOXVU
+      azF3VjJaSmNtYzJUakJXVTJoa1JtVk1lR0ppTjBaMlpFaEpjbFo2Q2pJNGFrdHhOemx1Tm13eUx6
+      aDZZVkJSTDFkWVZIWkNaMDVhUkVWTFJ6TmhSSFl3WVRkbWIyUnlPRWhEZGxseE5tNUhNRkZOY1RO
+      U1ZFOXBkbFZtTTFnS1JuQnlhVTh2TDNKSlRDOVlSelE1TTA1NGFWSjBRakVyZEhSUk0wZHNhM1ZE
+      ZFVwck1EQkdaREp0ZDNZNFprRnZaR2xUUW5aelQydEpZekZyV25adFN3cEJjR3BEY1ZKMWVHaExU
+      MDgzYWxZM1FYSnRTV0p6TkhobVJrUkJVMkZaV2t4R01VMHZhME42ZWs1d1MwTjFhbE5hVUUxRlVt
+      WlhhV2RHVGpGMWRqRjNDalpQSzB0b1pTdFJVRU5hUm5CV1kwVndSbTFSTVdwcWFrOVFPV2haSzNW
+      alZWSnhSVEkyTlhGTWRuWnFSWE4wUW5WQk4xQkZNRVZ3UkRsaU5VaFZSM1lLTkZKemJXc3pNbFpC
+      Vnl0WE5IWk1VRWQwZG1sQ00wSXpUbE0wZUhCdVIzSmlObGs1Y1cwNFZuVTJSRUZIV2xOYWRsbFlk
+      bWQwTm1WR2N6RTVTVFZZUWdvMGVtcFVSRUlyTW1sT2NrcE9jM2d5YURoU1VGVnJMMmhZUzFKMGEy
+      WnZZMlpKZVRkcGNWY3hiMGRsTlZSMmFqTTFSbXRqUld0YU9VRnpSMjl6WXpWMENuUlZkVlZJWWpS
+      ME5EVTFSSE5EWlZWc1ZEZFNOakJDTTB4d1Z6TmlTRTF0YzFCMEx6RktNRFEwYm1KS2RFTkhUM1Jy
+      UVVWWVRsVTJlbGxUTDNBMFFqSUtaSFYxY2tZdlNHUnFWWFJNVDNSdlNFTnlZVWd2WkZwaFRVNTZk
+      MVZpZUc1VFZXUkdZU3R6TTBaNFJHczFVVkU0VVRaMVVucFpRbWw0WkcxeWREZGpUQXBKYTA1NlEy
+      aHBRMDlrY3owS1BVMVZOMk1LTFMwdExTMUZUa1FnVUVkUUlGTkpSMDVCVkZWU1JTMHRMUzB0Q2c9
+      PQ==
+  tasks:
+    - name: run insights
+      command: insights-client
+      changed_when: false"
+`;
+
 exports[`generates a simple playbook with multiple compliance remediation 1`] = `
 "---
 # Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you

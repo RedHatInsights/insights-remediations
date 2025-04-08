@@ -18,6 +18,21 @@ test('generates a simple playbook with single compliance remediation', async () 
     expect(normalizePlaybookVersionForSnapshot(res.text)).toMatchSnapshot();
 });
 
+test('generates a simple playbook with issue id that contains a security guide id', async () => {
+    const data = {
+        issues: [{
+            id: 'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-8|0.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    const res = await request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200);
+    expect(normalizePlaybookVersionForSnapshot(res.text)).toMatchSnapshot();
+});
+
 test('generates a simple playbook with multiple compliance remediation', async () => {
     const data = {
         issues: [{
