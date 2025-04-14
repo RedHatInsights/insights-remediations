@@ -27,7 +27,7 @@ module.exports = function (router) {
         .delete(openapi('deleteRemediation'), rbacWrite, write.remove);
 
     router.route('/remediations/:id/status')
-        .get(trace, rbacRead, status.status); // TODO: openapi mw
+        .get(openapi('getRemediationStatus'), trace, rbacRead, status.status);
 
     router.route('/remediations/:id/issues')
         .delete(openapi('deleteRemediationIssues'), rbacWrite, write.bulkRemoveIssues);
