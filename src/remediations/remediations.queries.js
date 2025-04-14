@@ -136,13 +136,6 @@ exports.list = function (
             name: {
                 [Op.iLike]: filter
             }
-        }, {
-            [Op.and]: [
-                {
-                    name: null
-                },
-                where(literal(db.s.escape(NULL_NAME_VALUE)), Op.iLike, filter)
-            ]
         }];
     }
 
