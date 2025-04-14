@@ -183,10 +183,12 @@ paths:
             application/json:
               schema:
                 type: object
+                additionalProperties: false
                 properties:
                   summary:
                     type: object
                     description: Summary of resolved vs total issues
+                    additionalProperties: false
                     properties:
                       resolved:
                         type: integer
@@ -194,6 +196,7 @@ paths:
                       total:
                         type: integer
                         description: Total number of issues across all systems
+                    required: [resolved, total]
                   data:
                     type: object
                     description: >
@@ -203,11 +206,12 @@ paths:
                       - false = not resolved
                       - null = unknown
                     example:
-                      "vulnerability:1234":
+                      "vulnerabilities:CVE-2017-17712":
                         "host-1": true
                         "host-2": null
-                      "advisor:abcd":
+                      "advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE":
                         "host-3": false
+                required: [summary, data]
         404:
           $ref: '#/components/responses/NotFound'
 
