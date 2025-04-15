@@ -231,7 +231,7 @@ paths:
         - remediations
       summary: Bulk Remove Remediation Plan Issues
       description: Removes the given list of issues from the specified remediation plan.  Requests
-        containing a malformed or missing remediation ID are rejected.  Duplicate or missing
+        containing missing remediation plan ID are rejected.  Duplicate or missing
         issue IDs are ignored.
       operationId: deleteRemediationIssues
       parameters:
@@ -239,8 +239,8 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/IssuesList'
       responses:
-        204:
-          $ref: '#/components/responses/BulkDeleted'
+        200:
+          $ref: '#/components/responses/MultipleDelete'
 
   /remediations/{id}/issues/{issue}:
     patch:
