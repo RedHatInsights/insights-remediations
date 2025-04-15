@@ -545,7 +545,7 @@ paths:
         400:
           $ref: '#/components/responses/BadRequest'
 
-  /diagnosis/{system insights_id}:
+  /diagnosis/{system}:
     get:
       tags:
         - diagnosis
@@ -714,6 +714,7 @@ components:
             description: (legacy) Filter by plan name (allows partial match)
           - type: object
             additionalProperties: false
+            x-remediations-strict: false  # suppress validation since none of the properties is required
             properties:
               name:
                 type: string

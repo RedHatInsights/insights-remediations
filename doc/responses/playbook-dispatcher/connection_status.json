@@ -1,0 +1,135 @@
+[
+  {
+    "org_id": "6666666",
+    "recipient": "beefface-c7a6-4cc3-89bc-9066ffda695e",
+    "recipient_type": "satellite",
+    "sat_id": "893f2788-c7a6-4cc3-89bc-9066ffda695e",
+    "sat_org_id": "6",
+    "status": "connected",
+    "systems": [
+      "2a708189-4b48-4642-9443-64bda5f38e5f",
+      "36828b63-38f3-4b9a-ad08-0b7812e5df57",
+      "6f6a889d-6bac-4d53-9bc1-ef75bc1a55ff",
+      "938c5ce7-481f-4b82-815c-2973ca76a0ef"
+    ]
+  },
+  {
+    "org_id": "6666666",
+    "recipient": "beefface-c7a6-4cc3-89bc-9066ffda695e",
+    "recipient_type": "satellite",
+    "sat_id": "893f2788-c7a6-4cc3-89bc-9066ffda695e",
+    "sat_org_id": "2",
+    "status": "connected",
+    "systems": [
+      "34360dba-a2e7-4788-b9a2-44246a865c7e",
+      "64ee45db-6f2b-4862-bc9a-40aea8f5ecbe"
+    ]
+  },
+  {
+    "org_id": "6666666",
+    "recipient": "beefface-f4b5-4b1f-9c2f-23fc7b0ba390",
+    "recipient_type": "satellite",
+    "sat_id": "722ec903-f4b5-4b1f-9c2f-23fc7b0ba390",
+    "sat_org_id": "2",
+    "status": "connected",
+    "systems": [
+      "355986a3-5f37-40f7-8f36-c3ac928ce190",
+      "881256d7-8f99-4073-be6d-67ee42ba9af8",
+      "b84f4322-a0b8-4fb9-a8dc-8abb9ee16bc0"
+    ]
+  },
+  {
+    "org_id": "6666666",
+    "recipient": "beefface-46a5-498b-9614-01f2f66fd40b",
+    "recipient_type": "satellite",
+    "sat_id": "63142926-46a5-498b-9614-01f2f66fd40b",
+    "sat_org_id": "2",
+    "status": "connected",
+    "systems": [
+      "35e9b452-e405-499c-9c6e-120010b7b465",
+      "8728dbf3-6500-44bb-a55c-4909a48673ed",
+      "88d0ba73-0015-4e7d-a6d6-4b530cbfb4ad",
+      "baaad5ad-1b8e-457e-ad43-39d1aea40d4d",
+      "e4a0a6ff-0f01-4659-ad9d-44150ade51dd"
+    ]
+  },
+  {
+    "org_id": "6666666",
+    "recipient": "beefface-64a7-4ee7-a94e-3beed9393972",
+    "recipient_type": "satellite",
+    "sat_id": "72f44b25-64a7-4ee7-a94e-3beed9393972",
+    "sat_org_id": "2",
+    "status": "connected",
+    "systems": [
+      "3fec343b-ecc0-4049-9e30-e4dc2bae9f62",
+      "9574cba7-b9ce-4725-b392-e959afd3e69a",
+      "bd91d212-91ae-4813-a406-d2af96fbeb52"
+    ]
+  },
+  {
+    "org_id": "6666666",
+    "recipient": "beefface-6092-485c-ba04-c656d77f988a",
+    "recipient_type": "satellite",
+    "sat_id": "01bf542e-6092-485c-ba04-c656d77f988a",
+    "sat_org_id": "2",
+    "status": "connected",
+    "systems": [
+      "95c5ee0d-9599-475f-a8ef-c838545b9a73"
+    ]
+  },
+  {
+    "org_id": "6666666",
+    "recipient": null,
+    "recipient_type": "satellite",
+    "sat_id": "409dd231-6297-43a6-a726-5ce56923d624",
+    "sat_org_id": "2",
+    "status": "disconnected",
+    "systems": [
+      "a9b3af62-8404-4b2a-9084-9ed37da6baf1"
+    ]
+  },
+  {
+    "org_id": "6666666",
+    "recipient": "0341e468-fbae-416c-b16f-5abb64d99834",
+    "recipient_type": "directConnect",
+    "sat_id": "",
+    "sat_org_id": "",
+    "status": "connected",
+    "systems": [
+      "0341e468-fbae-416c-b16f-5abb64d99834"
+    ]
+  },
+  {
+    "org_id": "6666666",
+    "recipient": "750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4",
+    "recipient_type": "directConnect",
+    "sat_id": "",
+    "sat_org_id": "",
+    "status": "connected",
+    "systems": [
+      "750c60ee-b67e-4ccd-8d7f-cb8aed2bdbf4"
+    ]
+  },
+  {
+    "org_id": "6666666",
+    "recipient": "d5174274-4307-4fac-84fd-da2c3497657c",
+    "recipient_type": "directConnect",
+    "sat_id": "",
+    "sat_org_id": "",
+    "status": "connected",
+    "systems": [
+      "d5174274-4307-4fac-84fd-da2c3497657c"
+    ]
+  },
+  {
+    "org_id": "6666666",
+    "recipient": "",
+    "recipient_type": "none",
+    "sat_id": "",
+    "sat_org_id": "",
+    "status": "rhc_not_configured",
+    "systems": [
+      "35f36364-6007-4ecc-9666-c4f8d354be9f"
+    ]
+  }
+]
