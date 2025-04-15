@@ -225,6 +225,23 @@ paths:
         404:
           $ref: '#/components/responses/NotFound'
 
+  /remediations/{id}/issues:
+    delete:
+      tags:
+        - remediations
+      summary: Bulk Remove Remediation Plan Issues
+      description: Removes the given list of issues from the specified remediation plan.  Requests
+        containing a malformed or missing remediation ID are rejected.  Duplicate or missing
+        issue IDs are ignored.
+      operationId: deleteRemediationIssues
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+      requestBody:
+        $ref: '#/components/requestBodies/IssuesList'
+      responses:
+        204:
+          $ref: '#/components/responses/BulkDeleted'
+
   /remediations/{id}/issues/{issue}:
     patch:
       tags:
@@ -251,7 +268,7 @@ paths:
     delete:
       tags:
         - remediations
-      summary: Remove Remediation Issue
+      summary: Remove Remediation Plan Issue
       description: Removes the given Issue from the Remediation, RBAC permission {remediations:remediation:write}
       operationId: deleteRemediationIssue
       parameters:
@@ -872,7 +889,6 @@ components:
         enum: [system_name, -system_name]
         default: system_name
 
-
   requestBodies:
     RemediationInput:
       required: true
@@ -880,6 +896,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/RemediationInput'
+    IssuesList:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/IssuesList'
     RemediationsList:
       required: true
       content:
@@ -924,6 +946,7 @@ components:
       description: >
         Indicates whether systems that require reboot for the remediation to be properly applied should be
         rebooted automatically or not
+
 
 
     RemediationId:
@@ -1152,6 +1175,22 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/SystemId'
+
+    IssuesList:
+      type: object
+      additionalProperties: false
+      required:
+        - issue_ids
+      properties:
+        issue_ids:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/IssueId'
+          example:
+            - advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+            - vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
 
     RemediationIssueIn:
       type: object
@@ -1829,6 +1868,8 @@ components:
               dmesg_wrapped: false
 
   responses:
+    BulkDeleted:
+      description: Entities were deleted
     Deleted:
       description: Entity was deleted
     NotFound:
