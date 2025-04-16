@@ -287,11 +287,43 @@ exports.bulkRemove = errors.async((req, res) => {
 
     .then(result => {
         return res.status(200).json({deleted_count: result});
-    })
+    });
 });
 
 exports.removeIssue = errors.async(function (req, res) {
     return findAndDestroy(req, db.issue, findIssueQuery(req), res);
+});
+
+// Remove all issues from specified remediation plan
+//
+// DELETE request body:
+// {
+//   "issue_ids": [
+//     "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+//     "vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074"
+//   ]
+// }
+exports.bulkRemoveIssues = errors.async(async function (req, res) {
+    const issue_ids = req.body.issue_ids;
+    const remediation_id = req.params.id;
+    const {tenant_org_id, username: created_by} = req.user;
+
+    // validate <user,tenant_org_id> owns remediation plan
+    const removal_promise = db.remediation.findOne({where: {id: remediation_id, tenant_org_id, created_by}})
+    .then(plan => {
+        if (!plan) {
+            // user's remediation plan not found
+            return res.status(404).end();
+        }
+
+        // remove the specified issues.  This will cascade delete any issue_systems as well.
+        return db.issue.destroy({where: {issue_id: issue_ids, remediation_id}})
+        .then(count => {
+            return res.status(200).json({deleted_count: count});
+        });
+    });
+
+    return removal_promise;
 });
 
 exports.removeIssueSystem = errors.async(function (req, res) {

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`remediations remove bulk delete empty list 1`] = `
+exports[`remediations delete bulk plan empty list 1`] = `
 {
   "errors": [
     {
@@ -13,7 +13,7 @@ exports[`remediations remove bulk delete empty list 1`] = `
 }
 `;
 
-exports[`remediations remove bulk delete missing body 1`] = `
+exports[`remediations delete bulk plan missing body 1`] = `
 {
   "errors": [
     {
@@ -26,7 +26,7 @@ exports[`remediations remove bulk delete missing body 1`] = `
 }
 `;
 
-exports[`remediations remove bulk delete too many IDs 1`] = `
+exports[`remediations delete bulk plan too many IDs 1`] = `
 {
   "errors": [
     {
