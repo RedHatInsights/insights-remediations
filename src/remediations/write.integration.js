@@ -14,6 +14,42 @@ function testIssue (remediation, id, resolution, systems) {
     issue.systems.map(system => system.id).should.containDeep(systems);
 }
 
+function deletePlanByName (plan_name, owner = auth.testWrite) {
+    // Find plan by name
+    const delete_request =  request.get(`/v1/remediations?filter=${plan_name}`)
+    .set(owner)
+    .then(async result => {
+        const id = _.get(result, 'body.data[0].id');
+
+        // delete existing plan
+        if (id) {
+            return await request.delete(`/v1/remediations/${id}`).set(owner);
+        }
+
+        return result;
+    });
+
+    return delete_request;
+}
+async function createPlan (plan_name, issues, systems, owner = auth.testWrite) {
+    const r1 = await request
+        .post('/v1/remediations')
+        .set(owner)
+        .send({
+            name: plan_name,
+            add: {
+                issues,
+                systems
+            }
+        })
+        .expect(201);
+
+    r1.body.should.have.size(1);
+    r1.body.should.have.property('id');
+
+    return r1.body.id;
+}
+
 describe('remediations', function () {
     describe('create', function () {
         test('creates a new remediation', async () => {
@@ -1030,54 +1066,34 @@ describe('remediations', function () {
             body.issues.should.have.length(1);
         });
 
-        describe('bulk issue delete', () => {
-            test('bulk delete issues', async () => {
-                const name = 'bulk issue delete test';
+        describe('bulk issues', () => {
 
-                // Clean up any existing plan
-                await request.get(`/v1/remediations?filter=${name}`)
-                .set(auth.testWrite)
-                .then(result => {
-                    const id = _.get(result, 'body.data[0].id');
+            const name = 'bulk issue delete test';
+            const issues = [
+                {id: 'advisor:bond_config_issue|NO_QUOTES'},
+                {id: 'advisor:bond_config_issue|EXTRA_WHITESPACE'},
+                {id: 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074', resolution: 'selinux_mitigate'},
+                {id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'}
+            ];
+            const systems = [
+                '56db4b54-6273-48dc-b0be-41eb4dc87c7f',
+                'f5ce853a-c922-46f7-bd82-50286b7d8459',
+                '2e9c9324-d42f-461f-b35f-706e667e713a',
+                '7f3d9680-c7dc-4c63-911b-c7037c19214c',
+                'b72c7d02-7a97-4189-9a63-2c45232b8f7a',
+                '82d28ead-411f-4561-b934-906f1eebba1b'
+            ];
 
-                    if (id) {
-                        // delete existing plan
-                        return request.delete(`/v1/remediations/${id}`).set(auth.testWrite);
-                    }
-
-                    return result;
-                });
+            test('succeeds', async () => {
+                // remove any existing plan
+                await deletePlanByName(name, auth.testWrite);
 
                 // Create remediation plan with 4 issues x 6 systems
-                const r1 = await request
-                .post('/v1/remediations')
-                .set(auth.testWrite)
-                .send({
-                    name,
-                    add: {
-                        issues: [
-                            {id: 'advisor:bond_config_issue|NO_QUOTES'},
-                            {id: 'advisor:bond_config_issue|EXTRA_WHITESPACE'},
-                            {id: 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074', resolution: 'selinux_mitigate'},
-                            {id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'}],
-                        systems: [
-                            '56db4b54-6273-48dc-b0be-41eb4dc87c7f',
-                            'f5ce853a-c922-46f7-bd82-50286b7d8459',
-                            '2e9c9324-d42f-461f-b35f-706e667e713a',
-                            '7f3d9680-c7dc-4c63-911b-c7037c19214c',
-                            'b72c7d02-7a97-4189-9a63-2c45232b8f7a',
-                            '82d28ead-411f-4561-b934-906f1eebba1b'
-                        ]
-                    }
-                })
-                .expect(201);
-
-                r1.body.should.have.size(1);
-                r1.body.should.have.property('id');
+                const plan_id = await createPlan(name, issues, systems);
 
                 // bulk delete 3 issues
                 const r2 = await request
-                .delete(`/v1/remediations/${r1.body.id}/issues`)
+                .delete(`/v1/remediations/${plan_id}/issues`)
                 .set(auth.testWrite)
                 .send({
                     issue_ids: [
@@ -1093,14 +1109,180 @@ describe('remediations', function () {
                 r2.body.deleted_count.should.equal(3);
             });
 
-            test('bulk delete returns 404 for missing plan', async () => {});
-            test('bulk delete returns 404 for wrong owner', async () => {});
-            test('bulk delete ignores unknown issues', async () => {});
-            test('bulk delete ignores repeated issues', async () => {});
-            test('bulk delete returns 400 for 0 issues', async () => {});
-            test('bulk delete returns 400 for more than 100 issues', async () => {});
-            test('bulk delete returns 400 for malformed issue', async () => {});
-            test('bulk delete returns 400 for malformed plan id', async () => {});
+            test('returns 404 for missing plan', async () => {
+                await request
+                .delete(`/v1/remediations/1e65b8e0-d7f3-442d-826e-45e0bf603687/issues`)
+                .set(auth.testWrite)
+                .send({
+                    issue_ids: ['advisor:bond_config_issue|EXTRA_WHITESPACE']
+                })
+                .expect(404);
+            });
+
+            test('returns 404 for wrong owner', async () => {
+                // remove any existing plan
+                await deletePlanByName(name, auth.testWrite);
+
+                // Create remediation plan with 4 issues x 6 systems
+                const plan_id = await createPlan(name, issues, systems, auth.testWrite);
+
+                // bulk delete 3 issues
+                await request
+                .delete(`/v1/remediations/${plan_id}/issues`)
+                .set(auth.testWrite2)
+                .send({
+                    issue_ids: [
+                        'advisor:bond_config_issue|EXTRA_WHITESPACE',
+                        'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+                        'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'
+                    ]
+                })
+                .expect(404);
+            });
+
+            test('ignores unknown issues', async () => {
+                // remove any existing plan
+                await deletePlanByName(name, auth.testWrite);
+
+                // Create remediation plan with 4 issues x 6 systems
+                const plan_id = await createPlan(name, issues, systems);
+
+                // bulk delete 3 issues
+                const r2 = await request
+                .delete(`/v1/remediations/${plan_id}/issues`)
+                .set(auth.testWrite)
+                .send({
+                    issue_ids: [
+                        'advisor:bond_config_issue|EXTRA_WHITESPACE',
+                        'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+                        'advisor:CVE_2025_1234_fictitious|FICTIONAL_CVE_2025_1234',
+                        'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'
+                    ]
+                })
+                .expect(200);
+
+                r2.body.should.have.size(1);
+                r2.body.should.have.property('deleted_count');
+                r2.body.deleted_count.should.equal(3);
+            });
+
+            test('ignores repeated issues', async () => {
+                // remove any existing plan
+                await deletePlanByName(name, auth.testWrite);
+
+                // Create remediation plan with 4 issues x 6 systems
+                const plan_id = await createPlan(name, issues, systems);
+
+                // bulk delete 3 issues
+                const r2 = await request
+                .delete(`/v1/remediations/${plan_id}/issues`)
+                .set(auth.testWrite)
+                .send({
+                    issue_ids: [
+                        'advisor:bond_config_issue|EXTRA_WHITESPACE',
+                        'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+                        'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
+                        'advisor:bond_config_issue|EXTRA_WHITESPACE',
+                        'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+                        'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'
+                    ]
+                })
+                .expect(200);
+
+                r2.body.should.have.size(1);
+                r2.body.should.have.property('deleted_count');
+                r2.body.deleted_count.should.equal(3);
+            });
+
+            test('returns 400 for 0 issues', async () => {
+                // remove any existing plan
+                await deletePlanByName(name, auth.testWrite);
+
+                // Create remediation plan with 4 issues x 6 systems
+                const plan_id = await createPlan(name, issues, systems);
+
+                // bulk delete 3 issues
+                await request
+                .delete(`/v1/remediations/${plan_id}/issues`)
+                .set(auth.testWrite)
+                .send({
+                    issue_ids: []
+                })
+                .expect(400);
+            });
+
+            test('succeeds for exactly 100 issues', async () => {
+                // remove any existing plan
+                await deletePlanByName(name, auth.testWrite);
+
+                // Create remediation plan with 4 issues x 6 systems
+                const plan_id = await createPlan(name, issues, systems);
+
+                // bulk delete 3 issues
+                await request
+                    .delete(`/v1/remediations/${plan_id}/issues`)
+                    .set(auth.testWrite)
+                    .send({
+                        issue_ids: Array(100).fill('advisor:bond_config_issue|EXTRA_WHITESPACE')
+                    })
+                    .expect(200);
+            });
+
+            test('returns 400 for more than 100 issues', async () => {
+                // remove any existing plan
+                await deletePlanByName(name, auth.testWrite);
+
+                // Create remediation plan with 4 issues x 6 systems
+                const plan_id = await createPlan(name, issues, systems);
+
+                // bulk delete 3 issues
+                await request
+                .delete(`/v1/remediations/${plan_id}/issues`)
+                .set(auth.testWrite)
+                .send({
+                    issue_ids: Array(101).fill('advisor:bond_config_issue|EXTRA_WHITESPACE')
+                })
+                .expect(400);
+            });
+
+            test('returns 400 for malformed issue', async () => {
+                // remove any existing plan
+                await deletePlanByName(name, auth.testWrite);
+
+                // Create remediation plan with 4 issues x 6 systems
+                const plan_id = await createPlan(name, issues, systems);
+
+                // bulk delete 3 issues
+                await request
+                .delete(`/v1/remediations/${plan_id}/issues`)
+                .set(auth.testWrite)
+                .send({
+                    issue_ids: [
+                        'advisor:bond_config_issue|EXTRA_WHITESPACE',
+                        'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+                        'advisor:CVE_2025_1234_fictitious|FICTIONAL_CVE_2025_1234',
+                        'malformed issue',
+                        'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'
+                    ]
+                })
+                .expect(400);
+            });
+
+            test('returns 400 for malformed plan id', async () => {
+                // bulk delete 3 issues
+                await request
+                .delete(`/v1/remediations/invalid_plan_id/issues`)
+                .set(auth.testWrite)
+                .send({
+                    issue_ids: [
+                        'advisor:bond_config_issue|EXTRA_WHITESPACE',
+                        'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074',
+                        'advisor:CVE_2025_1234_fictitious|FICTIONAL_CVE_2025_1234',
+                        'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'
+                    ]
+                })
+                .expect(400);
+            });
         });
 
         test('system', async () => {
