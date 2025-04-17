@@ -159,62 +159,6 @@ paths:
         404:
           $ref: '#/components/responses/NotFound'
 
-  /remediations/{id}/status:
-    get:
-      tags:
-        - remediations
-      summary: Get status of a remediation
-      description: |
-        Retrieves the resolution status for each issue in the specified remediation.
-        For each issue, the response includes the resolution state (true, false, or null) for every associated system.
-        Also includes a summary of the total number of issue-system pairs and how many have been resolved.
-
-        Each issue and system pair is represented by a boolean value:
-        - `true` indicates the issue has been successfully resolved on that system
-        - `false` indicates the issue is still unresolved on that system
-        - `null` means the resolution status could not be determined
-      operationId: getRemediationStatus
-      parameters:
-        - $ref: '#/components/parameters/RemediationId'
-      responses:
-        200:
-          description: Successful retrieval of remediation status
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: false
-                properties:
-                  summary:
-                    type: object
-                    description: Summary of resolved vs total issues
-                    additionalProperties: false
-                    properties:
-                      resolved:
-                        type: integer
-                        description: Number of resolved issues
-                      total:
-                        type: integer
-                        description: Total number of issues across all systems
-                    required: [resolved, total]
-                  data:
-                    type: object
-                    description: >
-                      A map of issue IDs to system resolution states.
-                      Each issue contains a map of system IDs to booleans:
-                      - true = resolved
-                      - false = not resolved
-                      - null = unknown
-                    example:
-                      "vulnerabilities:CVE-2017-17712":
-                        "host-1": true
-                        "host-2": null
-                      "advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE":
-                        "host-3": false
-                required: [summary, data]
-        404:
-          $ref: '#/components/responses/NotFound'
-
   /remediations/{id}/executable:
     get:
       tags:
