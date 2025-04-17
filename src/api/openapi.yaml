@@ -326,6 +326,22 @@ paths:
         404:
           $ref: '#/components/responses/NotFound'
 
+  /remediations/{id}/systems:
+    delete:
+      tags:
+        - remediations
+      summary: Bulk Remove Remediation Plan Systems
+      description: Removes the given list of systems from the specified remediation plan.  Request is rejected if 
+        indicated remediation plan is not found.  Duplicate or missing system IDs are ignored.
+      operationId: deleteRemediationSystems
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+      requestBody:
+        $ref: '#/components/requestBodies/SystemsList'
+      responses:
+        200:
+          $ref: '#/components/responses/MultipleDelete'
+
   /remediations/{id}/connection_status:
     get:
       tags:
@@ -896,24 +912,35 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/RemediationInput'
+
     IssuesList:
       required: true
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/IssuesList'
+
+    SystemsList:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SystemsList'
+
     RemediationsList:
       required: true
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/RemediationsList'
+
     PlaybookRunsInput:
       required: false
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/PlaybookRunsInput'
+
     PlaybookSystems:
       required: true
       description: Array of system inventory identifiers.
@@ -1191,6 +1218,23 @@ components:
           example:
             - advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
             - vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+
+    SystemsList:
+      type: object
+      additionalProperties: false
+      required:
+        - system_ids
+      properties:
+        system_ids:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/SystemId'
+          example:
+            - a8799a02-8be9-11e8-9eb6-529269fb1459
+            - e96a2346-8e37-441d-963a-c2eed3ee856a
+            - 301653a2-4b5f-411c-8cb5-a74a96e2f344
 
     RemediationIssueIn:
       type: object
