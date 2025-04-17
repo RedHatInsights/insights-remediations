@@ -15,7 +15,7 @@ function testIssue (remediation, id, resolution, systems) {
 }
 
 function deletePlanByName (plan_name, owner = auth.testWrite) {
-    // Find plan by name
+    // Find plan by nam
     const delete_request = request.get(`/v1/remediations?filter=${plan_name}`)
     .set(owner)
     .then(async result => {
