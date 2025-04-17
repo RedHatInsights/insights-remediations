@@ -1,6 +1,6 @@
 #----------------------- base -----------------------
 
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5-1739420147 AS base
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5-1742914212 AS base
 
 RUN microdnf module enable -y nodejs:20 && \
     microdnf install -y shadow-utils jq nodejs --nodocs && \
@@ -51,6 +51,7 @@ FROM base AS dist
 COPY --from=build $APP_ROOT/dist ./
 
 RUN npm ci --omit=dev && npm cache clean --force
+RUN npx clean-modules -y
 
 EXPOSE 9002
 ENV NODE_ENV=production
