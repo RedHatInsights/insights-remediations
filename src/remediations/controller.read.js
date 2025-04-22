@@ -271,23 +271,38 @@ function orderSystems (systems, column, asc = true) {
 }
 
 exports.get = errors.async(async function (req, res) {
+    // are we just summarizing?
+    const summarize = req.query['format'] == 'summary';
+
     let remediation = await queries.get(req.params.id, req.user.tenant_org_id, req.user.username);
 
     if (!remediation) {
         return notFound(res);
     }
 
-    await P.all([
-        resolveSystems(remediation),
-        resolveResolutions(remediation),
-        resolveIssues(remediation),
-        resolveUsers(req, remediation)
-    ]);
+    // look up user details
+    await resolveUsers(req, remediation);
 
-    // filter out issues with 0 systems or missing issue details
-    remediation.issues = remediation.issues.filter(issue => issue.systems.length && issue.details && issue.resolution);
+    if (summarize) {
+        remediation.issue_count = remediation.issues.length;
+        remediation.system_count = _(remediation.issues).flatMap('systems').map('system_id').uniq().value().length;
+        remediation.issues = undefined;
+        remediation.resolved_count = undefined;
+    }
 
-    remediation.needs_reboot = inferNeedsReboot(remediation);
+    else {
+        // fetch plan issue and system details
+        await P.all([
+            resolveSystems(remediation),
+            resolveResolutions(remediation),
+            resolveIssues(remediation),
+        ]);
+
+        // filter out issues with 0 systems or missing issue details
+        remediation.issues = remediation.issues.filter(issue => issue.systems.length && issue.details && issue.resolution);
+
+        remediation.needs_reboot = inferNeedsReboot(remediation);
+    }
 
     res.json(format.get(remediation));
 });

@@ -39,7 +39,7 @@ paths:
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/RemediationSystem'
         - $ref: '#/components/parameters/HideArchived'
-        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/RemediationFields'
       responses:
         200:
           description: OK
@@ -115,6 +115,7 @@ paths:
       operationId: getRemediation
       parameters:
         - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/RemediationFormat'
       responses:
         200:
           description: OK
@@ -821,7 +822,7 @@ components:
       schema:
         type: boolean
         default: false
-    Fields:
+    RemediationFields:
       in: query
       name: fields[data]
       description: |
@@ -836,6 +837,40 @@ components:
           enum:
             - name
             - playbook_runs
+    RemediationFormat:
+      in: query
+      name: format
+      description: |
+        Optional format for returned data.  `'summary'` format returns counts instead of issue and system details, e.g.:
+        ```
+        {
+          "id": "9197ba55-0abc-4028-9bbe-269e530f8bd5",
+          "name": "Fix Critical CVEs",
+          "archived": true,
+          "auto_reboot": true,
+          "created_at": "2018-12-05T08:19:36.641Z",
+          "created_by": {
+            "username": "jharting@redhat.com",
+            "first_name": "Jozef",
+            "last_name": "Hartinger"
+          },
+          "updated_at": "2018-12-05T08:19:36.641Z",
+          "updated_by": {
+            "username": "jharting@redhat.com",
+            "first_name": "Jozef",
+            "last_name": "Hartinger"
+          },
+          "issue_count": 5,
+          "system_count": 12
+        }
+        ```
+      required: false
+      schema:
+        type: string
+        default: detail
+        enum:
+          - detail
+          - summary
     SelectedHosts:
       in: query
       name: hosts
@@ -976,6 +1011,7 @@ components:
 
 
 
+
     RemediationId:
       type: string
       format: uuid
@@ -1068,6 +1104,13 @@ components:
       type: integer
       example: 27
 
+    IssueCount:
+      type: integer
+      example: 27
+
+    SystemCount:
+      type: integer
+      example: 78
 
     #
     # Input schemas
@@ -1631,7 +1674,7 @@ components:
     RemediationDetails:
       type: object
       additionalProperties: false
-      required: [id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at, resolved_count, issues, archived]
+      required: [id, name, auto_reboot, created_by, created_at, updated_by, updated_at, archived]
       properties:
         id:
           $ref: '#/components/schemas/RemediationId'
@@ -1653,6 +1696,10 @@ components:
           $ref: '#/components/schemas/DateTime'
         resolved_count:
           $ref: '#/components/schemas/ResolvedCount'
+        issue_count:
+          $ref: '#/components/schemas/IssueCount'
+        system_count:
+          $ref: '#/components/schemas/SystemCount'
         issues:
           type: array
           items:
