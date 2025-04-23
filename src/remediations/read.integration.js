@@ -332,6 +332,20 @@ describe('remediations', function () {
             expect(text).toMatchSnapshot();
         });
 
+        test('summary format', async () => {
+            const {body} = await request
+            .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02?format=summary')
+            .expect(200);
+
+            expect(body).not.toHaveProperty('needs_reboot');
+            expect(body).not.toHaveProperty('issues');
+            expect(body).not.toHaveProperty('resolved_count');
+            expect(body).toHaveProperty('issue_count');
+            expect(body).toHaveProperty('system_count');
+
+            expect(body).toMatchSnapshot();
+        });
+
         test('get remediation with test namespace resolutions', async () => {
             const {body, text} = await request
             .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4?pretty')

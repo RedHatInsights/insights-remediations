@@ -98,19 +98,30 @@ exports.list = function (remediations, total, limit, offset, sort, system) {
     };
 };
 
-exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at, issues, resolved_count, archived}) {
-    return {
+exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at,
+                            issues, resolved_count, issue_count, system_count, archived}) {
+    const formatted =  {
         id,
         name,
-        needs_reboot,
         auto_reboot,
         archived,
         created_by: _.pick(created_by, USER),
         created_at: created_at.toISOString(),
         updated_by: _.pick(updated_by, USER),
-        updated_at: updated_at.toISOString(),
-        resolved_count: (resolved_count === null) ? 0 : resolved_count,
-        issues: _.map(issues, ({issue_id, resolution, details, systems, resolutionsAvailable }) => ({
+        updated_at: updated_at.toISOString()
+    };
+
+    // handle format='detail' items
+    if (typeof needs_reboot !== 'undefined') {
+        formatted.needs_reboot = needs_reboot;
+    }
+
+    if (typeof resolved_count !== 'undefined') {
+        formatted.resolved_count = (resolved_count === null) ? 0 : resolved_count;
+    }
+
+    if (typeof issues !== 'undefined') {
+        formatted.issues = _.map(issues, ({issue_id, resolution, details, systems, resolutionsAvailable }) => ({
             id: issue_id,
             description: details.description,
             resolution: {
@@ -126,8 +137,19 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
                 display_name,
                 resolved
             }))
-        }))
-    };
+        }));
+    }
+
+    // handle format='summary' items
+    if (typeof issue_count !== 'undefined') {
+        formatted.issue_count = issue_count;
+    }
+
+    if (typeof system_count !== 'undefined') {
+        formatted.system_count = system_count;
+    }
+
+    return formatted;
 };
 
 exports.created = function ({id}) {
