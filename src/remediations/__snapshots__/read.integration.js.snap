@@ -290,7 +290,6 @@ exports[`remediations get get remediation 1`] = `
 "{
     "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
     "name": "Test1",
-    "needs_reboot": true,
     "auto_reboot": true,
     "archived": true,
     "created_by": {
@@ -305,6 +304,7 @@ exports[`remediations get get remediation 1`] = `
         "last_name": "user"
     },
     "updated_at": "2018-10-04T08:19:36.641Z",
+    "needs_reboot": true,
     "resolved_count": 2,
     "issues": [
         {
@@ -435,7 +435,6 @@ exports[`remediations get get remediation with many systems 1`] = `
 "{
     "id": "c3f9f751-4bcc-4222-9b83-77f5e6e603da",
     "name": "many systems",
-    "needs_reboot": true,
     "auto_reboot": true,
     "archived": false,
     "created_by": {
@@ -450,6 +449,7 @@ exports[`remediations get get remediation with many systems 1`] = `
         "last_name": "user"
     },
     "updated_at": "2018-11-04T04:19:36.641Z",
+    "needs_reboot": true,
     "resolved_count": 0,
     "issues": [
         {
@@ -1973,7 +1973,6 @@ exports[`remediations get get remediation with test namespace resolutions 1`] = 
 "{
     "id": "5e6d136e-ea32-46e4-a350-325ef41790f4",
     "name": "test namespace",
-    "needs_reboot": true,
     "auto_reboot": false,
     "archived": false,
     "created_by": {
@@ -1988,6 +1987,7 @@ exports[`remediations get get remediation with test namespace resolutions 1`] = 
         "last_name": "user"
     },
     "updated_at": "2018-11-04T03:19:36.641Z",
+    "needs_reboot": true,
     "resolved_count": 0,
     "issues": [
         {
@@ -2036,6 +2036,29 @@ exports[`remediations get get remediation with test namespace resolutions 1`] = 
         }
     ]
 }"
+`;
+
+exports[`remediations get summary format 1`] = `
+{
+  "archived": true,
+  "auto_reboot": true,
+  "created_at": "2018-10-04T08:19:36.641Z",
+  "created_by": {
+    "first_name": "test",
+    "last_name": "user",
+    "username": "tuser@redhat.com",
+  },
+  "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
+  "issue_count": 6,
+  "name": "Test1",
+  "system_count": 2,
+  "updated_at": "2018-10-04T08:19:36.641Z",
+  "updated_by": {
+    "first_name": "test",
+    "last_name": "user",
+    "username": "tuser@redhat.com",
+  },
+}
 `;
 
 exports[`remediations list filter basic filter 1`] = `
@@ -2374,6 +2397,22 @@ exports[`remediations list filter filter matches on number 1`] = `
     ]
 }"
 `;
+
+exports[`remediations list filter test new style filters supported options created_after=date/time query no match 1`] = `"{"meta":{"count":0,"total":0},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[]}"`;
+
+exports[`remediations list filter test new style filters supported options created_after=date/time query with match 1`] = `"{"meta":{"count":2,"total":2},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"256ab1d3-58cf-1292-35e6-1a49c8b122d3","name":"Remediation with zero issues","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-06T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-06T08:19:36.641Z","needs_reboot":false,"system_count":0,"issue_count":0,"resolved_count":0,"archived":false},{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true}]}"`;
+
+exports[`remediations list filter test new style filters supported options name and created_after query no match 1`] = `"{"meta":{"count":0,"total":0},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[]}"`;
+
+exports[`remediations list filter test new style filters supported options name and created_after query with match 1`] = `"{"meta":{"count":1,"total":1},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true}]}"`;
+
+exports[`remediations list filter test new style filters supported options name query no match 1`] = `"{"meta":{"count":0,"total":0},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[]}"`;
+
+exports[`remediations list filter test new style filters supported options name query with match 1`] = `"{"meta":{"count":1,"total":1},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true}]}"`;
+
+exports[`remediations list filter test new style filters supported options updated_after=date/time query no match 1`] = `"{"meta":{"count":0,"total":0},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[]}"`;
+
+exports[`remediations list filter test new style filters supported options updated_after=date/time query with match 1`] = `"{"meta":{"count":2,"total":2},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"256ab1d3-58cf-1292-35e6-1a49c8b122d3","name":"Remediation with zero issues","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-06T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-06T08:19:36.641Z","needs_reboot":false,"system_count":0,"issue_count":0,"resolved_count":0,"archived":false},{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true}]}"`;
 
 exports[`remediations list hide archived hide_archived 1`] = `"{"meta":{"count":3,"total":3},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"256ab1d3-58cf-1292-35e6-1a49c8b122d3","name":"Remediation with zero issues","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-06T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-06T08:19:36.641Z","needs_reboot":false,"system_count":0,"issue_count":0,"resolved_count":0,"archived":false},{"id":"e809526c-56f5-4cd8-a809-93328436ea23","name":"Test3","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-04T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-04T08:19:36.641Z","needs_reboot":false,"system_count":2,"issue_count":1,"resolved_count":1,"archived":false},{"id":"cbc782e4-e8ae-4807-82ab-505387981d2e","name":"Test2","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-11-04T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-11-04T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":2,"resolved_count":0,"archived":false}]}"`;
 

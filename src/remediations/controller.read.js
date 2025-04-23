@@ -103,14 +103,21 @@ function inferNeedsReboot (remediation) {
 exports.list = errors.async(async function (req, res) {
     trace.enter('controller.read.list');
 
-    if (_.get(req, 'query.fields.data', []).includes('name') && Array.isArray(_.get(req, 'query.fields.data', []))) {
-        throw new errors.BadRequest('INVALID_REQUEST', `'name' cannot be combined with other fields.`);
-    }
-
     trace.event('Get sort and query parms from url');
     const {column, asc} = format.parseSort(req.query.sort);
     const {offset, hide_archived} = req.query;
     var limit = req.query.limit;
+    var filter = req.query.filter;
+
+    // filter looks like either '?filter=<name>' or 'filter[<item>]=<value>'.  Convert first style to an object...
+    if (_.isString(filter)) {
+        filter = {name: filter};
+    }
+
+    // ?fields[data]=name cannot be combined with other data fields...
+    if (_.get(req, 'query.fields.data', []).includes('name') && Array.isArray(_.get(req, 'query.fields.data', []))) {
+        throw new errors.BadRequest('INVALID_REQUEST', `'name' cannot be combined with other fields.`);
+    }
 
     // Check for name in fields query param:
     // fields[data]=name
@@ -140,7 +147,7 @@ exports.list = errors.async(async function (req, res) {
         req.query.system,
         column,
         asc,
-        req.query.filter,
+        filter,
         hide_archived,
         limit,
         offset);
@@ -264,23 +271,38 @@ function orderSystems (systems, column, asc = true) {
 }
 
 exports.get = errors.async(async function (req, res) {
+    // are we just summarizing?
+    const summarize = req.query['format'] == 'summary';
+
     let remediation = await queries.get(req.params.id, req.user.tenant_org_id, req.user.username);
 
     if (!remediation) {
         return notFound(res);
     }
 
-    await P.all([
-        resolveSystems(remediation),
-        resolveResolutions(remediation),
-        resolveIssues(remediation),
-        resolveUsers(req, remediation)
-    ]);
+    // look up user details
+    await resolveUsers(req, remediation);
 
-    // filter out issues with 0 systems or missing issue details
-    remediation.issues = remediation.issues.filter(issue => issue.systems.length && issue.details && issue.resolution);
+    if (summarize) {
+        remediation.issue_count = remediation.issues.length;
+        remediation.system_count = _(remediation.issues).flatMap('systems').map('system_id').uniq().value().length;
+        remediation.issues = undefined;
+        remediation.resolved_count = undefined;
+    }
 
-    remediation.needs_reboot = inferNeedsReboot(remediation);
+    else {
+        // fetch plan issue and system details
+        await P.all([
+            resolveSystems(remediation),
+            resolveResolutions(remediation),
+            resolveIssues(remediation),
+        ]);
+
+        // filter out issues with 0 systems or missing issue details
+        remediation.issues = remediation.issues.filter(issue => issue.systems.length && issue.details && issue.resolution);
+
+        remediation.needs_reboot = inferNeedsReboot(remediation);
+    }
 
     res.json(format.get(remediation));
 });

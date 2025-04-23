@@ -267,6 +267,30 @@ function findAndDestroy (req, entity, query, res) {
     });
 }
 
+function findAllAndDestroy (req, entity, query, res) {
+    return db.s.transaction(async transaction => {
+        const result = await entity.findAll(query, {transaction})
+            .catch(e => {
+                console.log(e);
+            });
+
+        if (result) {
+            // delete each model object in the result array
+            await P.map(result, (system) => {
+                system.destroy({transaction});
+            });
+
+            if (entity !== db.remediation) {
+                await remediationUpdated(req, transaction);
+            }
+
+            return result.length;
+        }
+
+        return 0;
+    })
+}
+
 exports.remove = errors.async(function (req, res) {
     const id = req.params.id;
     const {tenant_org_id, username: created_by} = req.user;
@@ -287,11 +311,43 @@ exports.bulkRemove = errors.async((req, res) => {
 
     .then(result => {
         return res.status(200).json({deleted_count: result});
-    })
+    });
 });
 
 exports.removeIssue = errors.async(function (req, res) {
     return findAndDestroy(req, db.issue, findIssueQuery(req), res);
+});
+
+// Remove all issues from specified remediation plan
+//
+// DELETE request body:
+// {
+//   "issue_ids": [
+//     "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+//     "vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074"
+//   ]
+// }
+exports.bulkRemoveIssues = errors.async(async function (req, res) {
+    const issue_ids = req.body.issue_ids;
+    const remediation_id = req.params.id;
+    const {tenant_org_id, username: created_by} = req.user;
+
+    // validate <user,tenant_org_id> owns remediation plan
+    const removal_promise = db.remediation.findOne({where: {id: remediation_id, tenant_org_id, created_by}})
+    .then(plan => {
+        if (!plan) {
+            // user's remediation plan not found
+            return res.status(404).end();
+        }
+
+        // remove the specified issues.  This will cascade delete any issue_systems as well.
+        return db.issue.destroy({where: {issue_id: issue_ids, remediation_id}})
+        .then(count => {
+            return res.status(200).json({deleted_count: count});
+        });
+    });
+
+    return removal_promise;
 });
 
 exports.removeIssueSystem = errors.async(function (req, res) {
@@ -319,4 +375,48 @@ exports.removeIssueSystem = errors.async(function (req, res) {
             }
         }
     }, res);
+});
+
+// Remove list of systems from remediation plan
+//
+// DELETE request body:
+// {
+//   "system_ids": [
+//     "a8799a02-8be9-11e8-9eb6-529269fb1459",
+//     "e96a2346-8e37-441d-963a-c2eed3ee856a",
+//     "301653a2-4b5f-411c-8cb5-a74a96e2f344"
+//   ]
+// }
+exports.bulkRemoveSystems = errors.async(async function (req, res) {
+    const system_ids = req.body.system_ids;
+    const remediation_id = req.params.id;
+    const {tenant_org_id, username: created_by} = req.user;
+
+    // validate <user,tenant_org_id> owns remediation plan
+    const removal_promise = db.remediation.findOne({where: {id: remediation_id, tenant_org_id, created_by}})
+        .then(async plan => {
+            if (!plan) {
+                // user's remediation plan not found
+                return res.status(404).end();
+            }
+
+            const query = {
+                where: {system_id: system_ids},
+                include: {
+                    model: db.issue,
+                    required: true,
+                    include: {
+                        model: db.remediation,
+                        required: true,
+                        where: {id: remediation_id, tenant_org_id, created_by}
+                    }
+                }
+            };
+
+            const count = await findAllAndDestroy(req, db.issue_system, query, res);
+
+            return res.status(200).json({deleted_count: count});
+        });
+
+    return removal_promise;
 });

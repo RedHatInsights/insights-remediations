@@ -39,7 +39,7 @@ paths:
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/RemediationSystem'
         - $ref: '#/components/parameters/HideArchived'
-        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/RemediationFields'
       responses:
         200:
           description: OK
@@ -115,6 +115,7 @@ paths:
       operationId: getRemediation
       parameters:
         - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/RemediationFormat'
       responses:
         200:
           description: OK
@@ -225,6 +226,23 @@ paths:
         404:
           $ref: '#/components/responses/NotFound'
 
+  /remediations/{id}/issues:
+    delete:
+      tags:
+        - remediations
+      summary: Bulk Remove Remediation Plan Issues
+      description: Removes the given list of issues from the specified remediation plan.  Requests
+        containing missing remediation plan ID are rejected.  Duplicate or missing
+        issue IDs are ignored.
+      operationId: deleteRemediationIssues
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+      requestBody:
+        $ref: '#/components/requestBodies/IssuesList'
+      responses:
+        200:
+          $ref: '#/components/responses/MultipleDelete'
+
   /remediations/{id}/issues/{issue}:
     patch:
       tags:
@@ -251,7 +269,7 @@ paths:
     delete:
       tags:
         - remediations
-      summary: Remove Remediation Issue
+      summary: Remove Remediation Plan Issue
       description: Removes the given Issue from the Remediation, RBAC permission {remediations:remediation:write}
       operationId: deleteRemediationIssue
       parameters:
@@ -308,6 +326,22 @@ paths:
           $ref: '#/components/responses/BadRequest'
         404:
           $ref: '#/components/responses/NotFound'
+
+  /remediations/{id}/systems:
+    delete:
+      tags:
+        - remediations
+      summary: Bulk Remove Remediation Plan Systems
+      description: Removes the given list of systems from the specified remediation plan.  Request is rejected if 
+        indicated remediation plan is not found.  Duplicate or missing system IDs are ignored.
+      operationId: deleteRemediationSystems
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+      requestBody:
+        $ref: '#/components/requestBodies/SystemsList'
+      responses:
+        200:
+          $ref: '#/components/responses/MultipleDelete'
 
   /remediations/{id}/connection_status:
     get:
@@ -545,7 +579,7 @@ paths:
         400:
           $ref: '#/components/responses/BadRequest'
 
-  /diagnosis/{system insights_id}:
+  /diagnosis/{system}:
     get:
       tags:
         - diagnosis
@@ -714,6 +748,7 @@ components:
             description: (legacy) Filter by plan name (allows partial match)
           - type: object
             additionalProperties: false
+            x-remediations-strict: false  # suppress validation since none of the properties is required
             properties:
               name:
                 type: string
@@ -787,7 +822,7 @@ components:
       schema:
         type: boolean
         default: false
-    Fields:
+    RemediationFields:
       in: query
       name: fields[data]
       description: |
@@ -802,6 +837,40 @@ components:
           enum:
             - name
             - playbook_runs
+    RemediationFormat:
+      in: query
+      name: format
+      description: |
+        Optional format for returned data.  `'summary'` format returns counts instead of issue and system details, e.g.:
+        ```
+        {
+          "id": "9197ba55-0abc-4028-9bbe-269e530f8bd5",
+          "name": "Fix Critical CVEs",
+          "archived": true,
+          "auto_reboot": true,
+          "created_at": "2018-12-05T08:19:36.641Z",
+          "created_by": {
+            "username": "jharting@redhat.com",
+            "first_name": "Jozef",
+            "last_name": "Hartinger"
+          },
+          "updated_at": "2018-12-05T08:19:36.641Z",
+          "updated_by": {
+            "username": "jharting@redhat.com",
+            "first_name": "Jozef",
+            "last_name": "Hartinger"
+          },
+          "issue_count": 5,
+          "system_count": 12
+        }
+        ```
+      required: false
+      schema:
+        type: string
+        default: detail
+        enum:
+          - detail
+          - summary
     SelectedHosts:
       in: query
       name: hosts
@@ -871,7 +940,6 @@ components:
         enum: [system_name, -system_name]
         default: system_name
 
-
   requestBodies:
     RemediationInput:
       required: true
@@ -879,18 +947,35 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/RemediationInput'
+
+    IssuesList:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/IssuesList'
+
+    SystemsList:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SystemsList'
+
     RemediationsList:
       required: true
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/RemediationsList'
+
     PlaybookRunsInput:
       required: false
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/PlaybookRunsInput'
+
     PlaybookSystems:
       required: true
       description: Array of system inventory identifiers.
@@ -923,6 +1008,8 @@ components:
       description: >
         Indicates whether systems that require reboot for the remediation to be properly applied should be
         rebooted automatically or not
+
+
 
 
     RemediationId:
@@ -1017,6 +1104,13 @@ components:
       type: integer
       example: 27
 
+    IssueCount:
+      type: integer
+      example: 27
+
+    SystemCount:
+      type: integer
+      example: 78
 
     #
     # Input schemas
@@ -1151,6 +1245,39 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/SystemId'
+
+    IssuesList:
+      type: object
+      additionalProperties: false
+      required:
+        - issue_ids
+      properties:
+        issue_ids:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/IssueId'
+          example:
+            - advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+            - vulnerabilities:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+
+    SystemsList:
+      type: object
+      additionalProperties: false
+      required:
+        - system_ids
+      properties:
+        system_ids:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/SystemId'
+          example:
+            - a8799a02-8be9-11e8-9eb6-529269fb1459
+            - e96a2346-8e37-441d-963a-c2eed3ee856a
+            - 301653a2-4b5f-411c-8cb5-a74a96e2f344
 
     RemediationIssueIn:
       type: object
@@ -1547,7 +1674,7 @@ components:
     RemediationDetails:
       type: object
       additionalProperties: false
-      required: [id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at, resolved_count, issues, archived]
+      required: [id, name, auto_reboot, created_by, created_at, updated_by, updated_at, archived]
       properties:
         id:
           $ref: '#/components/schemas/RemediationId'
@@ -1569,6 +1696,10 @@ components:
           $ref: '#/components/schemas/DateTime'
         resolved_count:
           $ref: '#/components/schemas/ResolvedCount'
+        issue_count:
+          $ref: '#/components/schemas/IssueCount'
+        system_count:
+          $ref: '#/components/schemas/SystemCount'
         issues:
           type: array
           items:
@@ -1828,6 +1959,8 @@ components:
               dmesg_wrapped: false
 
   responses:
+    BulkDeleted:
+      description: Entities were deleted
     Deleted:
       description: Entity was deleted
     NotFound:

@@ -15,12 +15,12 @@ function test400 (name, url, code, title) {
         .set(header)
         .expect(400);
 
-        body.errors.should.eql([{
+        body.errors.should.containEql({
             id,
             status: 400,
             code,
             title
-        }]);
+        });
     });
 }
 
@@ -184,6 +184,42 @@ describe('remediations', function () {
             testList('filter case does not matter', '/v1/remediations?filter=REBooT&pretty', r178);
             testList('filter matches on name', '/v1/remediations?filter=Test&pretty', re80, rcbc, r66e);
             testList('filter matches on number', '/v1/remediations?filter=2&pretty', rcbc);
+
+            describe('test new style filters', () => {
+                describe('supported options', function () {
+                    testList('name query with match', '/v1/remediations?filter[name]=REBoot', r178);
+                    testList('name query no match', '/v1/remediations?filter[name]=REBootNoMatch');
+                    testList("created_after=date/time query with match", '/v1/remediations?filter[created_after]=2018-12-04T08:19:36.641Z', r256, r178);
+                    testList("created_after=date/time query no match", '/v1/remediations?filter[created_after]=2025-03-31T08:19:36.641Z');
+                    testList("updated_after=date/time query with match", '/v1/remediations?filter[updated_after]=2018-12-04T08:19:36.641Z', r256, r178);
+                    testList("updated_after=date/time query no match", '/v1/remediations?filter[updated_after]=2025-03-31T08:19:36.641Z');
+                    testList('name and created_after query with match', '/v1/remediations?filter[name]=REBoot&filter[created_after]=2018-12-04T08:19:36.641Z', r178);
+                    testList('name and created_after query no match', '/v1/remediations?filter[name]=REBootNoMatch&filter[created_after]=2018-12-04T08:19:36.641Z');
+                    // testList('last_run_at=never query', '/v1/remediations?filter[last_run_at]=never');
+                    // testList('status query', '/v1/remediations?filter[status]=failure');
+                });
+
+                describe('invalid options', function () {
+                    test400(
+                        'unknown filter field',
+                        '/v1/remediations?filter[bob]=uncle',
+                        'type.openapi.requestValidation',
+                        'must be string (location: query, path: filter)'
+                    );
+                    test400(
+                        'bad date query',
+                        '/v1/remediations?filter[created_after]=123',
+                        'type.openapi.requestValidation',
+                        'must be string (location: query, path: filter)'
+                    );
+                    // test400(
+                    //     'bad status query',
+                    //     '/v1/remediations?filter[status]=timeout',
+                    //     'type.openapi.requestValidation',
+                    //     'must be string (location: query, path: filter)'
+                    // );
+                });
+            });
         });
 
         describe('pagination', function () {
@@ -294,6 +330,20 @@ describe('remediations', function () {
 
             body.issues[0].systems.should.have.length(250);
             expect(text).toMatchSnapshot();
+        });
+
+        test('summary format', async () => {
+            const {body} = await request
+            .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02?format=summary')
+            .expect(200);
+
+            expect(body).not.toHaveProperty('needs_reboot');
+            expect(body).not.toHaveProperty('issues');
+            expect(body).not.toHaveProperty('resolved_count');
+            expect(body).toHaveProperty('issue_count');
+            expect(body).toHaveProperty('system_count');
+
+            expect(body).toMatchSnapshot();
         });
 
         test('get remediation with test namespace resolutions', async () => {

@@ -27,7 +27,10 @@ module.exports = function (router) {
         .delete(openapi('deleteRemediation'), rbacWrite, write.remove);
 
     router.route('/remediations/:id/status')
-        .get(trace, rbacRead, status.status); // TODO: openapi mw
+        .get(trace, rbacRead, status.status);
+
+    router.route('/remediations/:id/issues')
+        .delete(openapi('deleteRemediationIssues'), rbacWrite, write.bulkRemoveIssues);
 
     router.route('/remediations/:id/issues/:issue')
         .patch(openapi('updateRemediationIssue'), rbacWrite, write.patchIssue)
@@ -38,6 +41,9 @@ module.exports = function (router) {
 
     router.route('/remediations/:id/issues/:issue/systems/:system')
         .delete(openapi('deleteRemediationIssueSystem'), rbacWrite, write.removeIssueSystem);
+
+    router.route('/remediations/:id/systems')
+        .delete(openapi('deleteRemediationSystems'), rbacWrite, write.bulkRemoveSystems);
 
     router.route('/remediations/:id/executable')
         .get(openapi('checkExecutable'), rbacRead, fifi.checkExecutable);
