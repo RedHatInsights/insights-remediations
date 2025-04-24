@@ -180,11 +180,11 @@ describe('resolve ssg resolutions', function () {
 
     test('resolution info (3)', async () => {
         const {body} = await request
-            .get('/v1/resolutions/ssg:xccdf_org.ssgproject.content_benchmark_RHEL-8|0.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink')
+            .get('/v1/resolutions/ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink')
             .expect(200);
 
         body.should.eql({
-            id: 'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-8|0.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
+            id: 'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
             resolution_risk: -1,
             resolutions: [{
                 description: 'Disable Prelinking',
