@@ -37,8 +37,6 @@ module.exports = new class extends Connector {
                 return read('ospp', 'mount_option_dev_shm_nodev');
             case 'rhel7|C2S|disable_host_auth':
                 return read('C2S', 'disable_host_auth');
-            case 'xccdf_org.ssgproject.content_benchmark_RHEL-8|pci-dss|disable_prelink':
-                return read('pci-dss', 'disable_prelink');
             default: return null;
         }
     }

@@ -14,7 +14,7 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    async getRule(id, platform = null, ssgVersion = null, refresh = false, retries = 2) {
+    async getRule(id, ssgRefId = null, ssgVersion = null, refresh = false, retries = 2) {
         id = id.replace(/\./g, '-'); // compliance API limitation
 
         for (let i = 0; i <= retries; i++) {
@@ -29,7 +29,7 @@ module.exports = new class extends Connector {
                 */
                 if (ssgVersion) {
                     // Build URI that will fetch the rule using Compliance API v2
-                    uri = await this.buildV2Uri(id, platform, ssgVersion, refresh, retries);
+                    uri = await this.buildV2Uri(id, ssgRefId, ssgVersion, refresh, retries);
                 } else {
                     // Build URI that will fetch the rule using Compliance API v1
                     uri = this.buildUri(host, 'compliance', 'rules', id);
@@ -55,8 +55,8 @@ module.exports = new class extends Connector {
         }
     }
 
-    async buildV2Uri(id, platform, ssgVersion, refresh, retries) {
-      const ssgUri = this.buildUri(host, 'compliance', 'v2', `securityGuides?filter=ref_id=${platform}+AND+version=${ssgVersion}`);
+    async buildV2Uri(id, ssgRefId, ssgVersion, refresh, retries) {
+      const ssgUri = this.buildUri(host, 'compliance', 'v2', `securityGuides?filter=ref_id=${ssgRefId}+AND+version=${ssgVersion}`);
       // Fetch info about the scap security guide(SSG) that the rule belongs to
       const ssgResult = await this.doHttp({
         uri: ssgUri.toString(),
