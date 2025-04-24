@@ -29,6 +29,12 @@ exports[`batch csaw id validation (full and rule) 1`] = `
 }
 `;
 
+exports[`batch ssg id validation () 1`] = `
+{
+  "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-8|0.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink": false,
+}
+`;
+
 exports[`batch template batch resource 1`] = `
 {
   "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074": {

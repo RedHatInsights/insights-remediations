@@ -53,9 +53,16 @@ test('parses a vulnerabilities (csaw) id', () => {
     parsed.should.have.property('full', 'vulnerabilities:CVE-2017-5715:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE');
 });
 
-test('parses a ssg id', () => {
+test('parses a ssg id(v1)', () => {
     const parsed = identifiers.parse('ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
     parsed.should.have.property('app', 'ssg');
     parsed.should.have.property('issue', 'rhel7|pci-dss|xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
     parsed.should.have.property('full', 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
+});
+
+test('parses a ssg id(v2)', () => {
+    const parsed = identifiers.parse('ssg:xccdf_org.ssgproject.content_benchmark_RHEL-8|0.0.1|cis_server_l1|xccdf_org.ssgproject.content_rule_selinux_policytype');
+    parsed.should.have.property('app', 'ssg');
+    parsed.should.have.property('issue', 'xccdf_org.ssgproject.content_benchmark_RHEL-8|0.0.1|cis_server_l1|xccdf_org.ssgproject.content_rule_selinux_policytype');
+    parsed.should.have.property('full', 'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-8|0.0.1|cis_server_l1|xccdf_org.ssgproject.content_rule_selinux_policytype');
 });

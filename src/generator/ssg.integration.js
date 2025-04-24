@@ -3,10 +3,25 @@
 
 const { request, reqId, normalizePlaybookVersionForSnapshot } = require('../test');
 
-test('generates a simple playbook with single compliance remediation', async () => {
+test('generates a simple playbook with single compliance remediation (Compliance API v1 issue id format)', async () => {
     const data = {
         issues: [{
             id: 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+        }]
+    };
+
+    const res = await request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200);
+    expect(normalizePlaybookVersionForSnapshot(res.text)).toMatchSnapshot();
+});
+
+test('generates a simple playbook with single compliance remediation (Compliance API v2 issue id format)', async () => {
+    const data = {
+        issues: [{
+            id: 'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };

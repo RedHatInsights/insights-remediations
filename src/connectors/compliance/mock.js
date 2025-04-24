@@ -178,7 +178,9 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    getRule (id) {
+    // Mock data doesn't contain platform or ssgVersion and there isn't value in adding it since we're just testing a mock of Compliance service
+    // But we want this mock function to accept the platform and ssgVersion anyway to align with the actual getRule() function
+    getRule (id, platform, ssgVersion) {
         return P.resolve(DATA[id]); // eslint-disable-line security/detect-object-injection
     }
 
