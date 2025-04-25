@@ -27,6 +27,9 @@ module.exports = class SSGResolver extends Resolver {
         const {platform, profile, rule} = identifiers.parseSSG(id);
         let raw = {};
 
+        log.debug(`Resolving SSG issue: ${id.issue}`);
+        log.debug(`Parsed ID -> platform: ${platform}, profile: ${profile}, rule: ${rule}`);
+
         // RHCLOUD-4280: disable rule "rsyslog_remote_loghost"
         if (id.issue.includes('rsyslog_remote_loghost')) {return [];}
 
@@ -42,6 +45,7 @@ module.exports = class SSGResolver extends Resolver {
         }
 
         if (!raw) {
+            log.warn(`No template found for SSG issue: ${id.issue}`);
             return [];
         }
 

@@ -229,6 +229,41 @@ describe('remediations', function () {
             remediation.system_count.should.equal(20000);
         });
 
+        test('creates a new remediation with Compliance issues', async () => {
+            const name = 'new remediation with Compliance issues';
+            const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f', 'f5ce853a-c922-46f7-bd82-50286b7d8459'];
+            const issueId = 'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink';
+
+            const r1 = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({
+                name,
+                add: {
+                    issues: [{ id: issueId }],
+                    systems
+                }
+            })
+            .expect(201);
+
+            r1.body.should.have.property('id');
+            const remediationId = r1.body.id;
+
+            const { body: remediation } = await request
+            .get(`/v1/remediations/${remediationId}`)
+            .set(auth.testWrite)
+            .expect(200);
+
+            remediation.should.have.property('id', remediationId);
+            remediation.should.have.property('issues').which.is.an.Array().and.has.length(1);
+
+            const issue = remediation.issues[0];
+            issue.should.have.property('id', issueId);
+            issue.should.have.property('resolution');
+            issue.systems.map(system => system.id).should.eql(systems);
+        });
+
+
         test('400s if unexpected property is provided', async () => {
             const {id, header} = reqId();
 
