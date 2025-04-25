@@ -72,7 +72,7 @@ module.exports = new class extends Connector {
 
       const ssgId = _.get(ssgResult, 'body.data[0].id');
       if(!ssgId){
-        log.warn(`No ssgId found: ${ssgId}`);
+        log.warn(`No ssgId found... ssgId: ${ssgId}, ssgRefId: ${ssgRefId}, ssgVersion: ${ssgVersion}, ssgResult: ${ssgResult}`);
       }
 
       return this.buildUri(host, 'compliance', 'v2', 'security_guides', ssgId, 'rules', id);
