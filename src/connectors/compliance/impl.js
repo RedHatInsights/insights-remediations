@@ -57,10 +57,8 @@ module.exports = new class extends Connector {
 
     async buildV2Uri(id, ssgRefId, ssgVersion, refresh, retries) {
       const ssgUri = this.buildUri(host, 'compliance', 'v2', 'security_guides');
-      const searchParams = new URLSearchParams();
 
-      searchParams.set('filter', `ref_id=${ssgRefId} AND version=${ssgVersion}`);
-      ssgUri.search = searchParams.toString();
+      ssgUri.addQuery('filter', `ref_id=${ssgRefId} AND version=${ssgVersion}`);
 
       // Fetch info about the scap security guide(SSG) that the rule belongs to
       const ssgResult = await this.doHttp({

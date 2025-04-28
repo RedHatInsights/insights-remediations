@@ -288,4 +288,50 @@ describe('compliance impl (v2)', function () {
         options.headers.should.have.property('x-rh-identity', 'identity');
     });
 
+    test('correctly builds the ssgUri with the filter in the buildV2Uri function', async function () {
+        const expectedUri = 'http://compliance-backend.compliance-ci.svc.cluster.local:3000/api/compliance/v2/security_guides?filter=ref_id%3Dxccdf_org.ssgproject.content_benchmark_RHEL-8+AND+version%3D0.0.0';
+        const http = base.getSandbox().stub(request, 'run').callsFake(params => {
+            params.uri.should.equal(expectedUri);
+            return Promise.resolves({
+                statusCode: 200,
+                body: {
+                    data: [
+                        {
+                            id: '34a6556f-579b-4f32-a78d-c0444519ecfe',
+                            type: 'security_guide',
+                            attributes: {
+                                title: 'RHEL 8 Security Guide',
+                                ref_id: 'xccdf_org.ssgproject.content_benchmark_RHEL-8',
+                                version: '0.1.45'
+                            }
+                        }
+                    ]
+                },
+                headers: {}
+            });
+        });
+
+        http.resolves({
+            statusCode: 200,
+            body: {
+                data: {
+                    id: 'e57953ac-4211-422d-bcaa-abebc42593f5',
+                    type: 'rule',
+                    attributes: {
+                        ref_id: 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login',
+                        title: 'Disable SSH Root Login',
+                        rationale: 'Even though the communications channel may be encrypted, an additional layer of security is gained by extending the policy of not logging directly on as root.',
+                        description: 'The root user should never be allowed to login to a system directly over a network.',
+                        severity: 'Medium',
+                        total_systems_count: 0,
+                        affected_systems_count: 4
+                    }
+                }
+            },
+            headers: {}
+        });
+
+        await impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0');
+        http.callCount.should.equal(2);
+    });
 });
