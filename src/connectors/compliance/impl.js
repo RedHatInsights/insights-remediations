@@ -75,7 +75,7 @@ module.exports = new class extends Connector {
         revalidationInterval
       }, this.metrics);
 
-      const ssgId = _.get(ssgResult, 'body.data[0].id');
+      const ssgId = _.get(ssgResult, 'data[0].id');
       if(!ssgId){
         log.warn(`No ssgId found... ssgId: ${ssgId}, ssgUri: ${ssgUri}, ssgResult: ${JSON.stringify(ssgResult, null, 2)}`);
       }
