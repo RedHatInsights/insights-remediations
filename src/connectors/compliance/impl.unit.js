@@ -289,7 +289,7 @@ describe('compliance impl (v2)', function () {
     });
 
     test('correctly builds the ssgUri with the filter in the buildV2Uri function', async function () {
-        const expectedUri = 'http://compliance-backend.compliance-ci.svc.cluster.local:3000/api/compliance/v2/security_guides?filter=ref_id%3Dxccdf_org.ssgproject.content_benchmark_RHEL-8+AND+version%3D0.0.0';
+        const expectedUri = 'http://compliance-backend.compliance-ci.svc.cluster.local:3000/api/compliance/v2/security_guides?filter=ref_id=xccdf_org.ssgproject.content_benchmark_RHEL-8+AND+version=0.0.0';
         const http = base.getSandbox().stub(request, 'run').callsFake(params => {
             params.uri.should.equal(expectedUri);
             return Promise.resolves({
