@@ -7,7 +7,7 @@ const JSZip = require('jszip');
 const errors = require('../errors');
 const log = require('../util/log');
 const trace = require('../util/trace');
-const issues = require('../issues');
+const Issues = require('../issues');
 const queries = require('./remediations.queries');
 const format = require('./remediations.format');
 const disambiguator = require('../resolutions/disambiguator');
@@ -34,7 +34,7 @@ const catchErrorCode = (code, fn) => e => {
 function resolveResolutions (...remediations) {
     return P.all(_(remediations).flatMap('issues').map(async issue => {
         const id = identifiers.parse(issue.issue_id);
-        const resolutions = await issues.getHandler(id).getResolutionResolver().resolveResolutions(id);
+        const resolutions = await Issues.getHandler(id).getResolutionResolver().resolveResolutions(id);
         const resolution = disambiguator.disambiguate(resolutions, issue.resolution, id, false, false);
 
         if (resolution) {
@@ -49,7 +49,7 @@ function resolveResolutions (...remediations) {
 function resolveResolutionsNeedReboot (...remediations) {
     return P.all(_(remediations).flatMap('issues').map(async issue => {
         const id = identifiers.parse(issue.issue_id);
-        const needsReboot = await issues.getHandler(id).getResolutionResolver().isRebootNeeded(id, issue.resolution);
+        const needsReboot = await Issues.getHandler(id).getResolutionResolver().isRebootNeeded(id, issue.resolution);
 
         if (needsReboot !== null) {
             issue.resolution = { needsReboot };
@@ -260,7 +260,7 @@ async function resolveSystems (remediation) {
 function resolveIssues (remediation) {
     return P.map(remediation.issues, async issue => {
         const id = identifiers.parse(issue.issue_id);
-        return issues.getIssueDetails(id)
+        return Issues.getIssueDetails(id)
         .then(result => issue.details = result)
         .catch(catchErrorCode('UNKNOWN_ISSUE', () => issue.details = false));
     });
@@ -476,6 +476,70 @@ exports.downloadPlaybooks = errors.async(async function (req, res) {
             }
         });
     }
+});
+
+exports.getIssues = errors.async(async function (req, res) {
+    const plan_id = req.params.id;
+    const {tenant_org_id, username} = req.user;
+    const {limit, offset, sort} = req.query;
+
+    // get plan from db
+    const remediation_plan = await queries.get(plan_id, tenant_org_id, username);
+
+    if (!remediation_plan) {
+        return notFound(res);
+    }
+
+    // sort issues
+    switch (sort) {
+        case '-id':
+            remediation_plan.issues.sort((a, b) => (a.issue_id < b.issue_id) ? 1 : -1);
+            break;
+
+        case 'id':
+        default:
+    }
+
+    // paginate issues
+    const issue_count = remediation_plan.issues.length;
+    const plan_issues = remediation_plan.issues.slice(offset, offset + limit);
+
+    // fetch information for selected issues
+    const promises = [];
+
+    plan_issues.map(issue => {
+        const id = identifiers.parse(issue.issue_id);
+
+        // fetch resolution
+        promises.push(
+            Issues.getHandler(id).getResolutionResolver().resolveResolutions(id)
+            .then(resolutions => {
+                const resolution = disambiguator.disambiguate(resolutions, issue.resolution, id, false, false);
+
+                if (resolution) {
+                    issue.resolution = resolution;
+                    issue.resolutionsAvailable = resolutions.length;
+                } else {
+                    issue.resolution = false;
+                }
+            })
+        );
+
+        // fetch details
+        promises.push(
+            Issues.getIssueDetails(id)
+            .then(result => issue.details = result)
+            .catch(catchErrorCode('UNKNOWN_ISSUE', () => issue.details = false))
+        );
+    });
+
+    // wait for all the GETs to complete...
+    await P.all(promises);
+
+    // return formatted results
+    const result = format.issues(plan_id, plan_issues, issue_count, limit, offset);
+
+    res.json(result);
 });
 
 exports.getIssueSystems = errors.async(async function (req, res) {

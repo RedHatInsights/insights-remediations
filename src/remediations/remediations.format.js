@@ -11,18 +11,18 @@ const config = require('../config');
 const {filterIssuesPerExecutor} = require("./fifi");
 const {systemToHost} = require("../generator/generator.controller");
 
-const listLinkBuilder = (sort, system) => (limit, page) =>
+const listLinkBuilder = (path, sort, system) => (limit, page) =>
     new URI(config.path.base)
     .segment('v1')
     .segment('remediations')
     .query({system, sort, limit, offset: page * limit})
     .toString();
 
-function buildListLinks (total, limit, offset, sort, system) {
+function buildListLinks (path, total, limit, offset, sort, system) {
     const lastPage = Math.floor(Math.max(total - 1, 0) / limit);
     const currentPage = Math.floor(offset / limit);
     const remainder = offset % limit;
-    const builder = listLinkBuilder(sort, system);
+    const builder = listLinkBuilder(path, sort, system);
 
     const links = {
         first: builder(limit, 0),
@@ -93,7 +93,7 @@ exports.list = function (remediations, total, limit, offset, sort, system) {
             count: remediations.length,
             total
         },
-        links: buildListLinks(total, limit, offset, sort, system),
+        links: buildListLinks('v1/remediations', total, limit, offset, sort, system),
         data: formatted
     };
 };
@@ -150,6 +150,39 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
     }
 
     return formatted;
+};
+
+exports.issues = function (plan_id, issues, total, limit, offset, sort) {
+    const result = {
+        data: {msg: "under construction..."},
+        meta: {},
+        links: {}
+    };
+
+    // data
+    result.data = issues.map(item => ({
+        id: item.issue_id,
+        description: item.details.description,
+        resolution: {
+            id: item.resolution.type,
+            description: item.resolution.description,
+            resolution_risk: item.resolution.resolutionRisk,
+            needs_reboot: item.resolution.needsReboot,
+        },
+        resolutions_available: item.resolutionsAvailable,
+        system_count: item.systems.length,
+    }));
+
+    // set issue count metadata
+    result.meta = {
+        count: issues.length,
+        total
+    };
+
+    // set links
+    result.links = buildListLinks(`v1/remediations/${plan_id}/issues`, total, limit, offset, sort);
+
+    return result;
 };
 
 exports.created = function ({id}) {

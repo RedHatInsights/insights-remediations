@@ -2061,6 +2061,249 @@ exports[`remediations get summary format 1`] = `
 }
 `;
 
+exports[`remediations issues get plan issues with unsupported sort 1`] = `
+{
+  "data": [
+    {
+      "description": "Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)",
+      "id": "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+      "resolution": {
+        "description": "Update system to the latest kernel and reboot",
+        "id": "kernel_update",
+        "needs_reboot": true,
+        "resolution_risk": 3,
+      },
+      "resolutions_available": 3,
+      "system_count": 2,
+    },
+    {
+      "description": "Bonding will not fail over to the backup link when bonding options are partially read",
+      "id": "advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE",
+      "resolution": {
+        "description": "Correct Bonding Config Items",
+        "id": "fix",
+        "needs_reboot": false,
+        "resolution_risk": 3,
+      },
+      "resolutions_available": 1,
+      "system_count": 1,
+    },
+    {
+      "description": "Disable the Automounter",
+      "id": "ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled",
+      "resolution": {
+        "description": "Disable the Automounter",
+        "id": "fix",
+        "needs_reboot": true,
+        "resolution_risk": -1,
+      },
+      "resolutions_available": 1,
+      "system_count": 1,
+    },
+    {
+      "description": "CVE-2017-5715",
+      "id": "vulnerabilities:CVE-2017-5715",
+      "resolution": {
+        "description": "Upgrade packages affected by CVE-2017-5715",
+        "id": "fix",
+        "needs_reboot": true,
+        "resolution_risk": -1,
+      },
+      "resolutions_available": 1,
+      "system_count": 1,
+    },
+    {
+      "description": "CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+      "id": "vulnerabilities:CVE-2017-5715:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+      "resolution": {
+        "description": "Fix Issues caused by [CVE_2017_6074_kernel|KERNEL_CVE_2017_6074]",
+        "id": "fix",
+        "needs_reboot": false,
+        "resolution_risk": -1,
+      },
+      "resolutions_available": 1,
+      "system_count": 1,
+    },
+    {
+      "description": "RHSA-2018:0502",
+      "id": "vulnerabilities:RHSA-2018:0502",
+      "resolution": {
+        "description": "Apply RHSA-2018:0502",
+        "id": "fix",
+        "needs_reboot": true,
+        "resolution_risk": -1,
+      },
+      "resolutions_available": 1,
+      "system_count": 1,
+    },
+  ],
+  "links": {
+    "first": "/api/remediations/v1/remediations?limit=10&offset=0",
+    "last": "/api/remediations/v1/remediations?limit=10&offset=0",
+    "next": null,
+    "previous": null,
+  },
+  "meta": {
+    "count": 6,
+    "total": 6,
+  },
+}
+`;
+
+exports[`remediations issues get remediation plan issues 1`] = `
+{
+  "data": [
+    {
+      "description": "Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)",
+      "id": "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+      "resolution": {
+        "description": "Update system to the latest kernel and reboot",
+        "id": "kernel_update",
+        "needs_reboot": true,
+        "resolution_risk": 3,
+      },
+      "resolutions_available": 3,
+      "system_count": 2,
+    },
+    {
+      "description": "Bonding will not fail over to the backup link when bonding options are partially read",
+      "id": "advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE",
+      "resolution": {
+        "description": "Correct Bonding Config Items",
+        "id": "fix",
+        "needs_reboot": false,
+        "resolution_risk": 3,
+      },
+      "resolutions_available": 1,
+      "system_count": 1,
+    },
+    {
+      "description": "Disable the Automounter",
+      "id": "ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled",
+      "resolution": {
+        "description": "Disable the Automounter",
+        "id": "fix",
+        "needs_reboot": true,
+        "resolution_risk": -1,
+      },
+      "resolutions_available": 1,
+      "system_count": 1,
+    },
+    {
+      "description": "CVE-2017-5715",
+      "id": "vulnerabilities:CVE-2017-5715",
+      "resolution": {
+        "description": "Upgrade packages affected by CVE-2017-5715",
+        "id": "fix",
+        "needs_reboot": true,
+        "resolution_risk": -1,
+      },
+      "resolutions_available": 1,
+      "system_count": 1,
+    },
+  ],
+  "links": {
+    "first": "/api/remediations/v1/remediations?limit=4&offset=0",
+    "last": "/api/remediations/v1/remediations?limit=4&offset=4",
+    "next": "/api/remediations/v1/remediations?limit=4&offset=4",
+    "previous": null,
+  },
+  "meta": {
+    "count": 4,
+    "total": 6,
+  },
+}
+`;
+
+exports[`remediations issues get sorted plan issues 1`] = `
+{
+  "data": [
+    {
+      "description": "RHSA-2018:0502",
+      "id": "vulnerabilities:RHSA-2018:0502",
+      "resolution": {
+        "description": "Apply RHSA-2018:0502",
+        "id": "fix",
+        "needs_reboot": true,
+        "resolution_risk": -1,
+      },
+      "resolutions_available": 1,
+      "system_count": 1,
+    },
+    {
+      "description": "CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+      "id": "vulnerabilities:CVE-2017-5715:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+      "resolution": {
+        "description": "Fix Issues caused by [CVE_2017_6074_kernel|KERNEL_CVE_2017_6074]",
+        "id": "fix",
+        "needs_reboot": false,
+        "resolution_risk": -1,
+      },
+      "resolutions_available": 1,
+      "system_count": 1,
+    },
+    {
+      "description": "CVE-2017-5715",
+      "id": "vulnerabilities:CVE-2017-5715",
+      "resolution": {
+        "description": "Upgrade packages affected by CVE-2017-5715",
+        "id": "fix",
+        "needs_reboot": true,
+        "resolution_risk": -1,
+      },
+      "resolutions_available": 1,
+      "system_count": 1,
+    },
+    {
+      "description": "Disable the Automounter",
+      "id": "ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled",
+      "resolution": {
+        "description": "Disable the Automounter",
+        "id": "fix",
+        "needs_reboot": true,
+        "resolution_risk": -1,
+      },
+      "resolutions_available": 1,
+      "system_count": 1,
+    },
+    {
+      "description": "Bonding will not fail over to the backup link when bonding options are partially read",
+      "id": "advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE",
+      "resolution": {
+        "description": "Correct Bonding Config Items",
+        "id": "fix",
+        "needs_reboot": false,
+        "resolution_risk": 3,
+      },
+      "resolutions_available": 1,
+      "system_count": 1,
+    },
+    {
+      "description": "Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)",
+      "id": "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+      "resolution": {
+        "description": "Update system to the latest kernel and reboot",
+        "id": "kernel_update",
+        "needs_reboot": true,
+        "resolution_risk": 3,
+      },
+      "resolutions_available": 3,
+      "system_count": 2,
+    },
+  ],
+  "links": {
+    "first": "/api/remediations/v1/remediations?limit=10&offset=0",
+    "last": "/api/remediations/v1/remediations?limit=10&offset=0",
+    "next": null,
+    "previous": null,
+  },
+  "meta": {
+    "count": 6,
+    "total": 6,
+  },
+}
+`;
+
 exports[`remediations list filter basic filter 1`] = `
 "{
     "meta": {

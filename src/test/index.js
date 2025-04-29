@@ -73,7 +73,7 @@ exports.auth = Object.freeze({
     cert02: {
         [identityUtils.IDENTITY_HEADER]: identityUtils.createCertIdentityHeader(USERS.testReadSingleUser.account_number, USERS.testReadSingleUser.tenant_org_id)
     },
-    jharting: createHeader(null, null, null, () => ({
+    jharting: createHeader(null, null, null, null, () => ({
         entitlements: {
             insights: {
                 is_entitled: true
@@ -89,24 +89,26 @@ exports.auth = Object.freeze({
             }
         },
         identity: {
+            auth_type: "jwt-auth",
+            type: 'User',
+            account_number: '901578',
             internal: {
                 auth_time: 0,
-                auth_type: 'jwt-auth',
+                cross_access: false,
                 org_id: '5318290'
             },
-            account_number: '901578',
-            org_id: '5318290',
             user: {
-                first_name: 'Jozef',
                 is_active: true,
                 is_internal: true,
-                last_name: 'Hartinger',
                 locale: 'en_US',
                 is_org_admin: true,
                 username: 'someUsername',
+                user_id: '5199638',
+                first_name: 'Jozef',
+                last_name: 'Hartinger',
                 email: 'jharting@redhat.com'
             },
-            type: 'User'
+            org_id: '5318290'
         }
     })),
     jhartingCert: {

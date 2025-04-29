@@ -169,6 +169,9 @@ paths:
       operationId: getRemediationIssues
       parameters:
         - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/Limit50'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/IssuesSort'
       responses:
         200:
           description: OK
@@ -176,6 +179,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemediationIssueList'
+        404:
+          $ref: '#/components/responses/NotFound'
+
     delete:
       tags:
         - remediations
@@ -676,6 +682,16 @@ components:
         minimum: 1
         maximum: 200
         default: 50
+    Limit50:
+      in: query
+      name: limit
+      description: Maximum number of results to return
+      required: false
+      schema:
+        type: number
+        minimum: 1
+        maximum: 50
+        default: 10
     Offset:
       in: query
       name: offset
@@ -789,6 +805,17 @@ components:
                 description: Filter remediations updated on or after this timestamp (ISO 8601 format)
       style: deepObject
       explode: true
+    IssuesSort:
+      in: query
+      name: sort
+      description: Sort order. Use `-` before a field name for descending order (e.g., `?-id`).
+      required: false
+      schema:
+        type: string
+        enum:
+          - id
+          - -id
+        default: id
     InsightsId:
       in: path
       name: system
