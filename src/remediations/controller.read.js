@@ -492,42 +492,34 @@ exports.getIssues = errors.async(async function (req, res) {
 
     // paginate issues
     const issue_count = plan_issues.length;
-    const issues = plan_issues.slice(offset, offset + limit);
+    const selected_issues = plan_issues.slice(offset, offset + limit);
 
-    // fetch information for selected issues
-    const promises = [];
-
-    issues.map(issue => {
+    // fetch resolution and details for selected issues
+    const promises = selected_issues.map(async issue => {
         const id = identifiers.parse(issue.issue_id);
 
-        // fetch resolution
-        promises.push(
-            Issues.getHandler(id).getResolutionResolver().resolveResolutions(id)
-            .then(resolutions => {
-                const resolution = disambiguator.disambiguate(resolutions, issue.resolution, id, false, false);
-
-                if (resolution) {
-                    issue.resolution = resolution;
-                    issue.resolutionsAvailable = resolutions.length;
-                } else {
-                    issue.resolution = false;
-                }
-            })
-        );
-
-        // fetch details
-        promises.push(
+        const [resolutions, details] = await Promise.all([
+            Issues.getHandler(id).getResolutionResolver().resolveResolutions(id),
             Issues.getIssueDetails(id)
-            .then(result => issue.details = result)
-            .catch(catchErrorCode('UNKNOWN_ISSUE', () => issue.details = false))
-        );
+            .catch(catchErrorCode('UNKNOWN_ISSUE', () => false))
+        ]);
+
+        const resolution = disambiguator.disambiguate(resolutions, issue.resolution, id, false, false);
+
+        if (resolution) {
+            issue.resolution = resolution;
+            issue.resolutionsAvailable = resolutions.length;
+        } else {
+            issue.resolution = false;
+        }
+
+        issue.details = details;
     });
 
-    // wait for all the GETs to complete...
-    await P.all(promises);
+    await Promise.all(promises);
 
     // return formatted results
-    const result = format.issues(plan_id, issues, issue_count, limit, offset);
+    const result = format.issues(plan_id, selected_issues, issue_count, limit, offset);
 
     res.json(result);
 });
