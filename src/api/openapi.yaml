@@ -171,7 +171,8 @@ paths:
         - $ref: '#/components/parameters/RemediationId'
         - $ref: '#/components/parameters/Limit50'
         - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/IssuesSort'
+        - $ref: '#/components/parameters/IssueFilter'
+        - $ref: '#/components/parameters/IssueSort'
       responses:
         200:
           description: OK
@@ -682,6 +683,7 @@ components:
         minimum: 1
         maximum: 200
         default: 50
+
     Limit50:
       in: query
       name: limit
@@ -692,6 +694,7 @@ components:
         minimum: 1
         maximum: 50
         default: 10
+
     Offset:
       in: query
       name: offset
@@ -701,6 +704,7 @@ components:
         type: number
         minimum: 0
         default: 0
+
     IssueId:
       in: path
       name: issue
@@ -708,6 +712,7 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/IssueId'
+
     RemediationId:
       in: path
       name: id
@@ -715,6 +720,7 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/RemediationId'
+
     RemediationIdQuery:
       in: query
       name: remediation
@@ -722,6 +728,7 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/RemediationId'
+
     RemediationSort:
       in: query
       name: sort
@@ -745,6 +752,7 @@ components:
           - status
           - -status
         default: -updated_at
+
     RemediationSystem:
       in: query
       name: system
@@ -753,6 +761,7 @@ components:
       schema:
         type: string
         format: uuid
+
     RemediationFilter:
       in: query
       name: filter
@@ -805,7 +814,8 @@ components:
                 description: Filter remediations updated on or after this timestamp (ISO 8601 format)
       style: deepObject
       explode: true
-    IssuesSort:
+
+    IssueSort:
       in: query
       name: sort
       description: Sort order. Use `-` before a field name for descending order (e.g., `?-id`).
@@ -816,6 +826,28 @@ components:
           - id
           - -id
         default: id
+
+    IssueFilter:
+      in: query
+      name: filter
+      description: |
+        For filtering by various criteria.
+        
+        Available filter fields:
+        - id: issue ids matching string, `?filter[id]=CVE`
+      required: false
+      schema:
+        type: object
+        additionalProperties: false
+        x-remediations-strict: false  # suppress validation since none of the properties is required
+        properties:
+          id:
+            type: string
+            description: Filter by issue id (allows partial match)
+            example: CVE
+      style: deepObject
+      explode: true
+
     InsightsId:
       in: path
       name: system
@@ -826,6 +858,7 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/InsightsId'
+
     SystemId:
       in: path
       name: system
@@ -833,6 +866,7 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/SystemId'
+
     PlaybookRunId:
       in: path
       name: playbook_run_id
@@ -840,6 +874,7 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/PlaybookRunId'
+
     PlaybookRunSort:
       in: query
       name: sort
@@ -849,6 +884,7 @@ components:
         type: string
         enum: [updated_at, -updated_at]
         default: -updated_at
+
     ExecutorId:
       in: query
       name: executor
@@ -856,6 +892,7 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/ExecutorId'
+
     HideArchived:
       in: query
       name: hide_archived
@@ -864,6 +901,7 @@ components:
       schema:
         type: boolean
         default: false
+
     RemediationFields:
       in: query
       name: fields[data]
@@ -879,6 +917,7 @@ components:
           enum:
             - name
             - playbook_runs
+
     RemediationFormat:
       in: query
       name: format
@@ -913,6 +952,7 @@ components:
         enum:
           - detail
           - summary
+
     SelectedHosts:
       in: query
       name: hosts
@@ -922,6 +962,7 @@ components:
         type: array
         items:
           type: string
+
     LocalHost:
       in: query
       name: localhost

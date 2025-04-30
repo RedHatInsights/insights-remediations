@@ -325,6 +325,42 @@ exports.get = async function (id, tenant_org_id, created_by = null, includeResol
     }
 };
 
+// Fetch issues and systems from the specified remediation plan, with optional sorting and filtering by issue name
+exports.getIssues = async function (remediation_plan_id, tenant_org_id, created_by = null, issue_name = null, asc = true) {
+    const query = {
+        attributes: [...ISSUE_ATTRIBUTES],
+        include: [
+            {
+                attributes: [],
+                model: db.remediation,
+                where: {
+                    created_by,
+                    tenant_org_id
+                }
+            },{
+                attributes: ['system_id'],
+                model: db.issue_system,
+                as: 'systems'
+            }
+        ],
+        where: {
+            remediation_id: remediation_plan_id,
+        },
+        order: [
+            ['issue_id', asc ? 'ASC' : 'DESC']
+        ]
+    };
+
+    if (issue_name) {
+        query.where.issue_id = {[db.Op.iLike]: `%${issue_name}%`};
+    }
+
+    const result = await db.issue.findAll(query);
+
+    // convert the array of model objects into JSON
+    return result.map(i => i.toJSON());
+};
+
 exports.getIssueSystems = function (id, tenant_org_id, created_by, issueId) {
     return db.remediation.findOne({
         attributes: ['id'],

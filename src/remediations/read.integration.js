@@ -453,6 +453,21 @@ describe('remediations', function () {
             .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02/issues?sort=bob')
             .expect(400);
         });
+
+        test('get filtered plan issues', async () => {
+            const {body} = await request
+            .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02/issues?filter[id]=cVe')
+            .expect(200);
+
+            expect(body).toMatchSnapshot();
+        });
+
+        test('not plan owner', async () => {
+            const {body} = await request
+            .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02/issues?limit=4')
+            .set(auth.fifi)
+            .expect(404);
+        });
     });
 
     describe('remediation issue systems', function () {

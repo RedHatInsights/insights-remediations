@@ -481,33 +481,23 @@ exports.downloadPlaybooks = errors.async(async function (req, res) {
 exports.getIssues = errors.async(async function (req, res) {
     const plan_id = req.params.id;
     const {tenant_org_id, username} = req.user;
-    const {limit, offset, sort} = req.query;
+    const {limit, offset, sort, filter} = req.query;
 
     // get plan from db
-    const remediation_plan = await queries.get(plan_id, tenant_org_id, username);
+    let plan_issues = await queries.getIssues(plan_id, tenant_org_id, username, filter?.id, sort !== '-id');
 
-    if (!remediation_plan) {
+    if (_.isEmpty(plan_issues)) {
         return notFound(res);
     }
 
-    // sort issues
-    switch (sort) {
-        case '-id':
-            remediation_plan.issues.sort((a, b) => (a.issue_id < b.issue_id) ? 1 : -1);
-            break;
-
-        case 'id':
-        default:
-    }
-
     // paginate issues
-    const issue_count = remediation_plan.issues.length;
-    const plan_issues = remediation_plan.issues.slice(offset, offset + limit);
+    const issue_count = plan_issues.length;
+    const issues = plan_issues.slice(offset, offset + limit);
 
     // fetch information for selected issues
     const promises = [];
 
-    plan_issues.map(issue => {
+    issues.map(issue => {
         const id = identifiers.parse(issue.issue_id);
 
         // fetch resolution
@@ -537,7 +527,7 @@ exports.getIssues = errors.async(async function (req, res) {
     await P.all(promises);
 
     // return formatted results
-    const result = format.issues(plan_id, plan_issues, issue_count, limit, offset);
+    const result = format.issues(plan_id, issues, issue_count, limit, offset);
 
     res.json(result);
 });
