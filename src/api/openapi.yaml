@@ -160,73 +160,29 @@ paths:
         404:
           $ref: '#/components/responses/NotFound'
 
-  /remediations/{id}/executable:
-    get:
-      tags:
-        - remediations
-      summary: Check smart_managment systems
-      description: Checks remediation for the existence of smart_managment flaged systems
-      operationId: checkExecutable
-      parameters:
-        - $ref: '#/components/parameters/RemediationId'
-      responses:
-        200:
-          description: OK
-        400:
-          $ref: '#/components/responses/BadRequest'
-        403:
-          $ref: '#/components/responses/Forbidden'
-        404:
-          $ref: '#/components/responses/NotFound'
-
-  /remediations/{id}/playbook:
-    get:
-      tags:
-        - remediations
-      summary: Get Remediation Playbook
-      description: Provides Ansible Playbook, RBAC permission {remediations:remediation:read}
-      operationId: getRemediationPlaybook
-      parameters:
-        - $ref: '#/components/parameters/RemediationId'
-        - $ref: '#/components/parameters/SelectedHosts'
-        - $ref: '#/components/parameters/SatOrgId'
-        - $ref: '#/components/parameters/LocalHost'
-      responses:
-        200:
-          description: OK
-          content:
-            text/vnd.yaml:
-              schema:
-                type: string
-        400:
-          $ref: '#/components/responses/BadRequest'
-        404:
-          $ref: '#/components/responses/NotFound'
-    post:
-      tags:
-        - remediations
-      summary: Fetch Remediation Plan Playbook
-      description: Fetch Ansible Playbook - for use with large list of target systems, RBAC permission {remediations:remediation:read}
-      operationId: bulkGetRemediationPlaybook
-      parameters:
-        - $ref: '#/components/parameters/RemediationId'
-        - $ref: '#/components/parameters/SatOrgId'
-        - $ref: '#/components/parameters/LocalHost'
-      requestBody:
-        $ref: '#/components/requestBodies/PlaybookSystems'
-      responses:
-        200:
-          description: OK
-          content:
-            text/vnd.yaml:
-              schema:
-                type: string
-        400:
-          $ref: '#/components/responses/BadRequest'
-        404:
-          $ref: '#/components/responses/NotFound'
-
   /remediations/{id}/issues:
+    get:
+      tags:
+        - remediations
+      summary: Get Remediation Plan Issues
+      description: Get a paginated list of issues for a given remediation plan, RBAC permission {remediations:remediation:read}
+      operationId: getRemediationIssues
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/Limit50'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/IssueFilter'
+        - $ref: '#/components/parameters/IssueSort'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemediationIssueList'
+        404:
+          $ref: '#/components/responses/NotFound'
+
     delete:
       tags:
         - remediations
@@ -287,7 +243,7 @@ paths:
     get:
       tags:
         - remediations
-      summary: Get Remediation Issue Systems
+      summary: Get Remediation Plan Issue Systems
       description: Get a paginated list of systems from a given issue, RBAC permission {remediations:remediation:read}
       operationId: getRemediationIssueSystems
       parameters:
@@ -386,6 +342,72 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
+          $ref: '#/components/responses/NotFound'
+
+  /remediations/{id}/executable:
+    get:
+      tags:
+        - remediations
+      summary: Check smart_managment systems
+      description: Checks remediation for the existence of smart_managment flaged systems
+      operationId: checkExecutable
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+      responses:
+        200:
+          description: OK
+        400:
+          $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /remediations/{id}/playbook:
+    get:
+      tags:
+        - remediations
+      summary: Get Remediation Playbook
+      description: Provides Ansible Playbook, RBAC permission {remediations:remediation:read}
+      operationId: getRemediationPlaybook
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/SelectedHosts'
+        - $ref: '#/components/parameters/SatOrgId'
+        - $ref: '#/components/parameters/LocalHost'
+      responses:
+        200:
+          description: OK
+          content:
+            text/vnd.yaml:
+              schema:
+                type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags:
+        - remediations
+      summary: Fetch Remediation Plan Playbook
+      description: Fetch Ansible Playbook - for use with large list of target systems, RBAC permission {remediations:remediation:read}
+      operationId: bulkGetRemediationPlaybook
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/SatOrgId'
+        - $ref: '#/components/parameters/LocalHost'
+      requestBody:
+        $ref: '#/components/requestBodies/PlaybookSystems'
+      responses:
+        200:
+          description: OK
+          content:
+            text/vnd.yaml:
+              schema:
+                type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
           $ref: '#/components/responses/NotFound'
 
   /remediations/{id}/playbook_runs:
@@ -661,6 +683,18 @@ components:
         minimum: 1
         maximum: 200
         default: 50
+
+    Limit50:
+      in: query
+      name: limit
+      description: Maximum number of results to return
+      required: false
+      schema:
+        type: number
+        minimum: 1
+        maximum: 50
+        default: 10
+
     Offset:
       in: query
       name: offset
@@ -670,6 +704,7 @@ components:
         type: number
         minimum: 0
         default: 0
+
     IssueId:
       in: path
       name: issue
@@ -677,6 +712,7 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/IssueId'
+
     RemediationId:
       in: path
       name: id
@@ -684,6 +720,7 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/RemediationId'
+
     RemediationIdQuery:
       in: query
       name: remediation
@@ -691,6 +728,7 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/RemediationId'
+
     RemediationSort:
       in: query
       name: sort
@@ -714,6 +752,7 @@ components:
           - status
           - -status
         default: -updated_at
+
     RemediationSystem:
       in: query
       name: system
@@ -722,6 +761,7 @@ components:
       schema:
         type: string
         format: uuid
+
     RemediationFilter:
       in: query
       name: filter
@@ -774,6 +814,40 @@ components:
                 description: Filter remediations updated on or after this timestamp (ISO 8601 format)
       style: deepObject
       explode: true
+
+    IssueSort:
+      in: query
+      name: sort
+      description: Sort order. Use `-` before a field name for descending order (e.g., `?-id`).
+      required: false
+      schema:
+        type: string
+        enum:
+          - id
+          - -id
+        default: id
+
+    IssueFilter:
+      in: query
+      name: filter
+      description: |
+        For filtering by various criteria.
+        
+        Available filter fields:
+        - id: issue ids matching string, `?filter[id]=CVE`
+      required: false
+      schema:
+        type: object
+        additionalProperties: false
+        x-remediations-strict: false  # suppress validation since none of the properties is required
+        properties:
+          id:
+            type: string
+            description: Filter by issue id (allows partial match)
+            example: CVE
+      style: deepObject
+      explode: true
+
     InsightsId:
       in: path
       name: system
@@ -784,6 +858,7 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/InsightsId'
+
     SystemId:
       in: path
       name: system
@@ -791,6 +866,7 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/SystemId'
+
     PlaybookRunId:
       in: path
       name: playbook_run_id
@@ -798,6 +874,7 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/PlaybookRunId'
+
     PlaybookRunSort:
       in: query
       name: sort
@@ -807,6 +884,7 @@ components:
         type: string
         enum: [updated_at, -updated_at]
         default: -updated_at
+
     ExecutorId:
       in: query
       name: executor
@@ -814,6 +892,7 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/ExecutorId'
+
     HideArchived:
       in: query
       name: hide_archived
@@ -822,6 +901,7 @@ components:
       schema:
         type: boolean
         default: false
+
     RemediationFields:
       in: query
       name: fields[data]
@@ -837,6 +917,7 @@ components:
           enum:
             - name
             - playbook_runs
+
     RemediationFormat:
       in: query
       name: format
@@ -871,6 +952,7 @@ components:
         enum:
           - detail
           - summary
+
     SelectedHosts:
       in: query
       name: hosts
@@ -880,6 +962,7 @@ components:
         type: array
         items:
           type: string
+
     LocalHost:
       in: query
       name: localhost
@@ -1341,6 +1424,50 @@ components:
           description: total number of results matching the query
           example: 114
 
+    Links:
+      type: object
+      additionalProperties: false
+      required: [ first, last, next, previous ]
+      properties:
+        first:
+          type: string
+          description: relative link to the first page of the query results
+        last:
+          type: string
+          description: relative link to the last page of the query results
+        next:
+          type: string
+          nullable: true
+          description: relative link to the next page of the query results (or null if this is the last page)
+        previous:
+          type: string
+          nullable: true
+          description: relative link to the previous page of the query results (or null if this is the first page)
+      example:
+        $ref: '#/components/examples/RemediationLinks'
+
+    IssueListLinks:
+      type: object
+      additionalProperties: false
+      required: [ first, last, next, previous ]
+      properties:
+        first:
+          type: string
+          description: relative link to the first page of the query results
+        last:
+          type: string
+          description: relative link to the last page of the query results
+        next:
+          type: string
+          nullable: true
+          description: relative link to the next page of the query results (or null if this is the last page)
+        previous:
+          type: string
+          nullable: true
+          description: relative link to the previous page of the query results (or null if this is the first page)
+      example:
+        $ref: '#/components/examples/RemediationIssueLinks'
+
     RemediationIssueSystemList:
       type: object
       additionalProperties: false
@@ -1651,7 +1778,6 @@ components:
               resolution_risk: 3
         advisor:non-existent-issue: false
 
-
     # Remediation specific types
     RemediationCreated:
       type: object
@@ -1735,6 +1861,37 @@ components:
           items:
             $ref: '#/components/schemas/SystemOut'
 
+    RemediationIssueSummary:
+      type: object
+      additionalProperties: false
+      required: [id, description, resolution, system_count]
+      properties:
+        id:
+          $ref: '#/components/schemas/ResolutionType'
+        description:
+          type: string
+        resolution:
+          type: object
+          additionalProperties: false
+          required: [id, description, resolution_risk, needs_reboot]
+          properties:
+            id:
+              $ref: '#/components/schemas/ResolutionType'
+            description:
+              type: string
+            resolution_risk:
+              $ref: '#/components/schemas/ResolutionRisk'
+            needs_reboot:
+              $ref: '#/components/schemas/ResolutionNeedsReboot'
+        resolutions_available:
+          type: number
+          description: The total number of available resolutions for this issue
+          example: 1
+        system_count:
+          type: number
+          description: The number of systems associated with this plan issue
+          example: 17
+
     RemediationList:
       type: object
       additionalProperties: false
@@ -1747,26 +1904,7 @@ components:
         meta:
           $ref: '#/components/schemas/Meta'
         links:
-          type: object
-          additionalProperties: false
-          required: [first, last, next, previous]
-          properties:
-            first:
-              type: string
-              description: relative link to the first page of the query results
-            last:
-              type: string
-              description: relative link to the last page of the query results
-            next:
-              type: string
-              nullable: true
-              description: relative link to the next page of the query results (or null if this is the last page)
-            previous:
-              type: string
-              nullable: true
-              description: relative link to the previous page of the query results (or null if this is the first page)
-          example:
-            $ref: '#/components/examples/RemediationLinks'
+          $ref: '#/components/schemas/Links'
 
     RemediationListItem:
       type: object
@@ -1812,26 +1950,7 @@ components:
         meta:
           $ref: '#/components/schemas/Meta'
         links:
-          type: object
-          additionalProperties: false
-          required: [first, last, next, previous]
-          properties:
-            first:
-              type: string
-              description: relative link to the first page of the query results
-            last:
-              type: string
-              description: relative link to the last page of the query results
-            next:
-              type: string
-              nullable: true
-              description: relative link to the next page of the query results (or null if this is the last page)
-            previous:
-              type: string
-              nullable: true
-              description: relative link to the previous page of the query results (or null if this is the first page)
-          example:
-            $ref: '#/components/examples/RemediationLinks'
+          $ref: '#/components/schemas/Links'
 
     RemediationNameListItem:
       type: object
@@ -1840,6 +1959,20 @@ components:
       properties:
         name:
           $ref: '#/components/schemas/RemediationName'
+
+    RemediationIssueList:
+      type: object
+      additionalProperties: false
+      required: [data, meta, links]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RemediationIssueSummary'
+        meta:
+          $ref: '#/components/schemas/Meta'
+        links:
+          $ref: '#/components/schemas/IssueListLinks'
 
     RemediationConnectionStatus:
       type: object
@@ -1998,4 +2131,11 @@ components:
         first: /api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0
         last: /api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=50
         next: /api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=50
+        previous: null
+
+    RemediationIssueLinks:
+      value:
+        first: /api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/issues?limit=50&offset=0
+        last: /api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/issues?limit=50&offset=50
+        next: /api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/issues?limit=50&offset=50
         previous: null
