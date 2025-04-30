@@ -160,18 +160,25 @@ exports.issues = function (plan_id, issues, total, limit, offset, sort) {
     };
 
     // data
-    result.data = issues.map(item => ({
-        id: item.issue_id,
-        description: item.details.description,
-        resolution: {
-            id: item.resolution.type,
-            description: item.resolution.description,
-            resolution_risk: item.resolution.resolutionRisk,
-            needs_reboot: item.resolution.needsReboot,
-        },
-        resolutions_available: item.resolutionsAvailable,
-        system_count: item.systems.length,
-    }));
+    result.data = issues.map(item => {
+        const details = {
+            id: item.issue_id,
+            description: item.details.description,
+            resolution: {},
+            resolutions_available: item.resolutionsAvailable,
+            system_count: item.systems.length,
+        };
+
+        if (details.resolution) {
+            details.resolution = {
+                id: item.resolution.type,
+                description: item.resolution.description,
+                resolution_risk: item.resolution.resolutionRisk,
+                needs_reboot: item.resolution.needsReboot,
+            };
+        }
+        return details;
+    });
 
     // set issue count metadata
     result.meta = {
