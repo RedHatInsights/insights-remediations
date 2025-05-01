@@ -139,7 +139,7 @@ module.exports = function (operationId) {
                     const transformer = transformError(req, status);
 
                     res.status(status);
-                    jsonFn({ errors: errors.errors.map(transformer) });
+                    return jsonFn({ errors: errors.errors.map(transformer) });
                 }
             }
 
