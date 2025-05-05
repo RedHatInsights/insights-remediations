@@ -322,12 +322,10 @@ paths:
                      "total": 114
                    },
                    "links": {
-                     "value": {
-                       "first": "/api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/systems?limit=2&offset=0",
-                       "last": "/api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/systems?limit=2&offset=112",
-                       "next": "/api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/systems?limit=2&offset=2",
-                       "previous": null
-                     }
+                     "first": "/api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/systems?limit=2&offset=0",
+                     "last": "/api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/systems?limit=2&offset=112",
+                     "next": "/api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/systems?limit=2&offset=2",
+                     "previous": null
                    }
                 }
         400:
@@ -1563,19 +1561,21 @@ components:
         first:
           type: string
           description: relative link to the first page of the query results
+          example: /api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0
         last:
           type: string
           description: relative link to the last page of the query results
+          example: /api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=50
         next:
           type: string
           nullable: true
           description: relative link to the next page of the query results (or null if this is the last page)
+          example: /api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=50
         previous:
           type: string
           nullable: true
           description: relative link to the previous page of the query results (or null if this is the first page)
-      example:
-        $ref: '#/components/examples/RemediationLinks'
+          example: null
 
     IssueListLinks:
       type: object
@@ -1585,19 +1585,21 @@ components:
         first:
           type: string
           description: relative link to the first page of the query results
+          example: /api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/issues?limit=50&offset=0
         last:
           type: string
           description: relative link to the last page of the query results
+          example: /api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/issues?limit=50&offset=50
         next:
           type: string
           nullable: true
           description: relative link to the next page of the query results (or null if this is the last page)
+          example: /api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/issues?limit=50&offset=50
         previous:
           type: string
           nullable: true
           description: relative link to the previous page of the query results (or null if this is the first page)
-      example:
-        $ref: '#/components/examples/RemediationIssueLinks'
+          example: null
 
     RemediationIssueSystemList:
       type: object
@@ -2268,18 +2270,3 @@ components:
             $ref: '#/components/schemas/RequestError'
     PreconditionFailed:
       description: One or more conditions given in the request header fields evaluated to false
-
-  examples:
-    RemediationLinks:
-      value:
-        first: /api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0
-        last: /api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=50
-        next: /api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=50
-        previous: null
-
-    RemediationIssueLinks:
-      value:
-        first: /api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/issues?limit=50&offset=0
-        last: /api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/issues?limit=50&offset=50
-        next: /api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/issues?limit=50&offset=50
-        previous: null
