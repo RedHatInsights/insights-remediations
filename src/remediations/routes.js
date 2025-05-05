@@ -30,6 +30,7 @@ module.exports = function (router) {
         .get(trace, rbacRead, status.status);
 
     router.route('/remediations/:id/issues')
+        .get(openapi('getRemediationIssues'), rbacRead, read.getIssues)
         .delete(openapi('deleteRemediationIssues'), rbacWrite, write.bulkRemoveIssues);
 
     router.route('/remediations/:id/issues/:issue')

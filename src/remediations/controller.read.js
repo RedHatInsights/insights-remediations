@@ -7,7 +7,7 @@ const JSZip = require('jszip');
 const errors = require('../errors');
 const log = require('../util/log');
 const trace = require('../util/trace');
-const issues = require('../issues');
+const Issues = require('../issues');
 const queries = require('./remediations.queries');
 const format = require('./remediations.format');
 const disambiguator = require('../resolutions/disambiguator');
@@ -34,7 +34,7 @@ const catchErrorCode = (code, fn) => e => {
 function resolveResolutions (...remediations) {
     return P.all(_(remediations).flatMap('issues').map(async issue => {
         const id = identifiers.parse(issue.issue_id);
-        const resolutions = await issues.getHandler(id).getResolutionResolver().resolveResolutions(id);
+        const resolutions = await Issues.getHandler(id).getResolutionResolver().resolveResolutions(id);
         const resolution = disambiguator.disambiguate(resolutions, issue.resolution, id, false, false);
 
         if (resolution) {
@@ -49,7 +49,7 @@ function resolveResolutions (...remediations) {
 function resolveResolutionsNeedReboot (...remediations) {
     return P.all(_(remediations).flatMap('issues').map(async issue => {
         const id = identifiers.parse(issue.issue_id);
-        const needsReboot = await issues.getHandler(id).getResolutionResolver().isRebootNeeded(id, issue.resolution);
+        const needsReboot = await Issues.getHandler(id).getResolutionResolver().isRebootNeeded(id, issue.resolution);
 
         if (needsReboot !== null) {
             issue.resolution = { needsReboot };
@@ -260,7 +260,7 @@ async function resolveSystems (remediation) {
 function resolveIssues (remediation) {
     return P.map(remediation.issues, async issue => {
         const id = identifiers.parse(issue.issue_id);
-        return issues.getIssueDetails(id)
+        return Issues.getIssueDetails(id)
         .then(result => issue.details = result)
         .catch(catchErrorCode('UNKNOWN_ISSUE', () => issue.details = false));
     });
@@ -476,6 +476,52 @@ exports.downloadPlaybooks = errors.async(async function (req, res) {
             }
         });
     }
+});
+
+exports.getIssues = errors.async(async function (req, res) {
+    const plan_id = req.params.id;
+    const {tenant_org_id, username} = req.user;
+    const {limit, offset, sort, filter} = req.query;
+
+    // get plan from db
+    let plan_issues = await queries.getIssues(plan_id, tenant_org_id, username, filter?.id, sort !== '-id');
+
+    if (_.isEmpty(plan_issues)) {
+        return notFound(res);
+    }
+
+    // paginate issues
+    const issue_count = plan_issues.length;
+    const selected_issues = plan_issues.slice(offset, offset + limit);
+
+    // fetch resolution and details for selected issues
+    const promises = selected_issues.map(async issue => {
+        const id = identifiers.parse(issue.issue_id);
+
+        const [resolutions, details] = await Promise.all([
+            Issues.getHandler(id).getResolutionResolver().resolveResolutions(id),
+            Issues.getIssueDetails(id)
+            .catch(catchErrorCode('UNKNOWN_ISSUE', () => false))
+        ]);
+
+        const resolution = disambiguator.disambiguate(resolutions, issue.resolution, id, false, false);
+
+        if (resolution) {
+            issue.resolution = resolution;
+            issue.resolutionsAvailable = resolutions.length;
+        } else {
+            issue.resolution = false;
+        }
+
+        issue.details = details;
+    });
+
+    await Promise.all(promises);
+
+    // return formatted results
+    const result = format.issues(plan_id, selected_issues, issue_count, limit, offset);
+
+    res.json(result);
 });
 
 exports.getIssueSystems = errors.async(async function (req, res) {

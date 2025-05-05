@@ -30,7 +30,6 @@ module.exports = new class extends Connector {
                 if (ssgVersion) {
                     // Build URI that will fetch the rule using Compliance API v2
                     uri = await this.buildV2Uri(id, ssgRefId, ssgVersion, refresh, retries);
-                    log.warn(`URI: ${uri}`);
                 } else {
                     // Build URI that will fetch the rule using Compliance API v1
                     uri = this.buildUri(host, 'compliance', 'rules', id);
@@ -48,8 +47,6 @@ module.exports = new class extends Connector {
                     refresh,
                     revalidationInterval
                 }, this.metrics);
-
-                log.warn(`Result: ${result}`);
 
                 // In Compliance api v1, rule info is under data.attributes
                 // In Compliance api v2, rule info is directly under data
