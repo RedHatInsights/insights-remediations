@@ -284,6 +284,89 @@ paths:
           $ref: '#/components/responses/NotFound'
 
   /remediations/{id}/systems:
+    get:
+      tags:
+        - remediations
+      summary: Get Remediation Plan Systems
+      description: Get a paginated list of distinct systems from a given remediation plan, RBAC permission {remediations:remediation:read}
+      operationId: getRemediationSystems
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/SystemsFilter'
+        - $ref: '#/components/parameters/SystemsSort'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemediationSystemList'
+              example: |
+                {
+                   "data": [
+                     {
+                       "id": "a8799a02-8be9-11e8-9eb6-529269fb1459",
+                       "hostname": "db01.example.com",
+                       "display_name": "prod-db"
+                     },
+                     {
+                       "id": "993c1ca8-ca85-40f7-bfed-5e06eb5194f6",
+                       "hostname": "db02.example.com",
+                       "display_name": "stage-db"
+                     }
+                   ],
+                   "meta": {
+                     "count": 1,
+                     "total": 114
+                   },
+                   "links": {
+                     "value": {
+                       "first": "/api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/systems?limit=2&offset=0",
+                       "last": "/api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/systems?limit=2&offset=112",
+                       "next": "/api/remediations/v1/remediations/9197ba55-0abc-4028-9bbe-269e530f8bd5/systems?limit=2&offset=2",
+                       "previous": null
+                     }
+                   }
+                }
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/BadRequest'
+              example: |
+                {
+                  "errors": [
+                    {
+                      "id": "string",
+                      "status": 400,
+                      "code": "INVALID_OFFSET",
+                      "title": "Requested starting offset 30 out of range: [0, 5]",
+                      "details": {}
+                    }
+                  ]
+                }
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/NotFound'
+              example: |
+                {
+                  "errors": [
+                    {
+                      "id": "string",
+                      "status": 404,
+                      "code": "UNKNOWN_PLAN",
+                      "title": "Unknown plan identifier '9197ba55-0abc-4028-9bbe-269e530f8bd5'",
+                      "details": {}
+                    }
+                  ]
+                }
+
     delete:
       tags:
         - remediations
@@ -981,6 +1064,7 @@ components:
         type: array
         items:
           $ref: '#/components/schemas/RemediationId'
+
     BranchId:
       in: query
       name: branch_id
@@ -989,6 +1073,7 @@ components:
       schema:
         type: string
         format: uuid
+
     SatOrgId:
       in: query
       name: sat_org
@@ -1006,6 +1091,48 @@ components:
         type: string
         enum: [display_name, -display_name]
         default: display_name
+
+    SystemsSort:
+      in: query
+      name: sort
+      description: Sort order
+      required: false
+      schema:
+        type: string
+        enum: [id, -id, hostname, -hostname, display_name, -display_name]
+        default: display_name
+
+    SystemsFilter:
+      in: query
+      name: filter
+      description: |
+        For filtering by various criteria.
+
+        Available filter fields:
+        - id: system ids matching string (supports partial match)
+        - hostname: hostname matching string (supports partial match)
+        - display_name: display name matching string (supports partial match)
+      required: false
+      schema:
+        type: object
+        additionalProperties: false
+        x-remediations-strict: false  # suppress validation since none of the properties is required
+        properties:
+          id:
+            type: string
+            description: Filter by system id (allows partial match)
+            example: a8799a02-8be9-11e8-9eb6-529269fb1459
+          hostname:
+            type: string
+            description: Filter by hostname (allows partial match)
+            example: db01.example.com
+          display_name:
+            type: string
+            description: Filter by display name (allows partial match)
+            example: stage-db
+      style: deepObject
+      explode: true
+
     SystemName:
       in: query
       name: ansible_host
@@ -1013,6 +1140,7 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/SystemName'
+
     PlaybookRunSystemSort:
       in: query
       name: sort
@@ -1071,6 +1199,7 @@ components:
     #
     # Primitive types
     #
+
     DateTime:
       type: string
       format: date-time
@@ -1091,6 +1220,7 @@ components:
       description: >
         Indicates whether systems that require reboot for the remediation to be properly applied should be
         rebooted automatically or not
+
 
 
 
@@ -1198,6 +1328,7 @@ components:
     #
     # Input schemas
     #
+
     PlaybookDefinition:
       type: object
       additionalProperties: false
@@ -1479,6 +1610,20 @@ components:
             $ref: '#/components/schemas/SystemOut'
         meta:
           $ref: '#/components/schemas/Meta'
+
+    RemediationSystemList:
+      type: object
+      additionalProperties: false
+      required: [ data, meta, links ]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SystemOut'
+        meta:
+          $ref: '#/components/schemas/Meta'
+        links:
+          $ref: '#/components/schemas/Links'
 
     ExecuteRemediation:
       type: object
@@ -2065,7 +2210,6 @@ components:
         last_name:
           type: string
           example: Hartinger
-
 
     # Diagnosis specific types
     Diagnosis:
