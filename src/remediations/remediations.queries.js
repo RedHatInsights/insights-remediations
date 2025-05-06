@@ -108,7 +108,8 @@ exports.list = function (
         },
         group: ['remediation.id'],
         order: [
-            [col(primaryOrder), asc ? 'ASC' : 'DESC'],
+            // Handle sorting by `issue_count` or `system_count` correctly
+            [col(primaryOrder === 'issue_count' ? 'issue_count' : primaryOrder === 'system_count' ? 'system_count' : `remediation.${primaryOrder}`), asc ? 'ASC' : 'DESC'],
             ['id', 'ASC']
         ],
         subQuery: false,
@@ -139,6 +140,33 @@ exports.list = function (
                     [Op.iLike]: filterName
                 }
             }];
+        }
+
+        // last_run_after filter
+        if (filter.last_run_after) {
+            if (filter.last_run_after === 'never') {
+                // Filter remediations that have never had a playbook run
+                // Looks a little complicated because SQL doesn’t provide a straightforward way to do "no associated rows" filtering
+                query.where[Op.and] = [
+                    ...(query.where[Op.and] || []),
+                    literal(`NOT EXISTS (
+                        SELECT 1 FROM playbook_runs
+                        WHERE playbook_runs.remediation_id = remediation.id
+                    )`)
+                ];
+            } else {
+                query.include.push({
+                    attributes: [],
+                    model: db.playbook_runs,
+                    as: 'playbook_runs',
+                    required: true,
+                    where: {
+                        created_at: {
+                            [Op.gt]: new Date(filter.last_run_after)
+                        }
+                    }
+                });
+            }
         }
 
         // created_after filter
