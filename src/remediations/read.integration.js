@@ -6,6 +6,9 @@ const { request, auth, reqId, buildRbacResponse, getSandbox, mockTime } = requir
 const rbac = require('../connectors/rbac');
 const inventory = require('../connectors/inventory');
 const JSZip = require('jszip');
+const base = require('../test');
+const impl = require('../connectors/dispatcher/impl');
+const db = require('../db');
 
 function test400 (name, url, code, title) {
     test(name, async () => {
@@ -37,6 +40,19 @@ function binaryParser (res, callback) {
 
 describe('remediations', function () {
     describe('list', function () {
+        beforeAll(async () => {
+            await db.playbook_runs.destroy({
+                where: { id: 'ef7a1724-6adc-4370-b88c-bed7cb2d3fd2' }
+            });
+
+            await db.playbook_runs.create({
+                id: 'ef7a1724-6adc-4370-b88c-bed7cb2d3fd2',
+                remediation_id: '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
+                created_by: 'tuser@redhat.com',
+                created_at: '2018-10-04T08:19:36.641Z',
+                updated_at: '2018-10-04T08:19:36.641Z'
+            });
+        });
 
         const [r178, re80, rcbc, r66e, r256] = [
             '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
@@ -48,6 +64,20 @@ describe('remediations', function () {
 
         async function testList (desc, url, ...ids) {
             test(desc, async () => {
+                base.getSandbox().stub(impl, 'fetchPlaybookRuns').resolves({
+                    data: [
+                        {
+                            labels: {
+                                'playbook-run': 'ef7a1724-6adc-4370-b88c-bed7cb2d3fd2'
+                            }
+                        },
+                        {
+                            labels: {
+                                'playbook-run': 'fe7a1724-6adc-4370-b88c-bed7cb2d3fd4'
+                            }
+                        }
+                    ]
+                });
                 const {body, text} = await request
                 .get(url)
                 .expect(200);
@@ -196,9 +226,11 @@ describe('remediations', function () {
                     testList('name and created_after query with match', '/v1/remediations?filter[name]=REBoot&filter[created_after]=2018-12-04T08:19:36.641Z', r178);
                     testList('name and created_after query no match', '/v1/remediations?filter[name]=REBootNoMatch&filter[created_after]=2018-12-04T08:19:36.641Z');
                     testList('last_run_after=date/time query no match', '/v1/remediations?filter[last_run_after]=2018-12-04T08:19:36.641Z');
-                    testList('last_run_after=never query with match', '/v1/remediations?filter[last_run_after]=never', r256, r178, re80, rcbc, r66e);
+                    testList('last_run_after=date/time query with match', '/v1/remediations?filter[last_run_after]=2018-09-04T08:19:36.641Z', r178);
+                    testList('last_run_after=never query with match', '/v1/remediations?filter[last_run_after]=never', r256, re80, rcbc, r66e);
                     testList('name and last_run_after query no match', '/v1/remediations?filter[last_run_after]=2018-12-04T08:19:36.641Z&filter[name]=REBootNoMatch');
-                    // testList('status query', '/v1/remediations?filter[status]=failure');
+                    testList('status query', '/v1/remediations?filter[status]=running', r178);
+                    testList('status and last_run_after query', '/v1/remediations?filter[status]=running&filter[last_run_after]=2018-09-04T08:19:36.641Z', r178);
                 });
 
                 describe('invalid options', function () {
