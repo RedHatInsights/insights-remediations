@@ -11,7 +11,7 @@ const {prefix} = require('../config').metrics;
 
 exports.Sequelize = Sequelize;
 
-exports.fn = _(['COALESCE', 'COUNT', 'DISTINCT', 'NULLIF', 'SUM'])
+exports.fn = _(['COALESCE', 'COUNT', 'DISTINCT', 'NULLIF', 'SUM', 'MAX'])
 .keyBy()
 .mapValues(fn => _.partial(Sequelize.fn, fn))
 .value();

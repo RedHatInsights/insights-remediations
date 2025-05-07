@@ -8,6 +8,7 @@ const db = require('../db');
 const {NULL_NAME_VALUE} = require('./models/remediation');
 const _ = require('lodash');
 const trace = require('../util/trace');
+const dispatcher = require('../connectors/dispatcher');
 
 const CACHE_TTL = config.db.cache.ttl;
 
@@ -32,6 +33,9 @@ const PLAYBOOK_RUN_ATTRIBUTES = [
     'created_at',
     'updated_at'
 ];
+const FAILURE = 'failure';
+const RUNNING = 'running';
+const SUCCESS = 'success';
 
 function systemSubquery (system_id) {
     const {s: { dialect, col, literal }, fn: { DISTINCT }, issue, issue_system} = db;
@@ -72,7 +76,62 @@ function resolvedCountSubquery () {
     );
 }
 
-exports.list = function (
+function findRunStatus(run) {
+    if (run.count_failure > 0 || run.count_timeout > 0) {
+        return FAILURE;
+    } else if (run.count_running > 0 && run.count_timeout === 0 && run.count_failure === 0) {
+        return RUNNING;
+    } else if (run.count_success > 0 && run.count_timeout === 0) {
+        return SUCCESS;
+    }
+}
+
+async function getremediationStatusCounts() {
+    const dispatcherRuns = await dispatcher.fetchPlaybookRuns(
+        {filter: {service: 'remediations' }},
+        {fields: {data: ['labels', 'status'] }}
+    );
+
+    const runStatusById = {};
+    for (const run of dispatcherRuns.data) {
+        const runId = run.labels?.['playbook-run'];
+        if (runId) {
+            runStatusById[runId] = run.status;
+        }
+    }
+
+    const playbookRunsForRemediation = await db.playbook_runs.findAll({
+        attributes: ['id', 'remediation_id'],
+        where: {
+            id: Object.keys(runStatusById)
+        },
+        raw: true
+    });
+
+    const remediationStatusCounts = {};
+    for (const {id, remediation_id} of playbookRunsForRemediation) {
+        if (!remediationStatusCounts[remediation_id]) {
+            remediationStatusCounts[remediation_id] = {
+                count_success: 0,
+                count_failure: 0,
+                count_timeout: 0,
+                count_running: 0
+            };
+        }
+
+        const status = runStatusById[id];
+        const counts = remediationStatusCounts[remediation_id];
+
+        if (status === 'success') counts.count_success++;
+        else if (status === 'failure') counts.count_failure++;
+        else if (status === 'timeout') counts.count_timeout++;
+        else if (status === 'running') counts.count_running++;
+    }
+
+    return remediationStatusCounts;
+}
+
+exports.list = async function (
     tenant_org_id,
     created_by,
     system = false,
@@ -83,15 +142,17 @@ exports.list = function (
     limit,
     offset) {
 
-    const {Op, s: {literal, where, col, cast, fn}} = db;
+    const {Op, s: { literal, where, col, cast }, fn: { COUNT, DISTINCT, MAX }} = db;
+    const isSortByStatus = primaryOrder === 'status';
+    const statusOrder = {[FAILURE]: 0, [RUNNING]: 1, [SUCCESS]: 2};
 
     const query = {
         attributes: [
             'id',
-            [cast(fn('COUNT', fn('DISTINCT', col('issues.id'))), 'int'), 'issue_count'],
-            [cast(fn('COUNT', fn('DISTINCT', col('issues->systems.system_id'))), 'int'), 'system_count'],
+            [cast(COUNT(DISTINCT(col('issues.id'))), 'int'), 'issue_count'],
+            [cast(COUNT(DISTINCT(col('issues->systems.system_id'))), 'int'), 'system_count'],
             [resolvedCountSubquery(), 'resolved_count'],
-            [fn('MAX', col('playbook_runs.created_at')), 'last_run_at']
+            [MAX(col('playbook_runs.created_at')), 'last_run_at']
         ],
         include: [{
             attributes: [],
@@ -114,18 +175,17 @@ exports.list = function (
             created_by
         },
         group: ['remediation.id'],
-        order: [
-            // Sort on any remediation column and also issue_count, system_count and last_run_at 
-            // last_run_at sort option will use the playbook_runs.created_at column in the db
-            // This will correctly sort by last_run_at when a playbook hasn't been executed yet so playbook_runs.created_at is NULL
+        // Sort on any remediation column and also issue_count, system_count, last_run_at and status
+        // last_run_at sort option will use the playbook_runs.created_at column in the db
+        // This will correctly sort by last_run_at when a playbook hasn't been executed yet so playbook_runs.created_at is NULL
+        // Status sorting is handled alongside status filtering to share the logic for computing aggregate playbook run statuses
+        order: isSortByStatus ? [] : [
             primaryOrder === 'last_run_at'
                 ? [literal(`MAX(playbook_runs.created_at) ${asc ? 'ASC NULLS LAST' : 'DESC NULLS FIRST'}`)]
                 : [col(
-                    primaryOrder === 'issue_count'
-                        ? 'issue_count'
-                        : primaryOrder === 'system_count'
-                        ? 'system_count'
-                        : `remediation.${primaryOrder}`
+                    primaryOrder === 'issue_count' ? 'issue_count' :
+                    primaryOrder === 'system_count' ? 'system_count' :
+                    `remediation.${primaryOrder}`
                 ), asc ? 'ASC' : 'DESC'],
             ['id', 'ASC']
         ],
@@ -146,6 +206,8 @@ exports.list = function (
             [Op.eq]: false
         };
     }
+
+    let remediationStatusCounts = null;
 
     if (filter) {
         // name filter
@@ -186,6 +248,24 @@ exports.list = function (
             }
         }
 
+        // status filter or sorting by status
+        if (filter.status || isSortByStatus) {
+            remediationStatusCounts = await getremediationStatusCounts();
+
+            if (filter.status) {
+                // For each remediation, call findRunStatus(counts) to determine the aggregate status
+                // Only keep remediations whose aggregate status matches
+                const matchingRemediationIds = Object.entries(remediationStatusCounts)
+                    .filter(([_, counts]) => findRunStatus(counts) === filter.status)
+                    .map(([remediation_id]) => remediation_id);
+
+                query.where.id = {
+                    ...(query.where.id || {}),
+                    [Op.in]: matchingRemediationIds
+                };
+            }
+        }
+
         // created_after filter
         if (filter.created_after) {
             query.where["created_at"] = { [Op.gt]: new Date(filter.created_after) };
@@ -197,7 +277,36 @@ exports.list = function (
         }
     }
 
-    return db.remediation.findAndCountAll(query);
+    const result = await db.remediation.findAndCountAll(query);
+
+    // Sorting by status must happen after the database query to get remediations since aggregate status isn't stored in the database
+    if (isSortByStatus) {
+        if (!remediationStatusCounts) {
+            remediationStatusCounts = await getremediationStatusCounts();
+        }
+
+        // Loop through the rows and assign aggregate_status
+        for (const remediation of result.rows) {
+            const statusCounts = remediationStatusCounts?.[remediation.id] || {
+                count_success: 0,
+                count_failure: 0,
+                count_timeout: 0,
+                count_running: 0
+            };
+            
+            // Assign the aggregate status or default to SUCCESS if it's undefined
+            remediation.aggregate_status = findRunStatus(statusCounts) || SUCCESS;
+        }
+
+        // Sort the rows based on the aggregate status
+        result.rows.sort((a, b) => {
+            const orderA = statusOrder[a.aggregate_status];
+            const orderB = statusOrder[b.aggregate_status];
+            return asc ? orderA - orderB : orderB - orderA;
+        });
+    }
+
+    return result;
 };
 
 exports.loadDetails = async function (tenant_org_id, created_by, rows) {

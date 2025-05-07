@@ -56,6 +56,7 @@ describe('remediations', function () {
                 created_at: '2018-10-04T08:19:36.641Z',
                 updated_at: '2018-10-04T08:19:36.641Z'
             });
+
             await db.playbook_runs.create({
                 id: 'f7c89a48-2d7f-44a2-9bc6-5a4c52df7c35',
                 remediation_id: '256ab1d3-58cf-1292-35e6-1a49c8b122d3',
@@ -177,6 +178,8 @@ describe('remediations', function () {
             testSorting('system_count', false, r66e, re80, r178, rcbc, r256);
             testSorting('last_run_at', true, r256, r178, r66e, rcbc, re80);
             testSorting('last_run_at', false, r66e, rcbc, re80, r178, r256);
+            testSorting('status', true, r178, r256, r66e, rcbc, re80);
+            testSorting('status', false, r178, r256, r66e, rcbc, re80);
 
             test400(
                 'invalid column',
@@ -228,7 +231,9 @@ describe('remediations', function () {
                     testList('last_run_after=date/time query with match', '/v1/remediations?filter[last_run_after]=2016-12-04T08:19:36.641Z', r256, r178);
                     testList('last_run_after=never query with match', '/v1/remediations?filter[last_run_after]=never', re80, rcbc, r66e);
                     testList('name and last_run_after query no match', '/v1/remediations?filter[last_run_after]=2018-12-04T08:19:36.641Z&filter[name]=REBootNoMatch');
-                    // testList('status query', '/v1/remediations?filter[status]=failure');
+                    testList('status query', '/v1/remediations?filter[status]=running');
+                    testList('status query', '/v1/remediations?filter[status]=failure');
+                    testList('status and last_run_after query', '/v1/remediations?filter[status]=running&filter[last_run_after]=2018-09-04T08:19:36.641Z');
                 });
 
                 describe('invalid options', function () {
@@ -244,12 +249,12 @@ describe('remediations', function () {
                         'type.openapi.requestValidation',
                         'must be string (location: query, path: filter)'
                     );
-                    // test400(
-                    //     'bad status query',
-                    //     '/v1/remediations?filter[status]=timeout',
-                    //     'type.openapi.requestValidation',
-                    //     'must be string (location: query, path: filter)'
-                    // );
+                    test400(
+                        'bad status query',
+                        '/v1/remediations?filter[status]=timeout',
+                        'type.openapi.requestValidation',
+                        'must be string (location: query, path: filter)'
+                    );
                 });
             });
         });
