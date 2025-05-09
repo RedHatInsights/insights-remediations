@@ -8,6 +8,7 @@ const db = require('../db');
 const {NULL_NAME_VALUE} = require('./models/remediation');
 const _ = require('lodash');
 const trace = require('../util/trace');
+const dispatcher_impl = require('../connectors/dispatcher/impl');
 
 const CACHE_TTL = config.db.cache.ttl;
 
@@ -72,7 +73,7 @@ function resolvedCountSubquery () {
     );
 }
 
-exports.list = function (
+exports.list = async function (
     tenant_org_id,
     created_by,
     system = false,
@@ -167,6 +168,37 @@ exports.list = function (
                     }
                 });
             }
+        }
+
+        // status filter
+        if (filter.status) {
+            const statusFilter = { filter: { status: filter.status } };
+            const fields = { fields: { data: ['labels'] } };
+
+            // Need to make a call to playbook dispatcher to get playbook runs with the status that we're filtering on
+            // Example response:
+            // {
+            //   data: [
+            //     { labels: { 'playbook-run': 'f7a1724c-6adc-4370-b88c-bed7cb2d3fd2' } },
+            //     { labels: { 'playbook-run': 'be3c8b4d-bdd2-4f4f-92f7-bf2c1ac2347f' } }
+            //   ]
+            // }
+            const playbookRuns = await dispatcher_impl.fetchPlaybookRuns(statusFilter, fields);
+
+            // This line assumes that there will always be a playbook-run id for each playbook run
+            const playbookRunIds = playbookRuns.data.map(run => run.labels['playbook-run']);
+
+            query.include.push({
+                attributes: [],
+                model: db.playbook_runs,
+                as: 'playbook_runs',
+                required: true,
+                where: {
+                    id: {
+                        [Op.in]: playbookRunIds
+                    }
+                }
+            });
         }
 
         // created_after filter
