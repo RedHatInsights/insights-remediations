@@ -163,13 +163,13 @@ exports.issues = function (plan_id, issues, total, limit, offset, sort) {
     result.data = issues.map(item => {
         const details = {
             id: item.issue_id,
-            description: item.details.description,
+            description: item.details?.description || '',
             resolution: {},
             resolutions_available: item.resolutionsAvailable,
             system_count: item.systems.length,
         };
 
-        if (details.resolution) {
+        if (item.resolution) {
             details.resolution = {
                 id: item.resolution.type,
                 description: item.resolution.description,
