@@ -43,7 +43,7 @@ module.exports = new class extends Connector {
                     rejectUnauthorized: !insecure,
                     headers: { ...this.getForwardedHeaders() }
                 }, {
-                    key: `remediations|http-cache|compliance|${host}|${id}`,
+                    key: `remediations|http-cache|complianceRule|${host}|${id}`,
                     refresh,
                     revalidationInterval
                 }, this.metrics);
@@ -73,7 +73,7 @@ module.exports = new class extends Connector {
         rejectUnauthorized: !insecure,
         headers: { ...this.getForwardedHeaders() }
       }, {
-        key: `remediations|http-cache|complianceV2|${host}|${id}`,
+        key: `remediations|http-cache|complianceSG|${host}|${id}`,
         refresh,
         revalidationInterval
       }, this.metrics);
