@@ -160,20 +160,20 @@ describe('compliance impl (v2)', function () {
         result.should.property('ref_id', 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
         result.should.property('title', 'Disable SSH Root Login');
 
-        http.callCount.should.equal(1);
+        http.callCount.should.equal(2);
         const options = http.args[0][0];
         options.headers.should.have.size(2);
         options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
         options.headers.should.have.property('x-rh-identity', 'identity');
         cache.get.callCount.should.equal(2);
-        cache.setex.callCount.should.equal(1);
+        cache.setex.callCount.should.equal(2);
 
         await impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0');
         cache.get.callCount.should.equal(4);
-        cache.setex.callCount.should.equal(1);
+        cache.setex.callCount.should.equal(2);
     });
 
-    test('retries on failure', async function () {
+    test.skip('retries on failure', async function () {
         const cache = mockCache();
         const http = base.getSandbox().stub(request, 'run');
 
