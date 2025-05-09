@@ -45,12 +45,23 @@ describe('remediations', function () {
                 where: { id: 'ef7a1724-6adc-4370-b88c-bed7cb2d3fd2' }
             });
 
+            await db.playbook_runs.destroy({
+                where: { id: 'f7c89a48-2d7f-44a2-9bc6-5a4c52df7c35' }
+            });
+
             await db.playbook_runs.create({
                 id: 'ef7a1724-6adc-4370-b88c-bed7cb2d3fd2',
                 remediation_id: '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
                 created_by: 'tuser@redhat.com',
                 created_at: '2018-10-04T08:19:36.641Z',
                 updated_at: '2018-10-04T08:19:36.641Z'
+            });
+            await db.playbook_runs.create({
+                id: 'f7c89a48-2d7f-44a2-9bc6-5a4c52df7c35',
+                remediation_id: '256ab1d3-58cf-1292-35e6-1a49c8b122d3',
+                created_by: 'tuser@redhat.com',
+                created_at: '2017-10-04T08:19:36.641Z',
+                updated_at: '2017-10-04T08:19:36.641Z'
             });
         });
 
@@ -69,12 +80,14 @@ describe('remediations', function () {
                         {
                             labels: {
                                 'playbook-run': 'ef7a1724-6adc-4370-b88c-bed7cb2d3fd2'
-                            }
+                            },
+                            status: 'running'
                         },
                         {
                             labels: {
-                                'playbook-run': 'fe7a1724-6adc-4370-b88c-bed7cb2d3fd4'
-                            }
+                                'playbook-run': 'f7c89a48-2d7f-44a2-9bc6-5a4c52df7c35'
+                            },
+                            status: 'failure'
                         }
                     ]
                 });
@@ -227,9 +240,10 @@ describe('remediations', function () {
                     testList('name and created_after query no match', '/v1/remediations?filter[name]=REBootNoMatch&filter[created_after]=2018-12-04T08:19:36.641Z');
                     testList('last_run_after=date/time query no match', '/v1/remediations?filter[last_run_after]=2018-12-04T08:19:36.641Z');
                     testList('last_run_after=date/time query with match', '/v1/remediations?filter[last_run_after]=2018-09-04T08:19:36.641Z', r178);
-                    testList('last_run_after=never query with match', '/v1/remediations?filter[last_run_after]=never', r256, re80, rcbc, r66e);
+                    testList('last_run_after=never query with match', '/v1/remediations?filter[last_run_after]=never', re80, rcbc, r66e);
                     testList('name and last_run_after query no match', '/v1/remediations?filter[last_run_after]=2018-12-04T08:19:36.641Z&filter[name]=REBootNoMatch');
                     testList('status query', '/v1/remediations?filter[status]=running', r178);
+                    testList('status query', '/v1/remediations?filter[status]=failure', r256);
                     testList('status and last_run_after query', '/v1/remediations?filter[status]=running&filter[last_run_after]=2018-09-04T08:19:36.641Z', r178);
                 });
 

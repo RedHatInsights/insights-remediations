@@ -33,6 +33,9 @@ const PLAYBOOK_RUN_ATTRIBUTES = [
     'created_at',
     'updated_at'
 ];
+const FAILURE = 'failure';
+const RUNNING = 'running';
+const SUCCESS = 'success';
 
 function systemSubquery (system_id) {
     const {s: { dialect, col, literal }, fn: { DISTINCT }, issue, issue_system} = db;
@@ -71,6 +74,16 @@ function resolvedCountSubquery () {
            `)` +
         `)`
     );
+}
+
+function findRunStatus(run) {
+    if (run.count_failure > 0 || run.count_timeout > 0) {
+        return FAILURE;
+    } else if (run.count_running > 0 && run.count_timeout === 0 && run.count_failure === 0) {
+        return RUNNING;
+    } else if (run.count_success > 0 && run.count_timeout === 0) {
+        return SUCCESS;
+    }
 }
 
 exports.list = async function (
@@ -172,33 +185,71 @@ exports.list = async function (
 
         // status filter
         if (filter.status) {
-            const statusFilter = { filter: { status: filter.status } };
-            const fields = { fields: { data: ['labels'] } };
+            const statusFilter = {};
+            const fields = { fields: { data: ['labels', 'status'] } };
 
-            // Need to make a call to playbook dispatcher to get playbook runs with the status that we're filtering on
-            // Example response:
-            // {
-            //   data: [
-            //     { labels: { 'playbook-run': 'f7a1724c-6adc-4370-b88c-bed7cb2d3fd2' } },
-            //     { labels: { 'playbook-run': 'be3c8b4d-bdd2-4f4f-92f7-bf2c1ac2347f' } }
-            //   ]
-            // }
-            const playbookRuns = await dispatcher_impl.fetchPlaybookRuns(statusFilter, fields);
+            // get all playbook runs from dispatcher
+            const dispatcherRuns = await dispatcher_impl.fetchPlaybookRuns(statusFilter, fields);
 
-            // This line assumes that there will always be a playbook-run id for each playbook run
-            const playbookRunIds = playbookRuns.data.map(run => run.labels['playbook-run']);
+            // map playbook-run id to status
+            const runStatusById = {};
+            for (const run of dispatcherRuns.data) {
+                const runId = run.labels?.['playbook-run'];
+                if (runId) {
+                    runStatusById[runId] = run.status;
+                }
+            }
 
-            query.include.push({
-                attributes: [],
-                model: db.playbook_runs,
-                as: 'playbook_runs',
-                required: true,
+            // Map playbook-run id to remediation_id
+            const playbookRunsForRemediation = await db.playbook_runs.findAll({
+                attributes: ['id', 'remediation_id'],
                 where: {
                     id: {
-                        [Op.in]: playbookRunIds
+                        [Op.in]: Object.keys(runStatusById)
                     }
-                }
+                },
+                raw: true
             });
+
+            // We need to get the count of playbook run statuses per remediation
+            // This will be used to compute the overall(aggregate) remediation status later
+            const remediationStatusMap = {};
+            for (const {id, remediation_id} of playbookRunsForRemediation) {
+                // Initialize count object for this remediation if not already done
+                if (!remediationStatusMap[remediation_id]) {
+                    remediationStatusMap[remediation_id] = {
+                        count_success: 0,
+                        count_failure: 0,
+                        count_timeout: 0,
+                        count_running: 0
+                    };
+                }
+
+                // Increment the appropriate count for this remediation based on the run's status
+                const status = runStatusById[id];
+                const counts = remediationStatusMap[remediation_id];
+
+                if (status === 'success') {
+                    counts.count_success++;
+                } else if (status === 'failure') {
+                    counts.count_failure++;
+                } else if (status === 'timeout') {
+                    counts.count_timeout++;
+                } else if (status === 'running') {
+                    counts.count_running++;
+                }
+            }
+
+            // Call findRunStatus and collect matching remediation_ids
+            const matchingRemediationIds = Object.entries(remediationStatusMap)
+                .filter(([_, counts]) => findRunStatus(counts) === filter.status)
+                .map(([remediation_id]) => remediation_id);
+
+            // Add filter to query
+            query.where.id = {
+                ...(query.where.id || {}),
+                [Op.in]: matchingRemediationIds
+            };
         }
 
         // created_after filter
