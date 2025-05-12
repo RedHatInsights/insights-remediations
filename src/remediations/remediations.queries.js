@@ -83,14 +83,15 @@ exports.list = function (
     limit,
     offset) {
 
-    const {Op, s: {literal, where, col, cast}, fn: { DISTINCT, COUNT }} = db;
+    const {Op, s: {literal, where, col, cast, fn}} = db;
 
     const query = {
         attributes: [
             'id',
-            [cast(COUNT(DISTINCT(col('issues.id'))), 'int'), 'issue_count'],
-            [cast(COUNT(DISTINCT(col('issues->systems.system_id'))), 'int'), 'system_count'],
-            [resolvedCountSubquery(), 'resolved_count']
+            [cast(fn('COUNT', fn('DISTINCT', col('issues.id'))), 'int'), 'issue_count'],
+            [cast(fn('COUNT', fn('DISTINCT', col('issues->systems.system_id'))), 'int'), 'system_count'],
+            [resolvedCountSubquery(), 'resolved_count'],
+            [fn('MAX', col('playbook_runs.created_at')), 'last_run_at']
         ],
         include: [{
             attributes: [],
@@ -101,6 +102,12 @@ exports.list = function (
                 association: db.issue.associations.systems,
                 required: true
             }]
+        },
+        {
+            model: db.playbook_runs,
+            as: 'playbook_runs',
+            attributes: [],
+            required: false
         }],
         where: {
             tenant_org_id,
@@ -108,8 +115,18 @@ exports.list = function (
         },
         group: ['remediation.id'],
         order: [
-            // Handle sorting by `issue_count` or `system_count` correctly
-            [col(primaryOrder === 'issue_count' ? 'issue_count' : primaryOrder === 'system_count' ? 'system_count' : `remediation.${primaryOrder}`), asc ? 'ASC' : 'DESC'],
+            // Sort on any remediation column and also issue_count, system_count and last_run_at 
+            // last_run_at sort option will use the playbook_runs.created_at column in the db
+            // This will correctly sort by last_run_at when a playbook hasn't been executed yet so playbook_runs.created_at is NULL
+            primaryOrder === 'last_run_at'
+                ? [literal(`MAX(playbook_runs.created_at) ${asc ? 'ASC NULLS LAST' : 'DESC NULLS FIRST'}`)]
+                : [col(
+                    primaryOrder === 'issue_count'
+                        ? 'issue_count'
+                        : primaryOrder === 'system_count'
+                        ? 'system_count'
+                        : `remediation.${primaryOrder}`
+                ), asc ? 'ASC' : 'DESC'],
             ['id', 'ASC']
         ],
         subQuery: false,
