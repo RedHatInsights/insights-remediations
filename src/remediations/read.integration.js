@@ -38,40 +38,55 @@ function binaryParser (res, callback) {
     });
 }
 
+let originalRem1;
+let originalRem2;
 describe('remediations', function () {
     describe('list', function () {
         beforeAll(async () => {
-            await db.playbook_runs.destroy({
-                where: { id: 'ef7a1724-6adc-4370-b88c-bed7cb2d3fd2' }
+            originalRem1 = await db.remediation.findByPk('249f142c-2ae3-4c3f-b2ec-c8c5881f8561');
+            originalRem2 = await db.remediation.findByPk('efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3');
+            await db.remediation.update(
+                { tenant_org_id: '0000000', created_by: 'tuser@redhat.com', updated_at: new Date('2021-01-01T00:00:00Z') }, // values to update
+                { where: { id: originalRem1.id }, silent: true }
+            );
+            await db.remediation.update(
+                { tenant_org_id: '0000000', created_by: 'tuser@redhat.com', updated_at: new Date('2021-01-01T00:00:00Z') }, // values to update
+                { where: {  id: originalRem2.id }, silent: true }
+            );
+
+            const run1 = await db.playbook_runs.findOne({
+                where: { remediation_id: '249f142c-2ae3-4c3f-b2ec-c8c5881f8561' },
+                order: [['created_at', 'DESC']]
             });
 
-            await db.playbook_runs.destroy({
-                where: { id: 'f7c89a48-2d7f-44a2-9bc6-5a4c52df7c35' }
+            const run2 = await db.playbook_runs.findOne({
+                where: { remediation_id: 'efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3' },
+                order: [['created_at', 'DESC']]
             });
 
-            await db.playbook_runs.create({
-                id: 'ef7a1724-6adc-4370-b88c-bed7cb2d3fd2',
-                remediation_id: '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
-                created_by: 'tuser@redhat.com',
-                created_at: '2018-10-04T08:19:36.641Z',
-                updated_at: '2018-10-04T08:19:36.641Z'
-            });
-
-            await db.playbook_runs.create({
-                id: 'f7c89a48-2d7f-44a2-9bc6-5a4c52df7c35',
-                remediation_id: '256ab1d3-58cf-1292-35e6-1a49c8b122d3',
-                created_by: 'tuser@redhat.com',
-                created_at: '2017-10-04T08:19:36.641Z',
-                updated_at: '2017-10-04T08:19:36.641Z'
-            });
+            await run1.update({ created_at: new Date('2024-09-10T11:41:12.220Z') });
+            await run2.update({ created_at: new Date('2024-09-10T11:41:12.221Z') });
         });
 
-        const [r178, re80, rcbc, r66e, r256] = [
+        afterAll(async () => {
+            await db.remediation.update(
+                { tenant_org_id: originalRem1.tenant_org_id, created_by: originalRem1.created_by, updated_at: originalRem1.updated_at },
+                { where: { id: originalRem1.id}, silent: true }
+            );
+            await db.remediation.update(
+                { tenant_org_id: originalRem2.tenant_org_id, created_by: originalRem2.created_by, updated_at: originalRem2.updated_at },
+                { where: { id: originalRem2.id}, silent: true }
+            );
+        });
+
+        const [r178, re80, rcbc, r66e, r256, refe, r249] = [
             '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
             'e809526c-56f5-4cd8-a809-93328436ea23',
             'cbc782e4-e8ae-4807-82ab-505387981d2e',
             '66eec356-dd06-4c72-a3b6-ef27d1508a02',
-            '256ab1d3-58cf-1292-35e6-1a49c8b122d3'
+            '256ab1d3-58cf-1292-35e6-1a49c8b122d3',
+            'efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3',
+            '249f142c-2ae3-4c3f-b2ec-c8c5881f8561'
         ];
 
         async function testList (desc, url, ...ids) {
@@ -94,6 +109,8 @@ describe('remediations', function () {
             body.should.have.property('data');
             body.data.should.not.be.empty();
             _.map(body.data, 'id').should.eql([
+                'efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3',
+                '249f142c-2ae3-4c3f-b2ec-c8c5881f8561',
                 '256ab1d3-58cf-1292-35e6-1a49c8b122d3',
                 '178cf0c8-35dd-42a3-96d5-7b50f9d211f6',
                 'e809526c-56f5-4cd8-a809-93328436ea23',
@@ -157,7 +174,7 @@ describe('remediations', function () {
         });
 
         describe('sorting', function () {
-            testList('default', '/v1/remediations?pretty', r256, r178, re80, rcbc, r66e);
+            testList('default', '/v1/remediations?pretty', refe, r249, r256, r178, re80, rcbc, r66e);
 
             function testSorting (column, asc, ...expected) {
                 test(`${column} ${asc ? 'ASC' : 'DESC'}`, async () => {
@@ -168,18 +185,18 @@ describe('remediations', function () {
                 });
             }
 
-            testSorting('updated_at', true, r66e, rcbc, re80, r178, r256);
-            testSorting('updated_at', false, r256, r178, re80, rcbc, r66e);
-            testSorting('name', true, r178, r256, r66e, rcbc, re80);
-            testSorting('name', false, re80, rcbc, r66e, r256, r178);
-            testSorting('issue_count', true, r256, r178, re80, rcbc, r66e);
-            testSorting('issue_count', false, r66e, rcbc, r178, re80, r256);
-            testSorting('system_count', true, r256, r178, rcbc, r66e, re80);
-            testSorting('system_count', false, r66e, re80, r178, rcbc, r256);
-            testSorting('last_run_at', true, r256, r178, r66e, rcbc, re80);
-            testSorting('last_run_at', false, r66e, rcbc, re80, r178, r256);
-            testSorting('status', true, r178, r256, r66e, rcbc, re80);
-            testSorting('status', false, r178, r256, r66e, rcbc, re80);
+            testSorting('updated_at', true, r66e, rcbc, re80, r178, r256, r249, refe);
+            testSorting('updated_at', false, refe, r249, r256, r178, re80, rcbc, r66e);
+            testSorting('name', true, r249, r178, r256, refe, r66e, rcbc, re80);
+            testSorting('name', false, re80, rcbc, r66e, refe, r256, r178, r249);
+            testSorting('issue_count', true, r256, r178, r249, re80, refe, rcbc, r66e);
+            testSorting('issue_count', false, r66e, rcbc, r178, r249, re80, refe, r256);
+            testSorting('system_count', true, r256, r178, rcbc, r66e, re80, refe, r249);
+            testSorting('system_count', false, r249, refe, r66e, re80, r178, rcbc, r256);
+            testSorting('last_run_at', true, refe, r249, r178, r256, r66e, rcbc, re80);
+            testSorting('last_run_at', false, r178, r256, r66e, rcbc, re80, r249, refe);
+            testSorting('status', true, r249, r178, r256, refe, r66e, rcbc, re80);
+            testSorting('status', false, re80, rcbc, r66e, refe, r256, r178, r249);
 
             test400(
                 'invalid column',
@@ -211,29 +228,29 @@ describe('remediations', function () {
         });
 
         describe('filter', function () {
-            testList('empty filter', '/v1/remediations?filter=&pretty', r256, r178, re80, rcbc, r66e);
+            testList('empty filter', '/v1/remediations?filter=&pretty', refe, r249, r256, r178, re80, rcbc, r66e);
             testList('basic filter', '/v1/remediations?filter=remediation&pretty', r256, r178);
             testList('filter case does not matter', '/v1/remediations?filter=REBooT&pretty', r178);
-            testList('filter matches on name', '/v1/remediations?filter=Test&pretty', re80, rcbc, r66e);
+            testList('filter matches on name', '/v1/remediations?filter=Test&pretty', refe, re80, rcbc, r66e);
             testList('filter matches on number', '/v1/remediations?filter=2&pretty', rcbc);
 
             describe('test new style filters', () => {
                 describe('supported options', function () {
                     testList('name query with match', '/v1/remediations?filter[name]=REBoot', r178);
                     testList('name query no match', '/v1/remediations?filter[name]=REBootNoMatch');
-                    testList("created_after=date/time query with match", '/v1/remediations?filter[created_after]=2018-12-04T08:19:36.641Z', r256, r178);
+                    testList("created_after=date/time query with match", '/v1/remediations?filter[created_after]=2018-12-04T08:19:36.641Z', refe, r249, r256, r178);
                     testList("created_after=date/time query no match", '/v1/remediations?filter[created_after]=2025-03-31T08:19:36.641Z');
-                    testList("updated_after=date/time query with match", '/v1/remediations?filter[updated_after]=2018-12-04T08:19:36.641Z', r256, r178);
+                    testList("updated_after=date/time query with match", '/v1/remediations?filter[updated_after]=2018-12-04T08:19:36.641Z', refe, r249, r256, r178);
                     testList("updated_after=date/time query no match", '/v1/remediations?filter[updated_after]=2025-03-31T08:19:36.641Z');
                     testList('name and created_after query with match', '/v1/remediations?filter[name]=REBoot&filter[created_after]=2018-12-04T08:19:36.641Z', r178);
                     testList('name and created_after query no match', '/v1/remediations?filter[name]=REBootNoMatch&filter[created_after]=2018-12-04T08:19:36.641Z');
-                    testList('last_run_after=date/time query no match', '/v1/remediations?filter[last_run_after]=2018-12-04T08:19:36.641Z');
-                    testList('last_run_after=date/time query with match', '/v1/remediations?filter[last_run_after]=2016-12-04T08:19:36.641Z', r256, r178);
-                    testList('last_run_after=never query with match', '/v1/remediations?filter[last_run_after]=never', re80, rcbc, r66e);
+                    testList('last_run_after=date/time query no match', '/v1/remediations?filter[last_run_after]=2025-12-04T08:19:36.641Z');
+                    testList('last_run_after=date/time query with match', '/v1/remediations?filter[last_run_after]=2016-12-04T08:19:36.641Z', refe, r249);
+                    testList('last_run_after=never query with match', '/v1/remediations?filter[last_run_after]=never', r256, r178, re80, rcbc, r66e);
                     testList('name and last_run_after query no match', '/v1/remediations?filter[last_run_after]=2018-12-04T08:19:36.641Z&filter[name]=REBootNoMatch');
-                    testList('status query', '/v1/remediations?filter[status]=running');
-                    testList('status query', '/v1/remediations?filter[status]=failure');
-                    testList('status and last_run_after query', '/v1/remediations?filter[status]=running&filter[last_run_after]=2018-09-04T08:19:36.641Z');
+                    testList('status query running', '/v1/remediations?filter[status]=running', r249);
+                    testList('status query failure', '/v1/remediations?filter[status]=failure', refe);
+                    testList('status and last_run_after query', '/v1/remediations?filter[status]=running&filter[last_run_after]=2018-09-04T08:19:36.641Z', r249);
                 });
 
                 describe('invalid options', function () {
@@ -260,11 +277,11 @@ describe('remediations', function () {
         });
 
         describe('pagination', function () {
-            testList('tiny page', '/v1/remediations?limit=2&pretty', r256, r178);
-            testList('explicit offset', '/v1/remediations?limit=2&offset=0&pretty', r256, r178);
-            testList('offset 1', '/v1/remediations?limit=2&offset=1&pretty', r178, re80);
-            testList('offset 2', '/v1/remediations?limit=2&offset=2&pretty', re80, rcbc);
-            testList('offset 3', '/v1/remediations?limit=2&offset=3&pretty', rcbc, r66e);
+            testList('tiny page', '/v1/remediations?limit=2&pretty', refe, r249);
+            testList('explicit offset', '/v1/remediations?limit=2&offset=0&pretty', refe, r249);
+            testList('offset 1', '/v1/remediations?limit=2&offset=1&pretty', r249, r256);
+            testList('offset 2', '/v1/remediations?limit=2&offset=2&pretty', r256, r178);
+            testList('offset 3', '/v1/remediations?limit=2&offset=3&pretty', r178, re80);
 
             test400(
                 '400s on zero limit',
@@ -291,13 +308,13 @@ describe('remediations', function () {
                 '400s on offset too large',
                 '/v1/remediations?offset=123456',
                 'INVALID_OFFSET',
-                'Requested starting offset 123456 out of range: [0, 4]'
+                'Requested starting offset 123456 out of range: [0, 6]'
             );
         });
 
         describe('hide archived', function () {
-            testList('no query', '/v1/remediations?pretty', r256, r178, re80, rcbc, r66e);
-            testList('hide_archived', '/v1/remediations?hide_archived', r256, re80, rcbc);
+            testList('no query', '/v1/remediations?pretty', refe, r249, r256, r178, re80, rcbc, r66e);
+            testList('hide_archived', '/v1/remediations?hide_archived', refe, r249, r256, re80, rcbc);
         });
     });
 
