@@ -329,42 +329,9 @@ paths:
                    }
                 }
         400:
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/BadRequest'
-              example: |
-                {
-                  "errors": [
-                    {
-                      "id": "string",
-                      "status": 400,
-                      "code": "INVALID_OFFSET",
-                      "title": "Requested starting offset 30 out of range: [0, 5]",
-                      "details": {}
-                    }
-                  ]
-                }
+          $ref: '#/components/responses/BadRequest'
         404:
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/NotFound'
-              example: |
-                {
-                  "errors": [
-                    {
-                      "id": "string",
-                      "status": 404,
-                      "code": "UNKNOWN_PLAN",
-                      "title": "Unknown plan identifier '9197ba55-0abc-4028-9bbe-269e530f8bd5'",
-                      "details": {}
-                    }
-                  ]
-                }
-
+          $ref: '#/components/responses/NotFound'
     delete:
       tags:
         - remediations
