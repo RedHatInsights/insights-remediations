@@ -46,26 +46,18 @@ describe('remediations', function () {
             originalRem1 = await db.remediation.findByPk('249f142c-2ae3-4c3f-b2ec-c8c5881f8561');
             originalRem2 = await db.remediation.findByPk('efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3');
             await db.remediation.update(
-                { tenant_org_id: '0000000', created_by: 'tuser@redhat.com', updated_at: new Date('2021-01-01T00:00:00Z') }, // values to update
+                { tenant_org_id: '0000000', created_by: 'tuser@redhat.com', updated_at: new Date('2021-01-01T00:00:00Z') },
                 { where: { id: originalRem1.id }, silent: true }
             );
             await db.remediation.update(
-                { tenant_org_id: '0000000', created_by: 'tuser@redhat.com', updated_at: new Date('2021-01-01T00:00:00Z') }, // values to update
+                { tenant_org_id: '0000000', created_by: 'tuser@redhat.com', updated_at: new Date('2021-01-01T00:00:00Z') },
                 { where: {  id: originalRem2.id }, silent: true }
             );
 
-            const run1 = await db.playbook_runs.findOne({
-                where: { remediation_id: '249f142c-2ae3-4c3f-b2ec-c8c5881f8561' },
-                order: [['created_at', 'DESC']]
-            });
-
-            const run2 = await db.playbook_runs.findOne({
-                where: { remediation_id: 'efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3' },
-                order: [['created_at', 'DESC']]
-            });
-
-            await run1.update({ created_at: new Date('2024-09-10T11:41:12.220Z') });
-            await run2.update({ created_at: new Date('2024-09-10T11:41:12.221Z') });
+            await db.playbook_runs.update(
+                { created_at: new Date('2024-09-11T12:00:00Z') },
+                { where: { id: '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc' }, silent: true }
+            );
         });
 
         afterAll(async () => {
@@ -76,6 +68,10 @@ describe('remediations', function () {
             await db.remediation.update(
                 { tenant_org_id: originalRem2.tenant_org_id, created_by: originalRem2.created_by, updated_at: originalRem2.updated_at },
                 { where: { id: originalRem2.id}, silent: true }
+            );
+            await db.playbook_runs.update(
+                { created_at: new Date('2019-12-23T08:19:36.641Z') },
+                { where: { id: '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc' }, silent: true }
             );
         });
 
