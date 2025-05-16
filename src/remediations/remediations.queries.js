@@ -135,7 +135,34 @@ exports.list = async function (
     limit,
     offset) {
 
-    const {Op, s: { literal, where, col, cast }, fn: { COUNT, DISTINCT, MAX }} = db;
+    const {Op, s: {literal, where, col, cast}, fn: { DISTINCT, COUNT, MAX }} = db;
+
+    let sortOrder = [];
+
+    // set primary sort
+    switch (primaryOrder) {
+        case 'status':
+            sortOrder.push([col('remediation.name'), asc ? 'ASC' : 'DESC']);
+            break;
+
+        case 'last_run_at':
+            sortOrder.push([literal('MAX(playbook_runs.created_at)'), asc ? 'ASC NULLS LAST' : 'DESC NULLS FIRST']);
+            break;
+
+        case 'issue_count':
+            sortOrder.push([col('issue_count'), asc ? 'ASC' : 'DESC']);
+            break;
+
+        case 'system_count':
+            sortOrder.push([col('system_count'), asc ? 'ASC' : 'DESC']);
+            break;
+
+        default:
+            sortOrder.push([col(`remediation.${primaryOrder}`), asc ? 'ASC' : 'DESC']);
+    }
+
+    // add secondary sort by id
+    sortOrder.push(['id', 'ASC']);
 
     const query = {
         attributes: [
@@ -170,18 +197,7 @@ exports.list = async function (
         // last_run_at sort option will use the playbook_runs.created_at column in the db
         // This will correctly sort by last_run_at when a playbook hasn't been executed yet so playbook_runs.created_at is NULL
         // Sorting by remediation name for status sorting for now until status sorting is fully implemented
-        order: [
-            primaryOrder === 'status'
-                ? [col('remediation.name'), asc ? 'ASC' : 'DESC']
-                : primaryOrder === 'last_run_at'
-                    ? [literal(`MAX(playbook_runs.created_at) ${asc ? 'ASC NULLS LAST' : 'DESC NULLS FIRST'}`)]
-                    : [col(
-                        primaryOrder === 'issue_count' ? 'issue_count' :
-                        primaryOrder === 'system_count' ? 'system_count' :
-                        `remediation.${primaryOrder}`
-                    ), asc ? 'ASC' : 'DESC'],
-            ['id', 'ASC']
-        ],
+        order: sortOrder,
         subQuery: false,
         limit,
         offset,
@@ -267,7 +283,7 @@ exports.list = async function (
         }
     }
 
-    return await db.remediation.findAndCountAll(query);
+    return db.remediation.findAndCountAll(query);
 };
 
 exports.loadDetails = async function (tenant_org_id, created_by, rows) {
