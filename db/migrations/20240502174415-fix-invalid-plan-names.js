@@ -12,7 +12,7 @@ module.exports = {
             SELECT b.name, b.id 
             FROM remediations a 
             JOIN (
-                SELECT TRIM(name) name, id, tenant_org_id 
+                SELECT TRIM(name) AS name, id, tenant_org_id
                 FROM remediations 
                 WHERE name LIKE ' %' OR name LIKE '% '
             ) b 
