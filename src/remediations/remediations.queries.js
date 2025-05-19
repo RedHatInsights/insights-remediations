@@ -9,7 +9,6 @@ const {NULL_NAME_VALUE} = require('./models/remediation');
 const _ = require('lodash');
 const trace = require('../util/trace');
 const dispatcher = require('../connectors/dispatcher');
-const fifi = require('./fifi');
 
 const CACHE_TTL = config.db.cache.ttl;
 
@@ -34,9 +33,6 @@ const PLAYBOOK_RUN_ATTRIBUTES = [
     'created_at',
     'updated_at'
 ];
-const FAILURE = 'failure';
-const RUNNING = 'running';
-const SUCCESS = 'success';
 
 function systemSubquery (system_id) {
     const {s: { dialect, col, literal }, fn: { DISTINCT }, issue, issue_system} = db;
@@ -75,53 +71,6 @@ function resolvedCountSubquery () {
            `)` +
         `)`
     );
-}
-
-async function getremediationStatusCounts() {
-    const dispatcherRuns = await dispatcher.fetchPlaybookRuns(
-        {filter: {service: 'remediations' }},
-        {fields: {data: ['labels', 'status'] }}
-    );
-
-    const runStatusById = {};
-    for (const run of dispatcherRuns.data) {
-        const runId = run.labels?.['playbook-run'];
-        if (runId) {
-            runStatusById[runId] = run.status;
-        }
-    }
-
-    const runs = await db.playbook_runs.findAll();
-
-    const playbookRunsForRemediation = await db.playbook_runs.findAll({
-        attributes: ['id', 'remediation_id'],
-        where: {
-            id: Object.keys(runStatusById)
-        },
-        raw: true
-    });
-
-    const remediationStatusCounts = {};
-    for (const {id, remediation_id} of playbookRunsForRemediation) {
-        if (!remediationStatusCounts[remediation_id]) {
-            remediationStatusCounts[remediation_id] = {
-                count_success: 0,
-                count_failure: 0,
-                count_timeout: 0,
-                count_running: 0
-            };
-        }
-
-        const status = runStatusById[id];
-        const counts = remediationStatusCounts[remediation_id];
-
-        if (status === 'success') counts.count_success++;
-        else if (status === 'failure') counts.count_failure++;
-        else if (status === 'timeout') counts.count_timeout++;
-        else if (status === 'running') counts.count_running++;
-    }
-
-    return remediationStatusCounts;
 }
 
 exports.list = async function (
@@ -255,21 +204,6 @@ exports.list = async function (
                     }
                 });
             }
-        }
-
-        // status filter
-        if (filter.status) {
-            remediationStatusCounts = await getremediationStatusCounts();
-            // For each remediation, call findRunStatus(counts) to determine the aggregate status
-            // Only keep remediations whose aggregate status matches
-            const matchingRemediationIds = Object.entries(remediationStatusCounts)
-                .filter(([_, counts]) => fifi.findRunStatus(counts) === filter.status)
-                .map(([remediation_id]) => remediation_id);
-
-            query.where.id = {
-                ...(query.where.id || {}),
-                [Op.in]: matchingRemediationIds
-            };
         }
 
         // created_after filter
