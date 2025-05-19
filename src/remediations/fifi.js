@@ -121,7 +121,7 @@ function createDispatcherRunHostsFilter (playbook_run_id, run_id = null, system_
     return runHostsFilter;
 }
 
-function findRunStatus (run) {
+exports.findRunStatus = function (run) {
     if (run.count_failure > 0 || run.count_timeout > 0) {
         return FAILURE;
     } else if (run.count_running > 0 && run.count_timeout === 0 && run.count_failure === 0) {
@@ -196,7 +196,7 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
             satExecutor.count_failure += satExecutor.count_timeout;
 
             // Compute status of executor
-            satExecutor.status = findRunStatus(satExecutor);
+            satExecutor.status = exports.findRunStatus(satExecutor);
 
             executors.push(satExecutor);
         }
@@ -208,7 +208,7 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
         rhcDirect.count_failure += rhcDirect.count_timeout;
 
         // Status of executor
-        rhcDirect.status = findRunStatus(rhcDirect);
+        rhcDirect.status = exports.findRunStatus(rhcDirect);
         executors.push(rhcDirect);
     }
 
