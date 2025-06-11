@@ -212,24 +212,27 @@ exports.list = errors.async(async function (req, res) {
                 'created_at'
             );
 
-            playbook_runs = playbook_runs?.toJSON();
+            // getPlaybookRuns _can_ return null...
+            if (playbook_runs) {
+                playbook_runs = playbook_runs.toJSON();
 
-            // Join rhcRuns and playbookRuns
-            trace.event(`[${local_iteration}] Combine runs`);
-            playbook_runs.iteration = local_iteration;
-            playbook_runs.playbook_runs = await fifi.combineRuns(playbook_runs);
+                // Join rhcRuns and playbookRuns
+                trace.event(`[${local_iteration}] Combine runs`);
+                playbook_runs.iteration = local_iteration;
+                playbook_runs.playbook_runs = await fifi.combineRuns(playbook_runs);
 
-            trace.event(`[${local_iteration}] Resolve users`);
-            playbook_runs = await fifi.resolveUsers(req, playbook_runs);
+                trace.event(`[${local_iteration}] Resolve users`);
+                playbook_runs = await fifi.resolveUsers(req, playbook_runs);
 
-            // Update playbook_run status based on executor status (RHC)
-            trace.event(`[${local_iteration}] Update playbook run status`);
-            fifi.updatePlaybookRunsStatus(playbook_runs.playbook_runs);
+                // Update playbook_run status based on executor status (RHC)
+                trace.event(`[${local_iteration}] Update playbook run status`);
+                fifi.updatePlaybookRunsStatus(playbook_runs.playbook_runs);
 
-            trace.event(`[${local_iteration}] Format playbook run`);
-            remediation.playbook_runs = format.formatRuns(playbook_runs.playbook_runs);
+                trace.event(`[${local_iteration}] Format playbook run`);
+                remediation.playbook_runs = format.formatRuns(playbook_runs.playbook_runs);
 
-            trace.leave(`[${local_iteration}] Process remediation: ${remediation.id}`);
+                trace.leave(`[${local_iteration}] Process remediation: ${remediation.id}`);
+            }
         })
     }
 
