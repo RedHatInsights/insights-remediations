@@ -25,7 +25,7 @@ module.exports = (sequelize, {STRING, UUID, ENUM, DATE, TEXT, BOOLEAN, INTEGER})
         },
         status: {
             type: ENUM,
-            values: ['pending', 'running', 'success', 'failure', 'canceled', 'acked'],
+            values: ['pending', 'running', 'success', 'failure', 'canceled', 'acked', 'timeout'],
             defaultValue: 'pending',
             allowNull: false
         },

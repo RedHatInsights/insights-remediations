@@ -1233,17 +1233,17 @@ components:
     PlaybookRunStatus:
       type: string
       example: "pending"
-      enum: ["pending", "running", "success", "failure", "canceled"]
+      enum: ["pending", "running", "success", "failure", "canceled", "timeout"]
 
     PlaybookRunExecutorStatus:
       type: string
       example: "pending"
-      enum: ["pending", "acked", "running", "success", "failure", "canceled"]
+      enum: ["pending", "acked", "running", "success", "failure", "canceled", "timeout"]
 
     PlaybookRunSystemStatus:
       type: string
       example: "pending"
-      enum: ["pending", "running", "success", "failure", "canceled"]
+      enum: ["pending", "running", "success", "failure", "canceled", "timeout"]
 
     PlaybookRunId:
       type: string
