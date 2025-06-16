@@ -189,7 +189,8 @@ async function dispatchWorkRequests (workRequests, playbook_run_id) {
             .filter(r => (r.code >= 200 && r.code < 300) && r.id)
             .map(r => ({
                 dispatcher_run_id: r.id,
-                remediations_run_id: playbook_run_id
+                remediations_run_id: playbook_run_id,
+                pd_response_code: r.code
             }));
 
         if (successfulRuns.length) {

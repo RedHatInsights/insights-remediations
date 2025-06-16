@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = (sequelize, { STRING, UUID, ENUM, DATE }) => {
+module.exports = (sequelize, { STRING, UUID, ENUM, DATE, INTEGER }) => {
     const DispatcherRuns = sequelize.define('dispatcher_runs', {
         dispatcher_run_id: {
             type: UUID,
@@ -19,6 +19,10 @@ module.exports = (sequelize, { STRING, UUID, ENUM, DATE }) => {
             values: ['pending', 'running', 'success', 'failure', 'canceled', 'timeout'],
             defaultValue: 'pending',
             allowNull: false
+        },
+        pd_response_code: {
+            type: INTEGER,
+            allowNull: true
         },
         created_at: {
             type: DATE,
