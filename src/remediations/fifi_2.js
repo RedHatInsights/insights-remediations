@@ -89,15 +89,15 @@ exports.createPlaybookRun = async function (recipients, exclude, remediation, us
         throw errors.noExecutors(remediation);
     }
 
+    // create playbook run db entry
+    await storePlaybookRun(playbook_run_id, remediation, username);
+
     // dispatch requests
     const response = await dispatchWorkRequests(workRequests, playbook_run_id);
 
     if (response === null) {
         return null;
     }
-
-    // create playbook run db entry
-    await storePlaybookRun(playbook_run_id, remediation, username);
 
     // return run UUID
     return playbook_run_id;
@@ -179,13 +179,25 @@ async function dispatchWorkRequests (workRequests, playbook_run_id) {
         // handle aggregate responses
         const results = [... new Set(_.map(response, 'code'))];
         if (results.some(i=> i >= 300)) {
-            // TODO: we should log some details and maybe return better HTTP status here
+            // TODO: maybe return better HTTP status here
+            log.warn({results}, 'Some dispatcher requests failed');
             return null;
         }
 
+        // Store dispatcher runs
+        const successfulRuns = response
+            .filter(r => (r.code === 200 || r.code === 201) && r.id)
+            .map(r => ({
+                dispatcher_run_id: r.id,
+                remediations_run_id: playbook_run_id
+            }));
+
+        if (successfulRuns.length) {
+            await queries.insertDispatcherRuns(successfulRuns);
+        }
         return response;
     } catch (e) {
-        log.error({workRequest: workRequests, error: e}, 'error sending work request to playbook-dispatcher');
+        log.error({workRequest: workRequests, error: e}, 'Failed to dispatch work requests and save dispatcher runs');
         return null;
     }
 }

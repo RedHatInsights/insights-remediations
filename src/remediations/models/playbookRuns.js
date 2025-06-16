@@ -22,7 +22,7 @@ module.exports = (sequelize, {STRING, UUID, ENUM, DATE}) => {
         },
         created_at: {
             type: DATE,
-            allowNullL: false
+            allowNull: false
         },
         updated_at: {
             type: DATE,
@@ -42,6 +42,11 @@ module.exports = (sequelize, {STRING, UUID, ENUM, DATE}) => {
         PlaybookRuns.hasMany(models.playbook_run_executors, {
             foreignKey: 'playbook_run_id',
             as: 'executors'
+        });
+
+        PlaybookRuns.hasMany(models.dispatcher_runs, {
+            foreignKey: 'remediations_run_id',
+            as: 'dispatcher_runs'
         });
     };
 
