@@ -5,7 +5,9 @@ const _ = require('lodash');
 const URI = require('urijs');
 const queryString = require('querystring');
 
-const { request, auth, mockDate, buildRbacResponse } = require('../test');
+const { request, auth, mockDate, buildRbacResponse, sandbox} = require('../test');
+const sinon = require('sinon');
+
 const utils = require('../middleware/identity/utils');
 const configManager = require('../connectors/configManager');
 const receptor = require('../connectors/receptor');
@@ -1046,6 +1048,49 @@ describe('FiFi', function () {
                     .set('if-match', '"b48-TyVONjo4V6eLe5E3p90RxLra8So"')
                     .expect(201);
             });
+
+            test('post playbook run and store dispatcher runs', async () => {
+                const sandbox = base.getSandbox();
+                const { v4: uuidv4 } = require('uuid');
+
+                const remediationId = '0ecb5db7-2f1a-441b-8220-e5ce45066f50';
+                const fakeRunId = uuidv4();
+                sandbox.stub(fifi_2, 'uuidv4').returns(fakeRunId);
+
+                const dispatcherResponse = [
+                    { code: 200, id: uuidv4() },
+                    { code: 200, id: uuidv4() }
+                ];
+
+                sandbox.stub(dispatcher, 'postV2PlaybookRunRequests').resolves(dispatcherResponse);
+
+                await request
+                .post(`/v1/remediations/${remediationId}/playbook_runs`)
+                .set(auth.fifi)
+                .expect(201);
+
+                const inserted = await db.dispatcher_runs.findAll({
+                    where: { remediations_run_id: fakeRunId },
+                    raw: true
+                });
+
+                expect(inserted).toHaveLength(2);
+                expect(inserted).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({
+                            dispatcher_run_id: dispatcherResponse[0].id,
+                            remediations_run_id: fakeRunId,
+                            status: 'pending'
+                        }),
+                        expect.objectContaining({
+                            dispatcher_run_id: dispatcherResponse[1].id,
+                            remediations_run_id: fakeRunId,
+                            status: 'pending'
+                        })
+                    ])
+                );
+            });
+
 
             test('post playbook run temp test', async () => {
                 const TEST_DATA = {
