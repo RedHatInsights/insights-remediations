@@ -186,7 +186,7 @@ async function dispatchWorkRequests (workRequests, playbook_run_id) {
 
         // Store dispatcher runs
         const successfulRuns = response
-            .filter(r => (r.code === 200 || r.code === 201) && r.id)
+            .filter(r => (r.code >= 200 && r.code < 300) && r.id)
             .map(r => ({
                 dispatcher_run_id: r.id,
                 remediations_run_id: playbook_run_id
