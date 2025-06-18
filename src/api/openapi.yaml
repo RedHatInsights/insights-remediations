@@ -845,21 +845,30 @@ components:
                 oneOf:
                   - type: string
                     format: date-time
-                    description: Filter remediations with last run on or after this timestamp (ISO 8601 format)
+                    description: >
+                      Filter remediations with last run on or after this timestamp (ISO 8601 format)
+                      Must be a valid ISO 8601 date-time string. Precision should be to the nearest second or millisecond.
+                      Example: '2024-09-11T12:00:00Z' or '2024-09-11T12:00:00.123Z'
                   - type: string
                     enum: ['never']
                     description: Filter remediations that have never run
               created_after:
                 type: string
                 format: date-time
-                description: Filter remediations created on or after this timestamp (ISO 8601 format)
+                description: >
+                  Filter remediations created on or after this timestamp (ISO 8601 format)
+                  Must be a valid ISO 8601 date-time string. Precision should be to the nearest second or millisecond.
+                  Example: '2024-09-11T12:00:00Z' or '2024-09-11T12:00:00.123Z'
               status:
                 type: string
                 enum: [running, success, failure]
               updated_after:
                 type: string
                 format: date-time
-                description: Filter remediations updated on or after this timestamp (ISO 8601 format)
+                description: >
+                  Filter remediations updated on or after this timestamp (ISO 8601 format)
+                  Must be a valid ISO 8601 date-time string. Precision should be to the nearest second or millisecond.
+                  Example: '2024-09-11T12:00:00Z' or '2024-09-11T12:00:00.123Z'
       style: deepObject
       explode: true
 
