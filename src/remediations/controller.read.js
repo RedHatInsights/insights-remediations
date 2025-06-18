@@ -47,7 +47,16 @@ function resolveResolutions (...remediations) {
 }
 
 function resolveResolutionsNeedReboot (...remediations) {
-    return P.all(_(remediations).flatMap('issues').map(async issue => {
+    // Check for invalid or undefined remediations
+    remediations.forEach((r, i) => {
+        if (!r) {
+            log.warn({ index: i }, 'resolveResolutionsNeedReboot: remediation is undefined or null');
+        } else if (!Array.isArray(r.issues)) {
+            log.warn({ index: i, remediation: r }, "resolveResolutionsNeedReboot: remediation is missing 'issues' array");
+        }
+    });
+
+    return P.all(_(remediations).flatMap('issues').filter(issue => issue && issue.issue_id && issue.resolution !== undefined).map(async issue => {
         const id = identifiers.parse(issue.issue_id);
         const needsReboot = await Issues.getHandler(id).getResolutionResolver().isRebootNeeded(id, issue.resolution);
 
