@@ -684,3 +684,18 @@ exports.insertPlaybookRun = async function (run, executors, systems) {
 exports.insertRHCPlaybookRun = async function (run) {
     await db.playbook_runs.create(run);
 };
+
+exports.insertDispatcherRuns = async function (runs) {
+    if (runs.length === 0) {
+        return [];
+    }
+
+    // Use ignoreDuplicates to handle race conditions with remediations-consumer
+    // which may also create dispatcher_runs entries from Kafka messages
+    await db.dispatcher_runs.bulkCreate(runs, { 
+        ignoreDuplicates: true 
+    });
+
+    return runs;
+};
+
