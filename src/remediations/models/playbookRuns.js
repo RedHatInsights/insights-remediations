@@ -46,7 +46,9 @@ module.exports = (sequelize, {STRING, UUID, ENUM, DATE}) => {
 
         PlaybookRuns.hasMany(models.dispatcher_runs, {
             foreignKey: 'remediations_run_id',
-            as: 'dispatcher_runs'
+            as: 'dispatcher_runs',
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE'
         });
     };
 
