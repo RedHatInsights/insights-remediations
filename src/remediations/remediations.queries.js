@@ -686,26 +686,15 @@ exports.insertRHCPlaybookRun = async function (run) {
 };
 
 exports.insertDispatcherRuns = async function (runs) {
-    const ids = runs.map(r => r.dispatcher_run_id);
-
-    // We also attempt to create dispatcher_runs entries in remediations-consumer,
-    // which processes Kafka messages from playbook-dispatcher when playbook runs are created or updated.
-    // To avoid duplicate entries, we need to check whether a dispatcher_runs record already exists—
-    // in case the 'create' Kafka message was processed before reaching this point.
-    const existingIds = new Set(
-        (await db.dispatcher_runs.findAll({
-            where: { dispatcher_run_id: ids },
-            attributes: ['dispatcher_run_id'],
-            raw: true
-        })).map(r => r.dispatcher_run_id)
-    );
-
-    const newRuns = runs.filter(r => !existingIds.has(r.dispatcher_run_id));
-
-    if (newRuns.length) {
-        await db.dispatcher_runs.bulkCreate(newRuns);
+    if (runs.length === 0) {
+        return [];
     }
 
-    return newRuns;
-};
+    // Use ignoreDuplicates to handle race conditions with remediations-consumer
+    // which may also create dispatcher_runs entries from Kafka messages
+    await db.dispatcher_runs.bulkCreate(runs, { 
+        ignoreDuplicates: true 
+    });
 
+    return runs;
+};

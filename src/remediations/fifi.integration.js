@@ -1091,6 +1091,53 @@ describe('FiFi', function () {
                 );
             });
 
+            test('post playbook run with dispatcher partial failure - saves all runs and returns 201', async function () {
+                const sandbox = base.getSandbox();
+                const { v4: uuidv4 } = require('uuid');
+
+                const remediationId = '0ecb5db7-2f1a-441b-8220-e5ce45066f50';
+                const fakeRunId = uuidv4();
+                sandbox.stub(fifi_2, 'uuidv4').returns(fakeRunId);
+
+                const dispatcherResponse = [
+                    { code: 200, id: uuidv4() },
+                    { code: 200, id: uuidv4() },
+                    { code: 400, id: uuidv4() },
+                    { code: 200, id: uuidv4() },
+                    { code: 500, id: uuidv4() },
+                    { code: 200, id: uuidv4() },
+                    { code: 200, id: uuidv4() },
+                    { code: 200, id: uuidv4() },
+                    { code: 200, id: uuidv4() }
+                ];
+
+                sandbox.stub(dispatcher, 'postV2PlaybookRunRequests').resolves(dispatcherResponse);
+
+                const {body} = await request
+                .post(`/v1/remediations/${remediationId}/playbook_runs`)
+                .set(auth.fifi)
+                .expect(201);
+                
+                // Should return the run ID successfully despite partial failures
+                body.should.have.property('id', fakeRunId);
+
+                const inserted = await db.dispatcher_runs.findAll({
+                    where: { remediations_run_id: fakeRunId },
+                    raw: true
+                });
+
+                expect(inserted).toHaveLength(9);
+                
+                // Check that we have the correct response codes saved
+                const responseCodes = inserted.map(run => run.pd_response_code).sort();
+                expect(responseCodes).toEqual([200, 200, 200, 200, 200, 200, 200, 400, 500]);
+                
+                // Verify that each response has a dispatcher_run_id
+                inserted.forEach(run => {
+                    expect(run.dispatcher_run_id).toBeDefined();
+                    expect(run.remediations_run_id).toBe(fakeRunId);
+                });
+            });
 
             test('post playbook run temp test', async () => {
                 const TEST_DATA = {

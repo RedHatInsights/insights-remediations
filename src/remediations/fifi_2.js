@@ -176,28 +176,29 @@ async function dispatchWorkRequests (workRequests, playbook_run_id) {
         const response = await dispatcher.postV2PlaybookRunRequests(workRequests);
         probes.JobDispatched(response, playbook_run_id);
 
+        // Store all dispatcher runs
+        const dispatcherRuns = response
+            .filter(r => r.id)
+            .map(r => ({
+                dispatcher_run_id: r.id,
+                remediations_run_id: playbook_run_id,
+                pd_response_code: r.code
+            }));
+
+        if (dispatcherRuns.length) {
+            await queries.insertDispatcherRuns(dispatcherRuns);
+        }
+
         // handle aggregate responses
         const results = [... new Set(_.map(response, 'code'))];
         if (results.some(i=> i >= 300)) {
-            // TODO: maybe return better HTTP status here
-            log.warn({results}, 'Some dispatcher requests failed');
-            return null;
+            log.warn({results}, 'Some dispatcher requests failed, continuing with successful ones');
         }
 
-        // Store dispatcher runs
-        const successfulRuns = response
-            .filter(r => (r.code >= 200 && r.code < 300) && r.id)
-            .map(r => ({
-                dispatcher_run_id: r.id,
-                remediations_run_id: playbook_run_id
-            }));
-
-        if (successfulRuns.length) {
-            await queries.insertDispatcherRuns(successfulRuns);
-        }
         return response;
     } catch (e) {
         log.error({workRequest: workRequests, error: e}, 'Failed to dispatch work requests and save dispatcher runs');
+        
         return null;
     }
 }
