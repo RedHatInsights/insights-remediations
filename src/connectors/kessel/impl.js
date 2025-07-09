@@ -1,189 +1,141 @@
 'use strict';
 
-const _ = require('lodash');
 const assert = require('assert');
 const Connector = require('../Connector');
 const log = require('../../util/log');
 
-const { enabled, url, insecure, timeout, retries } = require('../../config').kessel;
+const { enabled, url, insecure } = require('../../config').kessel;
 const metrics = require('../metrics');
 
-// Import Kessel SDK
-let KesselClient;
+// Import Kessel SDK components
+let KesselInventoryServiceClient, ChannelCredentials;
 try {
-    const { Client } = require('@project-kessel/kessel-sdk');
-    KesselClient = Client;
+    // Import all required Kessel SDK components
+    const kesselInventory = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2/inventory_service');
+    KesselInventoryServiceClient = kesselInventory.KesselInventoryServiceClient;
+
+    // Import gRPC credentials
+    const grpcJs = require('@grpc/grpc-js');
+    ChannelCredentials = grpcJs.ChannelCredentials;
+
 } catch (error) {
-    log.warn('Kessel SDK not available, falling back to traditional RBAC');
-    KesselClient = null;
+    log.warn('Kessel SDK not available, falling back to traditional RBAC:', error.message);
+    KesselInventoryServiceClient = null;
 }
 
 module.exports = new class extends Connector {
     constructor () {
         super(module);
-        this.accessMetrics = metrics.createConnectorMetric(this.getName(), 'getRemediationsAccess');
         this.kesselClient = null;
         this.initialized = false;
+        this.permissionMetrics = metrics.createConnectorMetric(this.getName(), 'Kessel.getRemediationsAccess');
 
-        if (enabled && KesselClient) {
+        if (enabled && KesselInventoryServiceClient) {
             this.initializeKesselClient();
         }
     }
 
     initializeKesselClient() {
         try {
-            this.kesselClient = new KesselClient({
-                baseURL: url,
-                timeout: timeout,
-                retries: retries,
-                headers: this.getForwardedHeaders()
-            });
+            // Create gRPC credentials
+            const credentials = insecure
+                ? ChannelCredentials.createInsecure()
+                : ChannelCredentials.createSsl();
+
+            // Initialize the gRPC client using the URL directly
+            this.kesselClient = new KesselInventoryServiceClient(
+                url,
+                credentials,
+                {
+                    // Channel options
+                    'grpc.keepalive_time_ms': 30000,
+                    'grpc.keepalive_timeout_ms': 5000,
+                    'grpc.keepalive_permit_without_calls': true,
+                    'grpc.http2.max_pings_without_data': 0,
+                    'grpc.http2.min_time_between_pings_ms': 10000,
+                    'grpc.http2.min_ping_interval_without_data_ms': 300000
+                }
+            );
             this.initialized = true;
-            log.info('Kessel client initialized successfully');
+            log.info('Kessel gRPC client initialized successfully');
         } catch (error) {
-            log.error({ error }, 'Failed to initialize Kessel client');
+            log.error({ error }, 'Failed to initialize Kessel gRPC client');
             this.initialized = false;
         }
     }
 
-    async getRemediationsAccess(requestRetries = retries) {
+    async pingPermissionCheck() {
         if (!enabled || !this.initialized || !this.kesselClient) {
             log.warn('Kessel not enabled or not initialized, cannot check access');
-            return null;
+            return false;
         }
 
         try {
             const identity = this.getIdentityFromHeaders();
             if (!identity) {
-                log.warn('No identity found in headers');
-                return null;
+                log.warn('No identity found in headers for ping check');
+                return false;
             }
 
-            const permissions = await this.checkRemediationsPermissions(identity);
+            const userId = identity.user_id || identity.identity?.user?.user_id;
+            const workspaceId = this.extractWorkspaceId(identity);
 
-            const result = this.doHttp({
-                uri: `${url}/api/relations/v1/check`,
-                method: 'POST',
-                json: true,
-                rejectUnauthorized: !insecure,
-                headers: this.getForwardedHeaders(),
-                body: {
-                    permissions: permissions
-                }
-            }, false, this.accessMetrics);
-
-            if (_.isEmpty(result)) {
-                return null;
-            }
-
-            // Transform Kessel response to match RBAC response format
-            return this.transformKesselResponse(result);
-        } catch (e) {
-            if (requestRetries > 0) {
-                log.warn({ error: e, retries: requestRetries }, 'Kessel access fetch failed. Retrying');
-                return this.getRemediationsAccess(requestRetries - 1);
-            }
-
-            log.error({ error: e }, 'Kessel access fetch failed after all retries');
-            throw e;
+            // Just check a single basic permission for ping
+            return await this.checkSinglePermission(userId, workspaceId, 'remediations_read_remediation');
+        } catch (error) {
+            log.warn({ error }, 'Kessel ping permission check failed');
+            return false;
         }
     }
 
-    async checkRemediationsPermissions(identity) {
-        // Define remediations-specific workspace permissions to check
-        // These follow the new v2 permission model where permissions are workspace-based
-        const workspacePermissions = [
-            'remediations_read_remediation',
-            'remediations_write_remediation',
-            'remediations_execute_remediation',
-            'remediations_read_playbook',
-            'remediations_write_playbook',
-            'remediations_execute_playbook',
-            'remediations_read_system',
-            'remediations_write_system'
-        ];
-
-        // Get the user's workspace (this would typically come from the identity or be looked up)
-        const workspaceId = this.extractWorkspaceId(identity);
-
-        const permissionChecks = workspacePermissions.map(permission => {
-            return {
+    async checkSinglePermission(userId, workspaceId, relation) {
+        return new Promise((resolve, reject) => {
+            // Create subject reference
+            const subjectReference = {
                 resource: {
-                    type: 'workspace',
-                    id: workspaceId || '*' // Use specific workspace or wildcard
-                },
-                relation: permission,
-                subject: {
-                    type: 'user',
-                    id: identity.user_id || identity.identity?.user?.user_id
+                    reporter: {
+                        type: "rbac"
+                    },
+                    resourceId: `redhat/${userId}`,
+                    resourceType: "principal"
                 }
             };
-        });
 
-        return permissionChecks;
+            // Create resource reference
+            const resource = {
+                reporter: {
+                    type: "rbac"
+                },
+                resourceId: workspaceId,
+                resourceType: "workspace"
+            };
+
+            // Create check request
+            const checkRequest = {
+                object: resource,
+                relation: relation,
+                subject: subjectReference
+            };
+
+            // Make the gRPC call
+            this.kesselClient.check(checkRequest, (error, response) => {
+                if (!error && response) {
+                    resolve(response.allowed || false);
+                } else {
+                    log.warn({ error, checkRequest }, 'gRPC check call failed');
+                    reject(error || new Error('No response received'));
+                }
+            });
+        });
     }
 
     extractWorkspaceId(identity) {
         // Extract workspace/organization ID from identity
-        // This would typically be the account_number or org_id
         return identity.identity?.account_number ||
                identity.identity?.org_id ||
                identity.account_number ||
                identity.org_id ||
                'default';
-    }
-
-    transformKesselResponse(kesselResult) {
-        // Transform Kessel ReBAC response to match traditional RBAC format
-        const permissions = [];
-
-        if (kesselResult && kesselResult.allowed && kesselResult.results) {
-            // If any permissions are allowed, create corresponding RBAC-style permissions
-            kesselResult.results?.forEach(result => {
-                if (result.allowed) {
-                    let rbacPermission = null;
-
-                    // Handle different response formats
-                    if (result.relation && result.resource) {
-                        // Format 1: Direct resource/relation format from some Kessel APIs
-                        // e.g., { resource: { type: 'remediations/remediation' }, relation: 'read' }
-                        if (result.resource.type && result.relation) {
-                            const resourceType = result.resource.type.split('/').pop(); // 'remediations/remediation' -> 'remediation'
-                            rbacPermission = `remediations:${resourceType}:${result.relation}`;
-                        }
-                    } else if (typeof result.relation === 'string' && result.relation.startsWith('remediations_')) {
-                        // Format 2: Workspace permission format
-                        // e.g., 'remediations_read_remediation'
-                        rbacPermission = this.convertWorkspacePermissionToRbac(result.relation);
-                    }
-
-                    if (rbacPermission) {
-                        permissions.push(rbacPermission);
-                    }
-                }
-            });
-        }
-
-        return {
-            data: permissions.map(permission => ({ permission }))
-        };
-    }
-
-    convertWorkspacePermissionToRbac(workspacePermission) {
-        // Convert workspace permission back to traditional RBAC format
-        // e.g., 'remediations_read_remediation' -> 'remediations:remediation:read'
-        const permissionMap = {
-            'remediations_read_remediation': 'remediations:remediation:read',
-            'remediations_write_remediation': 'remediations:remediation:write',
-            'remediations_execute_remediation': 'remediations:remediation:execute',
-            'remediations_read_playbook': 'remediations:playbook:read',
-            'remediations_write_playbook': 'remediations:playbook:write',
-            'remediations_execute_playbook': 'remediations:playbook:execute',
-            'remediations_read_system': 'remediations:system:read',
-            'remediations_write_system': 'remediations:system:write'
-        };
-
-        return permissionMap[workspacePermission] || null;
     }
 
     getIdentityFromHeaders() {
@@ -208,8 +160,12 @@ module.exports = new class extends Connector {
             return;
         }
 
-        const result = await this.getRemediationsAccess();
-        assert(result !== null || !this.initialized, 'Kessel ping failed');
+        try {
+            await this.pingPermissionCheck();
+        } catch (error) {
+            log.warn({ error }, 'Kessel ping check failed');
+            assert(false, 'Kessel ping failed');
+        }
     }
 
     // Compatibility method to check specific permission
@@ -218,10 +174,9 @@ module.exports = new class extends Connector {
             return false;
         }
 
+        const startTime = Date.now();
         try {
             // Convert traditional RBAC permission to workspace permission
-            // The resource and action parameters come from the RBAC middleware
-            // e.g., hasPermission('remediation', 'read', 'user123')
             const workspacePermission = this.convertRbacToWorkspacePermission(resource, action);
             if (!workspacePermission) {
                 log.warn({ resource, action }, 'Unknown permission mapping');
@@ -229,31 +184,19 @@ module.exports = new class extends Connector {
             }
 
             // Get workspace ID from subject or use default
-            const workspaceId = this.getWorkspaceIdForSubject(subject);
+            const workspaceId = this.getDefaultWorkspaceIdForSubject(subject);
 
-            const checkRequest = {
-                resource: {
-                    type: 'workspace',
-                    id: workspaceId
-                },
-                relation: workspacePermission,
-                subject: {
-                    type: 'user',
-                    id: subject
-                }
-            };
+            // Check the specific permission
+            const allowed = await this.checkSinglePermission(subject, workspaceId, workspacePermission);
 
-            const result = await this.doHttp({
-                uri: `${url}/api/relations/v1/check`,
-                method: 'POST',
-                json: true,
-                rejectUnauthorized: !insecure,
-                headers: this.getForwardedHeaders(),
-                body: checkRequest
-            }, false, this.accessMetrics);
+            // Record successful metric
+            this.permissionMetrics.observe(Date.now() - startTime, 200);
 
-            return result && result.allowed === true;
+            return allowed;
         } catch (error) {
+            // Record error metric
+            this.permissionMetrics.observe(Date.now() - startTime, 500);
+
             log.error({ error, resource, action, subject }, 'Failed to check permission with Kessel');
             return false;
         }
@@ -261,29 +204,13 @@ module.exports = new class extends Connector {
 
     convertRbacToWorkspacePermission(resource, action) {
         // Convert traditional RBAC permission to workspace permission
-        // e.g., ('remediation', 'read') -> 'remediations_read_remediation'
-        const permissionKey = `${resource}:${action}`;
-        const permissionMap = {
-            'remediation:read': 'remediations_read_remediation',
-            'remediation:write': 'remediations_write_remediation',
-            'remediation:execute': 'remediations_execute_remediation',
-            'playbook:read': 'remediations_read_playbook',
-            'playbook:write': 'remediations_write_playbook',
-            'playbook:execute': 'remediations_execute_playbook',
-            'system:read': 'remediations_read_system',
-            'system:write': 'remediations_write_system'
-        };
-
-        return permissionMap[permissionKey] || null;
+        // Pattern: ${resource}:${action} -> remediations_${action}_${resource}
+        return `remediations_${action}_${resource}`;
     }
 
-    getWorkspaceIdForSubject(subject) {
-        // In a real implementation, this would look up the user's workspace
-        // For now, we'll use a default or extract from current identity
-        const identity = this.getIdentityFromHeaders();
-        if (identity) {
-            return this.extractWorkspaceId(identity);
-        }
+    getDefaultWorkspaceIdForSubject(subject) {
+        // For now, return a default workspace ID
+        // In a real implementation, this would look up the user's default workspace based on the subject
         return 'default';
     }
 }();

@@ -157,4 +157,42 @@ describe('kessel impl', () => {
             require('../../config').kessel.enabled = originalConfig.enabled;
         });
     });
+
+    describe('convertRbacToWorkspacePermission', () => {
+        test('should convert RBAC permissions to workspace permissions correctly', () => {
+            // Expected mappings that the function should produce
+            const expectedMappings = {
+                'remediation:read': 'remediations_read_remediation',
+                'remediation:write': 'remediations_write_remediation',
+                'remediation:execute': 'remediations_execute_remediation',
+                'playbook:read': 'remediations_read_playbook',
+                'playbook:write': 'remediations_write_playbook',
+                'playbook:execute': 'remediations_execute_playbook',
+                'system:read': 'remediations_read_system',
+                'system:write': 'remediations_write_system'
+            };
+
+            // Test each expected mapping
+            Object.entries(expectedMappings).forEach(([rbacPermission, expectedWorkspacePermission]) => {
+                const [resource, action] = rbacPermission.split(':');
+                const result = impl.convertRbacToWorkspacePermission(resource, action);
+                expect(result).toBe(expectedWorkspacePermission);
+            });
+        });
+
+        test('should return null for invalid resource', () => {
+            const result = impl.convertRbacToWorkspacePermission('invalid', 'read');
+            expect(result).toBeNull();
+        });
+
+        test('should return null for invalid action', () => {
+            const result = impl.convertRbacToWorkspacePermission('remediation', 'invalid');
+            expect(result).toBeNull();
+        });
+
+        test('should return null for both invalid resource and action', () => {
+            const result = impl.convertRbacToWorkspacePermission('invalid', 'invalid');
+            expect(result).toBeNull();
+        });
+    });
 }); 
