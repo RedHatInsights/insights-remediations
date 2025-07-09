@@ -167,6 +167,14 @@ function Config() {
             enforce: env.RBAC_ENFORCE === 'false' ? false : true
         },
 
+        kessel: {
+            enabled: env.KESSEL_ENABLED === 'true' ? true : false,
+            relationsApiHost: env.KESSEL_RELATIONS_API_HOST || 'http://localhost:8080',
+            insecure: (env.KESSEL_INSECURE === 'true') ? true : false,
+            timeout: parseIntEnv('KESSEL_TIMEOUT', 10000),
+            retries: parseIntEnv('KESSEL_RETRIES', 3)
+        },
+
         receptor: {
             impl: env.RECEPTOR_IMPL
         },
@@ -252,6 +260,7 @@ function Config() {
         config.inventory.host = getHostForApp(dependencyEndpoints, 'host-inventory', 'service', 'INVENTORY') || env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';
         config.patchman.host = getHostForApp(dependencyEndpoints, 'patchman', 'manager', 'PATCHMAN') || env.PATCHMAN_HOST || 'http://localhost:8080';
         config.rbac.host = getHostForApp(dependencyEndpoints, 'rbac', 'service', 'RBAC') || env.RBAC_HOST || 'http://localhost:8080';
+        config.kessel.relationsApiHost = getHostForApp(dependencyEndpoints, 'kessel-relations', 'api', 'KESSEL_RELATIONS_API') || env.KESSEL_RELATIONS_API_HOST || 'http://localhost:8080';
         config.receptor.host = getHostForApp(dependencyEndpoints, 'receptor', 'gateway-clowder', 'RECEPTOR') || env.RECEPTOR_HOST || 'http://localhost:9090';
         config.sources.host = getHostForApp(dependencyEndpoints, 'sources-api', 'svc', 'SOURCES') || env.SOURCES_HOST || 'http://localhost:8080';
         config.ssg.host = getHostForApp(privateDepencencyEndpoints, 'compliance-ssg', 'service', 'SSG') || env.SSG_HOST || 'http://localhost:8090';
@@ -296,6 +305,7 @@ function Config() {
         config.inventory.host = env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';
         config.patchman.host = env.PATCHMAN_HOST || 'http://localhost:8080';
         config.rbac.host = env.RBAC_HOST || 'http://localhost:8080';
+        config.kessel.relationsApiHost = env.KESSEL_RELATIONS_API_HOST || 'http://localhost:8080';
         config.receptor.host = env.RECEPTOR_HOST || 'http://localhost:9090';
         config.sources.host = env.SOURCES_HOST || 'http://localhost:8080';
         config.ssg.host = env.SSG_HOST || 'http://localhost:8090';
