@@ -5,7 +5,7 @@ const assert = require('assert');
 const Connector = require('../Connector');
 const log = require('../../util/log');
 
-const { enabled, relationsApiHost, insecure, timeout, retries } = require('../../config').kessel;
+const { enabled, url, insecure, timeout, retries } = require('../../config').kessel;
 const metrics = require('../metrics');
 
 // Import Kessel SDK
@@ -24,7 +24,7 @@ module.exports = new class extends Connector {
         this.accessMetrics = metrics.createConnectorMetric(this.getName(), 'getRemediationsAccess');
         this.kesselClient = null;
         this.initialized = false;
-        
+
         if (enabled && KesselClient) {
             this.initializeKesselClient();
         }
@@ -33,7 +33,7 @@ module.exports = new class extends Connector {
     initializeKesselClient() {
         try {
             this.kesselClient = new KesselClient({
-                baseURL: relationsApiHost,
+                baseURL: url,
                 timeout: timeout,
                 retries: retries,
                 headers: this.getForwardedHeaders()
@@ -60,9 +60,9 @@ module.exports = new class extends Connector {
             }
 
             const permissions = await this.checkRemediationsPermissions(identity);
-            
+
             const result = this.doHttp({
-                uri: `${relationsApiHost}/api/relations/v1/check`,
+                uri: `${url}/api/relations/v1/check`,
                 method: 'POST',
                 json: true,
                 rejectUnauthorized: !insecure,
@@ -94,7 +94,7 @@ module.exports = new class extends Connector {
         // These follow the new v2 permission model where permissions are workspace-based
         const workspacePermissions = [
             'remediations_read_remediation',
-            'remediations_write_remediation', 
+            'remediations_write_remediation',
             'remediations_execute_remediation',
             'remediations_read_playbook',
             'remediations_write_playbook',
@@ -126,9 +126,9 @@ module.exports = new class extends Connector {
     extractWorkspaceId(identity) {
         // Extract workspace/organization ID from identity
         // This would typically be the account_number or org_id
-        return identity.identity?.account_number || 
-               identity.identity?.org_id || 
-               identity.account_number || 
+        return identity.identity?.account_number ||
+               identity.identity?.org_id ||
+               identity.account_number ||
                identity.org_id ||
                'default';
     }
@@ -136,13 +136,13 @@ module.exports = new class extends Connector {
     transformKesselResponse(kesselResult) {
         // Transform Kessel ReBAC response to match traditional RBAC format
         const permissions = [];
-        
+
         if (kesselResult && kesselResult.allowed && kesselResult.results) {
             // If any permissions are allowed, create corresponding RBAC-style permissions
             kesselResult.results?.forEach(result => {
                 if (result.allowed) {
                     let rbacPermission = null;
-                    
+
                     // Handle different response formats
                     if (result.relation && result.resource) {
                         // Format 1: Direct resource/relation format from some Kessel APIs
@@ -156,7 +156,7 @@ module.exports = new class extends Connector {
                         // e.g., 'remediations_read_remediation'
                         rbacPermission = this.convertWorkspacePermissionToRbac(result.relation);
                     }
-                    
+
                     if (rbacPermission) {
                         permissions.push(rbacPermission);
                     }
@@ -188,7 +188,7 @@ module.exports = new class extends Connector {
 
     getIdentityFromHeaders() {
         const headers = this.getForwardedHeaders();
-        
+
         // Try to extract identity from x-rh-identity header
         if (headers['x-rh-identity']) {
             try {
@@ -244,7 +244,7 @@ module.exports = new class extends Connector {
             };
 
             const result = await this.doHttp({
-                uri: `${relationsApiHost}/api/relations/v1/check`,
+                uri: `${url}/api/relations/v1/check`,
                 method: 'POST',
                 json: true,
                 rejectUnauthorized: !insecure,
@@ -286,4 +286,4 @@ module.exports = new class extends Connector {
         }
         return 'default';
     }
-}(); 
+}();

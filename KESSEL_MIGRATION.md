@@ -28,7 +28,7 @@ The following environment variables control Kessel integration:
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | `KESSEL_ENABLED` | Enable/disable Kessel authorization | `false` | No |
-| `KESSEL_RELATIONS_API_HOST` | Kessel Relations API endpoint | `http://localhost:8080` | Yes (when enabled) |
+| `KESSEL_URL` | Kessel Relations API endpoint | `http://localhost:8080` | Yes (when enabled) |
 | `KESSEL_INSECURE` | Skip TLS verification | `false` | No |
 | `KESSEL_TIMEOUT` | Request timeout in milliseconds | `10000` | No |
 | `KESSEL_RETRIES` | Number of retry attempts | `3` | No |
@@ -40,7 +40,7 @@ The following environment variables control Kessel integration:
 export KESSEL_ENABLED=true
 
 # Set Relations API endpoint
-export KESSEL_RELATIONS_API_HOST=https://kessel-relations-api.example.com
+export KESSEL_URL=https://kessel-relations-api.example.com
 
 # Optional: Configure timeout and retries
 export KESSEL_TIMEOUT=15000
@@ -154,7 +154,7 @@ The service integrates with the Kessel Relations API using the following endpoin
    - Check Node.js version compatibility
 
 2. **Connection refused**
-   - Verify `KESSEL_RELATIONS_API_HOST` is correct
+   - Verify `KESSEL_URL` is correct
    - Ensure Kessel Relations API is running
    - Check network connectivity
 
@@ -207,7 +207,7 @@ docker-compose -f docker-compose.kessel.yml up -d
 2. Configure environment:
 ```bash
 export KESSEL_ENABLED=true
-export KESSEL_RELATIONS_API_HOST=http://localhost:8080
+export KESSEL_URL=http://localhost:8080
 export KESSEL_INSECURE=true
 ```
 
