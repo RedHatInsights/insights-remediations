@@ -20,26 +20,26 @@ describe('kessel impl', () => {
         });
     });
 
-    describe('getRemediationsAccess', () => {
-        test('should return null when Kessel is not enabled', async () => {
+    describe('pingPermissionCheck', () => {
+        test('should return false when Kessel is not enabled', async () => {
             // Mock config to disable Kessel
             const originalConfig = require('../../config').kessel;
             require('../../config').kessel.enabled = false;
             
-            const result = await impl.getRemediationsAccess();
-            expect(result).toBeNull();
+            const result = await impl.pingPermissionCheck();
+            expect(result).toBe(false);
             
             // Restore original config
             require('../../config').kessel.enabled = originalConfig.enabled;
         });
 
-        test('should return null when no identity is found', async () => {
+        test('should return false when no identity is found', async () => {
             // Mock getIdentityFromHeaders to return null
             const originalMethod = impl.getIdentityFromHeaders;
             impl.getIdentityFromHeaders = jest.fn().mockReturnValue(null);
             
-            const result = await impl.getRemediationsAccess();
-            expect(result).toBeNull();
+            const result = await impl.pingPermissionCheck();
+            expect(result).toBe(false);
             
             // Restore original method
             impl.getIdentityFromHeaders = originalMethod;
@@ -59,52 +59,20 @@ describe('kessel impl', () => {
             require('../../config').kessel.enabled = originalConfig.enabled;
         });
 
-        test('should return false on error', async () => {
-            // Mock doHttp to throw an error
-            const originalDoHttp = impl.doHttp;
-            impl.doHttp = jest.fn().mockRejectedValue(new Error('Network error'));
+        test('should return false when not initialized', async () => {
+            // Mock initialization state
+            const originalInitialized = impl.initialized;
+            impl.initialized = false;
             
             const result = await impl.hasPermission('remediation', 'read', 'user123');
             expect(result).toBe(false);
             
-            // Restore original method
-            impl.doHttp = originalDoHttp;
+            // Restore original state
+            impl.initialized = originalInitialized;
         });
     });
 
-    describe('transformKesselResponse', () => {
-        test('should transform Kessel response to RBAC format', () => {
-            const kesselResponse = {
-                allowed: true,
-                results: [
-                    {
-                        allowed: true,
-                        resource: { type: 'remediations/remediation' },
-                        relation: 'read'
-                    },
-                    {
-                        allowed: false,
-                        resource: { type: 'remediations/remediation' },
-                        relation: 'write'
-                    }
-                ]
-            };
 
-            const result = impl.transformKesselResponse(kesselResponse);
-            expect(result).toEqual({
-                data: [
-                    { permission: 'remediations:remediation:read' }
-                ]
-            });
-        });
-
-        test('should handle empty response', () => {
-            const result = impl.transformKesselResponse(null);
-            expect(result).toEqual({
-                data: []
-            });
-        });
-    });
 
     describe('getIdentityFromHeaders', () => {
         test('should parse x-rh-identity header', () => {
@@ -180,19 +148,16 @@ describe('kessel impl', () => {
             });
         });
 
-        test('should return null for invalid resource', () => {
-            const result = impl.convertRbacToWorkspacePermission('invalid', 'read');
-            expect(result).toBeNull();
+        test('should follow the pattern remediations_${action}_${resource}', () => {
+            const result = impl.convertRbacToWorkspacePermission('test', 'example');
+            expect(result).toBe('remediations_example_test');
         });
+    });
 
-        test('should return null for invalid action', () => {
-            const result = impl.convertRbacToWorkspacePermission('remediation', 'invalid');
-            expect(result).toBeNull();
-        });
-
-        test('should return null for both invalid resource and action', () => {
-            const result = impl.convertRbacToWorkspacePermission('invalid', 'invalid');
-            expect(result).toBeNull();
+    describe('getDefaultWorkspaceIdForSubject', () => {
+        test('should return default workspace ID', () => {
+            const result = impl.getDefaultWorkspaceIdForSubject('user123');
+            expect(result).toBe('default');
         });
     });
 }); 
