@@ -16,7 +16,7 @@ module.exports = new class extends Connector {
 
     getErratum (id) {
         const uri = new URI(host);
-        uri.path('/api/v1/errata');
+        uri.path('/api/vmaas/v3/errata');
         uri.segment(id);
 
         return this.doHttp({
@@ -32,7 +32,7 @@ module.exports = new class extends Connector {
         trace.enter('connectors/vmaas/vmaas.getCve');
 
         const uri = new URI(host);
-        uri.path('/api/v1/cves');
+        uri.path('/api/vmaas/v3/cves');
         uri.segment(id);
 
         const options = {
@@ -63,7 +63,7 @@ module.exports = new class extends Connector {
 
     getPackage (id, refresh = false) {
         const uri = new URI(host);
-        uri.path('/api/v1/packages');
+        uri.path('/api/vmaas/v3/packages');
         uri.segment(id);
 
         return this.doHttp({
