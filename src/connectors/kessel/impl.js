@@ -7,20 +7,15 @@ const log = require('../../util/log');
 const { enabled, url, insecure } = require('../../config').kessel;
 const metrics = require('../metrics');
 
-// Import Kessel SDK components
-let KesselInventoryServiceClient, ChannelCredentials;
+// Import new Kessel SDK with ClientBuilder
+let ClientBuilder;
 try {
-    // Import all required Kessel SDK components
-    const kesselInventory = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2/inventory_service');
-    KesselInventoryServiceClient = kesselInventory.KesselInventoryServiceClient;
-
-    // Import gRPC credentials
-    const grpcJs = require('@grpc/grpc-js');
-    ChannelCredentials = grpcJs.ChannelCredentials;
-
+    // Import the new ClientBuilder from the updated SDK
+    const kesselSdk = require('@project-kessel/kessel-sdk/inventory/v1beta2');
+    ClientBuilder = kesselSdk.ClientBuilder;
 } catch (error) {
     log.warn('Kessel SDK not available, falling back to traditional RBAC:', error.message);
-    KesselInventoryServiceClient = null;
+    ClientBuilder = null;
 }
 
 module.exports = new class extends Connector {
@@ -30,36 +25,37 @@ module.exports = new class extends Connector {
         this.initialized = false;
         this.permissionMetrics = metrics.createConnectorMetric(this.getName(), 'Kessel.getRemediationsAccess');
 
-        if (enabled && KesselInventoryServiceClient) {
+        if (enabled && ClientBuilder) {
             this.initializeKesselClient();
         }
     }
 
     initializeKesselClient() {
         try {
-            // Create gRPC credentials
-            const credentials = insecure
-                ? ChannelCredentials.createInsecure()
-                : ChannelCredentials.createSsl();
+            // Use the new ClientBuilder pattern
+            const builder = ClientBuilder.builder()
+                .withTarget(url);
 
-            // Initialize the gRPC client using the URL directly
-            this.kesselClient = new KesselInventoryServiceClient(
-                url,
-                credentials,
-                {
-                    // Channel options
-                    'grpc.keepalive_time_ms': 30000,
-                    'grpc.keepalive_timeout_ms': 5000,
-                    'grpc.keepalive_permit_without_calls': true,
-                    'grpc.http2.max_pings_without_data': 0,
-                    'grpc.http2.min_time_between_pings_ms': 10000,
-                    'grpc.http2.min_ping_interval_without_data_ms': 300000
-                }
-            );
+            // Configure credentials based on the insecure flag
+            if (insecure) {
+                builder.withInsecureCredentials();
+            } else {
+                builder.withSecureCredentials();
+            }
+
+            // Configure keep-alive settings
+            builder.withKeepAlive({
+                timeMs: 30000,
+                timeoutMs: 5000,
+                permitWithoutCalls: true
+            });
+
+            // Build the client
+            this.kesselClient = builder.build();
             this.initialized = true;
-            log.info('Kessel gRPC client initialized successfully');
+            log.info('Kessel client initialized successfully using ClientBuilder');
         } catch (error) {
-            log.error({ error }, 'Failed to initialize Kessel gRPC client');
+            log.error({ error }, 'Failed to initialize Kessel client');
             this.initialized = false;
         }
     }
@@ -89,44 +85,35 @@ module.exports = new class extends Connector {
     }
 
     async checkSinglePermission(userId, workspaceId, relation) {
-        return new Promise((resolve, reject) => {
-            // Create subject reference
-            const subjectReference = {
-                resource: {
+        try {
+            // Create the check request using the new API structure
+            const checkRequest = {
+                subject: {
+                    resource: {
+                        reporter: {
+                            type: "rbac"
+                        },
+                        resourceId: `redhat/${userId}`,
+                        resourceType: "principal"
+                    }
+                },
+                object: {
                     reporter: {
                         type: "rbac"
                     },
-                    resourceId: `redhat/${userId}`,
-                    resourceType: "principal"
-                }
-            };
-
-            // Create resource reference
-            const resource = {
-                reporter: {
-                    type: "rbac"
+                    resourceId: workspaceId,
+                    resourceType: "workspace"
                 },
-                resourceId: workspaceId,
-                resourceType: "workspace"
+                relation: relation
             };
 
-            // Create check request
-            const checkRequest = {
-                object: resource,
-                relation: relation,
-                subject: subjectReference
-            };
-
-            // Make the gRPC call
-            this.kesselClient.check(checkRequest, (error, response) => {
-                if (!error && response) {
-                    resolve(response.allowed || false);
-                } else {
-                    log.warn({ error, checkRequest }, 'gRPC check call failed');
-                    reject(error || new Error('No response received'));
-                }
-            });
-        });
+            // Use async/await with the new client
+            const response = await this.kesselClient.check(checkRequest);
+            return response.allowed || false;
+        } catch (error) {
+            log.warn({ error, userId, workspaceId, relation }, 'Kessel check call failed');
+            throw error;
+        }
     }
 
     extractWorkspaceId(identity) {
@@ -186,7 +173,7 @@ module.exports = new class extends Connector {
             // Get workspace ID from subject or use default
             const workspaceId = this.getDefaultWorkspaceIdForSubject(subject);
 
-            // Check the specific permission
+            // Check the specific permission using async/await
             const allowed = await this.checkSinglePermission(subject, workspaceId, workspacePermission);
 
             // Record successful metric
