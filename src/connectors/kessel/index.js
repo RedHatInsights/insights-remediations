@@ -1,3 +1,6 @@
 'use strict';
 
-module.exports = require('./impl'); 
+const config = require('../../config');
+const KesselConnector = require('./impl');
+
+module.exports = new KesselConnector(module, config.kessel); 

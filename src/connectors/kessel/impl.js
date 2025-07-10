@@ -4,7 +4,6 @@ const assert = require('assert');
 const Connector = require('../Connector');
 const log = require('../../util/log');
 
-const { enabled, url, insecure } = require('../../config').kessel;
 const metrics = require('../metrics');
 
 // Import new Kessel SDK with ClientBuilder
@@ -18,14 +17,15 @@ try {
     ClientBuilder = null;
 }
 
-module.exports = new class extends Connector {
-    constructor () {
+module.exports = class extends Connector {
+    constructor (module, kesselConfig) {
         super(module);
+        this.kesselConfig = kesselConfig;
         this.kesselClient = null;
         this.initialized = false;
         this.permissionMetrics = metrics.createConnectorMetric(this.getName(), 'Kessel.getRemediationsAccess');
 
-        if (enabled && ClientBuilder) {
+        if (this.kesselConfig.enabled && ClientBuilder) {
             this.initializeKesselClient();
         }
     }
@@ -34,10 +34,10 @@ module.exports = new class extends Connector {
         try {
             // Use the new ClientBuilder pattern
             const builder = ClientBuilder.builder()
-                .withTarget(url);
+                .withTarget(this.kesselConfig.url);
 
             // Configure credentials based on the insecure flag
-            if (insecure) {
+            if (this.kesselConfig.insecure) {
                 builder.withInsecureCredentials();
             } else {
                 builder.withSecureCredentials();
@@ -61,7 +61,7 @@ module.exports = new class extends Connector {
     }
 
     async pingPermissionCheck() {
-        if (!enabled || !this.initialized || !this.kesselClient) {
+        if (!this.kesselConfig.enabled || !this.initialized || !this.kesselClient) {
             log.warn('Kessel not enabled or not initialized, cannot check access');
             return false;
         }
@@ -142,7 +142,7 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        if (!enabled) {
+        if (!this.kesselConfig.enabled) {
             log.debug('Kessel not enabled, skipping ping');
             return;
         }
@@ -157,7 +157,7 @@ module.exports = new class extends Connector {
 
     // Compatibility method to check specific permission
     async hasPermission(resource, action, subject) {
-        if (!enabled || !this.initialized || !this.kesselClient) {
+        if (!this.kesselConfig.enabled || !this.initialized || !this.kesselClient) {
             return false;
         }
 
@@ -200,4 +200,4 @@ module.exports = new class extends Connector {
         // In a real implementation, this would look up the user's default workspace based on the subject
         return 'default';
     }
-}();
+};

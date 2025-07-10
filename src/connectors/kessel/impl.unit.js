@@ -1,12 +1,51 @@
 'use strict';
 
-const impl = require('./impl');
+const KesselConnector = require('./impl');
 const { mockRequest } = require('../testUtils');
 
 describe('kessel impl', () => {
+    // Create a test instance with mock config for each test
+    let mockConfig;
+    let impl;
+    let originalMethods = {};
 
     beforeEach(() => {
         mockRequest();
+        
+        // Create mock config for testing
+        mockConfig = {
+            enabled: true,
+            url: 'localhost:9000',
+            insecure: true
+        };
+        
+        // Create test instance
+        impl = new KesselConnector(module, mockConfig);
+        
+        // Store original methods for restoration
+        originalMethods = {
+            getIdentityFromHeaders: impl.getIdentityFromHeaders,
+            getForwardedHeaders: impl.getForwardedHeaders,
+            checkSinglePermission: impl.checkSinglePermission,
+            pingPermissionCheck: impl.pingPermissionCheck,
+            kesselClient: impl.kesselClient,
+            initialized: impl.initialized,
+            permissionMetrics: impl.permissionMetrics
+        };
+    });
+
+    afterEach(() => {
+        // Restore original methods
+        impl.getIdentityFromHeaders = originalMethods.getIdentityFromHeaders;
+        impl.getForwardedHeaders = originalMethods.getForwardedHeaders;
+        impl.checkSinglePermission = originalMethods.checkSinglePermission;
+        impl.pingPermissionCheck = originalMethods.pingPermissionCheck;
+        impl.kesselClient = originalMethods.kesselClient;
+        impl.initialized = originalMethods.initialized;
+        impl.permissionMetrics = originalMethods.permissionMetrics;
+        
+        // Clear any jest mocks
+        jest.clearAllMocks();
     });
 
     describe('initialization', () => {
@@ -16,7 +55,7 @@ describe('kessel impl', () => {
 
         test('should handle missing Kessel SDK gracefully', () => {
             // Test is mainly to ensure the try/catch works
-            expect(() => require('./impl')).not.toThrow();
+            expect(() => new KesselConnector(module, mockConfig)).not.toThrow();
         });
 
         test('should use ClientBuilder when available', () => {
@@ -27,63 +66,54 @@ describe('kessel impl', () => {
 
     describe('initializeKesselClient', () => {
         test('should use secure credentials when insecure is false', () => {
-            // Mock the config for secure connection
-            const originalConfig = require('../../config').kessel;
-            require('../../config').kessel.insecure = false;
+            const secureConfig = { ...mockConfig, insecure: false };
+            const secureImpl = new KesselConnector(module, secureConfig);
             
             // The fact that initialization doesn't throw indicates success with secure credentials
-            expect(() => impl.initializeKesselClient()).not.toThrow();
-            
-            // Restore original config
-            require('../../config').kessel.insecure = originalConfig.insecure;
+            expect(() => secureImpl.initializeKesselClient()).not.toThrow();
         });
 
         test('should use insecure credentials when insecure is true', () => {
-            // Mock the config for insecure connection  
-            const originalConfig = require('../../config').kessel;
-            require('../../config').kessel.insecure = true;
+            const insecureConfig = { ...mockConfig, insecure: true };
+            const insecureImpl = new KesselConnector(module, insecureConfig);
             
             // The fact that initialization doesn't throw indicates success with insecure credentials
-            expect(() => impl.initializeKesselClient()).not.toThrow();
-            
-            // Restore original config
-            require('../../config').kessel.insecure = originalConfig.insecure;
+            expect(() => insecureImpl.initializeKesselClient()).not.toThrow();
         });
     });
 
     describe('pingPermissionCheck', () => {
         test('should return false when Kessel is not enabled', async () => {
-            // Mock config to disable Kessel
-            const originalConfig = require('../../config').kessel;
-            require('../../config').kessel.enabled = false;
+            // Create instance with disabled config
+            const disabledConfig = { ...mockConfig, enabled: false };
+            const disabledImpl = new KesselConnector(module, disabledConfig);
             
-            const result = await impl.pingPermissionCheck();
+            const result = await disabledImpl.pingPermissionCheck();
             expect(result).toBe(false);
-            
-            // Restore original config
-            require('../../config').kessel.enabled = originalConfig.enabled;
         });
 
         test('should return false when no identity is found', async () => {
             // Mock getIdentityFromHeaders to return null
-            const originalMethod = impl.getIdentityFromHeaders;
             impl.getIdentityFromHeaders = jest.fn().mockReturnValue(null);
             
             const result = await impl.pingPermissionCheck();
             expect(result).toBe(false);
-            
-            // Restore original method
-            impl.getIdentityFromHeaders = originalMethod;
         });
 
         test('should handle async operation correctly', async () => {
-            // Mock identity and client to test the async flow
-            const mockIdentity = {
-                identity: { user: { user_id: 'test-user' }, org_id: 'test-org' }
-            };
+            // Ensure Kessel is enabled and initialized for this test
+            impl.kesselConfig.enabled = true;
+            impl.initialized = true;
+            impl.kesselClient = { check: jest.fn() }; // Mock client
             
-            const originalGetIdentity = impl.getIdentityFromHeaders;
-            const originalCheckPermission = impl.checkSinglePermission;
+            // Mock identity and client to test the async flow
+            // Note: userId is extracted as identity.user_id || identity.identity?.user?.user_id
+            const mockIdentity = {
+                identity: { 
+                    user: { user_id: 'test-user' }, 
+                    org_id: 'test-org' 
+                }
+            };
             
             impl.getIdentityFromHeaders = jest.fn().mockReturnValue(mockIdentity);
             impl.checkSinglePermission = jest.fn().mockResolvedValue(true);
@@ -95,10 +125,6 @@ describe('kessel impl', () => {
                 'test-org', 
                 'remediations_read_remediation'
             );
-            
-            // Restore original methods
-            impl.getIdentityFromHeaders = originalGetIdentity;
-            impl.checkSinglePermission = originalCheckPermission;
         });
     });
 
@@ -106,15 +132,15 @@ describe('kessel impl', () => {
         test('should construct proper check request structure', async () => {
             // Mock the kessel client
             const mockResponse = { allowed: true };
-            const originalClient = impl.kesselClient;
-            
-            impl.kesselClient = {
+            const mockClient = {
                 check: jest.fn().mockResolvedValue(mockResponse)
             };
             
+            impl.kesselClient = mockClient;
+            
             const result = await impl.checkSinglePermission('user123', 'workspace456', 'test_permission');
             
-            expect(impl.kesselClient.check).toHaveBeenCalledWith({
+            expect(mockClient.check).toHaveBeenCalledWith({
                 subject: {
                     resource: {
                         reporter: { type: "rbac" },
@@ -131,56 +157,52 @@ describe('kessel impl', () => {
             });
             
             expect(result).toBe(true);
-            
-            // Restore original client
-            impl.kesselClient = originalClient;
         });
 
         test('should handle async rejection correctly', async () => {
             // Mock the kessel client to throw an error
-            const originalClient = impl.kesselClient;
             const mockError = new Error('Connection failed');
-            
-            impl.kesselClient = {
+            const mockClient = {
                 check: jest.fn().mockRejectedValue(mockError)
             };
             
+            impl.kesselClient = mockClient;
+            
             await expect(impl.checkSinglePermission('user123', 'workspace456', 'test_permission'))
                 .rejects.toThrow('Connection failed');
-            
-            // Restore original client
-            impl.kesselClient = originalClient;
         });
     });
 
     describe('hasPermission', () => {
         test('should return false when Kessel is not enabled', async () => {
-            // Mock config to disable Kessel
-            const originalConfig = require('../../config').kessel;
-            require('../../config').kessel.enabled = false;
+            // Create instance with disabled config
+            const disabledConfig = { ...mockConfig, enabled: false };
+            const disabledImpl = new KesselConnector(module, disabledConfig);
             
-            const result = await impl.hasPermission('remediation', 'read', 'user123');
+            const result = await disabledImpl.hasPermission('remediation', 'read', 'user123');
             expect(result).toBe(false);
-            
-            // Restore original config
-            require('../../config').kessel.enabled = originalConfig.enabled;
         });
 
         test('should return false when not initialized', async () => {
             // Mock initialization state
-            const originalInitialized = impl.initialized;
             impl.initialized = false;
             
             const result = await impl.hasPermission('remediation', 'read', 'user123');
             expect(result).toBe(false);
-            
-            // Restore original state
-            impl.initialized = originalInitialized;
         });
 
         test('should use async checkSinglePermission', async () => {
+            // Ensure Kessel is enabled and initialized for this test
+            impl.kesselConfig.enabled = true;
+            impl.initialized = true;
+            impl.kesselClient = { check: jest.fn() }; // Mock client
+            
+            // Mock the permissionMetrics to handle observe calls
+            impl.permissionMetrics = {
+                observe: jest.fn()
+            };
+            
             // Mock the checkSinglePermission to test async flow
-            const originalCheckPermission = impl.checkSinglePermission;
             impl.checkSinglePermission = jest.fn().mockResolvedValue(true);
             
             const result = await impl.hasPermission('remediation', 'read', 'user123');
@@ -190,21 +212,24 @@ describe('kessel impl', () => {
                 'default',
                 'remediations_read_remediation'
             );
-            
-            // Restore original method
-            impl.checkSinglePermission = originalCheckPermission;
         });
 
         test('should handle permission check errors gracefully', async () => {
+            // Ensure Kessel is enabled and initialized for this test
+            impl.kesselConfig.enabled = true;
+            impl.initialized = true;
+            impl.kesselClient = { check: jest.fn() }; // Mock client
+            
+            // Mock the permissionMetrics to handle observe calls
+            impl.permissionMetrics = {
+                observe: jest.fn()
+            };
+            
             // Mock checkSinglePermission to throw an error
-            const originalCheckPermission = impl.checkSinglePermission;
             impl.checkSinglePermission = jest.fn().mockRejectedValue(new Error('Permission check failed'));
             
             const result = await impl.hasPermission('remediation', 'read', 'user123');
             expect(result).toBe(false);
-            
-            // Restore original method
-            impl.checkSinglePermission = originalCheckPermission;
         });
     });
 
@@ -252,67 +277,51 @@ describe('kessel impl', () => {
             const encodedIdentity = Buffer.from(JSON.stringify(mockIdentity)).toString('base64');
             
             // Mock getForwardedHeaders
-            const originalMethod = impl.getForwardedHeaders;
             impl.getForwardedHeaders = jest.fn().mockReturnValue({
                 'x-rh-identity': encodedIdentity
             });
             
             const result = impl.getIdentityFromHeaders();
             expect(result).toEqual(mockIdentity);
-            
-            // Restore original method
-            impl.getForwardedHeaders = originalMethod;
         });
 
         test('should handle invalid base64', () => {
             // Mock getForwardedHeaders with invalid base64
-            const originalMethod = impl.getForwardedHeaders;
             impl.getForwardedHeaders = jest.fn().mockReturnValue({
                 'x-rh-identity': 'invalid-base64'
             });
             
             const result = impl.getIdentityFromHeaders();
             expect(result).toBeNull();
-            
-            // Restore original method
-            impl.getForwardedHeaders = originalMethod;
         });
 
         test('should handle missing header', () => {
             // Mock getForwardedHeaders with no identity header
-            const originalMethod = impl.getForwardedHeaders;
             impl.getForwardedHeaders = jest.fn().mockReturnValue({});
             
             const result = impl.getIdentityFromHeaders();
             expect(result).toBeNull();
-            
-            // Restore original method
-            impl.getForwardedHeaders = originalMethod;
         });
     });
 
     describe('ping', () => {
         test('should not throw when Kessel is disabled', async () => {
-            // Mock config to disable Kessel
-            const originalConfig = require('../../config').kessel;
-            require('../../config').kessel.enabled = false;
+            // Create instance with disabled config
+            const disabledConfig = { ...mockConfig, enabled: false };
+            const disabledImpl = new KesselConnector(module, disabledConfig);
             
-            await expect(impl.ping()).resolves.not.toThrow();
-            
-            // Restore original config
-            require('../../config').kessel.enabled = originalConfig.enabled;
+            await expect(disabledImpl.ping()).resolves.not.toThrow();
         });
 
         test('should handle ping permission check failure', async () => {
+            // Ensure Kessel is enabled for this test
+            impl.kesselConfig.enabled = true;
+            
             // Mock pingPermissionCheck to throw an error
-            const originalPingCheck = impl.pingPermissionCheck;
             impl.pingPermissionCheck = jest.fn().mockRejectedValue(new Error('Ping failed'));
             
             // The ping method should handle the error by throwing an assertion
-            await expect(impl.ping()).rejects.toThrow();
-            
-            // Restore original method
-            impl.pingPermissionCheck = originalPingCheck;
+            await expect(impl.ping()).rejects.toThrow('Kessel ping failed');
         });
     });
 
