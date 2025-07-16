@@ -8,9 +8,19 @@ const db = require('../db');
 const {NULL_NAME_VALUE} = require('./models/remediation');
 const _ = require('lodash');
 const trace = require('../util/trace');
-const dispatcher = require('../connectors/dispatcher');
+const log = require('../util/log');
+const { syncDispatcherRuns } = require('../services/dispatcherSync');
 
 const CACHE_TTL = config.db.cache.ttl;
+
+function aggregateStatusSQL() {
+    return `CASE
+        WHEN COUNT(*) FILTER (WHERE "playbook_runs->dispatcher_runs"."status" IN ('failure', 'timeout')) > 0 THEN 'failure'
+        WHEN COUNT(*) FILTER (WHERE "playbook_runs->dispatcher_runs"."status" = 'running') > 0 THEN 'running'
+        WHEN COUNT(*) FILTER (WHERE "playbook_runs->dispatcher_runs"."status" = 'success') > 0 THEN 'success'
+        ELSE 'pending'
+    END`;
+}
 
 const REMEDIATION_ATTRIBUTES = [
     'id',
@@ -86,12 +96,17 @@ exports.list = async function (
 
     const {Op, s: {literal, where, col, cast}, fn: { DISTINCT, COUNT, MAX }} = db;
 
-    let sortOrder = [];
+    // Only call playbook-dispatcher API when we need status data for sorting/filtering  
+    if (primaryOrder === 'status' || (filter && filter.status)) {
+        await syncDispatcherRuns(tenant_org_id, created_by);
+    }
+
+    const sortOrder = [];
 
     // set primary sort
     switch (primaryOrder) {
         case 'status':
-            sortOrder.push([col('remediation.name'), asc ? 'ASC' : 'DESC']);
+            sortOrder.push([literal(aggregateStatusSQL()), asc ? 'ASC' : 'DESC']);
             break;
 
         case 'last_run_at':
@@ -119,7 +134,8 @@ exports.list = async function (
             [cast(COUNT(DISTINCT(col('issues.id'))), 'int'), 'issue_count'],
             [cast(COUNT(DISTINCT(col('issues->systems.system_id'))), 'int'), 'system_count'],
             [resolvedCountSubquery(), 'resolved_count'],
-            [MAX(col('playbook_runs.created_at')), 'last_run_at']
+            [MAX(col('playbook_runs.created_at')), 'last_run_at'],
+            [literal(aggregateStatusSQL()), 'status']
         ],
         include: [{
             attributes: [],
@@ -135,7 +151,13 @@ exports.list = async function (
             model: db.playbook_runs,
             as: 'playbook_runs',
             attributes: [],
-            required: false
+            required: false,
+            include: [{
+                model: db.dispatcher_runs,
+                as: 'dispatcher_runs',
+                attributes: [],
+                required: false
+            }]
         }],
         where: {
             tenant_org_id,
@@ -164,8 +186,6 @@ exports.list = async function (
             [Op.eq]: false
         };
     }
-
-    let remediationStatusCounts = null;
 
     if (filter) {
         // name filter
@@ -214,6 +234,13 @@ exports.list = async function (
         // updated_after filter
         if (filter.updated_after) {
             query.where["updated_at"] = { [Op.gt]: new Date(filter.updated_after) };
+        }
+
+        // status filter
+        if (filter.status) {
+            // Filter by calculated aggregate status
+            const statusCondition = aggregateStatusSQL();
+            query.having = literal(`(${statusCondition}) = '${filter.status}'`);
         }
     }
 

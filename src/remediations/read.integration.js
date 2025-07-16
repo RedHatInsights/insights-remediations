@@ -8,6 +8,7 @@ const inventory = require('../connectors/inventory');
 const JSZip = require('jszip');
 const base = require('../test');
 const impl = require('../connectors/dispatcher/impl');
+const dispatcher = require('../connectors/dispatcher');
 const db = require('../db');
 
 function test400 (name, url, code, title) {
@@ -58,9 +59,39 @@ describe('remediations', function () {
                 { created_at: new Date('2024-09-11T12:00:00Z') },
                 { where: { id: '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc' }, silent: true }
             );
+
+            // Add dispatcher_runs test data for real status testing
+            await db.dispatcher_runs.bulkCreate([
+                {
+                    dispatcher_run_id: '11111111-0015-4e7d-a6d6-4b530cbfb5bc',
+                    remediations_run_id: '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc', // FiFI playbook 3 (r249) - running
+                    status: 'running',
+                    pd_response_code: 200,
+                    created_at: new Date('2019-12-23T08:19:36.641Z'),
+                    updated_at: new Date('2019-12-23T08:19:36.641Z')
+                },
+                {
+                    dispatcher_run_id: '88888888-cce8-4738-907b-a89eaa559275',
+                    remediations_run_id: '8ff5717a-cce8-4738-907b-a89eaa559275', // status aggregation test (refe) - failure
+                    status: 'failure',
+                    pd_response_code: 200,
+                    created_at: new Date('2024-09-10T22:00:00.000Z'),
+                    updated_at: new Date('2024-09-10T22:01:00.000Z')
+                }
+            ], { ignoreDuplicates: true });
         });
 
         afterAll(async () => {
+            // Clean up dispatcher_runs test data
+            await db.dispatcher_runs.destroy({
+                where: {
+                    dispatcher_run_id: [
+                        '11111111-0015-4e7d-a6d6-4b530cbfb5bc',
+                        '88888888-cce8-4738-907b-a89eaa559275'
+                    ]
+                }
+            });
+
             await db.remediation.update(
                 { tenant_org_id: originalRem1.tenant_org_id, created_by: originalRem1.created_by, updated_at: originalRem1.updated_at },
                 { where: { id: originalRem1.id}, silent: true }
@@ -191,8 +222,8 @@ describe('remediations', function () {
             testSorting('system_count', false, r249, refe, r66e, re80, r178, rcbc, r256);
             testSorting('last_run_at', true, refe, r249, r178, r256, r66e, rcbc, re80);
             testSorting('last_run_at', false, r178, r256, r66e, rcbc, re80, r249, refe);
-            testSorting('status', true, r249, r178, r256, refe, r66e, rcbc, re80);
-            testSorting('status', false, re80, rcbc, r66e, refe, r256, r178, r249);
+            testSorting('status', true, refe, r178, r256, r66e, rcbc, re80, r249);
+            testSorting('status', false, r249, r178, r256, r66e, rcbc, re80, refe);
 
             test400(
                 'invalid column',
@@ -244,9 +275,10 @@ describe('remediations', function () {
                     testList('last_run_after=date/time query with match', '/v1/remediations?filter[last_run_after]=2016-12-04T08:19:36.641Z', refe, r249);
                     testList('last_run_after=never query with match', '/v1/remediations?filter[last_run_after]=never', r256, r178, re80, rcbc, r66e);
                     testList('name and last_run_after query no match', '/v1/remediations?filter[last_run_after]=2018-12-04T08:19:36.641Z&filter[name]=REBootNoMatch');
-                    // testList('status query running', '/v1/remediations?filter[status]=running', r249);
-                    // testList('status query failure', '/v1/remediations?filter[status]=failure', refe);
-                    // testList('status and last_run_after query', '/v1/remediations?filter[status]=running&filter[last_run_after]=2018-09-04T08:19:36.641Z', r249);
+                    testList('status query running', '/v1/remediations?filter[status]=running', r249);
+                    testList('status query failure', '/v1/remediations?filter[status]=failure', refe);
+                    testList('status and name query', '/v1/remediations?filter[status]=running&filter[name]=FiFI playbook 3', r249);
+                    testList('status and last_run_after query', '/v1/remediations?filter[status]=running&filter[last_run_after]=2018-09-04T08:19:36.641Z', r249);
                 });
 
                 describe('invalid options', function () {
@@ -264,9 +296,15 @@ describe('remediations', function () {
                     );
                     test400(
                         'bad status query',
+                        '/v1/remediations?filter[status]=invalid_status',
+                        'enum.openapi.requestValidation',
+                        'must be equal to one of the allowed values (location: query, path: filter.status)'
+                    );
+                    test400(
+                        'timeout status query not allowed',
                         '/v1/remediations?filter[status]=timeout',
-                        'type.openapi.requestValidation',
-                        'must be string (location: query, path: filter)'
+                        'enum.openapi.requestValidation',
+                        'must be equal to one of the allowed values (location: query, path: filter.status)'
                     );
                 });
             });
