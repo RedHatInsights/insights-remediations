@@ -1922,4 +1922,147 @@ describe('FiFi', function () {
             systems.data[7].should.have.property('status', 'failure');
         });
     });
+
+    describe('syncDispatcherRunsForPlaybookRuns', function () {
+        test('syncDispatcherRunsForPlaybookRuns backfill', async () => {
+            const sandbox = base.getSandbox();
+            const { v4: uuidv4 } = require('uuid');
+
+            // Use an existing playbook run that has no dispatcher_runs
+            const playbookRunId = '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc';
+
+            // Mock dispatcher API response
+            sandbox.stub(dispatcher, 'fetchPlaybookRuns').resolves({
+                data: [
+                    { id: uuidv4(), status: 'success' },
+                    { id: uuidv4(), status: 'pending' }
+                ]
+            });
+
+            // Call sync function
+            const result = await fifi_2.syncDispatcherRunsForPlaybookRuns([playbookRunId]);
+
+            // Verify function returned the synced run
+            result.should.have.length(1);
+            result[0].should.equal(playbookRunId);
+
+            // Verify database was updated - should have created new dispatcher_runs
+            const inserted = await db.dispatcher_runs.findAll({
+                where: { remediations_run_id: playbookRunId },
+                raw: true
+            });
+
+            expect(inserted).toHaveLength(2);
+            expect(inserted).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({
+                        remediations_run_id: playbookRunId,
+                        status: 'success'
+                    }),
+                    expect.objectContaining({
+                        remediations_run_id: playbookRunId,
+                        status: 'pending'
+                    })
+                ])
+            );
+        });
+
+        test('syncDispatcherRunsForPlaybookRuns status update', async () => {
+            const sandbox = base.getSandbox();
+            const { v4: uuidv4 } = require('uuid');
+
+            // Use an existing playbook run
+            const playbookRunId = '88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc';
+
+            // Create some incomplete dispatcher_runs first
+            const dispatcherRunId1 = uuidv4();
+            const dispatcherRunId2 = uuidv4();
+            
+            await db.dispatcher_runs.bulkCreate([
+                {
+                    dispatcher_run_id: dispatcherRunId1,
+                    remediations_run_id: playbookRunId,
+                    status: 'pending',
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                    pd_response_code: null
+                },
+                {
+                    dispatcher_run_id: dispatcherRunId2,
+                    remediations_run_id: playbookRunId,
+                    status: 'running',
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                    pd_response_code: null
+                }
+            ]);
+
+            // Mock dispatcher API response with updated statuses
+            sandbox.stub(dispatcher, 'fetchPlaybookRuns').resolves({
+                data: [
+                    { id: dispatcherRunId1, status: 'success' },
+                    { id: dispatcherRunId2, status: 'success' }
+                ]
+            });
+
+            // Call sync function
+            const result = await fifi_2.syncDispatcherRunsForPlaybookRuns([playbookRunId]);
+
+            // Verify function returned the synced run
+            result.should.have.length(1);
+            result[0].should.equal(playbookRunId);
+
+            // Verify database was updated - statuses should be updated
+            const updated = await db.dispatcher_runs.findAll({
+                where: { remediations_run_id: playbookRunId },
+                raw: true
+            });
+
+            expect(updated).toHaveLength(2);
+            updated.forEach(run => {
+                expect(run.status).toBe('success');
+                expect(run.remediations_run_id).toBe(playbookRunId);
+            });
+        });
+
+        test('syncDispatcherRunsForPlaybookRuns skip failed', async () => {
+            const sandbox = base.getSandbox();
+            const { v4: uuidv4 } = require('uuid');
+
+            // Use an existing playbook run
+            const playbookRunId = '11f7f24a-346b-405c-8dcc-c953511fb21c';
+
+            // Create dispatcher_runs with one failed status
+            await db.dispatcher_runs.bulkCreate([
+                {
+                    dispatcher_run_id: uuidv4(),
+                    remediations_run_id: playbookRunId,
+                    status: 'failure',
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                    pd_response_code: null
+                },
+                {
+                    dispatcher_run_id: uuidv4(),
+                    remediations_run_id: playbookRunId,
+                    status: 'pending',
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                    pd_response_code: null
+                }
+            ]);
+
+            // Stub dispatcher API (should not be called)
+            const dispatcherStub = sandbox.stub(dispatcher, 'fetchPlaybookRuns');
+
+            // Call sync function
+            const result = await fifi_2.syncDispatcherRunsForPlaybookRuns([playbookRunId]);
+
+            // Verify function returned empty array (no sync needed)
+            result.should.have.length(0);
+
+            // Verify dispatcher API was not called
+            dispatcherStub.should.not.have.been.called;
+        });
+    });
 });
