@@ -8,6 +8,8 @@ const inventory = require('../connectors/inventory');
 const JSZip = require('jszip');
 const base = require('../test');
 const impl = require('../connectors/dispatcher/impl');
+const dispatcher = require('../connectors/dispatcher');
+const fifi2 = require('./fifi_2');
 const db = require('../db');
 
 function test400 (name, url, code, title) {
@@ -191,8 +193,139 @@ describe('remediations', function () {
             testSorting('system_count', false, r249, refe, r66e, re80, r178, rcbc, r256);
             testSorting('last_run_at', true, refe, r249, r178, r256, r66e, rcbc, re80);
             testSorting('last_run_at', false, r178, r256, r66e, rcbc, re80, r249, refe);
-            testSorting('status', true, r249, r178, r256, refe, r66e, rcbc, re80);
-            testSorting('status', false, re80, rcbc, r66e, refe, r256, r178, r249);
+
+            // Status tests with isolated data setup
+            describe('status tests', function () {
+                // Use existing test remediations but create isolated dispatcher_runs 
+                let isolatedDispatcherRunIds = [];
+
+                beforeEach(async () => {
+                    const { v4: uuidv4 } = require('uuid');
+                    const now = new Date();
+                    const { username: created_by } = require('../connectors/users/mock').MOCK_USERS.fifi;
+                    
+                    // Use transaction for atomic setup
+                    await db.s.transaction(async (transaction) => {
+                        // Clean up any existing dispatcher runs and playbook_runs for our test
+                        await db.dispatcher_runs.destroy({
+                            where: { 
+                                remediations_run_id: '8ff5717a-cce8-4738-907b-a89eaa559275'  // Only playbook_run for refe
+                            },
+                            force: true,
+                            transaction
+                        });
+                        
+                        // Clean up any existing playbook_runs for r178 (should be none, but just in case)
+                        await db.playbook_runs.destroy({
+                            where: {
+                                remediation_id: '178cf0c8-35dd-42a3-96d5-7b50f9d211f6' // r178
+                            },
+                            force: true,
+                            transaction
+                        });
+
+                        // Create a fresh playbook_run for r178 to use for running status
+                        const r178PlaybookRunId = uuidv4();
+                        await db.playbook_runs.create({
+                            id: r178PlaybookRunId,
+                            status: 'running',
+                            remediation_id: '178cf0c8-35dd-42a3-96d5-7b50f9d211f6', // r178
+                            created_by,
+                            created_at: now,
+                            updated_at: now
+                        }, { transaction });
+
+                        // Create isolated dispatcher_runs with unique IDs we can track
+                        const runningDispatcherRun1 = uuidv4();
+                        const runningDispatcherRun2 = uuidv4();
+                        const failureDispatcherRun = uuidv4();
+                        
+                        isolatedDispatcherRunIds = [runningDispatcherRun1, runningDispatcherRun2, failureDispatcherRun, r178PlaybookRunId];
+
+                        // r178 should have 'running' status
+                        await db.dispatcher_runs.bulkCreate([
+                            {
+                                dispatcher_run_id: runningDispatcherRun1,
+                                remediations_run_id: r178PlaybookRunId,
+                                status: 'running',
+                                pd_response_code: null,
+                                created_at: now,
+                                updated_at: now
+                            },
+                            {
+                                dispatcher_run_id: runningDispatcherRun2,
+                                remediations_run_id: r178PlaybookRunId,
+                                status: 'running',
+                                pd_response_code: null,
+                                created_at: now,
+                                updated_at: now
+                            }
+                        ], { transaction });
+
+                        // refe should have 'failure' status  
+                        await db.dispatcher_runs.bulkCreate([
+                            {
+                                dispatcher_run_id: failureDispatcherRun,
+                                remediations_run_id: '8ff5717a-cce8-4738-907b-a89eaa559275',
+                                status: 'failure',
+                                pd_response_code: null,
+                                created_at: now,
+                                updated_at: now
+                            }
+                        ], { transaction });
+                    });
+
+                    // Stub sync function to prevent it from interfering with our isolated data
+                    base.getSandbox().stub(fifi2, 'syncDispatcherRunsForPlaybookRuns').resolves();
+                    
+                    // Verify data was created correctly
+                    const createdRuns = await db.dispatcher_runs.findAll({
+                        where: { 
+                            dispatcher_run_id: isolatedDispatcherRunIds 
+                        },
+                        attributes: ['dispatcher_run_id', 'remediations_run_id', 'status']
+                    });
+                    
+                    if (createdRuns.length !== 3) {
+                        throw new Error(`Expected 3 dispatcher_runs, got ${createdRuns.length}`);
+                    }
+                    
+                    const runningCount = createdRuns.filter(r => r.status === 'running').length;
+                    if (runningCount !== 2) {
+                        throw new Error(`Expected 2 'running' dispatcher_runs, got ${runningCount}`);
+                    }
+                });
+
+                afterEach(async () => {
+                    // Clean up by dispatcher_run_id to ensure we only remove our test data
+                    await db.dispatcher_runs.destroy({
+                        where: { 
+                            dispatcher_run_id: isolatedDispatcherRunIds.filter(id => id.length < 36) // Only dispatcher_run_ids
+                        },
+                        force: true
+                    });
+                    
+                    // Clean up any playbook_runs we created
+                    await db.playbook_runs.destroy({
+                        where: {
+                            id: isolatedDispatcherRunIds.filter(id => id.length === 36) // Only playbook_run_ids (UUIDs)
+                        },
+                        force: true
+                    });
+                    
+                    isolatedDispatcherRunIds = [];
+                });
+
+                // Status sorting tests
+                testSorting('status', true, refe, r249, r256, r66e, rcbc, re80, r178);
+                testSorting('status', false, r178, r249, r256, r66e, rcbc, re80, refe);
+
+                // Status filtering tests  
+                testList('status query running', '/v1/remediations?filter[status]=running', r178);
+                testList('status query failure', '/v1/remediations?filter[status]=failure', refe);
+                testList('status and name query', '/v1/remediations?filter[status]=running&filter[name]=Remediation with suppressed reboot', r178);
+                testList('status and last_run_after query', '/v1/remediations?filter[status]=running&filter[last_run_after]=2018-09-04T08:19:36.641Z', r178);
+            });
 
             test400(
                 'invalid column',
@@ -244,9 +377,6 @@ describe('remediations', function () {
                     testList('last_run_after=date/time query with match', '/v1/remediations?filter[last_run_after]=2016-12-04T08:19:36.641Z', refe, r249);
                     testList('last_run_after=never query with match', '/v1/remediations?filter[last_run_after]=never', r256, r178, re80, rcbc, r66e);
                     testList('name and last_run_after query no match', '/v1/remediations?filter[last_run_after]=2018-12-04T08:19:36.641Z&filter[name]=REBootNoMatch');
-                    // testList('status query running', '/v1/remediations?filter[status]=running', r249);
-                    // testList('status query failure', '/v1/remediations?filter[status]=failure', refe);
-                    // testList('status and last_run_after query', '/v1/remediations?filter[status]=running&filter[last_run_after]=2018-09-04T08:19:36.641Z', r249);
                 });
 
                 describe('invalid options', function () {
@@ -264,9 +394,15 @@ describe('remediations', function () {
                     );
                     test400(
                         'bad status query',
+                        '/v1/remediations?filter[status]=invalid_status',
+                        'enum.openapi.requestValidation',
+                        'must be equal to one of the allowed values (location: query, path: filter.status)'
+                    );
+                    test400(
+                        'timeout status query not allowed',
                         '/v1/remediations?filter[status]=timeout',
-                        'type.openapi.requestValidation',
-                        'must be string (location: query, path: filter)'
+                        'enum.openapi.requestValidation',
+                        'must be equal to one of the allowed values (location: query, path: filter.status)'
                     );
                 });
             });
