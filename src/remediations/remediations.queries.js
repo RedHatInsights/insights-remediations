@@ -698,3 +698,56 @@ exports.insertDispatcherRuns = async function (runs) {
 
     return runs;
 };
+
+exports.updateDispatcherRuns = async function (dispatcherRunId, remediationsRunId, updates) {
+    return db.dispatcher_runs.update(
+        updates,
+        {
+            where: {
+                dispatcher_run_id: dispatcherRunId,
+                remediations_run_id: remediationsRunId
+            }
+        }
+    );
+};
+
+exports.getPlaybookRunsWithDispatcherCounts = async function (playbookRunIds) {
+    return db.playbook_runs.findAll({
+        where: {
+            id: playbookRunIds
+        },
+        attributes: [
+            'id',
+            [
+                db.s.cast(db.s.fn('COUNT', db.s.col('dispatcher_runs.dispatcher_run_id')), 'INTEGER'),
+                'total_dispatcher_runs'
+            ],
+            [
+                db.s.cast(
+                    db.s.fn('COUNT', 
+                        db.s.literal("CASE WHEN dispatcher_runs.status IN ('failure', 'timeout') THEN 1 END")
+                    ),
+                    'INTEGER'
+                ),
+                'failed_runs'
+            ],
+            [
+                db.s.cast(
+                    db.s.fn('COUNT', 
+                        db.s.literal("CASE WHEN dispatcher_runs.status IN ('pending', 'running') THEN 1 END")
+                    ),
+                    'INTEGER'
+                ),
+                'incomplete_runs'
+            ]
+        ],
+        include: [{
+            model: db.dispatcher_runs,
+            as: 'dispatcher_runs', // Use the alias defined in the association
+            required: false, // LEFT JOIN
+            attributes: [] // Don't include dispatcher_runs columns in result
+        }],
+        group: ['playbook_runs.id'],
+        raw: true
+    });
+};
