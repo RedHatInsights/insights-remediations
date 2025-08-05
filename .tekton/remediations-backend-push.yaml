@@ -8,7 +8,7 @@ metadata:
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
       == "master"
-    pipelinesascode.tekton.dev/pipeline: https://github.com/RedHatInsights/konflux-pipelines/raw/v1.22.0/pipelines/docker-build-oci-ta.yaml
+    pipelinesascode.tekton.dev/pipeline: https://github.com/RedHatInsights/konflux-pipelines/raw/v1.24.0/pipelines/docker-build-oci-ta.yaml
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: insights-remediations
@@ -18,6 +18,10 @@ metadata:
   namespace: insights-management-tenant
 spec:
   params:
+  - name: hermetic
+    value: "true"
+  - name: prefetch-input
+    value: '[{"type": "npm", "path": "."}, {"type": "rpm", "path": "."}]'
   - name: git-url
     value: '{{source_url}}'
   - name: revision
@@ -28,6 +32,8 @@ spec:
     value: Dockerfile
   - name: path-context
     value: .
+  - name: prefetch-dev-package-managers
+    value: "true"
   pipelineRef:
     name: docker-build-oci-ta
   taskRunTemplate:

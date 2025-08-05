@@ -1,0 +1,5 @@
+packages: [jq, nodejs, npm, shadow-utils]
+contentOrigin:
+  repofiles: ["./ubi.repo"]
+moduleEnable: ["nodejs:22"]
+arches: [x86_64]
