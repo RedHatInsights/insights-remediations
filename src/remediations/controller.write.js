@@ -21,6 +21,22 @@ async function validateResolution (id, resolutionId) {
     disambiguator.disambiguate(resolutions, resolutionId, identifier);
 }
 
+async function storeSystemDetails(systemsById) {
+    // Extract system details from HBI response and store in local systems table
+    const remediationSystems = Object.values(systemsById).map(system => ({
+        id: system.id,
+        hostname: system.hostname || null,
+        display_name: system.display_name || null,
+        ansible_hostname: system.ansible_host || null
+    }));
+
+    if (remediationSystems.length > 0) {
+        await db.systems.bulkCreate(remediationSystems, {
+            ignoreDuplicates: true
+        });
+    }
+}
+
 async function validateNewActions(add) {
     // normalize and validate
     add.issues.forEach(issue => {
@@ -41,7 +57,6 @@ async function validateNewActions(add) {
 
     const systems = _(add.issues).flatMap('systems').uniq().value();
 
-    // TODO: might be better to call these before the transaction
     const [systemsById] = await P.all([
         inventory.getSystemDetailsBatch(systems),
         P.all(add.issues.map(issue => validateResolution(issue.id, issue.resolution)))
@@ -53,6 +68,8 @@ async function validateNewActions(add) {
             throw errors.unknownSystem(system);
         }
     });
+
+    return systemsById;
 }
 
 async function storeNewActions (remediation, add, transaction) {
@@ -106,8 +123,10 @@ async function storeNewActions (remediation, add, transaction) {
 exports.create = errors.async(async function (req, res) {
     const {add, name, auto_reboot} = req.body;
 
+    let systemsById = null;
     if (add) {
-        await validateNewActions(add);
+        systemsById = await validateNewActions(add);
+        await storeSystemDetails(systemsById);
     }
 
     const id = uuid.v4();
@@ -145,8 +164,10 @@ exports.patch = errors.async(async function (req, res) {
         throw new errors.BadRequest('EMPTY_REQUEST', 'At least one of "add", "name", "auto_reboot", "archived" needs to be specified');
     }
 
+    let systemsById = null;
     if (add) {
-        await validateNewActions(add);
+        systemsById = await validateNewActions(add);
+        await storeSystemDetails(systemsById);
     }
 
     const result = await db.s.transaction(async transaction => {
