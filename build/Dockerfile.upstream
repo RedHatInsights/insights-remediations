@@ -11,19 +11,6 @@ ENV APP_ROOT=/opt/app-root
 WORKDIR $APP_ROOT
 RUN mkdir -p $APP_ROOT/.npm/{_logs,_cacache} && chgrp -R 0 $APP_ROOT && chmod -R ug+rwX $APP_ROOT
 
-# Hermetic build labels and licensing
-RUN mkdir -p /licenses
-COPY LICENSE /licenses
-
-LABEL url="https://www.redhat.com"
-LABEL name="iop-remediations" \
-      description="This adds the satellite/iop-remediations-rhel9 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/iop-remediations-rhel9" \
-      summary="A new satellite/iop-remediations-rhel9 container image is now available in the Red Hat container registry."
-LABEL com.redhat.component="iop-remediations" \
-      io.k8s.display-name="IoP Remediations" \
-      io.k8s.description="This adds the satellite/iop-remediations-rhel9 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/iop-remediations-rhel9" \
-      io.openshift.tags="insights satellite iop remediations"
-
 USER 1001
 
 # make npm happy....
@@ -53,7 +40,7 @@ COPY --from=build $APP_ROOT/node_modules ./node_modules
 
 ENV NODE_ENV=test
 
-CMD [ "sh", "-c", "npx npm run test:ci" ]
+CMD [ "sh", "-c", "npm run test:ci" ]
 
 #----------------------- dist -----------------------
 
