@@ -10,6 +10,7 @@ const probes = require("../probes");
 const dispatcher = require("../connectors/dispatcher");
 const log = require("../util/log");
 const queries = require("./remediations.queries");
+const pLimit = require('p-limit');
 
 // status constants
 const CONNECTED = 'connected';
@@ -217,3 +218,97 @@ async function storePlaybookRun (playbook_run_id, remediation, username) {
 
     await queries.insertRHCPlaybookRun(run);
 }
+
+/**
+ * Sync dispatcher_runs table with playbook-dispatcher API for specific playbook runs
+ * 
+ * Logic:
+ * - If any dispatcher_run is failed or timeout, skip sync (no API call needed)
+ * - If pending/running dispatcher_runs exist OR no dispatcher_runs exist, sync with API
+ * - For existing runs: update status, for missing runs: create new entries
+ * 
+ * playbookRunIds - Array of playbook run UUIDs to sync
+ * Returns an array of playbook run IDs that were successfully synced
+ */
+exports.syncDispatcherRunsForPlaybookRuns = async function (playbookRunIds) {
+    if (!playbookRunIds.length) {
+        return [];
+    }
+    
+    // Track successful syncs
+    let successfulSyncs = [];
+    
+    try {
+        // Get playbook runs with their dispatcher run counts
+        const playbookRunCounts = await queries.getPlaybookRunsWithDispatcherCounts(playbookRunIds);
+
+        const needsStatusSync = [];
+        const needsBackfill = [];
+
+        for (const runCounts of playbookRunCounts) {
+            if (runCounts.total_dispatcher_runs === 0) {
+                // No dispatcher_runs exist for playbook run, needs backfill
+                needsBackfill.push(runCounts.id);
+            } else if (runCounts.incomplete_runs > 0 && runCounts.failed_runs === 0) {
+                // Has pending/running, needs update
+                needsStatusSync.push(runCounts.id);
+            }
+        }
+
+        const runsToSync = [...needsStatusSync, ...needsBackfill];
+
+        if (runsToSync.length > 0) {
+            // Limit concurrent API calls
+            const limit = pLimit(10);
+            
+            await Promise.all(runsToSync.map(playbookRunId => limit(async () => {
+                try {
+                    const filter = {
+                        filter: { 
+                            service: 'remediations',
+                            labels: { 'playbook-run': playbookRunId } 
+                        }
+                    };
+                    const fields = {
+                        fields: { data: ['id', 'status'] }
+                    };
+                    
+                    const dispatcherResponse = await dispatcher.fetchPlaybookRuns(filter, fields);
+                    
+                    if (dispatcherResponse?.data) {
+                        if (needsBackfill.includes(playbookRunId)) {
+                            // Create new dispatcher_runs entries (backfill)
+                            const newRuns = dispatcherResponse.data.map(pdRun => ({
+                                dispatcher_run_id: pdRun.id,
+                                remediations_run_id: playbookRunId,
+                                status: pdRun.status,
+                                pd_response_code: null
+                            }));
+                            
+                            await queries.insertDispatcherRuns(newRuns);
+                        } else {
+                            // Update existing dispatcher_runs entries
+                            for (const pdRun of dispatcherResponse.data) {
+                                await queries.updateDispatcherRuns(
+                                    pdRun.id,
+                                    playbookRunId,
+                                    { 
+                                        status: pdRun.status
+                                    }
+                                );
+                            }
+                        }
+                        // Only add to successful syncs if we reach this point
+                        successfulSyncs.push(playbookRunId);
+                    }
+                } catch (error) {
+                    log.warn(`Failed to sync dispatcher data for playbook run ${playbookRunId}:`, error.message);
+                }
+            })));
+        }
+    } catch (error) {
+        log.warn('Failed to sync dispatcher runs:', error.message);
+    }
+
+    return successfulSyncs;
+};

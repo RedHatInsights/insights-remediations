@@ -9,6 +9,7 @@ const {NULL_NAME_VALUE} = require('./models/remediation');
 const _ = require('lodash');
 const trace = require('../util/trace');
 const dispatcher = require('../connectors/dispatcher');
+const fifi2 = require('./fifi_2');
 
 const CACHE_TTL = config.db.cache.ttl;
 
@@ -33,6 +34,25 @@ const PLAYBOOK_RUN_ATTRIBUTES = [
     'created_at',
     'updated_at'
 ];
+
+function aggregateStatusSQL() {
+    return `CASE
+        WHEN COUNT(*) FILTER (WHERE "playbook_runs->dispatcher_runs"."status" IN ('failure', 'timeout')) > 0 THEN 'failure'
+        WHEN COUNT(*) FILTER (WHERE "playbook_runs->dispatcher_runs"."status" = 'running') > 0 THEN 'running'
+        WHEN COUNT(*) FILTER (WHERE "playbook_runs->dispatcher_runs"."status" = 'success') > 0 THEN 'success'
+        ELSE 'pending'
+    END`;
+}
+
+function mostRecentPlaybookRunSubquery(remediationIdColumn = '"remediation"."id"') {
+    return `(
+        SELECT "pr2"."id"
+        FROM "playbook_runs" "pr2" 
+        WHERE "pr2"."remediation_id" = ${remediationIdColumn}
+        ORDER BY "pr2"."created_at" DESC, "pr2"."id" DESC
+        LIMIT 1
+    )`;
+}
 
 function systemSubquery (system_id) {
     const {s: { dialect, col, literal }, fn: { DISTINCT }, issue, issue_system} = db;
@@ -86,12 +106,15 @@ exports.list = async function (
 
     const {Op, s: {literal, where, col, cast}, fn: { DISTINCT, COUNT, MAX }} = db;
 
-    let sortOrder = [];
+    // Check if we need to sync dispatcher runs to accurately sort/filter by status
+    const needsStatusSync = primaryOrder === 'status' || (filter && filter.status);
+
+    const sortOrder = [];
 
     // set primary sort
     switch (primaryOrder) {
         case 'status':
-            sortOrder.push([col('remediation.name'), asc ? 'ASC' : 'DESC']);
+            sortOrder.push([literal(aggregateStatusSQL()), asc ? 'ASC' : 'DESC']);
             break;
 
         case 'last_run_at':
@@ -135,7 +158,18 @@ exports.list = async function (
             model: db.playbook_runs,
             as: 'playbook_runs',
             attributes: [],
-            required: false
+            required: false,
+            where: {
+                id: {
+                    [Op.eq]: literal(mostRecentPlaybookRunSubquery())
+                }
+            },
+            include: [{
+                model: db.dispatcher_runs,
+                as: 'dispatcher_runs',
+                attributes: [],
+                required: false
+            }]
         }],
         where: {
             tenant_org_id,
@@ -145,13 +179,17 @@ exports.list = async function (
         // Sort on any remediation column and also issue_count, system_count, last_run_at and status
         // last_run_at sort option will use the playbook_runs.created_at column in the db
         // This will correctly sort by last_run_at when a playbook hasn't been executed yet so playbook_runs.created_at is NULL
-        // Sorting by remediation name for status sorting for now until status sorting is fully implemented
         order: sortOrder,
         subQuery: false,
         limit,
         offset,
         raw: true
     };
+
+    // Only add status to attributes when sorting by status or filtering by status (for performance reasons)
+    if (primaryOrder === 'status' || (filter && filter.status)) {
+        query.attributes.push([literal(aggregateStatusSQL()), 'status']);
+    }
 
     if (system) {
         query.where.id = {
@@ -164,8 +202,6 @@ exports.list = async function (
             [Op.eq]: false
         };
     }
-
-    let remediationStatusCounts = null;
 
     if (filter) {
         // name filter
@@ -215,6 +251,35 @@ exports.list = async function (
         if (filter.updated_after) {
             query.where["updated_at"] = { [Op.gt]: new Date(filter.updated_after) };
         }
+
+        // status filter
+        if (filter.status) {
+            // Filter by calculated aggregate status
+            query.having = where(
+                literal(aggregateStatusSQL()), 
+                { [Op.eq]: filter.status }
+            );
+        }
+    }
+
+    // Sync dispatcher_runs assoicated with most recent playbook runs before sorting or filtering by status
+    if (needsStatusSync) {
+        const recentRuns = await db.playbook_runs.findAll({
+            attributes: ['id'],
+            include: [{
+                model: db.remediation,
+                attributes: [],
+                where: { tenant_org_id, created_by },
+                required: true
+            }],
+            where: {
+                id: {
+                    [Op.eq]: literal(mostRecentPlaybookRunSubquery('"playbook_runs"."remediation_id"'))
+                }
+            },
+            raw: true
+        });
+        await fifi2.syncDispatcherRunsForPlaybookRuns(recentRuns.map(run => run.id));
     }
 
     return db.remediation.findAndCountAll(query);
@@ -697,4 +762,57 @@ exports.insertDispatcherRuns = async function (runs) {
     });
 
     return runs;
+};
+
+exports.updateDispatcherRuns = async function (dispatcherRunId, remediationsRunId, updates) {
+    return db.dispatcher_runs.update(
+        updates,
+        {
+            where: {
+                dispatcher_run_id: dispatcherRunId,
+                remediations_run_id: remediationsRunId
+            }
+        }
+    );
+};
+
+exports.getPlaybookRunsWithDispatcherCounts = async function (playbookRunIds) {
+    return db.playbook_runs.findAll({
+        where: {
+            id: playbookRunIds
+        },
+        attributes: [
+            'id',
+            [
+                db.s.cast(db.s.fn('COUNT', db.s.col('dispatcher_runs.dispatcher_run_id')), 'INTEGER'),
+                'total_dispatcher_runs'
+            ],
+            [
+                db.s.cast(
+                    db.s.fn('COUNT', 
+                        db.s.literal("CASE WHEN dispatcher_runs.status IN ('failure', 'timeout') THEN 1 END")
+                    ),
+                    'INTEGER'
+                ),
+                'failed_runs'
+            ],
+            [
+                db.s.cast(
+                    db.s.fn('COUNT', 
+                        db.s.literal("CASE WHEN dispatcher_runs.status IN ('pending', 'running') THEN 1 END")
+                    ),
+                    'INTEGER'
+                ),
+                'incomplete_runs'
+            ]
+        ],
+        include: [{
+            model: db.dispatcher_runs,
+            as: 'dispatcher_runs', // Use the alias defined in the association
+            required: false, // LEFT JOIN
+            attributes: [] // Don't include dispatcher_runs columns in result
+        }],
+        group: ['playbook_runs.id'],
+        raw: true
+    });
 };
