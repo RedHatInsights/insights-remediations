@@ -3,6 +3,7 @@
 const assert = require('assert');
 const _ = require('lodash');
 const log = require('../../util/log');
+const errors = require('../../errors');
 const {host, insecure, revalidationInterval} = require('../../config').compliance;
 
 const Connector = require('../Connector');
@@ -17,23 +18,16 @@ module.exports = new class extends Connector {
     async getRule(id, ssgRefId = null, ssgVersion = null, refresh = false, retries = 2) {
         id = id.replace(/\./g, '-'); // compliance API limitation
 
+        // Compliance API v1 is deprecated. Require v2 format with ssgVersion
+        // Note: ssgVersion is extracted by identifiers.parseSSG() and will be null for v1 format
+        if (!ssgVersion) {
+            throw errors.invalidIssueId(`${id} - Use Compliance API v2 format: ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|version|profile|xccdf_org.ssgproject.content_rule_${id}`);
+        }
+
         for (let i = 0; i <= retries; i++) {
             try {
-                let uri;
-
-                /*
-                Use Compliance API v1 if the issueId string is in this format: 
-                    ssg:<major_version>|<profile>|<rule_ref_id>
-                Use Compliance API v2 if the issueId string is in this format:
-                    ssg:<ssg_ref_id>|<ssg_version>|<profile>|<rule_ref_id>
-                */
-                if (ssgVersion) {
-                    // Build URI that will fetch the rule using Compliance API v2
-                    uri = await this.buildV2Uri(id, ssgRefId, ssgVersion, refresh, retries);
-                } else {
-                    // Build URI that will fetch the rule using Compliance API v1
-                    uri = this.buildUri(host, 'compliance', 'rules', id);
-                }
+                // Build URI that will fetch the rule using Compliance API v2
+                const uri = await this.buildV2Uri(id, ssgRefId, ssgVersion, refresh, retries);
 
                 // Fetch the rule from Compliance
                 const result = await this.doHttp({
@@ -48,10 +42,8 @@ module.exports = new class extends Connector {
                     revalidationInterval
                 }, this.metrics);
 
-                // In Compliance api v1, rule info is under data.attributes
                 // In Compliance api v2, rule info is directly under data
-                // Look for data.attributes first (v1) and then try to data (v2) 
-                return _.get(result, 'data.attributes') || _.get(result, 'data') || null;
+                return _.get(result, 'data') || null;
             } catch (error) {
                 if (i === retries) throw error;
             }
