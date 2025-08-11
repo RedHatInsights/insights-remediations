@@ -60,7 +60,7 @@
     "should": "^13.2.3",
     "sinon": "^19.0.2",
     "speccy": "^0.11.0",
-    "supertest": "^4.0.2"
+    "supertest": "^7.1.4"
   },
   "overrides": {
     "brace-expansion": "^2.0.2",
@@ -74,6 +74,9 @@
     },
     "cls-hooked": {
       "semver": "^5.7.2"
+    },
+    "request": {
+      "form-data": "2.5.4"
     }
   },
   "scripts": {
