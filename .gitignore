@@ -9,3 +9,4 @@ artifacts
 .idea
 .scannerwork
 sonar-scanner.properties
+ubi.repo
