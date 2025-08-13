@@ -144,41 +144,37 @@ describe('resolve advisor resolutions', function () {
 });
 
 describe('resolve ssg resolutions', function () {
-    test('resolution info', async () => {
+    test('v1 SSG id is rejected', async () => {
+        const {id, header} = reqId();
         const {body} = await request
         .get('/v1/resolutions/ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink')
-        .expect(200);
+        .set(header)
+        .expect(400);
 
-        body.should.eql({
-            id: 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
-            resolution_risk: -1,
-            resolutions: [{
-                description: 'Disable Prelinking',
-                id: 'fix',
-                needs_reboot: true,
-                resolution_risk: -1
-            }]
-        });
+        body.errors.should.eql([{
+            id,
+            status: 400,
+            code: 'INVALID_ISSUE_IDENTIFIER',
+            title: '"rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink - Use Compliance API v2 format: ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|version|profile|xccdf_org.ssgproject.content_rule_disable_prelink" is not a valid issue identifier.'
+        }]);
     });
 
-    test('resolution info (2)', async () => {
+    test('v1 SSG id (uppercase profile) is rejected', async () => {
+        const {id, header} = reqId();
         const {body} = await request
-        .get('/v1/resolutions/ssg:rhel7|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth')
-        .expect(200);
+            .get('/v1/resolutions/ssg:rhel7|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth')
+            .set(header)
+            .expect(400);
 
-        body.should.eql({
-            id: 'ssg:rhel7|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth',
-            resolution_risk: -1,
-            resolutions: [{
-                description: 'Disable Host-Based Authentication',
-                id: 'fix',
-                needs_reboot: true,
-                resolution_risk: -1
-            }]
-        });
+        body.errors.should.eql([{
+            id,
+            status: 400,
+            code: 'INVALID_ISSUE_IDENTIFIER',
+            title: '"rhel7|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth - Use Compliance API v2 format: ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|version|profile|xccdf_org.ssgproject.content_rule_disable_host_auth" is not a valid issue identifier.'
+        }]);
     });
 
-    test('resolution info (3)', async () => {
+    test('v2 SSG id returns resolution info', async () => {
         const {body} = await request
             .get('/v1/resolutions/ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink')
             .expect(200);
