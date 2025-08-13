@@ -33,7 +33,11 @@ module.exports = class SSGResolver extends Resolver {
 
         // Compliance API v1 is deprecated: require v2 SSG issue format with ssgVersion
         if (!ssgVersion) {
-            throw errors.invalidIssueId(`${id.issue} - Use Compliance API v2 format: ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|version|profile|xccdf_org.ssgproject.content_rule_${rule}`);
+            const ruleRef = `xccdf_org.ssgproject.content_rule_${rule}`;
+            throw new errors.BadRequest(
+                'INVALID_ISSUE_IDENTIFIER',
+                `Compliance v1 issue identifiers have been retired. Please update your v1 issue ID, "ssg:<platform>|<profile>|${ruleRef}", to the v2 format of "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|<version>|<profile>|${ruleRef}"`
+            );
         }
 
         // RHCLOUD-4280: disable rule "rsyslog_remote_loghost"
