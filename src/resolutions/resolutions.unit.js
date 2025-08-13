@@ -155,7 +155,7 @@ describe('resolve ssg resolutions', function () {
             id,
             status: 400,
             code: 'INVALID_ISSUE_IDENTIFIER',
-            title: '"rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink - Use Compliance API v2 format: ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|version|profile|xccdf_org.ssgproject.content_rule_disable_prelink" is not a valid issue identifier.'
+            title: 'Compliance v1 issue identifiers have been retired. Please update your v1 issue ID, "ssg:<platform>|<profile>|xccdf_org.ssgproject.content_rule_disable_prelink", to the v2 format of "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|<version>|<profile>|xccdf_org.ssgproject.content_rule_disable_prelink"'
         }]);
     });
 
@@ -170,7 +170,7 @@ describe('resolve ssg resolutions', function () {
             id,
             status: 400,
             code: 'INVALID_ISSUE_IDENTIFIER',
-            title: '"rhel7|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth - Use Compliance API v2 format: ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|version|profile|xccdf_org.ssgproject.content_rule_disable_host_auth" is not a valid issue identifier.'
+            title: 'Compliance v1 issue identifiers have been retired. Please update your v1 issue ID, "ssg:<platform>|<profile>|xccdf_org.ssgproject.content_rule_disable_host_auth", to the v2 format of "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|<version>|<profile>|xccdf_org.ssgproject.content_rule_disable_host_auth"'
         }]);
     });
 

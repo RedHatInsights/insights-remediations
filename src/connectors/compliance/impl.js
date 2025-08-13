@@ -16,13 +16,17 @@ module.exports = new class extends Connector {
     }
 
     async getRule(id, ssgRefId = null, ssgVersion = null, refresh = false, retries = 2) {
-        id = id.replace(/\./g, '-'); // compliance API limitation
-
         // Compliance API v1 is deprecated. Require v2 format with ssgVersion
         // Note: ssgVersion is extracted by identifiers.parseSSG() and will be null for v1 format
         if (!ssgVersion) {
-            throw errors.invalidIssueId(`${id} - Use Compliance API v2 format: ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|version|profile|xccdf_org.ssgproject.content_rule_${id}`);
+            throw new errors.BadRequest(
+                'INVALID_ISSUE_IDENTIFIER',
+                `Compliance v1 issue identifiers have been retired. Please update your v1 issue ID, "ssg:<platform>|<profile>|${id}", to the v2 format of "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|<version>|<profile>|${id}"`
+            );
         }
+
+        // After validation, normalize id for Compliance API routing (dots to dashes)
+        id = id.replace(/\./g, '-'); // compliance API limitation
 
         for (let i = 0; i <= retries; i++) {
             try {

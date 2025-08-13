@@ -19,7 +19,7 @@ test('rejects v1 issue id format (Compliance API v1 issue id format)', async () 
     .send(data)
     .expect(400);
 
-    res.body.errors.should.eql([{ id, status: 400, code: 'INVALID_ISSUE_IDENTIFIER', title: '"rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink - Use Compliance API v2 format: ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|version|profile|xccdf_org.ssgproject.content_rule_disable_prelink" is not a valid issue identifier.' }]);
+    res.body.errors.should.eql([{ id, status: 400, code: 'INVALID_ISSUE_IDENTIFIER', title: 'Compliance v1 issue identifiers have been retired. Please update your v1 issue ID, "ssg:<platform>|<profile>|xccdf_org.ssgproject.content_rule_disable_prelink", to the v2 format of "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|<version>|<profile>|xccdf_org.ssgproject.content_rule_disable_prelink"' }]);
 });
 
 test('generates a simple playbook with single compliance remediation (Compliance API v2 issue id format)', async () => {
