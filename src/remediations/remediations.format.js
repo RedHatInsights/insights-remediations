@@ -366,6 +366,24 @@ exports.issueSystems = function (issue, total) {
     };
 };
 
+// Format distinct plan systems list with pagination links
+exports.planSystems = function (plan_id, systems, total, limit, offset, sort) {
+    const formatted = systems.map(s => ({
+        id: s.id,
+        hostname: s.hostname,
+        display_name: s.display_name
+    }));
+
+    return {
+        meta: {
+            count: formatted.length,
+            total
+        },
+        links: buildListLinks(`v1/remediations/${plan_id}/systems`, total, limit, offset, sort),
+        data: formatted
+    };
+};
+
 exports.planNames = function (names, total, limit, offset, sort, system) {
     return {
         meta: {

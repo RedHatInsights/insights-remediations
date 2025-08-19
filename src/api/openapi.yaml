@@ -292,7 +292,7 @@ paths:
       operationId: getRemediationSystems
       parameters:
         - $ref: '#/components/parameters/RemediationId'
-        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Limit50'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/SystemsFilter'
         - $ref: '#/components/parameters/SystemsSort'
