@@ -5,6 +5,7 @@
 const config = require('../config');
 const cache = require('../cache');
 const db = require('../db');
+const inventory = require('../connectors/inventory');
 const {NULL_NAME_VALUE} = require('./models/remediation');
 const _ = require('lodash');
 const trace = require('../util/trace');
@@ -514,6 +515,97 @@ exports.getIssueSystems = function (id, tenant_org_id, created_by, issueId) {
             [db.issue, 'issue_id'],
             [db.issue, db.issue.associations.systems, 'system_id']
         ]
+    });
+};
+
+// Return a paginated, sorted list of distinct systems for a remediation plan
+exports.getPlanSystems = async function (
+    remediation_plan_id,
+    tenant_org_id,
+    created_by,
+    column = 'display_name',
+    asc = true,
+    filter = null,
+    limit = 50,
+    offset = 0
+) {
+    const { Op, s: { literal, col, cast }, fn: { DISTINCT }, issue, issue_system, remediation } = db;
+
+    // Fetch distinct system ids for the plan scoped by tenant/user
+    const distinctSystemIds = (await issue_system.findAll({
+        attributes: [[DISTINCT(col('issue_system.system_id')), 'system_id']],
+        include: [{
+            attributes: [],
+            model: issue,
+            required: true,
+            where: { remediation_id: remediation_plan_id },
+            include: [{
+                attributes: [],
+                association: issue.associations.remediation,
+                model: remediation,
+                required: true,
+                where: { tenant_org_id, created_by }
+            }]
+        }],
+        raw: true
+    })).map(r => r.system_id);
+
+    // If no systems found for the remediation plan, return empty results
+    if (distinctSystemIds.length === 0) {
+        return { count: 0, rows: [] };
+    }
+
+    // If there are systems that don't exist in the systems table yet,
+    // fall back to calling Inventory to retrieve and store system info first
+    const existingSystems = await db.systems.findAll({
+        attributes: ['id'],
+        where: { id: { [Op.in]: distinctSystemIds } },
+        raw: true
+    });
+    const existingIds = _.map(existingSystems, 'id');
+    const missingIds = _.difference(distinctSystemIds, existingIds);
+
+    if (missingIds.length) {
+        const systemDetails = await inventory.getSystemDetailsBatch(missingIds);
+        const remediationSystems = Object.values(systemDetails).map(system => ({
+            id: system.id,
+            hostname: system.hostname || null,
+            display_name: system.display_name || null,
+            ansible_hostname: system.ansible_host || null
+        }));
+
+        if (remediationSystems.length > 0) {
+            await db.systems.bulkCreate(remediationSystems, {
+                updateOnDuplicate: ['hostname', 'display_name', 'ansible_hostname', 'updated_at']
+            });
+        }
+    }
+
+    const where = { [Op.and]: [{ id: { [Op.in]: distinctSystemIds } }] };
+
+    if (filter && typeof filter === 'object') {
+        if (filter.id) {
+            where[Op.and].push(
+                db.s.where(cast(col('id'), 'text'), { [Op.iLike]: `%${filter.id}%` })
+            );
+        }
+        if (filter.hostname) {
+            where[Op.and].push({ hostname: { [Op.iLike]: `%${filter.hostname}%` } });
+        }
+        if (filter.display_name) {
+            where[Op.and].push({ display_name: { [Op.iLike]: `%${filter.display_name}%` } });
+        }
+    }
+
+    const order = [[column, asc ? 'ASC' : 'DESC']];
+
+    return db.systems.findAndCountAll({
+        attributes: ['id', 'hostname', 'display_name'],
+        where,
+        order,
+        limit,
+        offset,
+        raw: true
     });
 };
 

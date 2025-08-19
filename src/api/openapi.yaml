@@ -35,7 +35,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/RemediationSort'
         - $ref: '#/components/parameters/RemediationFilter'
-        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Limit200'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/RemediationSystem'
         - $ref: '#/components/parameters/HideArchived'
@@ -249,7 +249,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/RemediationId'
         - $ref: '#/components/parameters/IssueId'
-        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Limit200'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/IssueSystemsSort'
       responses:
@@ -292,7 +292,7 @@ paths:
       operationId: getRemediationSystems
       parameters:
         - $ref: '#/components/parameters/RemediationId'
-        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Limit50'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/SystemsFilter'
         - $ref: '#/components/parameters/SystemsSort'
@@ -467,7 +467,7 @@ paths:
       operationId: listPlaybookRuns
       parameters:
         - $ref: '#/components/parameters/RemediationId'
-        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Limit200'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/PlaybookRunSort'
       responses:
@@ -566,7 +566,7 @@ paths:
         - $ref: '#/components/parameters/RemediationId'
         - $ref: '#/components/parameters/PlaybookRunId'
         - $ref: '#/components/parameters/ExecutorId'
-        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Limit200'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/SystemName'
         - $ref: '#/components/parameters/PlaybookRunSystemSort'
@@ -721,7 +721,7 @@ paths:
 
 components:
   parameters:
-    Limit:
+    Limit200:
       in: query
       name: limit
       description: Maximum number of results to return

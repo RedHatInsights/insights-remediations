@@ -569,3 +569,25 @@ exports.getIssueSystems = errors.async(async function (req, res) {
 
     res.json(format.issueSystems(remediation.issues[0], total));
 });
+
+exports.getRemediationSystems = errors.async(async function (req, res) {
+    const plan_id = req.params.id;
+    const { tenant_org_id, username } = req.user;
+    const { limit, offset, sort, filter } = req.query;
+    const { column, asc } = format.parseSort(sort);
+
+    let remediation = await queries.get(plan_id, tenant_org_id, username);
+
+    if (!remediation) {
+        return notFound(res);
+    }
+
+    // Limit is capped at 50 by the API spec
+    const { count: total, rows } = await queries.getPlanSystems(plan_id, tenant_org_id, username, column, asc, filter, limit, offset);
+
+    if (offset >= Math.max(total, 1)) {
+        throw errors.invalidOffset(offset, total - 1);
+    }
+
+    return res.json(format.planSystems(plan_id, rows, total, limit, offset, sort));
+});
