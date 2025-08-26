@@ -216,6 +216,19 @@ describe('remediations', function () {
             }
         });
 
+        test('list remediations with fields[data]=playbook_runs includes remediations with no playbook runs', async () => {
+            await db.playbook_runs.destroy({ where: { remediation_id: '0ecb5db7-2f1a-441b-8220-e5ce45066f50' }, force: true });
+            
+            const {body} = await request
+            .get('/v1/remediations?fields[data]=playbook_runs&sort=name&limit=3')
+            .set(auth.fifi)
+            .expect(200);
+
+            const remWithNoPlaybookRuns = body.data.find(r => r.id === '0ecb5db7-2f1a-441b-8220-e5ce45066f50');
+            expect(remWithNoPlaybookRuns).toBeTruthy();
+            expect((remWithNoPlaybookRuns.playbook_runs || []).length).toBe(0);
+        });
+
         test('list remediation plan names for org', async () => {
             const {body} = await request
             .get('/v1/remediations?fields[data]=name')
