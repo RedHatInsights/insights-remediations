@@ -44,6 +44,7 @@ module.exports = function (router) {
         .delete(openapi('deleteRemediationIssueSystem'), rbacWrite, write.removeIssueSystem);
 
     router.route('/remediations/:id/systems')
+        .get(openapi('getRemediationSystems'), rbacRead, read.getRemediationSystems)
         .delete(openapi('deleteRemediationSystems'), rbacWrite, write.bulkRemoveSystems);
 
     router.route('/remediations/:id/executable')
