@@ -288,50 +288,25 @@ exports[`remediations download remediations download zip with multiple remediati
 
 exports[`remediations get get remediation 1`] = `
 "{
-    "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
-    "name": "Test1",
-    "auto_reboot": true,
-    "archived": true,
+    "id": "e809526c-56f5-4cd8-a809-93328436ea23",
+    "name": "Test3",
+    "auto_reboot": false,
+    "archived": false,
     "created_by": {
         "username": "tuser@redhat.com",
         "first_name": "test",
         "last_name": "user"
     },
-    "created_at": "2018-10-04T08:19:36.641Z",
+    "created_at": "2018-12-04T08:19:36.641Z",
     "updated_by": {
         "username": "tuser@redhat.com",
         "first_name": "test",
         "last_name": "user"
     },
-    "updated_at": "2018-10-04T08:19:36.641Z",
-    "needs_reboot": true,
-    "resolved_count": 2,
+    "updated_at": "2018-12-04T08:19:36.641Z",
+    "needs_reboot": false,
+    "resolved_count": 1,
     "issues": [
-        {
-            "id": "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
-            "description": "Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)",
-            "resolution": {
-                "id": "kernel_update",
-                "description": "Update system to the latest kernel and reboot",
-                "resolution_risk": 3,
-                "needs_reboot": true
-            },
-            "resolutions_available": 3,
-            "systems": [
-                {
-                    "id": "1f12bdfc-8267-492d-a930-92f498fe65b9",
-                    "hostname": "1f12bdfc-8267-492d-a930-92f498fe65b9.example.com",
-                    "display_name": null,
-                    "resolved": false
-                },
-                {
-                    "id": "fc94beb8-21ee-403d-99b1-949ef7adb762",
-                    "hostname": null,
-                    "display_name": null,
-                    "resolved": false
-                }
-            ]
-        },
         {
             "id": "advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE",
             "description": "Bonding will not fail over to the backup link when bonding options are partially read",
@@ -344,81 +319,11 @@ exports[`remediations get get remediation 1`] = `
             "resolutions_available": 1,
             "systems": [
                 {
-                    "id": "fc94beb8-21ee-403d-99b1-949ef7adb762",
-                    "hostname": null,
-                    "display_name": null,
-                    "resolved": false
-                }
-            ]
-        },
-        {
-            "id": "ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled",
-            "description": "Disable the Automounter",
-            "resolution": {
-                "id": "fix",
-                "description": "Disable the Automounter",
-                "resolution_risk": -1,
-                "needs_reboot": true
-            },
-            "resolutions_available": 1,
-            "systems": [
-                {
-                    "id": "fc94beb8-21ee-403d-99b1-949ef7adb762",
-                    "hostname": null,
-                    "display_name": null,
-                    "resolved": false
-                }
-            ]
-        },
-        {
-            "id": "vulnerabilities:CVE-2017-5715",
-            "description": "CVE-2017-5715",
-            "resolution": {
-                "id": "fix",
-                "description": "Upgrade packages affected by CVE-2017-5715",
-                "resolution_risk": -1,
-                "needs_reboot": true
-            },
-            "resolutions_available": 1,
-            "systems": [
-                {
-                    "id": "fc94beb8-21ee-403d-99b1-949ef7adb762",
-                    "hostname": null,
+                    "id": "1f12bdfc-8267-492d-a930-92f498fe65b9",
+                    "hostname": "1f12bdfc-8267-492d-a930-92f498fe65b9.example.com",
                     "display_name": null,
                     "resolved": true
-                }
-            ]
-        },
-        {
-            "id": "vulnerabilities:CVE-2017-5715:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
-            "description": "CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
-            "resolution": {
-                "id": "fix",
-                "description": "Fix Issues caused by [CVE_2017_6074_kernel|KERNEL_CVE_2017_6074]",
-                "resolution_risk": -1,
-                "needs_reboot": false
-            },
-            "resolutions_available": 1,
-            "systems": [
-                {
-                    "id": "fc94beb8-21ee-403d-99b1-949ef7adb762",
-                    "hostname": null,
-                    "display_name": null,
-                    "resolved": false
-                }
-            ]
-        },
-        {
-            "id": "vulnerabilities:RHSA-2018:0502",
-            "description": "RHSA-2018:0502",
-            "resolution": {
-                "id": "fix",
-                "description": "Apply RHSA-2018:0502",
-                "resolution_risk": -1,
-                "needs_reboot": true
-            },
-            "resolutions_available": 1,
-            "systems": [
+                },
                 {
                     "id": "fc94beb8-21ee-403d-99b1-949ef7adb762",
                     "hostname": null,
@@ -2118,18 +2023,6 @@ exports[`remediations issues get remediation plan issues 1`] = `
 {
   "data": [
     {
-      "description": "Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)",
-      "id": "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
-      "resolution": {
-        "description": "Update system to the latest kernel and reboot",
-        "id": "kernel_update",
-        "needs_reboot": true,
-        "resolution_risk": 3,
-      },
-      "resolutions_available": 3,
-      "system_count": 2,
-    },
-    {
       "description": "Bonding will not fail over to the backup link when bonding options are partially read",
       "id": "advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE",
       "resolution": {
@@ -2139,42 +2032,18 @@ exports[`remediations issues get remediation plan issues 1`] = `
         "resolution_risk": 3,
       },
       "resolutions_available": 1,
-      "system_count": 1,
-    },
-    {
-      "description": "Disable the Automounter",
-      "id": "ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled",
-      "resolution": {
-        "description": "Disable the Automounter",
-        "id": "fix",
-        "needs_reboot": true,
-        "resolution_risk": -1,
-      },
-      "resolutions_available": 1,
-      "system_count": 1,
-    },
-    {
-      "description": "CVE-2017-5715",
-      "id": "vulnerabilities:CVE-2017-5715",
-      "resolution": {
-        "description": "Upgrade packages affected by CVE-2017-5715",
-        "id": "fix",
-        "needs_reboot": true,
-        "resolution_risk": -1,
-      },
-      "resolutions_available": 1,
-      "system_count": 1,
+      "system_count": 2,
     },
   ],
   "links": {
     "first": "/api/remediations/v1/remediations?limit=4&offset=0",
-    "last": "/api/remediations/v1/remediations?limit=4&offset=4",
-    "next": "/api/remediations/v1/remediations?limit=4&offset=4",
+    "last": "/api/remediations/v1/remediations?limit=4&offset=0",
+    "next": null,
     "previous": null,
   },
   "meta": {
-    "count": 4,
-    "total": 6,
+    "count": 1,
+    "total": 1,
   },
 }
 `;
@@ -2183,54 +2052,6 @@ exports[`remediations issues get sorted plan issues 1`] = `
 {
   "data": [
     {
-      "description": "RHSA-2018:0502",
-      "id": "vulnerabilities:RHSA-2018:0502",
-      "resolution": {
-        "description": "Apply RHSA-2018:0502",
-        "id": "fix",
-        "needs_reboot": true,
-        "resolution_risk": -1,
-      },
-      "resolutions_available": 1,
-      "system_count": 1,
-    },
-    {
-      "description": "CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
-      "id": "vulnerabilities:CVE-2017-5715:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
-      "resolution": {
-        "description": "Fix Issues caused by [CVE_2017_6074_kernel|KERNEL_CVE_2017_6074]",
-        "id": "fix",
-        "needs_reboot": false,
-        "resolution_risk": -1,
-      },
-      "resolutions_available": 1,
-      "system_count": 1,
-    },
-    {
-      "description": "CVE-2017-5715",
-      "id": "vulnerabilities:CVE-2017-5715",
-      "resolution": {
-        "description": "Upgrade packages affected by CVE-2017-5715",
-        "id": "fix",
-        "needs_reboot": true,
-        "resolution_risk": -1,
-      },
-      "resolutions_available": 1,
-      "system_count": 1,
-    },
-    {
-      "description": "Disable the Automounter",
-      "id": "ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled",
-      "resolution": {
-        "description": "Disable the Automounter",
-        "id": "fix",
-        "needs_reboot": true,
-        "resolution_risk": -1,
-      },
-      "resolutions_available": 1,
-      "system_count": 1,
-    },
-    {
       "description": "Bonding will not fail over to the backup link when bonding options are partially read",
       "id": "advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE",
       "resolution": {
@@ -2240,18 +2061,6 @@ exports[`remediations issues get sorted plan issues 1`] = `
         "resolution_risk": 3,
       },
       "resolutions_available": 1,
-      "system_count": 1,
-    },
-    {
-      "description": "Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)",
-      "id": "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
-      "resolution": {
-        "description": "Update system to the latest kernel and reboot",
-        "id": "kernel_update",
-        "needs_reboot": true,
-        "resolution_risk": 3,
-      },
-      "resolutions_available": 3,
       "system_count": 2,
     },
   ],
@@ -2262,8 +2071,8 @@ exports[`remediations issues get sorted plan issues 1`] = `
     "previous": null,
   },
   "meta": {
-    "count": 6,
-    "total": 6,
+    "count": 1,
+    "total": 1,
   },
 }
 `;

@@ -21,7 +21,43 @@ async function validateResolution (id, resolutionId) {
     disambiguator.disambiguate(resolutions, resolutionId, identifier);
 }
 
-async function validateNewActions(add) {
+/**
+ * Store system details from Host Based Inventory (HBI) response into local systems table
+ * 
+ * systemsById - Object where keys are system UUIDs and values are system detail objects
+ * Example:
+ * systemsById = {
+ *   "9615dda7-5868-4957-88ba-c3064c86d332": {
+ *     id: "9615dda7-5868-4957-88ba-c3064c86d332",
+ *     hostname: "packer-rhel7",           // mapped from API's 'fqdn' field
+ *     display_name: "web-server-01",      // can be null
+ *     ansible_host: "10.0.2.15",         // can be null
+ *     facts: [                            // array of fact objects
+ *       {
+ *         namespace: "rhc", 
+ *         facts: { rhc_client_id: "550e8400-e29b-41d4-a716-446655440000" }
+ *       }
+ *     ]
+ *   }
+ * }
+ */
+async function storeSystemDetails(systemsById) {
+    // Extract system details from HBI response and store in local systems table
+    const remediationSystems = Object.values(systemsById).map(system => ({
+        id: system.id,
+        hostname: system.hostname || null,
+        display_name: system.display_name || null,
+        ansible_hostname: system.ansible_host || null
+    }));
+
+    if (remediationSystems.length > 0) {
+        await db.systems.bulkCreate(remediationSystems, {
+            ignoreDuplicates: true
+        });
+    }
+}
+
+async function processNewActions(add) {
     // normalize and validate
     add.issues.forEach(issue => {
         if (!issue.systems && add.systems) {
@@ -41,7 +77,6 @@ async function validateNewActions(add) {
 
     const systems = _(add.issues).flatMap('systems').uniq().value();
 
-    // TODO: might be better to call these before the transaction
     const [systemsById] = await P.all([
         inventory.getSystemDetailsBatch(systems),
         P.all(add.issues.map(issue => validateResolution(issue.id, issue.resolution)))
@@ -53,6 +88,8 @@ async function validateNewActions(add) {
             throw errors.unknownSystem(system);
         }
     });
+
+    return systemsById;
 }
 
 async function storeNewActions (remediation, add, transaction) {
@@ -106,8 +143,10 @@ async function storeNewActions (remediation, add, transaction) {
 exports.create = errors.async(async function (req, res) {
     const {add, name, auto_reboot} = req.body;
 
+    let systemsById = null;
     if (add) {
-        await validateNewActions(add);
+        systemsById = await processNewActions(add);
+        await storeSystemDetails(systemsById);
     }
 
     const id = uuid.v4();
@@ -145,8 +184,10 @@ exports.patch = errors.async(async function (req, res) {
         throw new errors.BadRequest('EMPTY_REQUEST', 'At least one of "add", "name", "auto_reboot", "archived" needs to be specified');
     }
 
+    let systemsById = null;
     if (add) {
-        await validateNewActions(add);
+        systemsById = await processNewActions(add);
+        await storeSystemDetails(systemsById);
     }
 
     const result = await db.s.transaction(async transaction => {
