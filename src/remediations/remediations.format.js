@@ -395,3 +395,26 @@ exports.planNames = function (names, total, limit, offset, sort, system) {
     };
 };
 
+exports.systemIssues = function (plan_id, system_id, issues, total, limit, offset, sort) {
+    const formatted = issues.map(issue => ({
+        id: issue.issue_id,
+        description: issue.details?.description || '',
+        resolution: issue.resolution ? {
+            id: issue.resolution.type,
+            description: issue.resolution.description,
+            resolution_risk: issue.resolution.resolutionRisk,
+            needs_reboot: issue.resolution.needsReboot
+        } : {},
+        resolutions_available: issue.resolutionsAvailable
+    }));
+
+    return {
+        meta: {
+            count: formatted.length,
+            total
+        },
+        links: buildListLinks(`v1/remediations/${plan_id}/systems/${system_id}/issues`, total, limit, offset, sort),
+        data: formatted
+    };
+};
+

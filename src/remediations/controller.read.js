@@ -591,3 +591,54 @@ exports.getRemediationSystems = errors.async(async function (req, res) {
 
     return res.json(format.planSystems(plan_id, rows, total, limit, offset, sort));
 });
+
+// GET /remediations/:id/systems/:system/issues
+exports.getSystemIssues = errors.async(async function (req, res) {
+    const plan_id = req.params.id;
+    const system_id = req.params.system;
+    const {tenant_org_id, username} = req.user;
+    const {column, asc} = format.parseSort(req.query.sort);
+    const {limit, offset, filter} = req.query;
+
+    // fetch issues for system within plan
+    const {count, rows} = await queries.getSystemIssues(
+        plan_id,
+        system_id,
+        tenant_org_id,
+        username,
+        column,
+        asc,
+        filter,
+        limit,
+        offset
+    );
+
+    if (!rows || rows.length === 0) {
+        return res.json(format.systemIssues(plan_id, system_id, [], 0, limit, offset, req.query.sort || 'id'));
+    }
+
+    // Fetch issue details
+    const issues = await P.map(rows, async row => {
+        const id = identifiers.parse(row.issue_id);
+        const [resolutions, details] = await Promise.all([
+            Issues.getHandler(id).getResolutionResolver().resolveResolutions(id),
+            Issues.getIssueDetails(id).catch(catchErrorCode('UNKNOWN_ISSUE', () => false))
+        ]);
+
+        let resolution = false;
+        if (row.resolution) {
+            resolution = disambiguator.disambiguate(resolutions, row.resolution, id, false, false) || false;
+        }
+
+        return {
+            issue_id: row.issue_id,
+            resolution,
+            resolutionsAvailable: resolutions.length,
+            details
+        };
+    });
+
+    const total = count;
+
+    res.json(format.systemIssues(plan_id, system_id, issues, total, limit, offset, req.query.sort || 'id'));
+});
