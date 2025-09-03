@@ -534,6 +534,168 @@ describe('remediations', function () {
         });
     });
 
+    describe('system issues', function () {
+        let createdIds = [];
+
+        const { account_number: TEST_ACCOUNT, tenant_org_id: TEST_ORG, username: TEST_USER } = require('../connectors/users/mock').MOCK_USERS.testReadSingleUser;
+
+        beforeEach(() => {
+            getSandbox().stub(rbac, 'getRemediationsAccess').resolves(buildRbacResponse('remediations:*:read'));
+        });
+
+        afterEach(async () => {
+            for (const remId of createdIds) {
+                await db.issue.destroy({ where: { remediation_id: remId }, force: true });
+                await db.remediation.destroy({ where: { id: remId }, force: true });
+            }
+            createdIds = [];
+        });
+
+        test('sort by id asc/desc', async () => {
+            const remId = uuidv4();
+            const systemId = uuidv4();
+            createdIds.push(remId);
+
+            await db.remediation.create({
+                id: remId,
+                name: 'system-issues-sort-id',
+                tenant_org_id: TEST_ORG,
+                account_number: TEST_ACCOUNT,
+                created_by: TEST_USER,
+                updated_by: TEST_USER
+            });
+
+            const issueA = await db.issue.create({ remediation_id: remId, issue_id: 'test:ping', resolution: 'fix' });
+            const issueB = await db.issue.create({ remediation_id: remId, issue_id: 'test:reboot', resolution: 'fix' });
+
+            await db.issue_system.bulkCreate([
+                { remediation_issue_id: issueA.id, system_id: systemId, resolved: false },
+                { remediation_issue_id: issueB.id, system_id: systemId, resolved: true }
+            ]);
+
+            let res = await request
+                .get(`/v1/remediations/${remId}/systems/${systemId}/issues?sort=id`)
+                .set(auth.testReadSingle)
+                .expect(200);
+            res.body.data.map(i => i.id).should.eql(['test:ping', 'test:reboot']);
+
+            res = await request
+                .get(`/v1/remediations/${remId}/systems/${systemId}/issues?sort=-id`)
+                .set(auth.testReadSingle)
+                .expect(200);
+            res.body.data.map(i => i.id).should.eql(['test:reboot', 'test:ping']);
+        });
+
+        test('sort by resolved asc/desc', async () => {
+            const remId = uuidv4();
+            const systemId = uuidv4();
+            createdIds.push(remId);
+
+            await db.remediation.create({
+                id: remId,
+                name: 'system-issues-sort-resolved',
+                tenant_org_id: TEST_ORG,
+                account_number: TEST_ACCOUNT,
+                created_by: TEST_USER,
+                updated_by: TEST_USER
+            });
+
+            const issueA = await db.issue.create({ remediation_id: remId, issue_id: 'test:ping', resolution: 'fix' });
+            const issueB = await db.issue.create({ remediation_id: remId, issue_id: 'test:reboot', resolution: 'fix' });
+
+            await db.issue_system.bulkCreate([
+                { remediation_issue_id: issueA.id, system_id: systemId, resolved: false },
+                { remediation_issue_id: issueB.id, system_id: systemId, resolved: true }
+            ]);
+
+            // asc: false first (A), then true (B)
+            let res = await request
+                .get(`/v1/remediations/${remId}/systems/${systemId}/issues?sort=resolved`)
+                .set(auth.testReadSingle)
+                .expect(200);
+            res.body.data.map(i => i.id).should.eql(['test:ping', 'test:reboot']);
+
+            // desc: true first (B), then false (A)
+            res = await request
+                .get(`/v1/remediations/${remId}/systems/${systemId}/issues?sort=-resolved`)
+                .set(auth.testReadSingle)
+                .expect(200);
+            res.body.data.map(i => i.id).should.eql(['test:reboot', 'test:ping']);
+        });
+
+        test('filter by resolved=true/false', async () => {
+            const remId = uuidv4();
+            const systemId = uuidv4();
+            createdIds.push(remId);
+
+            await db.remediation.create({
+                id: remId,
+                name: 'system-issues-filter-resolved',
+                tenant_org_id: TEST_ORG,
+                account_number: TEST_ACCOUNT,
+                created_by: TEST_USER,
+                updated_by: TEST_USER
+            });
+
+            const issueA = await db.issue.create({ remediation_id: remId, issue_id: 'test:ping', resolution: 'fix' });
+            const issueB = await db.issue.create({ remediation_id: remId, issue_id: 'test:reboot', resolution: 'fix' });
+
+            await db.issue_system.bulkCreate([
+                { remediation_issue_id: issueA.id, system_id: systemId, resolved: false },
+                { remediation_issue_id: issueB.id, system_id: systemId, resolved: true }
+            ]);
+
+            let res = await request
+                .get(`/v1/remediations/${remId}/systems/${systemId}/issues?filter[resolved]=true&sort=id`)
+                .set(auth.testReadSingle)
+                .expect(200);
+            res.body.data.map(i => i.id).should.eql(['test:reboot']);
+
+            res = await request
+                .get(`/v1/remediations/${remId}/systems/${systemId}/issues?filter[resolved]=false&sort=id`)
+                .set(auth.testReadSingle)
+                .expect(200);
+
+            // invalid string value should fail validation
+            await request
+                .get(`/v1/remediations/${remId}/systems/${systemId}/issues?filter[resolved]=foo&sort=id`)
+                .set(auth.testReadSingle)
+                .expect(400);
+            res.body.data.map(i => i.id).should.eql(['test:ping']);
+        });
+
+        test('pagination limit/offset', async () => {
+            const remId = uuidv4();
+            const systemId = uuidv4();
+            createdIds.push(remId);
+
+            await db.remediation.create({
+                id: remId,
+                name: 'system-issues-pagination',
+                tenant_org_id: TEST_ORG,
+                account_number: TEST_ACCOUNT,
+                created_by: TEST_USER,
+                updated_by: TEST_USER
+            });
+
+            const issueA = await db.issue.create({ remediation_id: remId, issue_id: 'test:ping', resolution: 'fix' });
+            const issueB = await db.issue.create({ remediation_id: remId, issue_id: 'test:reboot', resolution: 'fix' });
+
+            await db.issue_system.bulkCreate([
+                { remediation_issue_id: issueA.id, system_id: systemId, resolved: false },
+                { remediation_issue_id: issueB.id, system_id: systemId, resolved: true }
+            ]);
+
+            const { body } = await request
+                .get(`/v1/remediations/${remId}/systems/${systemId}/issues?sort=id&limit=1&offset=1`)
+                .set(auth.testReadSingle)
+                .expect(200);
+            body.data.map(i => i.id).should.eql(['test:reboot']);
+            body.meta.count.should.equal(1);
+            body.meta.total.should.equal(2);
+        });
+    });
+
     describe('get', function () {
         test('get remediation', async () => {
             const {text} = await request
