@@ -569,3 +569,61 @@ exports.getIssueSystems = errors.async(async function (req, res) {
 
     res.json(format.issueSystems(remediation.issues[0], total));
 });
+
+// GET /remediations/:id/systems/:system/issues
+exports.getSystemIssues = errors.async(async function (req, res) {
+    const plan_id = req.params.id;
+    const system_id = req.params.system;
+    const {tenant_org_id, username} = req.user;
+    const {column, asc} = format.parseSort(req.query.sort);
+    const {limit, offset, filter} = req.query;
+
+    // fetch issues for system within plan
+    const {count, rows} = await queries.getSystemIssues(
+        plan_id,
+        system_id,
+        tenant_org_id,
+        username,
+        column,
+        asc,
+        filter,
+        limit,
+        offset
+    );
+
+    if (!rows || rows.length === 0) {
+        return res.json(format.systemIssues(plan_id, system_id, [], 0, limit, offset, req.query.sort || 'id'));
+    }
+
+    // Fetch issue details and determine the resolved flag
+    const issues = await P.map(rows, async row => {
+        const id = identifiers.parse(row.issue_id);
+        const [resolutions, details] = await Promise.all([
+            Issues.getHandler(id).getResolutionResolver().resolveResolutions(id),
+            Issues.getIssueDetails(id).catch(catchErrorCode('UNKNOWN_ISSUE', () => false))
+        ]);
+
+        let resolution = false;
+        if (row.resolution) {
+            resolution = disambiguator.disambiguate(resolutions, row.resolution, id, false, false) || false;
+        }
+
+        // resolved flag comes from included systems association
+        let resolved = false;
+        if (Array.isArray(row.systems) && row.systems[0]) {
+            resolved = row.systems[0].resolved;
+        }
+
+        return {
+            issue_id: row.issue_id,
+            resolution,
+            resolutionsAvailable: resolutions.length,
+            details,
+            systems: [{ system_id, resolved }]
+        };
+    });
+
+    const total = count;
+
+    res.json(format.systemIssues(plan_id, system_id, issues, total, limit, offset, req.query.sort || 'id'));
+});

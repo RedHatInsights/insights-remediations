@@ -742,6 +742,68 @@ exports.getSystemDetails = function (id, playbook_run_id, system_id, tenant_org_
     });
 };
 
+// Return issues for a specific system within a remediation plan
+exports.getSystemIssues = async function (remediation_id, system_id, tenant_org_id, created_by = null, primaryOrder = 'id', asc = true, filter = undefined, limit, offset) {
+    const { Op, issue, remediation, issue_system, s: { col } } = db;
+
+    const include = [
+        {
+            attributes: [],
+            model: remediation,
+            required: true,
+            where: {
+                id: remediation_id,
+                tenant_org_id,
+                created_by
+            }
+        },
+        {
+            attributes: ['system_id', 'resolved'],
+            model: issue_system,
+            as: 'systems',
+            required: true,
+            where: { system_id }
+        }
+    ];
+
+    const where = {};
+    const order = [];
+
+    if (primaryOrder === 'resolved') {
+        order.push([{ model: issue_system, as: 'systems' }, 'resolved', asc ? 'ASC' : 'DESC']);
+    } else {
+        order.push(['issue_id', asc ? 'ASC' : 'DESC']);
+    }
+    // stable secondary sort
+    order.push(['id', 'ASC']);
+
+    if (filter) {
+        if (filter.id) {
+            where.issue_id = { [Op.iLike]: `%${filter.id}%` };
+        }
+
+        if (filter && filter.resolved !== undefined) {
+            include[1].where = { ...include[1].where, resolved: filter.resolved };
+        }
+
+        if (filter['resolution.id']) {
+            where.resolution = filter['resolution.id'];
+        }
+    }
+
+    const query = {
+        attributes: ['issue_id', 'resolution'],
+        include,
+        where,
+        order,
+        limit,
+        offset,
+        distinct: true
+    };
+
+    return issue.findAndCountAll(query);
+};
+
 exports.insertPlaybookRun = async function (run, executors, systems) {
     await db.s.transaction(async transaction => {
         await db.playbook_runs.create(run, {transaction});
