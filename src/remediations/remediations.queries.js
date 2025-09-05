@@ -45,6 +45,10 @@ function aggregateStatusSQL() {
     END`;
 }
 
+// This subquery selects the latest playbook_run per remediation
+// We added a composite index on playbook_runs (remediation_id, created_at, id)
+// So the database can jump straight to the latest playbook_run for a given remediation_id
+// instead of reading through lots of rows and sorting them and picking the first
 function mostRecentPlaybookRunSubquery(remediationIdColumn = '"remediation"."id"') {
     return `(
         SELECT "pr2"."id"
