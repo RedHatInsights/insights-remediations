@@ -37,10 +37,9 @@ describe('SSGResolved', function () {
             resolutions[0].description.should.equal('Disable Prelinking');
         });
 
-        test('returns 0 if the rule does not exist at all', async () => {
+        test('throws UNKNOWN_ISSUE if the rule does not exist at all', async () => {
             const id = identifiers.parse('ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|standard|xccdf_org.ssgproject.content_rule_this_is_nonsense');
-            const resolutions = (await resolver.resolveResolutions(id));
-            resolutions.should.have.size(0);
+            await expect(resolver.resolveResolutions(id)).rejects.toThrow(/Unknown issue identifier/);
         });
 
         test('returns 0 if the rule id is rsyslog_remote_loghost', async () => {

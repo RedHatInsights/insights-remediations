@@ -56,7 +56,8 @@ module.exports = class SSGResolver extends Resolver {
 
         if (!raw) {
             log.warn(`No template found for SSG issue: ${id.issue}`);
-            return [];
+            // treat non-existent rules as UNKNOWN_ISSUE
+            throw errors.unknownIssue(id);
         }
 
         try {
