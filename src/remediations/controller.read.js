@@ -248,6 +248,14 @@ exports.list = errors.async(async function (req, res) {
     trace.event('Format response');
     const resp = format.list(remediations, count.length, limit, offset, req.query.sort, req.query.system);
 
+    const validation = res.validateResponse?.(res.statusCode, resp);
+    if (validation) {
+        log.error({
+            errors: validation.errors || validation,
+            body: resp
+        }, 'list response fails spec validation');
+    }
+
     trace.leave();
 
     return res.json(resp);
