@@ -11,16 +11,17 @@ const identifiers = require('../util/identifiers');
 module.exports = class ComplianceHandler extends Handler {
     async getIssueDetails (id) {
         const ssgId = identifiers.parseSSG(id);
-        const raw = await compliance.getRule(ssgId.ruleRef, ssgId.ssgRefId, ssgId.ssgVersion);
+    
+        // Build SCAP Security Guide link for the rule
+        // Example: https://static.open-scap.org/ssg-guides/ssg-rhel8-guide-cis_server_l1.html#rule_selinux_policytype
+        const platform = ssgId.platform; // e.g., rhel7, rhel8
+        const profile = ssgId.profile;   // e.g., pci-dss, standard, ospp, cis_server_l1
+        const ruleRef = ssgId.ruleRef;         // e.g., xccdf_org.ssgproject.content_rule_partition_for_tmp
 
-        if (!raw) {
-            throw errors.unknownIssue(id);
-        }
+        const scapUrl = `https://static.open-scap.org/ssg-guides/ssg-${platform}-guide-${profile}.html#${ruleRef}`;
+        const description = `To learn more about this rule: ${scapUrl}`
 
-        return {
-            description: raw.title,
-            raw
-        };
+        return { description };
     }
 
     getResolutionResolver () {
