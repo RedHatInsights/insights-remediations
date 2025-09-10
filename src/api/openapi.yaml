@@ -333,6 +333,22 @@ paths:
         404:
           $ref: '#/components/responses/NotFound'
 
+  /remediations/{id}/systems/{system}:
+    delete:
+      tags:
+        - remediations
+      summary: Remove system from all issues in remediation
+      description: Removes the given System from all issues in the specified remediation plan, RBAC permission {remediations:remediation:write}
+      operationId: deleteRemediationSystem
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/SystemId'
+      responses:
+        204:
+          $ref: '#/components/responses/Deleted'
+        404:
+          $ref: '#/components/responses/NotFound'
+
   /remediations/{id}/systems/{system}/issues:
     get:
       tags:
