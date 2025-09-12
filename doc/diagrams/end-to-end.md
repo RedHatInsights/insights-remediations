@@ -1,2 +1,2 @@
 # End to End Remediations + RHC Interaction Flow 
-<img width="3840" height="2371" alt="The RHC Experience _ Mermaid Chart-2025-09-05-190727" src="https://github.com/user-attachments/assets/fa54a86d-76fd-4eca-919b-175215c4c82d" />
+<img width="3840" height="2469" alt="The RHC Experience _ Mermaid Chart-2025-09-12-133734" src="https://github.com/user-attachments/assets/91d37a4c-95a0-413f-9e39-023a12aca7b7" />
