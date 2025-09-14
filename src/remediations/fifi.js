@@ -348,8 +348,6 @@ function pushRHCExecutor (rhcRuns, satRun) {
     }
 }
 
-function getSystemNames (systemInventoryIds) {};
-
 exports.getRHCRuns = async function (playbook_run_id = null) {
     const filter = createDispatcherRunsFilter(playbook_run_id);
     const rhcRuns = await dispatcher.fetchPlaybookRuns(filter, RUNSFIELDS);
