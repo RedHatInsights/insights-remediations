@@ -643,12 +643,12 @@ exports.getPlanSystems = async function (
  * //   'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c': { 
  * //     hostname: 'server1.example.com', 
  * //     ansible_hostname: 'ansible1', 
- * //     display_name: 'Server 1' 
+ * //     display_name: 'Server 1'
  * //   },
  * //   'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d': { 
  * //     hostname: 'server2.example.com', 
  * //     ansible_hostname: 'ansible2', 
- * //     display_name: 'Server 2' 
+ * //     display_name: 'Server 2'
  * //   }
  * // }
  * 
@@ -668,12 +668,12 @@ exports.getPlanSystems = async function (
  * //   'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c': { 
  * //     hostname: 'server1.example.com', 
  * //     ansible_hostname: 'ansible1', 
- * //     display_name: 'Server 1' 
+ * //     display_name: 'Server 1'
  * //   },
  * //   '00000000-0000-0000-0000-000000000000': { 
  * //     hostname: '00000000-0000-0000-0000-000000000000', 
  * //     ansible_hostname: null, 
- * //     display_name: null 
+ * //     display_name: null
  * //   }
  * // }
  */
