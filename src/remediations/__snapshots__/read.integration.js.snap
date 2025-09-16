@@ -3549,9 +3549,9 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
                 "last_name": "user"
             },
             "updated_at": "2018-11-04T05:19:36.641Z",
-            "needs_reboot": false,
+            "needs_reboot": true,
             "system_count": 1,
-            "issue_count": 0,
+            "issue_count": 1,
             "resolved_count": 0,
             "archived": false
         },
