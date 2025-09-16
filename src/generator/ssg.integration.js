@@ -3,7 +3,7 @@
 
 const { request, reqId, normalizePlaybookVersionForSnapshot } = require('../test');
 
-test('generates a simple playbook with single compliance remediation (Compliance API v1 issue id format)', async () => {
+test('rejects v1 issue id format (Compliance API v1 issue id format)', async () => {
     const data = {
         issues: [{
             id: 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
@@ -11,11 +11,15 @@ test('generates a simple playbook with single compliance remediation (Compliance
         }]
     };
 
+    const { id, header } = reqId();
+
     const res = await request
     .post('/v1/playbook')
+    .set(header)
     .send(data)
-    .expect(200);
-    expect(normalizePlaybookVersionForSnapshot(res.text)).toMatchSnapshot();
+    .expect(400);
+
+    res.body.errors.should.eql([{ id, status: 400, code: 'INVALID_ISSUE_IDENTIFIER', title: 'Compliance v1 issue identifiers have been retired. Please update your v1 issue ID, "ssg:<platform>|<profile>|xccdf_org.ssgproject.content_rule_disable_prelink", to the v2 format of "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|<version>|<profile>|xccdf_org.ssgproject.content_rule_disable_prelink"' }]);
 });
 
 test('generates a simple playbook with single compliance remediation (Compliance API v2 issue id format)', async () => {
@@ -36,10 +40,10 @@ test('generates a simple playbook with single compliance remediation (Compliance
 test('generates a simple playbook with multiple compliance remediation', async () => {
     const data = {
         issues: [{
-            id: 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
+            id: 'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }, {
-            id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled',
+            id: 'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
@@ -59,7 +63,7 @@ test('400s on unknown issue id', () => {
     .set(header)
     .send({
         issues: [{
-            id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_non-existing-issue',
+            id: 'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|standard|xccdf_org.ssgproject.content_rule_non-existing-issue',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     })
@@ -69,7 +73,7 @@ test('400s on unknown issue id', () => {
             id,
             status: 400,
             code: 'UNKNOWN_ISSUE',
-            title: 'Unknown issue identifier "ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_non-existing-issue"'
+            title: 'Unknown issue identifier "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|standard|xccdf_org.ssgproject.content_rule_non-existing-issue"'
         }]);
     });
 });
@@ -82,7 +86,7 @@ test('400s on unknown resolution type other than fix', () => {
     .set(header)
     .send({
         issues: [{
-            id: 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
+            id: 'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
             resolution: 'non-existing-resolution'
         }]
@@ -93,7 +97,7 @@ test('400s on unknown resolution type other than fix', () => {
             id,
             status: 400,
             code: 'UNKNOWN_RESOLUTION',
-            title: 'Issue "ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink"' +
+            title: 'Issue "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink"' +
                 ' does not have Ansible resolution "non-existing-resolution"'
         }]);
     });
@@ -104,7 +108,7 @@ test('400s on rsyslog_remote_loghost rules for compliance remediations', async (
 
     const data = {
         issues: [{
-            id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_rsyslog_remote_loghost',
+            id: 'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|standard|xccdf_org.ssgproject.content_rule_rsyslog_remote_loghost',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
@@ -119,7 +123,7 @@ test('400s on rsyslog_remote_loghost rules for compliance remediations', async (
             id,
             status: 400,
             code: 'UNSUPPORTED_ISSUE',
-            title: 'Issue "ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_rsyslog_remote_loghost" does not have Ansible support'
+            title: 'Issue "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|standard|xccdf_org.ssgproject.content_rule_rsyslog_remote_loghost" does not have Ansible support'
         }]);
     });
 });
@@ -127,7 +131,7 @@ test('400s on rsyslog_remote_loghost rules for compliance remediations', async (
 test('generates a playbook with block', async () => {
     const data = {
         issues: [{
-            id: 'ssg:rhel7|ospp|xccdf_org.ssgproject.content_rule_mount_option_dev_shm_nodev',
+            id: 'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|ospp|xccdf_org.ssgproject.content_rule_mount_option_dev_shm_nodev',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };
@@ -142,7 +146,7 @@ test('generates a playbook with block', async () => {
 test('generates a simple playbook with uppercase profile name', async () => {
     const data = {
         issues: [{
-            id: 'ssg:rhel7|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth',
+            id: 'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth',
             systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
         }]
     };

@@ -6,6 +6,7 @@ const rbac = require('../connectors/rbac');
 const { request, reqId, auth, getSandbox, buildRbacResponse } = require('../test');
 const { NON_EXISTENT_SYSTEM } = require('../connectors/inventory/mock');
 const uuid = require('uuid');
+const db = require('../db');
 
 function testIssue (remediation, id, resolution, systems) {
     const issue = _.find(remediation.issues, {id});
@@ -1657,6 +1658,127 @@ describe('remediations', function () {
             body.errors[0].details.message.should.equal(
                 'Permission remediations:remediation:write is required for this operation'
             );
+        });
+    });
+
+    describe('systems caching', function () {
+        test('stores system details in systems table when creating remediation', async () => {
+            const systemId = '56db4b54-6273-48dc-b0be-41eb4dc87c7f';
+            
+            // Ensure system doesn't exist before test
+            await db.systems.destroy({
+                where: { id: systemId },
+                force: true
+            });
+
+            const {body} = await request
+                .post('/v1/remediations')
+                .set(auth.testWrite)
+                .send({
+                    name: 'test system caching on create',
+                    add: {
+                        issues: [{id: 'advisor:bond_config_issue|NO_QUOTES'}],
+                        systems: [systemId]
+                    }
+                })
+                .expect(201);
+
+            body.should.have.property('id');
+
+            // Verify system was cached
+            const cachedSystem = await db.systems.findByPk(systemId);
+            cachedSystem.should.not.be.null();
+            cachedSystem.should.have.property('id', systemId);
+            // These fields should exist (can be null if HBI doesn't provide them)
+            cachedSystem.should.have.property('hostname');
+            cachedSystem.should.have.property('display_name');
+            cachedSystem.should.have.property('ansible_hostname');
+        });
+
+        test('stores system details in systems table when updating remediation', async () => {
+            const existingSystemId = '56db4b54-6273-48dc-b0be-41eb4dc87c7f';
+            const newSystemId = 'f5ce853a-c922-46f7-bd82-50286b7d8459';
+            
+            // Create initial remediation with one system
+            const {body: createBody} = await request
+                .post('/v1/remediations')
+                .set(auth.testWrite)
+                .send({
+                    name: 'test system caching on patch',
+                    add: {
+                        issues: [{id: 'advisor:bond_config_issue|NO_QUOTES'}],
+                        systems: [existingSystemId]
+                    }
+                })
+                .expect(201);
+
+            const remediationId = createBody.id;
+
+            // Ensure new system doesn't exist before patch
+            await db.systems.destroy({
+                where: { id: newSystemId },
+                force: true
+            });
+
+            // Add new system via patch
+            await request
+                .patch(`/v1/remediations/${remediationId}`)
+                .set(auth.testWrite)
+                .send({
+                    add: {
+                        issues: [{id: 'advisor:bond_config_issue|EXTRA_WHITESPACE'}],
+                        systems: [newSystemId]
+                    }
+                })
+                .expect(200);
+
+            // Verify both systems are cached
+            const existingCachedSystem = await db.systems.findByPk(existingSystemId);
+            const newCachedSystem = await db.systems.findByPk(newSystemId);
+            
+            existingCachedSystem.should.not.be.null();
+            newCachedSystem.should.not.be.null();
+            
+            newCachedSystem.should.have.property('id', newSystemId);
+            newCachedSystem.should.have.property('hostname');
+            newCachedSystem.should.have.property('display_name');
+            newCachedSystem.should.have.property('ansible_hostname');
+        });
+
+        test('handles duplicate systems gracefully with ignoreDuplicates', async () => {
+            const systemId = '56db4b54-6273-48dc-b0be-41eb4dc87c7f';
+            
+            // Create first remediation with system
+            await request
+                .post('/v1/remediations')
+                .set(auth.testWrite)
+                .send({
+                    name: 'first remediation',
+                    add: {
+                        issues: [{id: 'advisor:bond_config_issue|NO_QUOTES'}],
+                        systems: [systemId]
+                    }
+                })
+                .expect(201);
+
+            // Create second remediation with same system (should not fail)
+            await request
+                .post('/v1/remediations')
+                .set(auth.testWrite)
+                .send({
+                    name: 'second remediation',
+                    add: {
+                        issues: [{id: 'advisor:bond_config_issue|EXTRA_WHITESPACE'}],
+                        systems: [systemId]
+                    }
+                })
+                .expect(201);
+
+            // Verify system exists only once
+            const cachedSystems = await db.systems.findAll({
+                where: { id: systemId }
+            });
+            cachedSystems.should.have.length(1);
         });
     });
 });
