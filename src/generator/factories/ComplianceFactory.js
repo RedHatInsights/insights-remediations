@@ -10,13 +10,13 @@ module.exports = class ComplianceFactory extends Factory {
     async createPlay ({id, hosts, resolution}, strict = true) {
         const handler = issues.getHandler(id);
 
-        const [resolutions, rule] = await P.all([
+        const [resolutions, { description }] = await P.all([
             handler.getResolutionResolver().resolveResolutions(id),
             handler.getIssueDetails(id)
         ]);
 
         const disambiguatedResolution = this.disambiguate(resolutions, resolution, id, strict);
-        return new ResolutionPlay(id, hosts, disambiguatedResolution, rule.description);
+        return new ResolutionPlay(id, hosts, disambiguatedResolution, description);
     }
 };
 

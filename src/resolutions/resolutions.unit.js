@@ -303,7 +303,7 @@ describe('batch', function () {
             .set(header)
             .send({
                 issues: [
-                    'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-8|0.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink'
+                    'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink'
                 ]
             })
             .expect(200);
