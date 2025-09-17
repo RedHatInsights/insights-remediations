@@ -722,7 +722,7 @@ exports.getPlanSystemsDetails = async function (inventoryIds, chunkSize = 50) {
     inventoryIds.forEach(inventoryId => {
         if (!result[inventoryId]) {
             result[inventoryId] = {
-                hostname: inventoryId,
+                hostname: null,
                 ansible_hostname: null,
                 display_name: null
             };
