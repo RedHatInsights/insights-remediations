@@ -56,7 +56,7 @@ describe('remediations', function () {
             createdIds = [];
         });
 
-        test('v1 SSG issue id fails with INVALID_ISSUE_IDENTIFIER', async () => {
+        test('v1 SSG issue id succeeds via SSG template lookup', async () => {
             const remId = uuidv4();
             createdIds.push(remId);
 
@@ -81,15 +81,14 @@ describe('remediations', function () {
                 system_id: '1f12bdfc-8267-492d-a930-92f498fe65b9'
             }]);
 
-            const { id, header } = reqId();
             const { body } = await request
                 .get(`/v1/remediations/${remId}`)
-                .set(header)
-                .expect(400);
+                .expect(200);
 
-            body.errors.should.be.Array();
-            body.errors[0].code.should.equal('INVALID_ISSUE_IDENTIFIER');
-            body.errors[0].id.should.equal(id);
+            body.should.have.property('issues');
+            body.issues.should.have.length(1);
+            body.issues[0].should.have.property('resolution');
+            body.issues[0].resolution.should.have.property('id', 'fix');
         });
 
         test('v2 SSG issue id succeeds', async () => {

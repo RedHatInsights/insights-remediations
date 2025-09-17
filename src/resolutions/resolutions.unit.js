@@ -144,34 +144,38 @@ describe('resolve advisor resolutions', function () {
 });
 
 describe('resolve ssg resolutions', function () {
-    test('v1 SSG id is rejected', async () => {
-        const {id, header} = reqId();
+    test('v1 SSG id returns resolution info via SSG template lookup', async () => {
         const {body} = await request
         .get('/v1/resolutions/ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink')
-        .set(header)
-        .expect(400);
+        .expect(200);
 
-        body.errors.should.eql([{
-            id,
-            status: 400,
-            code: 'INVALID_ISSUE_IDENTIFIER',
-            title: 'Compliance v1 issue identifiers have been retired. Please update your v1 issue ID, "ssg:<platform>|<profile>|xccdf_org.ssgproject.content_rule_disable_prelink", to the v2 format of "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|<version>|<profile>|xccdf_org.ssgproject.content_rule_disable_prelink"'
-        }]);
+        body.should.eql({
+            id: 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
+            resolution_risk: -1,
+            resolutions: [{
+                description: 'Disable Prelinking',
+                id: 'fix',
+                needs_reboot: true,
+                resolution_risk: -1
+            }]
+        });
     });
 
-    test('v1 SSG id (uppercase profile) is rejected', async () => {
-        const {id, header} = reqId();
+    test('v1 SSG id (uppercase profile) returns resolution info via SSG template lookup', async () => {
         const {body} = await request
             .get('/v1/resolutions/ssg:rhel7|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth')
-            .set(header)
-            .expect(400);
+            .expect(200);
 
-        body.errors.should.eql([{
-            id,
-            status: 400,
-            code: 'INVALID_ISSUE_IDENTIFIER',
-            title: 'Compliance v1 issue identifiers have been retired. Please update your v1 issue ID, "ssg:<platform>|<profile>|xccdf_org.ssgproject.content_rule_disable_host_auth", to the v2 format of "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|<version>|<profile>|xccdf_org.ssgproject.content_rule_disable_host_auth"'
-        }]);
+        body.should.eql({
+            id: 'ssg:rhel7|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth',
+            resolution_risk: -1,
+            resolutions: [{
+                description: 'Disable Host-Based Authentication',
+                id: 'fix',
+                needs_reboot: true,
+                resolution_risk: -1
+            }]
+        });
     });
 
     test('v2 SSG id returns resolution info', async () => {
