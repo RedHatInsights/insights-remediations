@@ -1609,6 +1609,93 @@ describe('remediations', function () {
                 .expect(400);
             });
         });
+
+        describe('single system', () => {
+            test('removes a system from all issues in a plan', async () => {
+                const planName = 'delete single system across issues test';
+                await deletePlanByName(planName, auth.testWrite);
+                const plan_id = await createPlan(planName, issues, systems, auth.testWrite);
+
+                const systemToRemove = systems[0];
+
+                // Verify system exists across issues before deletion
+                let { body: planBefore } = await request
+                    .get(`/v1/remediations/${plan_id}`)
+                    .set(auth.testWrite)
+                    .expect(200);
+
+                planBefore.issues.forEach(issue => {
+                    const ids = issue.systems.map(s => s.id);
+                    ids.should.containEql(systemToRemove);
+                });
+
+                // Delete the system from all issues
+                await request
+                    .delete(`/v1/remediations/${plan_id}/systems/${systemToRemove}`)
+                    .set(auth.testWrite)
+                    .expect(204);
+
+                // Verify the system is gone from all issues
+                const { body: planAfter } = await request
+                    .get(`/v1/remediations/${plan_id}`)
+                    .set(auth.testWrite)
+                    .expect(200);
+
+                planAfter.issues.forEach(issue => {
+                    const ids = issue.systems.map(s => s.id);
+                    ids.should.not.containEql(systemToRemove);
+                });
+            });
+
+            test('returns 404 when deleting the same system twice', async () => {
+                const planName = 'delete single system returns 404 on second attempt';
+
+                await deletePlanByName(planName, auth.testWrite);
+                const plan_id = await createPlan(planName, issues, systems, auth.testWrite);
+                const systemToRemove = systems[1];
+
+                await request
+                    .delete(`/v1/remediations/${plan_id}/systems/${systemToRemove}`)
+                    .set(auth.testWrite)
+                    .expect(204);
+
+                await request
+                    .delete(`/v1/remediations/${plan_id}/systems/${systemToRemove}`)
+                    .set(auth.testWrite)
+                    .expect(404);
+            });
+
+            test('returns 404 for wrong owner', async () => {
+                const planName = 'delete single system wrong owner';
+
+                await deletePlanByName(planName, auth.testWrite);
+                const plan_id = await createPlan(planName, issues, systems, auth.testWrite);
+
+                await request
+                    .delete(`/v1/remediations/${plan_id}/systems/${systems[2]}`)
+                    .set(auth.testWrite2)
+                    .expect(404);
+            });
+
+            test('returns 400 for malformed system id', async () => {
+                const planName = 'delete single system malformed system id';
+
+                await deletePlanByName(planName, auth.testWrite);
+                const plan_id = await createPlan(planName, issues, systems, auth.testWrite);
+
+                await request
+                    .delete(`/v1/remediations/${plan_id}/systems/not-a-uuid`)
+                    .set(auth.testWrite)
+                    .expect(400);
+            });
+
+            test('returns 400 for malformed plan id', async () => {
+                await request
+                    .delete('/v1/remediations/not-a-uuid/systems/56db4b54-6273-48dc-b0be-41eb4dc87c7f')
+                    .set(auth.testWrite)
+                    .expect(400);
+            });
+        });
     });
 
     describe('remediations write RBAC', function () {
