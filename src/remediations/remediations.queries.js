@@ -287,7 +287,9 @@ exports.list = async function (
         await fifi2.syncDispatcherRunsForPlaybookRuns(recentRuns.map(run => run.id));
     }
 
-    return db.remediation.findAndCountAll(query);
+    const result = db.remediation.findAndCountAll(query);
+
+    return result;
 };
 
 exports.loadDetails = async function (tenant_org_id, created_by, rows) {
@@ -522,6 +524,28 @@ exports.getIssueSystems = function (id, tenant_org_id, created_by, issueId) {
     });
 };
 
+// Fetch missing system details from inventory service and store in systems table
+async function fetch_missing_system_data(missingIds) {
+    // just being diligent and validating our input parameters...
+    if (missingIds.length === 0) {
+        return;
+    }
+
+    const systemDetails = await inventory.getSystemDetailsBatch(missingIds);
+    const remediationSystems = Object.values(systemDetails).map(system => ({
+        id: system.id,
+        hostname: system.hostname || null,
+        display_name: system.display_name || null,
+        ansible_hostname: system.ansible_host || null
+    }));
+
+    if (remediationSystems.length > 0) {
+        await db.systems.bulkCreate(remediationSystems, {
+            updateOnDuplicate: ['hostname', 'display_name', 'ansible_hostname', 'updated_at']
+        });
+    }
+}
+
 // Return a paginated, sorted list of distinct systems for a remediation plan
 exports.getPlanSystems = async function (
     remediation_plan_id,
@@ -569,21 +593,8 @@ exports.getPlanSystems = async function (
     const existingIds = _.map(existingSystems, 'id');
     const missingIds = _.difference(distinctSystemIds, existingIds);
 
-    if (missingIds.length) {
-        const systemDetails = await inventory.getSystemDetailsBatch(missingIds);
-        const remediationSystems = Object.values(systemDetails).map(system => ({
-            id: system.id,
-            hostname: system.hostname || null,
-            display_name: system.display_name || null,
-            ansible_hostname: system.ansible_host || null
-        }));
-
-        if (remediationSystems.length > 0) {
-            await db.systems.bulkCreate(remediationSystems, {
-                updateOnDuplicate: ['hostname', 'display_name', 'ansible_hostname', 'updated_at']
-            });
-        }
-    }
+    // If there are missing systems, fetch their details from inventory service
+    await fetch_missing_system_data(missingIds);
 
     const where = { [Op.and]: [{ id: { [Op.in]: distinctSystemIds } }] };
 
@@ -611,6 +622,114 @@ exports.getPlanSystems = async function (
         offset,
         raw: true
     });
+};
+
+/**
+ * Fetch system details for a list of inventory UUIDs from the systems table.
+ * For any systems not found in the local systems table, fetches details from the inventory service
+ * and stores them locally. Returns hostname, ansible_hostname, and display_name for each system.
+ * 
+ * @param {string[]} inventoryIds - Array of inventory/system UUIDs to fetch details for
+ * @param {number} [chunkSize=50] - Number of systems to process in each database chunk (default: 50)
+ * @returns {Object} Object with inventory UUIDs as keys and system details as values
+ * 
+ * @example
+ * // Basic usage with default chunk size
+ * const systemDetails = await getPlanSystemsDetails([
+ *   'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c',
+ *   'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d'
+ * ]);
+ * // Returns: {
+ * //   'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c': { 
+ * //     hostname: 'server1.example.com', 
+ * //     ansible_hostname: 'ansible1', 
+ * //     display_name: 'Server 1'
+ * //   },
+ * //   'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d': { 
+ * //     hostname: 'server2.example.com', 
+ * //     ansible_hostname: 'ansible2', 
+ * //     display_name: 'Server 2'
+ * //   }
+ * // }
+ * 
+ * @example
+ * // Custom chunk size for performance tuning
+ * const systemDetails = await getPlanSystemsDetails([
+ *   'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c'
+ * ], 25);
+ * 
+ * @example
+ * // Handling systems not found in inventory (fallback to UUID as hostname)
+ * const systemDetails = await getPlanSystemsDetails([
+ *   'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c',
+ *   '00000000-0000-0000-0000-000000000000'
+ * ]);
+ * // Returns: {
+ * //   'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c': { 
+ * //     hostname: 'server1.example.com', 
+ * //     ansible_hostname: 'ansible1', 
+ * //     display_name: 'Server 1'
+ * //   },
+ * //   '00000000-0000-0000-0000-000000000000': { 
+ * //     hostname: '00000000-0000-0000-0000-000000000000', 
+ * //     ansible_hostname: null, 
+ * //     display_name: null
+ * //   }
+ * // }
+ */
+exports.getPlanSystemsDetails = async function (inventoryIds, chunkSize = 50) {
+    if (!inventoryIds || inventoryIds.length === 0) {
+        return {};
+    }
+
+    // Check which systems already exist in the systems table
+    const existingSystems = await db.systems.findAll({
+        attributes: ['id'],
+        where: { id: inventoryIds },
+        raw: true
+    });
+    const existingIds = existingSystems.map(s => s.id);
+    const missingIds = _.difference(inventoryIds, existingIds);
+
+    // Fetch missing system details from inventory service and store them
+    await fetch_missing_system_data(missingIds);
+
+    const result = {};
+
+    // Process in configurable chunks
+    const chunks = _.chunk(inventoryIds, chunkSize);
+
+    for (const chunk of chunks) {
+        const systems = await db.systems.findAll({
+            attributes: ['id', 'hostname', 'ansible_hostname', 'display_name'],
+            where: {
+                id: chunk
+            },
+            raw: true
+        });
+
+        // Add systems to result object
+        systems.forEach(system => {
+            result[system.id] = {
+                hostname: system.hostname,
+                ansible_hostname: system.ansible_hostname,
+                display_name: system.display_name
+            };
+        });
+    }
+
+    // For any systems we still couldn't find details for, set default values
+    inventoryIds.forEach(inventoryId => {
+        if (!result[inventoryId]) {
+            result[inventoryId] = {
+                hostname: inventoryId,
+                ansible_hostname: null,
+                display_name: null
+            };
+        }
+    });
+
+    return result;
 };
 
 exports.getPlaybookRuns = function (id, tenant_org_id, created_by, primaryOrder = 'updated_at', asc = false) {
