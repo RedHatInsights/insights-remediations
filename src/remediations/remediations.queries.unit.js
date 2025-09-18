@@ -179,7 +179,7 @@ describe('getPlanSystemsDetails', function () {
                 display_name: 'Server 1'
             },
             [missingSystemId]: {
-                hostname: missingSystemId, // Fallback to UUID
+                hostname: null,
                 ansible_hostname: null,
                 display_name: null
             }
@@ -388,7 +388,7 @@ describe('getPlanSystemsDetails', function () {
                 display_name: 'Partially Found System'
             },
             'another-missing-uuid': {
-                hostname: 'another-missing-uuid', // Fallback to UUID
+                hostname: null,
                 ansible_hostname: null,
                 display_name: null
             }
