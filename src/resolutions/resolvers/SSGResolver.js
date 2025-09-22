@@ -10,6 +10,7 @@ const yamlUtils = require('../../util/yaml');
 const yaml = require('js-yaml');
 const log = require('../../util/log');
 const identifiers = require('../../util/identifiers');
+const errors = require('../../errors');
 
 const PLACEHOLDER_REGEX = /(@([A-Z_])+@)/;
 const FALLBACK_PROFILE = 'all';
@@ -24,11 +25,15 @@ function testPlaceholders (raw) {
 
 module.exports = class SSGResolver extends Resolver {
     async resolveResolutions (id) {
-        const {platform, profile, rule} = identifiers.parseSSG(id);
+        const {platform, profile, rule, ssgVersion} = identifiers.parseSSG(id);
         let raw = {};
 
         log.debug(`Resolving SSG issue: ${id.issue}`);
         log.debug(`Parsed ID -> platform: ${platform}, profile: ${profile}, rule: ${rule}`);
+
+        if (!ssgVersion) {
+            log.warn({ issue: id.full }, 'Compliance v1 issue identifiers detected; still attempting SSG template lookup');
+        }
 
         // RHCLOUD-4280: disable rule "rsyslog_remote_loghost"
         if (id.issue.includes('rsyslog_remote_loghost')) {return [];}
@@ -46,6 +51,8 @@ module.exports = class SSGResolver extends Resolver {
 
         if (!raw) {
             log.warn(`No template found for SSG issue: ${id.issue}`);
+            // We don't want to throw an error here because one unknown issue would cause the entire remediation to not load
+            // Instead we'll silently not add the issue to the remediation because it's unknown
             return [];
         }
 

@@ -23,7 +23,7 @@ describe('compliance impl', function () {
         } catch (error) {
             error.should.be.instanceOf(errors.BadRequest);
             error.error.code.should.equal('INVALID_ISSUE_IDENTIFIER');
-            error.message.should.match(/Use Compliance API v2 format/);
+            error.message.should.equal('Compliance v1 issue identifiers have been retired. Please update your v1 issue ID, "ssg:<platform>|<profile>|xccdf_org.ssgproject.content_rule_sshd_disable_root_login", to the v2 format of "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|<version>|<profile>|xccdf_org.ssgproject.content_rule_sshd_disable_root_login"');
         }
     });
 

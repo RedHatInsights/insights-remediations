@@ -11,6 +11,7 @@ const impl = require('../connectors/dispatcher/impl');
 const dispatcher = require('../connectors/dispatcher');
 const fifi2 = require('./fifi_2');
 const db = require('../db');
+const { v4: uuidv4 } = require('uuid');
 
 function test400 (name, url, code, title) {
     test(name, async () => {
@@ -43,6 +44,88 @@ function binaryParser (res, callback) {
 let originalRem1;
 let originalRem2;
 describe('remediations', function () {
+    describe('SSG issue id (v1 vs v2) on read', function () {
+        let createdIds = [];
+
+        afterEach(async () => {
+            // cleanup created records
+            for (const remId of createdIds) {
+                await db.issue.destroy({ where: { remediation_id: remId }, force: true });
+                await db.remediation.destroy({ where: { id: remId }, force: true });
+            }
+            createdIds = [];
+        });
+
+        test('v1 SSG issue id succeeds via SSG template lookup', async () => {
+            const remId = uuidv4();
+            createdIds.push(remId);
+
+            await db.remediation.create({
+                id: remId,
+                name: 'v1-ssg-remediation',
+                needs_reboot: false,
+                tenant_org_id: '0000000',
+                account_number: '0000000',
+                created_by: 'tuser@redhat.com',
+                updated_by: 'tuser@redhat.com'
+            });
+
+            await db.issue.create({
+                remediation_id: remId,
+                issue_id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_disable_prelink',
+                resolution: 'fix'
+            });
+
+            await db.issue_system.bulkCreate([{
+                remediation_issue_id: (await db.issue.findOne({ where: { remediation_id: remId } })).id,
+                system_id: '1f12bdfc-8267-492d-a930-92f498fe65b9'
+            }]);
+
+            const { body } = await request
+                .get(`/v1/remediations/${remId}`)
+                .expect(200);
+
+            body.should.have.property('issues');
+            body.issues.should.have.length(1);
+            body.issues[0].should.have.property('resolution');
+            body.issues[0].resolution.should.have.property('id', 'fix');
+        });
+
+        test('v2 SSG issue id succeeds', async () => {
+            const remId = uuidv4();
+            createdIds.push(remId);
+
+            await db.remediation.create({
+                id: remId,
+                name: 'v2-ssg-remediation',
+                needs_reboot: false,
+                tenant_org_id: '0000000',
+                account_number: '0000000',
+                created_by: 'tuser@redhat.com',
+                updated_by: 'tuser@redhat.com'
+            });
+
+            await db.issue.create({
+                remediation_id: remId,
+                issue_id: 'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|standard|xccdf_org.ssgproject.content_rule_disable_prelink',
+                resolution: 'fix'
+            });
+
+            await db.issue_system.bulkCreate([{
+                remediation_issue_id: (await db.issue.findOne({ where: { remediation_id: remId } })).id,
+                system_id: '1f12bdfc-8267-492d-a930-92f498fe65b9'
+            }]);
+
+            const { body } = await request
+                .get(`/v1/remediations/${remId}`)
+                .expect(200);
+
+            body.should.have.property('issues');
+            body.issues.should.have.length(1);
+            body.issues[0].should.have.property('resolution');
+            body.issues[0].resolution.should.have.property('id', 'fix');
+        });
+    });
     describe('list', function () {
         beforeAll(async () => {
             originalRem1 = await db.remediation.findByPk('249f142c-2ae3-4c3f-b2ec-c8c5881f8561');
@@ -130,6 +213,19 @@ describe('remediations', function () {
             for (const remediation of body.data) {
                 expect(remediation).toHaveProperty('playbook_runs');
             }
+        });
+
+        test('list remediations with fields[data]=playbook_runs includes remediations with no playbook runs', async () => {
+            await db.playbook_runs.destroy({ where: { remediation_id: '0ecb5db7-2f1a-441b-8220-e5ce45066f50' }, force: true });
+            
+            const {body} = await request
+            .get('/v1/remediations?fields[data]=playbook_runs&sort=name&limit=3')
+            .set(auth.fifi)
+            .expect(200);
+
+            const remWithNoPlaybookRuns = body.data.find(r => r.id === '0ecb5db7-2f1a-441b-8220-e5ce45066f50');
+            expect(remWithNoPlaybookRuns).toBeTruthy();
+            expect((remWithNoPlaybookRuns.playbook_runs || []).length).toBe(0);
         });
 
         test('list remediation plan names for org', async () => {
@@ -450,10 +546,133 @@ describe('remediations', function () {
         });
     });
 
+    describe('system issues', function () {
+        let createdIds = [];
+
+        const { account_number: TEST_ACCOUNT, tenant_org_id: TEST_ORG, username: TEST_USER } = require('../connectors/users/mock').MOCK_USERS.testReadSingleUser;
+
+        beforeEach(() => {
+            getSandbox().stub(rbac, 'getRemediationsAccess').resolves(buildRbacResponse('remediations:*:read'));
+        });
+
+        afterEach(async () => {
+            for (const remId of createdIds) {
+                await db.issue.destroy({ where: { remediation_id: remId }, force: true });
+                await db.remediation.destroy({ where: { id: remId }, force: true });
+            }
+            createdIds = [];
+        });
+
+        test('sort by id asc/desc', async () => {
+            const remId = uuidv4();
+            const systemId = uuidv4();
+            createdIds.push(remId);
+
+            await db.remediation.create({
+                id: remId,
+                name: 'system-issues-sort-id',
+                tenant_org_id: TEST_ORG,
+                account_number: TEST_ACCOUNT,
+                created_by: TEST_USER,
+                updated_by: TEST_USER
+            });
+
+            const issueA = await db.issue.create({ remediation_id: remId, issue_id: 'test:ping', resolution: 'fix' });
+            const issueB = await db.issue.create({ remediation_id: remId, issue_id: 'test:reboot', resolution: 'fix' });
+
+            await db.issue_system.bulkCreate([
+                { remediation_issue_id: issueA.id, system_id: systemId, resolved: false },
+                { remediation_issue_id: issueB.id, system_id: systemId, resolved: true }
+            ]);
+
+            let res = await request
+                .get(`/v1/remediations/${remId}/systems/${systemId}/issues?sort=id`)
+                .set(auth.testReadSingle)
+                .expect(200);
+            res.body.data.map(i => i.id).should.eql(['test:ping', 'test:reboot']);
+
+            res = await request
+                .get(`/v1/remediations/${remId}/systems/${systemId}/issues?sort=-id`)
+                .set(auth.testReadSingle)
+                .expect(200);
+            res.body.data.map(i => i.id).should.eql(['test:reboot', 'test:ping']);
+        });
+
+        // removed: sort by resolved asc/desc (endpoint no longer supports resolved)
+
+        test('filter by id (partial)', async () => {
+            const remId = uuidv4();
+            const systemId = uuidv4();
+            createdIds.push(remId);
+
+            await db.remediation.create({
+                id: remId,
+                name: 'system-issues-filter-id',
+                tenant_org_id: TEST_ORG,
+                account_number: TEST_ACCOUNT,
+                created_by: TEST_USER,
+                updated_by: TEST_USER
+            });
+
+            const issueA = await db.issue.create({ remediation_id: remId, issue_id: 'test:ping', resolution: 'fix' });
+            const issueB = await db.issue.create({ remediation_id: remId, issue_id: 'test:reboot', resolution: 'fix' });
+
+            await db.issue_system.bulkCreate([
+                { remediation_issue_id: issueA.id, system_id: systemId, resolved: false },
+                { remediation_issue_id: issueB.id, system_id: systemId, resolved: true }
+            ]);
+
+            // filter by id (partial)
+            let res = await request
+                .get(`/v1/remediations/${remId}/systems/${systemId}/issues?filter[id]=ping&sort=id`)
+                .set(auth.testReadSingle)
+                .expect(200);
+            res.body.data.map(i => i.id).should.eql(['test:ping']);
+
+            // filter by resolution.id
+            res = await request
+                .get(`/v1/remediations/${remId}/systems/${systemId}/issues?filter[resolution.id]=fix&sort=id`)
+                .set(auth.testReadSingle)
+                .expect(200);
+            res.body.data.map(i => i.id).should.eql(['test:ping','test:reboot']);
+        });
+
+        test('pagination limit/offset', async () => {
+            const remId = uuidv4();
+            const systemId = uuidv4();
+            createdIds.push(remId);
+
+            await db.remediation.create({
+                id: remId,
+                name: 'system-issues-pagination',
+                tenant_org_id: TEST_ORG,
+                account_number: TEST_ACCOUNT,
+                created_by: TEST_USER,
+                updated_by: TEST_USER
+            });
+
+            const issueA = await db.issue.create({ remediation_id: remId, issue_id: 'test:ping', resolution: 'fix' });
+            const issueB = await db.issue.create({ remediation_id: remId, issue_id: 'test:reboot', resolution: 'fix' });
+
+            await db.issue_system.bulkCreate([
+                { remediation_issue_id: issueA.id, system_id: systemId, resolved: false },
+                { remediation_issue_id: issueB.id, system_id: systemId, resolved: true }
+            ]);
+
+            const { body } = await request
+                .get(`/v1/remediations/${remId}/systems/${systemId}/issues?sort=id&limit=1&offset=1`)
+                .set(auth.testReadSingle)
+                .expect(200);
+            body.data.map(i => i.id).should.eql(['test:reboot']);
+            body.meta.count.should.equal(1);
+            body.meta.total.should.equal(2);
+        });
+    });
+
     describe('get', function () {
         test('get remediation', async () => {
             const {text} = await request
-            .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02?pretty')
+            .get('/v1/remediations/e809526c-56f5-4cd8-a809-93328436ea23?pretty')
             .expect(200);
 
             expect(text).toMatchSnapshot();
@@ -576,13 +795,45 @@ describe('remediations', function () {
             body.issues[0].resolution.should.have.property('id', 'fix');
         });
 
+        // Build a temporary plan with unknown non-SSG issues so the endpoint returns 200 and filters them out.
+        // The seeded 'unknown issues' plan includes a v1 SSG id that now returns 400 (invalid identifier), so we can't use it here.
         test('get remediation with unknown issues', async () => {
-            const {body} = await request
-            .get('/v1/remediations/62c95092-ac83-4025-a676-362a67e68579?pretty')
-            .set(auth.testReadSingle)
-            .expect(200);
+            const { account_number, tenant_org_id, username: created_by } = require('../connectors/users/mock').MOCK_USERS.testReadSingleUser;
+            const remId = uuidv4();
 
-            body.issues.should.have.length(0);
+            try {
+                await db.remediation.create({
+                    id: remId,
+                    name: 'unknown issues (non-ssg)',
+                    auto_reboot: true,
+                    account_number,
+                    tenant_org_id,
+                    created_by,
+                    updated_by: created_by
+                });
+
+                const createdIssues = await db.issue.bulkCreate([
+                    { remediation_id: remId, issue_id: 'advisor:non-existent-issue-a' },
+                    { remediation_id: remId, issue_id: 'advisor:non-existent-issue-b' }
+                ], { returning: true });
+
+                // attach systems so controller considers them, but issues will still be filtered out as unknown
+                await db.issue_system.bulkCreate(createdIssues.map(i => ({
+                    remediation_issue_id: i.id,
+                    system_id: '1040856f-b772-44c7-83a9-eea4813c4be8',
+                    resolved: false
+                })));
+
+                const {body} = await request
+                .get(`/v1/remediations/${remId}?pretty`)
+                .set(auth.testReadSingle)
+                .expect(200);
+
+                body.issues.should.have.length(0);
+            } finally {
+                await db.issue.destroy({ where: { remediation_id: remId }, force: true });
+                await db.remediation.destroy({ where: { id: remId }, force: true });
+            }
         });
 
         test('get remediation with system-less issue', async () => {
@@ -620,7 +871,7 @@ describe('remediations', function () {
     describe('issues', function () {
         test('get remediation plan issues', async () => {
             const {body} = await request
-            .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02/issues?limit=4')
+            .get('/v1/remediations/e809526c-56f5-4cd8-a809-93328436ea23/issues?limit=4')
             .expect(200);
 
             expect(body).toMatchSnapshot();
@@ -628,7 +879,7 @@ describe('remediations', function () {
 
         test('get sorted plan issues', async () => {
             const {body} = await request
-            .get('/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02/issues?sort=-id')
+            .get('/v1/remediations/e809526c-56f5-4cd8-a809-93328436ea23/issues?sort=-id')
             .expect(200);
 
             expect(body).toMatchSnapshot();
@@ -865,6 +1116,243 @@ describe('remediations', function () {
             'type.openapi.requestValidation',
             'must be number (location: query, path: offset)'
         );
+    });
+
+    describe('remediation plan systems', function () {
+        test('gets list of distinct systems with limit=2', async () => {
+            const { body } = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?limit=2')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.should.have.property('meta');
+            body.meta.should.have.property('count');
+            body.meta.should.have.property('total');
+            body.should.have.property('data');
+            body.data.should.be.Array();
+            body.data.length.should.equal(body.meta.count);
+            if (body.data.length > 0) {
+                body.data[0].should.have.property('id');
+                body.data[0].should.have.property('hostname');
+                body.data[0].should.have.property('display_name');
+            }
+        });
+
+        test('gets list of distinct systems with no limit', async () => {
+            const { body } = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.should.have.property('meta');
+            body.meta.should.have.property('count');
+            body.meta.should.have.property('total');
+            body.should.have.property('data');
+            body.data.should.be.Array();
+            body.data.length.should.equal(body.meta.count);
+
+            const ids = body.data.map(r => r.id);
+            new Set(ids).size.should.equal(ids.length);
+            
+            const names = body.data.map(r => (r.display_name || '').toLowerCase());
+            const nonEmpty = names.filter(n => n !== '').sort();
+            const empties = names.filter(n => n === '');
+            names.should.eql([...nonEmpty, ...empties]);
+        });
+
+        test('sorts by hostname desc', async () => {
+            const { body } = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?sort=-hostname&limit=3')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            const values = body.data.map(r => (r.hostname || '').toLowerCase());
+            const sorted = [...values].sort().reverse();
+            expect(values).toEqual(sorted);
+        });
+
+        test('filters by hostname substring', async () => {
+            const { body } = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?filter[hostname]=example')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.data.forEach(r => {
+                expect((r.hostname || '').toLowerCase()).toContain('example');
+            });
+        });
+
+        test('404 on unknown remediation_id', async () => {
+            await request
+            .get('/v1/remediations/00000000-0000-0000-0000-000000000000/systems')
+            .set(auth.testReadSingle)
+            .expect(404);
+        });
+
+        test('400 on bad sort', async () => {
+            await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?sort=bob')
+            .set(auth.testReadSingle)
+            .expect(400);
+        });
+
+        test('400 on bad plan id format', async () => {
+            await request
+            .get('/v1/remediations/not-a-uuid/systems')
+            .set(auth.testReadSingle)
+            .expect(400);
+        });
+
+        test('404 on not plan owner', async () => {
+            await request
+            .get('/v1/remediations/e809526c-56f5-4cd8-a809-93328436ea23/systems')
+            .set(auth.fifi)
+            .expect(404);
+        });
+
+        test('400 when limit=0', async () => {
+            await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?limit=0')
+            .set(auth.testReadSingle)
+            .expect(400);
+        });
+
+        test('400 when limit>50', async () => {
+            await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?limit=200')
+            .set(auth.testReadSingle)
+            .expect(400);
+        });
+
+        test('400 on invalid offset type', async () => {
+            await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?offset=salad')
+            .set(auth.testReadSingle)
+            .expect(400);
+        });
+
+        test('400 on giant offset', async () => {
+            await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?offset=1000000')
+            .set(auth.testReadSingle)
+            .expect(400);
+        });
+
+        test('filters by id/display_name substrings', async () => {
+            const { body } = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?filter[id]=a8&filter[display_name]=system')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.data.forEach(r => {
+                expect(String(r.id)).toContain('a8');
+                expect((r.display_name || '').toLowerCase()).toContain('system');
+            });
+        });
+
+        test('sorts by id asc and display_name asc', async () => {
+            let res = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?sort=id')
+            .set(auth.testReadSingle)
+            .expect(200);
+            let ids = res.body.data.map(r => r.id);
+            let idsSorted = [...ids].sort();
+            expect(ids).toEqual(idsSorted);
+
+            res = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?sort=display_name')
+            .set(auth.testReadSingle)
+            .expect(200);
+            const names = res.body.data.map(r => (r.display_name || '').toLowerCase());
+            const nonEmpty = names.filter(n => n !== '').sort();
+            const empties = names.filter(n => n === '');
+            expect(names).toEqual([...nonEmpty, ...empties]);
+        });
+
+        test('sorts by id desc and display_name desc', async () => {
+            let res = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?sort=-id')
+            .set(auth.testReadSingle)
+            .expect(200);
+            let ids = res.body.data.map(r => r.id);
+            let idsSortedDesc = [...ids].sort().reverse();
+            expect(ids).toEqual(idsSortedDesc);
+
+            res = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?sort=-display_name')
+            .set(auth.testReadSingle)
+            .expect(200);
+            const names = res.body.data.map(r => (r.display_name || '').toLowerCase());
+            const empties = names.filter(n => n === '');
+            const nonEmptyDesc = names.filter(n => n !== '').sort().reverse();
+            expect(names).toEqual([...empties, ...nonEmptyDesc]);
+        });
+
+        test('filters by hostname and display_name substrings (combined)', async () => {
+            const planSystemIds = ['9dae9304-86a8-4f66-baa3-a1b27dfdd479', '1040856f-b772-44c7-83a9-eea4813c4be8'];
+            await db.systems.destroy({ where: { id: planSystemIds }, force: true });
+
+            getSandbox().stub(inventory, 'getSystemDetailsBatch').resolves({
+                '9dae9304-86a8-4f66-baa3-a1b27dfdd479': {
+                    id: '9dae9304-86a8-4f66-baa3-a1b27dfdd479',
+                    hostname: '9dae9304-86a8-4f66-baa3-a1b27dfdd479.example.com',
+                    display_name: '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system',
+                    ansible_host: null,
+                    facts: []
+                },
+                '1040856f-b772-44c7-83a9-eea4813c4be8': {
+                    id: '1040856f-b772-44c7-83a9-eea4813c4be8',
+                    hostname: '1040856f-b772-44c7-83a9-eea4813c4be8.example.com',
+                    display_name: 'some-system',
+                    ansible_host: null,
+                    facts: []
+                }
+            });
+
+            const { body } = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?filter[hostname]=example&filter[display_name]=system')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            expect(body.data.length).toBeGreaterThan(0);
+            body.data.forEach(r => {
+                expect((r.hostname || '').toLowerCase()).toContain('example');
+                expect((r.display_name || '').toLowerCase()).toContain('system');
+            });
+        });
+
+        test('returns empty list when plan has no systems', async () => {
+            const { body } = await request
+            .get('/v1/remediations/d1b070b5-1db8-4dac-8ecf-891dc1e9225f/systems')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.meta.count.should.eql(0);
+            body.meta.total.should.eql(0);
+            body.data.should.eql([]);
+        });
+
+        test('populates systems table from inventory when missing (fallback)', async () => {
+            // Clear systems table entries for this plan's systems to force fallback
+            const planSystemIds = ['9dae9304-86a8-4f66-baa3-a1b27dfdd479', '1040856f-b772-44c7-83a9-eea4813c4be8'];
+            await db.systems.destroy({ where: { id: planSystemIds }, force: true });
+
+            const initialCount = await db.systems.count({ where: { id: planSystemIds } });
+            expect(initialCount).toBe(0);
+
+            const res = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?sort=display_name')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            const finalCount = await db.systems.count({ where: { id: planSystemIds } });
+            expect(finalCount).toBeGreaterThan(0);
+
+            const names = res.body.data.map(r => (r.display_name || '').toLowerCase());
+            const nonEmpty = names.filter(n => n !== '').sort();
+            const empties = names.filter(n => n === '');
+            expect(names).toEqual([...nonEmpty, ...empties]);
+        });
     });
 
     describe('remediations read RBAC', function () {

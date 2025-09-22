@@ -144,7 +144,7 @@ describe('resolve advisor resolutions', function () {
 });
 
 describe('resolve ssg resolutions', function () {
-    test('resolution info', async () => {
+    test('v1 SSG id returns resolution info via SSG template lookup', async () => {
         const {body} = await request
         .get('/v1/resolutions/ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink')
         .expect(200);
@@ -161,10 +161,10 @@ describe('resolve ssg resolutions', function () {
         });
     });
 
-    test('resolution info (2)', async () => {
+    test('v1 SSG id (uppercase profile) returns resolution info via SSG template lookup', async () => {
         const {body} = await request
-        .get('/v1/resolutions/ssg:rhel7|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth')
-        .expect(200);
+            .get('/v1/resolutions/ssg:rhel7|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth')
+            .expect(200);
 
         body.should.eql({
             id: 'ssg:rhel7|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth',
@@ -178,7 +178,7 @@ describe('resolve ssg resolutions', function () {
         });
     });
 
-    test('resolution info (3)', async () => {
+    test('v2 SSG id returns resolution info', async () => {
         const {body} = await request
             .get('/v1/resolutions/ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink')
             .expect(200);
@@ -307,7 +307,7 @@ describe('batch', function () {
             .set(header)
             .send({
                 issues: [
-                    'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-8|0.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink'
+                    'ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink'
                 ]
             })
             .expect(200);

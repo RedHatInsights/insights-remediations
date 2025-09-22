@@ -8,7 +8,7 @@ const ssg = require('../../connectors/ssg/mock');
 describe('SSGResolved', function () {
     describe('impl', function () {
         test('detects unresolved interpolation placeholder', async () => {
-            const id = identifiers.parse('ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink-unresolved');
+            const id = identifiers.parse('ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink-unresolved');
             const resolutions = (await resolver.resolveResolutions(id));
             resolutions.should.be.empty();
 
@@ -17,34 +17,34 @@ describe('SSGResolved', function () {
         });
 
         test('resolves the name for simple plays', async () => {
-            const id = identifiers.parse('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled');
+            const id = identifiers.parse('ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled');
             const resolutions = (await resolver.resolveResolutions(id));
             resolutions.should.have.size(1);
             resolutions[0].description.should.equal('Enable rsyslog Service');
         });
 
         test('falls back to default name for more complex plays', async () => {
-            const id = identifiers.parse('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled');
+            const id = identifiers.parse('ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled');
             const resolutions = (await resolver.resolveResolutions(id));
             resolutions.should.have.size(1);
             resolutions[0].description.should.equal('Disable the Automounter');
         });
 
         test('falls back to all profile if the rule does not belong to the spefified profile', async () => {
-            const id = identifiers.parse('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_disable_prelink');
+            const id = identifiers.parse('ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|standard|xccdf_org.ssgproject.content_rule_disable_prelink');
             const resolutions = (await resolver.resolveResolutions(id));
             resolutions.should.have.size(1);
             resolutions[0].description.should.equal('Disable Prelinking');
         });
 
-        test('returns 0 if the rule does not exist at all', async () => {
-            const id = identifiers.parse('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_this_is_nonsense');
-            const resolutions = (await resolver.resolveResolutions(id));
+        test('returns no resolutions if the issue does not exist at all', async () => {
+            const id = identifiers.parse('ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|standard|xccdf_org.ssgproject.content_rule_this_is_nonsense');
+            const resolutions = await resolver.resolveResolutions(id);
             resolutions.should.have.size(0);
         });
 
         test('returns 0 if the rule id is rsyslog_remote_loghost', async () => {
-            const id = identifiers.parse('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_rsyslog_remote_loghost');
+            const id = identifiers.parse('ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|standard|xccdf_org.ssgproject.content_rule_rsyslog_remote_loghost');
             const resolutions = (await resolver.resolveResolutions(id));
             resolutions.should.have.size(0);
         });

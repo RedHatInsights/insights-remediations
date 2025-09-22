@@ -1482,7 +1482,7 @@ exports[`playbooks generate playbook with pydata and playbook support 1`] = `
           with_dict: "{{ pydata.bond_config }}"
 
 
-# Disable the Automounter
+# To learn more about this rule: https://static.open-scap.org/ssg-guides/ssg-rhel7-guide-standard.html#xccdf_org.ssgproject.content_rule_service_autofs_disabled
 # Identifier: (ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled,fix)
 # Version: NORMALIZED_PLACEHOLDER
 # platform = multi_platform_all
