@@ -270,3 +270,239 @@ describe('syncDispatcherRunsForPlaybookRuns', function () {
         result[0].should.equal(mockPlaybookRunId4);
     });
 });
+
+describe('formatRunHosts and formatRHCHostDetails', function () {
+    const system1Id = 'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c';
+    const system2Id = 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d';
+    const system3Id = 'b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e';
+    const playbookRunId = '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc';
+
+    let getPlanSystemsDetailsStub;
+
+    beforeEach(() => {
+        getPlanSystemsDetailsStub = base.sandbox.stub(queries, 'getPlanSystemsDetails');
+    });
+
+    describe('formatRunHosts', function () {
+        test('should use display_name as system_name when available', async () => {
+            // Mock system details with display_name available
+            getPlanSystemsDetailsStub.resolves({
+                [system1Id]: {
+                    hostname: 'server1.example.com',
+                    ansible_hostname: 'ansible1',
+                    display_name: 'Production Server 1'
+                },
+                [system2Id]: {
+                    hostname: 'server2.example.com', 
+                    ansible_hostname: 'ansible2',
+                    display_name: 'Production Server 2'
+                }
+            });
+
+            const mockRhcRuns = {
+                data: [{
+                    id: 'run1',
+                    updated_at: '2023-10-01T12:00:00.000Z'
+                }]
+            };
+
+            // Mock dispatcher.fetchPlaybookRunHosts
+            base.sandbox.stub(dispatcher, 'fetchPlaybookRunHosts').resolves({
+                data: [
+                    {
+                        inventory_id: system1Id,
+                        status: 'success'
+                    },
+                    {
+                        inventory_id: system2Id,
+                        status: 'running'
+                    }
+                ]
+            });
+
+            const result = await fifi.formatRunHosts(mockRhcRuns, playbookRunId);
+
+            result.should.have.length(2);
+            result[0].should.have.property('system_id', system1Id);
+            result[0].should.have.property('system_name', 'Production Server 1'); // Uses display_name
+            result[1].should.have.property('system_id', system2Id);
+            result[1].should.have.property('system_name', 'Production Server 2'); // Uses display_name
+        });
+
+        test('should fallback to hostname when display_name is null', async () => {
+            // Mock system details with display_name null, hostname available
+            getPlanSystemsDetailsStub.resolves({
+                [system1Id]: {
+                    hostname: 'server1.example.com',
+                    ansible_hostname: 'ansible1',
+                    display_name: null
+                }
+            });
+
+            const mockRhcRuns = {
+                data: [{
+                    id: 'run1',
+                    updated_at: '2023-10-01T12:00:00.000Z'
+                }]
+            };
+
+            // Mock dispatcher.fetchPlaybookRunHosts
+            base.sandbox.stub(dispatcher, 'fetchPlaybookRunHosts').resolves({
+                data: [{
+                    inventory_id: system1Id,
+                    status: 'success'
+                }]
+            });
+
+            const result = await fifi.formatRunHosts(mockRhcRuns, playbookRunId);
+
+            result.should.have.length(1);
+            result[0].should.have.property('system_id', system1Id);
+            result[0].should.have.property('system_name', 'server1.example.com'); // Uses hostname fallback
+        });
+
+        test('should fallback to dispatcher host when system details not found', async () => {
+            // Mock system details returning empty (system not found)
+            getPlanSystemsDetailsStub.resolves({});
+
+            const mockRhcRuns = {
+                data: [{
+                    id: 'run1',
+                    updated_at: '2023-10-01T12:00:00.000Z'
+                }]
+            };
+
+            // Mock dispatcher.fetchPlaybookRunHosts
+            base.sandbox.stub(dispatcher, 'fetchPlaybookRunHosts').resolves({
+                data: [{
+                    inventory_id: system3Id,
+                    status: 'success',
+                    host: 'dispatcher-host-name'
+                }]
+            });
+
+            const result = await fifi.formatRunHosts(mockRhcRuns, playbookRunId);
+
+            result.should.have.length(1);
+            result[0].should.have.property('system_id', system3Id);
+            result[0].should.have.property('system_name', 'dispatcher-host-name'); // Uses dispatcher fallback
+        });
+    });
+
+    describe('formatRHCHostDetails', function () {
+        test('should use display_name as system_name when available', async () => {
+            // Mock system details with display_name available
+            getPlanSystemsDetailsStub.resolves({
+                [system1Id]: {
+                    hostname: 'server1.example.com',
+                    ansible_hostname: 'ansible1', 
+                    display_name: 'Production Server 1'
+                }
+            });
+
+            const mockHost = {
+                status: 'success',
+                updated_at: '2023-10-01T12:00:00.000Z'
+            };
+
+            const mockDetails = {
+                data: [{
+                    inventory_id: system1Id,
+                    host: 'dispatcher-host-name',
+                    stdout: 'Console output here'
+                }]
+            };
+
+            const result = await fifi.formatRHCHostDetails(mockHost, mockDetails, playbookRunId);
+
+            result.should.have.property('system_id', system1Id);
+            result.should.have.property('system_name', 'Production Server 1'); // Uses display_name
+            result.should.have.property('status', 'success');
+            result.should.have.property('console', 'Console output here');
+        });
+
+        test('should fallback to hostname when display_name is null', async () => {
+            // Mock system details with display_name null, hostname available
+            getPlanSystemsDetailsStub.resolves({
+                [system1Id]: {
+                    hostname: 'server1.example.com',
+                    ansible_hostname: 'ansible1',
+                    display_name: null
+                }
+            });
+
+            const mockHost = {
+                status: 'running',
+                updated_at: '2023-10-01T12:00:00.000Z'
+            };
+
+            const mockDetails = {
+                data: [{
+                    inventory_id: system1Id,
+                    host: 'dispatcher-host-name',
+                    stdout: 'Console output here'
+                }]
+            };
+
+            const result = await fifi.formatRHCHostDetails(mockHost, mockDetails, playbookRunId);
+
+            result.should.have.property('system_id', system1Id);
+            result.should.have.property('system_name', 'server1.example.com'); // Uses hostname fallback
+            result.should.have.property('status', 'running');
+        });
+
+        test('should fallback to dispatcher host when system details not found', async () => {
+            // Mock system details returning empty (system not found)
+            getPlanSystemsDetailsStub.resolves({});
+
+            const mockHost = {
+                status: 'failure', 
+                updated_at: '2023-10-01T12:00:00.000Z'
+            };
+
+            const mockDetails = {
+                data: [{
+                    inventory_id: system3Id,
+                    host: 'dispatcher-host-name',
+                    stdout: 'Console output here'
+                }]
+            };
+
+            const result = await fifi.formatRHCHostDetails(mockHost, mockDetails, playbookRunId);
+
+            result.should.have.property('system_id', system3Id);
+            result.should.have.property('system_name', 'dispatcher-host-name'); // Uses dispatcher fallback
+            result.should.have.property('status', 'failure');
+        });
+
+        test('should handle timeout status mapping correctly', async () => {
+            // Mock system details with display_name available
+            getPlanSystemsDetailsStub.resolves({
+                [system1Id]: {
+                    hostname: 'server1.example.com',
+                    ansible_hostname: 'ansible1',
+                    display_name: 'Production Server 1'
+                }
+            });
+
+            const mockHost = {
+                status: 'timeout', // Should be mapped to 'failure'
+                updated_at: '2023-10-01T12:00:00.000Z'
+            };
+
+            const mockDetails = {
+                data: [{
+                    inventory_id: system1Id,
+                    host: 'dispatcher-host-name',
+                    stdout: 'Console output here'
+                }]
+            };
+
+            const result = await fifi.formatRHCHostDetails(mockHost, mockDetails, playbookRunId);
+
+            result.should.have.property('system_id', system1Id);
+            result.should.have.property('system_name', 'Production Server 1'); // Uses display_name
+            result.should.have.property('status', 'failure'); // timeout mapped to failure
+        });
+    });
+});

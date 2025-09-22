@@ -183,6 +183,7 @@ exports.getSystems = errors.async(async function (req, res) {
     }
 
     // Pagination
+    // TODO: we should trim the systems list before gathering the details for each system and then trimming that
     trace.event('paginate...');
     const total = fifi.getListSize(systems);
     if (offset >= Math.max(total, 1)) {

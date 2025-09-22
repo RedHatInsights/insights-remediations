@@ -17,10 +17,10 @@ const dispatcher = require('../connectors/dispatcher');
 const log = require('../util/log');
 const trace = require('../util/trace');
 const cls = require("../util/cls");
+const queries = require('./remediations.queries');
 
 const probes = require('../probes');
 const read = require('./controller.read');
-const queries = require('./remediations.queries');
 const {rhcSatJobDispatched} = require("../probes");
 
 const SATELLITE_NAMESPACE = Object.freeze({namespace: 'satellite'});
@@ -217,32 +217,111 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
 }
 
 
+/**
+ * Format RHC (Red Hat Connect) run hosts data by fetching proper system names (display_name || hostname)
+ * from the systems table and combining with dispatcher run host information.
+ * 
+ * @param {Object} rhcRuns - RHC runs data from dispatcher service
+ * @param {string} playbook_run_id - The playbook run ID
+ * @returns {Array} Array of formatted host objects with system details
+ * 
+ * @example
+ * // Returns array of host objects like:
+ * [
+ *   {
+ *     system_id: "f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c",
+ *     system_name: "Server 1", // fetched from systems table (display_name || hostname)
+ *     status: "success", // 'timeout' mapped to 'failure'
+ *     updated_at: "2023-10-01T12:00:00.000Z",
+ *     playbook_run_executor_id: "executor-uuid"
+ *   },
+ *   {
+ *     system_id: "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d", 
+ *     system_name: "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d", // fallback to UUID when system not found
+ *     status: "running",
+ *     updated_at: "2023-10-01T12:30:00.000Z", 
+ *     playbook_run_executor_id: "executor-uuid"
+ *   }
+ * ]
+ */
 exports.formatRunHosts = async function (rhcRuns, playbook_run_id) {
     let hosts = [];
 
     if (rhcRuns?.data) {
+        // Collect all inventory IDs to fetch system details in batch
+        const allInventoryIds = [];
+        const allHosts = [];
+
         for (const run of rhcRuns.data) {
             // get dispatcher run hosts...
             const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run.id);
             const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
 
-            hosts.push(..._.map(rhcRunHosts.data, host => ({
+            // Collect hosts and inventory IDs for batch processing
+            for (const host of rhcRunHosts.data) {
+                allInventoryIds.push(host.inventory_id);
+                allHosts.push({
+                    host,
+                    run,
+                    playbook_run_id
+                });
+            }
+        }
+
+        // Fetch system details for all inventory IDs in batch
+        const systemDetails = await queries.getPlanSystemsDetails(allInventoryIds);
+
+        // Format hosts with proper system names
+        hosts = allHosts.map(({ host, run, playbook_run_id }) => {
+            const details = systemDetails[host.inventory_id];
+            // Use display_name if available, fallback to hostname, then to host.host
+            const systemName = details?.display_name || details?.hostname || host.host;
+            return {
                 system_id: host.inventory_id,
-                system_name: host.host,
+                system_name: systemName,
                 status: (host.status === 'timeout' ? 'failure' : host.status),
                 updated_at: run.updated_at,
                 playbook_run_executor_id: playbook_run_id
-            })));
-        }
+            };
+        });
     }
 
     return hosts;
 };
 
-function formatRHCHostDetails (host, details, playbook_run_id) {
+/**
+ * Format individual RHC host details by fetching proper system name (display_name || hostname)
+ * from the systems table and combining with dispatcher host console output.
+ * 
+ * @param {Object} host - Host status information from dispatcher
+ * @param {Object} details - Host details with console output from dispatcher 
+ * @param {string} playbook_run_id - The playbook run ID used as executor_id
+ * @returns {Object} Formatted host detail object with system information
+ * 
+ * @example
+ * // Returns single host detail object like:
+ * {
+ *   system_id: "f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c",
+ *   system_name: "Server 1", // fetched from systems table (display_name || hostname) or fallback
+ *   status: "success", // 'timeout' mapped to 'failure'  
+ *   updated_at: "2023-10-01T12:00:00.000Z",
+ *   console: "Ansible playbook execution logs...",
+ *   executor_id: "executor-uuid"
+ * }
+ */
+exports.formatRHCHostDetails = async function formatRHCHostDetails (host, details, playbook_run_id) {
+    const inventoryId = details.data[0].inventory_id;
+    
+    // Fetch system details to get proper hostname
+    const systemDetails = await queries.getPlanSystemsDetails([inventoryId]);
+    const systemInfo = systemDetails[inventoryId];
+    
+    // Use display_name if available, fallback to hostname, then to dispatcher host
+    const systemName = systemInfo?.display_name || systemInfo?.hostname || details.data[0].host;
+    
     return {
-        system_id: details.data[0].inventory_id,
-        system_name: details.data[0].host,
+        system_id: inventoryId,
+        system_name: systemName,
         status: (host.status === 'timeout' ? 'failure' : host.status),
         updated_at: host.updated_at,
         console: details.data[0].stdout,
@@ -316,7 +395,7 @@ exports.getRunHostDetails = async function (playbook_run_id, system_id) {
         if (rhcRunHosts.data) {
             // there should only ever be one run_hosts entry for a given system_id in a
             // dispatcher run, right?  Just grab the first entry...
-            const result = formatRHCHostDetails(run, rhcRunHosts, playbook_run_id);
+            const result = await exports.formatRHCHostDetails(run, rhcRunHosts, playbook_run_id);
             trace.leave(`Found a match - returning: ${JSON.stringify(result)}`);
             return result;
         }
