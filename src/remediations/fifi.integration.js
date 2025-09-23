@@ -573,6 +573,15 @@ describe('FiFi', function () {
                 body.data[2].should.have.property('system_name', 'system-2');
                 body.data[2].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
 
+                const direct = body.data.find(d => d.system_name.includes('.example.com'));
+                if (direct) {
+                    direct.should.have.property('executor_type', 'RHC');
+                }
+                const sat = body.data.find(d => d.system_name === 'system-1');
+                if (sat) {
+                    sat.should.have.property('executor_type', 'RHC-satellite');
+                }
+
                 expect(text).toMatchSnapshot();
             });
 

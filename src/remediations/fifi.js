@@ -281,7 +281,8 @@ exports.formatRunHosts = async function (rhcRuns, playbook_run_id) {
                 system_name: systemName,
                 status: (host.status === 'timeout' ? 'failure' : host.status),
                 updated_at: run.updated_at,
-                playbook_run_executor_id: playbook_run_id
+                playbook_run_executor_id: playbook_run_id,
+                executor_type: (host.host === 'localhost') ? 'RHC' : 'RHC-satellite'
             };
         });
     }

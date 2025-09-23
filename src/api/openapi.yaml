@@ -1904,6 +1904,9 @@ components:
           $ref: '#/components/schemas/DateTime'
         playbook_run_executor_id:
           $ref: '#/components/schemas/PlaybookRunId'
+        executor_type:
+          type: string
+          description: Executor type for this system (e.g., 'RHC' or 'RHC-satellite')
 
     PlaybookRunSystemDetails:
       type: object
