@@ -6,9 +6,9 @@ const log = require("../util/log");
 const _ = require("lodash");
 
 const PD_TYPE_SATELLITE = 'satellite';
-const REM_TYPE_SATELLITE = 'RHC-satellite';
+const REM_TYPE_SATELLITE = 'satellite';
 const PD_TYPE_DIRECT = 'directConnect';
-const REM_TYPE_DIRECT = 'RHC';
+const REM_TYPE_DIRECT = 'direct';
 const PD_TYPE_NONE = 'none';
 const REM_TYPE_NONE = 'None';
 

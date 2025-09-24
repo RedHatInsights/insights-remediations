@@ -171,7 +171,7 @@ exports.getSystems = errors.async(async function (req, res) {
         const toPlainRow = r => (r && r.toJSON) ? r.toJSON() : r;
         systems = systems
             .map(toPlainRow)
-            .map(row => row && row.executor_type ? row : { ...row, executor_type: 'RHC-satellite' });
+            .map(row => row && row.executor_type ? row : { ...row, executor_type: 'satellite' });
     }
 
     // did we scope this to a non-existent host / executor or does the
