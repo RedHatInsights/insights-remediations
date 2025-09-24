@@ -133,7 +133,7 @@ exports.findRunStatus = function (run) {
 
 // Create array of maps: one representing all RCH-direct hosts, and one for each RHC-satellite
 // Compute aggregate system_count, status counts and overall status for each
-async function formatRHCRuns (rhcRuns, playbook_run_id) {
+async function formatRHCRuns (planRuns, playbook_run_id) {
     trace.enter('fifi.js[formatRHCRuns]');
 
     // rhcRuns contains all the dispatcher runs for this playbook_run_id
