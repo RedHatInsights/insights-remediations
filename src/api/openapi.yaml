@@ -1906,7 +1906,7 @@ components:
           $ref: '#/components/schemas/PlaybookRunId'
         executor_type:
           type: string
-          description: Executor type for this system (e.g., 'RHC' or 'RHC-satellite')
+          description: Executor type for this system (e.g., 'direct' or 'satellite')
 
     PlaybookRunSystemDetails:
       type: object
