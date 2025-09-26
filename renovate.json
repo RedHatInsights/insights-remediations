@@ -13,9 +13,10 @@
     },
     {
       "matchBaseBranches": ["/^foreman-.*$/"],
-      "description": "Only allow updates to rpms.lock.yaml and .tekton/*",
+      "description": "Only allow updates to certain files",
       "includePaths": [
         "rpms.lock.yaml",
+        "build/Dockerfile",
         ".tekton/**"
       ]
     }
