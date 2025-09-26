@@ -4,7 +4,13 @@
   "tekton": {
     "schedule": ["at any time"]
   },
+  "baseBranches": ["master", "/^foreman-.*$/"],
   "packageRules": [
+    {
+      "matchBaseBranches": ["/^foreman-.*$/"],
+      "description": "Disable all updates on foreman branches",
+      "enabled": false
+    },
     {
       "matchBaseBranches": ["/^foreman-.*$/"],
       "description": "Only allow updates to rpms.lock.yaml and .tekton/*",
