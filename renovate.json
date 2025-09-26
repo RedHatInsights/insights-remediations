@@ -1,7 +1,17 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>konflux-ci/mintmaker//config/renovate/renovate.json"],
+  "extends": ["github>konflux-ci/mintmaker/config/renovate/renovate.json"],
   "tekton": {
     "schedule": ["at any time"]
-  }
+  },
+  "packageRules": [
+    {
+      "matchBaseBranches": ["/^foreman-.*$/"],
+      "description": "Only allow updates to rpms.lock.yaml and .tekton/*",
+      "includePaths": [
+        "rpms.lock.yaml",
+        ".tekton/**"
+      ]
+    }
+  ]
 }
