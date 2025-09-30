@@ -72,7 +72,7 @@ exports.parseSort = function (param) {
 
 exports.list = function (remediations, total, limit, offset, sort, system) {
     const formatted = _.map(remediations,
-        ({id, name, needs_reboot, created_by, created_at, updated_by, updated_at, system_count, issue_count, resolved_count, archived, playbook_runs}) => ({
+        ({id, name, needs_reboot, created_by, created_at, updated_by, updated_at, system_count, issue_count, resolved_count, archived, playbook_runs, last_playbook_run}) => ({
             id,
             name,
             created_by: _.pick(created_by, USER),
@@ -84,7 +84,8 @@ exports.list = function (remediations, total, limit, offset, sort, system) {
             issue_count,
             resolved_count: (resolved_count === null) ? 0 : resolved_count,
             archived,
-            playbook_runs: (playbook_runs === null) ? [] : playbook_runs
+            playbook_runs: (playbook_runs === null) ? [] : playbook_runs,
+            last_playbook_run
         })
     );
 
@@ -150,6 +151,18 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
     }
 
     return formatted;
+};
+
+// Format a minimal latest playbook run summary for list view
+// The latest parameter should contain: playbook_run_id, remediation_id, created_at, updated_at, status
+exports.formatLatestRun = function (latest) {
+    return {
+        id: latest.playbook_run_id,
+        remediation_id: latest.remediation_id,
+        created_at: latest.created_at ? latest.created_at.toISOString() : null,
+        updated_at: latest.updated_at ? latest.updated_at.toISOString() : null,
+        status: latest.status
+    };
 };
 
 exports.issues = function (plan_id, issues, total, limit, offset, sort) {

@@ -201,9 +201,30 @@ exports.list = errors.async(async function (req, res) {
         }
     });
 
-    // Check for playbook_runs in fields query param:
-    //    fields[data]=playbook_runs
-    if (_.get(req, 'query.fields.data', []).includes('playbook_runs')) {
+    // Check for last_playbook_run or playbook_runs in fields query param (mutually exclusive):
+    // fields[data]=last_playbook_run OR fields[data]=playbook_runs
+    const fieldsData = _.get(req, 'query.fields.data', []);
+    if (fieldsData.includes('last_playbook_run') && fieldsData.includes('playbook_runs')) {
+        throw new errors.BadRequest('INVALID_REQUEST', 'last_playbook_run and playbook_runs fields cannot be combined');
+    }
+    
+    if (fieldsData.includes('last_playbook_run')) {
+        trace.event('Include last_playbook_run data');
+
+        // Fetch latest playbook_run with aggregate status via single SQL query
+        const latest = await queries.getLatestRunStatusForRemediations(
+            req.user.tenant_org_id,
+            req.user.username,
+            remediations.map(r => r.id)
+        );
+
+        const byRemediationId = _.keyBy(latest, 'remediation_id');
+
+        remediations.forEach(r => {
+            const lr = byRemediationId[r.id];
+            r.last_playbook_run = lr ? format.formatLatestRun(lr) : null;
+        });
+    } else if (fieldsData.includes('playbook_runs')) {
         trace.event('Include playbook_runs data');
 
         // set limit to 1 if not explicitly set & fields[data]=playbook_runs
