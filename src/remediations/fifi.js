@@ -45,17 +45,14 @@ const SUCCESS = 'success';
 const CANCELED = 'canceled';
 const SERVICE = 'remediations';
 
-exports.checkSmartManagement = async function (remediation, smart_management) {
-    // if customer has smart_management entitlement fastlane them
-    if (smart_management) {
+
+exports.checkExecutable = async function (remediation) {
+    // If marketplace checking is disabled, allow execution by default
+    if (!config.isMarketplace) {
         return true;
     }
 
-    // if check marketplace systems isn't turned on return false
-    if (!config.isMarketplace) {
-        return false;
-    }
-
+    // Check if any systems are marketplace systems
     const systemsIds = _(remediation.issues).flatMap('systems').map('system_id').uniq().sort().value();
     const systemsProfiles = await inventory.getSystemProfileBatch(systemsIds);
 
