@@ -248,6 +248,130 @@ describe('remediations', function () {
             .expect(400);
         });
 
+        test('last_playbook_run returns the actual latest playbook run per remediation', async () => {
+            const { v4: uuidv4 } = require('uuid');
+            const { username: created_by } = require('../connectors/users/mock').MOCK_USERS.fifi;
+            
+            // Create a temporary remediation for this test
+            const testRemediation = await db.remediation.create({
+                id: uuidv4(),
+                name: 'Test Latest Run Remediation',
+                created_by,
+                updated_by: created_by,
+                account_number: 'fifi',
+                tenant_org_id: '6666666'
+            });
+            
+            const testRunIds = [];
+            const dispatcherRunIds = [];
+            
+            try {
+                // Create test playbook runs with different timestamps to verify "latest" logic
+                const testRun1Id = uuidv4();
+                const testRun2Id = uuidv4();
+                const testRun3Id = uuidv4();
+                
+                // Create runs with different timestamps - testRun2 should be the latest
+                const testRun1 = await db.playbook_runs.create({
+                    id: testRun1Id,
+                    status: 'success',
+                    remediation_id: testRemediation.id,
+                    created_by,
+                    created_at: '2019-12-22T08:19:36.641Z', // Earlier
+                    updated_at: '2019-12-22T08:19:36.641Z'
+                });
+                testRunIds.push(testRun1Id);
+                
+                const testRun2 = await db.playbook_runs.create({
+                    id: testRun2Id,
+                    status: 'running',
+                    remediation_id: testRemediation.id,
+                    created_by,
+                    created_at: '2019-12-24T08:19:36.641Z', // Later - should be the "latest"
+                    updated_at: '2019-12-24T08:19:36.641Z'
+                });
+                testRunIds.push(testRun2Id);
+                
+                const testRun3 = await db.playbook_runs.create({
+                    id: testRun3Id,
+                    status: 'failure',
+                    remediation_id: testRemediation.id,
+                    created_by,
+                    created_at: '2019-12-23T08:19:36.641Z', // Middle
+                    updated_at: '2019-12-23T08:19:36.641Z'
+                });
+                testRunIds.push(testRun3Id);
+
+                // Create dispatcher_runs to give the playbook runs proper status
+                // testRun1: success status
+                const dispatcherRun1 = await db.dispatcher_runs.create({
+                    dispatcher_run_id: uuidv4(),
+                    remediations_run_id: testRun1Id,
+                    status: 'success',
+                    created_at: '2019-12-22T08:19:36.641Z',
+                    updated_at: '2019-12-22T08:19:36.641Z'
+                });
+                dispatcherRunIds.push(dispatcherRun1.dispatcher_run_id);
+                
+                // testRun2: running status (should be the latest)
+                const dispatcherRun2 = await db.dispatcher_runs.create({
+                    dispatcher_run_id: uuidv4(),
+                    remediations_run_id: testRun2Id,
+                    status: 'running',
+                    created_at: '2019-12-24T08:19:36.641Z',
+                    updated_at: '2019-12-24T08:19:36.641Z'
+                });
+                dispatcherRunIds.push(dispatcherRun2.dispatcher_run_id);
+                
+                // testRun3: failure status
+                const dispatcherRun3 = await db.dispatcher_runs.create({
+                    dispatcher_run_id: uuidv4(),
+                    remediations_run_id: testRun3Id,
+                    status: 'failure',
+                    created_at: '2019-12-23T08:19:36.641Z',
+                    updated_at: '2019-12-23T08:19:36.641Z'
+                });
+                dispatcherRunIds.push(dispatcherRun3.dispatcher_run_id);
+
+                // Test that we get the latest run (testRun2 with the latest created_at)
+                const {body} = await request
+                    .get(`/v1/remediations?fields[data]=last_playbook_run&filter[name]=${testRemediation.name}`)
+                    .set(auth.fifi)
+                    .expect(200);
+
+
+                // Should find our test remediation
+                const foundRemediation = body.data.find(r => r.id === testRemediation.id);
+                expect(foundRemediation).toBeTruthy();
+                expect(foundRemediation.last_playbook_run).toBeTruthy();
+                
+                // Verify we got the latest run (testRun2 with created_at: '2019-12-24T08:19:36.641Z')
+                expect(foundRemediation.last_playbook_run.id).toBe(testRun2Id);
+                expect(foundRemediation.last_playbook_run.created_at).toBe('2019-12-24T08:19:36.641Z');
+                expect(foundRemediation.last_playbook_run.status).toBe('running');
+                expect(foundRemediation.last_playbook_run.remediation_id).toBe(testRemediation.id);
+                
+            } finally {
+                // Clean up the test data
+                if (dispatcherRunIds && dispatcherRunIds.length > 0) {
+                    await db.dispatcher_runs.destroy({ 
+                        where: { dispatcher_run_id: dispatcherRunIds },
+                        force: true 
+                    });
+                }
+                if (testRunIds && testRunIds.length > 0) {
+                    await db.playbook_runs.destroy({ 
+                        where: { id: testRunIds },
+                        force: true 
+                    });
+                }
+                await db.remediation.destroy({ 
+                    where: { id: testRemediation.id },
+                    force: true 
+                });
+            }
+        });
+
         test('does not leak data outside of the account', async () => {
             const {body} = await request
             .get('/v1/remediations?username=99999')
