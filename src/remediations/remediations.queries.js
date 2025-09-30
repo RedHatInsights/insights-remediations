@@ -1083,3 +1083,41 @@ exports.getPlaybookRunsWithDispatcherCounts = async function (playbookRunIds) {
         raw: true
     });
 };
+
+// Get latest playbook_run per remediation with aggregate status (SQL) from dispatcher_runs
+exports.getLatestRunStatusForRemediations = async function (tenant_org_id, created_by, remediationIds) {
+    const { Op, s: { literal, col } } = db;
+    return db.remediation.findAll({
+        attributes: [
+            ['id', 'remediation_id'],
+            [col('playbook_runs.id'), 'playbook_run_id'],
+            [col('playbook_runs.created_at'), 'created_at'],
+            [col('playbook_runs.updated_at'), 'updated_at'],
+            [literal(aggregateStatusSQL()), 'status']
+        ],
+        where: {
+            tenant_org_id,
+            created_by,
+            id: remediationIds
+        },
+        include: [{
+            model: db.playbook_runs,
+            as: 'playbook_runs',
+            attributes: [],
+            required: false,
+            where: {
+                id: {
+                    [Op.eq]: db.s.literal(mostRecentPlaybookRunSubquery('\"remediation\".\"id\"'))
+                }
+            },
+            include: [{
+                model: db.dispatcher_runs,
+                as: 'dispatcher_runs',
+                attributes: [],
+                required: false
+            }]
+        }],
+        group: ['remediation.id', 'playbook_runs.id', 'playbook_runs.created_at', 'playbook_runs.updated_at'],
+        raw: true
+    });
+};
