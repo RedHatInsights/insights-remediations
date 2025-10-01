@@ -133,10 +133,10 @@ exports.findRunStatus = function (run) {
 
 // Create array of maps: one representing all RCH-direct hosts, and one for each RHC-satellite
 // Compute aggregate system_count, status counts and overall status for each
-async function formatRHCRuns (rhcRuns, playbook_run_id) {
+async function formatRHCRuns (dispatcherRuns, playbook_run_id) {
     trace.enter('fifi.js[formatRHCRuns]');
 
-    // rhcRuns contains all the dispatcher runs for this playbook_run_id
+    // dispatcherRuns contains all the dispatcher runs for this playbook_run_id
     // One for each RHC-(satellite, org), one for each RHC-direct host
 
     let executors = [];
@@ -156,9 +156,9 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
         count_canceled: 0
     }
 
-    trace.event(`processing ${rhcRuns.data.length} runs...`);
+    trace.event(`processing ${dispatcherRuns.data.length} runs...`);
 
-    for (const run of rhcRuns.data) {
+    for (const run of dispatcherRuns.data) {
         // get dispatcher run hosts
         const runHostsFilter = createDispatcherRunHostsFilter(run.labels['playbook-run'], run.id);
         const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
@@ -174,7 +174,7 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
         else if (!_.isEmpty(rhcRunHosts)) {
             let satExecutor = {
                 name: 'RHC Satellite',
-                executor_id: playbook_run_id,
+                executor_id: run.id,
                 status: null,
                 system_count: rhcRunHosts.meta.count,
                 playbook_run_id: playbook_run_id,
@@ -221,7 +221,7 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
  * Format RHC (Red Hat Connect) run hosts data by fetching proper system names (display_name || hostname)
  * from the systems table and combining with dispatcher run host information.
  * 
- * @param {Object} rhcRuns - RHC runs data from dispatcher service
+ * @param {Object} dispatcherRuns - Dispatcher runs data for this playbook run
  * @param {string} playbook_run_id - The playbook run ID
  * @returns {Array} Array of formatted host objects with system details
  * 
@@ -233,26 +233,30 @@ async function formatRHCRuns (rhcRuns, playbook_run_id) {
  *     system_name: "Server 1", // fetched from systems table (display_name || hostname)
  *     status: "success", // 'timeout' mapped to 'failure'
  *     updated_at: "2023-10-01T12:00:00.000Z",
- *     playbook_run_executor_id: "executor-uuid"
+ *     // For direct systems, executor id is the remediation playbook_run_id
+ *     playbook_run_executor_id: "<playbook_run_id>",
+ *     executor_type: "direct"
  *   },
  *   {
  *     system_id: "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d", 
  *     system_name: "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d", // fallback to UUID when system not found
  *     status: "running",
  *     updated_at: "2023-10-01T12:30:00.000Z", 
- *     playbook_run_executor_id: "executor-uuid"
+ *     // For satellite systems, executor id is the dispatcher run id
+ *     playbook_run_executor_id: "<dispatcher_run_id>",
+ *     executor_type: "satellite"
  *   }
  * ]
  */
-exports.formatRunHosts = async function (rhcRuns, playbook_run_id) {
+exports.formatRunHosts = async function (dispatcherRuns, playbook_run_id) {
     let hosts = [];
 
-    if (rhcRuns?.data) {
+    if (dispatcherRuns?.data) {
         // Collect all inventory IDs to fetch system details in batch
         const allInventoryIds = [];
         const allHosts = [];
 
-        for (const run of rhcRuns.data) {
+        for (const run of dispatcherRuns.data) {
             // get dispatcher run hosts...
             const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run.id);
             const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
@@ -276,12 +280,14 @@ exports.formatRunHosts = async function (rhcRuns, playbook_run_id) {
             const details = systemDetails[host.inventory_id];
             // Use display_name if available, fallback to hostname, then to host.host
             const systemName = details?.display_name || details?.hostname || host.host;
+            const isDirect = (host.host === 'localhost');
             return {
                 system_id: host.inventory_id,
                 system_name: systemName,
                 status: (host.status === 'timeout' ? 'failure' : host.status),
                 updated_at: run.updated_at,
-                playbook_run_executor_id: playbook_run_id
+                playbook_run_executor_id: isDirect ? playbook_run_id : run.id,
+                executor_type: isDirect ? 'direct' : 'satellite'
             };
         });
     }
@@ -426,11 +432,11 @@ exports.combineRuns = async function (remediation) {
         // query playbook-dispatcher to see if there are any RHC direct or
         // RHC satellite hosts for this playbook run...
         trace.event(`[${iteration}] Fetch run details for run: ${run.id}`);
-        const rhcRuns = await exports.getRHCRuns(run.id); // run.id is playbook_run_id
+        const dispatcherRuns = await exports.getRHCRuns(run.id); // run.id is playbook_run_id
 
-        if (rhcRuns) {
+        if (dispatcherRuns) {
             trace.event(`[${iteration}] Format run details and add it to the remediation`)
-            const executors = await formatRHCRuns(rhcRuns, run.id);
+            const executors = await formatRHCRuns(dispatcherRuns, run.id);
             pushRHCExecutor(executors, run);
         }
     }

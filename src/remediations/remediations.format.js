@@ -325,7 +325,8 @@ exports.playbookSystems = function (systems, total) {
         system_name: system.system_name,
         status: system.status,
         updated_at: (_.isDate(system.updated_at)) ? system.updated_at.toISOString() : system.updated_at,
-        playbook_run_executor_id: system.playbook_run_executor_id
+        playbook_run_executor_id: system.playbook_run_executor_id,
+        executor_type: system.executor_type
     }));
 
     return {
