@@ -1033,15 +1033,23 @@ components:
       description: |
         Include specified items
         - name: list all remediation plan names in organization (cannot be combined with other fields)
-        - playbook_runs: include playbook run data in the response
+        - playbook_runs: include playbook run data in the response (cannot be combined with other fields)
+        - last_playbook_run: include latest playbook run summary in the response (cannot be combined with other fields)
       required: false
       schema:
-        type: array
-        items:
-          type: string
-          enum:
-            - name
-            - playbook_runs
+        oneOf:
+          - type: array
+            items:
+              type: string
+              enum: [name]
+          - type: array
+            items:
+              type: string
+              enum: [playbook_runs]
+          - type: array
+            items:
+              type: string
+              enum: [last_playbook_run]
 
     RemediationFormat:
       in: query
