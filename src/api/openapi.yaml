@@ -1033,17 +1033,23 @@ components:
       description: |
         Include specified items
         - name: list all remediation plan names in organization (cannot be combined with other fields)
-        - playbook_runs: include playbook run data in the response (cannot be combined with last_playbook_run)
-        - last_playbook_run: include latest playbook run summary in the response (cannot be combined with playbook_runs)
+        - playbook_runs: include playbook run data in the response (cannot be combined with other fields)
+        - last_playbook_run: include latest playbook run summary in the response (cannot be combined with other fields)
       required: false
       schema:
-        type: array
-        items:
-          type: string
-          enum:
-            - name
-            - playbook_runs
-            - last_playbook_run
+        oneOf:
+          - type: array
+            items:
+              type: string
+              enum: [name]
+          - type: array
+            items:
+              type: string
+              enum: [playbook_runs]
+          - type: array
+            items:
+              type: string
+              enum: [last_playbook_run]
 
     RemediationFormat:
       in: query
@@ -1886,28 +1892,6 @@ components:
         status:
           $ref: '#/components/schemas/PlaybookRunStatus'
 
-    LastPlaybookRun:
-      type: object
-      additionalProperties: false
-      nullable: true
-      required:
-        - id
-        - remediation_id
-        - created_at
-        - updated_at
-        - status
-      properties:
-        id:
-          $ref: '#/components/schemas/PlaybookRunId'
-        remediation_id:
-          $ref: '#/components/schemas/RemediationId'
-        created_at:
-          $ref: '#/components/schemas/DateTime'
-        updated_at:
-          $ref: '#/components/schemas/DateTime'
-        status:
-          $ref: '#/components/schemas/PlaybookRunStatus'
-
     PlaybookRunSystems:
       type: object
       additionalProperties: false
@@ -2228,8 +2212,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PlaybookRunDetails'
-        last_playbook_run:
-          $ref: '#/components/schemas/LastPlaybookRun'
     
     RemediationNameList:
       type: object
