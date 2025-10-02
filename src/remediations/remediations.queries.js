@@ -775,6 +775,25 @@ exports.getPlaybookRuns = function (id, tenant_org_id, created_by, primaryOrder 
     });
 };
 
+exports.getLatestPlaybookRun = async function (id, tenant_org_id, created_by) {
+    // Get the latest playbook run ID
+    const latestRun = await db.playbook_runs.findOne({
+        attributes: ['id'],
+        where: {
+            remediation_id: id,
+            created_by: created_by
+        },
+        order: [['created_at', 'DESC']]
+    });
+
+    if (!latestRun) {
+        return null;
+    }
+
+    // Get the full details using getRunDetails
+    return exports.getRunDetails(id, latestRun.id, tenant_org_id, created_by);
+};
+
 exports.getRunDetails = function (id, playbook_run_id, tenant_org_id, created_by) {
     const {s: {col, cast, where}, fn: {DISTINCT, COUNT, SUM}} = db;
 
@@ -1080,44 +1099,6 @@ exports.getPlaybookRunsWithDispatcherCounts = async function (playbookRunIds) {
             attributes: [] // Don't include dispatcher_runs columns in result
         }],
         group: ['playbook_runs.id'],
-        raw: true
-    });
-};
-
-// Get latest playbook_run per remediation with aggregate status (SQL) from dispatcher_runs
-exports.getLatestRunStatusForRemediations = async function (tenant_org_id, created_by, remediationIds) {
-    const { Op, s: { literal, col } } = db;
-    return db.remediation.findAll({
-        attributes: [
-            ['id', 'remediation_id'],
-            [col('playbook_runs.id'), 'playbook_run_id'],
-            [col('playbook_runs.created_at'), 'created_at'],
-            [col('playbook_runs.updated_at'), 'updated_at'],
-            [literal(aggregateStatusSQL()), 'status']
-        ],
-        where: {
-            tenant_org_id,
-            created_by,
-            id: remediationIds
-        },
-        include: [{
-            model: db.playbook_runs,
-            as: 'playbook_runs',
-            attributes: [],
-            required: false,
-            where: {
-                id: {
-                    [Op.eq]: db.s.literal(mostRecentPlaybookRunSubquery('\"remediation\".\"id\"'))
-                }
-            },
-            include: [{
-                model: db.dispatcher_runs,
-                as: 'dispatcher_runs',
-                attributes: [],
-                required: false
-            }]
-        }],
-        group: ['remediation.id', 'playbook_runs.id', 'playbook_runs.created_at', 'playbook_runs.updated_at'],
         raw: true
     });
 };
