@@ -120,7 +120,6 @@ describe('FiFi', function () {
             await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/executable')
             .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', '6666666', true, data => {
-                data.entitlements.smart_management = false;
                 return data;
             }))
             .expect(200);
@@ -173,7 +172,6 @@ describe('FiFi', function () {
             const {text} = await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
             .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', '6666666', true, data => {
-                data.entitlements.smart_management = false;
                 return data;
             }))
             .expect(200);
@@ -210,7 +208,6 @@ describe('FiFi', function () {
             await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status')
             .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
-                data.entitlements.smart_management = false;
                 return data;
             }))
             .expect(403);
@@ -234,7 +231,6 @@ describe('FiFi', function () {
             const {text} = await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
             .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', '6666666', true, data => {
-                data.entitlements.smart_management = false;
                 return data;
             }))
             .expect(200);
@@ -1248,7 +1244,6 @@ describe('FiFi', function () {
                 await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
                 .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
-                    data.entitlements.smart_management = false;
                     return data;
                 }))
                 .expect(403);
@@ -1259,7 +1254,6 @@ describe('FiFi', function () {
                 await request
                 .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
                 .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', '6666666', true, data => {
-                    data.entitlements.smart_management = false;
                     return data;
                 }))
                 .expect(201);

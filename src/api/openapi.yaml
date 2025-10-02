@@ -464,8 +464,8 @@ paths:
     get:
       tags:
         - remediations
-      summary: Check smart_managment systems
-      description: Checks remediation for the existence of smart_managment flaged systems
+      summary: Check if remediation is executable
+      description: Checks if a remediation exists and has marketplace systems that allow execution
       operationId: checkExecutable
       parameters:
         - $ref: '#/components/parameters/RemediationId'

@@ -35,9 +35,6 @@ exports.createIdentityHeader = function (
             openshift: {
                 is_entitled: true
             },
-            smart_management: {
-                is_entitled: true
-            },
             hybrid_cloud: {
                 is_entitled: true
             }
@@ -64,9 +61,6 @@ exports.createCertIdentityHeader = function (account_number, tenant_org_id = '53
                 is_entitled: true
             },
             openshift: {
-                is_entitled: true
-            },
-            smart_management: {
                 is_entitled: true
             },
             hybrid_cloud: {
