@@ -248,6 +248,49 @@ describe('remediations', function () {
             .expect(400);
         });
 
+        test('playbook_runs and last_playbook_run fields are mutually exclusive', async () => {
+            const {body} = await request
+            .get('/v1/remediations?fields[data]=playbook_runs&fields[data]=last_playbook_run')
+            .set(auth.fifi)
+            .expect(400);
+        });
+
+        test('last_playbook_run returns same data structure as playbook_runs[0]', async () => {
+            // Get playbook_runs (all runs)
+            const {body: playbookRunsBody} = await request
+                .get('/v1/remediations?fields[data]=playbook_runs&sort=name&limit=3')
+                .set(auth.fifi)
+                .expect(200);
+
+            // Get last_playbook_run (should return as playbook_runs with just the latest)
+            const {body: lastPlaybookRunBody} = await request
+                .get('/v1/remediations?fields[data]=last_playbook_run&sort=name&limit=3')
+                .set(auth.fifi)
+                .expect(200);
+
+            // Find a remediation that has playbook runs
+            const remediationWithRuns = playbookRunsBody.data.find(r => r.playbook_runs && r.playbook_runs.length > 0);
+            if (remediationWithRuns) {
+                const lastPlaybookRunRemediation = lastPlaybookRunBody.data.find(r => r.id === remediationWithRuns.id);
+                
+                expect(lastPlaybookRunRemediation).toBeTruthy();
+                expect(lastPlaybookRunRemediation.playbook_runs).toBeTruthy();
+                expect(lastPlaybookRunRemediation.playbook_runs.length).toBe(1); // Should be exactly 1 run
+                
+                // The last_playbook_run should have the same structure as playbook_runs[0]
+                const playbookRun = remediationWithRuns.playbook_runs[0];
+                const lastPlaybookRun = lastPlaybookRunRemediation.playbook_runs[0];
+                
+                expect(lastPlaybookRun.id).toBe(playbookRun.id);
+                expect(lastPlaybookRun.status).toBe(playbookRun.status);
+                expect(lastPlaybookRun.remediation_id).toBe(playbookRun.remediation_id);
+                expect(lastPlaybookRun.created_at).toBe(playbookRun.created_at);
+                expect(lastPlaybookRun.updated_at).toBe(playbookRun.updated_at);
+                expect(lastPlaybookRun.created_by).toEqual(playbookRun.created_by);
+                expect(lastPlaybookRun.executors).toEqual(playbookRun.executors);
+            }
+        });
+
         test('last_playbook_run returns the actual latest playbook run per remediation', async () => {
             const { v4: uuidv4 } = require('uuid');
             const { username: created_by } = require('../connectors/users/mock').MOCK_USERS.fifi;
@@ -339,17 +382,17 @@ describe('remediations', function () {
                     .set(auth.fifi)
                     .expect(200);
 
-
                 // Should find our test remediation
                 const foundRemediation = body.data.find(r => r.id === testRemediation.id);
                 expect(foundRemediation).toBeTruthy();
-                expect(foundRemediation.last_playbook_run).toBeTruthy();
+                expect(foundRemediation.playbook_runs).toBeTruthy();
+                expect(foundRemediation.playbook_runs.length).toBe(1); // Should be exactly 1 run
                 
                 // Verify we got the latest run (testRun2 with created_at: '2019-12-24T08:19:36.641Z')
-                expect(foundRemediation.last_playbook_run.id).toBe(testRun2Id);
-                expect(foundRemediation.last_playbook_run.created_at).toBe('2019-12-24T08:19:36.641Z');
-                expect(foundRemediation.last_playbook_run.status).toBe('running');
-                expect(foundRemediation.last_playbook_run.remediation_id).toBe(testRemediation.id);
+                expect(foundRemediation.playbook_runs[0].id).toBe(testRun2Id);
+                expect(foundRemediation.playbook_runs[0].created_at).toBe('2019-12-24T08:19:36.641Z');
+                expect(foundRemediation.playbook_runs[0].status).toBe('pending');
+                expect(foundRemediation.playbook_runs[0].remediation_id).toBe(testRemediation.id);
                 
             } finally {
                 // Clean up the test data
