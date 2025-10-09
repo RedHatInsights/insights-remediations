@@ -19,7 +19,7 @@
     "dedent-js": "^1.0.1",
     "etag": "^1.8.1",
     "express": "^4.21.2",
-    "express-http-context": "^1.2.4",
+    "express-http-context": "^2.0.0",
     "express-prom-bundle": "^5.1.5",
     "graphql-request": "^2.0.0",
     "ioredis": "^5.4.1",
