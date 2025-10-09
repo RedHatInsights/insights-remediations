@@ -73,7 +73,7 @@
       "execa": "^9.5.1"
     },
     "cls-hooked": {
-      "semver": "^5.7.2"
+      "semver": "^7.7.2"
     },
     "request": {
       "form-data": "2.5.4"
