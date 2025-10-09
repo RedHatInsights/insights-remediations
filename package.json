@@ -38,7 +38,7 @@
     "pino-cloudwatch": "^0.7.0",
     "pino-http": "^8.3.3",
     "pino-pretty": "^10.0.0",
-    "prom-client": "^11.5.3",
+    "prom-client": "^15.0.0",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
     "sequelize": "6.37",
