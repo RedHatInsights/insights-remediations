@@ -234,9 +234,10 @@ describe('remediations', function () {
             .set(auth.fifi)
             .expect(200);
 
-            // items in list should only have 'name' field
+            // items in list should have 'id' and 'name' fields
             for (const item of body.data) {
-                expect(Object.keys(item)).toHaveLength(1);
+                expect(Object.keys(item)).toHaveLength(2);
+                expect(item).toHaveProperty('id');
                 expect(item).toHaveProperty('name');
             }
         });
