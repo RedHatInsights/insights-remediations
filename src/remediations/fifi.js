@@ -47,9 +47,9 @@ const SERVICE = 'remediations';
 
 
 exports.checkExecutable = async function (remediation) {
-    // If marketplace checking is disabled, allow execution by default
+    // if check marketplace systems isn't turned on return false
     if (!config.isMarketplace) {
-        return true;
+        return false;
     }
 
     // Check if any systems are marketplace systems
