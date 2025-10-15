@@ -115,6 +115,7 @@ exports.getSystems = errors.async(async function (req, res) {
 
     trace.event('fetch receptor systems and rhc runs...')
     // eslint-disable-next-line prefer-const
+    // Is it the queries.getSystems call necessary anymore? Isn't that table old receptor code?
     let [systems, rhcRuns] = await Promise.all([
         queries.getSystems(
             req.params.id,
@@ -154,6 +155,17 @@ exports.getSystems = errors.async(async function (req, res) {
                 req.params.playbook_run_id,
                 req.query.ansible_host);
         }
+    }
+
+    // This is a "just in case" fallback to make sure we have the executor_type on all rows.
+    // Systems that we get from by queries.getSystems call (receptor) won't have executor_type set; when RHC runs are present
+    // in this playbook run context, default those to 'RHC-satellite' to align UI expectations.
+    // TODO: We should remove this once we retire officially the receptor code.
+    if (!_.isEmpty(rhcRuns) && !_.isEmpty(systems)) {
+        const toPlainRow = r => (r && r.toJSON) ? r.toJSON() : r;
+        systems = systems
+            .map(toPlainRow)
+            .map(row => row && row.executor_type ? row : { ...row, executor_type: 'satellite' });
     }
 
     // did we scope this to a non-existent host / executor or does the

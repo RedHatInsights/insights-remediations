@@ -559,7 +559,53 @@ describe('FiFi', function () {
                 body.data[2].should.have.property('system_name', 'system-2');
                 body.data[2].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
 
+                const direct = body.data.find(d => d.system_name.includes('.example.com'));
+                if (direct) {
+                    direct.should.have.property('executor_type', 'direct');
+                    // direct system should point to the remediation playbook_run_id from the path
+                    direct.playbook_run_executor_id.should.equal('88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
+                }
+                const sat = body.data.find(d => d.system_name === 'system-1');
+                if (sat) {
+                    sat.should.have.property('executor_type', 'satellite');
+                    // satellite system should use a dispatcher run id, not the remediation playbook_run_id
+                    sat.playbook_run_executor_id.should.not.equal('88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
+                }
+
                 expect(text).toMatchSnapshot();
+            });
+
+            test('executor ids align between details and systems (direct vs satellite)', async () => {
+                const remediationId = '249f142c-2ae3-4c3f-b2ec-c8c5881f8561';
+                const playbookRunId = '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc';
+
+                const { body: details } = await request
+                    .get(`/v1/remediations/${remediationId}/playbook_runs/${playbookRunId}`)
+                    .set(auth.fifi)
+                    .expect(200);
+
+                const { body: systems } = await request
+                    .get(`/v1/remediations/${remediationId}/playbook_runs/${playbookRunId}/systems`)
+                    .set(auth.fifi)
+                    .expect(200);
+
+                // Direct executor id should be the remediation playbook_run_id
+                const directExec = details.executors.find(e => e.executor_name === 'Direct connected');
+                const directSystem = systems.data.find(s => String(s.system_name).includes('.example.com'));
+                if (directExec && directSystem) {
+                    directExec.executor_id.should.equal(playbookRunId);
+                    directSystem.playbook_run_executor_id.should.equal(playbookRunId);
+                    directSystem.executor_type.should.equal('direct');
+                }
+
+                // Satellite executor id should be dispatcher run id; system should reference that id
+                const satExec = details.executors.find(e => e.executor_name === 'RHC Satellite');
+                const satSystem = systems.data.find(s => !String(s.system_name).includes('.example.com'));
+                if (satExec && satSystem) {
+                    satExec.executor_id.should.not.equal(playbookRunId);
+                    satSystem.playbook_run_executor_id.should.equal(satExec.executor_id);
+                    satSystem.executor_type.should.equal('satellite');
+                }
             });
 
             test('pagination playbook_runs/:playbook_run_id/systems?limit=2', async () => {
