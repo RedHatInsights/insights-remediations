@@ -108,15 +108,7 @@ function fake_dispatcher_run_hosts(req) {
 // TODO: replace old receptor tests and improve rhc-satellite test coverage
 describe('FiFi', function () {
     describe('executable', function () {
-        test('remediation is executable with marketplace disabled', async () => {
-            await request
-            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/executable')
-            .set(auth.fifi)
-            .expect(403);
-        });
-
-        test('remediation is executable with marketplace enabled', async () => {
-            base.getSandbox().stub(config, 'isMarketplace').value(true);
+        test('remediation is executable with valid remediation id', async () => {
             await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/executable')
             .set(auth.fifi)

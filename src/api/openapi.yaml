@@ -465,7 +465,7 @@ paths:
       tags:
         - remediations
       summary: Check if remediation is executable
-      description: Checks if a remediation exists and has marketplace systems that allow execution
+      description: Checks if a remediation exists
       operationId: checkExecutable
       parameters:
         - $ref: '#/components/parameters/RemediationId'
