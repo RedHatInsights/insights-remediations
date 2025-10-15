@@ -332,6 +332,21 @@ paths:
           $ref: '#/components/responses/BadRequest'
         404:
           $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - remediations
+      summary: Bulk Remove Remediation Plan Systems
+      description: Removes the given list of systems from the specified remediation plan.  Request is rejected if
+        indicated remediation plan is not found.  Duplicate or missing system IDs are ignored.
+      operationId: deleteRemediationSystems
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+      requestBody:
+        $ref: '#/components/requestBodies/SystemsList'
+      responses:
+        200:
+          $ref: '#/components/responses/MultipleDelete'
+
 
   /remediations/{id}/systems/{system}:
     delete:
@@ -400,21 +415,6 @@ paths:
           $ref: '#/components/responses/BadRequest'
         404:
           $ref: '#/components/responses/NotFound'
-    delete:
-      tags:
-        - remediations
-      summary: Bulk Remove Remediation Plan Systems
-      description: Removes the given list of systems from the specified remediation plan.  Request is rejected if 
-        indicated remediation plan is not found.  Duplicate or missing system IDs are ignored.
-      operationId: deleteRemediationSystems
-      parameters:
-        - $ref: '#/components/parameters/RemediationId'
-      requestBody:
-        $ref: '#/components/requestBodies/SystemsList'
-      responses:
-        200:
-          $ref: '#/components/responses/MultipleDelete'
-
   /remediations/{id}/connection_status:
     get:
       tags:
