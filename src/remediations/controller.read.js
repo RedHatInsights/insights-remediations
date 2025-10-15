@@ -211,6 +211,9 @@ exports.list = errors.async(async function (req, res) {
     if (fieldsData.includes('playbook_runs') || fieldsData.includes('last_playbook_run')) {
         trace.event('Include playbook_runs data');
 
+        // set limit to 1 if not explicitly set & fields[data]=playbook_runs
+        limit = limit || 1;
+
         let iteration = 1;
         await P.map(remediations, async (remediation) => {
             const local_iteration = iteration++;
