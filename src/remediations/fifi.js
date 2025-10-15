@@ -45,20 +45,6 @@ const SUCCESS = 'success';
 const CANCELED = 'canceled';
 const SERVICE = 'remediations';
 
-
-exports.checkExecutable = async function (remediation) {
-    // if check marketplace systems isn't turned on return false
-    if (!config.isMarketplace) {
-        return false;
-    }
-
-    // Check if any systems are marketplace systems
-    const systemsIds = _(remediation.issues).flatMap('systems').map('system_id').uniq().sort().value();
-    const systemsProfiles = await inventory.getSystemProfileBatch(systemsIds);
-
-    return _.some(systemsProfiles, system => system.system_profile.is_marketplace === true);
-};
-
 exports.sortSystems = function (systems, column = 'system_name', asc = true) {
     return _.orderBy(systems, column, (asc) ? 'asc' : 'desc');
 };

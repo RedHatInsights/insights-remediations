@@ -22,12 +22,6 @@ exports.checkExecutable = errors.async(async function (req, res) {
         return notFound(res);
     }
 
-    const executable = await fifi.checkExecutable(remediation);
-
-    if (!executable) {
-        throw new errors.Forbidden();
-    }
-
     res.sendStatus(200);
 });
 
