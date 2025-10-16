@@ -87,7 +87,7 @@ exports.createCertIdentityHeader = function (account_number, tenant_org_id = '53
 
 exports.createServiceAccountIdentityHeader = function (
     username = 'test-service-account',
-    account_number = '',
+    account_number = DEFAULTS.account_number,
     org_id = DEFAULTS.internal.org_id,
     transform = f => f) {
 
