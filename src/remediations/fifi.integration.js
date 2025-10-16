@@ -108,21 +108,10 @@ function fake_dispatcher_run_hosts(req) {
 // TODO: replace old receptor tests and improve rhc-satellite test coverage
 describe('FiFi', function () {
     describe('executable', function () {
-        test('remediation is executable', async () => {
+        test('remediation is executable with valid remediation id', async () => {
             await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/executable')
             .set(auth.fifi)
-            .expect(200);
-        });
-
-        test('remediation is executable with smartManagement false but RHC on', async () => {
-            base.getSandbox().stub(config, 'isMarketplace').value(true);
-            await request
-            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/executable')
-            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', '6666666', true, data => {
-                data.entitlements.smart_management = false;
-                return data;
-            }))
             .expect(200);
         });
 
@@ -173,7 +162,6 @@ describe('FiFi', function () {
             const {text} = await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
             .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', '6666666', true, data => {
-                data.entitlements.smart_management = false;
                 return data;
             }))
             .expect(200);
@@ -210,7 +198,6 @@ describe('FiFi', function () {
             await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status')
             .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
-                data.entitlements.smart_management = false;
                 return data;
             }))
             .expect(403);
@@ -234,7 +221,6 @@ describe('FiFi', function () {
             const {text} = await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
             .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', '6666666', true, data => {
-                data.entitlements.smart_management = false;
                 return data;
             }))
             .expect(200);
@@ -280,6 +266,18 @@ describe('FiFi', function () {
             .set(auth.fifi)
             .set('if-none-match', '"b48-TyVONjo4V6eLe5E3p90RxLra8So"')
             .expect(304);
+        });
+
+        test('403 with descriptive message when RHC is disabled', async () => {
+            base.getSandbox().stub(fifi_2, 'checkRhcEnabled').resolves(false);
+            
+            const {body} = await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status')
+            .set(auth.fifi)
+            .expect(403);
+            
+            body.errors[0].should.have.property('details');
+            body.errors[0].details.should.have.property('message', 'RHC Manager permission is required for this operation. Please visit https://console.redhat.com/insights/connector to enable this permission.');
         });
     });
 
@@ -1248,7 +1246,6 @@ describe('FiFi', function () {
                 await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
                 .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
-                    data.entitlements.smart_management = false;
                     return data;
                 }))
                 .expect(403);
@@ -1259,10 +1256,21 @@ describe('FiFi', function () {
                 await request
                 .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
                 .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', '6666666', true, data => {
-                    data.entitlements.smart_management = false;
                     return data;
                 }))
                 .expect(201);
+            });
+
+            test('403 with descriptive message when RHC is disabled for playbook execution', async () => {
+                base.getSandbox().stub(fifi_2, 'checkRhcEnabled').resolves(false);
+                
+                const {body} = await request
+                .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
+                .set(auth.fifi)
+                .expect(403);
+                
+                body.errors[0].should.have.property('details');
+                body.errors[0].details.should.have.property('message', 'RHC Manager permission is required for this operation. Please visit https://console.redhat.com/insights/connector to enable this permission.');
             });
 
             test('sets ETag', async () => {

@@ -207,9 +207,14 @@ exports.list = errors.async(async function (req, res) {
         }
     });
 
-    // Check for playbook_runs in fields query param:
-    //    fields[data]=playbook_runs
-    if (_.get(req, 'query.fields.data', []).includes('playbook_runs')) {
+    const fieldsData = _.get(req, 'query.fields.data', []);
+    
+    // Validate mutual exclusivity of playbook_runs and last_playbook_run
+    if (fieldsData.includes('playbook_runs') && fieldsData.includes('last_playbook_run')) {
+        throw new errors.BadRequest('INVALID_REQUEST', 'last_playbook_run and playbook_runs fields cannot be combined');
+    }
+    
+    if (fieldsData.includes('playbook_runs') || fieldsData.includes('last_playbook_run')) {
         trace.event('Include playbook_runs data');
 
         // set limit to 1 if not explicitly set & fields[data]=playbook_runs
@@ -220,12 +225,21 @@ exports.list = errors.async(async function (req, res) {
             const local_iteration = iteration++;
             trace.enter(`[${local_iteration}] Process remediation: ${remediation.id}`);
             trace.event(`[${local_iteration}] Fetch playbook run`);
-            let playbook_runs = await queries.getPlaybookRuns(
-                remediation.id,
-                req.user.tenant_org_id,
-                req.user.username,
-                'created_at'
-            );
+            let playbook_runs;
+            if (fieldsData.includes('last_playbook_run')) {
+                playbook_runs = await queries.getLatestPlaybookRun(
+                    remediation.id,
+                    req.user.tenant_org_id,
+                    req.user.username
+                );
+            } else {
+                playbook_runs = await queries.getPlaybookRuns(
+                    remediation.id,
+                    req.user.tenant_org_id,
+                    req.user.username,
+                    'created_at'
+                );
+            }
 
             // getPlaybookRuns _can_ return null...
             if (playbook_runs) {
@@ -234,7 +248,7 @@ exports.list = errors.async(async function (req, res) {
                 // Join rhcRuns and playbookRuns
                 trace.event(`[${local_iteration}] Combine runs`);
                 playbook_runs.iteration = local_iteration;
-                playbook_runs.playbook_runs = await fifi.combineRuns(playbook_runs);
+                await fifi.combineRuns(playbook_runs);
 
                 trace.event(`[${local_iteration}] Resolve users`);
                 playbook_runs = await fifi.resolveUsers(req, playbook_runs);
@@ -244,10 +258,14 @@ exports.list = errors.async(async function (req, res) {
                 fifi.updatePlaybookRunsStatus(playbook_runs.playbook_runs);
 
                 trace.event(`[${local_iteration}] Format playbook run`);
-                remediation.playbook_runs = format.formatRuns(playbook_runs.playbook_runs);
-
-                trace.leave(`[${local_iteration}] Process remediation: ${remediation.id}`);
+                const formattedRuns = format.formatRuns(playbook_runs.playbook_runs);
+                
+                // When 'playbook_runs' is requested: contains all playbook runs for the remediation
+                // When 'last_playbook_run' is requested: contains only the latest playbook run (1 element)
+                remediation.playbook_runs = formattedRuns;
             }
+
+            trace.leave(`[${local_iteration}] Process remediation: ${remediation.id}`);
         })
     }
 

@@ -784,6 +784,25 @@ exports.getPlaybookRuns = function (id, tenant_org_id, created_by, primaryOrder 
     });
 };
 
+exports.getLatestPlaybookRun = async function (id, tenant_org_id, created_by) {
+    // Get the latest playbook run ID
+    const latestRun = await db.playbook_runs.findOne({
+        attributes: ['id'],
+        where: {
+            remediation_id: id,
+            created_by: created_by
+        },
+        order: [['created_at', 'DESC']]
+    });
+
+    if (!latestRun) {
+        return null;
+    }
+
+    // Get the full details using getRunDetails
+    return exports.getRunDetails(id, latestRun.id, tenant_org_id, created_by);
+};
+
 exports.getRunDetails = function (id, playbook_run_id, tenant_org_id, created_by) {
     const {s: {col, cast, where}, fn: {DISTINCT, COUNT, SUM}} = db;
 
