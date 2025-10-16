@@ -386,12 +386,18 @@ exports.planSystems = function (plan_id, systems, total, limit, offset, sort) {
 };
 
 exports.planNames = function (names, total, limit, offset, sort, system) {
+    // Format data to include both id and name
+    const formatted_data = _.map(names, plan => ({
+        id: plan.id,
+        name: plan.name
+    }));
+
     return {
         meta: {
             count: names.length,
             total
         },
-        data: names,
+        data: formatted_data,
         links: buildListLinks(total, limit, offset, sort, system),
     };
 };

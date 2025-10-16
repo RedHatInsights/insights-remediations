@@ -1032,7 +1032,7 @@ components:
       name: fields[data]
       description: |
         Include specified items
-        - name: list all remediation plan names in organization (cannot be combined with other fields)
+        - name: list all remediation plan names and IDs in organization (cannot be combined with other fields)
         - playbook_runs: include playbook run data in the response (cannot be combined with other fields)
         - last_playbook_run: include latest playbook run summary in the response (cannot be combined with other fields)
       required: false
@@ -2230,8 +2230,10 @@ components:
     RemediationNameListItem:
       type: object
       additionalProperties: false
-      required: [name]
+      required: [id, name]
       properties:
+        id:
+          $ref: '#/components/schemas/RemediationId'
         name:
           $ref: '#/components/schemas/RemediationName'
 
