@@ -332,6 +332,37 @@ paths:
           $ref: '#/components/responses/BadRequest'
         404:
           $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - remediations
+      summary: Bulk Remove Remediation Plan Systems
+      description: Removes the given list of systems from the specified remediation plan.  Request is rejected if
+        indicated remediation plan is not found.  Duplicate or missing system IDs are ignored.
+      operationId: deleteRemediationSystems
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+      requestBody:
+        $ref: '#/components/requestBodies/SystemsList'
+      responses:
+        200:
+          $ref: '#/components/responses/MultipleDelete'
+
+
+  /remediations/{id}/systems/{system}:
+    delete:
+      tags:
+        - remediations
+      summary: Remove system from all issues in remediation
+      description: Removes the given System from all issues in the specified remediation plan, RBAC permission {remediations:remediation:write}
+      operationId: deleteRemediationSystem
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/SystemId'
+      responses:
+        204:
+          $ref: '#/components/responses/Deleted'
+        404:
+          $ref: '#/components/responses/NotFound'
 
   /remediations/{id}/systems/{system}/issues:
     get:
@@ -384,21 +415,6 @@ paths:
           $ref: '#/components/responses/BadRequest'
         404:
           $ref: '#/components/responses/NotFound'
-    delete:
-      tags:
-        - remediations
-      summary: Bulk Remove Remediation Plan Systems
-      description: Removes the given list of systems from the specified remediation plan.  Request is rejected if 
-        indicated remediation plan is not found.  Duplicate or missing system IDs are ignored.
-      operationId: deleteRemediationSystems
-      parameters:
-        - $ref: '#/components/parameters/RemediationId'
-      requestBody:
-        $ref: '#/components/requestBodies/SystemsList'
-      responses:
-        200:
-          $ref: '#/components/responses/MultipleDelete'
-
   /remediations/{id}/connection_status:
     get:
       tags:
@@ -448,8 +464,8 @@ paths:
     get:
       tags:
         - remediations
-      summary: Check smart_managment systems
-      description: Checks remediation for the existence of smart_managment flaged systems
+      summary: Check if remediation is executable
+      description: Checks if a remediation exists
       operationId: checkExecutable
       parameters:
         - $ref: '#/components/parameters/RemediationId'
@@ -1016,16 +1032,24 @@ components:
       name: fields[data]
       description: |
         Include specified items
-        - name: list all remediation plan names in organization (cannot be combined with other fields)
-        - playbook_runs: include playbook run data in the response
+        - name: list all remediation plan names and IDs in organization (cannot be combined with other fields)
+        - playbook_runs: include playbook run data in the response (cannot be combined with other fields)
+        - last_playbook_run: include latest playbook run summary in the response (cannot be combined with other fields)
       required: false
       schema:
-        type: array
-        items:
-          type: string
-          enum:
-            - name
-            - playbook_runs
+        oneOf:
+          - type: array
+            items:
+              type: string
+              enum: [name]
+          - type: array
+            items:
+              type: string
+              enum: [playbook_runs]
+          - type: array
+            items:
+              type: string
+              enum: [last_playbook_run]
 
     RemediationFormat:
       in: query
@@ -1888,6 +1912,9 @@ components:
           $ref: '#/components/schemas/DateTime'
         playbook_run_executor_id:
           $ref: '#/components/schemas/PlaybookRunId'
+        executor_type:
+          type: string
+          description: Executor type for this system (e.g., 'direct' or 'satellite')
 
     PlaybookRunSystemDetails:
       type: object
@@ -2203,8 +2230,10 @@ components:
     RemediationNameListItem:
       type: object
       additionalProperties: false
-      required: [name]
+      required: [id, name]
       properties:
+        id:
+          $ref: '#/components/schemas/RemediationId'
         name:
           $ref: '#/components/schemas/RemediationName'
 

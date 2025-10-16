@@ -81,9 +81,6 @@ exports.auth = Object.freeze({
             openshift: {
                 is_entitled: true
             },
-            smart_management: {
-                is_entitled: true
-            },
             hybrid_cloud: {
                 is_entitled: true
             }

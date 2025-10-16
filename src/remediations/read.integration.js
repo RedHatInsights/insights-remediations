@@ -56,7 +56,7 @@ describe('remediations', function () {
             createdIds = [];
         });
 
-        test('v1 SSG issue id fails with INVALID_ISSUE_IDENTIFIER', async () => {
+        test('v1 SSG issue id succeeds via SSG template lookup', async () => {
             const remId = uuidv4();
             createdIds.push(remId);
 
@@ -81,15 +81,14 @@ describe('remediations', function () {
                 system_id: '1f12bdfc-8267-492d-a930-92f498fe65b9'
             }]);
 
-            const { id, header } = reqId();
             const { body } = await request
                 .get(`/v1/remediations/${remId}`)
-                .set(header)
-                .expect(400);
+                .expect(200);
 
-            body.errors.should.be.Array();
-            body.errors[0].code.should.equal('INVALID_ISSUE_IDENTIFIER');
-            body.errors[0].id.should.equal(id);
+            body.should.have.property('issues');
+            body.issues.should.have.length(1);
+            body.issues[0].should.have.property('resolution');
+            body.issues[0].resolution.should.have.property('id', 'fix');
         });
 
         test('v2 SSG issue id succeeds', async () => {
@@ -235,9 +234,10 @@ describe('remediations', function () {
             .set(auth.fifi)
             .expect(200);
 
-            // items in list should only have 'name' field
+            // items in list should have 'id' and 'name' fields
             for (const item of body.data) {
-                expect(Object.keys(item)).toHaveLength(1);
+                expect(Object.keys(item)).toHaveLength(2);
+                expect(item).toHaveProperty('id');
                 expect(item).toHaveProperty('name');
             }
         });
@@ -247,6 +247,173 @@ describe('remediations', function () {
             .get('/v1/remediations?fields[data]=playbook_runs&fields[data]=name')
             .set(auth.fifi)
             .expect(400);
+        });
+
+        test('playbook_runs and last_playbook_run fields are mutually exclusive', async () => {
+            const {body} = await request
+            .get('/v1/remediations?fields[data]=playbook_runs&fields[data]=last_playbook_run')
+            .set(auth.fifi)
+            .expect(400);
+        });
+
+        test('last_playbook_run returns same data structure as playbook_runs[0]', async () => {
+            // Get playbook_runs (all runs)
+            const {body: playbookRunsBody} = await request
+                .get('/v1/remediations?fields[data]=playbook_runs&sort=name&limit=3')
+                .set(auth.fifi)
+                .expect(200);
+
+            // Get last_playbook_run (should return as playbook_runs with just the latest)
+            const {body: lastPlaybookRunBody} = await request
+                .get('/v1/remediations?fields[data]=last_playbook_run&sort=name&limit=3')
+                .set(auth.fifi)
+                .expect(200);
+
+            // Find a remediation that has playbook runs
+            const remediationWithRuns = playbookRunsBody.data.find(r => r.playbook_runs && r.playbook_runs.length > 0);
+            if (remediationWithRuns) {
+                const lastPlaybookRunRemediation = lastPlaybookRunBody.data.find(r => r.id === remediationWithRuns.id);
+                
+                expect(lastPlaybookRunRemediation).toBeTruthy();
+                expect(lastPlaybookRunRemediation.playbook_runs).toBeTruthy();
+                expect(lastPlaybookRunRemediation.playbook_runs.length).toBe(1); // Should be exactly 1 run
+                
+                // The last_playbook_run should have the same structure as playbook_runs[0]
+                const playbookRun = remediationWithRuns.playbook_runs[0];
+                const lastPlaybookRun = lastPlaybookRunRemediation.playbook_runs[0];
+                
+                expect(lastPlaybookRun.id).toBe(playbookRun.id);
+                expect(lastPlaybookRun.status).toBe(playbookRun.status);
+                expect(lastPlaybookRun.remediation_id).toBe(playbookRun.remediation_id);
+                expect(lastPlaybookRun.created_at).toBe(playbookRun.created_at);
+                expect(lastPlaybookRun.updated_at).toBe(playbookRun.updated_at);
+                expect(lastPlaybookRun.created_by).toEqual(playbookRun.created_by);
+                expect(lastPlaybookRun.executors).toEqual(playbookRun.executors);
+            }
+        });
+
+        test('last_playbook_run returns the actual latest playbook run per remediation', async () => {
+            const { v4: uuidv4 } = require('uuid');
+            const { username: created_by } = require('../connectors/users/mock').MOCK_USERS.fifi;
+            
+            // Create a temporary remediation for this test
+            const testRemediation = await db.remediation.create({
+                id: uuidv4(),
+                name: 'Test Latest Run Remediation',
+                created_by,
+                updated_by: created_by,
+                account_number: 'fifi',
+                tenant_org_id: '6666666'
+            });
+            
+            const testRunIds = [];
+            const dispatcherRunIds = [];
+            
+            try {
+                // Create test playbook runs with different timestamps to verify "latest" logic
+                const testRun1Id = uuidv4();
+                const testRun2Id = uuidv4();
+                const testRun3Id = uuidv4();
+                
+                // Create runs with different timestamps - testRun2 should be the latest
+                const testRun1 = await db.playbook_runs.create({
+                    id: testRun1Id,
+                    status: 'success',
+                    remediation_id: testRemediation.id,
+                    created_by,
+                    created_at: '2019-12-22T08:19:36.641Z', // Earlier
+                    updated_at: '2019-12-22T08:19:36.641Z'
+                });
+                testRunIds.push(testRun1Id);
+                
+                const testRun2 = await db.playbook_runs.create({
+                    id: testRun2Id,
+                    status: 'running',
+                    remediation_id: testRemediation.id,
+                    created_by,
+                    created_at: '2019-12-24T08:19:36.641Z', // Later - should be the "latest"
+                    updated_at: '2019-12-24T08:19:36.641Z'
+                });
+                testRunIds.push(testRun2Id);
+                
+                const testRun3 = await db.playbook_runs.create({
+                    id: testRun3Id,
+                    status: 'failure',
+                    remediation_id: testRemediation.id,
+                    created_by,
+                    created_at: '2019-12-23T08:19:36.641Z', // Middle
+                    updated_at: '2019-12-23T08:19:36.641Z'
+                });
+                testRunIds.push(testRun3Id);
+
+                // Create dispatcher_runs to give the playbook runs proper status
+                // testRun1: success status
+                const dispatcherRun1 = await db.dispatcher_runs.create({
+                    dispatcher_run_id: uuidv4(),
+                    remediations_run_id: testRun1Id,
+                    status: 'success',
+                    created_at: '2019-12-22T08:19:36.641Z',
+                    updated_at: '2019-12-22T08:19:36.641Z'
+                });
+                dispatcherRunIds.push(dispatcherRun1.dispatcher_run_id);
+                
+                // testRun2: running status (should be the latest)
+                const dispatcherRun2 = await db.dispatcher_runs.create({
+                    dispatcher_run_id: uuidv4(),
+                    remediations_run_id: testRun2Id,
+                    status: 'running',
+                    created_at: '2019-12-24T08:19:36.641Z',
+                    updated_at: '2019-12-24T08:19:36.641Z'
+                });
+                dispatcherRunIds.push(dispatcherRun2.dispatcher_run_id);
+                
+                // testRun3: failure status
+                const dispatcherRun3 = await db.dispatcher_runs.create({
+                    dispatcher_run_id: uuidv4(),
+                    remediations_run_id: testRun3Id,
+                    status: 'failure',
+                    created_at: '2019-12-23T08:19:36.641Z',
+                    updated_at: '2019-12-23T08:19:36.641Z'
+                });
+                dispatcherRunIds.push(dispatcherRun3.dispatcher_run_id);
+
+                // Test that we get the latest run (testRun2 with the latest created_at)
+                const {body} = await request
+                    .get(`/v1/remediations?fields[data]=last_playbook_run&filter[name]=${testRemediation.name}`)
+                    .set(auth.fifi)
+                    .expect(200);
+
+                // Should find our test remediation
+                const foundRemediation = body.data.find(r => r.id === testRemediation.id);
+                expect(foundRemediation).toBeTruthy();
+                expect(foundRemediation.playbook_runs).toBeTruthy();
+                expect(foundRemediation.playbook_runs.length).toBe(1); // Should be exactly 1 run
+                
+                // Verify we got the latest run (testRun2 with created_at: '2019-12-24T08:19:36.641Z')
+                expect(foundRemediation.playbook_runs[0].id).toBe(testRun2Id);
+                expect(foundRemediation.playbook_runs[0].created_at).toBe('2019-12-24T08:19:36.641Z');
+                expect(foundRemediation.playbook_runs[0].status).toBe('pending');
+                expect(foundRemediation.playbook_runs[0].remediation_id).toBe(testRemediation.id);
+                
+            } finally {
+                // Clean up the test data
+                if (dispatcherRunIds && dispatcherRunIds.length > 0) {
+                    await db.dispatcher_runs.destroy({ 
+                        where: { dispatcher_run_id: dispatcherRunIds },
+                        force: true 
+                    });
+                }
+                if (testRunIds && testRunIds.length > 0) {
+                    await db.playbook_runs.destroy({ 
+                        where: { id: testRunIds },
+                        force: true 
+                    });
+                }
+                await db.remediation.destroy({ 
+                    where: { id: testRemediation.id },
+                    force: true 
+                });
+            }
         });
 
         test('does not leak data outside of the account', async () => {

@@ -3,7 +3,7 @@
 
 const { request, reqId, normalizePlaybookVersionForSnapshot } = require('../test');
 
-test('rejects v1 issue id format (Compliance API v1 issue id format)', async () => {
+test('accepts v1 issue id format and attempts to get template from SSG service', async () => {
     const data = {
         issues: [{
             id: 'ssg:rhel7|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink',
@@ -11,15 +11,14 @@ test('rejects v1 issue id format (Compliance API v1 issue id format)', async () 
         }]
     };
 
-    const { id, header } = reqId();
-
     const res = await request
     .post('/v1/playbook')
-    .set(header)
     .send(data)
-    .expect(400);
+    .expect(200);
 
-    res.body.errors.should.eql([{ id, status: 400, code: 'INVALID_ISSUE_IDENTIFIER', title: 'Compliance v1 issue identifiers have been retired. Please update your v1 issue ID, "ssg:<platform>|<profile>|xccdf_org.ssgproject.content_rule_disable_prelink", to the v2 format of "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|<version>|<profile>|xccdf_org.ssgproject.content_rule_disable_prelink"' }]);
+    // Ensure a non-empty playbook is returned. We avoid snapshots here since
+    // legacy fallback behavior may evolve independently of v2.
+    expect(res.text && res.text.length).toBeGreaterThan(0);
 });
 
 test('generates a simple playbook with single compliance remediation (Compliance API v2 issue id format)', async () => {
@@ -55,7 +54,7 @@ test('generates a simple playbook with multiple compliance remediation', async (
     expect(normalizePlaybookVersionForSnapshot(res.text)).toMatchSnapshot();
 });
 
-test('400s on unknown issue id', () => {
+test('400s on unsupported issue id (valid format but no template)', () => {
     const {id, header} = reqId();
 
     return request
@@ -72,8 +71,8 @@ test('400s on unknown issue id', () => {
         body.errors.should.eql([{
             id,
             status: 400,
-            code: 'UNKNOWN_ISSUE',
-            title: 'Unknown issue identifier "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|standard|xccdf_org.ssgproject.content_rule_non-existing-issue"'
+            code: 'UNSUPPORTED_ISSUE',
+            title: 'Issue "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|standard|xccdf_org.ssgproject.content_rule_non-existing-issue" does not have Ansible support'
         }]);
     });
 });
