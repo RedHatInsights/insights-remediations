@@ -339,6 +339,7 @@ exports.loadDetails = async function (tenant_org_id, created_by, rows) {
 exports.getPlanNames = function (tenant_org_id) {
     const query = {
         attributes: [
+            'id',
             'name'
         ],
         where: {
