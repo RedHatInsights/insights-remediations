@@ -560,7 +560,7 @@ describe('FiFi', function () {
                 body.data.should.have.length(12);
 
                 body.data[0].should.have.property('system_id', '07adc41a-a6c6-426a-a0d5-c7ba08954153');
-                body.data[0].should.have.property('system_name', '07adc41a-a6c6-426a-a0d5-c7ba08954153.example.com');
+                body.data[0].should.have.property('system_name', 'localhost');
                 body.data[0].should.have.property('playbook_run_executor_id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
 
                 body.data[1].should.have.property('system_id', '7b136dd2-4824-43cf-af6c-ad0ee42f9f97');
@@ -818,7 +818,7 @@ describe('FiFi', function () {
                 .expect(200);
 
                 body.should.have.property('system_id', '17adc41a-a6c6-426a-a0d5-c7ba08954154');
-                body.should.have.property('system_name', '17adc41a-a6c6-426a-a0d5-c7ba08954154.example.com');
+                body.should.have.property('system_name', 'localhost');
                 body.should.have.property('status', 'running');
                 body.should.have.property('console', 'console log goes here');
                 body.should.have.property('updated_at', '2018-10-04T08:19:36.641Z');
