@@ -35,6 +35,7 @@ module.exports = function (req, res, next) {
                 username: req.identity.user.username,
                 is_internal: req.identity.user.is_internal
             };
+            req.type = "User"
         }
 
         if (req.identity.type === 'ServiceAccount') {
@@ -44,6 +45,7 @@ module.exports = function (req, res, next) {
                 username: req.identity.service_account.username,
                 is_internal: false
             };
+            req.type = "ServiceAccount"
         }
 
         next();
