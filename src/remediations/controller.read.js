@@ -123,6 +123,15 @@ exports.list = errors.async(async function (req, res) {
         filter = {name: filter};
     }
 
+    // NOTE: OpenAPI request validator is not enforcing enumerated string restrictions for array elements,
+    // so we're validating fields[data] parameter here to prevent partial matches and enforce allowed values
+    const fieldsData = _.get(req, 'query.fields.data', []);
+    const fieldsArray = Array.isArray(fieldsData) ? fieldsData : (fieldsData ? [fieldsData] : []);
+    const invalidFields = _.difference(fieldsArray, ['playbook_runs', 'last_playbook_run', 'name']);
+    if (invalidFields.length > 0) {
+        throw new errors.BadRequest('INVALID_REQUEST', `Invalid field(s): ${invalidFields.join(', ')}. Allowed fields are: name, playbook_runs, last_playbook_run`);
+    }
+
     // ?fields[data]=name cannot be combined with other data fields...
     if (_.get(req, 'query.fields.data', []).includes('name') && Array.isArray(_.get(req, 'query.fields.data', []))) {
         throw new errors.BadRequest('INVALID_REQUEST', `'name' cannot be combined with other fields.`);
@@ -207,14 +216,12 @@ exports.list = errors.async(async function (req, res) {
         }
     });
 
-    const fieldsData = _.get(req, 'query.fields.data', []);
-    
     // Validate mutual exclusivity of playbook_runs and last_playbook_run
-    if (fieldsData.includes('playbook_runs') && fieldsData.includes('last_playbook_run')) {
+    if (fieldsArray.includes('playbook_runs') && fieldsArray.includes('last_playbook_run')) {
         throw new errors.BadRequest('INVALID_REQUEST', 'last_playbook_run and playbook_runs fields cannot be combined');
     }
     
-    if (fieldsData.includes('playbook_runs') || fieldsData.includes('last_playbook_run')) {
+    if (fieldsArray.includes('playbook_runs') || fieldsArray.includes('last_playbook_run')) {
         trace.event('Include playbook_runs data');
 
         // set limit to 1 if not explicitly set & fields[data]=playbook_runs
@@ -226,7 +233,7 @@ exports.list = errors.async(async function (req, res) {
             trace.enter(`[${local_iteration}] Process remediation: ${remediation.id}`);
             trace.event(`[${local_iteration}] Fetch playbook run`);
             let playbook_runs;
-            if (fieldsData.includes('last_playbook_run')) {
+            if (fieldsArray.includes('last_playbook_run')) {
                 playbook_runs = await queries.getLatestPlaybookRun(
                     remediation.id,
                     req.user.tenant_org_id,

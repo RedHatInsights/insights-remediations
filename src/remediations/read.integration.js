@@ -234,9 +234,10 @@ describe('remediations', function () {
             .set(auth.fifi)
             .expect(200);
 
-            // items in list should only have 'name' field
+            // items in list should have 'id' and 'name' fields
             for (const item of body.data) {
-                expect(Object.keys(item)).toHaveLength(1);
+                expect(Object.keys(item)).toHaveLength(2);
+                expect(item).toHaveProperty('id');
                 expect(item).toHaveProperty('name');
             }
         });
@@ -253,6 +254,46 @@ describe('remediations', function () {
             .get('/v1/remediations?fields[data]=playbook_runs&fields[data]=last_playbook_run')
             .set(auth.fifi)
             .expect(400);
+        });
+
+        test('rejects partial field name matches - lllast_playbook_runnn', async () => {
+            const {body} = await request
+            .get('/v1/remediations?fields[data]=lllast_playbook_runnn')
+            .set(auth.fifi)
+            .expect(400);
+            
+            expect(body.errors).toBeDefined();
+            expect(body.errors[0].title).toContain('Invalid field(s): lllast_playbook_runnn');
+        });
+
+        test('rejects partial field name matches - ppplaybook_runsss', async () => {
+            const {body} = await request
+            .get('/v1/remediations?fields[data]=ppplaybook_runsss')
+            .set(auth.fifi)
+            .expect(400);
+            
+            expect(body.errors).toBeDefined();
+            expect(body.errors[0].title).toContain('Invalid field(s): ppplaybook_runsss');
+        });
+
+        test('rejects partial field name matches - nnnameee', async () => {
+            const {body} = await request
+            .get('/v1/remediations?fields[data]=nnnameee')
+            .set(auth.fifi)
+            .expect(400);
+            
+            expect(body.errors).toBeDefined();
+            expect(body.errors[0].title).toContain('Invalid field(s): nnnameee');
+        });
+
+        test('rejects completely invalid field names', async () => {
+            const {body} = await request
+            .get('/v1/remediations?fields[data]=invalid_field')
+            .set(auth.fifi)
+            .expect(400);
+            
+            expect(body.errors).toBeDefined();
+            expect(body.errors[0].title).toContain('Invalid field(s): invalid_field');
         });
 
         test('last_playbook_run returns same data structure as playbook_runs[0]', async () => {
