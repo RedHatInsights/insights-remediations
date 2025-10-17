@@ -28,10 +28,15 @@ The following environment variables control Kessel integration:
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | `KESSEL_ENABLED` | Enable/disable Kessel authorization | `false` | No |
+| `KESSEL_AUTH_ENABLED` | Require oAuth | `false` | Required in Stage and Production |
+| `KESSEL_AUTH_CLIENT_ID` | oAuth Client ID | Secret | Required if `KESSEL_AUTH_ENABLED` |
+| `KESSEL_AUTH_CLIENT_SECRET` | oAuth Client Secret | Secret | Required if `KESSEL_AUTH_ENABLED` |
+| `KESSEL_AUTH_OIDC_ISSUER` | OIDC Issuer | `` | Required if `KESSEL_AUTH_ENABLED` |
 | `KESSEL_URL` | Kessel Relations API endpoint | `http://localhost:8080` | Yes (when enabled) |
 | `KESSEL_INSECURE` | Skip TLS verification | `false` | No |
 | `KESSEL_TIMEOUT` | Request timeout in milliseconds | `10000` | No |
 | `KESSEL_RETRIES` | Number of retry attempts | `3` | No |
+| `KESSEL_PRINCIPAL_DOMAIN` | Principal Domain | `redhat` | No |
 
 ### Example Configuration
 

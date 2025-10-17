@@ -220,6 +220,10 @@ objects:
             value: ${KESSEL_INSECURE}
           - name: KESSEL_PRINCIPAL_DOMAIN
             value: ${KESSEL_PRINCIPAL_DOMAIN}
+          - name: KESSEL_TIMEOUT
+            value: ${KESSEL_TIMEOUT}
+          - name: KESSEL_RETRIES
+            value: ${KESSEL_RETRIES}
 
 - apiVersion: v1
   kind: Secret
@@ -506,3 +510,7 @@ parameters:
   value: "FALSE"
 - name: KESSEL_PRINCIPAL_DOMAIN
   value: "redhat"
+- name: KESSEL_TIMEOUT
+  value: "10000"
+- name: KESSEL_RETRIES
+  value: "3"
