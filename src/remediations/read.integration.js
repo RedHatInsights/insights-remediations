@@ -2021,4 +2021,160 @@ describe('remediations', function () {
                 .expect(404);
         });
     });
+
+    describe('username validation', function () {
+        const utils = require('../middleware/identity/utils');
+
+        test('rejects requests with missing username', async () => {
+            await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, '0000000', true, data => {
+                    delete data.identity.user.username;
+                    return data;
+                }))
+                .expect(403);
+        });
+
+        test('rejects requests with null username', async () => {
+            await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, '0000000', true, data => {
+                    data.identity.user.username = null;
+                    return data;
+                }))
+                .expect(403);
+        });
+
+        test('rejects requests with undefined username', async () => {
+            await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, '0000000', true, data => {
+                    data.identity.user.username = undefined;
+                    return data;
+                }))
+                .expect(403);
+        });
+
+        test('rejects requests with empty string username', async () => {
+            await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, '0000000', true, data => {
+                    data.identity.user.username = '';
+                    return data;
+                }))
+                .expect(403);
+        });
+
+        test('rejects requests with whitespace-only username', async () => {
+            await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, '0000000', true, data => {
+                    data.identity.user.username = '   ';
+                    return data;
+                }))
+                .expect(403);
+        });
+
+        test('rejects requests with missing user object', async () => {
+            await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, '0000000', true, data => {
+                    delete data.identity.user;
+                    return data;
+                }))
+                .expect(400);
+        });
+
+        test('rejects requests with null user object', async () => {
+            await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, '0000000', true, data => {
+                    data.identity.user = null;
+                    return data;
+                }))
+                .expect(400);
+        });
+
+        test('allows requests with valid username', async () => {
+            const { body } = await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('validuser@redhat.com', 'test', '0000000', true))
+                .expect(200);
+
+            should(body).have.property('data');
+            should(body).have.property('meta');
+        });
+
+        test('allows requests with username containing special characters', async () => {
+            const { body } = await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('user+test@example.com', 'test', '0000000', true))
+                .expect(200);
+
+            should(body).have.property('data');
+            should(body).have.property('meta');
+        });
+
+        test('allows requests with username containing numbers', async () => {
+            const { body } = await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('user123@redhat.com', 'test', '0000000', true))
+                .expect(200);
+
+            should(body).have.property('data');
+            should(body).have.property('meta');
+        });
+
+        test('username validation applies to all remediation endpoints', async () => {
+            // Test that username validation applies to different endpoints
+            const invalidHeader = utils.createIdentityHeader(undefined, undefined, '0000000', true, data => {
+                data.identity.user.username = null;
+                return data;
+            });
+
+            // Test list endpoint
+            await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, invalidHeader)
+                .expect(403);
+
+            // Test get endpoint (if we had a valid ID)
+            await request
+                .get('/v1/remediations/invalid-id')
+                .set(utils.IDENTITY_HEADER, invalidHeader)
+                .expect(403);
+
+            // Test playbook endpoint
+            await request
+                .get('/v1/remediations/invalid-id/playbook')
+                .set(utils.IDENTITY_HEADER, invalidHeader)
+                .expect(403);
+
+            // Test download endpoint
+            await request
+                .get('/v1/remediations/download?selected_remediations=invalid-id')
+                .set(utils.IDENTITY_HEADER, invalidHeader)
+                .expect(403);
+        });
+
+        test('service account requests bypass username validation', async () => {
+            // Service accounts should not be subject to username validation
+            const { body } = await request
+                .get('/v1/remediations')
+                .set(auth.serviceAccount)
+                .expect(200);
+
+            should(body).have.property('data');
+            should(body).have.property('meta');
+        });
+
+        test('cert auth requests are blocked from remediations endpoints', async () => {
+            // Cert auth (System type) should be blocked from remediations endpoints
+            // as it's only intended for specific endpoints like /playbooks
+            await request
+                .get('/v1/remediations')
+                .set(auth.cert01)
+                .expect(403);
+        });
+    });
 });

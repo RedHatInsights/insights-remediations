@@ -37,7 +37,7 @@ module.exports = function (req, res, next) {
             };
             req.type = "User"
 
-            if (!req.identity?.user?.username) {
+            if (!req.identity?.user?.username || req.identity.user.username.trim() === '') {
                 return next(new errors.Forbidden('Supplied identity invalid'));
             }
         }
@@ -50,6 +50,16 @@ module.exports = function (req, res, next) {
                 is_internal: false
             };
             req.type = "ServiceAccount"
+        }
+
+        if (req.identity.type === 'System') {
+            req.user = {
+                account_number: req.identity.account_number || '',
+                tenant_org_id: req.identity.org_id,
+                username: null, // System type doesn't have username
+                is_internal: false
+            };
+            req.type = "System"
         }
 
         next();
