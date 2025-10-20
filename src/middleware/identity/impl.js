@@ -37,7 +37,7 @@ module.exports = function (req, res, next) {
             };
             req.type = "User"
 
-            if (req.identity.user.username) {
+            if (!req.identity?.user?.username) {
                 return next(new errors.Forbidden('Supplied identity invalid'));
             }
         }
