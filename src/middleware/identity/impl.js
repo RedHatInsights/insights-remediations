@@ -36,6 +36,10 @@ module.exports = function (req, res, next) {
                 is_internal: req.identity.user.is_internal
             };
             req.type = "User"
+
+            if (req.identity.user.username) {
+                return next(new errors.Forbidden('Supplied identity invalid'));
+            }
         }
 
         if (req.identity.type === 'ServiceAccount') {
