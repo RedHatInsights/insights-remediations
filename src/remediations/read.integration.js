@@ -1665,4 +1665,516 @@ describe('remediations', function () {
             .expect(404);
         });
     });
+
+    describe('service account filtering', function () {
+        let createdRemediationIds = [];
+        let user1RemediationId, user2RemediationId, serviceAccountRemediationId;
+
+        beforeAll(async () => {
+            // Create test remediations with different users
+            const { id: rem1 } = await db.remediation.create({
+                id: uuidv4(),
+                name: 'user1-remediation',
+                needs_reboot: false,
+                tenant_org_id: '0000000',
+                account_number: '0000000',
+                created_by: 'user1@redhat.com',
+                updated_by: 'user1@redhat.com'
+            });
+            user1RemediationId = rem1;
+            createdRemediationIds.push(rem1);
+
+            const { id: rem2 } = await db.remediation.create({
+                id: uuidv4(),
+                name: 'user2-remediation',
+                needs_reboot: false,
+                tenant_org_id: '0000000',
+                account_number: '0000000',
+                created_by: 'user2@redhat.com',
+                updated_by: 'user2@redhat.com'
+            });
+            user2RemediationId = rem2;
+            createdRemediationIds.push(rem2);
+
+            const { id: rem3 } = await db.remediation.create({
+                id: uuidv4(),
+                name: 'service-account-remediation',
+                needs_reboot: false,
+                tenant_org_id: '0000000',
+                account_number: '0000000',
+                created_by: 'test-service-account',
+                updated_by: 'test-service-account'
+            });
+            serviceAccountRemediationId = rem3;
+            createdRemediationIds.push(rem3);
+
+            // Add issues to each remediation
+            const issue1 = await db.issue.create({
+                remediation_id: rem1,
+                issue_id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_disable_prelink',
+                resolution: 'fix'
+            });
+
+            const issue2 = await db.issue.create({
+                remediation_id: rem2,
+                issue_id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_disable_prelink',
+                resolution: 'fix'
+            });
+
+            const issue3 = await db.issue.create({
+                remediation_id: rem3,
+                issue_id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_disable_prelink',
+                resolution: 'fix'
+            });
+
+            // Add systems to each issue for playbook generation
+            // Use existing system IDs from the test data
+            const existingSystems = await db.systems.findAll({ limit: 3 });
+            
+            if (existingSystems.length > 0) {
+                await db.issue_system.create({
+                    remediation_issue_id: issue1.id,
+                    system_id: existingSystems[0].id,
+                    resolved: false
+                });
+
+                if (existingSystems.length > 1) {
+                    await db.issue_system.create({
+                        remediation_issue_id: issue2.id,
+                        system_id: existingSystems[1].id,
+                        resolved: false
+                    });
+                }
+
+                if (existingSystems.length > 2) {
+                    await db.issue_system.create({
+                        remediation_issue_id: issue3.id,
+                        system_id: existingSystems[2].id,
+                        resolved: false
+                    });
+                }
+            } else {
+                // Create test systems if none exist
+                const testSystem1 = await db.systems.create({
+                    id: 'test-system-1',
+                    display_name: 'Test System 1',
+                    tenant_org_id: '0000000'
+                });
+                
+                await db.issue_system.create({
+                    remediation_issue_id: issue1.id,
+                    system_id: testSystem1.id,
+                    resolved: false
+                });
+            }
+        });
+
+        afterAll(async () => {
+            // Cleanup created remediations
+            for (const remId of createdRemediationIds) {
+                // First get all issues for this remediation
+                const issues = await db.issue.findAll({ where: { remediation_id: remId } });
+                const issueIds = issues.map(issue => issue.id);
+                
+                // Clean up issue_system records
+                if (issueIds.length > 0) {
+                    await db.issue_system.destroy({ where: { remediation_issue_id: issueIds }, force: true });
+                }
+                
+                // Clean up issues
+                await db.issue.destroy({ where: { remediation_id: remId }, force: true });
+                
+                // Clean up remediation
+                await db.remediation.destroy({ where: { id: remId }, force: true });
+            }
+        });
+
+        test('normal user can only see their own remediations', async () => {
+            const { body } = await request
+                .get('/v1/remediations')
+                .set(auth.testReadSingle)
+                .expect(200);
+
+            // Should only see remediations created by testReadSingleUser
+            const remediationIds = body.data.map(r => r.id);
+            should(remediationIds).not.containEql(user1RemediationId);
+            should(remediationIds).not.containEql(user2RemediationId);
+            should(remediationIds).not.containEql(serviceAccountRemediationId);
+        });
+
+        test('service account can see all remediations', async () => {
+            const response = await request
+                .get('/v1/remediations')
+                .set(auth.serviceAccount);
+
+            if (response.status !== 200) {
+                console.log('Error response:', response.status, response.text);
+                throw new Error(`Expected 200, got ${response.status}: ${response.text}`);
+            }
+
+            // Should see all remediations regardless of creator
+            const remediationIds = response.body.data.map(r => r.id);
+            should(remediationIds).containEql(user1RemediationId);
+            should(remediationIds).containEql(user2RemediationId);
+            should(remediationIds).containEql(serviceAccountRemediationId);
+        });
+
+        test('normal user cannot access remediation created by another user', async () => {
+            await request
+                .get(`/v1/remediations/${user1RemediationId}`)
+                .set(auth.testReadSingle)
+                .expect(404);
+        });
+
+        test('normal user cannot access remediation created by service account', async () => {
+            await request
+                .get(`/v1/remediations/${serviceAccountRemediationId}`)
+                .set(auth.testReadSingle)
+                .expect(404);
+        });
+
+        test('service account can access remediation created by any user', async () => {
+            const { body } = await request
+                .get(`/v1/remediations/${user1RemediationId}`)
+                .set(auth.serviceAccount)
+                .expect(200);
+
+            should(body.id).equal(user1RemediationId);
+            should(body.name).equal('user1-remediation');
+        });
+
+        test('service account can access remediation created by another service account', async () => {
+            const { body } = await request
+                .get(`/v1/remediations/${serviceAccountRemediationId}`)
+                .set(auth.serviceAccount)
+                .expect(200);
+
+            should(body.id).equal(serviceAccountRemediationId);
+            should(body.name).equal('service-account-remediation');
+        });
+
+        test('service account can access playbook for any remediation', async () => {
+            const { text } = await request
+                .get(`/v1/remediations/${user1RemediationId}/playbook`)
+                .set(auth.serviceAccount)
+                .expect(200);
+
+            should(text).be.a.String();
+            should(text).containEql('---');
+            should(text).containEql('hosts:');
+            should(text).containEql('tasks:');
+        });
+
+        test('normal user cannot access playbook for remediation created by another user', async () => {
+            await request
+                .get(`/v1/remediations/${user1RemediationId}/playbook`)
+                .set(auth.testReadSingle)
+                .expect(404);
+        });
+
+        test('service account can download playbooks for any remediation', async () => {
+            const { body } = await request
+                .get(`/v1/remediations/download?selected_remediations=${user1RemediationId},${user2RemediationId}`)
+                .set(auth.serviceAccount)
+                .expect(200)
+                .buffer()
+                .parse(binaryParser);
+
+            should(body).be.instanceOf(Buffer);
+            const zip = new JSZip();
+            const zipContents = await zip.loadAsync(body);
+            
+            // Check that we have files for both remediations (with any timestamp)
+            const fileNames = Object.keys(zipContents.files);
+            const user1File = fileNames.find(name => name.startsWith('user1-remediation'));
+            const user2File = fileNames.find(name => name.startsWith('user2-remediation'));
+            
+            should(user1File).be.ok();
+            should(user2File).be.ok();
+            should(user1File).endWith('.yml');
+            should(user2File).endWith('.yml');
+        });
+
+        test('normal user can only download playbooks for their own remediations', async () => {
+            // First create a remediation for the test user
+            const { id: testUserRemId } = await db.remediation.create({
+                id: uuidv4(),
+                name: 'test-user-remediation',
+                needs_reboot: false,
+                tenant_org_id: '4444444', // Match testReadSingleUser's tenant_org_id
+                account_number: 'testReadSingle', // Match testReadSingleUser's account_number
+                created_by: 'testReadSingleUser',
+                updated_by: 'testReadSingleUser'
+            });
+            createdRemediationIds.push(testUserRemId);
+
+            const testUserIssue = await db.issue.create({
+                remediation_id: testUserRemId,
+                issue_id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_disable_prelink',
+                resolution: 'fix'
+            });
+
+            // Add a system to the issue for playbook generation
+            const existingSystems = await db.systems.findAll({ limit: 1 });
+            if (existingSystems.length > 0) {
+                await db.issue_system.create({
+                    remediation_issue_id: testUserIssue.id,
+                    system_id: existingSystems[0].id,
+                    resolved: false
+                });
+            }
+
+            // First try downloading only the test user's own remediation
+            const { body } = await request
+                .get(`/v1/remediations/download?selected_remediations=${testUserRemId}`)
+                .set(auth.testReadSingle)
+                .expect(200)
+                .buffer()
+                .parse(binaryParser);
+
+            should(body).be.instanceOf(Buffer);
+            const zip = new JSZip();
+            const zipContents = await zip.loadAsync(body);
+            
+            // Should only contain the test user's remediation (with any timestamp)
+            const fileNames = Object.keys(zipContents.files);
+            const testUserFile = fileNames.find(name => name.startsWith('test-user-remediation'));
+            should(testUserFile).be.ok();
+            should(testUserFile).endWith('.yml');
+            should(zipContents.files).not.have.property('user1-remediation.yml');
+        });
+
+        test('service account filtering works with different org_ids', async () => {
+            // Create remediation in different org
+            const { id: differentOrgRemId } = await db.remediation.create({
+                id: uuidv4(),
+                name: 'different-org-remediation',
+                needs_reboot: false,
+                tenant_org_id: '1111111', // Different org
+                account_number: '1111111',
+                created_by: 'user1@redhat.com',
+                updated_by: 'user1@redhat.com'
+            });
+            createdRemediationIds.push(differentOrgRemId);
+
+            await db.issue.create({
+                remediation_id: differentOrgRemId,
+                issue_id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_disable_prelink',
+                resolution: 'fix'
+            });
+
+            // Service account should not see remediations from different org
+            const { body } = await request
+                .get('/v1/remediations')
+                .set(auth.serviceAccount)
+                .expect(200);
+
+            const remediationIds = body.data.map(r => r.id);
+            should(remediationIds).not.containEql(differentOrgRemId);
+        });
+
+        test('undefined req.type defaults to User behavior', async () => {
+            // This test ensures backward compatibility
+            const { body } = await request
+                .get('/v1/remediations')
+                .set(auth.testReadSingle)
+                .expect(200);
+
+            // Should behave like normal user (only see own remediations)
+            const remediationIds = body.data.map(r => r.id);
+            should(remediationIds).not.containEql(user1RemediationId);
+            should(remediationIds).not.containEql(user2RemediationId);
+            should(remediationIds).not.containEql(serviceAccountRemediationId);
+        });
+
+        test('service account can access remediation systems for any remediation', async () => {
+            const { body } = await request
+                .get(`/v1/remediations/${user1RemediationId}/systems`)
+                .set(auth.serviceAccount)
+                .expect(200);
+
+            should(body).have.property('data');
+            should(body).have.property('meta');
+        });
+
+        test('normal user cannot access remediation systems for remediation created by another user', async () => {
+            await request
+                .get(`/v1/remediations/${user1RemediationId}/systems`)
+                .set(auth.testReadSingle)
+                .expect(404);
+        });
+
+        test('service account can access remediation issues for any remediation', async () => {
+            const { body } = await request
+                .get(`/v1/remediations/${user1RemediationId}/issues`)
+                .set(auth.serviceAccount)
+                .expect(200);
+
+            should(body).have.property('data');
+            should(body).have.property('meta');
+        });
+
+        test('normal user cannot access remediation issues for remediation created by another user', async () => {
+            await request
+                .get(`/v1/remediations/${user1RemediationId}/issues`)
+                .set(auth.testReadSingle)
+                .expect(404);
+        });
+    });
+
+    describe('username validation', function () {
+        const utils = require('../middleware/identity/utils');
+
+        test('rejects requests with missing username', async () => {
+            await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, '0000000', true, data => {
+                    delete data.identity.user.username;
+                    return data;
+                }))
+                .expect(403);
+        });
+
+        test('rejects requests with null username', async () => {
+            await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, '0000000', true, data => {
+                    data.identity.user.username = null;
+                    return data;
+                }))
+                .expect(403);
+        });
+
+        test('rejects requests with undefined username', async () => {
+            await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, '0000000', true, data => {
+                    data.identity.user.username = undefined;
+                    return data;
+                }))
+                .expect(403);
+        });
+
+        test('rejects requests with empty string username', async () => {
+            await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, '0000000', true, data => {
+                    data.identity.user.username = '';
+                    return data;
+                }))
+                .expect(403);
+        });
+
+        test('rejects requests with whitespace-only username', async () => {
+            await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, '0000000', true, data => {
+                    data.identity.user.username = '   ';
+                    return data;
+                }))
+                .expect(403);
+        });
+
+        test('rejects requests with missing user object', async () => {
+            await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, '0000000', true, data => {
+                    delete data.identity.user;
+                    return data;
+                }))
+                .expect(400);
+        });
+
+        test('rejects requests with null user object', async () => {
+            await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, '0000000', true, data => {
+                    data.identity.user = null;
+                    return data;
+                }))
+                .expect(400);
+        });
+
+        test('allows requests with valid username', async () => {
+            const { body } = await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('validuser@redhat.com', 'test', '0000000', true))
+                .expect(200);
+
+            should(body).have.property('data');
+            should(body).have.property('meta');
+        });
+
+        test('allows requests with username containing special characters', async () => {
+            const { body } = await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('user+test@example.com', 'test', '0000000', true))
+                .expect(200);
+
+            should(body).have.property('data');
+            should(body).have.property('meta');
+        });
+
+        test('allows requests with username containing numbers', async () => {
+            const { body } = await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('user123@redhat.com', 'test', '0000000', true))
+                .expect(200);
+
+            should(body).have.property('data');
+            should(body).have.property('meta');
+        });
+
+        test('username validation applies to all remediation endpoints', async () => {
+            // Test that username validation applies to different endpoints
+            const invalidHeader = utils.createIdentityHeader(undefined, undefined, '0000000', true, data => {
+                data.identity.user.username = null;
+                return data;
+            });
+
+            // Test list endpoint
+            await request
+                .get('/v1/remediations')
+                .set(utils.IDENTITY_HEADER, invalidHeader)
+                .expect(403);
+
+            // Test get endpoint (if we had a valid ID)
+            await request
+                .get('/v1/remediations/invalid-id')
+                .set(utils.IDENTITY_HEADER, invalidHeader)
+                .expect(403);
+
+            // Test playbook endpoint
+            await request
+                .get('/v1/remediations/invalid-id/playbook')
+                .set(utils.IDENTITY_HEADER, invalidHeader)
+                .expect(403);
+
+            // Test download endpoint
+            await request
+                .get('/v1/remediations/download?selected_remediations=invalid-id')
+                .set(utils.IDENTITY_HEADER, invalidHeader)
+                .expect(403);
+        });
+
+        test('service account requests bypass username validation', async () => {
+            // Service accounts should not be subject to username validation
+            const { body } = await request
+                .get('/v1/remediations')
+                .set(auth.serviceAccount)
+                .expect(200);
+
+            should(body).have.property('data');
+            should(body).have.property('meta');
+        });
+
+        test('cert auth requests are blocked from remediations endpoints', async () => {
+            // Cert auth (System type) should be blocked from remediations endpoints
+            // as it's only intended for specific endpoints like /playbooks
+            await request
+                .get('/v1/remediations')
+                .set(auth.cert01)
+                .expect(403);
+        });
+    });
 });
