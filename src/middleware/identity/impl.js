@@ -52,16 +52,6 @@ module.exports = function (req, res, next) {
             req.type = "ServiceAccount"
         }
 
-        if (req.identity.type === 'System') {
-            req.user = {
-                account_number: req.identity.account_number || '',
-                tenant_org_id: req.identity.org_id,
-                username: null, // System type doesn't have username
-                is_internal: false
-            };
-            req.type = "System"
-        }
-
         next();
     } catch (e) {
         log.debug({header: raw, error: e.message, reqId}, 'Error decoding identity header');
