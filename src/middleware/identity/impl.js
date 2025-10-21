@@ -35,7 +35,7 @@ module.exports = function (req, res, next) {
                 username: req.identity.user.username,
                 is_internal: req.identity.user.is_internal
             };
-            req.type = "User"
+            req.type = "User";
 
             if (!req.identity?.user?.username || req.identity.user.username.trim() === '') {
                 return next(new errors.Forbidden('Supplied identity invalid'));
@@ -49,7 +49,7 @@ module.exports = function (req, res, next) {
                 username: req.identity.service_account.username,
                 is_internal: false
             };
-            req.type = "ServiceAccount"
+            req.type = "ServiceAccount";
         }
 
         next();
