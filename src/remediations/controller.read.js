@@ -159,9 +159,15 @@ exports.list = errors.async(async function (req, res) {
     }
 
     trace.event('Query db for list of remediations');
+    
+    // allow service accounts to see all remediations
+    // if the request comes from a service account
+    // otherwise use creator
+    const creator_sa_filter = req.type == "ServiceAccount" ? null : req.user.username;
+    
     const {count, rows} = await queries.list(
         req.user.tenant_org_id,
-        req.user.username,
+        creator_sa_filter,
         req.query.system,
         column,
         asc,
@@ -176,7 +182,7 @@ exports.list = errors.async(async function (req, res) {
     }
 
     trace.event('Fetch remediation details from DB');
-    let remediations = await queries.loadDetails(req.user.tenant_org_id, req.user.username, rows);
+    let remediations = await queries.loadDetails(req.user.tenant_org_id, creator_sa_filter, rows);
 
     if (column === 'name') {
         trace.event('Accomodate sort ordering for null names');
@@ -311,7 +317,12 @@ exports.get = errors.async(async function (req, res) {
     // are we just summarizing?
     const summarize = req.query['format'] == 'summary';
 
-    let remediation = await queries.get(req.params.id, req.user.tenant_org_id, req.user.username);
+    // allow service accounts to read any remediation
+    // if the request comes from a service account
+    // otherwise use creator
+    const creator_sa_filter = req.type == "ServiceAccount" ? null : req.user.username;
+
+    let remediation = await queries.get(req.params.id, req.user.tenant_org_id, creator_sa_filter);
 
     if (!remediation) {
         return notFound(res);
@@ -359,13 +370,18 @@ exports.playbook = errors.async(async function (req, res) {
     const cert_auth = _.isUndefined(req.user);
 
     const tenant_org_id = req.identity.org_id;
-    const creator = cert_auth ? null : req.user.username;
+    const creator = cert_auth ? null : req.user.username; 
+
+    // allow service accounts to read playbooks
+    // if the request comes from a service account
+    // otherwise use creator
+    const creator_sa_filter = req.type == "ServiceAccount" ? null : creator
 
     const USE_CACHE = true;
     const EXCLUDE_RESOLVED_COUNT = false;
 
     trace.event('Get remediation plan from db (w/caching)');
-    const remediation = await queries.get(id, tenant_org_id, creator, EXCLUDE_RESOLVED_COUNT, USE_CACHE);
+    const remediation = await queries.get(id, tenant_org_id, creator_sa_filter, EXCLUDE_RESOLVED_COUNT, USE_CACHE);
 
     if (!remediation) {
         return notFound(res);
@@ -471,8 +487,13 @@ exports.downloadPlaybooks = errors.async(async function (req, res) {
         return badRequest(res);
     }
 
+    // allow service accounts to download any remediation
+    // if the request comes from a service account
+    // otherwise use creator
+    const creator_sa_filter = req.type == "ServiceAccount" ? null : req.user.username;
+
     await P.map(req.query.selected_remediations, async id => {
-        const remediation = await queries.get(id, req.user.tenant_org_id, req.user.username);
+        const remediation = await queries.get(id, req.user.tenant_org_id, creator_sa_filter);
 
         if (!remediation) {
             generateZip = false;
@@ -520,8 +541,13 @@ exports.getIssues = errors.async(async function (req, res) {
     const {tenant_org_id, username} = req.user;
     const {limit, offset, sort, filter} = req.query;
 
+    // allow service accounts to access any remediation
+    // if the request comes from a service account
+    // otherwise use creator
+    const creator_sa_filter = req.type == "ServiceAccount" ? null : username;
+
     // get plan from db
-    let plan_issues = await queries.getIssues(plan_id, tenant_org_id, username, filter?.id, sort !== '-id');
+    let plan_issues = await queries.getIssues(plan_id, tenant_org_id, creator_sa_filter, filter?.id, sort !== '-id');
 
     if (_.isEmpty(plan_issues)) {
         return notFound(res);
@@ -567,7 +593,12 @@ exports.getIssueSystems = errors.async(async function (req, res) {
     const {tenant_org_id, username} = req.user;
     const {limit, offset} = req.query;
 
-    const remediation = await queries.getIssueSystems(id, tenant_org_id, username, issue);
+    // allow service accounts to access any remediation
+    // if the request comes from a service account
+    // otherwise use creator
+    const creator_sa_filter = req.type == "ServiceAccount" ? null : username;
+
+    const remediation = await queries.getIssueSystems(id, tenant_org_id, creator_sa_filter, issue);
 
     if (!remediation) {
         return notFound(res);
@@ -601,14 +632,19 @@ exports.getRemediationSystems = errors.async(async function (req, res) {
     const { limit, offset, sort, filter } = req.query;
     const { column, asc } = format.parseSort(sort);
 
-    let remediation = await queries.get(plan_id, tenant_org_id, username);
+    // allow service accounts to access any remediation
+    // if the request comes from a service account
+    // otherwise use creator
+    const creator_sa_filter = req.type == "ServiceAccount" ? null : username;
+
+    let remediation = await queries.get(plan_id, tenant_org_id, creator_sa_filter);
 
     if (!remediation) {
         return notFound(res);
     }
 
     // Limit is capped at 50 by the API spec
-    const { count: total, rows } = await queries.getPlanSystems(plan_id, tenant_org_id, username, column, asc, filter, limit, offset);
+    const { count: total, rows } = await queries.getPlanSystems(plan_id, tenant_org_id, creator_sa_filter, column, asc, filter, limit, offset);
 
     if (offset >= Math.max(total, 1)) {
         throw errors.invalidOffset(offset, total - 1);
@@ -625,12 +661,17 @@ exports.getSystemIssues = errors.async(async function (req, res) {
     const {column, asc} = format.parseSort(req.query.sort);
     const {limit, offset, filter} = req.query;
 
+    // allow service accounts to access any remediation
+    // if the request comes from a service account
+    // otherwise use creator
+    const creator_sa_filter = req.type == "ServiceAccount" ? null : username;
+
     // fetch issues for system within plan
     const {count, rows} = await queries.getSystemIssues(
         plan_id,
         system_id,
         tenant_org_id,
-        username,
+        creator_sa_filter,
         column,
         asc,
         filter,

@@ -85,6 +85,39 @@ exports.createCertIdentityHeader = function (account_number, tenant_org_id = '53
     return encode(transform(data));
 };
 
+exports.createServiceAccountIdentityHeader = function (
+    username = 'test-service-account',
+    account_number = DEFAULTS.account_number,
+    org_id = DEFAULTS.internal.org_id,
+    transform = f => f) {
+
+    const data = {
+        entitlements: {
+            insights: {
+                is_entitled: true
+            },
+            openshift: {
+                is_entitled: true
+            },
+            hybrid_cloud: {
+                is_entitled: true
+            }
+        },
+        identity: {
+            account_number,
+            org_id,
+            type: 'ServiceAccount',
+            service_account: {
+                username,
+                client_id: 'test-client-id',
+                is_org_admin: false
+            }
+        }
+    };
+
+    return encode(transform(data));
+};
+
 function encode (data) {
     return Buffer.from(JSON.stringify(data)).toString('base64');
 }

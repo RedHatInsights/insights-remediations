@@ -176,10 +176,7 @@ exports.list = async function (
                 required: false
             }]
         }],
-        where: {
-            tenant_org_id,
-            created_by
-        },
+        where: created_by ? { tenant_org_id, created_by } : { tenant_org_id },
         group: ['remediation.id'],
         // Sort on any remediation column and also issue_count, system_count, last_run_at and status
         // last_run_at sort option will use the playbook_runs.created_at column in the db
@@ -274,7 +271,7 @@ exports.list = async function (
             include: [{
                 model: db.remediation,
                 attributes: [],
-                where: { tenant_org_id, created_by },
+                where: created_by ? { tenant_org_id, created_by } : { tenant_org_id },
                 required: true
             }],
             where: {
@@ -287,7 +284,7 @@ exports.list = async function (
         await fifi2.syncDispatcherRunsForPlaybookRuns(recentRuns.map(run => run.id));
     }
 
-    const result = db.remediation.findAndCountAll(query);
+    const result = await db.remediation.findAndCountAll(query);
 
     return result;
 };
@@ -308,13 +305,18 @@ exports.loadDetails = async function (tenant_org_id, created_by, rows) {
                 'EXISTS (SELECT * FROM "remediation_issue_systems" WHERE "remediation_issue_systems"."remediation_issue_id" = "issues"."id")'
             )
         }],
-        where: {
-            tenant_org_id,
-            created_by,
-            id: {
-                [Op.in]: _.map(rows, 'id')
+        where: (() => {
+            const whereClause = {
+                tenant_org_id,
+                id: {
+                    [Op.in]: _.map(rows, 'id')
+                }
+            };
+            if (created_by) {
+                whereClause.created_by = created_by;
             }
-        }
+            return whereClause;
+        })()
     };
 
     const results = await db.remediation.findAll(query);
@@ -471,10 +473,13 @@ exports.getIssues = async function (remediation_plan_id, tenant_org_id, created_
             {
                 attributes: [],
                 model: db.remediation,
-                where: {
-                    created_by,
-                    tenant_org_id
-                }
+                where: (() => {
+                    const whereClause = { tenant_org_id };
+                    if (created_by) {
+                        whereClause.created_by = created_by;
+                    }
+                    return whereClause;
+                })()
             },{
                 attributes: ['system_id'],
                 model: db.issue_system,
@@ -514,9 +519,13 @@ exports.getIssueSystems = function (id, tenant_org_id, created_by, issueId) {
                 issue_id: issueId
             }
         }],
-        where: {
-            id, tenant_org_id, created_by
-        },
+        where: (() => {
+            const whereClause = { id, tenant_org_id };
+            if (created_by) {
+                whereClause.created_by = created_by;
+            }
+            return whereClause;
+        })(),
         order: [
             ['id'],
             [db.issue, 'issue_id'],
@@ -982,11 +991,13 @@ exports.getSystemIssues = async function (remediation_id, system_id, tenant_org_
             attributes: [],
             model: remediation,
             required: true,
-            where: {
-                id: remediation_id,
-                tenant_org_id,
-                created_by
-            }
+            where: (() => {
+                const whereClause = { id: remediation_id, tenant_org_id };
+                if (created_by) {
+                    whereClause.created_by = created_by;
+                }
+                return whereClause;
+            })()
         },
         {
             attributes: ['system_id'],
