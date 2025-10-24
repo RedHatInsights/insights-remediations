@@ -372,7 +372,9 @@ exports.planSystems = function (plan_id, systems, total, limit, offset, sort) {
     const formatted = systems.map(s => ({
         id: s.id,
         hostname: s.hostname,
-        display_name: s.display_name
+        display_name: s.display_name,
+        issue_count: s.issue_count,
+        needs_reboot: s.needs_reboot
     }));
 
     return {

@@ -650,7 +650,23 @@ exports.getRemediationSystems = errors.async(async function (req, res) {
         throw errors.invalidOffset(offset, total - 1);
     }
 
-    return res.json(format.planSystems(plan_id, rows, total, limit, offset, sort));
+    // Call resolveResolutionsNeedReboot to set issue.resolution.needsReboot for each issue
+    await resolveResolutionsNeedReboot(remediation);
+    
+    // System IDs that need reboot
+    const systemIdsNeedingReboot = new Set(
+        remediation.issues
+            .filter(issue => issue.resolution?.needsReboot)
+            .flatMap(issue => issue.systems.map(s => s.system_id))
+    );
+
+    // Add needs_reboot flag to each system based on whether it requires a reboot
+    const systemsWithNeedsReboot = rows.map(system => ({
+        ...system,
+        needs_reboot: systemIdsNeedingReboot.has(system.id)
+    }));
+
+    return res.json(format.planSystems(plan_id, systemsWithNeedsReboot, total, limit, offset, sort));
 });
 
 // GET /remediations/:id/systems/:system/issues

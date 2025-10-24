@@ -567,7 +567,7 @@ exports.getPlanSystems = async function (
     limit = 50,
     offset = 0
 ) {
-    const { Op, s: { literal, col, cast }, fn: { DISTINCT }, issue, issue_system, remediation } = db;
+    const { Op, s: { literal, col, cast }, fn: { DISTINCT, COUNT }, issue, issue_system, remediation } = db;
 
     // Fetch distinct system ids for the plan scoped by tenant/user
     const distinctSystemIds = (await issue_system.findAll({
@@ -624,7 +624,7 @@ exports.getPlanSystems = async function (
 
     const order = [[column, asc ? 'ASC' : 'DESC']];
 
-    return db.systems.findAndCountAll({
+    const result = await db.systems.findAndCountAll({
         attributes: ['id', 'hostname', 'display_name'],
         where,
         order,
@@ -632,6 +632,35 @@ exports.getPlanSystems = async function (
         offset,
         raw: true
     });
+
+    if (result.rows.length > 0) {
+        const systemIds = result.rows.map(s => s.id);
+        
+        const issueCounts = await db.issue_system.findAll({
+            attributes: [
+                'system_id',
+                [COUNT('*'), 'count']
+            ],
+            include: [{
+                attributes: [],
+                model: db.issue,
+                required: true,
+                where: { remediation_id: remediation_plan_id }
+            }],
+            where: { system_id: { [Op.in]: systemIds } },
+            group: ['system_id'],
+            raw: true
+        });
+        
+        const countsBySystemId = _.keyBy(issueCounts, 'system_id');
+        
+        result.rows = result.rows.map(row => ({
+            ...row,
+            issue_count: parseInt(countsBySystemId[row.id]?.count || 0)
+        }));
+    }
+
+    return result;
 };
 
 /**
