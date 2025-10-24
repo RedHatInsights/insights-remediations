@@ -10,7 +10,7 @@ const metrics = require('../metrics');
 let ClientBuilder;
 try {
     // Import the new ClientBuilder from the updated SDK
-    const kesselSdk = require('@project-kessel/kessel-sdk/inventory/v1beta2');
+    const kesselSdk = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2');
     ClientBuilder = kesselSdk.ClientBuilder;
 } catch (error) {
     log.warn('Kessel SDK not available, falling back to traditional RBAC:', error.message);
