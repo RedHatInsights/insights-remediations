@@ -36,7 +36,7 @@
     "pg": "^8.8.0",
     "pino": "^8.12.1",
     "pino-cloudwatch": "^0.7.0",
-    "pino-http": "^8.3.3",
+    "pino-http": "^11.0.0",
     "pino-pretty": "^10.0.0",
     "prom-client": "^11.5.3",
     "request": "^2.88.2",
