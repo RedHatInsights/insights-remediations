@@ -92,8 +92,12 @@ exports[`Configuration Verify app-common-js function 1`] = `
   },
   "isMarketplace": false,
   "kessel": {
+    "authEnabled": false,
+    "clientId": undefined,
+    "clientSecret": undefined,
     "enabled": false,
     "insecure": false,
+    "oidcIssuerUrl": undefined,
     "retries": 3,
     "timeout": 10000,
     "url": "http://localhost:8080",

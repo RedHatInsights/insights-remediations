@@ -169,6 +169,10 @@ function Config() {
 
         kessel: {
             enabled: env.KESSEL_ENABLED === 'true' ? true : false,
+            authEnabled: env.KESSEL_AUTH_ENABLED === 'true' ? true : false,
+            oidcIssuerUrl: env.KESSEL_AUTH_OIDC_ISSUE,
+            clientId: env.KESSEL_AUTH_CLIENT_ID,
+            clientSecret: env.KESSEL_AUTH_CLIENT_SECRET,
             url: env.KESSEL_URL || 'http://localhost:8080',
             insecure: (env.KESSEL_INSECURE === 'true') ? true : false,
             timeout: parseIntEnv('KESSEL_TIMEOUT', 10000),

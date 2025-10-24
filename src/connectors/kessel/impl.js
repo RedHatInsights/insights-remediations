@@ -7,15 +7,26 @@ const log = require('../../util/log');
 const metrics = require('../metrics');
 
 // Import new Kessel SDK with ClientBuilder
-let ClientBuilder;
+let ClientBuilder, PromisifiedClient, KesselInventoryServiceClient, fetchOIDCDiscovery, OAuth2ClientCredentials
 try {
     // Import the new ClientBuilder from the updated SDK
     const kesselSdk = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2');
     ClientBuilder = kesselSdk.ClientBuilder;
+
+    const promisifySdk = require('@project-kessel/kessel-sdk/promisify');
+    PromisifiedClient = promisifySdk.PromisifiedClient;
+
+    const inventorySdk = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2/inventory_service');
+    KesselInventoryServiceClient = inventorySdk.KesselInventoryServiceClient;
+
+    const oAuthSdk = require('@project-kessel/kessel-sdk/kessel/auth');
+    fetchOIDCDiscovery = oAuthSdk.fetchOIDCDiscovery;
+    OAuth2ClientCredentials = oAuthSdk.OAuth2ClientCredentials;
 } catch (error) {
     log.warn('Kessel SDK not available, falling back to traditional RBAC:', error.message);
     ClientBuilder = null;
 }
+
 
 module.exports = class extends Connector {
     constructor (module, kesselConfig) {
@@ -30,17 +41,30 @@ module.exports = class extends Connector {
         }
     }
 
-    initializeKesselClient() {
+    async initializeKesselClient() {
         try {
             // Use the new ClientBuilder pattern
-            const builder = ClientBuilder.builder()
-                .withTarget(this.kesselConfig.url);
+            const builder = new ClientBuilder(this.kesselConfig.url);
 
             // Configure credentials based on the insecure flag
             if (this.kesselConfig.insecure) {
-                builder.withInsecureCredentials();
+                builder.insecure();
+
+            // Configure credentials based on the auth enabled flag
+            } else if (this.kesselConfig.authEnabled) {
+                const discovery = await fetchOIDCDiscovery(
+                    this.kesselConfig.oidcIssuerUrl,
+                );
+
+                const oAuth2ClientCredentials = new OAuth2ClientCredentials({
+                    clientId: this.kesselConfig.clientId,
+                    clientSecret: this.kesselConfig.clientSecret,
+                    tokenEndpoint: discovery.tokenEndpoint,
+                });
+
+                builder.oauth2ClientAuthenticated(oAuth2ClientCredentials);
             } else {
-                builder.withSecureCredentials();
+                builder.unauthenticated();
             }
 
             // Configure keep-alive settings
@@ -50,15 +74,20 @@ module.exports = class extends Connector {
                 permitWithoutCalls: true
             });
 
-            // Build the client
-            this.kesselClient = builder.build();
-            this.initialized = true;
+            // Build the Client
+            this.kesselClient = builder.buildAsync();
+            this.initialized = true
             log.info('Kessel client initialized successfully using ClientBuilder');
+
+            return this.kesselClient
+
         } catch (error) {
             log.error({ error }, 'Failed to initialize Kessel client');
             this.initialized = false;
         }
     }
+
+
 
     async pingPermissionCheck() {
         if (!this.kesselConfig.enabled || !this.initialized || !this.kesselClient) {
