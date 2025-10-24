@@ -91,6 +91,15 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "xjoinHost": "http://localhost:4000/graphql",
   },
   "isMarketplace": false,
+  "kessel": {
+    "authEnabled": false,
+    "clientId": undefined,
+    "clientSecret": undefined,
+    "enabled": false,
+    "insecure": false,
+    "oidcIssuerUrl": undefined,
+    "url": "http://localhost:8080",
+  },
   "logging": {
     "cloudwatch": {
       "enabled": false,
@@ -160,7 +169,7 @@ exports[`Configuration Verify app-common-js function 1`] = `
   },
   "validateResponseStrict": true,
   "vmaas": {
-    "host": "https://console.redhat.com",
+    "host": "https://webapp-vmaas-prod.apps.crcp01ue1.o9m8.p1.openshiftapps.com",
     "impl": undefined,
     "revalidationInterval": 43200,
   },
