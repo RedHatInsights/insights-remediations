@@ -98,8 +98,6 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "enabled": false,
     "insecure": false,
     "oidcIssuerUrl": undefined,
-    "retries": 3,
-    "timeout": 10000,
     "url": "http://localhost:8080",
   },
   "logging": {

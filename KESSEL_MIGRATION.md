@@ -34,8 +34,6 @@ The following environment variables control Kessel integration:
 | `KESSEL_AUTH_OIDC_ISSUER` | OIDC Issuer | `` | Required if `KESSEL_AUTH_ENABLED` |
 | `KESSEL_URL` | Kessel Relations API endpoint | `http://localhost:8080` | Yes (when enabled) |
 | `KESSEL_INSECURE` | Skip TLS verification | `false` | No |
-| `KESSEL_TIMEOUT` | Request timeout in milliseconds | `10000` | No |
-| `KESSEL_RETRIES` | Number of retry attempts | `3` | No |
 | `KESSEL_PRINCIPAL_DOMAIN` | Principal Domain | `redhat` | No |
 
 ### Example Configuration
@@ -46,10 +44,6 @@ export KESSEL_ENABLED=true
 
 # Set Relations API endpoint
 export KESSEL_URL=https://kessel-relations-api.example.com
-
-# Optional: Configure timeout and retries
-export KESSEL_TIMEOUT=15000
-export KESSEL_RETRIES=5
 ```
 
 ## Migration Strategy

@@ -174,9 +174,7 @@ function Config() {
             clientId: env.KESSEL_AUTH_CLIENT_ID,
             clientSecret: env.KESSEL_AUTH_CLIENT_SECRET,
             url: env.KESSEL_URL || 'http://localhost:8080',
-            insecure: (env.KESSEL_INSECURE === 'true') ? true : false,
-            timeout: parseIntEnv('KESSEL_TIMEOUT', 10000),
-            retries: parseIntEnv('KESSEL_RETRIES', 3)
+            insecure: (env.KESSEL_INSECURE === 'true') ? true : false
         },
 
         receptor: {

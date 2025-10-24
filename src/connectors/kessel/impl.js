@@ -7,7 +7,9 @@ const log = require('../../util/log');
 const metrics = require('../metrics');
 
 // Import new Kessel SDK with ClientBuilder
-let ClientBuilder, PromisifiedClient, KesselInventoryServiceClient, fetchOIDCDiscovery, OAuth2ClientCredentials
+let ClientBuilder, PromisifiedClient, KesselInventoryServiceClient,
+    fetchOIDCDiscovery, OAuth2ClientCredentials, ResourceReference,
+    SubjectReference, CheckRequest
 try {
     // Import the new ClientBuilder from the updated SDK
     const kesselSdk = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2');
@@ -42,6 +44,7 @@ module.exports = class extends Connector {
     }
 
     async initializeKesselClient() {
+
         try {
             // Use the new ClientBuilder pattern
             const builder = new ClientBuilder(this.kesselConfig.url);
@@ -67,20 +70,12 @@ module.exports = class extends Connector {
                 builder.unauthenticated();
             }
 
-            // Configure keep-alive settings
-            builder.withKeepAlive({
-                timeMs: 30000,
-                timeoutMs: 5000,
-                permitWithoutCalls: true
-            });
-
             // Build the Client
             this.kesselClient = builder.buildAsync();
             this.initialized = true
             log.info('Kessel client initialized successfully using ClientBuilder');
 
             return this.kesselClient
-
         } catch (error) {
             log.error({ error }, 'Failed to initialize Kessel client');
             this.initialized = false;
