@@ -117,7 +117,7 @@ module.exports = class extends Connector {
                         reporter: {
                             type: "rbac"
                         },
-                        resourceId: `redhat/${userId}`,
+                        resourceId: `${this.kesselConfig.principal}/${userId}`,
                         resourceType: "principal"
                     }
                 },

@@ -16,7 +16,8 @@ describe('kessel impl', () => {
         mockConfig = {
             enabled: true,
             url: 'localhost:9000',
-            insecure: true
+            insecure: true,
+            principal: 'redhat'
         };
         
         // Create test instance
