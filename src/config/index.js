@@ -175,7 +175,7 @@ function Config() {
             clientSecret: env.KESSEL_AUTH_CLIENT_SECRET,
             url: env.KESSEL_URL || 'http://localhost:8080',
             insecure: (env.KESSEL_INSECURE === 'true') ? true : false,
-            principal: env.KESSEL_PRINCIPAL_DOMAIN || 'redhat'
+            principalDomain: env.KESSEL_PRINCIPAL_DOMAIN || 'redhat'
         },
 
         receptor: {

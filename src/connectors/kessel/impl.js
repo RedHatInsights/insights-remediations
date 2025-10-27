@@ -7,19 +7,13 @@ const log = require('../../util/log');
 const metrics = require('../metrics');
 
 // Import new Kessel SDK with ClientBuilder
-let ClientBuilder, PromisifiedClient, KesselInventoryServiceClient,
+let ClientBuilder,
     fetchOIDCDiscovery, OAuth2ClientCredentials, ResourceReference,
     SubjectReference, CheckRequest
 try {
     // Import the new ClientBuilder from the updated SDK
     const kesselSdk = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2');
     ClientBuilder = kesselSdk.ClientBuilder;
-
-    const promisifySdk = require('@project-kessel/kessel-sdk/promisify');
-    PromisifiedClient = promisifySdk.PromisifiedClient;
-
-    const inventorySdk = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2/inventory_service');
-    KesselInventoryServiceClient = inventorySdk.KesselInventoryServiceClient;
 
     const oAuthSdk = require('@project-kessel/kessel-sdk/kessel/auth');
     fetchOIDCDiscovery = oAuthSdk.fetchOIDCDiscovery;
@@ -117,7 +111,7 @@ module.exports = class extends Connector {
                         reporter: {
                             type: "rbac"
                         },
-                        resourceId: `${this.kesselConfig.principal}/${userId}`,
+                        resourceId: `${this.kesselConfig.principalDomain}/${userId}`,
                         resourceType: "principal"
                     }
                 },

@@ -98,7 +98,7 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "enabled": false,
     "insecure": false,
     "oidcIssuerUrl": undefined,
-    "principal": "redhat",
+    "principalDomain": "redhat",
     "url": "http://localhost:8080",
   },
   "logging": {

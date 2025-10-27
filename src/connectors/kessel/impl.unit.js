@@ -17,7 +17,7 @@ describe('kessel impl', () => {
             enabled: true,
             url: 'localhost:9000',
             insecure: true,
-            principal: 'redhat'
+            principalDomain: 'redhat'
         };
         
         // Create test instance
