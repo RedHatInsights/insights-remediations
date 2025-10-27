@@ -7,9 +7,7 @@ const log = require('../../util/log');
 const metrics = require('../metrics');
 
 // Import new Kessel SDK with ClientBuilder
-let ClientBuilder,
-    fetchOIDCDiscovery, OAuth2ClientCredentials, ResourceReference,
-    SubjectReference, CheckRequest
+let ClientBuilder, fetchOIDCDiscovery, OAuth2ClientCredentials
 try {
     // Import the new ClientBuilder from the updated SDK
     const kesselSdk = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2');
