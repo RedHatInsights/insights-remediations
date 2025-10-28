@@ -77,21 +77,17 @@ module.exports = new class extends Connector {
                 },
                 this.detailsMetrics);
         } catch (e) {
+            if (e instanceof errors.Forbidden) {
+                e.error.details.message = 'Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.';
+                throw e;
+            }
+            
             if (retries > 0) {
                 log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
                 return this.getSystemInfoBatch(ids, true, retries - 1);
             }
 
             throw e;
-        }
-
-        // Handle 403 responses from inventory service
-        // Other status codes are handled by doHttp throwing StatusCodeError
-        // At this point, if response is null, we know inventory returned:
-        // - 403 Forbidden: User lacks inventory:hosts:read permission
-        if (!response) {
-            log.warn({ ids }, 'Inventory service returned 403 for system info batch request');
-            throw new errors.Forbidden('Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.');
         }
 
         const transformed = _(response.results)
@@ -158,21 +154,17 @@ module.exports = new class extends Connector {
             },
             this.detailsMetrics);
         } catch (e) {
+            if (e instanceof errors.Forbidden) {
+                e.error.details.message = 'Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.';
+                throw e;
+            }
+            
             if (retries > 0) {
                 log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
                 return this.getSystemDetailsBatch(ids, true, retries - 1);
             }
 
             throw e;
-        }
-
-        // Handle 403 responses from inventory service
-        // Other status codes are handled by doHttp throwing StatusCodeError
-        // At this point, if response is null, we know inventory returned:
-        // - 403 Forbidden: User lacks inventory:hosts:read permission
-        if (!response) {
-            log.warn({ ids }, 'Inventory service returned 403 for system details batch request');
-            throw new errors.Forbidden('Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.');
         }
 
         const transformed = _(response.results)
@@ -221,21 +213,17 @@ module.exports = new class extends Connector {
             },
             this.profileMetrics);
         } catch (e) {
+            if (e instanceof errors.Forbidden) {
+                e.error.details.message = 'Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.';
+                throw e;
+            }
+            
             if (retries > 0) {
                 log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
                 return this.getSystemProfileBatch(ids, true, retries - 1);
             }
 
             throw e;
-        }
-
-        // Handle 403 responses from inventory service
-        // Other status codes are handled by doHttp throwing StatusCodeError
-        // At this point, if response is null, we know inventory returned:
-        // - 403 Forbidden: User lacks inventory:hosts:read permission
-        if (!response) {
-            log.warn({ ids }, 'Inventory service returned 403 for system profile batch request');
-            throw new errors.Forbidden('Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.');
         }
 
         const transformed = _(response.results)
@@ -294,21 +282,17 @@ module.exports = new class extends Connector {
             },
             this.hostsMetrics);
         } catch (e) {
+            if (e instanceof errors.Forbidden) {
+                e.error.details.message = 'Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.';
+                throw e;
+            }
+            
             if (retries > 0) {
                 log.warn({ error: e, retries }, 'Inventory fetch failed. Retrying');
                 return this.getSystemsByOwnerId(owner_id, false, retries - 1);
             }
 
             throw e;
-        }
-
-        // Handle 403 responses from inventory service
-        // Other status codes are handled by doHttp throwing StatusCodeError
-        // At this point, if response is null, we know inventory returned:
-        // - 403 Forbidden: User lacks inventory:hosts:read permission
-        if (!response) {
-            log.warn({ owner_id }, 'Inventory service returned 403 for systems by owner ID request');
-            throw new errors.Forbidden('Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.');
         }
 
         const transformed = _(response.results)
