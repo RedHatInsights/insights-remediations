@@ -7,6 +7,7 @@ const log = require('../util/log');
 const { notNil } = require('../util/preconditions');
 const config = require('../config');
 const StatusCodeError = require('./StatusCodeError');
+const errors = require('../errors');
 
 const CACHE_TTL = config.cache.ttl;
 const REVALIDATION_INTERVAL = config.cache.revalidationInterval;
@@ -32,7 +33,7 @@ function doHttp (options, cached, metrics) {
             case 201:
             case 207:
             case 304: return res;
-            case 403:
+            case 403: throw new errors.Forbidden("Access denied.");
             case 404: return null;
             default: throw new StatusCodeError(res.statusCode, opts, res.body);
         }
