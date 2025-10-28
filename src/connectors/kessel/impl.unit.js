@@ -28,7 +28,6 @@ describe('kessel impl', () => {
             getIdentityFromHeaders: impl.getIdentityFromHeaders,
             getForwardedHeaders: impl.getForwardedHeaders,
             checkSinglePermission: impl.checkSinglePermission,
-            pingPermissionCheck: impl.pingPermissionCheck,
             kesselClient: impl.kesselClient,
             initialized: impl.initialized,
             permissionMetrics: impl.permissionMetrics
@@ -40,7 +39,6 @@ describe('kessel impl', () => {
         impl.getIdentityFromHeaders = originalMethods.getIdentityFromHeaders;
         impl.getForwardedHeaders = originalMethods.getForwardedHeaders;
         impl.checkSinglePermission = originalMethods.checkSinglePermission;
-        impl.pingPermissionCheck = originalMethods.pingPermissionCheck;
         impl.kesselClient = originalMethods.kesselClient;
         impl.initialized = originalMethods.initialized;
         impl.permissionMetrics = originalMethods.permissionMetrics;
@@ -80,52 +78,6 @@ describe('kessel impl', () => {
             
             // The fact that initialization doesn't throw indicates success with insecure credentials
             expect(() => insecureImpl.initializeKesselClient()).not.toThrow();
-        });
-    });
-
-    describe('pingPermissionCheck', () => {
-        test('should return false when Kessel is not enabled', async () => {
-            // Create instance with disabled config
-            const disabledConfig = { ...mockConfig, enabled: false };
-            const disabledImpl = new KesselConnector(module, disabledConfig);
-            
-            const result = await disabledImpl.pingPermissionCheck();
-            expect(result).toBe(false);
-        });
-
-        test('should return false when no identity is found', async () => {
-            // Mock getIdentityFromHeaders to return null
-            impl.getIdentityFromHeaders = jest.fn().mockReturnValue(null);
-            
-            const result = await impl.pingPermissionCheck();
-            expect(result).toBe(false);
-        });
-
-        test('should handle async operation correctly', async () => {
-            // Ensure Kessel is enabled and initialized for this test
-            impl.kesselConfig.enabled = true;
-            impl.initialized = true;
-            impl.kesselClient = { check: jest.fn() }; // Mock client
-            
-            // Mock identity and client to test the async flow
-            // Note: userId is extracted as identity.user_id || identity.identity?.user?.user_id
-            const mockIdentity = {
-                identity: { 
-                    user: { user_id: 'test-user' }, 
-                    org_id: 'test-org' 
-                }
-            };
-            
-            impl.getIdentityFromHeaders = jest.fn().mockReturnValue(mockIdentity);
-            impl.checkSinglePermission = jest.fn().mockResolvedValue(true);
-            
-            const result = await impl.pingPermissionCheck();
-            expect(result).toBe(true);
-            expect(impl.checkSinglePermission).toHaveBeenCalledWith(
-                'test-user',
-                'test-org', 
-                'remediations_read_remediation'
-            );
         });
     });
 
@@ -302,27 +254,6 @@ describe('kessel impl', () => {
             
             const result = impl.getIdentityFromHeaders();
             expect(result).toBeNull();
-        });
-    });
-
-    describe('ping', () => {
-        test('should not throw when Kessel is disabled', async () => {
-            // Create instance with disabled config
-            const disabledConfig = { ...mockConfig, enabled: false };
-            const disabledImpl = new KesselConnector(module, disabledConfig);
-            
-            await expect(disabledImpl.ping()).resolves.not.toThrow();
-        });
-
-        test('should handle ping permission check failure', async () => {
-            // Ensure Kessel is enabled for this test
-            impl.kesselConfig.enabled = true;
-            
-            // Mock pingPermissionCheck to throw an error
-            impl.pingPermissionCheck = jest.fn().mockRejectedValue(new Error('Ping failed'));
-            
-            // The ping method should handle the error by throwing an assertion
-            await expect(impl.ping()).rejects.toThrow('Kessel ping failed');
         });
     });
 

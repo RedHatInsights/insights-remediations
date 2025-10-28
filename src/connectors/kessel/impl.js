@@ -74,32 +74,6 @@ module.exports = class extends Connector {
         }
     }
 
-
-
-    async pingPermissionCheck() {
-        if (!this.kesselConfig.enabled || !this.initialized || !this.kesselClient) {
-            log.warn('Kessel not enabled or not initialized, cannot check access');
-            return false;
-        }
-
-        try {
-            const identity = this.getIdentityFromHeaders();
-            if (!identity) {
-                log.warn('No identity found in headers for ping check');
-                return false;
-            }
-
-            const userId = identity.user_id || identity.identity?.user?.user_id;
-            const workspaceId = this.extractWorkspaceId(identity);
-
-            // Just check a single basic permission for ping
-            return await this.checkSinglePermission(userId, workspaceId, 'remediations_read_remediation');
-        } catch (error) {
-            log.warn({ error }, 'Kessel ping permission check failed');
-            return false;
-        }
-    }
-
     async checkSinglePermission(userId, workspaceId, relation) {
         try {
             // Create the check request using the new API structure
@@ -155,20 +129,6 @@ module.exports = class extends Connector {
         }
 
         return null;
-    }
-
-    async ping () {
-        if (!this.kesselConfig.enabled) {
-            log.debug('Kessel not enabled, skipping ping');
-            return;
-        }
-
-        try {
-            await this.pingPermissionCheck();
-        } catch (error) {
-            log.warn({ error }, 'Kessel ping check failed');
-            assert(false, 'Kessel ping failed');
-        }
     }
 
     // Compatibility method to check specific permission
