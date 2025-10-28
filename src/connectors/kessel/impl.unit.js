@@ -163,7 +163,7 @@ describe('kessel impl', () => {
             expect(impl.checkSinglePermission).toHaveBeenCalledWith(
                 'user123',
                 'default',
-                'remediations_read_remediation'
+                'remediations_view_remediation'
             );
         });
 
@@ -261,14 +261,14 @@ describe('kessel impl', () => {
         test('should convert RBAC permissions to workspace permissions correctly', () => {
             // Expected mappings that the function should produce
             const expectedMappings = {
-                'remediation:read': 'remediations_read_remediation',
-                'remediation:write': 'remediations_write_remediation',
+                'remediation:read': 'remediations_view_remediation',
+                'remediation:write': 'remediations_edit_remediation',
                 'remediation:execute': 'remediations_execute_remediation',
-                'playbook:read': 'remediations_read_playbook',
-                'playbook:write': 'remediations_write_playbook',
+                'playbook:read': 'remediations_view_playbook',
+                'playbook:write': 'remediations_edit_playbook',
                 'playbook:execute': 'remediations_execute_playbook',
-                'system:read': 'remediations_read_system',
-                'system:write': 'remediations_write_system'
+                'system:read': 'remediations_view_system',
+                'system:write': 'remediations_edit_system'
             };
 
             // Test each expected mapping

@@ -168,6 +168,11 @@ module.exports = class extends Connector {
     convertRbacToWorkspacePermission(resource, action) {
         // Convert traditional RBAC permission to workspace permission
         // Pattern: ${resource}:${action} -> remediations_${action}_${resource}
+        const actions = {
+            read : 'view',
+            write : 'edit'
+        };
+        action = action in actions ? actions[action] : action;
         return `remediations_${action}_${resource}`;
     }
 
