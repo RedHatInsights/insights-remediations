@@ -8,6 +8,7 @@ const cls = require('../util/cls');
 const log = require('../util/log');
 const URI = require('urijs');
 const config = require('../config');
+const {Forbidden} = require("../errors");
 
 const IDENTITY_HEADER = 'x-rh-identity';
 const REQ_ID_HEADER = 'x-rh-insights-request-id';
@@ -41,6 +42,10 @@ module.exports = class Connector {
             const result = await http.request(options, caching, metrics, responseTransformer);
             return result;
         } catch (e) {
+            if (e instanceof Forbidden) {
+                throw e;
+            }
+
             log.trace(e, 'dependency error');
             metrics && metrics.error.inc();
             throw errors.internal.dependencyError(e, this);
