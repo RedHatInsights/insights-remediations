@@ -27,6 +27,7 @@ describe('kessel impl', () => {
     let mockConfig;
     let impl;
     let originalMethods = {};
+    let mockAuthToken = {};
 
     beforeEach(() => {
         mockRequest();
@@ -41,6 +42,8 @@ describe('kessel impl', () => {
             clientId: 'test-id',
             clientSecret: 'test-secret',
         };
+
+        mockAuthToken = { authToken: 'test-kessel-unit-test-token-placeholder' }
         
         // Create test instance
         impl = new KesselConnector(module, mockConfig);
@@ -324,7 +327,7 @@ describe('kessel impl', () => {
         test('should return default workspace ID', async () => {
             // Set up mock return values
             mockFetchOIDCDiscovery.mockResolvedValue({ tokenEndpoint: 'https://test-token-endpoint' });
-            mockOAuth2AuthRequest.mockReturnValue({ authToken: 'test-kessel-unit-test-token-placeholder' });
+            mockOAuth2AuthRequest.mockReturnValue(mockAuthToken);
             mockFetchDefaultWorkspace.mockResolvedValue({
                 id: 'default',
                 name: 'default',
@@ -344,7 +347,7 @@ describe('kessel impl', () => {
             expect(mockFetchDefaultWorkspace).toHaveBeenCalledWith(
                 mockConfig.url,
                 'user123',
-                { authToken: 'test-kessel-unit-test-token-placeholder' }
+                mockAuthToken
             );
             expect(result.id).toBe('default');
         });
