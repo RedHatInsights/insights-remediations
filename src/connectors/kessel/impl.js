@@ -7,7 +7,7 @@ const log = require('../../util/log');
 const metrics = require('../metrics');
 
 // Import new Kessel SDK with ClientBuilder
-let ClientBuilder, fetchOIDCDiscovery, OAuth2ClientCredentials
+let ClientBuilder, fetchOIDCDiscovery, OAuth2ClientCredentials, OAuth2AuthRequest, fetchDefaultWorkspace
 try {
     // Import the new ClientBuilder from the updated SDK
     const kesselSdk = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2');
@@ -16,6 +16,10 @@ try {
     const oAuthSdk = require('@project-kessel/kessel-sdk/kessel/auth');
     fetchOIDCDiscovery = oAuthSdk.fetchOIDCDiscovery;
     OAuth2ClientCredentials = oAuthSdk.OAuth2ClientCredentials;
+    OAuth2AuthRequest = oAuthSdk.oauth2AuthRequest;
+
+    const rbacSdk = require('@project-kessel/kessel-sdk/kessel/rbac/v2');
+    fetchDefaultWorkspace = rbacSdk.fetchDefaultWorkspace;
 } catch (error) {
     log.warn('Kessel SDK not available, falling back to traditional RBAC:', error.message);
     ClientBuilder = null;
@@ -132,7 +136,7 @@ module.exports = class extends Connector {
     }
 
     // Compatibility method to check specific permission
-    async hasPermission(resource, action, subject) {
+    async hasPermission(resource, action, subject_org_id) {
         if (!this.kesselConfig.enabled || !this.initialized || !this.kesselClient) {
             return false;
         }
@@ -146,11 +150,12 @@ module.exports = class extends Connector {
                 return false;
             }
 
-            // Get workspace ID from subject or use default
-            const workspaceId = this.getDefaultWorkspaceIdForSubject(subject);
+            // Get workspace ID from subject_org_id or use default
+            const workspace = await this.getDefaultWorkspaceIdForSubject(subject_org_id);
+            const workspaceId = workspace?.id || null;
 
             // Check the specific permission using async/await
-            const allowed = await this.checkSinglePermission(subject, workspaceId, workspacePermission);
+            const allowed = await this.checkSinglePermission(subject_org_id, workspaceId, workspacePermission);
 
             // Record successful metric
             this.permissionMetrics.observe(Date.now() - startTime, 200);
@@ -160,7 +165,7 @@ module.exports = class extends Connector {
             // Record error metric
             this.permissionMetrics.observe(Date.now() - startTime, 500);
 
-            log.error({ error, resource, action, subject }, 'Failed to check permission with Kessel');
+            log.error({ error, resource, action, subject_org_id }, 'Failed to check permission with Kessel');
             return false;
         }
     }
@@ -176,9 +181,25 @@ module.exports = class extends Connector {
         return `remediations_${action}_${resource}`;
     }
 
-    getDefaultWorkspaceIdForSubject(subject) {
-        // For now, return a default workspace ID
-        // In a real implementation, this would look up the user's default workspace based on the subject
-        return 'default';
+    async getDefaultWorkspaceIdForSubject(subject_org_id) {
+        try {
+            const discovery = await fetchOIDCDiscovery(
+                this.kesselConfig.oidcIssuerUrl,
+            );
+            const oAuth2ClientCredentials = new OAuth2ClientCredentials({
+                clientId: this.kesselConfig.clientId,
+                clientSecret: this.kesselConfig.clientSecret,
+                tokenEndpoint: discovery.tokenEndpoint,
+            });
+            const defaultWorkspace = await fetchDefaultWorkspace(
+                                    this.kesselConfig.url,
+                                    subject_org_id,
+                                    OAuth2AuthRequest(oAuth2ClientCredentials),
+                                );
+            return defaultWorkspace;
+        } catch (e) {
+            log.error(`Error received when fetching workspace`, e);
+            return null;
+        }
     }
 };

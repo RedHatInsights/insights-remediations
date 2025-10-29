@@ -78,7 +78,7 @@ async function checkKesselPermission(srcPermission, req) {
         const hasPermission = await kesselConnector.hasPermission(
             srcPermission.resource,
             srcPermission.resourceType,
-            identity.user_id || identity.identity?.user?.user_id
+            identity.org_id || identity.identity?.org_id
         );
 
         return hasPermission;

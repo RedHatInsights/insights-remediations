@@ -1,5 +1,24 @@
 'use strict';
 
+// Mock the SDK modules at the top level before requiring impl
+const mockFetchOIDCDiscovery = jest.fn();
+const mockOAuth2ClientCredentials = jest.fn();
+const mockOAuth2AuthRequest = jest.fn();
+const mockFetchDefaultWorkspace = jest.fn();
+
+jest.mock('@project-kessel/kessel-sdk/kessel/auth', () => ({
+    fetchOIDCDiscovery: (...args) => mockFetchOIDCDiscovery(...args),
+    OAuth2ClientCredentials: jest.fn().mockImplementation((...args) => {
+        mockOAuth2ClientCredentials(...args);
+        return {}; // Return a mock instance
+    }),
+    oauth2AuthRequest: (...args) => mockOAuth2AuthRequest(...args)
+}));
+
+jest.mock('@project-kessel/kessel-sdk/kessel/rbac/v2', () => ({
+    fetchDefaultWorkspace: (...args) => mockFetchDefaultWorkspace(...args)
+}));
+
 const KesselConnector = require('./impl');
 const { mockRequest } = require('../testUtils');
 
@@ -17,7 +36,10 @@ describe('kessel impl', () => {
             enabled: true,
             url: 'localhost:9000',
             insecure: true,
-            principalDomain: 'redhat'
+            principalDomain: 'redhat',
+            oidcIssuerUrl: 'issuer-url',
+            clientId: 'test-id',
+            clientSecret: 'test-secret',
         };
         
         // Create test instance
@@ -45,6 +67,11 @@ describe('kessel impl', () => {
         
         // Clear any jest mocks
         jest.clearAllMocks();
+        // Reset the module-level mock functions
+        mockFetchOIDCDiscovery.mockClear();
+        mockOAuth2ClientCredentials.mockClear();
+        mockOAuth2AuthRequest.mockClear();
+        mockFetchDefaultWorkspace.mockClear();
     });
 
     describe('initialization', () => {
@@ -154,6 +181,14 @@ describe('kessel impl', () => {
             impl.permissionMetrics = {
                 observe: jest.fn()
             };
+            
+            // Mock getDefaultWorkspaceIdForSubject to return a default workspace
+            impl.getDefaultWorkspaceIdForSubject = jest.fn().mockResolvedValue({
+                id: 'default',
+                name: 'default',
+                type: 'default',
+                description: 'Default workspace'
+            });
             
             // Mock the checkSinglePermission to test async flow
             impl.checkSinglePermission = jest.fn().mockResolvedValue(true);
@@ -286,9 +321,32 @@ describe('kessel impl', () => {
     });
 
     describe('getDefaultWorkspaceIdForSubject', () => {
-        test('should return default workspace ID', () => {
-            const result = impl.getDefaultWorkspaceIdForSubject('user123');
-            expect(result).toBe('default');
+        test('should return default workspace ID', async () => {
+            // Set up mock return values
+            mockFetchOIDCDiscovery.mockResolvedValue({ tokenEndpoint: 'https://test-token-endpoint' });
+            mockOAuth2AuthRequest.mockReturnValue({ authToken: 'mock-token' });
+            mockFetchDefaultWorkspace.mockResolvedValue({
+                id: 'default',
+                name: 'default',
+                type: 'default',
+                description: 'Default workspace'
+            });
+
+            const result = await impl.getDefaultWorkspaceIdForSubject('user123');
+            
+            expect(mockFetchOIDCDiscovery).toHaveBeenCalledWith(mockConfig.oidcIssuerUrl);
+            expect(mockOAuth2ClientCredentials).toHaveBeenCalledWith({
+                clientId: mockConfig.clientId,
+                clientSecret: mockConfig.clientSecret,
+                tokenEndpoint: 'https://test-token-endpoint'
+            });
+            expect(mockOAuth2AuthRequest).toHaveBeenCalledWith(expect.any(Object));
+            expect(mockFetchDefaultWorkspace).toHaveBeenCalledWith(
+                mockConfig.url,
+                'user123',
+                { authToken: 'mock-token' }
+            );
+            expect(result.id).toBe('default');
         });
     });
 }); 
