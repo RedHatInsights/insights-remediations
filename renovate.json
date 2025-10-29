@@ -1,14 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>konflux-ci/mintmaker//config/renovate/renovate.json"],
+  "extends": [
+    "github>RedHatInsights/konflux-pipelines//renovate/foreman_satellite/renovate.json"
+  ],
   "tekton": {
     "schedule": ["at any time"]
-  },
-  "packageRules": [
-    {
-      "description": "Group all npm dependencies into a single PR",
-      "matchManagers": ["npm"],
-      "groupName": "npm dependencies"
-    }
-  ]
+  }
 }
