@@ -310,15 +310,13 @@ paths:
                        "id": "a8799a02-8be9-11e8-9eb6-529269fb1459",
                        "hostname": "db01.example.com",
                        "display_name": "prod-db",
-                       "issue_count": 4,
-                       "needs_reboot": true
+                       "issue_count": 4
                      },
                      {
                        "id": "993c1ca8-ca85-40f7-bfed-5e06eb5194f6",
                        "hostname": "db02.example.com",
                        "display_name": "stage-db",
-                       "issue_count": 1,
-                       "needs_reboot": false
+                       "issue_count": 1
                      }
                    ],
                    "meta": {
@@ -2335,7 +2333,7 @@ components:
     SystemWithIssueCount:
       type: object
       additionalProperties: false
-      required: [id, hostname, display_name, issue_count, needs_reboot]
+      required: [id, hostname, display_name, issue_count]
       properties:
         id:
           $ref: '#/components/schemas/SystemId'
@@ -2352,10 +2350,6 @@ components:
           minimum: 0
           example: 4
           description: Number of issues associated with this system in the remediation plan
-        needs_reboot:
-          type: boolean
-          example: true
-          description: Whether any of the issues for this system require a reboot
 
     UserOut:
       type: object
