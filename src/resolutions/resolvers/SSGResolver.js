@@ -31,13 +31,8 @@ module.exports = class SSGResolver extends Resolver {
         log.debug(`Resolving SSG issue: ${id.issue}`);
         log.debug(`Parsed ID -> platform: ${platform}, profile: ${profile}, rule: ${rule}`);
 
-        // Compliance API v1 is deprecated: require v2 SSG issue format with ssgVersion
         if (!ssgVersion) {
-            const ruleRef = `xccdf_org.ssgproject.content_rule_${rule}`;
-            throw new errors.BadRequest(
-                'INVALID_ISSUE_IDENTIFIER',
-                `Compliance v1 issue identifiers have been retired. Please update your v1 issue ID, "ssg:<platform>|<profile>|${ruleRef}", to the v2 format of "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|<version>|<profile>|${ruleRef}"`
-            );
+            log.warn({ issue: id.full }, 'Compliance v1 issue identifiers detected; still attempting SSG template lookup');
         }
 
         // RHCLOUD-4280: disable rule "rsyslog_remote_loghost"
@@ -56,8 +51,9 @@ module.exports = class SSGResolver extends Resolver {
 
         if (!raw) {
             log.warn(`No template found for SSG issue: ${id.issue}`);
-            // treat non-existent rules as UNKNOWN_ISSUE
-            throw errors.unknownIssue(id);
+            // We don't want to throw an error here because one unknown issue would cause the entire remediation to not load
+            // Instead we'll silently not add the issue to the remediation because it's unknown
+            return [];
         }
 
         try {

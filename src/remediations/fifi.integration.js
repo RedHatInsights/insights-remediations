@@ -108,21 +108,10 @@ function fake_dispatcher_run_hosts(req) {
 // TODO: replace old receptor tests and improve rhc-satellite test coverage
 describe('FiFi', function () {
     describe('executable', function () {
-        test('remediation is executable', async () => {
+        test('remediation is executable with valid remediation id', async () => {
             await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/executable')
             .set(auth.fifi)
-            .expect(200);
-        });
-
-        test('remediation is executable with smartManagement false but RHC on', async () => {
-            base.getSandbox().stub(config, 'isMarketplace').value(true);
-            await request
-            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/executable')
-            .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', '6666666', true, data => {
-                data.entitlements.smart_management = false;
-                return data;
-            }))
             .expect(200);
         });
 
@@ -173,7 +162,6 @@ describe('FiFi', function () {
             const {text} = await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
             .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', '6666666', true, data => {
-                data.entitlements.smart_management = false;
                 return data;
             }))
             .expect(200);
@@ -210,7 +198,6 @@ describe('FiFi', function () {
             await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status')
             .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
-                data.entitlements.smart_management = false;
                 return data;
             }))
             .expect(403);
@@ -234,7 +221,6 @@ describe('FiFi', function () {
             const {text} = await request
             .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status?pretty')
             .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', '6666666', true, data => {
-                data.entitlements.smart_management = false;
                 return data;
             }))
             .expect(200);
@@ -280,6 +266,18 @@ describe('FiFi', function () {
             .set(auth.fifi)
             .set('if-none-match', '"b48-TyVONjo4V6eLe5E3p90RxLra8So"')
             .expect(304);
+        });
+
+        test('403 with descriptive message when RHC is disabled', async () => {
+            base.getSandbox().stub(fifi_2, 'checkRhcEnabled').resolves(false);
+            
+            const {body} = await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status')
+            .set(auth.fifi)
+            .expect(403);
+            
+            body.errors[0].should.have.property('details');
+            body.errors[0].details.should.have.property('message', 'RHC Manager permission is required for this operation. Please visit https://console.redhat.com/insights/connector to enable this permission.');
         });
     });
 
@@ -562,7 +560,7 @@ describe('FiFi', function () {
                 body.data.should.have.length(12);
 
                 body.data[0].should.have.property('system_id', '07adc41a-a6c6-426a-a0d5-c7ba08954153');
-                body.data[0].should.have.property('system_name', 'localhost');
+                body.data[0].should.have.property('system_name', '07adc41a-a6c6-426a-a0d5-c7ba08954153.example.com');
                 body.data[0].should.have.property('playbook_run_executor_id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
 
                 body.data[1].should.have.property('system_id', '7b136dd2-4824-43cf-af6c-ad0ee42f9f97');
@@ -573,7 +571,53 @@ describe('FiFi', function () {
                 body.data[2].should.have.property('system_name', 'system-2');
                 body.data[2].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
 
+                const direct = body.data.find(d => d.system_name.includes('.example.com'));
+                if (direct) {
+                    direct.should.have.property('executor_type', 'direct');
+                    // direct system should point to the remediation playbook_run_id from the path
+                    direct.playbook_run_executor_id.should.equal('88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
+                }
+                const sat = body.data.find(d => d.system_name === 'system-1');
+                if (sat) {
+                    sat.should.have.property('executor_type', 'satellite');
+                    // satellite system should use a dispatcher run id, not the remediation playbook_run_id
+                    sat.playbook_run_executor_id.should.not.equal('88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
+                }
+
                 expect(text).toMatchSnapshot();
+            });
+
+            test('executor ids align between details and systems (direct vs satellite)', async () => {
+                const remediationId = '249f142c-2ae3-4c3f-b2ec-c8c5881f8561';
+                const playbookRunId = '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc';
+
+                const { body: details } = await request
+                    .get(`/v1/remediations/${remediationId}/playbook_runs/${playbookRunId}`)
+                    .set(auth.fifi)
+                    .expect(200);
+
+                const { body: systems } = await request
+                    .get(`/v1/remediations/${remediationId}/playbook_runs/${playbookRunId}/systems`)
+                    .set(auth.fifi)
+                    .expect(200);
+
+                // Direct executor id should be the remediation playbook_run_id
+                const directExec = details.executors.find(e => e.executor_name === 'Direct connected');
+                const directSystem = systems.data.find(s => String(s.system_name).includes('.example.com'));
+                if (directExec && directSystem) {
+                    directExec.executor_id.should.equal(playbookRunId);
+                    directSystem.playbook_run_executor_id.should.equal(playbookRunId);
+                    directSystem.executor_type.should.equal('direct');
+                }
+
+                // Satellite executor id should be dispatcher run id; system should reference that id
+                const satExec = details.executors.find(e => e.executor_name === 'RHC Satellite');
+                const satSystem = systems.data.find(s => !String(s.system_name).includes('.example.com'));
+                if (satExec && satSystem) {
+                    satExec.executor_id.should.not.equal(playbookRunId);
+                    satSystem.playbook_run_executor_id.should.equal(satExec.executor_id);
+                    satSystem.executor_type.should.equal('satellite');
+                }
             });
 
             test('pagination playbook_runs/:playbook_run_id/systems?limit=2', async () => {
@@ -689,7 +733,7 @@ describe('FiFi', function () {
 
             test('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?ansible_host=1', async () => {
                 const {body, text} = await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?ansible_host=1')
+                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?ansible_host=system-1')
                 .set(auth.fifi)
                 .expect(200);
 
@@ -774,7 +818,7 @@ describe('FiFi', function () {
                 .expect(200);
 
                 body.should.have.property('system_id', '17adc41a-a6c6-426a-a0d5-c7ba08954154');
-                body.should.have.property('system_name', 'localhost');
+                body.should.have.property('system_name', '17adc41a-a6c6-426a-a0d5-c7ba08954154.example.com');
                 body.should.have.property('status', 'running');
                 body.should.have.property('console', 'console log goes here');
                 body.should.have.property('updated_at', '2018-10-04T08:19:36.641Z');
@@ -1202,7 +1246,6 @@ describe('FiFi', function () {
                 await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
                 .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', true, data => {
-                    data.entitlements.smart_management = false;
                     return data;
                 }))
                 .expect(403);
@@ -1213,10 +1256,21 @@ describe('FiFi', function () {
                 await request
                 .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
                 .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', '6666666', true, data => {
-                    data.entitlements.smart_management = false;
                     return data;
                 }))
                 .expect(201);
+            });
+
+            test('403 with descriptive message when RHC is disabled for playbook execution', async () => {
+                base.getSandbox().stub(fifi_2, 'checkRhcEnabled').resolves(false);
+                
+                const {body} = await request
+                .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
+                .set(auth.fifi)
+                .expect(403);
+                
+                body.errors[0].should.have.property('details');
+                body.errors[0].details.should.have.property('message', 'RHC Manager permission is required for this operation. Please visit https://console.redhat.com/insights/connector to enable this permission.');
             });
 
             test('sets ETag', async () => {

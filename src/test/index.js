@@ -53,6 +53,12 @@ function createHeader (id, account_number, tenant_org_id, internal, fn) {
     };
 }
 
+function createServiceAccountHeader (username, account_number, tenant_org_id, fn) {
+    return {
+        [identityUtils.IDENTITY_HEADER]: identityUtils.createServiceAccountIdentityHeader(username, account_number, tenant_org_id, fn)
+    };
+}
+
 exports.auth = Object.freeze({
     default: createHeader(),
     emptyInternal: createHeader('test01User', 'test01', '1111111'),
@@ -79,9 +85,6 @@ exports.auth = Object.freeze({
                 is_entitled: true
             },
             openshift: {
-                is_entitled: true
-            },
-            smart_management: {
                 is_entitled: true
             },
             hybrid_cloud: {
@@ -119,7 +122,9 @@ exports.auth = Object.freeze({
         id.identity.user.last_name = 'Samsa';
         return id;
     }),
-    fifi: createHeader(USERS.fifi.username, USERS.fifi.account_number, USERS.fifi.tenant_org_id, false)
+    fifi: createHeader(USERS.fifi.username, USERS.fifi.account_number, USERS.fifi.tenant_org_id, false),
+    serviceAccount: createServiceAccountHeader('test-service-account', '', '0000000'),
+    serviceAccount2: createServiceAccountHeader('test-service-account-2', '', '0000000')
 });
 
 exports.buildRbacResponse = function (accessedPermission) {

@@ -325,7 +325,8 @@ exports.playbookSystems = function (systems, total) {
         system_name: system.system_name,
         status: system.status,
         updated_at: (_.isDate(system.updated_at)) ? system.updated_at.toISOString() : system.updated_at,
-        playbook_run_executor_id: system.playbook_run_executor_id
+        playbook_run_executor_id: system.playbook_run_executor_id,
+        executor_type: system.executor_type
     }));
 
     return {
@@ -385,12 +386,18 @@ exports.planSystems = function (plan_id, systems, total, limit, offset, sort) {
 };
 
 exports.planNames = function (names, total, limit, offset, sort, system) {
+    // Format data to include both id and name
+    const formatted_data = _.map(names, plan => ({
+        id: plan.id,
+        name: plan.name
+    }));
+
     return {
         meta: {
             count: names.length,
             total
         },
-        data: names,
+        data: formatted_data,
         links: buildListLinks(total, limit, offset, sort, system),
     };
 };

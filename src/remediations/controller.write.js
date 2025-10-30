@@ -461,3 +461,31 @@ exports.bulkRemoveSystems = errors.async(async function (req, res) {
 
     return removal_promise;
 });
+
+// Remove a single system from all issues in the specified remediation plan
+exports.removeSystem = errors.async(async function (req, res) {
+    const remediation_id = req.params.id;
+    const system_id = req.params.system;
+    const { tenant_org_id, username: created_by } = req.user;
+
+    const query = {
+        where: { system_id: system_id },
+        include: {
+            model: db.issue,
+            required: true,
+            include: {
+                model: db.remediation,
+                required: true,
+                where: { id: remediation_id, tenant_org_id, created_by }
+            }
+        }
+    };
+
+    const count = await findAllAndDestroy(req, db.issue_system, query, res);
+
+    if (count > 0) {
+        return res.status(204).end();
+    }
+
+    return res.status(404).end();
+});
