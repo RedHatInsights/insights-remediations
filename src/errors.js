@@ -142,12 +142,18 @@ exports.handler = (error, req, res, next) => {
         log.error(error, 'rejecting request due to DependencyError');
         return error.writeResponse(res);
     } else if (error instanceof HttpError) {
-        log.debug(error, 'rejecting request due to HttpError');
+        log.warn({
+            requestId: req.id,
+            error: error.getError?.() || error
+        }, 'rejecting request due to HttpError');
         return error.writeResponse(res);
     }
 
     if (error instanceof RequestSpecValidationError) {
-        log.debug(error.errors, 'rejecting request due to RequestSpecValidationError');
+        log.warn({
+            requestId: req.id,
+            errors: error.errors
+        }, 'rejecting request due to RequestSpecValidationError');
         return error.writeResponse(req, res);
     }
 
