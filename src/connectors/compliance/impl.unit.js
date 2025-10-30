@@ -169,7 +169,7 @@ describe('compliance impl', function () {
 
     test('403 response handling', async function () {
         base.mockRequestStatusCode(403);
-        await expect(impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0')).resolves.toBeNull();
+        await expect(impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0')).rejects.toThrow(errors.Forbidden);
     });
 
     test('correctly parses ssgId from /security_guides?filter response and then builds v2 URI', async function () {

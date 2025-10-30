@@ -9,6 +9,7 @@ const config = require('../../config');
 const Connector = require('../Connector');
 const metrics = require('../metrics');
 const log = require('../../util/log');
+const errors = require('../../errors');
 
 const SATELLITE_NAMESPACE = 'satellite';
 
@@ -76,6 +77,11 @@ module.exports = new class extends Connector {
                 },
                 this.detailsMetrics);
         } catch (e) {
+            if (e instanceof errors.Forbidden) {
+                e.error.details.message = 'Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.';
+                throw e;
+            }
+            
             if (retries > 0) {
                 log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
                 return this.getSystemInfoBatch(ids, true, retries - 1);
@@ -148,6 +154,11 @@ module.exports = new class extends Connector {
             },
             this.detailsMetrics);
         } catch (e) {
+            if (e instanceof errors.Forbidden) {
+                e.error.details.message = 'Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.';
+                throw e;
+            }
+            
             if (retries > 0) {
                 log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
                 return this.getSystemDetailsBatch(ids, true, retries - 1);
@@ -202,6 +213,11 @@ module.exports = new class extends Connector {
             },
             this.profileMetrics);
         } catch (e) {
+            if (e instanceof errors.Forbidden) {
+                e.error.details.message = 'Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.';
+                throw e;
+            }
+            
             if (retries > 0) {
                 log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
                 return this.getSystemProfileBatch(ids, true, retries - 1);
@@ -266,6 +282,11 @@ module.exports = new class extends Connector {
             },
             this.hostsMetrics);
         } catch (e) {
+            if (e instanceof errors.Forbidden) {
+                e.error.details.message = 'Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.';
+                throw e;
+            }
+            
             if (retries > 0) {
                 log.warn({ error: e, retries }, 'Inventory fetch failed. Retrying');
                 return this.getSystemsByOwnerId(owner_id, false, retries - 1);
