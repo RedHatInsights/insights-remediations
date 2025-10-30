@@ -636,6 +636,7 @@ exports.getPlanSystems = async function (
     if (result.rows.length > 0) {
         const systemIds = result.rows.map(s => s.id);
         
+        // Get issue count for only paginated list of systems
         const issueCounts = await db.issue_system.findAll({
             attributes: [
                 'system_id',
@@ -654,6 +655,7 @@ exports.getPlanSystems = async function (
         
         const countsBySystemId = _.keyBy(issueCounts, 'system_id');
         
+        // Add issue_count for each system in the paginated list
         result.rows = result.rows.map(row => ({
             ...row,
             issue_count: parseInt(countsBySystemId[row.id]?.count || 0)
