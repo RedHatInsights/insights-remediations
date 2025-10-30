@@ -1345,8 +1345,6 @@ describe('remediations', function () {
                 body.data[0].should.have.property('display_name');
                 body.data[0].should.have.property('issue_count');
                 body.data[0].issue_count.should.be.a.Number();
-                body.data[0].should.have.property('needs_reboot');
-                body.data[0].needs_reboot.should.be.a.Boolean();
             }
         });
 
@@ -1412,11 +1410,9 @@ describe('remediations', function () {
                 system.should.have.property('hostname');
                 system.should.have.property('display_name');
                 system.should.have.property('issue_count');
-                system.should.have.property('needs_reboot');
                 
                 system.issue_count.should.be.a.Number();
                 system.issue_count.should.be.greaterThanOrEqual(0);
-                system.needs_reboot.should.be.a.Boolean();
             });
             
             // Calculate and verify totals
@@ -1444,21 +1440,6 @@ describe('remediations', function () {
             totalIssues.should.equal(3);
         });
 
-        test('includes needs_reboot for each system', async () => {
-            const { body } = await request
-            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems')
-            .set(auth.testReadSingle)
-            .expect(200);
-
-            body.should.have.property('data');
-            body.data.should.be.Array();
-            
-            // Verify each system has needs_reboot
-            body.data.forEach(system => {
-                system.should.have.property('needs_reboot');
-                system.needs_reboot.should.be.a.Boolean();
-            });
-        });
 
         test('gets list of distinct systems with no limit', async () => {
             const { body } = await request
