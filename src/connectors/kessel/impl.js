@@ -7,11 +7,14 @@ const log = require('../../util/log');
 const metrics = require('../metrics');
 
 // Import new Kessel SDK with ClientBuilder
-let ClientBuilder, fetchOIDCDiscovery, OAuth2ClientCredentials, OAuth2AuthRequest, fetchDefaultWorkspace
+let ClientBuilder, fetchOIDCDiscovery, OAuth2ClientCredentials, OAuth2AuthRequest, fetchDefaultWorkspace, Allowed
 try {
     // Import the new ClientBuilder from the updated SDK
     const kesselSdk = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2');
     ClientBuilder = kesselSdk.ClientBuilder;
+    
+    const allowedSdk = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2/allowed');
+    Allowed = allowedSdk.Allowed;
 
     const oAuthSdk = require('@project-kessel/kessel-sdk/kessel/auth');
     fetchOIDCDiscovery = oAuthSdk.fetchOIDCDiscovery;
