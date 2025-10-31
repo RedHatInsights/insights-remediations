@@ -113,14 +113,6 @@ module.exports = class extends Connector {
         }
     }
 
-    extractWorkspaceId(identity) {
-        // Extract workspace/organization ID from identity
-        return identity.identity?.account_number ||
-               identity.identity?.org_id ||
-               identity.account_number ||
-               identity.org_id ||
-               'default';
-    }
 
     getIdentityFromHeaders() {
         const headers = this.getForwardedHeaders();
