@@ -1343,8 +1343,103 @@ describe('remediations', function () {
                 body.data[0].should.have.property('id');
                 body.data[0].should.have.property('hostname');
                 body.data[0].should.have.property('display_name');
+                body.data[0].should.have.property('issue_count');
+                body.data[0].issue_count.should.be.a.Number();
             }
         });
+
+        test('includes issue_count for each system with specific counts', async () => {
+            const { body } = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.should.have.property('data');
+            body.data.should.be.Array();
+            
+            // Verify each system has issue_count
+            body.data.forEach(system => {
+                system.should.have.property('issue_count');
+                system.issue_count.should.be.a.Number();
+                system.issue_count.should.be.greaterThanOrEqual(0);
+            });
+
+            // Verify specific issue counts based on test data
+            // The test remediation has specific issue-system mappings
+            const totalIssues = body.data.reduce((sum, system) => sum + system.issue_count, 0);
+            totalIssues.should.equal(3); // Expected total: 1 + 2 = 3
+            
+            // Verify we have the expected number of systems
+            body.data.length.should.equal(2);
+            
+            // Verify meta count matches data length
+            body.meta.count.should.equal(body.data.length);
+            
+            // Verify specific system issue counts
+            const system1 = body.data.find(s => s.id === '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            const system2 = body.data.find(s => s.id === '1040856f-b772-44c7-83a9-eea4813c4be8');
+            
+            system1.should.not.be.undefined();
+            system1.issue_count.should.equal(1);
+            
+            system2.should.not.be.undefined();
+            system2.issue_count.should.equal(2);
+            
+            // Verify at least one system has issues (based on test data structure)
+            const systemsWithIssues = body.data.filter(system => system.issue_count > 0);
+            systemsWithIssues.length.should.equal(2); // Both systems should have issues
+        });
+
+        test('verifies specific system counts and totals', async () => {
+            const { body } = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            body.should.have.property('data');
+            body.data.should.be.Array();
+            body.should.have.property('meta');
+            body.meta.should.have.property('count');
+            
+            // Verify meta counts are consistent
+            body.meta.count.should.equal(body.data.length);
+            
+            // Verify all systems have required fields
+            body.data.forEach(system => {
+                system.should.have.property('id');
+                system.should.have.property('hostname');
+                system.should.have.property('display_name');
+                system.should.have.property('issue_count');
+                
+                system.issue_count.should.be.a.Number();
+                system.issue_count.should.be.greaterThanOrEqual(0);
+            });
+            
+            // Calculate and verify totals
+            const totalIssues = body.data.reduce((sum, system) => sum + system.issue_count, 0);
+            const systemsWithIssues = body.data.filter(system => system.issue_count > 0);
+            const systemsWithoutIssues = body.data.filter(system => system.issue_count === 0);
+            
+            // Verify we have a reasonable distribution
+            totalIssues.should.be.above(0);
+            systemsWithIssues.length.should.be.above(0);
+            
+            // Test specific issue counts based on known test data
+            // System 1 should have 1 issue, System 2 should have 2 issues
+            const system1 = body.data.find(s => s.id === '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            const system2 = body.data.find(s => s.id === '1040856f-b772-44c7-83a9-eea4813c4be8');
+            
+            if (system1) {
+                system1.issue_count.should.equal(1);
+            }
+            if (system2) {
+                system2.issue_count.should.equal(2);
+            }
+            
+            // Verify total issues matches expected sum
+            totalIssues.should.equal(3);
+        });
+
 
         test('gets list of distinct systems with no limit', async () => {
             const { body } = await request
