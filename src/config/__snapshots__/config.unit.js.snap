@@ -99,7 +99,7 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "insecure": false,
     "oidcIssuerUrl": undefined,
     "principalDomain": "redhat",
-    "url": "http://localhost:8080",
+    "url": "localhost:9000",
   },
   "logging": {
     "cloudwatch": {
