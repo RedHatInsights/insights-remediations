@@ -170,7 +170,7 @@ exports[`Configuration Verify app-common-js function 1`] = `
   },
   "validateResponseStrict": true,
   "vmaas": {
-    "host": "https://webapp-vmaas-prod.apps.crcp01ue1.o9m8.p1.openshiftapps.com",
+    "host": "https://console.redhat.com",
     "impl": undefined,
     "revalidationInterval": 43200,
   },
