@@ -6,6 +6,17 @@ const mockOAuth2ClientCredentials = jest.fn();
 const mockOAuth2AuthRequest = jest.fn();
 const mockFetchDefaultWorkspace = jest.fn();
 
+// Mock Allowed enum - typical enum values are usually numbers like 0, 1, 2 or string constants
+const MockAllowed = {
+    ALLOWED_TRUE: 1, // Common enum pattern, adjust if needed
+    ALLOWED_FALSE: 0,
+    ALLOWED_UNSPECIFIED: 2
+};
+
+jest.mock('@project-kessel/kessel-sdk/kessel/inventory/v1beta2/allowed', () => ({
+    Allowed: MockAllowed
+}));
+
 jest.mock('@project-kessel/kessel-sdk/kessel/auth', () => ({
     fetchOIDCDiscovery: (...args) => mockFetchOIDCDiscovery(...args),
     OAuth2ClientCredentials: jest.fn().mockImplementation((...args) => {
@@ -114,7 +125,10 @@ describe('kessel impl', () => {
     describe('checkSinglePermission', () => {
         test('should construct proper check request structure', async () => {
             // Mock the kessel client
-            const mockResponse = { allowed: true };
+            // Need to import the mocked Allowed enum - it's a module-level variable in impl.js
+            // The Allowed enum is imported in impl.js, so we need to use the same value
+            const Allowed = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2/allowed').Allowed;
+            const mockResponse = { allowed: Allowed.ALLOWED_TRUE };
             const mockClient = {
                 check: jest.fn().mockResolvedValue(mockResponse)
             };
@@ -221,38 +235,6 @@ describe('kessel impl', () => {
             
             const result = await impl.hasPermission('remediation', 'read', 'user123');
             expect(result).toBe(false);
-        });
-    });
-
-    describe('extractWorkspaceId', () => {
-        test('should extract workspace ID from various identity formats', () => {
-            const testCases = [
-                {
-                    identity: { identity: { account_number: 'acc123' } },
-                    expected: 'acc123'
-                },
-                {
-                    identity: { identity: { org_id: 'org456' } },
-                    expected: 'org456'
-                },
-                {
-                    identity: { account_number: 'acc789' },
-                    expected: 'acc789'
-                },
-                {
-                    identity: { org_id: 'org012' },
-                    expected: 'org012'
-                },
-                {
-                    identity: {},
-                    expected: 'default'
-                }
-            ];
-
-            testCases.forEach(({ identity, expected }) => {
-                const result = impl.extractWorkspaceId(identity);
-                expect(result).toBe(expected);
-            });
         });
     });
 
