@@ -106,7 +106,7 @@ module.exports = class extends Connector {
 
             // Use async/await with the new client
             const response = await this.kesselClient.check(checkRequest);
-            return response.allowed || false;
+            return response.allowed === Allowed.ALLOWED_TRUE;
         } catch (error) {
             log.warn({ error, userId, workspaceId, relation }, 'Kessel check call failed');
             throw error;
