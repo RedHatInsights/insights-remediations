@@ -14,7 +14,7 @@ const MockAllowed = {
 };
 
 // Mock Auth Token
-const mockAuthToken = { authToken: 'test-kessel-unit-test-token-placeholder' }
+const mockAuthToken = { testToken: 'test-kessel-unit-test-token-placeholder' };
 
 jest.mock('@project-kessel/kessel-sdk/kessel/inventory/v1beta2/allowed', () => ({
     Allowed: MockAllowed
