@@ -66,7 +66,8 @@ describe('kessel impl', () => {
             checkSinglePermission: impl.checkSinglePermission,
             kesselClient: impl.kesselClient,
             initialized: impl.initialized,
-            permissionMetrics: impl.permissionMetrics
+            permissionMetrics: impl.permissionMetrics,
+            defaultWorkspaces: impl.defaultWorkspaces
         };
     });
 
@@ -78,6 +79,7 @@ describe('kessel impl', () => {
         impl.kesselClient = originalMethods.kesselClient;
         impl.initialized = originalMethods.initialized;
         impl.permissionMetrics = originalMethods.permissionMetrics;
+        impl.defaultWorkspaces = originalMethods.defaultWorkspaces;
         
         // Clear any jest mocks
         jest.clearAllMocks();

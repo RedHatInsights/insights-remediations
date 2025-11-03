@@ -37,6 +37,7 @@ module.exports = class extends Connector {
         this.oAuth2ClientCredentials = null;
         this.initialized = false;
         this.permissionMetrics = metrics.createConnectorMetric(this.getName(), 'Kessel.getRemediationsAccess');
+        this.defaultWorkspaces = {}
 
         if (this.kesselConfig.enabled && ClientBuilder) {
             this.initializeKesselClient();
@@ -182,12 +183,14 @@ module.exports = class extends Connector {
 
     async getDefaultWorkspaceIdForSubject(subject_org_id) {
         try {
-            const defaultWorkspace = await fetchDefaultWorkspace(
-                                    this.kesselConfig.url,
-                                    subject_org_id,
-                                    OAuth2AuthRequest(this.oAuth2ClientCredentials),
-                                );
-            return defaultWorkspace;
+            if (!this.defaultWorkspaces[subject_org_id]) {
+                this.defaultWorkspaces[subject_org_id] = await fetchDefaultWorkspace(
+                                                this.kesselConfig.url,
+                                                subject_org_id,
+                                                OAuth2AuthRequest(this.oAuth2ClientCredentials),
+                                            );
+            }
+            return this.defaultWorkspaces[subject_org_id];
         } catch (e) {
             log.error(`Error received when fetching workspace`, e);
             return null;
