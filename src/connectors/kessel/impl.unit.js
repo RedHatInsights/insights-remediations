@@ -13,6 +13,9 @@ const MockAllowed = {
     ALLOWED_UNSPECIFIED: 2
 };
 
+// Mock Auth Token
+const mockAuthToken = { authToken: 'test-kessel-unit-test-token-placeholder' }
+
 jest.mock('@project-kessel/kessel-sdk/kessel/inventory/v1beta2/allowed', () => ({
     Allowed: MockAllowed
 }));
@@ -53,8 +56,6 @@ describe('kessel impl', () => {
             clientId: 'test-id',
             clientSecret: 'test-secret',
         };
-
-        mockAuthToken = { authToken: 'test-kessel-unit-test-token-placeholder' }
         
         // Create test instance
         impl = new KesselConnector(module, mockConfig);
