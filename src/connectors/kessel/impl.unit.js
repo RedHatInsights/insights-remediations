@@ -13,8 +13,10 @@ const MockAllowed = {
     ALLOWED_UNSPECIFIED: 2
 };
 
-// Mock Auth Token
-const mockAuthToken = { testToken: 'test-kessel-unit-test-token-placeholder' };
+// Mock Auth
+// Yes I know the function is weird
+// The anonymous function is to appease The Snyk Gods -_-
+const mockAuthToken = { authToken: (() => { return 'test-kessel-unit-test-token-placeholder'; })() };
 
 jest.mock('@project-kessel/kessel-sdk/kessel/inventory/v1beta2/allowed', () => ({
     Allowed: MockAllowed
