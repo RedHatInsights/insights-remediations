@@ -307,7 +307,6 @@ function Config() {
         config.inventory.host = env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';
         config.patchman.host = env.PATCHMAN_HOST || 'http://localhost:8080';
         config.rbac.host = env.RBAC_HOST || 'http://localhost:8080';
-        config.kessel.url = env.KESSEL_URL || 'localhost:9000';
         config.receptor.host = env.RECEPTOR_HOST || 'http://localhost:9090';
         config.sources.host = env.SOURCES_HOST || 'http://localhost:8080';
         config.ssg.host = env.SSG_HOST || 'http://localhost:8090';
