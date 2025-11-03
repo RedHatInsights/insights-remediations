@@ -308,7 +308,6 @@ describe('kessel impl', () => {
     describe('getDefaultWorkspaceIdForSubject', () => {
         test('should return default workspace ID', async () => {
             // Set up mock return values
-            mockFetchOIDCDiscovery.mockResolvedValue({ tokenEndpoint: 'https://test-token-endpoint' });
             mockOAuth2AuthRequest.mockReturnValue(mockAuthToken);
             mockFetchDefaultWorkspace.mockResolvedValue({
                 id: 'default',
@@ -318,13 +317,7 @@ describe('kessel impl', () => {
             });
 
             const result = await impl.getDefaultWorkspaceIdForSubject('user123');
-            
-            expect(mockFetchOIDCDiscovery).toHaveBeenCalledWith(mockConfig.oidcIssuerUrl);
-            expect(mockOAuth2ClientCredentials).toHaveBeenCalledWith({
-                clientId: mockConfig.clientId,
-                clientSecret: mockConfig.clientSecret,
-                tokenEndpoint: 'https://test-token-endpoint'
-            });
+
             expect(mockOAuth2AuthRequest).toHaveBeenCalledWith(expect.any(Object));
             expect(mockFetchDefaultWorkspace).toHaveBeenCalledWith(
                 mockConfig.url,

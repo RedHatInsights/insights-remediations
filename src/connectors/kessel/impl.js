@@ -34,12 +34,25 @@ module.exports = class extends Connector {
         super(module);
         this.kesselConfig = kesselConfig;
         this.kesselClient = null;
+        this.oAuth2ClientCredentials = null;
         this.initialized = false;
         this.permissionMetrics = metrics.createConnectorMetric(this.getName(), 'Kessel.getRemediationsAccess');
 
         if (this.kesselConfig.enabled && ClientBuilder) {
             this.initializeKesselClient();
         }
+    }
+
+    async setupCredentials() {
+        const discovery = await fetchOIDCDiscovery(
+            this.kesselConfig.oidcIssuerUrl,
+        );
+
+        this.oAuth2ClientCredentials = new OAuth2ClientCredentials({
+            clientId: this.kesselConfig.clientId,
+            clientSecret: this.kesselConfig.clientSecret,
+            tokenEndpoint: discovery.tokenEndpoint,
+        });
     }
 
     async initializeKesselClient() {
@@ -54,17 +67,8 @@ module.exports = class extends Connector {
 
             // Configure credentials based on the auth enabled flag
             } else if (this.kesselConfig.authEnabled) {
-                const discovery = await fetchOIDCDiscovery(
-                    this.kesselConfig.oidcIssuerUrl,
-                );
-
-                const oAuth2ClientCredentials = new OAuth2ClientCredentials({
-                    clientId: this.kesselConfig.clientId,
-                    clientSecret: this.kesselConfig.clientSecret,
-                    tokenEndpoint: discovery.tokenEndpoint,
-                });
-
-                builder.oauth2ClientAuthenticated(oAuth2ClientCredentials);
+                await this.setupCredentials();
+                builder.oauth2ClientAuthenticated(this.oAuth2ClientCredentials);
             } else {
                 builder.unauthenticated();
             }
@@ -178,18 +182,10 @@ module.exports = class extends Connector {
 
     async getDefaultWorkspaceIdForSubject(subject_org_id) {
         try {
-            const discovery = await fetchOIDCDiscovery(
-                this.kesselConfig.oidcIssuerUrl,
-            );
-            const oAuth2ClientCredentials = new OAuth2ClientCredentials({
-                clientId: this.kesselConfig.clientId,
-                clientSecret: this.kesselConfig.clientSecret,
-                tokenEndpoint: discovery.tokenEndpoint,
-            });
             const defaultWorkspace = await fetchDefaultWorkspace(
                                     this.kesselConfig.url,
                                     subject_org_id,
-                                    OAuth2AuthRequest(oAuth2ClientCredentials),
+                                    OAuth2AuthRequest(this.oAuth2ClientCredentials),
                                 );
             return defaultWorkspace;
         } catch (e) {
