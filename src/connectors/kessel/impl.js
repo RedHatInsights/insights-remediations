@@ -136,7 +136,7 @@ module.exports = class extends Connector {
     }
 
     // Compatibility method to check specific permission
-    async hasPermission(resource, action, subject_org_id) {
+    async hasPermission(resource, action, subject_org_id, subject_user_id) {
         if (!this.kesselConfig.enabled || !this.initialized || !this.kesselClient) {
             return false;
         }
@@ -155,7 +155,7 @@ module.exports = class extends Connector {
             const workspaceId = workspace?.id || null;
 
             // Check the specific permission using async/await
-            const allowed = await this.checkSinglePermission(subject_org_id, workspaceId, workspacePermission);
+            const allowed = await this.checkSinglePermission(subject_user_id, workspaceId, workspacePermission);
 
             // Record successful metric
             this.permissionMetrics.observe(Date.now() - startTime, 200);

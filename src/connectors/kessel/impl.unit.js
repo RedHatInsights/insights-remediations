@@ -178,7 +178,7 @@ describe('kessel impl', () => {
             const disabledConfig = { ...mockConfig, enabled: false };
             const disabledImpl = new KesselConnector(module, disabledConfig);
             
-            const result = await disabledImpl.hasPermission('remediation', 'read', 'user123');
+            const result = await disabledImpl.hasPermission('remediation', 'read', 'org123', 'user123');
             expect(result).toBe(false);
         });
 
@@ -186,7 +186,7 @@ describe('kessel impl', () => {
             // Mock initialization state
             impl.initialized = false;
             
-            const result = await impl.hasPermission('remediation', 'read', 'user123');
+            const result = await impl.hasPermission('remediation', 'read', 'org123', 'user123');
             expect(result).toBe(false);
         });
 
@@ -212,7 +212,7 @@ describe('kessel impl', () => {
             // Mock the checkSinglePermission to test async flow
             impl.checkSinglePermission = jest.fn().mockResolvedValue(true);
             
-            const result = await impl.hasPermission('remediation', 'read', 'user123');
+            const result = await impl.hasPermission('remediation', 'read', 'org123', 'user123');
             expect(result).toBe(true);
             expect(impl.checkSinglePermission).toHaveBeenCalledWith(
                 'user123',
@@ -235,7 +235,7 @@ describe('kessel impl', () => {
             // Mock checkSinglePermission to throw an error
             impl.checkSinglePermission = jest.fn().mockRejectedValue(new Error('Permission check failed'));
             
-            const result = await impl.hasPermission('remediation', 'read', 'user123');
+            const result = await impl.hasPermission('remediation', 'read', 'org123', 'user123');
             expect(result).toBe(false);
         });
     });
