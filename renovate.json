@@ -8,10 +8,10 @@
   },
   "packageRules": [
     {
-      "description": "Group minor/patch npm dependencies into a single PR",
+      "description": "Ignore minor/patch npm dependencies",
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["minor", "patch"],
-      "groupName": "npm dependencies"
+      "enabled": false
     }
   ]
 }
