@@ -266,7 +266,7 @@ function Config() {
         config.receptor.host = getHostForApp(dependencyEndpoints, 'receptor', 'gateway-clowder', 'RECEPTOR') || env.RECEPTOR_HOST || 'http://localhost:9090';
         config.sources.host = getHostForApp(dependencyEndpoints, 'sources-api', 'svc', 'SOURCES') || env.SOURCES_HOST || 'http://localhost:8080';
         config.ssg.host = getHostForApp(privateDepencencyEndpoints, 'compliance-ssg', 'service', 'SSG') || env.SSG_HOST || 'http://localhost:8090';
-        config.vmaas.host = getHostForApp(dependencyEndpoints, 'vmaas', 'webapp-service', 'VMAAS') || env.VMAAS_HOST || 'https://console.redhat.com';
+        config.vmaas.host = getHostForApp(dependencyEndpoints, 'vmaas', 'webapp-go', 'VMAAS') || env.VMAAS_HOST || 'https://console.redhat.com';
         config.vulnerabilities.host = getHostForApp(dependencyEndpoints, 'vulnerability-engine', 'manager-service', 'VULNERABILITIES') || env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com';
 
         config.db.username = loadedConfig.database.adminUsername || env.DB_USERNAME;
