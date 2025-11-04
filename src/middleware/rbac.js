@@ -79,7 +79,7 @@ async function checkKesselPermission(srcPermission, req) {
             srcPermission.resource,
             srcPermission.resourceType,
             identity.org_id || identity.identity?.org_id,
-            identity.user_id || identity.identity?.user?.user_id
+            identity.identity?.service_account?.user_id || identity.user_id || identity.identity?.user?.user_id
         );
 
         return hasPermission;
