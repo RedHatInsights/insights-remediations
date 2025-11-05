@@ -31,7 +31,7 @@ describe('Connector', function () {
         // Create a test connector instance
         const TestConnector = class extends Connector {
             constructor() {
-                super({ filename: '/test/connector/dispatcher/impl.js' });
+                super({ filename: '/test/connector/generic/impl.js' });
             }
         };
         const connector = new TestConnector();
@@ -67,7 +67,7 @@ describe('Connector', function () {
         }
         
         // Verify connector name is correct
-        expect(connector.getName()).toBe('dispatcher');
+        expect(connector.getName()).toBe('generic');
         expect(connector.getImpl()).toBe('impl');
     });
 });
