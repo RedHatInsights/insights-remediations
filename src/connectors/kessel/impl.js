@@ -66,10 +66,10 @@ module.exports = class extends Connector {
 
             // Build the Client
             this.kesselClient = builder.buildAsync();
-            this.initialized = true
+            this.initialized = true;
             log.info('Kessel client initialized successfully using ClientBuilder');
 
-            return this.kesselClient
+            return this.kesselClient;
         } catch (error) {
             log.error({ error }, 'Failed to initialize Kessel client');
             this.initialized = false;
