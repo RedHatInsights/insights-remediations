@@ -9,20 +9,10 @@ const metrics = require('../metrics');
 // Import new Kessel SDK with ClientBuilder
 let ClientBuilder, fetchOIDCDiscovery, OAuth2ClientCredentials, OAuth2AuthRequest, fetchDefaultWorkspace, Allowed;
 try {
-    // Import the new ClientBuilder from the updated SDK
-    const kesselSdk = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2');
-    ClientBuilder = kesselSdk.ClientBuilder;
-    
-    const allowedSdk = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2/allowed');
-    Allowed = allowedSdk.Allowed;
-
-    const oAuthSdk = require('@project-kessel/kessel-sdk/kessel/auth');
-    fetchOIDCDiscovery = oAuthSdk.fetchOIDCDiscovery;
-    OAuth2ClientCredentials = oAuthSdk.OAuth2ClientCredentials;
-    OAuth2AuthRequest = oAuthSdk.oauth2AuthRequest;
-
-    const rbacSdk = require('@project-kessel/kessel-sdk/kessel/rbac/v2');
-    fetchDefaultWorkspace = rbacSdk.fetchDefaultWorkspace;
+    ({ClientBuilder} = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2'));
+    ({Allowed} = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2/allowed'));
+    ({fetchOIDCDiscovery, OAuth2ClientCredentials, OAuth2AuthRequest} = require('@project-kessel/kessel-sdk/kessel/auth'));
+    ({fetchDefaultWorkspace} = require('@project-kessel/kessel-sdk/kessel/rbac/v2'));
 } catch (error) {
     log.warn('Kessel SDK not available, falling back to traditional RBAC:', error.message);
     ClientBuilder = null;

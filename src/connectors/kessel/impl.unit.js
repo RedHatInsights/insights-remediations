@@ -13,10 +13,27 @@ const MockAllowed = {
     ALLOWED_UNSPECIFIED: 2
 };
 
+// Mock ClientBuilder
+const MockClientBuilder = jest.fn().mockImplementation(() => {
+    const mockClient = {
+        check: jest.fn().mockResolvedValue({ allowed: MockAllowed.ALLOWED_TRUE })
+    };
+    return {
+        insecure: jest.fn().mockReturnThis(),
+        oauth2ClientAuthenticated: jest.fn().mockReturnThis(),
+        unauthenticated: jest.fn().mockReturnThis(),
+        buildAsync: jest.fn().mockReturnValue(mockClient)
+    };
+});
+
 // Mock Auth
 // Yes I know the function is weird
 // The anonymous function is to appease The Snyk Gods -_-
 const mockAuthToken = { authToken: (() => { return 'test-kessel-unit-test-token-placeholder'; })() };
+
+jest.mock('@project-kessel/kessel-sdk/kessel/inventory/v1beta2', () => ({
+    ClientBuilder: MockClientBuilder
+}));
 
 jest.mock('@project-kessel/kessel-sdk/kessel/inventory/v1beta2/allowed', () => ({
     Allowed: MockAllowed
@@ -28,7 +45,7 @@ jest.mock('@project-kessel/kessel-sdk/kessel/auth', () => ({
         mockOAuth2ClientCredentials(...args);
         return {}; // Return a mock instance
     }),
-    oauth2AuthRequest: (...args) => mockOAuth2AuthRequest(...args)
+    OAuth2AuthRequest: (...args) => mockOAuth2AuthRequest(...args)
 }));
 
 jest.mock('@project-kessel/kessel-sdk/kessel/rbac/v2', () => ({
@@ -312,6 +329,9 @@ describe('kessel impl', () => {
 
     describe('getDefaultWorkspaceIdForSubject', () => {
         test('should return default workspace ID', async () => {
+            // Set up oAuth2ClientCredentials for the test
+            impl.oAuth2ClientCredentials = { clientId: 'test-id', clientSecret: 'test-secret' };
+            
             // Set up mock return values
             mockOAuth2AuthRequest.mockReturnValue(mockAuthToken);
             mockFetchDefaultWorkspace.mockResolvedValue({
@@ -323,7 +343,7 @@ describe('kessel impl', () => {
 
             const result = await impl.getDefaultWorkspaceIdForSubject('user123');
 
-            expect(mockOAuth2AuthRequest).toHaveBeenCalledWith(expect.any(Object));
+            expect(mockOAuth2AuthRequest).toHaveBeenCalledWith(impl.oAuth2ClientCredentials);
             expect(mockFetchDefaultWorkspace).toHaveBeenCalledWith(
                 mockConfig.url,
                 'user123',
