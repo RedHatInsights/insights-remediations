@@ -9,6 +9,7 @@ const log = require('../util/log');
 const URI = require('urijs');
 const config = require('../config');
 const {Forbidden} = require("../errors");
+const StatusCodeError = require('./StatusCodeError');
 
 const IDENTITY_HEADER = 'x-rh-identity';
 const REQ_ID_HEADER = 'x-rh-insights-request-id';
@@ -44,6 +45,26 @@ module.exports = class Connector {
         } catch (e) {
             if (e instanceof Forbidden) {
                 throw e;
+            }
+
+            // Log request and response details for HTTP 400 errors
+            if (e instanceof StatusCodeError && e.statusCode === 400) {
+                log.error({
+                    request: {
+                        uri: options.uri,
+                        method: options.method,
+                        headers: options.headers,
+                        body: options.body
+                    },
+                    response: {
+                        statusCode: e.statusCode,
+                        details: e.details
+                    },
+                    connector: {
+                        name: this.getName(),
+                        impl: this.getImpl()
+                    }
+                }, `HTTP 400 error from ${this.getName()} connector`);
             }
 
             log.trace(e, 'dependency error');
