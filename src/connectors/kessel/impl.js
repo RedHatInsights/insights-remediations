@@ -27,7 +27,7 @@ module.exports = class extends Connector {
         this.oAuth2ClientCredentials = null;
         this.initialized = false;
         this.permissionMetrics = metrics.createConnectorMetric(this.getName(), 'Kessel.getRemediationsAccess');
-        this.defaultWorkspaces = {}
+        this.defaultWorkspaces = {};
 
         if (this.kesselConfig.enabled && ClientBuilder) {
             this.initializeKesselClient();
