@@ -67,13 +67,18 @@ describe('kessel impl', () => {
         
         // Create mock config for testing
         mockConfig = {
-            enabled: true,
-            url: 'localhost:9000',
-            insecure: true,
-            principalDomain: 'redhat',
-            oidcIssuerUrl: 'issuer-url',
-            clientId: 'test-id',
-            clientSecret: 'test-secret',
+            kessel: {
+                enabled: true,
+                url: 'localhost:9000',
+                insecure: true,
+                principalDomain: 'redhat',
+                oidcIssuerUrl: 'issuer-url',
+                clientId: 'test-id',
+                clientSecret: 'test-secret',
+            },
+            rbac: {
+                'host': 'rbac-host'
+            }
         };
         
         // Create test instance
@@ -128,7 +133,13 @@ describe('kessel impl', () => {
 
     describe('initializeKesselClient', () => {
         test('should use secure credentials when insecure is false', () => {
-            const secureConfig = { ...mockConfig, insecure: false };
+            const secureConfig = {
+                ...mockConfig,
+                kessel: {
+                    ...mockConfig.kessel,
+                    insecure: false
+                }
+            };
             const secureImpl = new KesselConnector(module, secureConfig);
             
             // The fact that initialization doesn't throw indicates success with secure credentials
@@ -136,7 +147,13 @@ describe('kessel impl', () => {
         });
 
         test('should use insecure credentials when insecure is true', () => {
-            const insecureConfig = { ...mockConfig, insecure: true };
+            const insecureConfig = {
+                ...mockConfig,
+                kessel: {
+                    ...mockConfig.kessel,
+                    insecure: true
+                }
+            };
             const insecureImpl = new KesselConnector(module, insecureConfig);
             
             // The fact that initialization doesn't throw indicates success with insecure credentials
@@ -195,7 +212,13 @@ describe('kessel impl', () => {
     describe('hasPermission', () => {
         test('should return false when Kessel is not enabled', async () => {
             // Create instance with disabled config
-            const disabledConfig = { ...mockConfig, enabled: false };
+            const disabledConfig = {
+                ...mockConfig,
+                kessel: {
+                    ...mockConfig.kessel,
+                    enabled: false
+                }
+            };
             const disabledImpl = new KesselConnector(module, disabledConfig);
             
             const result = await disabledImpl.hasPermission('remediation', 'read', 'org123', 'user123');
@@ -345,7 +368,7 @@ describe('kessel impl', () => {
 
             expect(mockOAuth2AuthRequest).toHaveBeenCalledWith(impl.oAuth2ClientCredentials);
             expect(mockFetchDefaultWorkspace).toHaveBeenCalledWith(
-                mockConfig.url,
+                mockConfig.rbac.host,
                 'user123',
                 mockAuthToken
             );

@@ -20,9 +20,10 @@ try {
 
 
 module.exports = class extends Connector {
-    constructor (module, kesselConfig) {
+    constructor (module, config) {
         super(module);
-        this.kesselConfig = kesselConfig;
+        this.kesselConfig = config.kessel;
+        this.rbacConfig = config.rbac;
         this.kesselClient = null;
         this.oAuth2ClientCredentials = null;
         this.initialized = false;
@@ -175,7 +176,7 @@ module.exports = class extends Connector {
         try {
             if (!this.defaultWorkspaces[subject_org_id]) {
                 this.defaultWorkspaces[subject_org_id] = await fetchDefaultWorkspace(
-                                                this.kesselConfig.url,
+                                                this.rbacConfig.host,
                                                 subject_org_id,
                                                 OAuth2AuthRequest(this.oAuth2ClientCredentials),
                                             );
