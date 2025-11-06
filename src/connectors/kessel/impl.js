@@ -11,7 +11,7 @@ let ClientBuilder, fetchOIDCDiscovery, OAuth2ClientCredentials, oauth2AuthReques
 try {
     ({ClientBuilder} = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2'));
     ({Allowed} = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2/allowed'));
-    ({fetchOIDCDiscovery, OAuth2ClientCredentials, oauth2AuthRequest,} = require('@project-kessel/kessel-sdk/kessel/auth'));
+    ({fetchOIDCDiscovery, OAuth2ClientCredentials, oauth2AuthRequest} = require('@project-kessel/kessel-sdk/kessel/auth'));
     ({fetchDefaultWorkspace} = require('@project-kessel/kessel-sdk/kessel/rbac/v2'));
 } catch (error) {
     log.warn('Kessel SDK not available, falling back to traditional RBAC:', error.message);

@@ -45,7 +45,7 @@ jest.mock('@project-kessel/kessel-sdk/kessel/auth', () => ({
         mockOAuth2ClientCredentials(...args);
         return {}; // Return a mock instance
     }),
-    oAuth2AuthRequest: (...args) => mockOAuth2AuthRequest(...args)
+    oauth2AuthRequest: (...args) => mockOAuth2AuthRequest(...args)
 }));
 
 jest.mock('@project-kessel/kessel-sdk/kessel/rbac/v2', () => ({
