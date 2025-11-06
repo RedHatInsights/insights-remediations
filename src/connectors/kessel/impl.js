@@ -188,6 +188,8 @@ module.exports = class extends Connector {
             }
             return this.defaultWorkspaces[subject_org_id];
         } catch (e) {
+            console.error(e);
+            console.error(e.stack);
             log.error(`Error received when fetching workspace`, e);
             return null;
         }
