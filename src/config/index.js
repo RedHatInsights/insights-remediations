@@ -170,7 +170,7 @@ function Config() {
         kessel: {
             enabled: env.KESSEL_ENABLED?.toLowerCase() === 'true' ? true : false,
             authEnabled: env.KESSEL_AUTH_ENABLED?.toLowerCase() === 'true' ? true : false,
-            oidcIssuerUrl: env.KESSEL_AUTH_OIDC_ISSUE,
+            oidcIssuerUrl: env.KESSEL_AUTH_OIDC_ISSUER,
             clientId: env.KESSEL_AUTH_CLIENT_ID,
             clientSecret: env.KESSEL_AUTH_CLIENT_SECRET,
             url: env.KESSEL_URL || 'localhost:9000',
