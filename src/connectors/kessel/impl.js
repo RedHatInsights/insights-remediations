@@ -50,6 +50,10 @@ module.exports = class extends Connector {
     async initializeKesselClient() {
 
         try {
+            // Set up credentials in all the cases
+            // RBAC will require credentials regardless if Kessel does not require it
+            await this.setupCredentials();
+
             // Use the new ClientBuilder pattern
             const builder = new ClientBuilder(this.kesselConfig.url);
 
@@ -59,7 +63,6 @@ module.exports = class extends Connector {
 
             // Configure credentials based on the auth enabled flag
             } else if (this.kesselConfig.authEnabled) {
-                await this.setupCredentials();
                 builder.oauth2ClientAuthenticated(this.oAuth2ClientCredentials);
             } else {
                 builder.unauthenticated();
