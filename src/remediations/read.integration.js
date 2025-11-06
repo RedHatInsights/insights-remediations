@@ -247,6 +247,9 @@ describe('remediations', function () {
             .get('/v1/remediations?fields[data]=playbook_runs&fields[data]=name')
             .set(auth.fifi)
             .expect(400);
+            
+            expect(body.errors).toBeDefined();
+            expect(body.errors[0].title).toBe('Only one field may be specified, but playbook_runs, name were provided.');
         });
 
         test('playbook_runs and last_playbook_run fields are mutually exclusive', async () => {
@@ -254,6 +257,23 @@ describe('remediations', function () {
             .get('/v1/remediations?fields[data]=playbook_runs&fields[data]=last_playbook_run')
             .set(auth.fifi)
             .expect(400);
+            
+            expect(body.errors).toBeDefined();
+            expect(body.errors[0].title).toBe('Only one field may be specified, but playbook_runs, last_playbook_run were provided.');
+        });
+
+        test('all three fields cannot be combined', async () => {
+            const {body} = await request
+            .get('/v1/remediations?fields[data]=playbook_runs&fields[data]=last_playbook_run&fields[data]=name')
+            .set(auth.fifi)
+            .expect(400);
+            
+            expect(body.errors).toBeDefined();
+            // Note: Order may vary depending on query string order, so check all three fields are present
+            expect(body.errors[0].title).toMatch(/^Only one field may be specified, but .* were provided\.$/);
+            expect(body.errors[0].title).toContain('playbook_runs');
+            expect(body.errors[0].title).toContain('last_playbook_run');
+            expect(body.errors[0].title).toContain('name');
         });
 
         test('rejects partial field name matches - lllast_playbook_runnn', async () => {
