@@ -239,9 +239,17 @@ describe('kessel impl', () => {
             impl.initialized = true;
             impl.kesselClient = { check: jest.fn() }; // Mock client
             
-            // Mock the permissionMetrics to handle observe calls
+            // Mock the permissionMetrics to handle observe and inc calls
             impl.permissionMetrics = {
-                observe: jest.fn()
+                duration: {
+                    observe: jest.fn()
+                },
+                hit: {
+                    inc: jest.fn()
+                },
+                error: {
+                    inc: jest.fn()
+                }
             };
             
             // Mock getDefaultWorkspaceIdForSubject to return a default workspace
@@ -262,6 +270,8 @@ describe('kessel impl', () => {
                 'default',
                 'remediations_view_remediation'
             );
+            expect(impl.permissionMetrics.duration.observe).toHaveBeenCalled();
+            expect(impl.permissionMetrics.hit.inc).toHaveBeenCalled();
         });
 
         test('should handle permission check errors gracefully', async () => {
@@ -270,9 +280,17 @@ describe('kessel impl', () => {
             impl.initialized = true;
             impl.kesselClient = { check: jest.fn() }; // Mock client
             
-            // Mock the permissionMetrics to handle observe calls
+            // Mock the permissionMetrics to handle observe and inc calls
             impl.permissionMetrics = {
-                observe: jest.fn()
+                duration: {
+                    observe: jest.fn()
+                },
+                hit: {
+                    inc: jest.fn()
+                },
+                error: {
+                    inc: jest.fn()
+                }
             };
             
             // Mock checkSinglePermission to throw an error
@@ -280,6 +298,8 @@ describe('kessel impl', () => {
             
             const result = await impl.hasPermission('remediation', 'read', 'org123', 'user123');
             expect(result).toBe(false);
+            expect(impl.permissionMetrics.duration.observe).toHaveBeenCalled();
+            expect(impl.permissionMetrics.error.inc).toHaveBeenCalled();
         });
     });
 

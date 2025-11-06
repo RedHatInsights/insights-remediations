@@ -152,12 +152,14 @@ module.exports = class extends Connector {
             const allowed = await this.checkSinglePermission(subject_user_id, workspaceId, workspacePermission);
 
             // Record successful metric
-            this.permissionMetrics.observe(Date.now() - startTime, 200);
+            this.permissionMetrics.duration.observe(Date.now() - startTime);
+            this.permissionMetrics.hit.inc();
 
             return allowed;
         } catch (error) {
             // Record error metric
-            this.permissionMetrics.observe(Date.now() - startTime, 500);
+            this.permissionMetrics.duration.observe(Date.now() - startTime);
+            this.permissionMetrics.error.inc();
 
             log.error({ error, resource, action, subject_org_id }, 'Failed to check permission with Kessel');
             return false;
