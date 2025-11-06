@@ -167,6 +167,17 @@ function Config() {
             enforce: env.RBAC_ENFORCE === 'false' ? false : true
         },
 
+        kessel: {
+            enabled: env.KESSEL_ENABLED?.toLowerCase() === 'true' ? true : false,
+            authEnabled: env.KESSEL_AUTH_ENABLED?.toLowerCase() === 'true' ? true : false,
+            oidcIssuerUrl: env.KESSEL_AUTH_OIDC_ISSUE,
+            clientId: env.KESSEL_AUTH_CLIENT_ID,
+            clientSecret: env.KESSEL_AUTH_CLIENT_SECRET,
+            url: env.KESSEL_URL || 'localhost:9000',
+            insecure: env.KESSEL_INSECURE?.toLowerCase() === 'true' ? true : false,
+            principalDomain: env.KESSEL_PRINCIPAL_DOMAIN || 'redhat'
+        },
+
         receptor: {
             impl: env.RECEPTOR_IMPL
         },
