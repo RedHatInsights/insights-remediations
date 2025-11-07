@@ -496,13 +496,13 @@ parameters:
   description: database secret name
   value: remediations-db
 - name: KESSEL_ENABLED
-  value: "FALSE"
+  value: 'false'
 - name: KESSEL_URL
   value: "kessel-inventory-api:9000"
 - name: KESSEL_AUTH_ENABLED
-  value: "FALSE"
+  value: 'false'
 - name: KESSEL_AUTH_OIDC_ISSUER
 - name: KESSEL_INSECURE
-  value: "FALSE"
+  value: 'true'
 - name: KESSEL_PRINCIPAL_DOMAIN
   value: "redhat"

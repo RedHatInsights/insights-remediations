@@ -7,11 +7,11 @@ const log = require('../../util/log');
 const metrics = require('../metrics');
 
 // Import new Kessel SDK with ClientBuilder
-let ClientBuilder, fetchOIDCDiscovery, OAuth2ClientCredentials, OAuth2AuthRequest, fetchDefaultWorkspace, Allowed;
+let ClientBuilder, fetchOIDCDiscovery, OAuth2ClientCredentials, oauth2AuthRequest, fetchDefaultWorkspace, Allowed;
 try {
     ({ClientBuilder} = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2'));
     ({Allowed} = require('@project-kessel/kessel-sdk/kessel/inventory/v1beta2/allowed'));
-    ({fetchOIDCDiscovery, OAuth2ClientCredentials, OAuth2AuthRequest} = require('@project-kessel/kessel-sdk/kessel/auth'));
+    ({fetchOIDCDiscovery, OAuth2ClientCredentials, oauth2AuthRequest} = require('@project-kessel/kessel-sdk/kessel/auth'));
     ({fetchDefaultWorkspace} = require('@project-kessel/kessel-sdk/kessel/rbac/v2'));
 } catch (error) {
     log.warn('Kessel SDK not available, falling back to traditional RBAC:', error.message);
@@ -20,9 +20,10 @@ try {
 
 
 module.exports = class extends Connector {
-    constructor (module, kesselConfig) {
+    constructor (module, config) {
         super(module);
-        this.kesselConfig = kesselConfig;
+        this.kesselConfig = config.kessel;
+        this.rbacConfig = config.rbac;
         this.kesselClient = null;
         this.oAuth2ClientCredentials = null;
         this.initialized = false;
@@ -49,6 +50,10 @@ module.exports = class extends Connector {
     async initializeKesselClient() {
 
         try {
+            // Set up credentials in all the cases
+            // RBAC will require credentials regardless if Kessel does not require it
+            await this.setupCredentials();
+
             // Use the new ClientBuilder pattern
             const builder = new ClientBuilder(this.kesselConfig.url);
 
@@ -58,7 +63,6 @@ module.exports = class extends Connector {
 
             // Configure credentials based on the auth enabled flag
             } else if (this.kesselConfig.authEnabled) {
-                await this.setupCredentials();
                 builder.oauth2ClientAuthenticated(this.oAuth2ClientCredentials);
             } else {
                 builder.unauthenticated();
@@ -148,12 +152,14 @@ module.exports = class extends Connector {
             const allowed = await this.checkSinglePermission(subject_user_id, workspaceId, workspacePermission);
 
             // Record successful metric
-            this.permissionMetrics.observe(Date.now() - startTime, 200);
+            this.permissionMetrics.duration.observe(Date.now() - startTime);
+            this.permissionMetrics.hit.inc();
 
             return allowed;
         } catch (error) {
             // Record error metric
-            this.permissionMetrics.observe(Date.now() - startTime, 500);
+            this.permissionMetrics.duration.observe(Date.now() - startTime);
+            this.permissionMetrics.error.inc();
 
             log.error({ error, resource, action, subject_org_id }, 'Failed to check permission with Kessel');
             return false;
@@ -175,13 +181,15 @@ module.exports = class extends Connector {
         try {
             if (!this.defaultWorkspaces[subject_org_id]) {
                 this.defaultWorkspaces[subject_org_id] = await fetchDefaultWorkspace(
-                                                this.kesselConfig.url,
+                                                this.rbacConfig.host,
                                                 subject_org_id,
-                                                OAuth2AuthRequest(this.oAuth2ClientCredentials),
+                                                oauth2AuthRequest(this.oAuth2ClientCredentials),
                                             );
             }
             return this.defaultWorkspaces[subject_org_id];
         } catch (e) {
+            console.error(e);
+            console.error(e.stack);
             log.error(`Error received when fetching workspace`, e);
             return null;
         }
