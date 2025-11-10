@@ -728,43 +728,20 @@ exports.getPlanSystemsDetails = async function (inventoryIds, chunkSize = 50) {
     return result;
 };
 
+// For now, we're returning an empty executors array because we no longer use playbook_run_executors or playbook_run_systems tables (receptor data)
+// The combineRuns function will populate executors by calling the playbook-dispatcher API (via formatRHCRuns)
 exports.getPlaybookRuns = function (id, tenant_org_id, created_by, primaryOrder = 'updated_at', asc = false) {
-    const {s: {col, cast, where}, fn: {DISTINCT, COUNT, SUM}} = db;
+    const {s: {col}} = db;
 
     return db.remediation.findOne({
         attributes: [],
         include: [{
             attributes: PLAYBOOK_RUN_ATTRIBUTES,
-            model: db.playbook_runs,
-            include: [{
-                attributes: [
-                    'executor_id',
-                    'executor_name',
-                    'status',
-                    [cast(COUNT(DISTINCT(col('playbook_runs->executors->systems.id'))), 'int'), 'system_count'],
-                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'pending'), 'int')), 'int'), 'count_pending'],
-                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'success'), 'int')), 'int'), 'count_success'],
-                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'running'), 'int')), 'int'), 'count_running'],
-                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'failure'), 'int')), 'int'), 'count_failure'],
-                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'canceled'), 'int')), 'int'), 'count_canceled']
-                ],
-                model: db.playbook_run_executors,
-                as: 'executors',
-                include: [{
-                    attributes: [],
-                    model: db.playbook_run_systems,
-                    as: 'systems'
-                }]
-            }]
+            model: db.playbook_runs
         }],
         where: {
             id, tenant_org_id, created_by
         },
-        group: [
-            'remediation.id',
-            'playbook_runs.id',
-            'playbook_runs->executors.id'
-        ],
         order: [
             [db.playbook_runs, col(primaryOrder), asc ? 'ASC' : 'DESC']
         ]
