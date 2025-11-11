@@ -914,7 +914,7 @@ exports.getRunningExecutors = function (remediation_id, playbook_run_id, tenant_
         }],
         where: {
             status: {
-                [Op.or]: ['pending', 'acked', 'running']
+                [Op.or]: ['pending', 'running']
             }
         },
         order: [
