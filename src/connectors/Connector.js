@@ -53,7 +53,7 @@ module.exports = class Connector {
                     request: {
                         uri: options.uri,
                         method: options.method,
-                        headers: options.headers,
+                        headers: _.omit(options.headers, ['Authorization']),
                         body: options.body
                     },
                     response: {
