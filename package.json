@@ -11,6 +11,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@godaddy/terminus": "^4.4.1",
+    "@project-kessel/kessel-sdk": "^3.2.0",
     "app-common-js": "^2.2.4",
     "bluebird": "^3.7.2",
     "body-parser": "^1.20.3",
@@ -37,7 +38,7 @@
     "pino": "^8.12.1",
     "pino-cloudwatch": "^0.7.0",
     "pino-http": "^8.3.3",
-    "pino-pretty": "^10.0.0",
+    "pino-pretty": "^13.0.0",
     "prom-client": "^11.5.3",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
@@ -105,6 +106,9 @@
     "test:dc": "docker-compose -f build/docker-compose-unit_test.yml up --build --exit-code-from remediations-api",
     "test:dc-down": "docker-compose -f build/docker-compose-unit_test.yml down",
     "test:contract": "NODE_ENV=test jest -i --testMatch='**/?(*.)+(contract).js'",
+    "test:kessel": "node scripts/test-kessel-migration.js",
+    "kessel:start": "docker-compose -f docker-compose.kessel.yml up -d",
+    "kessel:stop": "docker-compose -f docker-compose.kessel.yml down",
     "verify": "npm-run-all lint coverage"
   }
 }

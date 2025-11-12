@@ -5,6 +5,7 @@
 const config = require('../config');
 const cache = require('../cache');
 const db = require('../db');
+const inventory = require('../connectors/inventory');
 const {NULL_NAME_VALUE} = require('./models/remediation');
 const _ = require('lodash');
 const trace = require('../util/trace');
@@ -175,10 +176,7 @@ exports.list = async function (
                 required: false
             }]
         }],
-        where: {
-            tenant_org_id,
-            created_by
-        },
+        where: created_by ? { tenant_org_id, created_by } : { tenant_org_id },
         group: ['remediation.id'],
         // Sort on any remediation column and also issue_count, system_count, last_run_at and status
         // last_run_at sort option will use the playbook_runs.created_at column in the db
@@ -273,7 +271,7 @@ exports.list = async function (
             include: [{
                 model: db.remediation,
                 attributes: [],
-                where: { tenant_org_id, created_by },
+                where: created_by ? { tenant_org_id, created_by } : { tenant_org_id },
                 required: true
             }],
             where: {
@@ -286,7 +284,9 @@ exports.list = async function (
         await fifi2.syncDispatcherRunsForPlaybookRuns(recentRuns.map(run => run.id));
     }
 
-    return db.remediation.findAndCountAll(query);
+    const result = await db.remediation.findAndCountAll(query);
+
+    return result;
 };
 
 exports.loadDetails = async function (tenant_org_id, created_by, rows) {
@@ -305,13 +305,18 @@ exports.loadDetails = async function (tenant_org_id, created_by, rows) {
                 'EXISTS (SELECT * FROM "remediation_issue_systems" WHERE "remediation_issue_systems"."remediation_issue_id" = "issues"."id")'
             )
         }],
-        where: {
-            tenant_org_id,
-            created_by,
-            id: {
-                [Op.in]: _.map(rows, 'id')
+        where: (() => {
+            const whereClause = {
+                tenant_org_id,
+                id: {
+                    [Op.in]: _.map(rows, 'id')
+                }
+            };
+            if (created_by) {
+                whereClause.created_by = created_by;
             }
-        }
+            return whereClause;
+        })()
     };
 
     const results = await db.remediation.findAll(query);
@@ -336,6 +341,7 @@ exports.loadDetails = async function (tenant_org_id, created_by, rows) {
 exports.getPlanNames = function (tenant_org_id) {
     const query = {
         attributes: [
+            'id',
             'name'
         ],
         where: {
@@ -467,10 +473,13 @@ exports.getIssues = async function (remediation_plan_id, tenant_org_id, created_
             {
                 attributes: [],
                 model: db.remediation,
-                where: {
-                    created_by,
-                    tenant_org_id
-                }
+                where: (() => {
+                    const whereClause = { tenant_org_id };
+                    if (created_by) {
+                        whereClause.created_by = created_by;
+                    }
+                    return whereClause;
+                })()
             },{
                 attributes: ['system_id'],
                 model: db.issue_system,
@@ -510,15 +519,258 @@ exports.getIssueSystems = function (id, tenant_org_id, created_by, issueId) {
                 issue_id: issueId
             }
         }],
-        where: {
-            id, tenant_org_id, created_by
-        },
+        where: (() => {
+            const whereClause = { id, tenant_org_id };
+            if (created_by) {
+                whereClause.created_by = created_by;
+            }
+            return whereClause;
+        })(),
         order: [
             ['id'],
             [db.issue, 'issue_id'],
             [db.issue, db.issue.associations.systems, 'system_id']
         ]
     });
+};
+
+// Fetch missing system details from inventory service and store in systems table
+async function fetch_missing_system_data(missingIds) {
+    // just being diligent and validating our input parameters...
+    if (missingIds.length === 0) {
+        return;
+    }
+
+    const systemDetails = await inventory.getSystemDetailsBatch(missingIds);
+    const remediationSystems = Object.values(systemDetails).map(system => ({
+        id: system.id,
+        hostname: system.hostname || null,
+        display_name: system.display_name || null,
+        ansible_hostname: system.ansible_host || null
+    }));
+
+    if (remediationSystems.length > 0) {
+        await db.systems.bulkCreate(remediationSystems, {
+            updateOnDuplicate: ['hostname', 'display_name', 'ansible_hostname', 'updated_at']
+        });
+    }
+}
+
+// Return a paginated, sorted list of distinct systems for a remediation plan
+exports.getPlanSystems = async function (
+    remediation_plan_id,
+    tenant_org_id,
+    created_by,
+    column = 'display_name',
+    asc = true,
+    filter = null,
+    limit = 50,
+    offset = 0
+) {
+    const { Op, s: { literal, col, cast }, fn: { DISTINCT, COUNT }, issue, issue_system, remediation } = db;
+
+    // Fetch distinct system ids for the plan scoped by tenant/user
+    const distinctSystemIds = (await issue_system.findAll({
+        attributes: [[DISTINCT(col('issue_system.system_id')), 'system_id']],
+        include: [{
+            attributes: [],
+            model: issue,
+            required: true,
+            where: { remediation_id: remediation_plan_id },
+            include: [{
+                attributes: [],
+                association: issue.associations.remediation,
+                model: remediation,
+                required: true,
+                where: { tenant_org_id, created_by }
+            }]
+        }],
+        raw: true
+    })).map(r => r.system_id);
+
+    // If no systems found for the remediation plan, return empty results
+    if (distinctSystemIds.length === 0) {
+        return { count: 0, rows: [] };
+    }
+
+    // If there are systems that don't exist in the systems table yet,
+    // fall back to calling Inventory to retrieve and store system info first
+    const existingSystems = await db.systems.findAll({
+        attributes: ['id'],
+        where: { id: { [Op.in]: distinctSystemIds } },
+        raw: true
+    });
+    const existingIds = _.map(existingSystems, 'id');
+    const missingIds = _.difference(distinctSystemIds, existingIds);
+
+    // If there are missing systems, fetch their details from inventory service
+    await fetch_missing_system_data(missingIds);
+
+    const where = { [Op.and]: [{ id: { [Op.in]: distinctSystemIds } }] };
+
+    if (filter && typeof filter === 'object') {
+        if (filter.id) {
+            where[Op.and].push(
+                db.s.where(cast(col('id'), 'text'), { [Op.iLike]: `%${filter.id}%` })
+            );
+        }
+        if (filter.hostname) {
+            where[Op.and].push({ hostname: { [Op.iLike]: `%${filter.hostname}%` } });
+        }
+        if (filter.display_name) {
+            where[Op.and].push({ display_name: { [Op.iLike]: `%${filter.display_name}%` } });
+        }
+    }
+
+    const order = [[column, asc ? 'ASC' : 'DESC']];
+
+    const result = await db.systems.findAndCountAll({
+        attributes: ['id', 'hostname', 'display_name'],
+        where,
+        order,
+        limit,
+        offset,
+        raw: true
+    });
+
+    if (result.rows.length > 0) {
+        const systemIds = result.rows.map(s => s.id);
+        
+        // Get issue count for only paginated list of systems
+        const issueCounts = await db.issue_system.findAll({
+            attributes: [
+                'system_id',
+                [COUNT('*'), 'count']
+            ],
+            include: [{
+                attributes: [],
+                model: db.issue,
+                required: true,
+                where: { remediation_id: remediation_plan_id }
+            }],
+            where: { system_id: { [Op.in]: systemIds } },
+            group: ['system_id'],
+            raw: true
+        });
+        
+        const countsBySystemId = _.keyBy(issueCounts, 'system_id');
+        
+        // Add issue_count for each system in the paginated list
+        result.rows = result.rows.map(row => ({
+            ...row,
+            issue_count: parseInt(countsBySystemId[row.id]?.count || 0)
+        }));
+    }
+
+    return result;
+};
+
+/**
+ * Fetch system details for a list of inventory UUIDs from the systems table.
+ * For any systems not found in the local systems table, fetches details from the inventory service
+ * and stores them locally. Returns hostname, ansible_hostname, and display_name for each system.
+ * 
+ * @param {string[]} inventoryIds - Array of inventory/system UUIDs to fetch details for
+ * @param {number} [chunkSize=50] - Number of systems to process in each database chunk (default: 50)
+ * @returns {Object} Object with inventory UUIDs as keys and system details as values
+ * 
+ * @example
+ * // Basic usage with default chunk size
+ * const systemDetails = await getPlanSystemsDetails([
+ *   'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c',
+ *   'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d'
+ * ]);
+ * // Returns: {
+ * //   'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c': { 
+ * //     hostname: 'server1.example.com', 
+ * //     ansible_hostname: 'ansible1', 
+ * //     display_name: 'Server 1'
+ * //   },
+ * //   'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d': { 
+ * //     hostname: 'server2.example.com', 
+ * //     ansible_hostname: 'ansible2', 
+ * //     display_name: 'Server 2'
+ * //   }
+ * // }
+ * 
+ * @example
+ * // Custom chunk size for performance tuning
+ * const systemDetails = await getPlanSystemsDetails([
+ *   'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c'
+ * ], 25);
+ * 
+ * @example
+ * // Handling systems not found in inventory (fallback to UUID as hostname)
+ * const systemDetails = await getPlanSystemsDetails([
+ *   'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c',
+ *   '00000000-0000-0000-0000-000000000000'
+ * ]);
+ * // Returns: {
+ * //   'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c': { 
+ * //     hostname: 'server1.example.com', 
+ * //     ansible_hostname: 'ansible1', 
+ * //     display_name: 'Server 1'
+ * //   },
+ * //   '00000000-0000-0000-0000-000000000000': { 
+ * //     hostname: '00000000-0000-0000-0000-000000000000', 
+ * //     ansible_hostname: null, 
+ * //     display_name: null
+ * //   }
+ * // }
+ */
+exports.getPlanSystemsDetails = async function (inventoryIds, chunkSize = 50) {
+    if (!inventoryIds || inventoryIds.length === 0) {
+        return {};
+    }
+
+    // Check which systems already exist in the systems table
+    const existingSystems = await db.systems.findAll({
+        attributes: ['id'],
+        where: { id: inventoryIds },
+        raw: true
+    });
+    const existingIds = existingSystems.map(s => s.id);
+    const missingIds = _.difference(inventoryIds, existingIds);
+
+    // Fetch missing system details from inventory service and store them
+    await fetch_missing_system_data(missingIds);
+
+    const result = {};
+
+    // Process in configurable chunks
+    const chunks = _.chunk(inventoryIds, chunkSize);
+
+    for (const chunk of chunks) {
+        const systems = await db.systems.findAll({
+            attributes: ['id', 'hostname', 'ansible_hostname', 'display_name'],
+            where: {
+                id: chunk
+            },
+            raw: true
+        });
+
+        // Add systems to result object
+        systems.forEach(system => {
+            result[system.id] = {
+                hostname: system.hostname,
+                ansible_hostname: system.ansible_hostname,
+                display_name: system.display_name
+            };
+        });
+    }
+
+    // For any systems we still couldn't find details for, set default values
+    inventoryIds.forEach(inventoryId => {
+        if (!result[inventoryId]) {
+            result[inventoryId] = {
+                hostname: null,
+                ansible_hostname: null,
+                display_name: null
+            };
+        }
+    });
+
+    return result;
 };
 
 exports.getPlaybookRuns = function (id, tenant_org_id, created_by, primaryOrder = 'updated_at', asc = false) {
@@ -562,6 +814,25 @@ exports.getPlaybookRuns = function (id, tenant_org_id, created_by, primaryOrder 
             [db.playbook_runs, col(primaryOrder), asc ? 'ASC' : 'DESC']
         ]
     });
+};
+
+exports.getLatestPlaybookRun = async function (id, tenant_org_id, created_by) {
+    // Get the latest playbook run ID
+    const latestRun = await db.playbook_runs.findOne({
+        attributes: ['id'],
+        where: {
+            remediation_id: id,
+            created_by: created_by
+        },
+        order: [['created_at', 'DESC']]
+    });
+
+    if (!latestRun) {
+        return null;
+    }
+
+    // Get the full details using getRunDetails
+    return exports.getRunDetails(id, latestRun.id, tenant_org_id, created_by);
 };
 
 exports.getRunDetails = function (id, playbook_run_id, tenant_org_id, created_by) {
@@ -740,6 +1011,60 @@ exports.getSystemDetails = function (id, playbook_run_id, system_id, tenant_org_
             system_id
         }
     });
+};
+
+// Return issues for a specific system within a remediation plan
+exports.getSystemIssues = async function (remediation_id, system_id, tenant_org_id, created_by = null, primaryOrder = 'id', asc = true, filter = undefined, limit, offset) {
+    const { Op, issue, remediation, issue_system, s: { col } } = db;
+
+    const include = [
+        {
+            attributes: [],
+            model: remediation,
+            required: true,
+            where: (() => {
+                const whereClause = { id: remediation_id, tenant_org_id };
+                if (created_by) {
+                    whereClause.created_by = created_by;
+                }
+                return whereClause;
+            })()
+        },
+        {
+            attributes: ['system_id'],
+            model: issue_system,
+            as: 'systems',
+            required: true,
+            where: { system_id }
+        }
+    ];
+
+    const where = {};
+    const order = [];
+
+    order.push(['issue_id', asc ? 'ASC' : 'DESC']);
+
+    if (filter) {
+        if (filter.id) {
+            where.issue_id = { [Op.iLike]: `%${filter.id}%` };
+        }
+
+        if (filter['resolution.id']) {
+            where.resolution = filter['resolution.id'];
+        }
+    }
+
+    const query = {
+        attributes: ['issue_id', 'resolution'],
+        include,
+        where,
+        order,
+        limit,
+        offset,
+        distinct: true
+    };
+
+    return issue.findAndCountAll(query);
 };
 
 exports.insertPlaybookRun = async function (run, executors, systems) {

@@ -325,7 +325,8 @@ exports.playbookSystems = function (systems, total) {
         system_name: system.system_name,
         status: system.status,
         updated_at: (_.isDate(system.updated_at)) ? system.updated_at.toISOString() : system.updated_at,
-        playbook_run_executor_id: system.playbook_run_executor_id
+        playbook_run_executor_id: system.playbook_run_executor_id,
+        executor_type: system.executor_type
     }));
 
     return {
@@ -366,14 +367,62 @@ exports.issueSystems = function (issue, total) {
     };
 };
 
+// Format distinct plan systems list with pagination links
+exports.planSystems = function (plan_id, systems, total, limit, offset, sort) {
+    const formatted = systems.map(s => ({
+        id: s.id,
+        hostname: s.hostname,
+        display_name: s.display_name,
+        issue_count: s.issue_count
+    }));
+
+    return {
+        meta: {
+            count: formatted.length,
+            total
+        },
+        links: buildListLinks(`v1/remediations/${plan_id}/systems`, total, limit, offset, sort),
+        data: formatted
+    };
+};
+
 exports.planNames = function (names, total, limit, offset, sort, system) {
+    // Format data to include both id and name
+    const formatted_data = _.map(names, plan => ({
+        id: plan.id,
+        name: plan.name
+    }));
+
     return {
         meta: {
             count: names.length,
             total
         },
-        data: names,
+        data: formatted_data,
         links: buildListLinks(total, limit, offset, sort, system),
+    };
+};
+
+exports.systemIssues = function (plan_id, system_id, issues, total, limit, offset, sort) {
+    const formatted = issues.map(issue => ({
+        id: issue.issue_id,
+        description: issue.details?.description || '',
+        resolution: issue.resolution ? {
+            id: issue.resolution.type,
+            description: issue.resolution.description,
+            resolution_risk: issue.resolution.resolutionRisk,
+            needs_reboot: issue.resolution.needsReboot
+        } : {},
+        resolutions_available: issue.resolutionsAvailable
+    }));
+
+    return {
+        meta: {
+            count: formatted.length,
+            total
+        },
+        links: buildListLinks(`v1/remediations/${plan_id}/systems/${system_id}/issues`, total, limit, offset, sort),
+        data: formatted
     };
 };
 

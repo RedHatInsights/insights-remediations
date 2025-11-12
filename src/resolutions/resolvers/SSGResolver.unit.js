@@ -37,9 +37,9 @@ describe('SSGResolved', function () {
             resolutions[0].description.should.equal('Disable Prelinking');
         });
 
-        test('returns 0 if the rule does not exist at all', async () => {
+        test('returns no resolutions if the issue does not exist at all', async () => {
             const id = identifiers.parse('ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|standard|xccdf_org.ssgproject.content_rule_this_is_nonsense');
-            const resolutions = (await resolver.resolveResolutions(id));
+            const resolutions = await resolver.resolveResolutions(id);
             resolutions.should.have.size(0);
         });
 

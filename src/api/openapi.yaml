@@ -35,7 +35,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/RemediationSort'
         - $ref: '#/components/parameters/RemediationFilter'
-        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Limit200'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/RemediationSystem'
         - $ref: '#/components/parameters/HideArchived'
@@ -249,7 +249,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/RemediationId'
         - $ref: '#/components/parameters/IssueId'
-        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Limit200'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/IssueSystemsSort'
       responses:
@@ -292,7 +292,7 @@ paths:
       operationId: getRemediationSystems
       parameters:
         - $ref: '#/components/parameters/RemediationId'
-        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Limit50'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/SystemsFilter'
         - $ref: '#/components/parameters/SystemsSort'
@@ -309,12 +309,14 @@ paths:
                      {
                        "id": "a8799a02-8be9-11e8-9eb6-529269fb1459",
                        "hostname": "db01.example.com",
-                       "display_name": "prod-db"
+                       "display_name": "prod-db",
+                       "issue_count": 4
                      },
                      {
                        "id": "993c1ca8-ca85-40f7-bfed-5e06eb5194f6",
                        "hostname": "db02.example.com",
-                       "display_name": "stage-db"
+                       "display_name": "stage-db",
+                       "issue_count": 1
                      }
                    ],
                    "meta": {
@@ -336,7 +338,7 @@ paths:
       tags:
         - remediations
       summary: Bulk Remove Remediation Plan Systems
-      description: Removes the given list of systems from the specified remediation plan.  Request is rejected if 
+      description: Removes the given list of systems from the specified remediation plan.  Request is rejected if
         indicated remediation plan is not found.  Duplicate or missing system IDs are ignored.
       operationId: deleteRemediationSystems
       parameters:
@@ -347,6 +349,74 @@ paths:
         200:
           $ref: '#/components/responses/MultipleDelete'
 
+
+  /remediations/{id}/systems/{system}:
+    delete:
+      tags:
+        - remediations
+      summary: Remove system from all issues in remediation
+      description: Removes the given System from all issues in the specified remediation plan, RBAC permission {remediations:remediation:write}
+      operationId: deleteRemediationSystem
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/SystemId'
+      responses:
+        204:
+          $ref: '#/components/responses/Deleted'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /remediations/{id}/systems/{system}/issues:
+    get:
+      tags:
+        - remediations
+      summary: Get Remediation System Issues
+      description: Get a paginated list of issues for a specific system in a remediation plan, RBAC permission {remediations:remediation:read}
+      operationId: getRemediationSystemIssues
+      parameters:
+        - $ref: '#/components/parameters/RemediationId'
+        - $ref: '#/components/parameters/SystemId'
+        - $ref: '#/components/parameters/Limit50'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/SystemIssuesSort'
+        - $ref: '#/components/parameters/SystemIssuesFilter'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemIssuesList'
+              example: |
+                {
+                  "data": [
+                    {
+                      "id": "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+                      "description": "Kernel vulnerability allows privilege escalation",
+                      "resolution": {
+                        "id": "fix",
+                        "description": "Update kernel to patched version",
+                        "resolution_risk": 2,
+                        "needs_reboot": true
+                      },
+                      "resolutions_available": 1
+                    }
+                  ],
+                  "meta": {
+                    "count": 1,
+                    "total": 149
+                  },
+                  "links": {
+                    "first": "/api/remediations/v1/remediations/a8799a02-8be9-11e8-9eb6-529269fb1459/systems/a8799a02-8be9-11e8-9eb6-529269fb1459/issues?limit=50&offset=0",
+                    "last": "/api/remediations/v1/remediations/a8799a02-8be9-11e8-9eb6-529269fb1459/systems/a8799a02-8be9-11e8-9eb6-529269fb1459/issues?limit=50&offset=100",
+                    "next": "/api/remediations/v1/remediations/a8799a02-8be9-11e8-9eb6-529269fb1459/systems/a8799a02-8be9-11e8-9eb6-529269fb1459/issues?limit=50&offset=50",
+                    "previous": null
+                  }
+                }
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
   /remediations/{id}/connection_status:
     get:
       tags:
@@ -396,8 +466,8 @@ paths:
     get:
       tags:
         - remediations
-      summary: Check smart_managment systems
-      description: Checks remediation for the existence of smart_managment flaged systems
+      summary: Check if remediation is executable
+      description: Checks if a remediation exists
       operationId: checkExecutable
       parameters:
         - $ref: '#/components/parameters/RemediationId'
@@ -467,7 +537,7 @@ paths:
       operationId: listPlaybookRuns
       parameters:
         - $ref: '#/components/parameters/RemediationId'
-        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Limit200'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/PlaybookRunSort'
       responses:
@@ -566,7 +636,7 @@ paths:
         - $ref: '#/components/parameters/RemediationId'
         - $ref: '#/components/parameters/PlaybookRunId'
         - $ref: '#/components/parameters/ExecutorId'
-        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Limit200'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/SystemName'
         - $ref: '#/components/parameters/PlaybookRunSystemSort'
@@ -721,7 +791,7 @@ paths:
 
 components:
   parameters:
-    Limit:
+    Limit200:
       in: query
       name: limit
       description: Maximum number of results to return
@@ -964,16 +1034,24 @@ components:
       name: fields[data]
       description: |
         Include specified items
-        - name: list all remediation plan names in organization (cannot be combined with other fields)
-        - playbook_runs: include playbook run data in the response
+        - name: list all remediation plan names and IDs in organization (cannot be combined with other fields)
+        - playbook_runs: include playbook run data in the response (cannot be combined with other fields)
+        - last_playbook_run: include latest playbook run summary in the response (cannot be combined with other fields)
       required: false
       schema:
-        type: array
-        items:
-          type: string
-          enum:
-            - name
-            - playbook_runs
+        oneOf:
+          - type: array
+            items:
+              type: string
+              enum: [name]
+          - type: array
+            items:
+              type: string
+              enum: [playbook_runs]
+          - type: array
+            items:
+              type: string
+              enum: [last_playbook_run]
 
     RemediationFormat:
       in: query
@@ -1104,6 +1182,41 @@ components:
             type: string
             description: Filter by display name (allows partial match)
             example: stage-db
+      style: deepObject
+      explode: true
+
+    SystemIssuesSort:
+      in: query
+      name: sort
+      description: Sort order
+      required: false
+      schema:
+        type: string
+        enum: [id, -id]
+        default: id
+
+    SystemIssuesFilter:
+      in: query
+      name: filter
+      description: |
+        For filtering by various criteria.
+
+        Available filter fields:
+        - id: issue ids matching string (supports partial match)
+        - resolution.id: selected resolution type (e.g., fix)
+      required: false
+      schema:
+        type: object
+        additionalProperties: false
+        x-remediations-strict: false  # suppress validation since none of the properties is required
+        properties:
+          id:
+            type: string
+            description: Filter by issue id (allows partial match)
+            example: advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074
+          resolution.id:
+            type: string
+            description: Selected resolution type (e.g., fix)
       style: deepObject
       explode: true
 
@@ -1582,12 +1695,50 @@ components:
       additionalProperties: false
       required: [data, meta]
       properties:
+        meta:
+          $ref: '#/components/schemas/Meta'
         data:
           type: array
           items:
             $ref: '#/components/schemas/SystemOut'
+
+    SystemIssueOut:
+      type: object
+      additionalProperties: false
+      required: [id, description, resolution, resolutions_available]
+      properties:
+        id:
+          $ref: '#/components/schemas/IssueId'
+        description:
+          type: string
+        resolution:
+          type: object
+          additionalProperties: false
+          properties:
+            id:
+              $ref: '#/components/schemas/ResolutionType'
+            description:
+              type: string
+            resolution_risk:
+              type: integer
+            needs_reboot:
+              type: boolean
+        resolutions_available:
+          type: integer
+
+    SystemIssuesList:
+      type: object
+      additionalProperties: false
+      required: [data, meta]
+      properties:
         meta:
           $ref: '#/components/schemas/Meta'
+        links:
+          $ref: '#/components/schemas/Links'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SystemIssueOut'
 
     RemediationSystemList:
       type: object
@@ -1597,7 +1748,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/SystemOut'
+            $ref: '#/components/schemas/SystemWithIssueCount'
         meta:
           $ref: '#/components/schemas/Meta'
         links:
@@ -1763,6 +1914,9 @@ components:
           $ref: '#/components/schemas/DateTime'
         playbook_run_executor_id:
           $ref: '#/components/schemas/PlaybookRunId'
+        executor_type:
+          type: string
+          description: Executor type for this system (e.g., 'direct' or 'satellite')
 
     PlaybookRunSystemDetails:
       type: object
@@ -2078,8 +2232,10 @@ components:
     RemediationNameListItem:
       type: object
       additionalProperties: false
-      required: [name]
+      required: [id, name]
       properties:
+        id:
+          $ref: '#/components/schemas/RemediationId'
         name:
           $ref: '#/components/schemas/RemediationName'
 
@@ -2173,6 +2329,27 @@ components:
           type: boolean
           nullable: false
           example: false
+
+    SystemWithIssueCount:
+      type: object
+      additionalProperties: false
+      required: [id, hostname, display_name, issue_count]
+      properties:
+        id:
+          $ref: '#/components/schemas/SystemId'
+        hostname:
+          type: string
+          nullable: true
+          example: db01.example.com
+        display_name:
+          type: string
+          nullable: true
+          example: prod-db
+        issue_count:
+          type: integer
+          minimum: 0
+          example: 4
+          description: Number of issues associated with this system in the remediation plan
 
     UserOut:
       type: object

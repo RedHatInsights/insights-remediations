@@ -107,6 +107,102 @@ describe('identity', () => {
         .expect(403);
     });
 
+    test('403s on null username', async () => {
+        await request
+        .get('/v1/remediations')
+        .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, true, data => {
+            data.identity.user.username = null;
+            return data;
+        }))
+        .expect(403);
+    });
+
+    test('403s on undefined username', async () => {
+        await request
+        .get('/v1/remediations')
+        .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, true, data => {
+            data.identity.user.username = undefined;
+            return data;
+        }))
+        .expect(403);
+    });
+
+    test('403s on empty string username', async () => {
+        await request
+        .get('/v1/remediations')
+        .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, true, data => {
+            data.identity.user.username = '';
+            return data;
+        }))
+        .expect(403);
+    });
+
+    test('403s on whitespace-only username', async () => {
+        await request
+        .get('/v1/remediations')
+        .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, true, data => {
+            data.identity.user.username = '   ';
+            return data;
+        }))
+        .expect(403);
+    });
+
+    test('403s on missing user object', async () => {
+        await request
+        .get('/v1/remediations')
+        .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, true, data => {
+            delete data.identity.user;
+            return data;
+        }))
+        .expect(403);
+    });
+
+    test('403s on null user object', async () => {
+        await request
+        .get('/v1/remediations')
+        .set(utils.IDENTITY_HEADER, utils.createIdentityHeader(undefined, undefined, true, data => {
+            data.identity.user = null;
+            return data;
+        }))
+        .expect(403);
+    });
+
+    test('allows valid username', async () => {
+        const {body} = await request
+        .get('/v1/whoami')
+        .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('validuser@redhat.com', 'test', '0000000', true))
+        .expect(200);
+
+        body.should.containEql({
+            username: 'validuser@redhat.com',
+            account_number: 'test'
+        });
+    });
+
+    test('allows username with special characters', async () => {
+        const {body} = await request
+        .get('/v1/whoami')
+        .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('user+test@example.com', 'test', '0000000', true))
+        .expect(200);
+
+        body.should.containEql({
+            username: 'user+test@example.com',
+            account_number: 'test'
+        });
+    });
+
+    test('allows username with numbers', async () => {
+        const {body} = await request
+        .get('/v1/whoami')
+        .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('user123@redhat.com', 'test', '0000000', true))
+        .expect(200);
+
+        body.should.containEql({
+            username: 'user123@redhat.com',
+            account_number: 'test'
+        });
+    });
+
     test('403s on type === system', async () => {
         await request
         .get('/v1/remediations')

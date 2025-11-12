@@ -8,7 +8,7 @@ exports[`generates a playbook with block 1`] = `
 # they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
-# Add nodev Option to /dev/shm
+# To learn more about this rule: https://static.open-scap.org/ssg-guides/ssg-rhel7-guide-ospp.html#xccdf_org.ssgproject.content_rule_mount_option_dev_shm_nodev
 # Identifier: (ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|ospp|xccdf_org.ssgproject.content_rule_mount_option_dev_shm_nodev,fix)
 # Version: NORMALIZED_PLACEHOLDER
 # platform = multi_platform_all
@@ -188,7 +188,7 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
 # they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
-# Disable Prelinking
+# To learn more about this rule: https://static.open-scap.org/ssg-guides/ssg-rhel7-guide-pci-dss.html#xccdf_org.ssgproject.content_rule_disable_prelink
 # Identifier: (ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink,fix)
 # Version: NORMALIZED_PLACEHOLDER
 # platform = multi_platform_rhel,multi_platform_fedora,multi_platform_ol
@@ -231,7 +231,7 @@ exports[`generates a simple playbook with multiple compliance remediation 1`] = 
       when: prelink_exists.stat.exists
 
 
-# Enable rsyslog Service
+# To learn more about this rule: https://static.open-scap.org/ssg-guides/ssg-rhel7-guide-standard.html#xccdf_org.ssgproject.content_rule_service_rsyslog_enabled
 # Identifier: (ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled,fix)
 # Version: NORMALIZED_PLACEHOLDER
 # platform = multi_platform_all
@@ -395,7 +395,7 @@ exports[`generates a simple playbook with single compliance remediation (Complia
 # they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
-# Disable Prelinking
+# To learn more about this rule: https://static.open-scap.org/ssg-guides/ssg-rhel7-guide-pci-dss.html#xccdf_org.ssgproject.content_rule_disable_prelink
 # Identifier: (ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|pci-dss|xccdf_org.ssgproject.content_rule_disable_prelink,fix)
 # Version: NORMALIZED_PLACEHOLDER
 # platform = multi_platform_rhel,multi_platform_fedora,multi_platform_ol
@@ -561,7 +561,7 @@ exports[`generates a simple playbook with uppercase profile name 1`] = `
 # they may contain configuration changes, updates, reboots and/or other changes to your systems. Red Hat is not
 # responsible for any adverse outcomes related to these recommendations or Playbooks.
 
-# Disable Host-Based Authentication
+# To learn more about this rule: https://static.open-scap.org/ssg-guides/ssg-rhel7-guide-C2S.html#xccdf_org.ssgproject.content_rule_disable_host_auth
 # Identifier: (ssg:xccdf_org.ssgproject.content_benchmark_RHEL-7|1.0.0|C2S|xccdf_org.ssgproject.content_rule_disable_host_auth,fix)
 # Version: NORMALIZED_PLACEHOLDER
 # platform = multi_platform_all

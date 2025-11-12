@@ -38,7 +38,7 @@ exports.connection_status = errors.async(async function (req, res) {
 
     if (!rhcEnabled) {
         // 403 if remediations not enabled
-        throw new errors.Forbidden();
+        throw new errors.Forbidden('RHC Manager permission is required for this operation. Please visit https://console.redhat.com/insights/connector to enable this permission.');
     }
 
     //--------------------------------------------------------------
@@ -111,7 +111,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
 
     if (!rhcEnabled) {
         // 403 if remediations not enabled
-        throw new errors.Forbidden();
+        throw new errors.Forbidden('RHC Manager permission is required for this operation. Please visit https://console.redhat.com/insights/connector to enable this permission.');
     }
 
     //--------------------------------------------------------------

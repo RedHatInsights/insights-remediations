@@ -1,5 +1,5 @@
 # Default value for BASE_IMAGE
-BASE_IMAGE ?= registry.access.redhat.com/ubi9/ubi-minimal:9.6-1752587672
+BASE_IMAGE ?= registry.access.redhat.com/ubi9/ubi-minimal:9.6-1758184547
 # Default value for CONTAINERFILE
 CONTAINERFILE ?= Dockerfile
 
@@ -22,51 +22,7 @@ generate-repo-file:
 	@sed -i 's/ubi-9-baseos-rpms/ubi-9-for-x86_64-baseos-rpms/' ubi.repo
 	@sed -i 's/\r$$//' ubi.repo
 	@sed -i '/\[.*x86_64.*\]/,/^\[/ s/enabled[[:space:]]*=[[:space:]]*0/enabled = 1/g' ubi.repo
-	@ENTITLEMENT_KEY=$$(ls /etc/pki/entitlement/*-key.pem 2>/dev/null | head -n 1); \
-	ENTITLEMENT_CERT=$$(ls /etc/pki/entitlement/*.pem 2>/dev/null | grep -v -- '-key.pem' | head -n 1); \
-	if [ -z "$$ENTITLEMENT_KEY" ] || [ -z "$$ENTITLEMENT_CERT" ]; then \
-		echo "Error: Entitlement key or certificate not found in /etc/pki/entitlement"; \
-		exit 1; \
-	fi; \
-	$(MAKE) append-repo-config REPO_NAME="rhel-9-for-x86_64-baseos-rpms" \
-		REPO_DESC="Red Hat Enterprise Linux 9 for x86_64 - BaseOS (RPMs)" \
-		REPO_URL='https://cdn.redhat.com/content/dist/rhel9/9/$$$$basearch/baseos/os' \
-		ENTITLEMENT_KEY="$$ENTITLEMENT_KEY" \
-		ENTITLEMENT_CERT="$$ENTITLEMENT_CERT"; \
-	$(MAKE) append-repo-config REPO_NAME="rhel-9-for-x86_64-baseos-source-rpms" \
-		REPO_DESC="Red Hat Enterprise Linux 9 for x86_64 - BaseOS (RPMs)" \
-		REPO_URL='https://cdn.redhat.com/content/dist/rhel9/9/$$$$basearch/baseos/source/SRPMS' \
-		ENTITLEMENT_KEY="$$ENTITLEMENT_KEY" \
-		ENTITLEMENT_CERT="$$ENTITLEMENT_CERT"; \
-	$(MAKE) append-repo-config REPO_NAME="rhel-9-for-x86_64-appstream-rpms" \
-		REPO_DESC="Red Hat Enterprise Linux 9 for x86_64 - AppStream (RPMs)" \
-		REPO_URL='https://cdn.redhat.com/content/dist/rhel9/9/$$$$basearch/appstream/os' \
-		ENTITLEMENT_KEY="$$ENTITLEMENT_KEY" \
-		ENTITLEMENT_CERT="$$ENTITLEMENT_CERT"; \
-	$(MAKE) append-repo-config REPO_NAME="rhel-9-for-x86_64-appstream-source-rpms" \
-		REPO_DESC="Red Hat Enterprise Linux 9 for x86_64 - AppStream (RPMs)" \
-		REPO_URL='https://cdn.redhat.com/content/dist/rhel9/9/$$$$basearch/appstream/source/SRPMS' \
-		ENTITLEMENT_KEY="$$ENTITLEMENT_KEY" \
-		ENTITLEMENT_CERT="$$ENTITLEMENT_CERT"
 
-# Append common repository configuration to ubi.repo
-# Usage: make append-repo-config REPO_NAME=<name> REPO_DESC=<description> REPO_URL=<url> ENTITLEMENT_KEY=<key> ENTITLEMENT_CERT=<cert>
-.PHONY: append-repo-config
-append-repo-config:
-	@echo "" >> ubi.repo
-	@echo "[$(REPO_NAME)]" >> ubi.repo
-	@echo "name = $(REPO_DESC)" >> ubi.repo
-	@echo 'baseurl = $(REPO_URL)' >> ubi.repo
-	@echo "enabled = 1" >> ubi.repo
-	@echo "gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release" >> ubi.repo
-	@echo "gpgcheck = 1" >> ubi.repo
-	@echo "sslverify = 1" >> ubi.repo
-	@echo "sslcacert = /etc/rhsm/ca/redhat-uep.pem" >> ubi.repo
-	@echo "sslclientkey = $(ENTITLEMENT_KEY)" >> ubi.repo
-	@echo "sslclientcert = $(ENTITLEMENT_CERT)" >> ubi.repo
-	@echo "sslverifystatus = 1" >> ubi.repo
-	@echo "metadata_expire = 86400" >> ubi.repo
-	@echo "enabled_metadata = 0" >> ubi.repo
 
 # Generate rpms.in.yaml listing RPM packages installed via yum, dnf, or microdnf from CONTAINERFILE
 # Usage: make generate-rpms-in-yaml [CONTAINERFILE=<path>]
@@ -105,7 +61,7 @@ generate-rpms-in-yaml:
 
 # Generate rpms.lock.yaml using rpm-lockfile-prototype container
 # Usage: make generate-rpm-lockfile [BASE_IMAGE=<image>]
-# Example: make generate-rpm-lockfile BASE_IMAGE=registry.access.redhat.com/ubi9/ubi-minimal:9.6-1752587672
+# Example: make generate-rpm-lockfile BASE_IMAGE=registry.access.redhat.com/ubi9/ubi-minimal:9.6-1758184547
 #          make generate-rpm-lockfile (uses default BASE_IMAGE)
 .PHONY: generate-rpm-lockfile-containerized
 generate-rpm-lockfile-containerized: rpms.in.yaml

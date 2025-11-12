@@ -123,14 +123,26 @@ exports.list = errors.async(async function (req, res) {
         filter = {name: filter};
     }
 
-    // ?fields[data]=name cannot be combined with other data fields...
-    if (_.get(req, 'query.fields.data', []).includes('name') && Array.isArray(_.get(req, 'query.fields.data', []))) {
-        throw new errors.BadRequest('INVALID_REQUEST', `'name' cannot be combined with other fields.`);
+    // NOTE: OpenAPI request validator is not enforcing enumerated string restrictions for array elements,
+    // so we're validating fields[data] parameter here to prevent partial matches and enforce allowed values
+    const fieldsData = _.get(req, 'query.fields.data', []);
+    const fieldsArray = Array.isArray(fieldsData) ? fieldsData : (fieldsData ? [fieldsData] : []);
+    const allowedFields = ['playbook_runs', 'last_playbook_run', 'name'];
+    
+    // Validate that only allowed fields are present
+    const invalidFields = _.difference(fieldsArray, allowedFields);
+    if (invalidFields.length > 0) {
+        throw new errors.BadRequest('INVALID_REQUEST', `Invalid field(s): ${invalidFields.join(', ')}. Allowed fields are: ${allowedFields.join(', ')}`);
+    }
+
+    // Validate that only one field was used
+    if (fieldsArray.length > 1) {
+        throw new errors.BadRequest('INVALID_REQUEST', `Only one field may be specified, but ${fieldsArray.join(', ')} were provided.`);
     }
 
     // Check for name in fields query param:
     // fields[data]=name
-    if (_.get(req, 'query.fields.data', []).includes('name')) {
+    if (fieldsArray.includes('name')) {
         trace.event('Include name data');
         let plan_names = await queries.getPlanNames(
             req.user.tenant_org_id
@@ -150,9 +162,15 @@ exports.list = errors.async(async function (req, res) {
     }
 
     trace.event('Query db for list of remediations');
+    
+    // allow service accounts to see all remediations
+    // if the request comes from a service account
+    // otherwise use creator
+    const creator_sa_filter = req.type == "ServiceAccount" ? null : req.user.username;
+    
     const {count, rows} = await queries.list(
         req.user.tenant_org_id,
-        req.user.username,
+        creator_sa_filter,
         req.query.system,
         column,
         asc,
@@ -167,7 +185,7 @@ exports.list = errors.async(async function (req, res) {
     }
 
     trace.event('Fetch remediation details from DB');
-    let remediations = await queries.loadDetails(req.user.tenant_org_id, req.user.username, rows);
+    let remediations = await queries.loadDetails(req.user.tenant_org_id, creator_sa_filter, rows);
 
     if (column === 'name') {
         trace.event('Accomodate sort ordering for null names');
@@ -201,9 +219,7 @@ exports.list = errors.async(async function (req, res) {
         }
     });
 
-    // Check for playbook_runs in fields query param:
-    //    fields[data]=playbook_runs
-    if (_.get(req, 'query.fields.data', []).includes('playbook_runs')) {
+    if (fieldsArray.includes('playbook_runs') || fieldsArray.includes('last_playbook_run')) {
         trace.event('Include playbook_runs data');
 
         // set limit to 1 if not explicitly set & fields[data]=playbook_runs
@@ -214,12 +230,21 @@ exports.list = errors.async(async function (req, res) {
             const local_iteration = iteration++;
             trace.enter(`[${local_iteration}] Process remediation: ${remediation.id}`);
             trace.event(`[${local_iteration}] Fetch playbook run`);
-            let playbook_runs = await queries.getPlaybookRuns(
-                remediation.id,
-                req.user.tenant_org_id,
-                req.user.username,
-                'created_at'
-            );
+            let playbook_runs;
+            if (fieldsArray.includes('last_playbook_run')) {
+                playbook_runs = await queries.getLatestPlaybookRun(
+                    remediation.id,
+                    req.user.tenant_org_id,
+                    req.user.username
+                );
+            } else {
+                playbook_runs = await queries.getPlaybookRuns(
+                    remediation.id,
+                    req.user.tenant_org_id,
+                    req.user.username,
+                    'created_at'
+                );
+            }
 
             // getPlaybookRuns _can_ return null...
             if (playbook_runs) {
@@ -228,7 +253,7 @@ exports.list = errors.async(async function (req, res) {
                 // Join rhcRuns and playbookRuns
                 trace.event(`[${local_iteration}] Combine runs`);
                 playbook_runs.iteration = local_iteration;
-                playbook_runs.playbook_runs = await fifi.combineRuns(playbook_runs);
+                await fifi.combineRuns(playbook_runs);
 
                 trace.event(`[${local_iteration}] Resolve users`);
                 playbook_runs = await fifi.resolveUsers(req, playbook_runs);
@@ -238,10 +263,14 @@ exports.list = errors.async(async function (req, res) {
                 fifi.updatePlaybookRunsStatus(playbook_runs.playbook_runs);
 
                 trace.event(`[${local_iteration}] Format playbook run`);
-                remediation.playbook_runs = format.formatRuns(playbook_runs.playbook_runs);
-
-                trace.leave(`[${local_iteration}] Process remediation: ${remediation.id}`);
+                const formattedRuns = format.formatRuns(playbook_runs.playbook_runs);
+                
+                // When 'playbook_runs' is requested: contains all playbook runs for the remediation
+                // When 'last_playbook_run' is requested: contains only the latest playbook run (1 element)
+                remediation.playbook_runs = formattedRuns;
             }
+
+            trace.leave(`[${local_iteration}] Process remediation: ${remediation.id}`);
         })
     }
 
@@ -286,7 +315,12 @@ exports.get = errors.async(async function (req, res) {
     // are we just summarizing?
     const summarize = req.query['format'] == 'summary';
 
-    let remediation = await queries.get(req.params.id, req.user.tenant_org_id, req.user.username);
+    // allow service accounts to read any remediation
+    // if the request comes from a service account
+    // otherwise use creator
+    const creator_sa_filter = req.type == "ServiceAccount" ? null : req.user.username;
+
+    let remediation = await queries.get(req.params.id, req.user.tenant_org_id, creator_sa_filter);
 
     if (!remediation) {
         return notFound(res);
@@ -334,13 +368,18 @@ exports.playbook = errors.async(async function (req, res) {
     const cert_auth = _.isUndefined(req.user);
 
     const tenant_org_id = req.identity.org_id;
-    const creator = cert_auth ? null : req.user.username;
+    const creator = cert_auth ? null : req.user.username; 
+
+    // allow service accounts to read playbooks
+    // if the request comes from a service account
+    // otherwise use creator
+    const creator_sa_filter = req.type == "ServiceAccount" ? null : creator
 
     const USE_CACHE = true;
     const EXCLUDE_RESOLVED_COUNT = false;
 
     trace.event('Get remediation plan from db (w/caching)');
-    const remediation = await queries.get(id, tenant_org_id, creator, EXCLUDE_RESOLVED_COUNT, USE_CACHE);
+    const remediation = await queries.get(id, tenant_org_id, creator_sa_filter, EXCLUDE_RESOLVED_COUNT, USE_CACHE);
 
     if (!remediation) {
         return notFound(res);
@@ -446,8 +485,13 @@ exports.downloadPlaybooks = errors.async(async function (req, res) {
         return badRequest(res);
     }
 
+    // allow service accounts to download any remediation
+    // if the request comes from a service account
+    // otherwise use creator
+    const creator_sa_filter = req.type == "ServiceAccount" ? null : req.user.username;
+
     await P.map(req.query.selected_remediations, async id => {
-        const remediation = await queries.get(id, req.user.tenant_org_id, req.user.username);
+        const remediation = await queries.get(id, req.user.tenant_org_id, creator_sa_filter);
 
         if (!remediation) {
             generateZip = false;
@@ -495,8 +539,13 @@ exports.getIssues = errors.async(async function (req, res) {
     const {tenant_org_id, username} = req.user;
     const {limit, offset, sort, filter} = req.query;
 
+    // allow service accounts to access any remediation
+    // if the request comes from a service account
+    // otherwise use creator
+    const creator_sa_filter = req.type == "ServiceAccount" ? null : username;
+
     // get plan from db
-    let plan_issues = await queries.getIssues(plan_id, tenant_org_id, username, filter?.id, sort !== '-id');
+    let plan_issues = await queries.getIssues(plan_id, tenant_org_id, creator_sa_filter, filter?.id, sort !== '-id');
 
     if (_.isEmpty(plan_issues)) {
         return notFound(res);
@@ -542,7 +591,12 @@ exports.getIssueSystems = errors.async(async function (req, res) {
     const {tenant_org_id, username} = req.user;
     const {limit, offset} = req.query;
 
-    const remediation = await queries.getIssueSystems(id, tenant_org_id, username, issue);
+    // allow service accounts to access any remediation
+    // if the request comes from a service account
+    // otherwise use creator
+    const creator_sa_filter = req.type == "ServiceAccount" ? null : username;
+
+    const remediation = await queries.getIssueSystems(id, tenant_org_id, creator_sa_filter, issue);
 
     if (!remediation) {
         return notFound(res);
@@ -568,4 +622,87 @@ exports.getIssueSystems = errors.async(async function (req, res) {
     }
 
     res.json(format.issueSystems(remediation.issues[0], total));
+});
+
+exports.getRemediationSystems = errors.async(async function (req, res) {
+    const plan_id = req.params.id;
+    const { tenant_org_id, username } = req.user;
+    const { limit, offset, sort, filter } = req.query;
+    const { column, asc } = format.parseSort(sort);
+
+    // allow service accounts to access any remediation
+    // if the request comes from a service account
+    // otherwise use creator
+    const creator_sa_filter = req.type == "ServiceAccount" ? null : username;
+
+    let remediation = await queries.get(plan_id, tenant_org_id, creator_sa_filter);
+
+    if (!remediation) {
+        return notFound(res);
+    }
+
+    // Limit is capped at 50 by the API spec
+    const { count: total, rows } = await queries.getPlanSystems(plan_id, tenant_org_id, creator_sa_filter, column, asc, filter, limit, offset);
+
+    if (offset >= Math.max(total, 1)) {
+        throw errors.invalidOffset(offset, total - 1);
+    }
+
+    return res.json(format.planSystems(plan_id, rows, total, limit, offset, sort));
+});
+
+// GET /remediations/:id/systems/:system/issues
+exports.getSystemIssues = errors.async(async function (req, res) {
+    const plan_id = req.params.id;
+    const system_id = req.params.system;
+    const {tenant_org_id, username} = req.user;
+    const {column, asc} = format.parseSort(req.query.sort);
+    const {limit, offset, filter} = req.query;
+
+    // allow service accounts to access any remediation
+    // if the request comes from a service account
+    // otherwise use creator
+    const creator_sa_filter = req.type == "ServiceAccount" ? null : username;
+
+    // fetch issues for system within plan
+    const {count, rows} = await queries.getSystemIssues(
+        plan_id,
+        system_id,
+        tenant_org_id,
+        creator_sa_filter,
+        column,
+        asc,
+        filter,
+        limit,
+        offset
+    );
+
+    if (!rows || rows.length === 0) {
+        return res.json(format.systemIssues(plan_id, system_id, [], 0, limit, offset, req.query.sort || 'id'));
+    }
+
+    // Fetch issue details
+    const issues = await P.map(rows, async row => {
+        const id = identifiers.parse(row.issue_id);
+        const [resolutions, details] = await Promise.all([
+            Issues.getHandler(id).getResolutionResolver().resolveResolutions(id),
+            Issues.getIssueDetails(id).catch(catchErrorCode('UNKNOWN_ISSUE', () => false))
+        ]);
+
+        let resolution = false;
+        if (row.resolution) {
+            resolution = disambiguator.disambiguate(resolutions, row.resolution, id, false, false) || false;
+        }
+
+        return {
+            issue_id: row.issue_id,
+            resolution,
+            resolutionsAvailable: resolutions.length,
+            details
+        };
+    });
+
+    const total = count;
+
+    res.json(format.systemIssues(plan_id, system_id, issues, total, limit, offset, req.query.sort || 'id'));
 });

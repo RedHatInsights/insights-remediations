@@ -1482,6 +1482,72 @@ exports[`playbooks generate playbook with pydata and playbook support 1`] = `
           with_dict: "{{ pydata.bond_config }}"
 
 
+# To learn more about this rule: https://static.open-scap.org/ssg-guides/ssg-rhel7-guide-standard.html#xccdf_org.ssgproject.content_rule_service_autofs_disabled
+# Identifier: (ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled,fix)
+# Version: NORMALIZED_PLACEHOLDER
+# platform = multi_platform_all
+# complexity = low
+# strategy = disable
+# reboot = false
+# disruption = low
+- name: Disable the Automounter
+  hosts: 'fc94beb8-21ee-403d-99b1-949ef7adb762'
+  become: true
+  tags:
+    - CCE-27498-5
+    - DISA-STIG-RHEL-07-020110
+    - NIST-800-171-3.4.6
+    - NIST-800-53-AC-19(a)
+    - NIST-800-53-AC-19(d)
+    - NIST-800-53-AC-19(e)
+    - NIST-800-53-IA-3
+    - disable_strategy
+    - low_complexity
+    - low_disruption
+    - medium_severity
+    - no_reboot_needed
+    - service_autofs_disabled
+  tasks:
+
+    - name: Unit Service Exists - autofs.service
+      command: systemctl list-unit-files autofs.service
+      register: service_file_exists
+      changed_when: false
+      ignore_errors: true
+      when: ansible_virtualization_role != "guest" or ansible_virtualization_type
+        != "docker"
+
+    - name: Disable service autofs
+      systemd:
+        name: autofs.service
+        enabled: 'no'
+        state: stopped
+        masked: 'yes'
+      when:
+        - '"autofs.service" in service_file_exists.stdout_lines[1]'
+        - ansible_virtualization_role != "guest" or ansible_virtualization_type !=
+          "docker"
+
+    - name: Unit Socket Exists - autofs.socket
+      command: systemctl list-unit-files autofs.socket
+      register: socket_file_exists
+      changed_when: false
+      ignore_errors: true
+      when: ansible_virtualization_role != "guest" or ansible_virtualization_type
+        != "docker"
+
+    - name: Disable socket autofs
+      systemd:
+        name: autofs.socket
+        enabled: 'no'
+        state: stopped
+        masked: 'yes'
+      when:
+        - '"autofs.socket" in socket_file_exists.stdout_lines[1]'
+        - ansible_virtualization_role != "guest" or ansible_virtualization_type !=
+          "docker"
+
+
 # Upgrade packages affected by CVE-2017-5715
 # Identifier: (vulnerabilities:CVE-2017-5715,fix)
 # Version: test
@@ -1600,6 +1666,38 @@ exports[`playbooks generate playbook with pydata and playbook support 1`] = `
       name: set reboot fact
       set_fact:
         insights_needs_reboot: "{{requires_reboot}}"
+
+- name: generate Compliance report
+  hosts: "1f12bdfc-8267-492d-a930-92f498fe65b9.ansible.example.com,fc94beb8-21ee-403d-99b1-949ef7adb762"
+  become: true
+  gather_facts: false
+  vars:
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: !!binary |
+      TFMwdExTMUNSVWRKVGlCUVIxQWdVMGxIVGtGVVZWSkZMUzB0TFMwS1ZtVnljMmx2YmpvZ1IyNTFV
+      RWNnZGpFS0NtbFJTV05DUVVGQ1EwRkJSMEpSU213elMyZFlRVUZ2U2tWTmRuYzFPRVFyYWpWd1Rq
+      a3djMUZCU1dwWVVsWklhUzh5WkdRclFrdzRhRnBCVXlzNGJrd0tjbUp5WkhobWRra3ZhM1p3TWxj
+      eGNrMWtNbkJ0YmpsV1owOURXVll6YzI5Nk1FNURjRTVKZUhsUFFuZFpXVmhOYkdwYU5XcGhOSE5F
+      TkZVME5HbzFRUXBQUmxWTE1IQmxaR3QwVTJseVVsbDJhbTFsVm1oU1YyRnhURzE0VnpJeFFVdDNN
+      bmR5YTBRM1EwNVRjM1JtYmxWMlRtUkJabU5LYjFGV2NHODJOM2RyQ2sxUFNUaFJZMlo2ZFdJMWNu
+      aHlTSFV3ZUM5eFZqVnROa3RPZVZORFptaFlLelo0SzFkMWFqQk1ibEZqYTJ4WVYyVkZVM2hQV1N0
+      blRrMUJNMFkxYkU4S1dXcHdSMmhVU25oeFkzSXpTRWh0TURsV1RWTk1aeTkwTjNFNGRqaERWMlp1
+      Wms1M2VVcDBOazVsYVV0MGFVYzVUa2hKV1d0M1NFZ3lOMFZZTlhORk9Rb3pSakEyWWs5NlpsQkdT
+      RWRaUzBzeFlYTmplamhvTDNOMVRtMDRiWFJ4Ym5CQmIycHNkM1JZVDNKWmFVaG1hV1JsTWtSaWEz
+      VjNOUzl0ZDBGSFFXZFVDbGhtTWtJMGMybFBVSHBpWWxvMVUzUjJSbFk0YzBaMVVrMTFjWEpHVTJj
+      M2FsSkpkbkpQT1ZjeE5YQTBiV04xUnpkSWVDOVJRMVpvUmpkb1FuUkZUMG9LVFhCdmFYVjBOVlpx
+      ZGxsVFkwcEJUM05tTUdsYU5FaFlRWEZtVEVWWWVtdzFja1ZzUmtoek1GSnlWRkJsWVZoSmRqTmti
+      bkpUV0dkNFNUZFVTVUpUYVFwYWJtTkNZalpMVUdkNWFVSXJibWRQV0ZCbFEyMUhNbmRMVm5CSGVI
+      ZDFkV0pXTWtScE5FdGxhWHB0V25KcWNtMVFPRlJLWjJWb2QyRktSMmt5TlZwakNrcFpVMlpGTVU5
+      T1pucDVaR2gxVmxscVltSnhabkppZGxKWU4zaExlV1JNTVhWQlRucG9Ua05wY2pSRk0xcHRaRloy
+      UlVSd04wNVNhalIwTmpReldrY0tTVGxSYnpGRldEazNlR001YmtwYU0wMDVWME5zYVhSa2MwUTJh
+      V1JQWlhCU1FuRlBhSFJIU0hoRlkxVkJUMHgxWkUwelNVNDNNM1pDVlRCa1dsbFVXQXByYVhwNVRV
+      VXJibGxEUmxKSk9XWjFaemx2ZGdvOVVtcGxWZ290TFMwdExVVk9SQ0JRUjFBZ1UwbEhUa0ZVVlZK
+      RkxTMHRMUzBL
+  tasks:
+    - name: generate Compliance report
+      command: insights-client --compliance
+      changed_when: false
 
 # Reboots a system if any of the preceeding plays sets the 'insights_needs_reboot' variable to true.
 # The variable can be overridden to suppress this behavior.
