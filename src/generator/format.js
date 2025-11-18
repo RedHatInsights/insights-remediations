@@ -23,7 +23,7 @@ exports.validate = function (playbook) {
     // crosscheck that what we generated is a valid yaml document
     let parsed;
     try {
-        parsed = yaml.safeLoad(playbook);
+        parsed = yaml.load(playbook);
     } catch (e) {
         throw errors.internal.playbookValidationFailed(e, playbook);
     }
