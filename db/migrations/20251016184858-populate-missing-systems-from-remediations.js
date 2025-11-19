@@ -16,38 +16,21 @@ module.exports = {
         id: system.id,
         hostname: system.hostname || null,
         display_name: system.display_name || null,
-        ansible_hostname: system.ansible_host || null,
-        created_at: new Date(),
-        updated_at: new Date()
+        ansible_hostname: system.ansible_host || null
       }));
 
       if (remediationSystems.length > 0) {
-        // Insert missing systems into the systems table
-        const values = remediationSystems.map(system => 
-          `('${system.id}', ${system.hostname ? `'${system.hostname}'` : 'NULL'}, ${system.display_name ? `'${system.display_name}'` : 'NULL'}, ${system.ansible_hostname ? `'${system.ansible_hostname}'` : 'NULL'}, '${system.created_at.toISOString()}', '${system.updated_at.toISOString()}')`
-        ).join(', ');
-        
-        const insertQuery = `
-          INSERT INTO systems (id, hostname, display_name, ansible_hostname, created_at, updated_at)
-          VALUES ${values}
-          ON CONFLICT (id) DO UPDATE SET
-            hostname = EXCLUDED.hostname,
-            display_name = EXCLUDED.display_name,
-            ansible_hostname = EXCLUDED.ansible_hostname,
-            updated_at = EXCLUDED.updated_at
-        `;
-        
-        await q.sequelize.query(insertQuery);
+        await q.bulkInsert('systems', remediationSystems, {
+          updateOnDuplicate: ['hostname', 'display_name', 'ansible_hostname', 'updated_at']
+        });
       }
     }
 
     try {
       // Get all distinct system IDs from all remediation plans
       const [results] = await q.sequelize.query(`
-        SELECT DISTINCT ris.system_id
-        FROM remediation_issue_systems ris
-        INNER JOIN remediation_issues ri ON ris.remediation_issue_id = ri.id
-        INNER JOIN remediations r ON ri.remediation_id = r.id
+        SELECT DISTINCT system_id
+        FROM remediation_issue_systems
       `);
       
       const distinctSystemIds = results.map(r => r.system_id);
