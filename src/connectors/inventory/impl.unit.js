@@ -10,6 +10,7 @@ const { mockRequest, mockCache } = require('../testUtils');
 const request = require('../../util/request');
 const RequestError = require('request-promise-core/errors').RequestError;
 const inventory_GET = require('./inventory_GET.json');
+const errors = require('../../errors');
 
 function inventoryResponse (results, total = results.length) {
     return {
@@ -37,6 +38,19 @@ describe('inventory impl', function () {
             for (const item of Object.values(result)) {
                 item.should.have.properties(EXPECTED_PROPS);
             }
+        });
+
+        test('throws 403 error for forbidden access (403 response)', async function () {
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(new errors.Forbidden('Access denied.'));
+
+            try {
+                await impl.getSystemInfoBatch(['id1', 'id2']);
+                should.fail('Expected error to be thrown');
+            } catch (error) {
+                error.message.should.equal('Access forbidden');
+                error.error.details.message.should.equal('Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.');
+            }
+            spy.calledOnce.should.be.true();
         });
     });
 
@@ -244,6 +258,19 @@ describe('inventory impl', function () {
             result.should.have.size(250);
             ids.forEach(id => _.has(result, id).should.be.true());
         });
+
+        test('throws 403 error for forbidden access (403 response)', async function () {
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(new errors.Forbidden('Access denied.'));
+
+            try {
+                await impl.getSystemDetailsBatch(['id1', 'id2']);
+                should.fail('Expected error to be thrown');
+            } catch (error) {
+                error.message.should.equal('Access forbidden');
+                error.error.details.message.should.equal('Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.');
+            }
+            spy.calledOnce.should.be.true();
+        });
     });
 
     describe('getSystemsProfileBatch', function () {
@@ -373,6 +400,19 @@ describe('inventory impl', function () {
             http.callCount.should.equal(1);
             cache.get.callCount.should.equal(1);
             cache.setex.callCount.should.equal(0);
+        });
+
+        test('throws 403 error for forbidden access (403 response)', async function () {
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(new errors.Forbidden('Access denied.'));
+
+            try {
+                await impl.getSystemProfileBatch(['id1', 'id2']);
+                should.fail('Expected error to be thrown');
+            } catch (error) {
+                error.message.should.equal('Access forbidden');
+                error.error.details.message.should.equal('Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.');
+            }
+            spy.calledOnce.should.be.true();
         });
     });
 
@@ -531,6 +571,19 @@ describe('inventory impl', function () {
             http.callCount.should.equal(1);
             cache.get.callCount.should.equal(1);
             cache.setex.callCount.should.equal(0);
+        });
+
+        test('throws 403 error for forbidden access (403 response)', async function () {
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(new errors.Forbidden('Access denied.'));
+
+            try {
+                await impl.getSystemsByOwnerId('owner123');
+                should.fail('Expected error to be thrown');
+            } catch (error) {
+                error.message.should.equal('Access forbidden');
+                error.error.details.message.should.equal('Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.');
+            }
+            spy.calledOnce.should.be.true();
         });
     });
 

@@ -127,19 +127,22 @@ exports.list = errors.async(async function (req, res) {
     // so we're validating fields[data] parameter here to prevent partial matches and enforce allowed values
     const fieldsData = _.get(req, 'query.fields.data', []);
     const fieldsArray = Array.isArray(fieldsData) ? fieldsData : (fieldsData ? [fieldsData] : []);
-    const invalidFields = _.difference(fieldsArray, ['playbook_runs', 'last_playbook_run', 'name']);
+    const allowedFields = ['playbook_runs', 'last_playbook_run', 'name'];
+    
+    // Validate that only allowed fields are present
+    const invalidFields = _.difference(fieldsArray, allowedFields);
     if (invalidFields.length > 0) {
-        throw new errors.BadRequest('INVALID_REQUEST', `Invalid field(s): ${invalidFields.join(', ')}. Allowed fields are: name, playbook_runs, last_playbook_run`);
+        throw new errors.BadRequest('INVALID_REQUEST', `Invalid field(s): ${invalidFields.join(', ')}. Allowed fields are: ${allowedFields.join(', ')}`);
     }
 
-    // ?fields[data]=name cannot be combined with other data fields...
-    if (_.get(req, 'query.fields.data', []).includes('name') && Array.isArray(_.get(req, 'query.fields.data', []))) {
-        throw new errors.BadRequest('INVALID_REQUEST', `'name' cannot be combined with other fields.`);
+    // Validate that only one field was used
+    if (fieldsArray.length > 1) {
+        throw new errors.BadRequest('INVALID_REQUEST', `Only one field may be specified, but ${fieldsArray.join(', ')} were provided.`);
     }
 
     // Check for name in fields query param:
     // fields[data]=name
-    if (_.get(req, 'query.fields.data', []).includes('name')) {
+    if (fieldsArray.includes('name')) {
         trace.event('Include name data');
         let plan_names = await queries.getPlanNames(
             req.user.tenant_org_id
@@ -216,11 +219,6 @@ exports.list = errors.async(async function (req, res) {
         }
     });
 
-    // Validate mutual exclusivity of playbook_runs and last_playbook_run
-    if (fieldsArray.includes('playbook_runs') && fieldsArray.includes('last_playbook_run')) {
-        throw new errors.BadRequest('INVALID_REQUEST', 'last_playbook_run and playbook_runs fields cannot be combined');
-    }
-    
     if (fieldsArray.includes('playbook_runs') || fieldsArray.includes('last_playbook_run')) {
         trace.event('Include playbook_runs data');
 

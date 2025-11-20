@@ -73,6 +73,13 @@ To run a single test run:
 npm test <path-to-test-file>
 ```
 
+### Running RBAC and Kessel
+
+To develop with RBAC and Kessel for permissions and access features you will need the inventory-api
+repository which implements a common inventory system with eventing.
+- Clone https://github.com/project-kessel/inventory-api
+- Run `make inventory-up`
+
 ## Configuration
 
 Application configuration can be [changed using environmental variables](https://github.com/RedHatInsights/insights-remediations/blob/master/src/config/index.js).
