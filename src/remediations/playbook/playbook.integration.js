@@ -330,20 +330,20 @@ describe('playbooks', function () {
             .expect(204);
         });
 
-        test('204 on remediation with no hosts', async () => {
+        test('404 on remediation with no hosts', async () => {
             mockDate();
             await request
             .get('/v1/remediations/d1b070b5-1db8-4dac-8ecf-891dc1e9225f/playbook')
             .set(auth.testReadSingle)
-            .expect(204);
+            .expect(404);
         });
 
-        test('204 on remediation with no hosts & localhost', async () => {
+        test('404 on remediation with no hosts & localhost', async () => {
             mockDate();
             await request
             .get('/v1/remediations/d1b070b5-1db8-4dac-8ecf-891dc1e9225f/playbook?localhost')
             .set(auth.testReadSingle)
-            .expect(204);
+            .expect(404);
         });
 
         test('403 on cert-auth request with non matching owner_ids', async () => {
