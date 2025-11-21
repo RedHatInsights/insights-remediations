@@ -58,13 +58,17 @@ async function storeSystemDetails(systemsById) {
 }
 
 async function processNewActions(add) {
-    // normalize and validate
-    add.issues.forEach(issue => {
-        if (!issue.systems && add.systems) {
-            issue.systems = [...add.systems];
-        }
+    // Validate maximum 50 issues per request
+    if (add.issues.length > 50) {
+        throw new errors.BadRequest('TOO_MANY_ISSUES', `Too many issues. Maximum 50 issues per request, got ${add.issues.length}`);
+    }
 
-        if (!issue.systems || !issue.systems.length) {
+    add.issues.forEach(issue => {
+        // Use add.systems as default systems for issues that don't specify their own systems
+        issue.systems = issue.systems || (add.systems ? [...add.systems] : []);
+
+        // Every issue must have at least one system
+        if (issue.systems.length === 0) {
             throw new errors.BadRequest('NO_SYSTEMS', `Systems not specified for "${issue.id}"`);
         }
     });
@@ -76,6 +80,11 @@ async function processNewActions(add) {
     }
 
     const systems = _(add.issues).flatMap('systems').uniq().value();
+
+    // Validate maximum 50 unique systems per request
+    if (systems.length > 50) {
+        throw new errors.BadRequest('TOO_MANY_SYSTEMS', `Too many systems. Maximum 50 unique systems per request, got ${systems.length}`);
+    }
 
     const [systemsById] = await P.all([
         inventory.getSystemDetailsBatch(systems),
@@ -147,7 +156,6 @@ exports.create = errors.async(async function (req, res) {
     let systemsById = null;
     if (add) {
         systemsById = await processNewActions(add);
-        await storeSystemDetails(systemsById);
     }
 
     const id = uuid.v4();
@@ -170,6 +178,11 @@ exports.create = errors.async(async function (req, res) {
         return remediation;
     });
 
+    // Cache system details after remediation is successfully created
+    if (systemsById) {
+        await storeSystemDetails(systemsById);
+    }
+
     res.status(201)
     .set('Location', `${config.path.base}/v1/remediations/${id}`)
     .json(format.created(result));
@@ -188,7 +201,6 @@ exports.patch = errors.async(async function (req, res) {
     let systemsById = null;
     if (add) {
         systemsById = await processNewActions(add);
-        await storeSystemDetails(systemsById);
     }
 
     const result = await db.s.transaction(async transaction => {
@@ -228,6 +240,11 @@ exports.patch = errors.async(async function (req, res) {
 
         return true;
     });
+
+    // Cache system details after remediation is successfully updated
+    if (result && systemsById) {
+        await storeSystemDetails(systemsById);
+    }
 
     result && res.status(200).end();
 });
