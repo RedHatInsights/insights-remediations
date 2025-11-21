@@ -979,6 +979,16 @@ describe('remediations', function () {
             expect(body).toMatchSnapshot();
         });
 
+        test('summary format includes issues with 0 systems', async () => {
+            const {body: summary} = await request
+                .get('/v1/remediations/d1b070b5-1db8-4dac-8ecf-891dc1e9225f?format=summary')
+                .set(auth.testReadSingle)
+                .expect(200);
+
+            // Should include all 3 issues (all with 0 systems) in the summary format
+            expect(summary.issue_count).toBe(3);
+        });
+
         test('get remediation with test namespace resolutions', async () => {
             const {body, text} = await request
             .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4?pretty')

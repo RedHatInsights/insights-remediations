@@ -398,7 +398,7 @@ exports.get = async function (id, tenant_org_id, created_by = null, includeResol
             include: {
                 attributes: ['system_id', 'resolved'],
                 association: db.issue.associations.systems,
-                required: true
+                required: false
             }
         }],
         where: {
