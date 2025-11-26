@@ -20,7 +20,7 @@ jobs:
         env:
           POSTGRESQL_USER: postgres_user
           POSTGRESQL_PASSWORD: remediations
-          POSTGRESQL_DATABASE: remediationstest
+          POSTGRESQL_DATABASE: remediations
         ports:
           - 5432:5432
         options: >-

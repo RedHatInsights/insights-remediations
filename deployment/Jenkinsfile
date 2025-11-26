@@ -75,7 +75,7 @@ node {
             utils.withScaledEnv(TESTNS) {
 
                 env.DB_HOST="postgres.${TESTNS}.svc"
-                env.DB_DATABASE='remediationstest'
+                env.DB_DATABASE='remediations'
 
                 stage('verify') {
                     env.VMAAS_IMPL='mock'

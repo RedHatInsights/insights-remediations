@@ -19,7 +19,7 @@ node('nodejs') {
     utils.withScaledEnv(NS) {
 
         env.DB_HOST="postgres.${NS}.svc"
-        env.DB_DATABASE='remediationstest'
+        env.DB_DATABASE='remediations'
 
         stage('integration tests against VMaaS') {
             env.VMAAS_IMPL='impl'
