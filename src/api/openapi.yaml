@@ -1515,6 +1515,11 @@ components:
                     type: array
                     items:
                       $ref: '#/components/schemas/SystemId'
+                  precedence:
+                    type: integer
+                    nullable: true
+                    description: Controls the order in which issues are executed in the generated playbook. Lower numbers execute first. If not specified, issues are ordered by issue_id.
+                    example: 1
             systems:
               type: array
               items:

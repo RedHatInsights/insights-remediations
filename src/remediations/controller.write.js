@@ -115,7 +115,8 @@ async function storeNewActions (remediation, add, transaction) {
     const newIssues = await db.issue.bulkCreate(toCreate.map(issue => ({
         remediation_id: remediation.id,
         issue_id: issue.id,
-        resolution: issue.resolution
+        resolution: issue.resolution,
+        precedence: issue.precedence ?? null
     })), {
         transaction,
         returning: true
