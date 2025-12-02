@@ -53,6 +53,11 @@ exports.connection_status = errors.async(async function (req, res) {
         )
     ].sort();
 
+    // If no systems, return empty result without calling dispatcher
+    if (systemIds.length === 0) {
+        return res.json(format.connectionStatus([]));
+    }
+
     //-----------------------------------------------
     // get connection status of referenced systems
     //-----------------------------------------------
