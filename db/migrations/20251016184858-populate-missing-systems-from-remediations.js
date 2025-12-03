@@ -2,6 +2,8 @@
 
 const _ = require('lodash');
 
+const BATCH_SIZE = 100;
+
 module.exports = {
   async up(q, Sequelize) {
     //===================================================
@@ -37,18 +39,22 @@ module.exports = {
 
       // Check which systems already exist in the systems table
       if (distinctSystemIds.length > 0) {
-        const [existingResults] = await q.sequelize.query(`
-          SELECT id FROM systems WHERE id IN (${distinctSystemIds.map(() => '?').join(',')})
-        `, {
-          replacements: distinctSystemIds
-        });
-        
-        const existingIds = existingResults.map(s => s.id);
-        const missingIds = _.difference(distinctSystemIds, existingIds);
+        // Process systems in batches to avoid huge IN clauses
+        const chunks = _.chunk(distinctSystemIds, BATCH_SIZE);
 
-        if (missingIds.length > 0) {
-          await fetch_missing_system_data(missingIds);
-          console.log('Successfully populated missing systems');
+        for (const chunk of chunks) {
+          const [existingResults] = await q.sequelize.query(`
+            SELECT id FROM systems WHERE id IN (${chunk.map(() => '?').join(',')})
+          `, {
+            replacements: chunk
+          });
+          
+          const existingIds = existingResults.map(s => s.id);
+          const missingIds = _.difference(chunk, existingIds);
+
+          if (missingIds.length > 0) {
+            await fetch_missing_system_data(missingIds);
+          }
         }
       }
 

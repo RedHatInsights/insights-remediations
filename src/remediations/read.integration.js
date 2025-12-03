@@ -1622,20 +1622,16 @@ describe('remediations', function () {
         });
 
         test('filters by hostname and display_name substrings (combined)', async () => {
-            // Systems should already be populated by migration, so we can test filtering directly
             const { body } = await request
             .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?filter[hostname]=example&filter[display_name]=system')
             .set(auth.testReadSingle)
             .expect(200);
 
-            // If systems exist in the database, they should match the filters
-            if (body.data.length > 0) {
-                body.data.forEach(r => {
-                    expect((r.hostname || '').toLowerCase()).toContain('example');
-                    expect((r.display_name || '').toLowerCase()).toContain('system');
-                });
-            }
-            // If no systems match the filters, that's also valid
+            expect(body.data.length).toBeGreaterThan(0);
+            body.data.forEach(r => {
+                expect((r.hostname || '').toLowerCase()).toContain('example');
+                expect((r.display_name || '').toLowerCase()).toContain('system');
+            });
         });
 
         test('returns empty list when plan has no systems', async () => {
@@ -1649,19 +1645,6 @@ describe('remediations', function () {
             body.data.should.eql([]);
         });
 
-        test('returns systems from database (populated by migration)', async () => {
-            // Systems should already be populated by migration, so we can test the API directly
-            const res = await request
-            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?sort=display_name')
-            .set(auth.testReadSingle)
-            .expect(200);
-
-            // Verify the response structure is correct
-            const names = res.body.data.map(r => (r.display_name || '').toLowerCase());
-            const nonEmpty = names.filter(n => n !== '').sort();
-            const empties = names.filter(n => n === '');
-            expect(names).toEqual([...nonEmpty, ...empties]);
-        });
     });
 
     describe('remediations read RBAC', function () {
