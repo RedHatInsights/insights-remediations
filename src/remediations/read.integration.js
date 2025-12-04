@@ -697,7 +697,7 @@ describe('remediations', function () {
                     testList("updated_after=date/time query no match", '/v1/remediations?filter[updated_after]=2025-03-31T08:19:36.641Z');
                     testList('name and created_after query with match', '/v1/remediations?filter[name]=REBoot&filter[created_after]=2018-12-04T08:19:36.641Z', r178);
                     testList('name and created_after query no match', '/v1/remediations?filter[name]=REBootNoMatch&filter[created_after]=2018-12-04T08:19:36.641Z');
-                    testList('last_run_after=date/time query no match', '/v1/remediations?filter[last_run_after]=2025-12-04T08:19:36.641Z');
+                    testList('last_run_after=date/time query no match', '/v1/remediations?filter[last_run_after]=2030-12-04T08:19:36.641Z');
                     testList('last_run_after=date/time query with match', '/v1/remediations?filter[last_run_after]=2016-12-04T08:19:36.641Z', refe, r249);
                     testList('last_run_after=never query with match', '/v1/remediations?filter[last_run_after]=never', r256, r178, re80, rcbc, r66e);
                     testList('name and last_run_after query no match', '/v1/remediations?filter[last_run_after]=2018-12-04T08:19:36.641Z&filter[name]=REBootNoMatch');
