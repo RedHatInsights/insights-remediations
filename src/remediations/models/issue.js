@@ -18,6 +18,11 @@ module.exports = (sequelize, {INTEGER, STRING, UUID}) => {
         resolution: {
             type: STRING,
             allowNull: true
+        },
+        precedence: {
+            type: INTEGER,
+            allowNull: true,
+            defaultValue: null
         }
     }, {
         tableName: 'remediation_issues'

@@ -264,6 +264,162 @@ describe('remediations', function () {
             issue.systems.map(system => system.id).should.eql(systems);
         });
 
+        test('creates a remediation with Compliance issues ordered by precedence', async () => {
+            const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f'];
+            
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({
+                name: 'Test precedence ordering',
+                add: {
+                    issues: [{
+                        id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled',
+                        resolution: 'fix',
+                        systems,
+                        precedence: 20
+                    }, {
+                        id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled',
+                        resolution: 'fix',
+                        systems,
+                        precedence: 5
+                    }, {
+                        id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_security_patches_up_to_date',
+                        resolution: 'fix',
+                        systems,
+                        precedence: 10
+                    }]
+                }
+            })
+            .expect(201);
+
+            const {body: remediation} = await request
+            .get(`/v1/remediations/${body.id}`)
+            .set(auth.testWrite)
+            .expect(200);
+
+            remediation.issues.should.have.length(3);
+            // Verify issues are ordered by precedence (5, 10, 20)
+            remediation.issues[0].id.should.equal('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled');
+            remediation.issues[1].id.should.equal('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_security_patches_up_to_date');
+            remediation.issues[2].id.should.equal('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled');
+        });
+
+        test('orders Compliance issues without precedence by issue_id', async () => {
+            const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f'];
+            
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({
+                name: 'Test default ordering',
+                add: {
+                    issues: [{
+                        id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled',
+                        resolution: 'fix',
+                        systems
+                    }, {
+                        id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_security_patches_up_to_date',
+                        resolution: 'fix',
+                        systems
+                    }]
+                }
+            })
+            .expect(201);
+
+            const {body: remediation} = await request
+            .get(`/v1/remediations/${body.id}`)
+            .set(auth.testWrite)
+            .expect(200);
+
+            remediation.issues.should.have.length(2);
+            // Verify issues are ordered alphabetically by issue_id when no precedence
+            remediation.issues[0].id.should.equal('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_security_patches_up_to_date');
+            remediation.issues[1].id.should.equal('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled');
+        });
+
+        test('mixes Compliance issues with and without precedence (NULLS LAST)', async () => {
+            const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f'];
+            
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({
+                name: 'Test mixed ordering',
+                add: {
+                    issues: [{
+                        id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled',
+                        resolution: 'fix',
+                        systems
+                        // no precedence
+                    }, {
+                        id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled',
+                        resolution: 'fix',
+                        systems,
+                        precedence: 5
+                    }, {
+                        id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_security_patches_up_to_date',
+                        resolution: 'fix',
+                        systems
+                        // no precedence
+                    }]
+                }
+            })
+            .expect(201);
+
+            const {body: remediation} = await request
+            .get(`/v1/remediations/${body.id}`)
+            .set(auth.testWrite)
+            .expect(200);
+
+            remediation.issues.should.have.length(3);
+            // Issue with precedence 5 comes first, then others ordered by issue_id
+            remediation.issues[0].id.should.equal('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled');
+            remediation.issues[1].id.should.equal('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_security_patches_up_to_date');
+            remediation.issues[2].id.should.equal('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled');
+        });
+
+        test('precedence 0 is valid and sorts first', async () => {
+            const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f'];
+            
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({
+                name: 'Test precedence zero',
+                add: {
+                    issues: [{
+                        id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled',
+                        resolution: 'fix',
+                        systems,
+                        precedence: 10
+                    }, {
+                        id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled',
+                        resolution: 'fix',
+                        systems,
+                        precedence: 0
+                    }, {
+                        id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_security_patches_up_to_date',
+                        resolution: 'fix',
+                        systems,
+                        precedence: 5
+                    }]
+                }
+            })
+            .expect(201);
+
+            const {body: remediation} = await request
+            .get(`/v1/remediations/${body.id}`)
+            .set(auth.testWrite)
+            .expect(200);
+
+            remediation.issues.should.have.length(3);
+            // Verify precedence 0 comes first (not treated as null/falsy)
+            remediation.issues[0].id.should.equal('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled');
+            remediation.issues[1].id.should.equal('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_security_patches_up_to_date');
+            remediation.issues[2].id.should.equal('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled');
+        });
+
 
         test('400s if unexpected property is provided', async () => {
             const {id, header} = reqId();

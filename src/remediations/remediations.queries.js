@@ -412,6 +412,7 @@ exports.get = async function (id, tenant_org_id, created_by = null, includeResol
         ],
         order: [
             ['id'],
+            [db.issue, 'precedence', 'ASC NULLS LAST'],
             [db.issue, 'issue_id'],
             [db.issue, db.issue.associations.systems, 'system_id']
         ]
