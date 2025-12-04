@@ -5,5 +5,17 @@
   ],
   "tekton": {
     "schedule": ["at any time"]
-  }
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true
+  },
+  "osvVulnerabilityAlerts": true,
+  "packageRules": [
+    {
+      "description": "Disable minor and patch updates",
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchManagers": ["!tekton", "!dockerfile", "!rpm-lockfile"],
+      "enabled": false
+    }
+  ]
 }

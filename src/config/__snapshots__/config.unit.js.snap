@@ -91,6 +91,16 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "xjoinHost": "http://localhost:4000/graphql",
   },
   "isMarketplace": false,
+  "kessel": {
+    "authEnabled": false,
+    "clientId": undefined,
+    "clientSecret": undefined,
+    "enabled": false,
+    "insecure": false,
+    "oidcIssuerUrl": undefined,
+    "principalDomain": "redhat",
+    "url": "localhost:9000",
+  },
   "logging": {
     "cloudwatch": {
       "enabled": false,

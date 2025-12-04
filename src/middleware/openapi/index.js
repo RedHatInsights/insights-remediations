@@ -132,7 +132,7 @@ module.exports = function (operationId) {
             const errors = resValidator.validateResponse(res.statusCode, args[0]);
 
             if (errors) {
-                log.warn({ errors, body: args[0] }, 'response failed spec validation');
+                log.warn({ requestId: req.id, errors, body: args[0] }, 'response failed spec validation');
 
                 if (config.validateResponseStrict) {
                     const status = 500;
