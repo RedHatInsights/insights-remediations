@@ -727,8 +727,9 @@ exports.getPlanSystemsDetails = async function (inventoryIds, chunkSize = 50) {
     return result;
 };
 
-// For now, we're returning an empty executors array because we no longer use playbook_run_executors or playbook_run_systems tables (receptor data)
-// The combineRuns function will populate executors by calling the playbook-dispatcher API (via formatRHCRuns)
+// Returns playbook runs for a remediation (without executor data)
+// Executors are no longer included here since receptor data was removed
+// combineRuns will initialize executors to [] and populate from playbook-dispatcher API
 exports.getPlaybookRuns = function (id, tenant_org_id, created_by, primaryOrder = 'updated_at', asc = false) {
     const {s: {col}} = db;
 
