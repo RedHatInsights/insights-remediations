@@ -412,6 +412,11 @@ exports.combineRuns = async function (remediation) {
 
     // array of playbook_run_id
     for (const run of remediation.playbook_runs) {
+        // Initialize executors array if it doesn't exist (getPlaybookRuns no longer includes receptor executors)
+        if (!run.executors) {
+            run.executors = [];
+        }
+
         // query playbook-dispatcher to see if there are any RHC direct or
         // RHC satellite hosts for this playbook run...
         trace.event(`[${iteration}] Fetch run details for run: ${run.id}`);
