@@ -677,8 +677,11 @@ exports.getSystemIssues = errors.async(async function (req, res) {
         offset
     );
 
+    // getSystemIssues returns no rows only when there's no remediation_issue_systems entry
+    // for this system_id within this remediation plan, meaning the system is not in the plan
+    // So in this case, return 404
     if (!rows || rows.length === 0) {
-        return res.json(format.systemIssues(plan_id, system_id, [], 0, limit, offset, req.query.sort || 'id'));
+        return notFound(res);
     }
 
     // Fetch issue details
