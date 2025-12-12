@@ -180,6 +180,41 @@ describe('FiFi', function () {
             body.data.should.eql([]);
         });
 
+        test('does not call dispatcher when remediation has no systems', async () => {
+            // Spy on dispatcher to verify it's NOT called
+            const dispatcherSpy = base.getSandbox().spy(dispatcher, 'getConnectionStatus');
+
+            const {body} = await request
+            .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f6927/connection_status')
+            .set(auth.fifi)
+            .expect(200);
+
+            // Verify response is correct
+            body.meta.count.should.eql(0);
+            body.meta.total.should.eql(0);
+            body.data.should.eql([]);
+
+            // Verify dispatcher was NOT called (this is the key test!)
+            dispatcherSpy.called.should.be.false();
+        });
+
+        test('does call dispatcher when remediation has systems', async () => {
+            // Spy on dispatcher to verify it IS called
+            const dispatcherSpy = base.getSandbox().spy(dispatcher, 'getConnectionStatus');
+
+            await request
+            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status')
+            .set(auth.fifi)
+            .expect(200);
+
+            // Verify dispatcher WAS called with non-empty hosts array
+            dispatcherSpy.calledOnce.should.be.true();
+            const callArgs = dispatcherSpy.getCall(0).args[0];
+            callArgs.should.have.property('org_id');
+            callArgs.should.have.property('hosts');
+            callArgs.hosts.should.not.be.empty();
+        });
+
         test('404 on empty query', async () => {
             await request
             .get('/v1/remediations/b0dd77e5-b7aa-4752-aa66-f79f7a7705b8/connection_status?pretty')
