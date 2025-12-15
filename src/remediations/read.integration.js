@@ -895,6 +895,40 @@ describe('remediations', function () {
             body.meta.count.should.equal(1);
             body.meta.total.should.equal(2);
         });
+
+        test('returns 404 when system does not exist in remediation', async () => {
+            const remId = uuidv4();
+            const systemInRemediation = uuidv4();
+            const systemNotInRemediation = uuidv4();
+            createdIds.push(remId);
+
+            await db.remediation.create({
+                id: remId,
+                name: 'system-issues-404',
+                tenant_org_id: TEST_ORG,
+                account_number: TEST_ACCOUNT,
+                created_by: TEST_USER,
+                updated_by: TEST_USER
+            });
+
+            const issue = await db.issue.create({ remediation_id: remId, issue_id: 'test:ping', resolution: 'fix' });
+
+            await db.issue_system.bulkCreate([
+                { remediation_issue_id: issue.id, system_id: systemInRemediation, resolved: false }
+            ]);
+
+            // Existing system should return 200
+            await request
+                .get(`/v1/remediations/${remId}/systems/${systemInRemediation}/issues`)
+                .set(auth.testReadSingle)
+                .expect(200);
+
+            // Non-existent system should return 404
+            await request
+                .get(`/v1/remediations/${remId}/systems/${systemNotInRemediation}/issues`)
+                .set(auth.testReadSingle)
+                .expect(404);
+        });
     });
 
     describe('get', function () {
