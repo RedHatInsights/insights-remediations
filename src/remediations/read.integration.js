@@ -697,7 +697,7 @@ describe('remediations', function () {
                     testList("updated_after=date/time query no match", '/v1/remediations?filter[updated_after]=2025-03-31T08:19:36.641Z');
                     testList('name and created_after query with match', '/v1/remediations?filter[name]=REBoot&filter[created_after]=2018-12-04T08:19:36.641Z', r178);
                     testList('name and created_after query no match', '/v1/remediations?filter[name]=REBootNoMatch&filter[created_after]=2018-12-04T08:19:36.641Z');
-                    testList('last_run_after=date/time query no match', '/v1/remediations?filter[last_run_after]=2025-12-04T08:19:36.641Z');
+                    testList('last_run_after=date/time query no match', '/v1/remediations?filter[last_run_after]=2030-12-04T08:19:36.641Z');
                     testList('last_run_after=date/time query with match', '/v1/remediations?filter[last_run_after]=2016-12-04T08:19:36.641Z', refe, r249);
                     testList('last_run_after=never query with match', '/v1/remediations?filter[last_run_after]=never', r256, r178, re80, rcbc, r66e);
                     testList('name and last_run_after query no match', '/v1/remediations?filter[last_run_after]=2018-12-04T08:19:36.641Z&filter[name]=REBootNoMatch');
@@ -894,6 +894,40 @@ describe('remediations', function () {
             body.data.map(i => i.id).should.eql(['test:reboot']);
             body.meta.count.should.equal(1);
             body.meta.total.should.equal(2);
+        });
+
+        test('returns 404 when system does not exist in remediation', async () => {
+            const remId = uuidv4();
+            const systemInRemediation = uuidv4();
+            const systemNotInRemediation = uuidv4();
+            createdIds.push(remId);
+
+            await db.remediation.create({
+                id: remId,
+                name: 'system-issues-404',
+                tenant_org_id: TEST_ORG,
+                account_number: TEST_ACCOUNT,
+                created_by: TEST_USER,
+                updated_by: TEST_USER
+            });
+
+            const issue = await db.issue.create({ remediation_id: remId, issue_id: 'test:ping', resolution: 'fix' });
+
+            await db.issue_system.bulkCreate([
+                { remediation_issue_id: issue.id, system_id: systemInRemediation, resolved: false }
+            ]);
+
+            // Existing system should return 200
+            await request
+                .get(`/v1/remediations/${remId}/systems/${systemInRemediation}/issues`)
+                .set(auth.testReadSingle)
+                .expect(200);
+
+            // Non-existent system should return 404
+            await request
+                .get(`/v1/remediations/${remId}/systems/${systemNotInRemediation}/issues`)
+                .set(auth.testReadSingle)
+                .expect(404);
         });
     });
 
@@ -1622,26 +1656,6 @@ describe('remediations', function () {
         });
 
         test('filters by hostname and display_name substrings (combined)', async () => {
-            const planSystemIds = ['9dae9304-86a8-4f66-baa3-a1b27dfdd479', '1040856f-b772-44c7-83a9-eea4813c4be8'];
-            await db.systems.destroy({ where: { id: planSystemIds }, force: true });
-
-            getSandbox().stub(inventory, 'getSystemDetailsBatch').resolves({
-                '9dae9304-86a8-4f66-baa3-a1b27dfdd479': {
-                    id: '9dae9304-86a8-4f66-baa3-a1b27dfdd479',
-                    hostname: '9dae9304-86a8-4f66-baa3-a1b27dfdd479.example.com',
-                    display_name: '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system',
-                    ansible_host: null,
-                    facts: []
-                },
-                '1040856f-b772-44c7-83a9-eea4813c4be8': {
-                    id: '1040856f-b772-44c7-83a9-eea4813c4be8',
-                    hostname: '1040856f-b772-44c7-83a9-eea4813c4be8.example.com',
-                    display_name: 'some-system',
-                    ansible_host: null,
-                    facts: []
-                }
-            });
-
             const { body } = await request
             .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?filter[hostname]=example&filter[display_name]=system')
             .set(auth.testReadSingle)
@@ -1665,27 +1679,6 @@ describe('remediations', function () {
             body.data.should.eql([]);
         });
 
-        test('populates systems table from inventory when missing (fallback)', async () => {
-            // Clear systems table entries for this plan's systems to force fallback
-            const planSystemIds = ['9dae9304-86a8-4f66-baa3-a1b27dfdd479', '1040856f-b772-44c7-83a9-eea4813c4be8'];
-            await db.systems.destroy({ where: { id: planSystemIds }, force: true });
-
-            const initialCount = await db.systems.count({ where: { id: planSystemIds } });
-            expect(initialCount).toBe(0);
-
-            const res = await request
-            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?sort=display_name')
-            .set(auth.testReadSingle)
-            .expect(200);
-
-            const finalCount = await db.systems.count({ where: { id: planSystemIds } });
-            expect(finalCount).toBeGreaterThan(0);
-
-            const names = res.body.data.map(r => (r.display_name || '').toLowerCase());
-            const nonEmpty = names.filter(n => n !== '').sort();
-            const empties = names.filter(n => n === '');
-            expect(names).toEqual([...nonEmpty, ...empties]);
-        });
     });
 
     describe('remediations read RBAC', function () {

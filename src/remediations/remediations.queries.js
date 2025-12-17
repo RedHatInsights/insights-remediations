@@ -412,6 +412,7 @@ exports.get = async function (id, tenant_org_id, created_by = null, includeResol
         ],
         order: [
             ['id'],
+            [db.issue, 'precedence', 'ASC NULLS LAST'],
             [db.issue, 'issue_id'],
             [db.issue, db.issue.associations.systems, 'system_id']
         ]
@@ -534,27 +535,6 @@ exports.getIssueSystems = function (id, tenant_org_id, created_by, issueId) {
     });
 };
 
-// Fetch missing system details from inventory service and store in systems table
-async function fetch_missing_system_data(missingIds) {
-    // just being diligent and validating our input parameters...
-    if (missingIds.length === 0) {
-        return;
-    }
-
-    const systemDetails = await inventory.getSystemDetailsBatch(missingIds);
-    const remediationSystems = Object.values(systemDetails).map(system => ({
-        id: system.id,
-        hostname: system.hostname || null,
-        display_name: system.display_name || null,
-        ansible_hostname: system.ansible_host || null
-    }));
-
-    if (remediationSystems.length > 0) {
-        await db.systems.bulkCreate(remediationSystems, {
-            updateOnDuplicate: ['hostname', 'display_name', 'ansible_hostname', 'updated_at']
-        });
-    }
-}
 
 // Return a paginated, sorted list of distinct systems for a remediation plan
 exports.getPlanSystems = async function (
@@ -592,19 +572,6 @@ exports.getPlanSystems = async function (
     if (distinctSystemIds.length === 0) {
         return { count: 0, rows: [] };
     }
-
-    // If there are systems that don't exist in the systems table yet,
-    // fall back to calling Inventory to retrieve and store system info first
-    const existingSystems = await db.systems.findAll({
-        attributes: ['id'],
-        where: { id: { [Op.in]: distinctSystemIds } },
-        raw: true
-    });
-    const existingIds = _.map(existingSystems, 'id');
-    const missingIds = _.difference(distinctSystemIds, existingIds);
-
-    // If there are missing systems, fetch their details from inventory service
-    await fetch_missing_system_data(missingIds);
 
     const where = { [Op.and]: [{ id: { [Op.in]: distinctSystemIds } }] };
 
@@ -723,18 +690,6 @@ exports.getPlanSystemsDetails = async function (inventoryIds, chunkSize = 50) {
         return {};
     }
 
-    // Check which systems already exist in the systems table
-    const existingSystems = await db.systems.findAll({
-        attributes: ['id'],
-        where: { id: inventoryIds },
-        raw: true
-    });
-    const existingIds = existingSystems.map(s => s.id);
-    const missingIds = _.difference(inventoryIds, existingIds);
-
-    // Fetch missing system details from inventory service and store them
-    await fetch_missing_system_data(missingIds);
-
     const result = {};
 
     // Process in configurable chunks
@@ -773,43 +728,21 @@ exports.getPlanSystemsDetails = async function (inventoryIds, chunkSize = 50) {
     return result;
 };
 
+// Returns playbook runs for a remediation (without executor data)
+// Executors are no longer included here since receptor data was removed
+// combineRuns will initialize executors to [] and populate from playbook-dispatcher API
 exports.getPlaybookRuns = function (id, tenant_org_id, created_by, primaryOrder = 'updated_at', asc = false) {
-    const {s: {col, cast, where}, fn: {DISTINCT, COUNT, SUM}} = db;
+    const {s: {col}} = db;
 
     return db.remediation.findOne({
         attributes: [],
         include: [{
             attributes: PLAYBOOK_RUN_ATTRIBUTES,
-            model: db.playbook_runs,
-            include: [{
-                attributes: [
-                    'executor_id',
-                    'executor_name',
-                    'status',
-                    [cast(COUNT(DISTINCT(col('playbook_runs->executors->systems.id'))), 'int'), 'system_count'],
-                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'pending'), 'int')), 'int'), 'count_pending'],
-                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'success'), 'int')), 'int'), 'count_success'],
-                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'running'), 'int')), 'int'), 'count_running'],
-                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'failure'), 'int')), 'int'), 'count_failure'],
-                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'canceled'), 'int')), 'int'), 'count_canceled']
-                ],
-                model: db.playbook_run_executors,
-                as: 'executors',
-                include: [{
-                    attributes: [],
-                    model: db.playbook_run_systems,
-                    as: 'systems'
-                }]
-            }]
+            model: db.playbook_runs
         }],
         where: {
             id, tenant_org_id, created_by
         },
-        group: [
-            'remediation.id',
-            'playbook_runs.id',
-            'playbook_runs->executors.id'
-        ],
         order: [
             [db.playbook_runs, col(primaryOrder), asc ? 'ASC' : 'DESC']
         ]
