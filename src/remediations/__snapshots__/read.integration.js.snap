@@ -317,6 +317,7 @@ exports[`remediations get get remediation 1`] = `
                 "needs_reboot": false
             },
             "resolutions_available": 1,
+            "precedence": null,
             "systems": [
                 {
                     "id": "1f12bdfc-8267-492d-a930-92f498fe65b9",
@@ -367,6 +368,7 @@ exports[`remediations get get remediation with many systems 1`] = `
                 "needs_reboot": true
             },
             "resolutions_available": 1,
+            "precedence": null,
             "systems": [
                 {
                     "id": "84762eb3-0bbb-4bd8-ab11-f420c50e9000",
@@ -1905,6 +1907,7 @@ exports[`remediations get get remediation with test namespace resolutions 1`] = 
                 "needs_reboot": false
             },
             "resolutions_available": 1,
+            "precedence": null,
             "systems": [
                 {
                     "id": "1040856f-b772-44c7-83a9-eea4813c4be8",
@@ -1930,6 +1933,7 @@ exports[`remediations get get remediation with test namespace resolutions 1`] = 
                 "needs_reboot": true
             },
             "resolutions_available": 1,
+            "precedence": null,
             "systems": [
                 {
                     "id": "1040856f-b772-44c7-83a9-eea4813c4be8",
