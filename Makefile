@@ -1,5 +1,5 @@
 # Default value for BASE_IMAGE
-BASE_IMAGE ?= registry.access.redhat.com/ubi9/ubi-minimal:9.6-1758184547
+BASE_IMAGE ?= registry.access.redhat.com/ubi9/ubi-minimal:9.7-1763362218
 # Default value for CONTAINERFILE
 CONTAINERFILE ?= Dockerfile
 
@@ -61,7 +61,7 @@ generate-rpms-in-yaml:
 
 # Generate rpms.lock.yaml using rpm-lockfile-prototype container
 # Usage: make generate-rpm-lockfile [BASE_IMAGE=<image>]
-# Example: make generate-rpm-lockfile BASE_IMAGE=registry.access.redhat.com/ubi9/ubi-minimal:9.6-1758184547
+# Example: make generate-rpm-lockfile BASE_IMAGE=registry.access.redhat.com/ubi9/ubi-minimal:9.7-1763362218
 #          make generate-rpm-lockfile (uses default BASE_IMAGE)
 .PHONY: generate-rpm-lockfile-containerized
 generate-rpm-lockfile-containerized: rpms.in.yaml
