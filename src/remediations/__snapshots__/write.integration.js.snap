@@ -15,6 +15,7 @@ exports[`remediations delete bulk issues succeeds 1`] = `
     {
       "description": "Unexpected bonding behavior with incorrect syntax in bond configuration files",
       "id": "advisor:bond_config_issue|NO_QUOTES",
+      "precedence": null,
       "resolution": {
         "description": "Correct Bonding Config Items",
         "id": "fix",
@@ -128,6 +129,7 @@ exports[`remediations delete bulk systems does not remove systems from other pla
     {
       "description": "Unexpected bonding behavior with incorrect syntax in bond configuration files",
       "id": "advisor:bond_config_issue|EXTRA_WHITESPACE",
+      "precedence": null,
       "resolution": {
         "description": "Correct Bonding Config Items",
         "id": "fix",
@@ -159,6 +161,7 @@ exports[`remediations delete bulk systems does not remove systems from other pla
     {
       "description": "Unexpected bonding behavior with incorrect syntax in bond configuration files",
       "id": "advisor:bond_config_issue|NO_QUOTES",
+      "precedence": null,
       "resolution": {
         "description": "Correct Bonding Config Items",
         "id": "fix",
@@ -190,6 +193,7 @@ exports[`remediations delete bulk systems does not remove systems from other pla
     {
       "description": "Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)",
       "id": "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+      "precedence": null,
       "resolution": {
         "description": "Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7",
         "id": "selinux_mitigate",
@@ -221,6 +225,7 @@ exports[`remediations delete bulk systems does not remove systems from other pla
     {
       "description": "Bonding will not fail over to the backup link when bonding options are partially read",
       "id": "advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE",
+      "precedence": null,
       "resolution": {
         "description": "Correct Bonding Config Items",
         "id": "fix",
@@ -277,6 +282,7 @@ exports[`remediations delete bulk systems does not remove systems from other pla
     {
       "description": "Unexpected bonding behavior with incorrect syntax in bond configuration files",
       "id": "advisor:bond_config_issue|EXTRA_WHITESPACE",
+      "precedence": null,
       "resolution": {
         "description": "Correct Bonding Config Items",
         "id": "fix",
@@ -308,6 +314,7 @@ exports[`remediations delete bulk systems does not remove systems from other pla
     {
       "description": "Unexpected bonding behavior with incorrect syntax in bond configuration files",
       "id": "advisor:bond_config_issue|NO_QUOTES",
+      "precedence": null,
       "resolution": {
         "description": "Correct Bonding Config Items",
         "id": "fix",
@@ -339,6 +346,7 @@ exports[`remediations delete bulk systems does not remove systems from other pla
     {
       "description": "Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)",
       "id": "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+      "precedence": null,
       "resolution": {
         "description": "Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7",
         "id": "selinux_mitigate",
@@ -370,6 +378,7 @@ exports[`remediations delete bulk systems does not remove systems from other pla
     {
       "description": "Bonding will not fail over to the backup link when bonding options are partially read",
       "id": "advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE",
+      "precedence": null,
       "resolution": {
         "description": "Correct Bonding Config Items",
         "id": "fix",
@@ -426,6 +435,7 @@ exports[`remediations delete bulk systems succeeds 1`] = `
     {
       "description": "Unexpected bonding behavior with incorrect syntax in bond configuration files",
       "id": "advisor:bond_config_issue|EXTRA_WHITESPACE",
+      "precedence": null,
       "resolution": {
         "description": "Correct Bonding Config Items",
         "id": "fix",
@@ -457,6 +467,7 @@ exports[`remediations delete bulk systems succeeds 1`] = `
     {
       "description": "Unexpected bonding behavior with incorrect syntax in bond configuration files",
       "id": "advisor:bond_config_issue|NO_QUOTES",
+      "precedence": null,
       "resolution": {
         "description": "Correct Bonding Config Items",
         "id": "fix",
@@ -488,6 +499,7 @@ exports[`remediations delete bulk systems succeeds 1`] = `
     {
       "description": "Kernel vulnerable to local privilege escalation via DCCP module (CVE-2017-6074)",
       "id": "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+      "precedence": null,
       "resolution": {
         "description": "Make sure SELinux is enabled, enforcing and has selinux-policy-3.13.1-81.el7 or later on RHEL7",
         "id": "selinux_mitigate",
@@ -519,6 +531,7 @@ exports[`remediations delete bulk systems succeeds 1`] = `
     {
       "description": "Bonding will not fail over to the backup link when bonding options are partially read",
       "id": "advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE",
+      "precedence": null,
       "resolution": {
         "description": "Correct Bonding Config Items",
         "id": "fix",
