@@ -121,7 +121,7 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
     }
 
     if (typeof issues !== 'undefined') {
-        formatted.issues = _.map(issues, ({issue_id, resolution, details, systems, resolutionsAvailable }) => ({
+        formatted.issues = _.map(issues, ({issue_id, resolution, details, systems, resolutionsAvailable, precedence }) => ({
             id: issue_id,
             description: details.description,
             resolution: {
@@ -131,6 +131,7 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
                 needs_reboot: resolution.needsReboot
             },
             resolutions_available: resolutionsAvailable,
+            precedence,
             systems: systems.map(({system_id, hostname, display_name, resolved}) => ({
                 id: system_id,
                 hostname,
