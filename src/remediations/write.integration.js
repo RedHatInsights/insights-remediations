@@ -202,10 +202,14 @@ describe('remediations', function () {
             testIssue(r2.body, 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE', 'fix', systems);
         });
 
-        test('creates a new remediation with many systems', async () => {
-            const name = `new remediation with issues 2`;
-            const systems = _.times(50, () => uuid.v4());  // Changed from 20000 to 50 to comply with new limit
+        test('creates a new remediation with 20k systems in batches', async () => {
+            const name = `new remediation with 20k systems`;
+            const TOTAL_SYSTEMS = 20000;
+            const BATCH_SIZE = 50;
+            const allSystems = _.times(TOTAL_SYSTEMS, () => uuid.v4());
 
+            // Create initial remediation with first batch
+            const firstBatch = allSystems.slice(0, BATCH_SIZE);
             const {body: {id}} = await request
             .post('/v1/remediations')
             .set(auth.testWrite)
@@ -215,11 +219,29 @@ describe('remediations', function () {
                     issues: [{
                         id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE'
                     }],
-                    systems
+                    systems: firstBatch
                 }
             })
             .expect(201);
 
+            // Add remaining systems in batches via PATCH
+            for (let i = BATCH_SIZE; i < TOTAL_SYSTEMS; i += BATCH_SIZE) {
+                const batch = allSystems.slice(i, i + BATCH_SIZE);
+                await request
+                .patch(`/v1/remediations/${id}`)
+                .set(auth.testWrite)
+                .send({
+                    add: {
+                        issues: [{
+                            id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
+                            systems: batch
+                        }]
+                    }
+                })
+                .expect(200);
+            }
+
+            // Verify total system count
             const {body} = await request
             .get(`/v1/remediations`)
             .set(auth.testWrite)
@@ -227,7 +249,7 @@ describe('remediations', function () {
 
             const remediation = _.find(body.data, {id});
             (remediation !== undefined).should.be.true();
-            remediation.system_count.should.equal(50);
+            remediation.system_count.should.equal(TOTAL_SYSTEMS);
         });
 
         test('does not create remediations with more than 50 unique systems', async () => {
@@ -248,9 +270,8 @@ describe('remediations', function () {
             })
             .expect(400);
 
-            body.errors[0].code.should.equal('TOO_MANY_SYSTEMS');
-            body.errors[0].title.should.containEql('51');
-            body.errors[0].title.should.containEql('50');
+            // OpenAPI maxItems validation catches this before our JS code
+            body.errors[0].code.should.equal('maxItems.openapi.requestValidation');
         });
 
         test('creates a new remediation with Compliance issues', async () => {
@@ -2078,9 +2099,8 @@ describe('remediations', function () {
                 })
                 .expect(400);
 
-            body.errors[0].code.should.equal('TOO_MANY_SYSTEMS');
-            body.errors[0].title.should.containEql('50');
-            body.errors[0].title.should.containEql('51');
+            // OpenAPI maxItems validation catches this before our JS code
+            body.errors[0].code.should.equal('maxItems.openapi.requestValidation');
         });
 
         test('accepts POST with exactly 50 unique systems', async () => {
@@ -2137,6 +2157,72 @@ describe('remediations', function () {
             body.errors[0].title.should.containEql('55');
         });
 
+        test('accepts POST with exactly 50 unique systems spread across issues', async () => {
+            // Create 50 unique systems spread across issues with overlaps
+            const systems1 = _.range(30).map(i => {
+                const paddedNum = String(i).padStart(8, '0');
+                return `${paddedNum}-0000-0000-0000-000000000000`;
+            });
+            const systems2 = _.range(20, 50).map(i => {
+                const paddedNum = String(i).padStart(8, '0');
+                return `${paddedNum}-0000-0000-0000-000000000000`;
+            });
+            // systems1 has 0-29, systems2 has 20-49
+            // overlap: 20-29 (10 systems)
+            // unique total: exactly 50 systems
+
+            const {body} = await request
+                .post('/v1/remediations')
+                .set(auth.testWrite)
+                .send({
+                    name: 'test remediation with overlapping systems at limit',
+                    add: {
+                        issues: [
+                            {id: 'advisor:bond_config_issue|NO_QUOTES', systems: systems1},
+                            {id: 'advisor:bond_config_issue|EXTRA_WHITESPACE', systems: systems2}
+                        ]
+                    }
+                })
+                .expect(201);
+
+            body.should.have.property('id');
+        });
+
+        test('rejects PATCH with more than 50 unique systems spread across issues', async () => {
+            // First create a remediation
+            const {body: created} = await request
+                .post('/v1/remediations')
+                .set(auth.testWrite)
+                .send({name: 'test remediation for patch spread systems'})
+                .expect(201);
+
+            // Create 55 unique systems spread across issues with overlaps
+            const systems1 = _.range(30).map(i => {
+                const paddedNum = String(i).padStart(8, '0');
+                return `${paddedNum}-0000-0000-0000-000000000000`;
+            });
+            const systems2 = _.range(25, 55).map(i => {
+                const paddedNum = String(i).padStart(8, '0');
+                return `${paddedNum}-0000-0000-0000-000000000000`;
+            });
+
+            const {body} = await request
+                .patch(`/v1/remediations/${created.id}`)
+                .set(auth.testWrite)
+                .send({
+                    add: {
+                        issues: [
+                            {id: 'advisor:bond_config_issue|NO_QUOTES', systems: systems1},
+                            {id: 'advisor:bond_config_issue|EXTRA_WHITESPACE', systems: systems2}
+                        ]
+                    }
+                })
+                .expect(400);
+
+            body.errors[0].code.should.equal('TOO_MANY_SYSTEMS');
+            body.errors[0].title.should.containEql('55');
+        });
+
         test.skip('rejects PATCH with more than 50 issues', async () => {
             // Skipped: Only 4 unique issues available in mock data, cannot test 51 unique issues
             // The validation code enforces this limit
@@ -2165,8 +2251,8 @@ describe('remediations', function () {
                 })
                 .expect(400);
 
-            body.errors[0].code.should.equal('TOO_MANY_SYSTEMS');
-            body.errors[0].title.should.containEql('50');
+            // OpenAPI maxItems validation catches this before our JS code
+            body.errors[0].code.should.equal('maxItems.openapi.requestValidation');
         });
     });
 });

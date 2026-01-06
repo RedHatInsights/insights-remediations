@@ -1502,6 +1502,7 @@ components:
             issues:
               type: array
               minItems: 1
+              maxItems: 50
               description: Array of issues to add to the remediation. Maximum 50 issues per request.
               items:
                 type: object
@@ -1514,7 +1515,8 @@ components:
                     $ref: '#/components/schemas/ResolutionType'
                   systems:
                     type: array
-                    description: Systems for this specific issue. If not provided, uses the default systems from the top-level systems array. Maxiumum of 50 unique systems total across all issues per request.
+                    maxItems: 50
+                    description: Systems for this specific issue. If not provided, uses the default systems from the top-level systems array. Maximum of 50 unique systems total across all issues per request.
                     items:
                       $ref: '#/components/schemas/SystemId'
                   precedence:
@@ -1524,6 +1526,7 @@ components:
                     example: 1
             systems:
               type: array
+              maxItems: 50
               description: Default systems that will be applied to all issues that don't specify their own systems array. Maximum of 50 unique systems total across all issues per request.
               items:
                 $ref: '#/components/schemas/SystemId'
