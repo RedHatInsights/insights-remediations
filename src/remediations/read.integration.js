@@ -1592,11 +1592,18 @@ describe('remediations', function () {
             .expect(400);
         });
 
-        test('400 when limit>50', async () => {
+        test('400 when limit>100', async () => {
             await request
-            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?limit=200')
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?limit=101')
             .set(auth.testReadSingle)
             .expect(400);
+        });
+
+        test('200 when limit=100', async () => {
+            await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?limit=100')
+            .set(auth.testReadSingle)
+            .expect(200);
         });
 
         test('400 on invalid offset type', async () => {
