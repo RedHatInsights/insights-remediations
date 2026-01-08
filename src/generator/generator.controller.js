@@ -112,6 +112,10 @@ exports.generate = errors.async(async function (req, res) {
     trace.enter('generator.controller.generate');
 
     const input = { ...req.body };
+
+    // Sort issues by precedence (NULLS LAST), otherwise maintain original request order
+    input.issues = _.orderBy(input.issues, [issue => issue.precedence == null ? 1 : 0, 'precedence']);
+
     trace.event(`generate playbook for: ${JSON.stringify(input)}`);
     const playbook = await exports.playbookPipeline(input);
 
