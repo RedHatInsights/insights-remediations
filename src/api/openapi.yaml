@@ -2144,6 +2144,10 @@ components:
         resolutions_available:
           type: number
           description: The total number of available resolutions for this issue
+        precedence:
+          type: integer
+          nullable: true
+          description: Controls the order in which issues are executed in the generated playbook. Lower numbers execute first.
         systems:
           type: array
           items:

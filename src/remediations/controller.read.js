@@ -47,25 +47,26 @@ function resolveResolutions (...remediations) {
 }
 
 function resolveResolutionsNeedReboot (...remediations) {
-    // Check for invalid or undefined remediations
-    remediations.forEach((r, i) => {
-        if (!r) {
-            log.warn({ index: i }, 'resolveResolutionsNeedReboot: remediation is undefined or null');
-        } else if (!Array.isArray(r.issues)) {
-            log.warn({ index: i, remediation: r }, "resolveResolutionsNeedReboot: remediation is missing 'issues' array");
-        }
-    });
+    // Filter out invalid remediations (null/undefined or missing issues array)
+    const validRemediations = remediations.filter(r => r && Array.isArray(r.issues));
+    
+    // Collect all issues from all remediations
+    const allIssues = _(validRemediations)
+        .flatMap('issues')
+        .filter(issue => issue && issue.issue_id && issue.resolution !== undefined)
+        .value();
 
-    return P.all(_(remediations).flatMap('issues').filter(issue => issue && issue.issue_id && issue.resolution !== undefined).map(async issue => {
+    // Note: We're using the issue.resolution field in a weird way here
+    // This field is meant to be a string (resolution type like "fix", "mitigate")
+    // but we're using it to store a boolean (needsReboot)
+    
+    // Resolve reboot status for each issue in parallel
+    return P.all(allIssues.map(async issue => {
         const id = identifiers.parse(issue.issue_id);
         const needsReboot = await Issues.getHandler(id).getResolutionResolver().isRebootNeeded(id, issue.resolution);
-
-        if (needsReboot !== null) {
-            issue.resolution = { needsReboot };
-        } else {
-            issue.resolution = false;
-        }
-    }).value());
+        
+        issue.resolution = needsReboot !== null ? { needsReboot } : false;
+    }));
 }
 
 exports.getUsers = async function (req, usernames) {
@@ -677,8 +678,11 @@ exports.getSystemIssues = errors.async(async function (req, res) {
         offset
     );
 
+    // getSystemIssues returns no rows only when there's no remediation_issue_systems entry
+    // for this system_id within this remediation plan, meaning the system is not in the plan
+    // So in this case, return 404
     if (!rows || rows.length === 0) {
-        return res.json(format.systemIssues(plan_id, system_id, [], 0, limit, offset, req.query.sort || 'id'));
+        return notFound(res);
     }
 
     // Fetch issue details

@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const yaml = require('js-yaml');
 const config = require('../config');
 const rbac = require('../connectors/rbac');
 const { request, reqId, auth, getSandbox, buildRbacResponse } = require('../test');
@@ -462,6 +463,282 @@ describe('remediations', function () {
             remediation.issues[0].id.should.equal('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled');
             remediation.issues[1].id.should.equal('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_security_patches_up_to_date');
             remediation.issues[2].id.should.equal('ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled');
+        });
+
+        test('precedence ordering works with test issues', async () => {
+            const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f'];
+            
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({
+                name: 'Test precedence with test issues',
+                add: {
+                    issues: [{
+                        id: 'test:ping',
+                        systems,
+                        precedence: 30
+                    }, {
+                        id: 'test:reboot',
+                        systems,
+                        precedence: 10
+                    }, {
+                        id: 'test:debug',
+                        systems,
+                        precedence: 20
+                    }]
+                }
+            })
+            .expect(201);
+
+            const {body: remediation} = await request
+            .get(`/v1/remediations/${body.id}`)
+            .set(auth.testWrite)
+            .expect(200);
+
+            remediation.issues.should.have.length(3);
+            // Verify test issues are also ordered by precedence (10, 20, 30)
+            remediation.issues[0].id.should.equal('test:reboot');
+            remediation.issues[1].id.should.equal('test:debug');
+            remediation.issues[2].id.should.equal('test:ping');
+        });
+
+        test('GET /playbook returns plays in precedence order', async () => {
+            const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f'];
+            
+            // Create remediation with test issues in non-precedence order
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({
+                name: 'Test playbook precedence ordering',
+                add: {
+                    issues: [{
+                        id: 'test:ping',
+                        systems,
+                        precedence: 30
+                    }, {
+                        id: 'test:reboot',
+                        systems,
+                        precedence: 10
+                    }, {
+                        id: 'test:pause1m',
+                        systems,
+                        precedence: 20
+                    }]
+                }
+            })
+            .expect(201);
+
+            // Get playbook and verify play order
+            const {text: playbookYaml} = await request
+            .get(`/v1/remediations/${body.id}/playbook`)
+            .set(auth.testWrite)
+            .expect(200);
+
+            // Parse YAML - playbook is an array of plays
+            const plays = yaml.load(playbookYaml);
+            const playNames = plays.map(play => play.name);
+            
+            // Filter to just our test issue plays (exclude special plays like reboot/check-in)
+            const testPlayNames = playNames.filter(name => 
+                ['Trigger reboot', 'pause', 'ping'].includes(name)
+            );
+
+            // Verify plays appear in precedence order (10, 20, 30)
+            expect(testPlayNames).toEqual(['Trigger reboot', 'pause', 'ping']);
+        });
+
+        test('GET /remediations/{id} returns precedence field in issues', async () => {
+            const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f'];
+            
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({
+                name: 'Test precedence in response',
+                add: {
+                    issues: [{
+                        id: 'test:ping',
+                        systems,
+                        precedence: 5
+                    }, {
+                        id: 'test:reboot',
+                        systems
+                        // no precedence - should be null
+                    }]
+                }
+            })
+            .expect(201);
+
+            const {body: remediation} = await request
+            .get(`/v1/remediations/${body.id}`)
+            .set(auth.testWrite)
+            .expect(200);
+
+            // Verify precedence is returned in response
+            const pingIssue = remediation.issues.find(i => i.id === 'test:ping');
+            const rebootIssue = remediation.issues.find(i => i.id === 'test:reboot');
+            
+            expect(pingIssue.precedence).toBe(5);
+            expect(rebootIssue.precedence).toBeNull();
+        });
+
+        test('PATCH /remediations/{id} can update precedence on existing issue', async () => {
+            const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f'];
+            
+            // Create remediation with initial precedence
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({
+                name: 'Test update precedence',
+                add: {
+                    issues: [{
+                        id: 'test:ping',
+                        systems,
+                        precedence: 10
+                    }, {
+                        id: 'test:reboot',
+                        systems,
+                        precedence: 20
+                    }]
+                }
+            })
+            .expect(201);
+
+            // Update precedence via PATCH
+            await request
+            .patch(`/v1/remediations/${body.id}`)
+            .set(auth.testWrite)
+            .send({
+                add: {
+                    issues: [{
+                        id: 'test:ping',
+                        systems,
+                        precedence: 30  // changed from 10 to 30
+                    }]
+                }
+            })
+            .expect(200);
+
+            // Verify precedence was updated and order changed
+            const {body: remediation} = await request
+            .get(`/v1/remediations/${body.id}`)
+            .set(auth.testWrite)
+            .expect(200);
+
+            // test:reboot (20) should now come before test:ping (30)
+            remediation.issues[0].id.should.equal('test:reboot');
+            remediation.issues[0].precedence.should.equal(20);
+            remediation.issues[1].id.should.equal('test:ping');
+            remediation.issues[1].precedence.should.equal(30);
+        });
+
+        test('PATCH /remediations/{id} can update both resolution and precedence', async () => {
+            const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f'];
+            
+            // Create remediation with test:debug which has multiple resolutions
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({
+                name: 'Test update resolution and precedence',
+                add: {
+                    issues: [{
+                        id: 'test:debug',
+                        resolution: 'fix',
+                        systems,
+                        precedence: 10
+                    }]
+                }
+            })
+            .expect(201);
+
+            // Verify initial state
+            let {body: remediation} = await request
+            .get(`/v1/remediations/${body.id}`)
+            .set(auth.testWrite)
+            .expect(200);
+
+            remediation.issues[0].resolution.id.should.equal('fix');
+            remediation.issues[0].precedence.should.equal(10);
+
+            // Update both resolution and precedence via PATCH
+            await request
+            .patch(`/v1/remediations/${body.id}`)
+            .set(auth.testWrite)
+            .send({
+                add: {
+                    issues: [{
+                        id: 'test:debug',
+                        resolution: 'alternative',
+                        systems,
+                        precedence: 99
+                    }]
+                }
+            })
+            .expect(200);
+
+            // Verify both were updated
+            ({body: remediation} = await request
+            .get(`/v1/remediations/${body.id}`)
+            .set(auth.testWrite)
+            .expect(200));
+
+            remediation.issues[0].resolution.id.should.equal('alternative');
+            remediation.issues[0].precedence.should.equal(99);
+        });
+
+        test('PATCH /remediations/{id} can clear precedence by setting to null', async () => {
+            const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f'];
+            
+            // Create remediation with precedence set
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({
+                name: 'Test clear precedence',
+                add: {
+                    issues: [{
+                        id: 'test:ping',
+                        systems,
+                        precedence: 10
+                    }]
+                }
+            })
+            .expect(201);
+
+            // Verify initial precedence
+            let {body: remediation} = await request
+            .get(`/v1/remediations/${body.id}`)
+            .set(auth.testWrite)
+            .expect(200);
+
+            remediation.issues[0].precedence.should.equal(10);
+
+            // Clear precedence by setting to null
+            await request
+            .patch(`/v1/remediations/${body.id}`)
+            .set(auth.testWrite)
+            .send({
+                add: {
+                    issues: [{
+                        id: 'test:ping',
+                        systems,
+                        precedence: null
+                    }]
+                }
+            })
+            .expect(200);
+
+            // Verify precedence was cleared
+            ({body: remediation} = await request
+            .get(`/v1/remediations/${body.id}`)
+            .set(auth.testWrite)
+            .expect(200));
+
+            expect(remediation.issues[0].precedence).toBeNull();
         });
 
 

@@ -26,7 +26,7 @@ const REMEDIATION_ATTRIBUTES = [
     'updated_by',
     'updated_at'
 ];
-const ISSUE_ATTRIBUTES = ['issue_id', 'resolution'];
+const ISSUE_ATTRIBUTES = ['issue_id', 'resolution', 'precedence'];
 const PLAYBOOK_RUN_ATTRIBUTES = [
     'id',
     'status',

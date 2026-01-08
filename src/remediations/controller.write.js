@@ -107,12 +107,16 @@ async function storeNewActions (remediation, add, transaction) {
     const toCreate = add.issues.filter(issue => !existingIssuesById[issue.id]);
     const toUpdate = add.issues.filter(issue => {
         const existing = existingIssuesById[issue.id];
-        // if the incoming issue has a different resolution selected than the existing one do update
-        return existing && issue.resolution && issue.resolution !== existing.resolution;
+        // update if resolution or precedence changed
+        return existing && (
+            (issue.resolution && issue.resolution !== existing.resolution) ||
+            (issue.precedence !== undefined && issue.precedence !== existing.precedence)
+        );
     });
 
     await P.all(toUpdate.map(issue => db.issue.update({
-        resolution: issue.resolution
+        resolution: issue.resolution || existingIssuesById[issue.id].resolution,
+        precedence: issue.precedence !== undefined ? issue.precedence : existingIssuesById[issue.id].precedence
     }, {
         where: {
             remediation_id: remediation.id,
@@ -208,7 +212,7 @@ exports.patch = errors.async(async function (req, res) {
             attributes: ['id'],
             where: { id, tenant_org_id, created_by: username },
             include: {
-                attributes: ['id', 'issue_id', 'resolution'],
+                attributes: ['id', 'issue_id', 'resolution', 'precedence'],
                 model: db.issue
             }
         }, {
