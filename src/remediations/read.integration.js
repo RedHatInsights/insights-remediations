@@ -1009,7 +1009,13 @@ describe('remediations', function () {
             expect(body).not.toHaveProperty('issues');
             expect(body).not.toHaveProperty('resolved_count');
             expect(body).toHaveProperty('issue_count');
+            expect(body).toHaveProperty('issue_count_details');
             expect(body).toHaveProperty('system_count');
+
+            // Verify issue_count_details has correct structure and counts
+            expect(typeof body.issue_count_details).toBe('object');
+            const totalFromDetails = Object.values(body.issue_count_details).reduce((sum, count) => sum + count, 0);
+            expect(totalFromDetails).toBe(body.issue_count);
 
             expect(body).toMatchSnapshot();
         });
@@ -1022,6 +1028,7 @@ describe('remediations', function () {
 
             // Should include all 3 issues (all with 0 systems) in the summary format
             expect(summary.issue_count).toBe(3);
+            expect(summary).toHaveProperty('issue_count_details');
         });
 
         test('get remediation with test namespace resolutions', async () => {
