@@ -1076,7 +1076,15 @@ components:
             "first_name": "Jozef",
             "last_name": "Hartinger"
           },
-          "issue_count": 5,
+          "issue_count": 8,
+          "issue_count_details": {
+            "advisor": 1,
+            "ssg": 1,
+            "patch-advisory": 1,
+            "patch-package": 1,
+            "vulnerabilities": 2,
+            "test": 2
+          },
           "system_count": 12
         }
         ```
@@ -1407,6 +1415,19 @@ components:
     IssueCount:
       type: integer
       example: 27
+
+    IssueCountDetails:
+      type: object
+      description: Count of issues by type (only included in summary format)
+      additionalProperties:
+        type: integer
+      example:
+        advisor: 1
+        ssg: 1
+        patch-advisory: 1
+        patch-package: 1
+        vulnerabilities: 2
+        test: 2
 
     SystemCount:
       type: integer
@@ -2112,6 +2133,8 @@ components:
           $ref: '#/components/schemas/ResolvedCount'
         issue_count:
           $ref: '#/components/schemas/IssueCount'
+        issue_count_details:
+          $ref: '#/components/schemas/IssueCountDetails'
         system_count:
           $ref: '#/components/schemas/SystemCount'
         issues:
