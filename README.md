@@ -84,6 +84,33 @@ repository which implements a common inventory system with eventing.
 
 Application configuration can be [changed using environmental variables](https://github.com/RedHatInsights/insights-remediations/blob/master/src/config/index.js).
 
+### Feature Flags
+
+The application supports feature flags via [Unleash](https://docs.getunleash.io/). In Clowder-managed environments, the Unleash connection is automatically configured. For local development, you can configure it manually.
+
+| Environment Variable | Description | Default |
+|---------------------|-------------|---------|
+| `FEATURE_FLAGS_ENABLED` | Enable Unleash feature flags integration | `false` |
+| `FEATURE_FLAGS_HOST` | Unleash API URL (auto-configured by Clowder) | `` |
+| `FEATURE_FLAGS_TOKEN` | Unleash client access token (auto-configured by Clowder) | `` |
+| `FEATURE_FLAGS_APP_NAME` | Application name for Unleash client identification | `remediations` |
+| `FEATURE_FLAGS_REFRESH_INTERVAL` | Interval in ms to poll Unleash for flag updates | `15000` |
+| `FEATURE_FLAGS_METRICS_INTERVAL` | Interval in ms to send metrics to Unleash | `60000` |
+| `FEATURE_FLAGS_IMPL` | Set to `mock` to use mock implementation for testing | `` |
+
+Usage in code:
+```javascript
+const featureFlags = require('./connectors/featureFlags');
+
+// Check if a feature is enabled
+if (featureFlags.isEnabled('my-feature', { userId: '123' })) {
+    // feature is enabled
+}
+
+// Get a variant
+const variant = featureFlags.getVariant('my-feature');
+```
+
 ### Troubleshooting
 
 If your local database isn't updating, or it's not running as expected, run this command to remove old containers:

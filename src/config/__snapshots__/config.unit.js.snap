@@ -77,6 +77,15 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "revalidationInterval": 3600,
   },
   "env": "test",
+  "featureFlags": {
+    "appName": "remediations",
+    "enabled": false,
+    "host": "",
+    "impl": undefined,
+    "metricsInterval": 60000,
+    "refreshInterval": 15000,
+    "token": "",
+  },
   "fifi": {
     "text_update_full": true,
     "text_update_interval": 5000,
@@ -104,7 +113,7 @@ exports[`Configuration Verify app-common-js function 1`] = `
   "logging": {
     "cloudwatch": {
       "enabled": false,
-      "level": "fatal",
+      "level": "debug",
       "options": {
         "aws_access_key_id": "ACCESS_KEY",
         "aws_region": "EU",
@@ -114,7 +123,7 @@ exports[`Configuration Verify app-common-js function 1`] = `
         "prefix": "remediations-",
       },
     },
-    "level": "fatal",
+    "level": "error",
     "pretty": true,
   },
   "metrics": {
