@@ -333,6 +333,7 @@ exports.get = errors.async(async function (req, res) {
     if (summarize) {
         remediation.issue_count = remediation.issues.length;
         remediation.system_count = _(remediation.issues).flatMap('systems').map('system_id').uniq().value().length;
+        remediation.issue_count_details = _.countBy(remediation.issues, issue => issue.issue_id.split(':')[0]);
         remediation.issues = undefined;
         remediation.resolved_count = undefined;
     }
