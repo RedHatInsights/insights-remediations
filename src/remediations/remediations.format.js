@@ -99,7 +99,7 @@ exports.list = function (remediations, total, limit, offset, sort, system) {
 };
 
 exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at,
-                            issues, resolved_count, issue_count, system_count, archived}) {
+                            issues, resolved_count, issue_count, issue_count_details, system_count, archived}) {
     const formatted =  {
         id,
         name,
@@ -142,13 +142,9 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
     }
 
     // handle format='summary' items
-    if (typeof issue_count !== 'undefined') {
-        formatted.issue_count = issue_count;
-    }
-
-    if (typeof system_count !== 'undefined') {
-        formatted.system_count = system_count;
-    }
+    if (typeof issue_count !== 'undefined') formatted.issue_count = issue_count;
+    if (typeof issue_count_details !== 'undefined') formatted.issue_count_details = issue_count_details;
+    if (typeof system_count !== 'undefined') formatted.system_count = system_count;
 
     return formatted;
 };
