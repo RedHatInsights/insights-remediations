@@ -31,6 +31,7 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
     trace.enter('generator.controller.playbookPipeline');
 
     trace.event('Fetch systems...');
+    // Use return value to get issues with empty systems filtered out (when strict=false)
     issues = await exports.resolveSystems(issues, strict);
 
     trace.event('Parse issue identifiers...');
@@ -44,13 +45,10 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
         trace.event(`Caught error getting snippet for: ${JSON.stringify(issue.id)}`);
         trace.event(`(error: ${JSON.stringify(e)})`)
 
-        if (strict) {
-            probes.failedGeneration(issue.id);
-            throw e;
-        }
-
-        trace.event(`Skipping issue: ${issue.id}`);
-        log.warn(e, `Skipping unknown issue: ${issue.id}`);
+        // Always throw an error if an issue cannot be added to the playbook
+        // to prevent generating partial playbooks with missing issues
+        probes.failedGeneration(issue.id);
+        throw e;
     })).filter(issue => issue);
 
     if (issues.length === 0) {

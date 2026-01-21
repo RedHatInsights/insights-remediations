@@ -16,7 +16,7 @@ module.exports = class CVEFactory extends Factory {
         trace.event(`Resolve resolutions for id: ${issue.id}`);
         const {id, hosts, resolution} = issue;
         const resolver = issues.getHandler(id).getResolutionResolver();
-        const resolutions = await resolver.resolveResolutions(id, strict);
+        const resolutions = await resolver.resolveResolutions(id);
         trace.event(`Resolutions: ${JSON.stringify(resolutions)}`);
 
         if (!resolutions.length) {
