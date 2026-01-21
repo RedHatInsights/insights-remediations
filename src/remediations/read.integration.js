@@ -1797,6 +1797,16 @@ describe('remediations', function () {
             .get('/v1/remediations/download?selected_remediations=77eec356-dd06-4c72-a3b6-ef27d1508a02')
             .expect(404);
         });
+
+        test('returns error when remediation contains unknown issues', async () => {
+            // Remediation 62c95092-ac83-4025-a676-362a67e68579 ("unknown issues") has non-existent issues
+            const {body} = await request
+            .get('/v1/remediations/download?selected_remediations=62c95092-ac83-4025-a676-362a67e68579')
+            .set(auth.testReadSingle)
+            .expect(400);
+
+            expect(body.errors[0].code).toBe('UNKNOWN_ISSUE');
+        });
     });
 
     describe('service account filtering', function () {
