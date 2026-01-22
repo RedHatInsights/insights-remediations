@@ -31,7 +31,7 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
     trace.enter('generator.controller.playbookPipeline');
 
     trace.event('Fetch systems...');
-    await exports.resolveSystems(issues, strict);
+    issues = await exports.resolveSystems(issues, strict);
 
     trace.event('Parse issue identifiers...');
     _.forEach(issues, issue => {
@@ -135,6 +135,7 @@ exports.resolveSystems = async function (issues, strict = true) {
     trace.event('Get system details...');
     const systems = await inventory.getSystemDetailsBatch(systemIds, true);
 
+    // If strict=false and there are systems that don't exist in Inventory, remove them from the issues
     if (!strict) {
         trace.event('Remove systems for which we have no inventory entry...');
         _.forEach(issues, issue => issue.systems = issue.systems.filter((id) => {
@@ -143,6 +144,9 @@ exports.resolveSystems = async function (issues, strict = true) {
         }));
     }
 
+    // Map system IDs to hostnames and verify all systems exist in Inventory
+    // With strict=false: missing systems were already filtered out above, so this should pass
+    // With strict=true: no filtering happened, so throw an error if any system is missing
     trace.event('Verify that there are no systems for which we have no inventory entry...');
     _.forEach(issues, issue => issue.hosts = issue.systems.map(id => {
         if (!systems.hasOwnProperty(id)) {
@@ -158,6 +162,7 @@ exports.resolveSystems = async function (issues, strict = true) {
     }));
     trace.event('All systems verified!');
 
+    // If strict=false, filter out issues with no systems (systems that were removed because they don't exist in Inventory)
     if (!strict) {
         trace.event('Remove issues with no systems...')
         issues = _.filter(issues, (issue) => (issue.systems.length > 0));
