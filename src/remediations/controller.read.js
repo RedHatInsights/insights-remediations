@@ -459,8 +459,10 @@ exports.playbook = errors.async(async function (req, res) {
     trace.event('Prune empty issues');
     normalizedIssues = _.filter(normalizedIssues, issue => !_.isEmpty(issue.systems));
 
-    if (_.isEmpty(normalizedIssues)) { // If all issues are filtered return 404
-        return notFound(res);
+    if (_.isEmpty(normalizedIssues)) {
+        // Remediation exists but has no issues with systems - return 204
+        trace.leave('No issues with systems, returning 204');
+        return noContent(res);
     }
 
     trace.event('Generate playbook')
