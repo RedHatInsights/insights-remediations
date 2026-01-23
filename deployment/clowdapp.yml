@@ -221,6 +221,38 @@ objects:
           - name: KESSEL_PRINCIPAL_DOMAIN
             value: ${KESSEL_PRINCIPAL_DOMAIN}
 
+    jobs:
+    - name: cull-old-remediations
+      schedule: "0 0 * * *"
+      concurrencyPolicy: Forbid
+      restartPolicy: Never
+      activeDeadlineSeconds: 3600
+      successfulJobsHistoryLimit: 3
+      failedJobsHistoryLimit: 3
+      podSpec:
+        image: ${IMAGE}:${IMAGE_TAG}
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        env:
+          - name: REMEDIATION_RETENTION_DAYS
+            value: ${REMEDIATION_RETENTION_DAYS}
+          - name: LOG_LEVEL
+            value: ${LOG_LEVEL}
+          - name: CLOWDER_ENABLED
+            value: ${CLOWDER_ENABLED}
+          - name: DB_SSL_ENABLED
+            value: ${DB_SSL_ENABLED}
+          - name: DB_CA
+            value: /opt/certs/rds-cacert
+        command:
+          - node
+          - src/jobs/cullOldRemediations.js
+
 - apiVersion: v1
   kind: Secret
   metadata:
@@ -506,3 +538,6 @@ parameters:
   value: 'true'
 - name: KESSEL_PRINCIPAL_DOMAIN
   value: "redhat"
+- name: REMEDIATION_RETENTION_DAYS
+  description: Number of days to retain remediation plans before culling (default 270 = ~9 months)
+  value: '270'
