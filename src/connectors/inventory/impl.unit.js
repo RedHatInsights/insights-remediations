@@ -52,6 +52,15 @@ describe('inventory impl', function () {
             }
             spy.calledOnce.should.be.true();
         });
+
+        test('throws unknownSystem error when Inventory returns 404', async function () {
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(null);
+
+            await expect(impl.getSystemInfoBatch(['non-existent-id']))
+                .rejects.toThrow('One or more requested systems do not exist in Inventory');
+
+            spy.calledOnce.should.be.true();
+        });
     });
 
     describe('getSystemDetailsBatch', function () {
@@ -200,7 +209,7 @@ describe('inventory impl', function () {
             cache.setex.callCount.should.equal(1);
         });
 
-        test('returns empty object unknown systems', async function () {
+        test('returns empty object when Inventory returns 200 with no results', async function () {
             const cache = mockCache();
 
             const http = base.getSandbox().stub(request, 'run').resolves({
@@ -269,6 +278,16 @@ describe('inventory impl', function () {
                 error.message.should.equal('Access forbidden');
                 error.error.details.message.should.equal('Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.');
             }
+            spy.calledOnce.should.be.true();
+        });
+
+        test('throws unknownSystem error when Inventory returns 404', async function () {
+            const cache = mockCache();
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(null);
+
+            await expect(impl.getSystemDetailsBatch(['non-existent-id']))
+                .rejects.toThrow('One or more requested systems do not exist in Inventory');
+
             spy.calledOnce.should.be.true();
         });
     });
@@ -380,7 +399,7 @@ describe('inventory impl', function () {
             cache.setex.callCount.should.equal(1);
         });
 
-        test('returns empty object unknown systems', async function () {
+        test('returns empty object when Inventory returns 200 with no results', async function () {
             const cache = mockCache();
 
             const http = base.getSandbox().stub(request, 'run').resolves({
@@ -412,6 +431,16 @@ describe('inventory impl', function () {
                 error.message.should.equal('Access forbidden');
                 error.error.details.message.should.equal('Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.');
             }
+            spy.calledOnce.should.be.true();
+        });
+
+        test('throws unknownSystem error when Inventory returns 404', async function () {
+            const cache = mockCache();
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(null);
+
+            await expect(impl.getSystemProfileBatch(['non-existent-id']))
+                .rejects.toThrow('One or more requested systems do not exist in Inventory');
+
             spy.calledOnce.should.be.true();
         });
     });
@@ -551,7 +580,7 @@ describe('inventory impl', function () {
             cache.setex.callCount.should.equal(1);
         });
 
-        test('returns empty object unknown systems', async function () {
+        test('returns empty object when Inventory returns 200 with no results', async function () {
             const cache = mockCache();
 
             const http = base.getSandbox().stub(request, 'run').resolves({
