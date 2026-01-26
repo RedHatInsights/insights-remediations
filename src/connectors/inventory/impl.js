@@ -90,6 +90,12 @@ module.exports = new class extends Connector {
             throw e;
         }
 
+        // Inventory returns 404 with message "One or more hosts not found." when one or more requested hosts don't exist
+        // doHttp returns null when the response status is 404
+        if (response === null) {
+            throw new errors.BadRequest('UNKNOWN_SYSTEM', 'One or more requested systems do not exist in Inventory');
+        }
+
         const transformed = _(response.results)
             .keyBy('id')
             .mapValues(system => {
@@ -167,6 +173,12 @@ module.exports = new class extends Connector {
             throw e;
         }
 
+        // Inventory returns 404 with message "One or more hosts not found." when one or more requested hosts don't exist
+        // doHttp returns null when the response status is 404
+        if (response === null) {
+            throw new errors.BadRequest('UNKNOWN_SYSTEM', 'One or more requested systems do not exist in Inventory');
+        }
+
         const transformed = _(response.results)
         .keyBy('id')
         .mapValues(({id, display_name, fqdn: hostname, ansible_host, facts}) =>
@@ -224,6 +236,12 @@ module.exports = new class extends Connector {
             }
 
             throw e;
+        }
+
+        // Inventory returns 404 with message "One or more hosts not found." when one or more requested hosts don't exist
+        // doHttp returns null when the response status is 404
+        if (response === null) {
+            throw new errors.BadRequest('UNKNOWN_SYSTEM', 'One or more requested systems do not exist in Inventory');
         }
 
         const transformed = _(response.results)
