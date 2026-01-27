@@ -757,7 +757,7 @@ describe('remediations', function () {
                 '400s on invalid offset type',
                 '/v1/remediations?offset=false',
                 'type.openapi.requestValidation',
-                'must be number (location: query, path: offset)'
+                'must be integer (location: query, path: offset)'
             );
 
             test400(
@@ -1387,14 +1387,14 @@ describe('remediations', function () {
             '400 on bad limit',
             '/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:ping/systems?limit=egg',
             'type.openapi.requestValidation',
-            'must be number (location: query, path: limit)'
+            'must be integer (location: query, path: limit)'
         );
 
         test400(
             '400 on bad offset',
             '/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/issues/test:ping/systems?offset=salad',
             'type.openapi.requestValidation',
-            'must be number (location: query, path: offset)'
+            'must be integer (location: query, path: offset)'
         );
     });
 
