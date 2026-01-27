@@ -830,7 +830,7 @@ components:
       description: Indicates the starting position of the query relative to the complete set of items that match the query
       required: false
       schema:
-        type: number
+        type: integer
         minimum: 0
         default: 0
 
