@@ -330,20 +330,20 @@ describe('playbooks', function () {
             .expect(204);
         });
 
-        test('404 on remediation with no hosts', async () => {
+        test('204 on remediation with no hosts', async () => {
             mockDate();
             await request
             .get('/v1/remediations/d1b070b5-1db8-4dac-8ecf-891dc1e9225f/playbook')
             .set(auth.testReadSingle)
-            .expect(404);
+            .expect(204);
         });
 
-        test('404 on remediation with no hosts & localhost', async () => {
+        test('204 on remediation with no hosts & localhost', async () => {
             mockDate();
             await request
             .get('/v1/remediations/d1b070b5-1db8-4dac-8ecf-891dc1e9225f/playbook?localhost')
             .set(auth.testReadSingle)
-            .expect(404);
+            .expect(204);
         });
 
         test('403 on cert-auth request with non matching owner_ids', async () => {
@@ -370,20 +370,20 @@ describe('playbooks', function () {
             .expect(404);
         });
 
-        test('404 on host not associated with remediation', async () => {
+        test('204 on host not associated with remediation', async () => {
             mockDate();
             await request
             .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/playbook?hosts=74862eb3-0bbb-4bd8-ab11-f420c50e9000')
             .set(auth.testReadSingle)
-            .expect(404);
+            .expect(204);
         });
 
-        test('404 on non-existent host', async () => {
+        test('204 on non-existent host', async () => {
             mockDate();
             await request
             .get('/v1/remediations/c3f9f751-4bcc-4222-9b83-77f5e6e603da/playbook?hosts=non-existent-host')
             .set(auth.testReadSingle)
-            .expect(404);
+            .expect(204);
         });
 
         test('404 on non-existent-host with cert auth', async () => {
