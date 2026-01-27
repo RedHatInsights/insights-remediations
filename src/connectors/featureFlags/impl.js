@@ -5,11 +5,9 @@ const config = require('../../config');
 const log = require('../../util/log');
 
 let startUnleash = null;
-let destroy = null;
 try {
     const unleashClient = require('unleash-client');
     startUnleash = unleashClient.startUnleash;
-    destroy = unleashClient.destroy;
 } catch (error) {
     log.warn('Unleash client not available:', error.message);
 }
@@ -89,8 +87,8 @@ module.exports = new class extends Connector {
     }
 
     async close () {
-        if (this.client && destroy) {
-            destroy();
+        if (this.client?.destroy) {
+            await this.client.destroy();
             this.client = null;
             this.initialized = false;
             this.ready = false;
