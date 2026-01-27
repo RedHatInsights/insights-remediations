@@ -1,6 +1,7 @@
 'use strict';
 /* eslint-disable max-len */
 
+const yaml = require('js-yaml');
 const errors = require('../errors');
 const { request, mockVmaas, getSandbox, reqId, auth } = require('../test');
 const { NON_EXISTENT_SYSTEM } = require('../connectors/inventory/mock');
@@ -18,6 +19,158 @@ test('generates a simple playbook', () => {
     .send(data)
     .expect(200)
     .then(res => expect(res.text).toMatchSnapshot());
+});
+
+test('accepts precedence field in issues', () => {
+    const data = {
+        issues: [{
+            id: 'test:ping',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
+            precedence: 1
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200);
+});
+
+test('accepts null precedence field in issues', () => {
+    const data = {
+        issues: [{
+            id: 'test:ping',
+            systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
+            precedence: null
+        }]
+    };
+
+    return request
+    .post('/v1/playbook')
+    .send(data)
+    .expect(200);
+});
+
+test('orders issues by precedence in generated playbook', async () => {
+    const data = {
+        issues: [
+            {
+                id: 'test:ping',
+                systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
+                precedence: 30
+            },
+            {
+                id: 'test:reboot',
+                systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
+                precedence: 10
+            },
+            {
+                id: 'test:alwaysFail',
+                systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
+                precedence: 20
+            }
+        ]
+    };
+
+    const res = await request
+        .post('/v1/playbook')
+        .send(data)
+        .expect(200);
+
+    // Parse YAML and get play names
+    const plays = yaml.load(res.text);
+    const playNames = plays.map(play => play.name);
+
+    // Filter to just our test issue plays
+    const testPlayNames = playNames.filter(name =>
+        ['Trigger reboot', 'Always fail', 'ping'].includes(name)
+    );
+
+    // Verify plays appear in precedence order (10, 20, 30)
+    expect(testPlayNames).toEqual(['Trigger reboot', 'Always fail', 'ping']);
+});
+
+test('issues without precedence come after issues with precedence (NULLS LAST)', async () => {
+    const data = {
+        issues: [
+            {
+                id: 'test:ping',
+                systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+                // no precedence
+            },
+            {
+                id: 'test:reboot',
+                systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
+                precedence: 5
+            }
+        ]
+    };
+
+    const res = await request
+        .post('/v1/playbook')
+        .send(data)
+        .expect(200);
+
+    // Parse YAML and get play names
+    const plays = yaml.load(res.text);
+    const playNames = plays.map(play => play.name);
+
+    // Filter to just our test issue plays
+    const testPlayNames = playNames.filter(name =>
+        ['Trigger reboot', 'ping'].includes(name)
+    );
+
+    // Issue with precedence 5 should come before issue without precedence
+    expect(testPlayNames).toEqual(['Trigger reboot', 'ping']);
+});
+
+test('handles mix of precedence values, null, and missing field (NULLS LAST)', async () => {
+    const data = {
+        issues: [
+            {
+                id: 'test:ping',
+                systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
+                precedence: null // explicit null
+            },
+            {
+                id: 'test:reboot',
+                systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
+                precedence: 10
+            },
+            {
+                id: 'test:failHalfTheTime',
+                systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+                // no precedence field (undefined)
+            },
+            {
+                id: 'test:alwaysFail',
+                systems: ['68799a02-8be9-11e8-9eb6-529269fb1459'],
+                precedence: 5
+            }
+        ]
+    };
+
+    const res = await request
+        .post('/v1/playbook')
+        .send(data)
+        .expect(200);
+
+    // Parse YAML and get play names
+    const plays = yaml.load(res.text);
+    const playNames = plays.map(play => play.name);
+
+    // Filter to just our test issue plays
+    const testPlayNames = playNames.filter(name =>
+        ['Always fail', 'Trigger reboot', 'ping', 'Sometimes fail'].includes(name)
+    );
+
+    // Expected order: alwaysFail(5), reboot(10), then ping(null) and failHalfTheTime(missing) last
+    // Note: ping and Sometimes fail both have null/undefined precedence, so they maintain original order
+    expect(testPlayNames[0]).toEqual('Always fail');
+    expect(testPlayNames[1]).toEqual('Trigger reboot');
+    // The last two have null/undefined precedence - they come after those with precedence
+    expect(testPlayNames.slice(2)).toContain('ping');
+    expect(testPlayNames.slice(2)).toContain('Sometimes fail');
 });
 
 test('generates a simple alwaysFail playbook', () => {

@@ -1496,6 +1496,11 @@ components:
                   $ref: '#/components/schemas/SystemId'
               resolution:
                 $ref: '#/components/schemas/ResolutionType'
+              precedence:
+                type: integer
+                nullable: true
+                description: Controls the order in which issues are executed in the generated playbook. Lower numbers execute first. If not specified, issues maintain their request order.
+                example: 1
         auto_reboot:
           $ref: '#/components/schemas/RemediationAutoReboot'
 
