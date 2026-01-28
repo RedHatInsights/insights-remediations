@@ -111,6 +111,7 @@
     "test:kessel": "node scripts/test-kessel-migration.js",
     "kessel:start": "docker-compose -f docker-compose.kessel.yml up -d",
     "kessel:stop": "docker-compose -f docker-compose.kessel.yml down",
-    "verify": "npm-run-all lint coverage"
+    "verify": "npm-run-all lint coverage",
+    "job:cull-remediations": "node src/jobs/cullOldRemediations.js"
   }
 }
