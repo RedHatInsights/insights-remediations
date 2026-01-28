@@ -7,7 +7,7 @@ const { Op } = require('sequelize');
 const EXIT_SUCCESS = 0;
 const EXIT_FAILURE = 1;
 const DEFAULT_RETENTION_DAYS = 270; // 9 months
-const BATCH_SIZE = 1000;
+const DEFAULT_BATCH_SIZE = 1000;
 
 function getCutoffDate(retentionDays) {
     const cutoff = new Date();
@@ -17,9 +17,10 @@ function getCutoffDate(retentionDays) {
 
 async function cullOldRemediations() {
     const retentionDays = parseInt(process.env.REMEDIATION_RETENTION_DAYS, 10) || DEFAULT_RETENTION_DAYS;
+    const batchSize = parseInt(process.env.REMEDIATION_CULL_BATCH_SIZE, 10) || DEFAULT_BATCH_SIZE;
     const cutoffDate = getCutoffDate(retentionDays);
 
-    log.info({ retentionDays, cutoffDate: cutoffDate.toISOString() }, 'Starting remediation culling job');
+    log.info({ retentionDays, batchSize, cutoffDate: cutoffDate.toISOString() }, 'Starting remediation culling job');
 
     let totalDeleted = 0;
 
@@ -30,7 +31,7 @@ async function cullOldRemediations() {
             const oldRemediations = await db.remediation.findAll({
                 attributes: ['id'],
                 where: { updated_at: { [Op.lt]: cutoffDate } },
-                limit: BATCH_SIZE,
+                limit: batchSize,
                 raw: true
             });
 
@@ -62,7 +63,7 @@ async function main() {
     }
 }
 
-module.exports = { cullOldRemediations, getCutoffDate, BATCH_SIZE, DEFAULT_RETENTION_DAYS };
+module.exports = { cullOldRemediations, getCutoffDate, DEFAULT_BATCH_SIZE, DEFAULT_RETENTION_DAYS };
 
 if (require.main === module) {
     main();

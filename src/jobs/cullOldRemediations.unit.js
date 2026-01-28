@@ -3,7 +3,7 @@
 require('should');
 const sinon = require('sinon');
 const db = require('../db');
-const { cullOldRemediations, getCutoffDate, BATCH_SIZE, DEFAULT_RETENTION_DAYS } = require('./cullOldRemediations');
+const { cullOldRemediations, getCutoffDate, DEFAULT_BATCH_SIZE, DEFAULT_RETENTION_DAYS } = require('./cullOldRemediations');
 
 describe('cullOldRemediations', function () {
     let sandbox;
@@ -105,7 +105,7 @@ describe('cullOldRemediations', function () {
 
         test('should process multiple batches', async () => {
             // Create arrays of remediation IDs for multiple batches
-            const batch1 = Array.from({ length: BATCH_SIZE }, (_, i) => ({
+            const batch1 = Array.from({ length: DEFAULT_BATCH_SIZE }, (_, i) => ({
                 id: `batch1-${i.toString().padStart(4, '0')}-0000-0000-000000000000`
             }));
             const batch2 = Array.from({ length: 500 }, (_, i) => ({
@@ -116,12 +116,12 @@ describe('cullOldRemediations', function () {
             remediationFindAllStub.onCall(1).resolves(batch2);
             remediationFindAllStub.onCall(2).resolves([]);
 
-            remediationDestroyStub.onCall(0).resolves(BATCH_SIZE);
+            remediationDestroyStub.onCall(0).resolves(DEFAULT_BATCH_SIZE);
             remediationDestroyStub.onCall(1).resolves(500);
 
             const totalDeleted = await cullOldRemediations();
 
-            totalDeleted.should.equal(BATCH_SIZE + 500);
+            totalDeleted.should.equal(DEFAULT_BATCH_SIZE + 500);
             remediationFindAllStub.callCount.should.equal(3);
             remediationDestroyStub.callCount.should.equal(2);
         });
@@ -132,7 +132,7 @@ describe('cullOldRemediations', function () {
             await cullOldRemediations();
 
             const findAllCall = remediationFindAllStub.getCall(0);
-            findAllCall.args[0].limit.should.equal(BATCH_SIZE);
+            findAllCall.args[0].limit.should.equal(DEFAULT_BATCH_SIZE);
         });
 
         test('should query using updated_at field with less than cutoff date', async () => {
@@ -239,6 +239,61 @@ describe('cullOldRemediations', function () {
                 process.env.REMEDIATION_RETENTION_DAYS = originalEnv;
             }
         });
+
+        test('should use environment variable for batch size', async () => {
+            const originalEnv = process.env.REMEDIATION_CULL_BATCH_SIZE;
+            process.env.REMEDIATION_CULL_BATCH_SIZE = '500';
+
+            remediationFindAllStub.resolves([]);
+
+            await cullOldRemediations();
+
+            const findAllCall = remediationFindAllStub.getCall(0);
+            findAllCall.args[0].limit.should.equal(500);
+
+            // Restore environment
+            if (originalEnv === undefined) {
+                delete process.env.REMEDIATION_CULL_BATCH_SIZE;
+            } else {
+                process.env.REMEDIATION_CULL_BATCH_SIZE = originalEnv;
+            }
+        });
+
+        test('should use default batch size when env var is not set', async () => {
+            const originalEnv = process.env.REMEDIATION_CULL_BATCH_SIZE;
+            delete process.env.REMEDIATION_CULL_BATCH_SIZE;
+
+            remediationFindAllStub.resolves([]);
+
+            await cullOldRemediations();
+
+            const findAllCall = remediationFindAllStub.getCall(0);
+            findAllCall.args[0].limit.should.equal(DEFAULT_BATCH_SIZE);
+
+            // Restore environment
+            if (originalEnv !== undefined) {
+                process.env.REMEDIATION_CULL_BATCH_SIZE = originalEnv;
+            }
+        });
+
+        test('should use default batch size when env var is invalid', async () => {
+            const originalEnv = process.env.REMEDIATION_CULL_BATCH_SIZE;
+            process.env.REMEDIATION_CULL_BATCH_SIZE = 'invalid';
+
+            remediationFindAllStub.resolves([]);
+
+            await cullOldRemediations();
+
+            const findAllCall = remediationFindAllStub.getCall(0);
+            findAllCall.args[0].limit.should.equal(DEFAULT_BATCH_SIZE);
+
+            // Restore environment
+            if (originalEnv === undefined) {
+                delete process.env.REMEDIATION_CULL_BATCH_SIZE;
+            } else {
+                process.env.REMEDIATION_CULL_BATCH_SIZE = originalEnv;
+            }
+        });
     });
 
     describe('constants', function () {
@@ -246,8 +301,8 @@ describe('cullOldRemediations', function () {
             DEFAULT_RETENTION_DAYS.should.equal(270);
         });
 
-        test('BATCH_SIZE should be 1000', () => {
-            BATCH_SIZE.should.equal(1000);
+        test('DEFAULT_BATCH_SIZE should be 1000', () => {
+            DEFAULT_BATCH_SIZE.should.equal(1000);
         });
     });
 });

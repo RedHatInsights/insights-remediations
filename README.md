@@ -84,7 +84,42 @@ repository which implements a common inventory system with eventing.
 
 Application configuration can be [changed using environmental variables](https://github.com/RedHatInsights/insights-remediations/blob/master/src/config/index.js).
 
-### Troubleshooting
+## Scheduled Jobs
+
+### Remediation Plan Retention Policy (Culling Job)
+
+The application includes a scheduled job that automatically removes old remediation plans based on a configurable retention policy. This helps manage database size and ensures compliance with data retention requirements.
+
+**How it works:**
+- The job runs daily at midnight (cron: `0 0 * * *`)
+- Remediation plans are deleted when their `updated_at` timestamp is older than the configured retention period
+- Deletions are processed in batches of 1000 to minimize database load
+- The job logs progress including the number of remediations deleted per batch and total
+
+**Configuration:**
+
+| Environment Variable | Description | Default |
+|---------------------|-------------|---------|
+| `REMEDIATION_RETENTION_DAYS` | Number of days to retain remediation plans before culling | `270` (~9 months) |
+| `REMEDIATION_CULL_BATCH_SIZE` | Number of remediation plans to delete per batch | `1000` |
+
+**Running the job manually:**
+
+```bash
+# Using npm script
+npm run job:cull-remediations
+
+# Or directly
+node src/jobs/cullOldRemediations.js
+```
+
+**Running tests for the culling job:**
+
+```bash
+npm test src/jobs/cullOldRemediations.unit.js
+```
+
+## Troubleshooting
 
 If your local database isn't updating, or it's not running as expected, run this command to remove old containers:
 ```

@@ -241,6 +241,8 @@ objects:
         env:
           - name: REMEDIATION_RETENTION_DAYS
             value: ${REMEDIATION_RETENTION_DAYS}
+          - name: REMEDIATION_CULL_BATCH_SIZE
+            value: ${REMEDIATION_CULL_BATCH_SIZE}
           - name: LOG_LEVEL
             value: ${LOG_LEVEL}
           - name: CLOWDER_ENABLED
@@ -541,3 +543,6 @@ parameters:
 - name: REMEDIATION_RETENTION_DAYS
   description: Number of days to retain remediation plans before culling (default 270 = ~9 months)
   value: '270'
+- name: REMEDIATION_CULL_BATCH_SIZE
+  description: Number of remediation plans to delete per batch during culling
+  value: '1000'
