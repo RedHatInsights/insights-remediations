@@ -245,6 +245,16 @@ function Config() {
             text_updates: env.FIFI_TEXT_UPDATES === 'false' ? false : true,
             text_update_interval: parseIntEnv('FIFI_TEXT_UPDATE_INTERVAL', 5000),
             text_update_full: env.FIFI_TEXT_UPDATE_FULL === 'false' ? false : true
+        },
+
+        featureFlags: {
+            enabled: env.FEATURE_FLAGS_ENABLED === 'true' ? true : false,
+            impl: env.FEATURE_FLAGS_IMPL,
+            host: env.FEATURE_FLAGS_HOST || '',
+            token: env.FEATURE_FLAGS_TOKEN || '',
+            appName: env.FEATURE_FLAGS_APP_NAME || 'remediations',
+            refreshInterval: parseIntEnv('FEATURE_FLAGS_REFRESH_INTERVAL', 15000), // 15 seconds
+            metricsInterval: parseIntEnv('FEATURE_FLAGS_METRICS_INTERVAL', 60000) // 60 seconds
         }
     };
 
@@ -282,6 +292,11 @@ function Config() {
                 // if the password is set -> we're using TLS: https://github.com/luin/ioredis#tls-options
                 config.redis.tls = {};
             }
+        }
+
+        if (config.featureFlags.enabled && loadedConfig.featureFlags) {
+            config.featureFlags.host = `http://${loadedConfig.featureFlags.hostname}:${loadedConfig.featureFlags.port}/api`;
+            config.featureFlags.token = loadedConfig.featureFlags.clientAccessToken;
         }
 
         if (loadedConfig.database.sslMode !== 'disable') {
@@ -327,6 +342,11 @@ function Config() {
                 // if the password is set -> we're using TLS: https://github.com/luin/ioredis#tls-options
                 config.redis.tls = {};
             }
+        }
+
+        if (config.featureFlags.enabled) {
+            config.featureFlags.host = env.FEATURE_FLAGS_HOST || 'http://localhost:4242/api';
+            config.featureFlags.token = env.FEATURE_FLAGS_TOKEN || '';
         }
 
         if (env.DB_SSL_ENABLED !== 'false' && env.DB_CA) {
