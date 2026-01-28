@@ -393,6 +393,17 @@ describe('playbooks', function () {
             .set(auth.cert02)
             .expect(404);
         });
+
+        test('returns error when playbook contains unknown issues', async () => {
+            // Remediation 62c95092-ac83-4025-a676-362a67e68579 ("unknown issues") has non-existent issues
+            const {body} = await request
+            .get('/v1/remediations/62c95092-ac83-4025-a676-362a67e68579/playbook')
+            .set(auth.testReadSingle)
+            .expect(400);
+
+            expect(body.errors[0].code).toBe('UNKNOWN_ISSUE');
+        });
+
     });
 
     describe('caching', function () {
@@ -425,7 +436,9 @@ describe('playbooks', function () {
     });
 
     describe('missing', function () {
-        test('get remediation with missing system', async () => {
+        // Issue has some systems that exist in Inventory and some that don't.
+        // Missing systems are filtered out, playbook generated with remaining valid systems.
+        test('generates playbook when issue has mix of valid and missing Inventory systems', async () => {
             mockDate();
             const {text, headers} = await request
             .get('/v1/remediations/82aeb63f-fc25-4eef-9333-4fa7e10f7217/playbook')
@@ -436,7 +449,9 @@ describe('playbooks', function () {
             expect(text).toMatchSnapshot();
         });
 
-        test('get remediation with missing system causing an issue to be empty', async () => {
+        // One issue has all systems missing from Inventory (becomes empty, filtered out).
+        // Another issue has valid systems, so playbook is still generated.
+        test('generates playbook when one issue becomes empty due to missing Inventory systems', async () => {
             mockDate();
             const {text, headers} = await request
             .get('/v1/remediations/27e36e14-e1c2-4b5a-9382-ec80ca9a6c1a/playbook')
@@ -457,15 +472,6 @@ describe('playbooks', function () {
             expect(text).toMatchSnapshot();
         });
 
-        test('get remediation with unknown issues', async () => {
-            mockDate();
-            const {text} = await request
-            .get('/v1/remediations/62c95092-ac83-4025-a676-362a67e68579/playbook')
-            .set(auth.testReadSingle)
-            .expect(204);
-
-            expect(text).toMatchSnapshot();
-        });
     });
 
     test('playbook for remediation with test namespace', async () => {

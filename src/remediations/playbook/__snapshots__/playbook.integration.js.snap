@@ -1919,7 +1919,7 @@ exports[`playbooks generate stores generated playbooks 1`] = `
 }
 `;
 
-exports[`playbooks missing get remediation with missing system 1`] = `
+exports[`playbooks missing generates playbook when issue has mix of valid and missing Inventory systems 1`] = `
 "---
 # Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
 # deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
@@ -2063,7 +2063,7 @@ exports[`playbooks missing get remediation with missing system 1`] = `
       changed_when: false"
 `;
 
-exports[`playbooks missing get remediation with missing system causing an issue to be empty 1`] = `
+exports[`playbooks missing generates playbook when one issue becomes empty due to missing Inventory systems 1`] = `
 "---
 # Red Hat Insights has recommended one or more actions for you, a system administrator, to review and if you
 # deem appropriate, deploy on your systems running Red Hat software. Based on the analysis, we have automatically
@@ -2206,8 +2206,6 @@ exports[`playbooks missing get remediation with missing system causing an issue 
       command: insights-client
       changed_when: false"
 `;
-
-exports[`playbooks missing get remediation with unknown issues 1`] = `""`;
 
 exports[`playbooks missing get remediation with unknown resolution 1`] = `
 "---
