@@ -169,7 +169,7 @@ paths:
       operationId: getRemediationIssues
       parameters:
         - $ref: '#/components/parameters/RemediationId'
-        - $ref: '#/components/parameters/Limit50'
+        - $ref: '#/components/parameters/Limit100'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/IssueFilter'
         - $ref: '#/components/parameters/IssueSort'
@@ -292,7 +292,7 @@ paths:
       operationId: getRemediationSystems
       parameters:
         - $ref: '#/components/parameters/RemediationId'
-        - $ref: '#/components/parameters/Limit50'
+        - $ref: '#/components/parameters/Limit100'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/SystemsFilter'
         - $ref: '#/components/parameters/SystemsSort'
@@ -376,7 +376,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/RemediationId'
         - $ref: '#/components/parameters/SystemId'
-        - $ref: '#/components/parameters/Limit50'
+        - $ref: '#/components/parameters/Limit100'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/SystemIssuesSort'
         - $ref: '#/components/parameters/SystemIssuesFilter'
@@ -797,7 +797,7 @@ components:
       description: Maximum number of results to return
       required: false
       schema:
-        type: number
+        type: integer
         minimum: 1
         maximum: 200
         default: 50
@@ -808,9 +808,20 @@ components:
       description: Maximum number of results to return
       required: false
       schema:
-        type: number
+        type: integer
         minimum: 1
         maximum: 50
+        default: 10
+
+    Limit100:
+      in: query
+      name: limit
+      description: Maximum number of results to return
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
         default: 10
 
     Offset:
@@ -819,7 +830,7 @@ components:
       description: Indicates the starting position of the query relative to the complete set of items that match the query
       required: false
       schema:
-        type: number
+        type: integer
         minimum: 0
         default: 0
 
@@ -1485,6 +1496,11 @@ components:
                   $ref: '#/components/schemas/SystemId'
               resolution:
                 $ref: '#/components/schemas/ResolutionType'
+              precedence:
+                type: integer
+                nullable: true
+                description: Controls the order in which issues are executed in the generated playbook. Lower numbers execute first. If not specified, issues maintain their request order.
+                example: 1
         auto_reboot:
           $ref: '#/components/schemas/RemediationAutoReboot'
 
