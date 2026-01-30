@@ -1,5 +1,3 @@
-[![Build Status](https://jenkins-jenkins.5a9f.insights-dev.openshiftapps.com/buildStatus/icon?job=insights-remediations/insights-remediations-ci)](https://jenkins-jenkins.5a9f.insights-dev.openshiftapps.com/job/insights-remediations/job/insights-remediations-ci/)
-
 # Insights Remediations
 
 Insights Remediations is a generator of Ansible playbooks that remediate issues discovered by Red Hat Insights.
@@ -101,7 +99,7 @@ docker-compose -f build/docker-compose.yml build
 Upon any change in the master branch the branch is tested, an image is built and deployed in CI and QA environments automatically.
 This process is controlled by the [deployment Jenkinsfile](./deployment/Jenkinsfile).
 
-The image can then be promoted to production using a [Jenkins job](https://jenkins-insights-jenkins.1b13.insights.openshiftapps.com/job/remediations/job/remediations-release/). Use the git commit SHA as the REVISION when running the job.
+The image is build using Konflux and it is released using using App-sre.
 
 ## Contact
 For questions or comments join **#platform-data-pipeline-standup** at ansible.slack.com.
