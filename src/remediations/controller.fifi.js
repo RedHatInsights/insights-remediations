@@ -26,22 +26,21 @@ exports.checkExecutable = errors.async(async function (req, res) {
 });
 
 exports.cancelPlaybookRuns = errors.async(async function (req, res) {
-    const [executors, remediation] = await Promise.all([
-        queries.getRunningExecutors(req.params.id, req.params.playbook_run_id, req.user.tenant_org_id, req.user.username),
-        queries.getRunDetails(req.params.id, req.params.playbook_run_id, req.user.tenant_org_id, req.user.username)
-    ]);
+    const remediation = await queries.getRunDetails(
+        req.params.id,
+        req.params.playbook_run_id,
+        req.user.tenant_org_id,
+        req.user.username
+    );
 
-    const run_executor = _(remediation).get('playbook_runs[0].executors');
-
-    if (_.isEmpty(executors) && !_.isEmpty(run_executor)) {
+    if (!remediation) {
         return notFound(res);
     }
 
     await fifi.cancelPlaybookRun(
-        req.user.account_number,
         req.identity.org_id,
         req.params.playbook_run_id,
-        req.user.username, executors
+        req.user.username
     );
 
     res.status(202).send({});
