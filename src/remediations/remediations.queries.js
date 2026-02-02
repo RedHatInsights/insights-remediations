@@ -858,58 +858,6 @@ exports.getRunningExecutors = function (remediation_id, playbook_run_id, tenant_
     return db.playbook_run_executors.findAll(query);
 };
 
-// eslint-disable-next-line max-len
-exports.getSystems = function (remediation_id, playbook_run_id, executor_id = null, ansible_host = null, tenant_org_id, username) {
-    const { Op } = db;
-    const query = {
-        attributes: [
-            'id',
-            'system_id',
-            'system_name',
-            'status',
-            'updated_at',
-            'playbook_run_executor_id'
-        ],
-        include: [{
-            attributes: ['id'],
-            model: db.playbook_run_executors,
-            required: true,
-            include: [{
-                attributes: ['id'],
-                model: db.playbook_runs,
-                include: [{
-                    attributes: ['id'],
-                    model: db.remediation,
-                    where: {
-                        id: remediation_id,
-                        tenant_org_id,
-                        created_by: username
-                    }
-                }],
-                where: {
-                    id: playbook_run_id
-                }
-            }]
-        }]
-    };
-
-    if (executor_id) {
-        query.include[0].where = {
-            executor_id
-        };
-    }
-
-    if (ansible_host) {
-        query.where = {
-            system_name: {
-                [Op.substring]: ansible_host
-            }
-        };
-    }
-
-    return db.playbook_run_systems.findAll(query);
-};
-
 exports.getSystemDetails = function (id, playbook_run_id, system_id, tenant_org_id, created_by) {
     return db.playbook_run_systems.findOne({
         attributes: [
