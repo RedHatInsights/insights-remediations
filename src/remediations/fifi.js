@@ -2,7 +2,6 @@
 /* eslint-disable max-len */
 
 const _ = require('lodash');
-const P = require('bluebird');
 const {v4: uuidv4} = require('uuid');
 
 const config = require('../config');
@@ -12,7 +11,6 @@ const generator = require('../generator/generator.controller');
 const inventory = require('../connectors/inventory');
 const sources = require('../connectors/sources');
 const configManager = require('../connectors/configManager');
-const receptorConnector = require('../connectors/receptor');
 const dispatcher = require('../connectors/dispatcher');
 const log = require('../util/log');
 const trace = require('../util/trace');
@@ -412,7 +410,7 @@ exports.combineRuns = async function (remediation) {
 
     // array of playbook_run_id
     for (const run of remediation.playbook_runs) {
-        // Initialize executors array if it doesn't exist (getPlaybookRuns no longer includes receptor executors)
+        // Initialize executors array if it doesn't exist (query functions no longer return receptor executors)
         if (!run.executors) {
             run.executors = [];
         }
@@ -473,27 +471,8 @@ exports.filterIssuesPerExecutor = async function (systems, remediationIssues) {
     return filtered;
 };
 
-function prepareReceptorCancelRequest (account_number, executor, playbook_run_id) {
-    const receptorCancelRequest = format.receptorCancelRequest(format.playbookCancelRequest(
-        playbook_run_id), account_number, executor.get('receptor_node_id'));
-
-    return { executor, receptorCancelRequest };
-}
-
 function prepareRHCCancelRequest (org_id, playbook_run_id, username) {
     return { run_id: playbook_run_id, org_id, principal: username};
-}
-
-function dispatchReceptorCancelRequests (requests, playbook_run_id) {
-    return P.mapSeries(requests, async ({ executor, receptorCancelRequest }) => {
-        try {
-            const response = await receptorConnector.postInitialRequest(receptorCancelRequest);
-            probes.receptorCancelDispatched(receptorCancelRequest, executor, response, playbook_run_id);
-            return response;
-        } catch (e) {
-            log.error({executor: executor.id, error: e}, 'error sending cancel request to executor');
-        }
-    });
 }
 
 async function dispatchRHCCancelRequests (dispatcherCancelRequest, playbook_run_id) {
@@ -506,12 +485,7 @@ async function dispatchRHCCancelRequests (dispatcherCancelRequest, playbook_run_
     }
 }
 
-exports.cancelPlaybookRun = async function (account_number, org_id, playbook_run_id, username, executors) {
-    if (_.isEmpty(executors)) {
-        const request = [prepareRHCCancelRequest(org_id, playbook_run_id, username)];
-        await dispatchRHCCancelRequests(request);
-    } else {
-        const requests = executors.map(executor => prepareReceptorCancelRequest(account_number, executor, playbook_run_id));
-        await dispatchReceptorCancelRequests(requests, playbook_run_id);
-    }
+exports.cancelPlaybookRun = async function (org_id, playbook_run_id, username) {
+    const request = [prepareRHCCancelRequest(org_id, playbook_run_id, username)];
+    await dispatchRHCCancelRequests(request, playbook_run_id);
 };
