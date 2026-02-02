@@ -99,7 +99,7 @@ docker-compose -f build/docker-compose.yml build
 Upon any change in the master branch the branch is tested, an image is built and deployed in CI and QA environments automatically.
 This process is controlled by the [deployment Jenkinsfile](./deployment/Jenkinsfile).
 
-The image is build using Konflux and it is released using using App-sre.
+The image is built using Konflux and is released using AppSRE.
 
 ## Contact
 For questions or comments join **#platform-data-pipeline-standup** at ansible.slack.com.
