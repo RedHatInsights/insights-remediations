@@ -245,6 +245,12 @@ function Config() {
             text_updates: env.FIFI_TEXT_UPDATES === 'false' ? false : true,
             text_update_interval: parseIntEnv('FIFI_TEXT_UPDATE_INTERVAL', 5000),
             text_update_full: env.FIFI_TEXT_UPDATE_FULL === 'false' ? false : true
+        },
+
+        // remediation plan retention policy (in days)
+        remediationRetentionDays: {
+            value: parseIntEnv('REMEDIATION_RETENTION_DAYS', 270), // 9 months (9 * 30 days)
+            exposed: true
         }
     };
 
@@ -350,4 +356,28 @@ if (['development', 'production', 'test'].includes(config.env)) {
     }
 }
 
+/**
+ * Recursively extracts configuration values that have `exposed: true`.
+ * Returns a flattened object with only the exposed values.
+ */
+function getExposedConfig(obj = config, prefix = '') {
+    const result = {};
+
+    for (const [key, value] of Object.entries(obj)) {
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+            if (value.exposed === true && 'value' in value) {
+                // This is an exposed config entry with a value
+                result[prefix ? `${prefix}.${key}` : key] = value.value;
+            } else {
+                // Recurse into nested objects
+                const nested = getExposedConfig(value, prefix ? `${prefix}.${key}` : key);
+                Object.assign(result, nested);
+            }
+        }
+    }
+
+    return result;
+}
+
 module.exports = config;
+module.exports.getExposedConfig = getExposedConfig;

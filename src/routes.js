@@ -81,6 +81,7 @@ module.exports = async function (app) {
 
     [
         'admin',
+        'config',
         'remediations',
         'status',
         'version',

@@ -220,6 +220,8 @@ objects:
             value: ${KESSEL_INSECURE}
           - name: KESSEL_PRINCIPAL_DOMAIN
             value: ${KESSEL_PRINCIPAL_DOMAIN}
+          - name: REMEDIATION_RETENTION_DAYS
+            value: ${REMEDIATION_RETENTION_DAYS}
 
 - apiVersion: v1
   kind: Secret
@@ -506,3 +508,6 @@ parameters:
   value: 'true'
 - name: KESSEL_PRINCIPAL_DOMAIN
   value: "redhat"
+- name: REMEDIATION_RETENTION_DAYS
+  description: Remediation plan retention policy in days (plans with an expiration date older than this will be deleted)
+  value: '270'
