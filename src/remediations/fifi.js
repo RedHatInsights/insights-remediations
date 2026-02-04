@@ -6,7 +6,6 @@ const {v4: uuidv4} = require('uuid');
 
 const config = require('../config');
 const errors = require('../errors');
-const format = require('./remediations.format');
 const generator = require('../generator/generator.controller');
 const inventory = require('../connectors/inventory');
 const sources = require('../connectors/sources');
