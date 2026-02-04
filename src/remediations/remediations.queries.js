@@ -785,42 +785,6 @@ exports.getRunDetails = function (id, playbook_run_id, tenant_org_id, created_by
     });
 };
 
-exports.getSystemDetails = function (id, playbook_run_id, system_id, tenant_org_id, created_by) {
-    return db.playbook_run_systems.findOne({
-        attributes: [
-            'id',
-            'system_id',
-            'system_name',
-            'status',
-            'updated_at',
-            ['playbook_run_executor_id', 'executor_id'],
-            'console'
-        ],
-        include: [{
-            attributes: ['id'],
-            model: db.playbook_run_executors,
-            required: true,
-            include: [{
-                attributes: ['id'],
-                model: db.playbook_runs,
-                include: [{
-                    attributes: [],
-                    model: db.remediation,
-                    where: {
-                        id, tenant_org_id, created_by
-                    }
-                }],
-                where: {
-                    id: playbook_run_id
-                }
-            }]
-        }],
-        where: {
-            system_id
-        }
-    });
-};
-
 // Return issues for a specific system within a remediation plan
 exports.getSystemIssues = async function (remediation_id, system_id, tenant_org_id, created_by = null, primaryOrder = 'id', asc = true, filter = undefined, limit, offset) {
     const { Op, issue, remediation, issue_system, s: { col } } = db;

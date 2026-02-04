@@ -659,21 +659,6 @@ describe('FiFi', function () {
 
             test('playbook_runs/:playbook_run_id/systems/:system', async () => {
                 const {body, text} = await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems/7b136dd2-4824-43cf-af6c-ad0ee42f9f97')
-                .set(auth.fifi)
-                .expect(200);
-
-                body.should.have.property('system_id', '7b136dd2-4824-43cf-af6c-ad0ee42f9f97');
-                body.should.have.property('system_name', 'system-1');
-                body.should.have.property('status', 'running');
-                body.should.have.property('console', 'These are the logs for console-5');
-                body.should.have.property('updated_at', '2019-12-23T18:19:36.641Z');
-                body.should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
-                expect(text).toMatchSnapshot();
-            });
-
-            test('playbook_runs/:playbook_run_id/systems/:system with RHC system', async () => {
-                const {body, text} = await request
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/31a70e85-378a-4436-96e9-677cd6fba660/systems/17adc41a-a6c6-426a-a0d5-c7ba08954154')
                 .set(auth.fifi)
                 .expect(200);
@@ -927,17 +912,17 @@ describe('FiFi', function () {
 
             test('sets etag for playbook_run/:playbook_run_id/systems/:system', async () => {
                 const {headers} = await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems/7b136dd2-4824-43cf-af6c-ad0ee42f9f97')
+                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/31a70e85-378a-4436-96e9-677cd6fba660/systems/17adc41a-a6c6-426a-a0d5-c7ba08954154')
                 .set(auth.fifi)
                 .expect(200);
 
-                headers.etag.should.equal('"f7-TX5//7bMmGeeb9pdaNTPbjQ6pck"');
+                headers.etag.should.equal('"114-edP8VcXMPBHEm1bmYMd9hXaylqQ"');
             });
 
             test('304 on etag match for playbook_run/:playbook_run_id/systems/:system', async () => {
                 await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems/7b136dd2-4824-43cf-af6c-ad0ee42f9f97')
-                .set('if-none-match', '"f7-TX5//7bMmGeeb9pdaNTPbjQ6pck"')
+                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/31a70e85-378a-4436-96e9-677cd6fba660/systems/17adc41a-a6c6-426a-a0d5-c7ba08954154')
+                .set('if-none-match', '"114-edP8VcXMPBHEm1bmYMd9hXaylqQ"')
                 .expect(304);
             });
         });
