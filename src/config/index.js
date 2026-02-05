@@ -248,10 +248,7 @@ function Config() {
         },
 
         // remediation plan retention policy (in days)
-        remediationRetentionDays: {
-            value: parseIntEnv('REMEDIATION_RETENTION_DAYS', 270), // 9 months (9 * 30 days)
-            exposed: true
-        }
+        remediationRetentionDays: parseIntEnv('REMEDIATION_RETENTION_DAYS', 270) // 9 months (9 * 30 days)
     };
 
     if (acgConfig) {
@@ -357,26 +354,16 @@ if (['development', 'production', 'test'].includes(config.env)) {
 }
 
 /**
- * Recursively extracts configuration values that have `exposed: true`.
- * Returns a flattened object with only the exposed values.
+ * Returns configuration values that should be exposed to the client.
+ *
+ * IMPORTANT: This function explicitly constructs the exposed config object.
+ * Only add values here that are safe to expose publicly.
+ * Do NOT copy/paste from the main config without careful consideration.
  */
-function getExposedConfig(obj = config, prefix = '') {
-    const result = {};
-
-    for (const [key, value] of Object.entries(obj)) {
-        if (value && typeof value === 'object' && !Array.isArray(value)) {
-            if (value.exposed === true && 'value' in value) {
-                // This is an exposed config entry with a value
-                result[prefix ? `${prefix}.${key}` : key] = value.value;
-            } else {
-                // Recurse into nested objects
-                const nested = getExposedConfig(value, prefix ? `${prefix}.${key}` : key);
-                Object.assign(result, nested);
-            }
-        }
-    }
-
-    return result;
+function getExposedConfig() {
+    return {
+        remediationRetentionDays: config.remediationRetentionDays
+    };
 }
 
 module.exports = config;

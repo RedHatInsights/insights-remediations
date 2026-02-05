@@ -14,73 +14,30 @@ describe('Configuration', () => {
 describe('getExposedConfig', () => {
     const { getExposedConfig } = require('.');
 
-    test('extracts exposed config values', () => {
-        const testConfig = {
-            simpleValue: 'not exposed',
-            exposedValue: {
-                value: 'test-value',
-                exposed: true
-            },
-            nested: {
-                notExposed: 'hidden',
-                alsoExposed: {
-                    value: 42,
-                    exposed: true
-                }
-            }
-        };
-
-        const result = getExposedConfig(testConfig);
-
-        expect(result).toEqual({
-            exposedValue: 'test-value',
-            'nested.alsoExposed': 42
-        });
-    });
-
-    test('returns empty object when no exposed values exist', () => {
-        const testConfig = {
-            hidden: 'value',
-            nested: {
-                alsoHidden: 'secret'
-            }
-        };
-
-        const result = getExposedConfig(testConfig);
-
-        expect(result).toEqual({});
-    });
-
-    test('ignores exposed: true without value property', () => {
-        const testConfig = {
-            incomplete: {
-                exposed: true
-                // missing 'value' property
-            }
-        };
-
-        const result = getExposedConfig(testConfig);
-
-        expect(result).toEqual({});
-    });
-
-    test('ignores exposed: false with value property', () => {
-        const testConfig = {
-            notReallyExposed: {
-                value: 'should-be-hidden',
-                exposed: false
-            }
-        };
-
-        const result = getExposedConfig(testConfig);
-
-        expect(result).toEqual({});
-    });
-
-    test('extracts remediationRetentionDays from actual config', () => {
+    test('returns only explicitly exposed config values', () => {
         const result = getExposedConfig();
 
+        // Should contain remediationRetentionDays
         expect(result).toHaveProperty('remediationRetentionDays');
         expect(typeof result.remediationRetentionDays).toBe('number');
+    });
+
+    test('does not expose sensitive config values', () => {
+        const result = getExposedConfig();
+
+        // Ensure sensitive values are not exposed
+        expect(result).not.toHaveProperty('db');
+        expect(result).not.toHaveProperty('redis');
+        expect(result).not.toHaveProperty('kessel');
+        expect(result).not.toHaveProperty('users');
+        expect(result).not.toHaveProperty('logging');
+    });
+
+    test('returns expected structure', () => {
+        const result = getExposedConfig();
+
+        // The exposed config should only contain the explicitly defined keys
+        const keys = Object.keys(result);
+        expect(keys).toEqual(['remediationRetentionDays']);
     });
 });

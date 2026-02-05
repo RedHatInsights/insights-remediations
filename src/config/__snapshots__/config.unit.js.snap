@@ -145,10 +145,7 @@ exports[`Configuration Verify app-common-js function 1`] = `
   "redis": {
     "enabled": false,
   },
-  "remediationRetentionDays": {
-    "exposed": true,
-    "value": 270,
-  },
+  "remediationRetentionDays": 270,
   "requestTimeout": 10000,
   "sources": {
     "host": "http://localhost:8080",
