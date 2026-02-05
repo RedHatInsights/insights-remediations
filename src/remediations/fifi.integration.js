@@ -471,26 +471,12 @@ describe('FiFi', function () {
                 body.should.have.property('status', 'running');
                 body.should.have.property('created_at', '2019-12-23T08:19:36.641Z');
 
-                body.executors[0].should.have.property('executor_id', '77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd');
-                body.executors[0].should.have.property('executor_name', 'executor-1');
+                // Only RHC executor (Direct connected) is returned now - receptor executors are no longer queried
+                body.executors[0].should.have.property('executor_id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
+                body.executors[0].should.have.property('executor_name', 'Direct connected');
                 body.executors[0].should.have.property('status', 'running');
-                body.executors[0].should.have.property('system_count', 6);
+                body.executors[0].should.have.property('system_count', 1);
                 body.executors[0].counts.should.have.property('running', 1);
-                body.executors[0].counts.should.have.property('success', 3);
-                body.executors[0].counts.should.have.property('pending', 2);
-
-                body.executors[1].should.have.property('executor_id', '21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd');
-                body.executors[1].should.have.property('executor_name', 'executor-2');
-                body.executors[1].should.have.property('system_count', 5);
-                body.executors[1].should.have.property('status', 'running');
-                body.executors[1].counts.should.have.property('failure', 3);
-                body.executors[1].counts.should.have.property('canceled', 2);
-
-                body.executors[2].should.have.property('executor_id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
-                body.executors[2].should.have.property('executor_name', 'Direct connected');
-                body.executors[2].should.have.property('status', 'running');
-                body.executors[2].should.have.property('system_count', 1);
-                body.executors[2].counts.should.have.property('running', 1);
 
                 expect(text).toMatchSnapshot();
             });
@@ -1600,29 +1586,6 @@ describe('FiFi', function () {
                 body.should.have.property('id');
             });
 
-            test('cancel playbook when 2 of 2 executors are still running', async () => {
-                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
-                await request
-                .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/cancel')
-                .set(auth.fifi)
-                .expect(202);
-
-                spy.callCount.should.equal(2);
-                spy.firstCall.args[0].should.eql({
-                    account: 'fifi',
-                    recipient: 'Job-1',
-                    payload: '{"type":"playbook_run_cancel","playbook_run_id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc"}',
-                    directive: 'receptor_satellite:cancel'
-                });
-
-                spy.secondCall.args[0].should.eql({
-                    account: 'fifi',
-                    recipient: 'Job-2',
-                    payload: '{"type":"playbook_run_cancel","playbook_run_id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc"}',
-                    directive: 'receptor_satellite:cancel'
-                });
-            });
-
             test('cancel playbook when there are Sat-RHC systems running', async () => {
                 const spy = base.getSandbox().spy(dispatcher, 'postPlaybookCancelRequest');
                 await request
@@ -1639,25 +1602,6 @@ describe('FiFi', function () {
                 }]);
             });
 
-            test('cancel playbook when no executors are still running', async () => {
-                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
-                await request
-                .post('/v1/remediations/64d92aeb-9351-4216-8d7c-044d171337bd/playbook_runs/7d462faa-0918-44e2-9b36-dbdbb69db463/cancel')
-                .set(auth.fifi)
-                .expect(404);
-
-                spy.callCount.should.equal(0);
-            });
-
-            test('cancel playbook when 2 of 3 executors are still running', async () => {
-                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
-                await request
-                .post('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/cancel')
-                .set(auth.fifi)
-                .expect(202);
-
-                spy.callCount.should.equal(2);
-            });
         });
     });
 
