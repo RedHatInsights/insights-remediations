@@ -839,14 +839,6 @@ exports.getSystemIssues = async function (remediation_id, system_id, tenant_org_
     return issue.findAndCountAll(query);
 };
 
-exports.insertPlaybookRun = async function (run, executors, systems) {
-    await db.s.transaction(async transaction => {
-        await db.playbook_runs.create(run, {transaction});
-        await db.playbook_run_executors.bulkCreate(executors, {transaction});
-        await db.playbook_run_systems.bulkCreate(systems, {transaction});
-    });
-};
-
 exports.insertRHCPlaybookRun = async function (run) {
     await db.playbook_runs.create(run);
 };
