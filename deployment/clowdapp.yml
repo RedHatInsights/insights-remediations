@@ -30,6 +30,7 @@ objects:
       name: remediations
       version: 16
     inMemoryDb: true
+    featureFlags: true
     deployments:
     - name: api
       minReplicas: ${{MIN_REPLICAS}}
@@ -220,6 +221,20 @@ objects:
             value: ${KESSEL_INSECURE}
           - name: KESSEL_PRINCIPAL_DOMAIN
             value: ${KESSEL_PRINCIPAL_DOMAIN}
+          - name: FEATURE_FLAGS_ENABLED
+            value: ${FEATURE_FLAGS_ENABLED}
+          - name: FEATURE_FLAGS_IMPL
+            value: ${FEATURE_FLAGS_IMPL}
+          - name: FEATURE_FLAGS_HOST
+            value: ${FEATURE_FLAGS_HOST}
+          - name: FEATURE_FLAGS_TOKEN
+            value: ${FEATURE_FLAGS_TOKEN}
+          - name: FEATURE_FLAGS_APP_NAME
+            value: ${FEATURE_FLAGS_APP_NAME}
+          - name: FEATURE_FLAGS_REFRESH_INTERVAL
+            value: ${FEATURE_FLAGS_REFRESH_INTERVAL}
+          - name: FEATURE_FLAGS_METRICS_INTERVAL
+            value: ${FEATURE_FLAGS_METRICS_INTERVAL}
           - name: REMEDIATION_RETENTION_DAYS
             value: ${REMEDIATION_RETENTION_DAYS}
 
@@ -508,6 +523,27 @@ parameters:
   value: 'true'
 - name: KESSEL_PRINCIPAL_DOMAIN
   value: "redhat"
+- name: FEATURE_FLAGS_ENABLED
+  description: Enable Unleash feature flags integration
+  value: 'false'
+- name: FEATURE_FLAGS_IMPL
+  description: Feature flags implementation (impl or mock)
+  value: 'impl'
+- name: FEATURE_FLAGS_HOST
+  description: Unleash API URL (auto-configured by Clowder when featureFlags is enabled)
+  value: ''
+- name: FEATURE_FLAGS_TOKEN
+  description: Unleash client access token (auto-configured by Clowder when featureFlags is enabled)
+  value: ''
+- name: FEATURE_FLAGS_APP_NAME
+  description: Application name for Unleash client identification
+  value: 'remediations'
+- name: FEATURE_FLAGS_REFRESH_INTERVAL
+  description: Interval in ms to poll Unleash for flag updates
+  value: '15000'
+- name: FEATURE_FLAGS_METRICS_INTERVAL
+  description: Interval in ms to send metrics to Unleash
+  value: '60000'
 - name: REMEDIATION_RETENTION_DAYS
   description: Remediation plan retention policy in days (plans with an expiration date older than this will be deleted)
   value: '270'

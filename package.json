@@ -46,6 +46,7 @@
     "sequelize": "6.37",
     "sequelize-cli": "^6.5.2",
     "swagger-ui-express": "^5.0.0",
+    "unleash-client": "^6.3.0",
     "urijs": "^1.19.11",
     "uuid": "^7.0.3"
   },
