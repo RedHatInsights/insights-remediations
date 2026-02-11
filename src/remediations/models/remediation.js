@@ -39,6 +39,10 @@ module.exports = (sequelize, {BOOLEAN, STRING, UUID, TEXT}) => {
             type: BOOLEAN,
             allowNull: false,
             defaultValue: false
+        },
+        workspace_id: {
+            type: STRING,
+            allowNull: true
         }
     }, {
         timestamps: true
