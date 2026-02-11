@@ -112,6 +112,19 @@ exports.getSystems = errors.async(async function (req, res) {
     const {column, asc} = format.parseSort(req.query.sort);
     const {limit, offset} = req.query;
 
+    // Verify the playbook run belongs to the user's remediation
+    const remediation = await queries.getRunDetails(
+        req.params.id,
+        req.params.playbook_run_id,
+        req.user.tenant_org_id,
+        req.user.username
+    );
+
+    if (!remediation) {
+        trace.leave('Playbook run not found or not authorized');
+        return notFound(res);
+    }
+
     // Systems come from playbook-dispatcher for both RHC-direct and RHC-satellite.
     // Optional query param:
     //   ?ansible_host=<substring> - filter by partial hostname match
@@ -136,25 +149,6 @@ exports.getSystems = errors.async(async function (req, res) {
         );
     }
 
-    // If no systems found, check if the playbook run exists
-    if (_.isEmpty(systems)) {
-        trace.event('system list empty, verify playbook run exists...');
-        const remediation = await queries.getRunDetails(
-            req.params.id,
-            req.params.playbook_run_id,
-            req.user.tenant_org_id,
-            req.user.username
-        );
-
-        // return 404 if the run just doesn't exist
-        if (!remediation) {
-            trace.leave('playbook run not found');
-            return notFound(res);
-        }
-
-        trace.force = true;
-    }
-
     // Pagination
     // TODO: we should trim the systems list before gathering the details for each system and then trimming that
     trace.event('paginate...');
@@ -175,31 +169,29 @@ exports.getSystems = errors.async(async function (req, res) {
     res.status(200).send(formatted);
 });
 
+// Get details for a specific system in a playbook run (RHC-direct or RHC-satellite)
 exports.getSystemDetails = errors.async(async function (req, res) {
     trace.enter('controller.fifi.getSystemDetails');
-    let system = await queries.getSystemDetails(
-        req.params.id,  // Whaaaaat?.... req.params.id is the REMEDIATION id...
+
+    // Verify the playbook run belongs to the user's remediation
+    const remediation = await queries.getRunDetails(
+        req.params.id,
         req.params.playbook_run_id,
-        req.params.system,
         req.user.tenant_org_id,
         req.user.username
     );
 
-    if (system) {
-        system = system.toJSON();
-        trace.event('Found (receptor?) db entry');
+    if (!remediation) {
+        trace.leave('Playbook run not found or not authorized');
+        return notFound(res);
     }
 
-    if (!system) {
-        // rhc-direct or rhc-satellite system
-        trace.event('get RHC system/satellite details from playbook-dispatcher');
-        system = await fifi.getRunHostDetails(req.params.playbook_run_id, req.params.system);
+    const system = await fifi.getRunHostDetails(req.params.playbook_run_id, req.params.system);
 
-        if (!system) {
-            trace.leave('RHC system/satellite not found!');
-            trace.force = true;
-            return notFound(res);
-        }
+    if (!system) {
+        trace.leave('System not found');
+        trace.force = true;
+        return notFound(res);
     }
 
     trace.event(`raw system info: ${JSON.stringify(system)}`);
