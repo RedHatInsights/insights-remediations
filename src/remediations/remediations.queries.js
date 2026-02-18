@@ -728,9 +728,8 @@ exports.getPlanSystemsDetails = async function (inventoryIds, chunkSize = 50) {
     return result;
 };
 
-// Returns playbook runs for a remediation (without executor data)
-// Executors are no longer included here since receptor data was removed
-// combineRuns will initialize executors to [] and populate from playbook-dispatcher API
+// Returns all playbook runs for a remediation
+// combineRuns will populate executors from playbook-dispatcher API
 exports.getPlaybookRuns = function (id, tenant_org_id, created_by, primaryOrder = 'updated_at', asc = false) {
     const {s: {col}} = db;
 
@@ -768,9 +767,9 @@ exports.getLatestPlaybookRun = async function (id, tenant_org_id, created_by) {
     return exports.getRunDetails(id, latestRun.id, tenant_org_id, created_by);
 };
 
+// Returns details for the given playbook_run_id
+// combineRuns will populate executors from playbook-dispatcher API
 exports.getRunDetails = function (id, playbook_run_id, tenant_org_id, created_by) {
-    const {s: {col, cast, where}, fn: {DISTINCT, COUNT, SUM}} = db;
-
     return db.remediation.findOne({
         attributes: [],
         include: [{
@@ -778,170 +777,10 @@ exports.getRunDetails = function (id, playbook_run_id, tenant_org_id, created_by
             model: db.playbook_runs,
             where: {
                 id: playbook_run_id
-            },
-            include: [{
-                attributes: [
-                    'executor_id',
-                    'executor_name',
-                    'status',
-                    'updated_at',
-                    'playbook',
-                    'playbook_run_id',
-                    [cast(COUNT(DISTINCT(col('playbook_runs->executors->systems.id'))), 'int'), 'system_count'],
-                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'pending'), 'int')), 'int'), 'count_pending'],
-                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'success'), 'int')), 'int'), 'count_success'],
-                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'running'), 'int')), 'int'), 'count_running'],
-                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'failure'), 'int')), 'int'), 'count_failure'],
-                    [cast(SUM(cast(where(col('"playbook_runs->executors->systems"."status"'), 'canceled'), 'int')), 'int'), 'count_canceled']
-                ],
-                model: db.playbook_run_executors,
-                as: 'executors',
-                include: [{
-                    attributes: [],
-                    model: db.playbook_run_systems,
-                    as: 'systems'
-                }]
-            }]
+            }
         }],
         where: {
             id, tenant_org_id, created_by
-        },
-        group: [
-            'remediation.id',
-            'playbook_runs.id',
-            'playbook_runs->executors.id'
-        ],
-        order: [
-            [db.remediation.associations.playbook_runs, db.playbook_runs.associations.executors, 'executor_name', 'ASC']
-        ]
-    });
-};
-
-exports.getRunningExecutors = function (remediation_id, playbook_run_id, tenant_org_id, username) {
-    const { Op } = db;
-    const query = {
-        attributes: [
-            'id',
-            'executor_id',
-            'executor_name',
-            'status',
-            'updated_at',
-            'playbook_run_id',
-            'receptor_node_id'
-        ],
-        include: [{
-            attributes: ['id'],
-            model: db.playbook_runs,
-            include: [{
-                attributes: ['id'],
-                model: db.remediation,
-                where: {
-                    id: remediation_id,
-                    tenant_org_id,
-                    created_by: username
-                }
-            }],
-            where: {
-                id: playbook_run_id
-            }
-        }],
-        where: {
-            status: {
-                [Op.or]: ['pending', 'running']
-            }
-        },
-        order: [
-            ['executor_name', 'ASC']
-        ]
-    };
-
-    return db.playbook_run_executors.findAll(query);
-};
-
-// eslint-disable-next-line max-len
-exports.getSystems = function (remediation_id, playbook_run_id, executor_id = null, ansible_host = null, tenant_org_id, username) {
-    const { Op } = db;
-    const query = {
-        attributes: [
-            'id',
-            'system_id',
-            'system_name',
-            'status',
-            'updated_at',
-            'playbook_run_executor_id'
-        ],
-        include: [{
-            attributes: ['id'],
-            model: db.playbook_run_executors,
-            required: true,
-            include: [{
-                attributes: ['id'],
-                model: db.playbook_runs,
-                include: [{
-                    attributes: ['id'],
-                    model: db.remediation,
-                    where: {
-                        id: remediation_id,
-                        tenant_org_id,
-                        created_by: username
-                    }
-                }],
-                where: {
-                    id: playbook_run_id
-                }
-            }]
-        }]
-    };
-
-    if (executor_id) {
-        query.include[0].where = {
-            executor_id
-        };
-    }
-
-    if (ansible_host) {
-        query.where = {
-            system_name: {
-                [Op.substring]: ansible_host
-            }
-        };
-    }
-
-    return db.playbook_run_systems.findAll(query);
-};
-
-exports.getSystemDetails = function (id, playbook_run_id, system_id, tenant_org_id, created_by) {
-    return db.playbook_run_systems.findOne({
-        attributes: [
-            'id',
-            'system_id',
-            'system_name',
-            'status',
-            'updated_at',
-            ['playbook_run_executor_id', 'executor_id'],
-            'console'
-        ],
-        include: [{
-            attributes: ['id'],
-            model: db.playbook_run_executors,
-            required: true,
-            include: [{
-                attributes: ['id'],
-                model: db.playbook_runs,
-                include: [{
-                    attributes: [],
-                    model: db.remediation,
-                    where: {
-                        id, tenant_org_id, created_by
-                    }
-                }],
-                where: {
-                    id: playbook_run_id
-                }
-            }]
-        }],
-        where: {
-            system_id
         }
     });
 };
@@ -998,14 +837,6 @@ exports.getSystemIssues = async function (remediation_id, system_id, tenant_org_
     };
 
     return issue.findAndCountAll(query);
-};
-
-exports.insertPlaybookRun = async function (run, executors, systems) {
-    await db.s.transaction(async transaction => {
-        await db.playbook_runs.create(run, {transaction});
-        await db.playbook_run_executors.bulkCreate(executors, {transaction});
-        await db.playbook_run_systems.bulkCreate(systems, {transaction});
-    });
 };
 
 exports.insertRHCPlaybookRun = async function (run) {

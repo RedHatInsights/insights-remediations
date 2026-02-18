@@ -471,26 +471,12 @@ describe('FiFi', function () {
                 body.should.have.property('status', 'running');
                 body.should.have.property('created_at', '2019-12-23T08:19:36.641Z');
 
-                body.executors[0].should.have.property('executor_id', '77c0ba73-1015-4e7d-a6d6-4b530cbfb5bd');
-                body.executors[0].should.have.property('executor_name', 'executor-1');
+                // Only RHC executor (Direct connected) is returned now - receptor executors are no longer queried
+                body.executors[0].should.have.property('executor_id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
+                body.executors[0].should.have.property('executor_name', 'Direct connected');
                 body.executors[0].should.have.property('status', 'running');
-                body.executors[0].should.have.property('system_count', 6);
+                body.executors[0].should.have.property('system_count', 1);
                 body.executors[0].counts.should.have.property('running', 1);
-                body.executors[0].counts.should.have.property('success', 3);
-                body.executors[0].counts.should.have.property('pending', 2);
-
-                body.executors[1].should.have.property('executor_id', '21a0ba73-1035-4e7d-b6d6-4b530cbfb5bd');
-                body.executors[1].should.have.property('executor_name', 'executor-2');
-                body.executors[1].should.have.property('system_count', 5);
-                body.executors[1].should.have.property('status', 'running');
-                body.executors[1].counts.should.have.property('failure', 3);
-                body.executors[1].counts.should.have.property('canceled', 2);
-
-                body.executors[2].should.have.property('executor_id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
-                body.executors[2].should.have.property('executor_name', 'Direct connected');
-                body.executors[2].should.have.property('status', 'running');
-                body.executors[2].should.have.property('system_count', 1);
-                body.executors[2].counts.should.have.property('running', 1);
 
                 expect(text).toMatchSnapshot();
             });
@@ -506,179 +492,113 @@ describe('FiFi', function () {
                 expect(text).toMatchSnapshot();
             });
 
-            test('playbook_runs/:playbook_run_id/systems', async () => {
-                const {body, text} = await request
-                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems')
-                .set(auth.fifi)
-                .expect(200);
-
-                body.meta.count.should.equal(3);
-                body.meta.total.should.equal(3);
-                body.data.should.have.length(3);
-
-                body.data[0].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f');
-                body.data[0].should.have.property('system_name', 'system-22');
-                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
-
-                body.data[1].should.have.property('system_id', '6e64bc58-09be-4f49-b717-c1d469d1ae9c');
-                body.data[1].should.have.property('system_name', 'system-23');
-                body.data[1].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
-
-                body.data[2].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f');
-                body.data[2].should.have.property('system_name', 'system-24');
-                body.data[2].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd');
-
-                expect(text).toMatchSnapshot();
-            });
-
+            // Uses RHC playbook run with 10 systems from dispatcher mock
             test('playbook_runs/:playbook_run_id/systems with RHC systems', async () => {
                 const {body, text} = await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems')
-                .set(auth.fifi)
+                .get('/v1/remediations/efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3/playbook_runs/8ff5717a-cce8-4738-907b-a89eaa559275/systems')
+                .set(auth.testStatus)
                 .expect(200);
 
-                body.meta.count.should.equal(12);
-                body.meta.total.should.equal(12);
-                body.data.should.have.length(12);
+                body.meta.count.should.equal(10);
+                body.meta.total.should.equal(10);
+                body.data.should.have.length(10);
 
-                body.data[0].should.have.property('system_id', '07adc41a-a6c6-426a-a0d5-c7ba08954153');
-                body.data[0].should.have.property('system_name', '07adc41a-a6c6-426a-a0d5-c7ba08954153.example.com');
-                body.data[0].should.have.property('playbook_run_executor_id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
-
-                body.data[1].should.have.property('system_id', '7b136dd2-4824-43cf-af6c-ad0ee42f9f97');
-                body.data[1].should.have.property('system_name', 'system-1');
-                body.data[1].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
-
-                body.data[2].should.have.property('system_id', '3590ba1a-e0df-4092-9c23-bca863b28573');
-                body.data[2].should.have.property('system_name', 'system-2');
-                body.data[2].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
-
-                const direct = body.data.find(d => d.system_name.includes('.example.com'));
-                if (direct) {
-                    direct.should.have.property('executor_type', 'direct');
-                    // direct system should point to the remediation playbook_run_id from the path
-                    direct.playbook_run_executor_id.should.equal('88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
-                }
-                const sat = body.data.find(d => d.system_name === 'system-1');
-                if (sat) {
-                    sat.should.have.property('executor_type', 'satellite');
-                    // satellite system should use a dispatcher run id, not the remediation playbook_run_id
-                    sat.playbook_run_executor_id.should.not.equal('88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
-                }
+                // All systems should be RHC direct type
+                body.data.forEach(system => {
+                    system.should.have.property('system_id');
+                    system.should.have.property('system_name');
+                    system.should.have.property('playbook_run_executor_id', '8ff5717a-cce8-4738-907b-a89eaa559275');
+                });
 
                 expect(text).toMatchSnapshot();
             });
 
-            test('executor ids align between details and systems (direct vs satellite)', async () => {
-                const remediationId = '249f142c-2ae3-4c3f-b2ec-c8c5881f8561';
-                const playbookRunId = '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc';
+            test('executor ids align between details and systems (RHC direct)', async () => {
+                const remediationId = 'efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3';
+                const playbookRunId = '8ff5717a-cce8-4738-907b-a89eaa559275';
 
                 const { body: details } = await request
                     .get(`/v1/remediations/${remediationId}/playbook_runs/${playbookRunId}`)
-                    .set(auth.fifi)
+                    .set(auth.testStatus)
                     .expect(200);
 
                 const { body: systems } = await request
                     .get(`/v1/remediations/${remediationId}/playbook_runs/${playbookRunId}/systems`)
-                    .set(auth.fifi)
+                    .set(auth.testStatus)
                     .expect(200);
 
                 // Direct executor id should be the remediation playbook_run_id
                 const directExec = details.executors.find(e => e.executor_name === 'Direct connected');
-                const directSystem = systems.data.find(s => String(s.system_name).includes('.example.com'));
-                if (directExec && directSystem) {
+                if (directExec) {
                     directExec.executor_id.should.equal(playbookRunId);
-                    directSystem.playbook_run_executor_id.should.equal(playbookRunId);
-                    directSystem.executor_type.should.equal('direct');
                 }
 
-                // Satellite executor id should be dispatcher run id; system should reference that id
-                const satExec = details.executors.find(e => e.executor_name === 'RHC Satellite');
-                const satSystem = systems.data.find(s => !String(s.system_name).includes('.example.com'));
-                if (satExec && satSystem) {
-                    satExec.executor_id.should.not.equal(playbookRunId);
-                    satSystem.playbook_run_executor_id.should.equal(satExec.executor_id);
-                    satSystem.executor_type.should.equal('satellite');
-                }
+                // All systems should reference the playbook_run_id as executor
+                systems.data.forEach(system => {
+                    system.playbook_run_executor_id.should.equal(playbookRunId);
+                });
             });
 
+            // Uses RHC playbook run with 10 systems from dispatcher mock
             test('pagination playbook_runs/:playbook_run_id/systems?limit=2', async () => {
                 const {body, text} = await request
-                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?limit=2')
-                .set(auth.fifi)
+                .get('/v1/remediations/efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3/playbook_runs/8ff5717a-cce8-4738-907b-a89eaa559275/systems?limit=2')
+                .set(auth.testStatus)
                 .expect(200);
 
                 body.meta.count.should.equal(2);
-                body.meta.total.should.equal(3);
+                body.meta.total.should.equal(10);
                 body.data.should.have.length(2);
-                body.data[0].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f');
-                body.data[0].should.have.property('system_name', 'system-22');
-                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
-
-                body.data[1].should.have.property('system_id', '6e64bc58-09be-4f49-b717-c1d469d1ae9c');
-                body.data[1].should.have.property('system_name', 'system-23');
-                body.data[1].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
 
                 expect(text).toMatchSnapshot();
             });
 
             test('pagination playbook_runs/:playbook_run_id/systems?limit=1&offset=1', async () => {
                 const {body, text} = await request
-                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?limit=1&offset=1')
-                .set(auth.fifi)
+                .get('/v1/remediations/efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3/playbook_runs/8ff5717a-cce8-4738-907b-a89eaa559275/systems?limit=1&offset=1')
+                .set(auth.testStatus)
                 .expect(200);
 
                 body.meta.count.should.equal(1);
-                body.meta.total.should.equal(3);
+                body.meta.total.should.equal(10);
                 body.data.should.have.length(1);
-                body.data[0].should.have.property('system_id', '6e64bc58-09be-4f49-b717-c1d469d1ae9c');
-                body.data[0].should.have.property('system_name', 'system-23');
-                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
 
                 expect(text).toMatchSnapshot();
             });
 
-            test('pagination playbook_runs/:playbook_run_id/systems?limit=1&offset=2', async () => {
+            test('pagination playbook_runs/:playbook_run_id/systems?limit=1&offset=9', async () => {
                 const {body, text} = await request
-                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?limit=1&offset=2')
-                .set(auth.fifi)
+                .get('/v1/remediations/efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3/playbook_runs/8ff5717a-cce8-4738-907b-a89eaa559275/systems?limit=1&offset=9')
+                .set(auth.testStatus)
                 .expect(200);
 
                 body.meta.count.should.equal(1);
-                body.meta.total.should.equal(3);
+                body.meta.total.should.equal(10);
                 body.data.should.have.length(1);
-                body.data[0].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f');
-                body.data[0].should.have.property('system_name', 'system-24');
-                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd');
 
                 expect(text).toMatchSnapshot();
             });
 
-            test('playbook_runs/:playbook_run_id/systems?:executor', async () => {
+            // For RHC direct, the executor_id equals the playbook_run_id
+            test('playbook_runs/:playbook_run_id/systems?executor (RHC direct)', async () => {
                 const {body, text} = await request
-                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?executor=77c0ba73-1015-4e7d-a6d6-4b530cbfb6bd')
-                .set(auth.fifi)
+                .get('/v1/remediations/efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3/playbook_runs/8ff5717a-cce8-4738-907b-a89eaa559275/systems?executor=8ff5717a-cce8-4738-907b-a89eaa559275')
+                .set(auth.testStatus)
                 .expect(200);
 
-                body.meta.count.should.equal(2);
-                body.meta.total.should.equal(2);
-                body.data.should.have.length(2);
-                body.data[0].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f');
-                body.data[0].should.have.property('system_name', 'system-22');
-                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
-
-                body.data[1].should.have.property('system_id', '6e64bc58-09be-4f49-b717-c1d469d1ae9c');
-                body.data[1].should.have.property('system_name', 'system-23');
-                body.data[1].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
+                // All 10 systems belong to the same executor (the playbook_run_id)
+                body.meta.count.should.equal(10);
+                body.meta.total.should.equal(10);
+                body.data.should.have.length(10);
 
                 expect(text).toMatchSnapshot();
             });
 
-            test('200s on executor search result that results in 0 systems?executor=88d0ba73-0015-4e7d-a6d6-4b530cbfb111', async () => {
+            test('200s on executor search result that results in 0 systems?executor=nonexistent', async () => {
                 base.getSandbox().stub(dispatcher, 'fetchPlaybookRuns').returns(null);
                 const {body} = await request
-                .set(auth.fifi)
-                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?executor=88d0ba73-0015-4e7d-a6d6-4b530cbfb111')
+                .set(auth.testStatus)
+                .get('/v1/remediations/efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3/playbook_runs/8ff5717a-cce8-4738-907b-a89eaa559275/systems?executor=00000000-0000-0000-0000-000000000000')
                 .expect(200);
 
                 body.meta.count.should.equal(0);
@@ -686,26 +606,10 @@ describe('FiFi', function () {
                 body.data.should.have.length(0);
             });
 
-            test('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?ansible_host=system-1', async () => {
-                const {body, text} = await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?ansible_host=system-1')
-                .set(auth.fifi)
-                .expect(200);
-
-                body.meta.count.should.equal(1);
-                body.meta.total.should.equal(1);
-                body.data.should.have.length(1);
-                body.data[0].should.have.property('system_id', '7b136dd2-4824-43cf-af6c-ad0ee42f9f97');
-                body.data[0].should.have.property('system_name', 'system-1');
-                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
-
-                expect(text).toMatchSnapshot();
-            });
-
-            test('200s on ansible_host search result that results in 0 systems?ansible_host=system_7896', async () => {
+            test('200s on ansible_host search result that results in 0 systems', async () => {
                 const {body} = await request
-                .set(auth.fifi)
-                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?ansible_host=system_7896')
+                .set(auth.testStatus)
+                .get('/v1/remediations/efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3/playbook_runs/8ff5717a-cce8-4738-907b-a89eaa559275/systems?ansible_host=nonexistent_host_12345')
                 .expect(200);
 
                 body.meta.count.should.equal(0);
@@ -713,87 +617,47 @@ describe('FiFi', function () {
                 body.data.should.have.length(0);
             });
 
-            test('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?ansible_host=1', async () => {
+            test('systems?sort=system_name (ascending)', async () => {
                 const {body, text} = await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?ansible_host=system-1')
-                .set(auth.fifi)
+                .get('/v1/remediations/efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3/playbook_runs/8ff5717a-cce8-4738-907b-a89eaa559275/systems?sort=system_name')
+                .set(auth.testStatus)
                 .expect(200);
 
-                body.meta.count.should.equal(1);
-                body.meta.total.should.equal(1);
-                body.data.should.have.length(1);
-                body.data[0].should.have.property('system_id', '7b136dd2-4824-43cf-af6c-ad0ee42f9f97');
-                body.data[0].should.have.property('system_name', 'system-1');
-                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
+                body.meta.count.should.equal(10);
+                body.meta.total.should.equal(10);
+                body.data.should.have.length(10);
+
+                // Verify systems are sorted ascending by system_name
+                for (let i = 1; i < body.data.length; i++) {
+                    const prev = body.data[i - 1].system_name;
+                    const curr = body.data[i].system_name;
+                    (prev <= curr).should.be.true();
+                }
 
                 expect(text).toMatchSnapshot();
             });
 
-            test('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?sort=system_name', async () => {
+            test('systems?sort=-system_name (descending)', async () => {
                 const {body, text} = await request
-                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?sort=system_name')
-                .set(auth.fifi)
+                .get('/v1/remediations/efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3/playbook_runs/8ff5717a-cce8-4738-907b-a89eaa559275/systems?sort=-system_name')
+                .set(auth.testStatus)
                 .expect(200);
 
-                body.meta.count.should.equal(3);
-                body.meta.total.should.equal(3);
-                body.data.should.have.length(3);
+                body.meta.count.should.equal(10);
+                body.meta.total.should.equal(10);
+                body.data.should.have.length(10);
 
-                body.data[0].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f');
-                body.data[0].should.have.property('system_name', 'system-22');
-                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
-
-                body.data[1].should.have.property('system_id', '6e64bc58-09be-4f49-b717-c1d469d1ae9c');
-                body.data[1].should.have.property('system_name', 'system-23');
-                body.data[1].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
-
-                body.data[2].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f');
-                body.data[2].should.have.property('system_name', 'system-24');
-                body.data[2].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd');
-
-                expect(text).toMatchSnapshot();
-            });
-
-            test('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems?sort=-system_name', async () => {
-                const {body, text} = await request
-                .get('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/systems?sort=-system_name')
-                .set(auth.fifi)
-                .expect(200);
-
-                body.meta.count.should.equal(3);
-                body.meta.total.should.equal(3);
-                body.data.should.have.length(3);
-                body.data[0].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b18f');
-                body.data[0].should.have.property('system_name', 'system-24');
-                body.data[0].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb7bd');
-
-                body.data[1].should.have.property('system_id', '6e64bc58-09be-4f49-b717-c1d469d1ae9c');
-                body.data[1].should.have.property('system_name', 'system-23');
-                body.data[1].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
-
-                body.data[2].should.have.property('system_id', 'a68f36f4-b9b1-4eae-b0ad-dc528bf6b17f');
-                body.data[2].should.have.property('system_name', 'system-22');
-                body.data[2].should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb6bd');
+                // Verify systems are sorted descending by system_name
+                for (let i = 1; i < body.data.length; i++) {
+                    const prev = body.data[i - 1].system_name;
+                    const curr = body.data[i].system_name;
+                    (prev >= curr).should.be.true();
+                }
 
                 expect(text).toMatchSnapshot();
             });
 
             test('playbook_runs/:playbook_run_id/systems/:system', async () => {
-                const {body, text} = await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems/7b136dd2-4824-43cf-af6c-ad0ee42f9f97')
-                .set(auth.fifi)
-                .expect(200);
-
-                body.should.have.property('system_id', '7b136dd2-4824-43cf-af6c-ad0ee42f9f97');
-                body.should.have.property('system_name', 'system-1');
-                body.should.have.property('status', 'running');
-                body.should.have.property('console', 'These are the logs for console-5');
-                body.should.have.property('updated_at', '2019-12-23T18:19:36.641Z');
-                body.should.have.property('playbook_run_executor_id', '66d0ba73-0015-4e7d-a6d6-4b530cbfb5bd');
-                expect(text).toMatchSnapshot();
-            });
-
-            test('playbook_runs/:playbook_run_id/systems/:system with RHC system', async () => {
                 const {body, text} = await request
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/31a70e85-378a-4436-96e9-677cd6fba660/systems/17adc41a-a6c6-426a-a0d5-c7ba08954154')
                 .set(auth.fifi)
@@ -1048,17 +912,17 @@ describe('FiFi', function () {
 
             test('sets etag for playbook_run/:playbook_run_id/systems/:system', async () => {
                 const {headers} = await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems/7b136dd2-4824-43cf-af6c-ad0ee42f9f97')
+                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/31a70e85-378a-4436-96e9-677cd6fba660/systems/17adc41a-a6c6-426a-a0d5-c7ba08954154')
                 .set(auth.fifi)
                 .expect(200);
 
-                headers.etag.should.equal('"f7-TX5//7bMmGeeb9pdaNTPbjQ6pck"');
+                headers.etag.should.equal('"114-edP8VcXMPBHEm1bmYMd9hXaylqQ"');
             });
 
             test('304 on etag match for playbook_run/:playbook_run_id/systems/:system', async () => {
                 await request
-                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/systems/7b136dd2-4824-43cf-af6c-ad0ee42f9f97')
-                .set('if-none-match', '"f7-TX5//7bMmGeeb9pdaNTPbjQ6pck"')
+                .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/31a70e85-378a-4436-96e9-677cd6fba660/systems/17adc41a-a6c6-426a-a0d5-c7ba08954154')
+                .set('if-none-match', '"114-edP8VcXMPBHEm1bmYMd9hXaylqQ"')
                 .expect(304);
             });
         });
@@ -1291,43 +1155,6 @@ describe('FiFi', function () {
                 .expect(201);
             });
 
-            test.skip('check object being send to receptor connector', async function () {
-                mockDate();
-                // do not create db record
-                base.getSandbox().stub(queries, 'insertPlaybookRun').returns();
-
-                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
-
-                await request
-                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
-                .set(auth.fifi)
-                .expect(201);
-
-                spy.callCount.should.equal(2);
-                expect(spy.args[0]).toMatchSnapshot();
-                expect(spy.args[1]).toMatchSnapshot();
-            });
-
-            test.skip('if no executors are send to createPlaybookRun', async function () {
-                base.getSandbox().stub(fifi, 'getConnectionStatus').resolves([{
-                    satId: '5f673055-a9a9-4352-a7b6-8ff42e01db96',
-                    receptorId: '5f673055-a9a9-4352-a7b6-8ff42e01db96',
-                    systems: ['5f673055-a9a9-4352-a7b6-8ff42e01db96'],
-                    type: 'Satellite',
-                    name: 'Satellite-1',
-                    status: 'disconnected'
-                }]);
-
-                const {body} = await request
-                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
-                .set(auth.fifi)
-                .expect(400);
-
-                body.errors[0].should.have.property('code', 'NO_EXECUTORS');
-                body.errors[0].should.have.property('title',
-                    'No executors available for Playbook "FiFI playbook 5" (63d92aeb-9351-4216-8d7c-044d171337bc)');
-            });
-
             test('exclude one of the connected executors', async function () {
                 mockDate();
 
@@ -1520,142 +1347,6 @@ describe('FiFi', function () {
                 records.forEach(record => record.text_update_full.should.be.true());
             });
 
-            test.skip('post playbook_runs with response_mode: diff and exclude executors', async function () {
-                mockDate();
-                // do not create db record
-                base.getSandbox().stub(queries, 'insertPlaybookRun').returns();
-
-                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
-
-                await request
-                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
-                .send({exclude: ['722ec903-f4b5-4b1f-9c2f-23fc7b0ba390'], response_mode: 'diff'})
-                .set(auth.fifi)
-                .expect(201);
-
-                spy.callCount.should.equal(1);
-
-                const payload = JSON.parse(spy.firstCall.args[0].payload);
-                payload.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
-                payload.should.have.property('playbook_run_id', '249f142c-2ae3-4c3f-b2ec-c8c588999999');
-                payload.hosts[0].should.have.equal('35e9b452-e405-499c-9c6e-120010b7b465.example.com');
-                payload.config.should.have.property('text_update_full', false);
-                payload.config.should.have.property('text_update_interval', 5000);
-
-                expect(spy.args[0]).toMatchSnapshot();
-            });
-
-            test.skip('dynamic post playbook_runs with < 200 executors', async function () {
-                mockDate();
-
-                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
-                base.getSandbox().stub(config.fifi, 'text_update_full').value(false);
-                base.getSandbox().stub(queries, 'insertPlaybookRun').returns();
-                base.getSandbox().stub(fifi, 'getConnectionStatus').returns([
-                    ...Array(150).fill(0).map((value, key) => ({
-                        satId: `84762eb3-0bbb-4bd8-ab11-f420c50e9${String(key).padStart(3, '0')}`,
-                        receptorId: `d0e7a384-7f8e-4c40-8394-627004225${String(key).padStart(3, '0')}`,
-                        endpointId: `${String(key).padStart(3, '0')}`,
-                        systems: [
-                            {
-                                id: '35e9b452-e405-499c-9c6e-120010b7b465',
-                                ansible_host: null,
-                                hostname: '35e9b452-e405-499c-9c6e-120010b7b465.example.com',
-                                display_name: null
-                            }
-                        ],
-                        type: 'satellite',
-                        name: 'Dynamic Satellite',
-                        status: 'connected'
-                    }))
-                ]);
-
-                await request
-                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
-                .set(auth.fifi)
-                .expect(201);
-
-                spy.callCount.should.equal(150);
-
-                const payload = JSON.parse(spy.firstCall.args[0].payload);
-                payload.config.text_update_full.should.be.true();
-                payload.config.text_update_interval.should.equal(5000);
-            });
-
-            test.skip('dynamic post playbook_runs with < 400 executors', async function () {
-                mockDate();
-
-                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
-                base.getSandbox().stub(config.fifi, 'text_update_full').value(false);
-                base.getSandbox().stub(queries, 'insertPlaybookRun').returns();
-                base.getSandbox().stub(fifi, 'getConnectionStatus').returns([
-                    ...Array(300).fill(0).map((value, key) => ({
-                        satId: `84762eb3-0bbb-4bd8-ab11-f420c50e9${String(key).padStart(3, '0')}`,
-                        receptorId: `d0e7a384-7f8e-4c40-8394-627004225${String(key).padStart(3, '0')}`,
-                        endpointId: `${String(key).padStart(3, '0')}`,
-                        systems: [
-                            {
-                                id: '35e9b452-e405-499c-9c6e-120010b7b465',
-                                ansible_host: null,
-                                hostname: '35e9b452-e405-499c-9c6e-120010b7b465.example.com',
-                                display_name: null
-                            }
-                        ],
-                        type: 'satellite',
-                        name: 'Dynamic Satellite',
-                        status: 'connected'
-                    }))
-                ]);
-
-                await request
-                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
-                .set(auth.fifi)
-                .expect(201);
-
-                spy.callCount.should.equal(300);
-
-                const payload = JSON.parse(spy.firstCall.args[0].payload);
-                payload.config.text_update_full.should.be.false();
-                payload.config.text_update_interval.should.equal(30000);
-            });
-
-            test.skip('dynamic post playbook_runs with >= 400 executors', async function () {
-                mockDate();
-
-                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
-                base.getSandbox().stub(config.fifi, 'text_update_full').value(false);
-                base.getSandbox().stub(queries, 'insertPlaybookRun').returns();
-                base.getSandbox().stub(fifi, 'getConnectionStatus').returns([
-                    ...Array(500).fill(0).map((value, key) => ({
-                        satId: `84762eb3-0bbb-4bd8-ab11-f420c50e9${String(key).padStart(3, '0')}`,
-                        receptorId: `d0e7a384-7f8e-4c40-8394-627004225${String(key).padStart(3, '0')}`,
-                        endpointId: `${String(key).padStart(3, '0')}`,
-                        systems: [
-                            {
-                                id: '35e9b452-e405-499c-9c6e-120010b7b465',
-                                ansible_host: null,
-                                hostname: '35e9b452-e405-499c-9c6e-120010b7b465.example.com',
-                                display_name: null
-                            }
-                        ],
-                        type: 'satellite',
-                        name: 'Dynamic Satellite',
-                        status: 'connected'
-                    }))
-                ]);
-
-                await request
-                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
-                .set(auth.fifi)
-                .expect(201);
-
-                spy.callCount.should.equal(500);
-
-                const payload = JSON.parse(spy.firstCall.args[0].payload);
-                payload.config.text_update_full.should.be.false();
-                payload.config.text_update_interval.should.equal(60000);
-            });
-
             test.skip('400 if response_mode is wrong', async function () {
                 await request
                 .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
@@ -1707,29 +1398,6 @@ describe('FiFi', function () {
                 body.should.have.property('id');
             });
 
-            test('cancel playbook when 2 of 2 executors are still running', async () => {
-                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
-                await request
-                .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc/cancel')
-                .set(auth.fifi)
-                .expect(202);
-
-                spy.callCount.should.equal(2);
-                spy.firstCall.args[0].should.eql({
-                    account: 'fifi',
-                    recipient: 'Job-1',
-                    payload: '{"type":"playbook_run_cancel","playbook_run_id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc"}',
-                    directive: 'receptor_satellite:cancel'
-                });
-
-                spy.secondCall.args[0].should.eql({
-                    account: 'fifi',
-                    recipient: 'Job-2',
-                    payload: '{"type":"playbook_run_cancel","playbook_run_id":"88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc"}',
-                    directive: 'receptor_satellite:cancel'
-                });
-            });
-
             test('cancel playbook when there are Sat-RHC systems running', async () => {
                 const spy = base.getSandbox().spy(dispatcher, 'postPlaybookCancelRequest');
                 await request
@@ -1746,25 +1414,6 @@ describe('FiFi', function () {
                 }]);
             });
 
-            test('cancel playbook when no executors are still running', async () => {
-                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
-                await request
-                .post('/v1/remediations/64d92aeb-9351-4216-8d7c-044d171337bd/playbook_runs/7d462faa-0918-44e2-9b36-dbdbb69db463/cancel')
-                .set(auth.fifi)
-                .expect(404);
-
-                spy.callCount.should.equal(0);
-            });
-
-            test('cancel playbook when 2 of 3 executors are still running', async () => {
-                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
-                await request
-                .post('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc/cancel')
-                .set(auth.fifi)
-                .expect(202);
-
-                spy.callCount.should.equal(2);
-            });
         });
     });
 

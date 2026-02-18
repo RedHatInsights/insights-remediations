@@ -26,22 +26,21 @@ exports.checkExecutable = errors.async(async function (req, res) {
 });
 
 exports.cancelPlaybookRuns = errors.async(async function (req, res) {
-    const [executors, remediation] = await Promise.all([
-        queries.getRunningExecutors(req.params.id, req.params.playbook_run_id, req.user.tenant_org_id, req.user.username),
-        queries.getRunDetails(req.params.id, req.params.playbook_run_id, req.user.tenant_org_id, req.user.username)
-    ]);
+    const remediation = await queries.getRunDetails(
+        req.params.id,
+        req.params.playbook_run_id,
+        req.user.tenant_org_id,
+        req.user.username
+    );
 
-    const run_executor = _(remediation).get('playbook_runs[0].executors');
-
-    if (_.isEmpty(executors) && !_.isEmpty(run_executor)) {
+    if (!remediation) {
         return notFound(res);
     }
 
     await fifi.cancelPlaybookRun(
-        req.user.account_number,
         req.identity.org_id,
         req.params.playbook_run_id,
-        req.user.username, executors
+        req.user.username
     );
 
     res.status(202).send({});
@@ -113,79 +112,41 @@ exports.getSystems = errors.async(async function (req, res) {
     const {column, asc} = format.parseSort(req.query.sort);
     const {limit, offset} = req.query;
 
-    trace.event('fetch receptor systems and rhc runs...')
-    // eslint-disable-next-line prefer-const
-    // Is it the queries.getSystems call necessary anymore? Isn't that table old receptor code?
-    let [systems, rhcRuns] = await Promise.all([
-        queries.getSystems(
-            req.params.id,
-            req.params.playbook_run_id,
-            req.query.executor,
-            req.query.ansible_host,
-            req.user.tenant_org_id,
-            req.user.username
-        ),
-        fifi.getRHCRuns(req.params.playbook_run_id)
-    ]);
+    // Verify the playbook run belongs to the user's remediation
+    const remediation = await queries.getRunDetails(
+        req.params.id,
+        req.params.playbook_run_id,
+        req.user.tenant_org_id,
+        req.user.username
+    );
 
-    // Ugh... so here are the possibilities:
-    //   systems are either:
-    //      RHC-direct   : from playbook-dispatcher (run_id)
-    //      RHC-sat      : from playbook-dispatcher (run_id)
-    //      receptor-sat : from db (run_id, ?executor)
-    //
-    //   ?ansible_host=<filter host substring>
-    //   ?executor=<executor uuid>
-    //
-    //   if ?ansible_host then we need to filter all queries (partial matches!)
-    //   if ?executor then we can stop searching when we find an executor match
+    if (!remediation) {
+        trace.leave('Playbook run not found or not authorized');
+        return notFound(res);
+    }
 
-    trace.event(`receptor systems: ${systems}`);
+    // Systems come from playbook-dispatcher for both RHC-direct and RHC-satellite.
+    // Optional query param:
+    //   ?ansible_host=<substring> - filter by partial hostname match
+
+    // Note: ?executor param is accepted but not currently used for filtering
+    // because it was only implemented for receptor code path which has been retired.
+
+    // Get RHC runs from dispatcher
+    trace.event('fetch RHC runs from dispatcher...');
+    const rhcRuns = await fifi.getRHCRuns(req.params.playbook_run_id);
     trace.event(`RHC runs: ${rhcRuns}`);
 
-    if (!req.query.executor || _.isEmpty(systems)) {
-        // request not scoped to a single _receptor_ executor...
-        // merge RHC hosts, scoped to :executor with substring :ansible_host
-        // (N.B. executor_id === plabook_run_id for RHC)
-        if (!_.isEmpty(rhcRuns)) {
-            trace.event('Combine rhc and receptor systems...')
-            await fifi.combineHosts(
-                rhcRuns,
-                systems,
-                req.params.playbook_run_id,
-                req.query.ansible_host);
-        }
-    }
-
-    // This is a "just in case" fallback to make sure we have the executor_type on all rows.
-    // Systems that we get from by queries.getSystems call (receptor) won't have executor_type set; when RHC runs are present
-    // in this playbook run context, default those to 'RHC-satellite' to align UI expectations.
-    // TODO: We should remove this once we retire officially the receptor code.
-    if (!_.isEmpty(rhcRuns) && !_.isEmpty(systems)) {
-        const toPlainRow = r => (r && r.toJSON) ? r.toJSON() : r;
-        systems = systems
-            .map(toPlainRow)
-            .map(row => row && row.executor_type ? row : { ...row, executor_type: 'satellite' });
-    }
-
-    // did we scope this to a non-existent host / executor or does the
-    // playbook run itself just not exist?
-    if (_.isEmpty(systems)) {
-        trace.event('system list empty, verify playbook run exists...');
-        const remediation = await queries.getRunDetails(
-            req.params.id,
+    // Get systems from RHC runs, filtered by ansible_host if provided
+    let systems = [];
+    if (!_.isEmpty(rhcRuns)) {
+        trace.event('Get systems from RHC runs...');
+        await fifi.combineHosts(
+            rhcRuns,
+            systems,
             req.params.playbook_run_id,
-            req.user.tenant_org_id,
-            req.user.username
+            req.query.ansible_host
         );
-
-        // return 404 if the run just doesn't exist
-        if (!remediation) {
-            trace.leave('playbook run not found');
-            return notFound(res);
-        }
-
-        trace.force = true;
     }
 
     // Pagination
@@ -208,31 +169,29 @@ exports.getSystems = errors.async(async function (req, res) {
     res.status(200).send(formatted);
 });
 
+// Get details for a specific system in a playbook run (RHC-direct or RHC-satellite)
 exports.getSystemDetails = errors.async(async function (req, res) {
     trace.enter('controller.fifi.getSystemDetails');
-    let system = await queries.getSystemDetails(
-        req.params.id,  // Whaaaaat?.... req.params.id is the REMEDIATION id...
+
+    // Verify the playbook run belongs to the user's remediation
+    const remediation = await queries.getRunDetails(
+        req.params.id,
         req.params.playbook_run_id,
-        req.params.system,
         req.user.tenant_org_id,
         req.user.username
     );
 
-    if (system) {
-        system = system.toJSON();
-        trace.event('Found (receptor?) db entry');
+    if (!remediation) {
+        trace.leave('Playbook run not found or not authorized');
+        return notFound(res);
     }
 
-    if (!system) {
-        // rhc-direct or rhc-satellite system
-        trace.event('get RHC system/satellite details from playbook-dispatcher');
-        system = await fifi.getRunHostDetails(req.params.playbook_run_id, req.params.system);
+    const system = await fifi.getRunHostDetails(req.params.playbook_run_id, req.params.system);
 
-        if (!system) {
-            trace.leave('RHC system/satellite not found!');
-            trace.force = true;
-            return notFound(res);
-        }
+    if (!system) {
+        trace.leave('System not found');
+        trace.force = true;
+        return notFound(res);
     }
 
     trace.event(`raw system info: ${JSON.stringify(system)}`);
