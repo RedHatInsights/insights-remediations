@@ -15,6 +15,8 @@ servers:
     description: relative path
 
 tags:
+  - name: config
+    description: Exposed service configuration
   - name: diagnosis
     description: Host-specific detailed diagnosis information
   - name: generator
@@ -788,6 +790,22 @@ paths:
                   commit:
                     type: string
                     example: '8b87342'
+
+  /config:
+    get:
+      tags:
+        - config
+      summary: Get exposed configuration
+      description: Provides exposed configuration values for the service
+      operationId: getConfig
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
 
 components:
   parameters:
