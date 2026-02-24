@@ -105,22 +105,6 @@ exports.optimisticLockCheck = function (oldEtag, newEtag, tenant_org_id) {
     }
 };
 
-exports.splitPlaybookPerSatId = function (receptorWorkRequest, satId, remediation, playbookRunId) {
-    playbookExecutionCounter.inc();
-    log.info({
-        account: receptorWorkRequest.account,
-        recipient: receptorWorkRequest.recipient,
-        satelite_id: satId,
-        remediation_id: remediation.id,
-        remediation_name: remediation.name,
-        playbook_run_id: playbookRunId
-    }, 'Playbook before being sent to receptor controller');
-    log.debug({
-        job: receptorWorkRequest,
-        satelite_id: satId
-    }, 'Full Contents of Work Request before being sent to receptor controller');
-};
-
 exports.splitPlaybookPerRHCEnabledSatellite = function (rhcSatWorkRequest, playbookRunId) {
     playbookExecutionCounter.inc();
     log.debug({
@@ -167,29 +151,6 @@ exports.rhcJobDispatched = function (rhcWorkRequest, executor, response, playboo
         response,
         playbook_run_id: playbookRunId
     });
-};
-
-exports.receptorJobDispatched = function (receptorWorkRequest, executor, response, remediation, playbookRunId) {
-    log.info({
-        account: receptorWorkRequest.account,
-        job_id: response.id,
-        recipient: receptorWorkRequest.recipient,
-        satelite_id: executor.satId,
-        remediation_id: remediation.id,
-        remediation_name: remediation.name,
-        playbook_run_id: playbookRunId
-    }, 'receptor work request sent');
-};
-
-exports.receptorCancelDispatched = function (receptorCancelRequest, executor, response, playbookRunId) {
-    playbookCancelCounter.inc();
-    log.info({
-        account: receptorCancelRequest.account,
-        job_id: response.id,
-        recipient: receptorCancelRequest.recipient,
-        satelite_id: executor.satId,
-        playbook_run_id: playbookRunId
-    }, 'receptor cancel request sent');
 };
 
 exports.dispatcherCancelDispatched = function (dispatcherCancelRequest) {
