@@ -150,10 +150,6 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "impl": undefined,
     "insecure": false,
   },
-  "receptor": {
-    "host": "http://localhost:9090",
-    "impl": undefined,
-  },
   "redis": {
     "enabled": false,
   },
