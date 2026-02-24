@@ -15,7 +15,7 @@ services:
     ports:
       - 9002:9003
     environment:
-      - NODE_ENV=test
+      - NODE_ENV=development
       - REDIS_ENABLED=true
       - REDIS_HOST=redis
       - SSG_IMPL=impl
