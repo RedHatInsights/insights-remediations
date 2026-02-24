@@ -15,7 +15,7 @@ services:
     ports:
       - 9002:9003
     environment:
-      - NODE_ENV=test
+      - NODE_ENV=development
       - REDIS_ENABLED=true
       - REDIS_HOST=redis
       - SSG_IMPL=impl
@@ -38,7 +38,7 @@ services:
     environment:
       - POSTGRESQL_USER=postgres_user
       - POSTGRESQL_PASSWORD=remediations
-      - POSTGRESQL_DATABASE=remediationstest
+      - POSTGRESQL_DATABASE=remediations
     healthcheck:
       test: "psql -c 'SELECT datname FROM pg_database;'"
       start_period: 3s
