@@ -11,7 +11,7 @@ exports[`Configuration Verify app-common-js function 1`] = `
   },
   "bodyParserLimit": "1mb",
   "bop": {
-    "host": "http://undefined:undefined",
+    "host": "http://gateway.3scale-dev.svc.cluster.local:8892",
     "impl": undefined,
     "insecure": false,
   },
@@ -52,20 +52,16 @@ exports[`Configuration Verify app-common-js function 1`] = `
       "underscored": true,
     },
     "dialect": "postgres",
-    "dialectOptions": {
-      "ssl": {
-        "ca": "=== CERTIFICATE ===",
-      },
-    },
-    "host": "hostname",
+    "dialectOptions": {},
+    "host": "127.0.0.1",
     "logging": false,
-    "password": "adminpassword",
+    "password": "remediations",
     "pool": {
       "max": 50,
       "min": 5,
     },
-    "ssl": true,
-    "username": "adminusername",
+    "port": "5432",
+    "username": "postgres_user",
   },
   "demo": false,
   "dispatcher": {
@@ -91,6 +87,7 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "text_update_interval": 5000,
     "text_updates": true,
   },
+  "getExposedConfig": [Function],
   "inventory": {
     "host": "http://insights-inventory.platform-ci.svc.cluster.local:8080",
     "impl": undefined,
@@ -115,10 +112,10 @@ exports[`Configuration Verify app-common-js function 1`] = `
       "enabled": false,
       "level": "fatal",
       "options": {
-        "aws_access_key_id": "ACCESS_KEY",
-        "aws_region": "EU",
-        "aws_secret_access_key": "SECRET_ACCESS_KEY",
-        "group": "base_app",
+        "aws_access_key_id": undefined,
+        "aws_region": undefined,
+        "aws_secret_access_key": undefined,
+        "group": "remediations-local",
         "interval": 1000,
         "prefix": "remediations-",
       },
@@ -143,7 +140,7 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "prefix": "/api",
   },
   "platformHostname": "hostname",
-  "port": undefined,
+  "port": 9003,
   "rbac": {
     "enforce": true,
     "host": "http://localhost:8080",
@@ -157,6 +154,7 @@ exports[`Configuration Verify app-common-js function 1`] = `
   "redis": {
     "enabled": false,
   },
+  "remediationRetentionDays": 270,
   "requestTimeout": 10000,
   "sources": {
     "host": "http://localhost:8080",
