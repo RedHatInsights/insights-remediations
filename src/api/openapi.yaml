@@ -15,6 +15,8 @@ servers:
     description: relative path
 
 tags:
+  - name: config
+    description: Exposed service configuration
   - name: diagnosis
     description: Host-specific detailed diagnosis information
   - name: generator
@@ -788,6 +790,30 @@ paths:
                   commit:
                     type: string
                     example: '8b87342'
+
+  /config:
+    get:
+      tags:
+        - config
+      summary: Get exposed configuration
+      description: |
+        Returns configuration values exposed to the UI and other clients. Use this to keep
+        front-end or other behavior in sync with backend defaults (e.g. retention policy) without
+        hardcoding. Response includes:
+
+        - **remediationRetentionDays** (integer): Default retention period in days for remediation
+          plans. New plans get an expiration_date set to creation date plus this many days when
+          the client omits expiration_date. Default 270, i.e. 9 months.
+      operationId: getConfig
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigResponse'
+              example:
+                remediationRetentionDays: 270
 
 components:
   parameters:
@@ -2121,6 +2147,17 @@ components:
         deleted_count:
           type: integer
           description: Count of remediations deleted
+
+    ConfigResponse:
+      type: object
+      additionalProperties: false
+      required: [remediationRetentionDays]
+      description: Exposed service configuration for UI and clients. Only non-sensitive values are included.
+      properties:
+        remediationRetentionDays:
+          type: integer
+          description: Default retention period in days for remediation plans (e.g. 270 for 9 months). Used when expiration_date is omitted on create.
+          example: 270
 
     RemediationDetails:
       type: object
