@@ -75,13 +75,13 @@ module.exports = async function (app) {
     require('./remediations/playbook/routes')(v1);
     require('./resolutions/routes')(v1);
     require('./generator/routes')(v1);
+    require('./config/routes')(v1);
 
-    // diagnosis, whoami, remediations/playbooks, /playbook and /resolutions (above) are the only path that accepts cert auth
+    // diagnosis, whoami, remediations/playbooks, /playbook, /resolutions and /config (above) are the only path that accepts cert auth
     v1.use(userIdentity);
 
     [
         'admin',
-        'config',
         'remediations',
         'status',
         'version',
