@@ -1385,6 +1385,11 @@ components:
       type: boolean
       description: Indicates whether a remediation has been marked as archived
 
+    RemediationExpirationDate:
+      type: string
+      format: date
+      description: Date when the remediation plan is scheduled to expire (retention policy). If omitted on create, defaults to now + remediationRetentionDays from config (see GET /config).
+
     SystemName:
       type: string
       example: redhat-213
@@ -1557,6 +1562,8 @@ components:
           $ref: '#/components/schemas/RemediationArchived'
         auto_reboot:
           $ref: '#/components/schemas/RemediationAutoReboot'
+        expiration_date:
+          $ref: '#/components/schemas/RemediationExpirationDate'
         add:
           type: object
           additionalProperties: false
@@ -2162,7 +2169,7 @@ components:
     RemediationDetails:
       type: object
       additionalProperties: false
-      required: [id, name, auto_reboot, created_by, created_at, updated_by, updated_at, archived]
+      required: [id, name, auto_reboot, created_by, created_at, updated_by, updated_at, archived, expiration_date]
       properties:
         id:
           $ref: '#/components/schemas/RemediationId'
@@ -2174,6 +2181,8 @@ components:
           $ref: '#/components/schemas/RemediationArchived'
         auto_reboot:
           $ref: '#/components/schemas/RemediationAutoReboot'
+        expiration_date:
+          $ref: '#/components/schemas/RemediationExpirationDate'
         created_by:
           $ref: '#/components/schemas/UserOut'
         created_at:
@@ -2277,7 +2286,7 @@ components:
     RemediationListItem:
       type: object
       additionalProperties: false
-      required: [id, name, created_by, created_at, updated_by, updated_at, issue_count, system_count, resolved_count, needs_reboot, archived]
+      required: [id, name, created_by, created_at, updated_by, updated_at, issue_count, system_count, resolved_count, needs_reboot, archived, expiration_date]
       properties:
         id:
           $ref: '#/components/schemas/RemediationId'
@@ -2301,6 +2310,8 @@ components:
           $ref: '#/components/schemas/RemediationNeedsReboot'
         archived:
           $ref: '#/components/schemas/RemediationArchived'
+        expiration_date:
+          $ref: '#/components/schemas/RemediationExpirationDate'
         playbook_runs:
           type: array
           items:

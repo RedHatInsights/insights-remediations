@@ -2,7 +2,7 @@
 
 const NULL_NAME_VALUE = 'Unnamed Playbook';
 
-module.exports = (sequelize, {BOOLEAN, STRING, UUID, TEXT}) => {
+module.exports = (sequelize, {BOOLEAN, DATE, STRING, UUID, TEXT}) => {
     const Remediation = sequelize.define('remediation', {
         id: {
             type: UUID,
@@ -43,6 +43,16 @@ module.exports = (sequelize, {BOOLEAN, STRING, UUID, TEXT}) => {
         workspace_id: {
             type: STRING,
             allowNull: true
+        },
+        expiration_date: {
+            type: DATE,
+            allowNull: false,
+            defaultValue: function () {
+                const config = require('../../config');
+                const d = new Date();
+                d.setDate(d.getDate() + config.remediationRetentionDays);
+                return d;
+            }
         }
     }, {
         timestamps: true

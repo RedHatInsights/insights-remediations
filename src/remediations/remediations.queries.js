@@ -24,7 +24,8 @@ const REMEDIATION_ATTRIBUTES = [
     'created_by',
     'created_at',
     'updated_by',
-    'updated_at'
+    'updated_at',
+    'expiration_date'
 ];
 const ISSUE_ATTRIBUTES = ['issue_id', 'resolution', 'precedence'];
 const PLAYBOOK_RUN_ATTRIBUTES = [
