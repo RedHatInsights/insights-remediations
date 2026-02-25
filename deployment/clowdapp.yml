@@ -151,10 +151,6 @@ objects:
             value: ${RBAC_HOST}
           - name: RBAC_ENFORCE
             value: ${RBAC_ENFORCE}
-          - name: RECEPTOR_IMPL
-            value: ${RECEPTOR_IMPL}
-          - name: RECEPTOR_HOST
-            value: http://${RECEPTOR_CONTROLLER_HOST}:9090
           - name: REDIS_ENABLED
             value: 'true'
           - name: REDIS_HOST
@@ -458,9 +454,6 @@ parameters:
 - name: RBAC_HOST
 - name: RBAC_ENFORCE
   value: 'true'
-- name: RECEPTOR_IMPL
-  value: impl
-- name: RECEPTOR_CONTROLLER_HOST
 - name: REDIS_ENABLED
   value: 'true'
 - name: REDIS_HOST

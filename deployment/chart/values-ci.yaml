@@ -39,9 +39,6 @@ remediations:
   rbac:
     impl: impl
     host: http://rbac.rbac-ci.svc.cluster.local:8080
-  receptor:
-    impl: impl
-    host: http://receptor-controller.platform-ci.svc.cluster.local:9090
   sources:
     impl: impl
     host: http://sources-api.sources-ci.svc.cluster.local:8080

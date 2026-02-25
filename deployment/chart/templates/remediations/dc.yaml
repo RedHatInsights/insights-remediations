@@ -160,11 +160,6 @@ spec:
         - name: RBAC_ENFORCE
           value: "true"
 
-        - name: RECEPTOR_IMPL
-          value: {{ .Values.remediations.receptor.impl | default "mock" }}
-        - name: RECEPTOR_HOST
-          value: {{ .Values.remediations.receptor.host }}
-
         - name: REDIS_ENABLED
           value: "true"
         - name: REDIS_HOST
