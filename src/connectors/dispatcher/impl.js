@@ -106,7 +106,7 @@ module.exports = new class extends Connector {
     //
     //  - one object per satellite_organization (recipient_type == satellite)
     //  - one object for each direct-connect hosts
-    //  - one object for hosts with recipient_type == none (e.g. old receptor hosts, no_rhc)
+    //  - one object for hosts with recipient_type == none (e.g. no_rhc)
     async getConnectionStatus (dispatcherConnectionStatusRequest) {
         // chunk this request if necessary...
         if (dispatcherConnectionStatusRequest.hosts.length > pageSize) {
