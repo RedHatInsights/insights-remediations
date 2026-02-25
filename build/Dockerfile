@@ -3,26 +3,13 @@
 FROM registry.access.redhat.com/ubi9/ubi-minimal:9.7-1770267347 AS base
 
 RUN microdnf module enable -y nodejs:22 && \
-    microdnf install -y shadow-utils jq nodejs npm --nodocs && \
+    microdnf install -y shadow-utils nodejs npm --nodocs && \
     microdnf upgrade -y && \
     microdnf clean all
 
 ENV APP_ROOT=/opt/app-root
 WORKDIR $APP_ROOT
 RUN mkdir -p $APP_ROOT/.npm/{_logs,_cacache} && chgrp -R 0 $APP_ROOT && chmod -R ug+rwX $APP_ROOT
-
-# Hermetic build labels and licensing
-RUN mkdir -p /licenses
-COPY LICENSE /licenses
-
-LABEL url="https://www.redhat.com"
-LABEL name="iop-remediations" \
-      description="This adds the satellite/iop-remediations-rhel9 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/iop-remediations-rhel9" \
-      summary="A new satellite/iop-remediations-rhel9 container image is now available in the Red Hat container registry."
-LABEL com.redhat.component="iop-remediations" \
-      io.k8s.display-name="IoP Remediations" \
-      io.k8s.description="This adds the satellite/iop-remediations-rhel9 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/iop-remediations-rhel9" \
-      io.openshift.tags="insights satellite iop remediations"
 
 USER 1001
 
@@ -38,31 +25,64 @@ COPY ./db ./db
 COPY ./src ./src
 COPY package.json package-lock.json .npmrc .cleanmodules jest.config.js gulpfile.js .sequelizerc ./
 
+# Install all dependencies and build
 RUN npm ci
 RUN npx clean-modules -y
-
 RUN npm run build
+
+# Reinstall production-only dependencies
+RUN rm -rf node_modules && \
+    npm ci --omit=dev && \
+    npm cache clean --force && \
+    npx clean-modules -y
 
 #----------------------- test -----------------------
 
 FROM base AS test
 
-COPY --from=build $APP_ROOT/dist ./
-COPY --from=build $APP_ROOT/test ./
+COPY --from=build $APP_ROOT/dist ./dist
+COPY --from=build $APP_ROOT/test ./test
 COPY --from=build $APP_ROOT/node_modules ./node_modules
 
 ENV NODE_ENV=test
 
 CMD [ "sh", "-c", "npx npm run test:ci" ]
 
-#----------------------- dist -----------------------
+#----------------------- dist (NO npm) -----------------------
 
-FROM base AS dist
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.7-1770267347 AS dist
 
-COPY --from=build $APP_ROOT/dist ./
+RUN microdnf module enable -y nodejs:22 && \
+    microdnf install -y shadow-utils jq nodejs --nodocs && \
+    microdnf upgrade -y && \
+    microdnf clean all
 
-RUN npm ci --omit=dev && npm cache clean --force
-RUN npx clean-modules -y
+ENV APP_ROOT=/opt/app-root
+WORKDIR $APP_ROOT
+RUN mkdir -p $APP_ROOT && chgrp -R 0 $APP_ROOT && chmod -R ug+rwX $APP_ROOT
+
+# Hermetic build labels and licensing
+RUN mkdir -p /licenses
+COPY LICENSE /licenses
+
+LABEL url="https://www.redhat.com"
+LABEL name="iop-remediations" \
+      description="This adds the satellite/iop-remediations-rhel9 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/iop-remediations-rhel9" \
+      summary="A new satellite/iop-remediations-rhel9 container image is now available in the Red Hat container registry."
+LABEL com.redhat.component="iop-remediations" \
+      io.k8s.display-name="IoP Remediations" \
+      io.k8s.description="This adds the satellite/iop-remediations-rhel9 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/iop-remediations-rhel9" \
+      io.openshift.tags="insights satellite iop remediations"
+
+USER 1001
+ENV HOME=$APP_ROOT
+
+# Copy built app and production dependencies from build stage
+COPY --from=build $APP_ROOT/dist ./dist
+COPY --from=build $APP_ROOT/db ./db
+COPY --from=build $APP_ROOT/.sequelizerc ./.sequelizerc
+COPY --from=build $APP_ROOT/node_modules ./node_modules
+COPY --from=build $APP_ROOT/package.json ./package.json
 
 EXPOSE 9002
 ENV NODE_ENV=production
