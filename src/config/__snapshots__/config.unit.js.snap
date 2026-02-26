@@ -139,6 +139,7 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "base": "/api/remediations",
     "prefix": "/api",
   },
+  "planRetentionDays": 270,
   "platformHostname": "hostname",
   "port": 9003,
   "rbac": {
@@ -150,7 +151,6 @@ exports[`Configuration Verify app-common-js function 1`] = `
   "redis": {
     "enabled": false,
   },
-  "remediationRetentionDays": 270,
   "requestTimeout": 10000,
   "sources": {
     "host": "http://localhost:8080",

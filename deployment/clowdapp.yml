@@ -231,8 +231,8 @@ objects:
             value: ${FEATURE_FLAGS_REFRESH_INTERVAL}
           - name: FEATURE_FLAGS_METRICS_INTERVAL
             value: ${FEATURE_FLAGS_METRICS_INTERVAL}
-          - name: REMEDIATION_RETENTION_DAYS
-            value: ${REMEDIATION_RETENTION_DAYS}
+          - name: PLAN_RETENTION_DAYS
+            value: ${PLAN_RETENTION_DAYS}
 
 - apiVersion: v1
   kind: Secret
@@ -537,6 +537,6 @@ parameters:
 - name: FEATURE_FLAGS_METRICS_INTERVAL
   description: Interval in ms to send metrics to Unleash
   value: '60000'
-- name: REMEDIATION_RETENTION_DAYS
-  description: Remediation plan retention policy in days (plans with an expiration date older than this will be deleted)
+- name: PLAN_RETENTION_DAYS
+  description: Plan retention policy in days (plans with an expiration date older than this will be deleted)
   value: '270'
