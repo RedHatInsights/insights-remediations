@@ -10,7 +10,6 @@ const sinon = require('sinon');
 
 const utils = require('../middleware/identity/utils');
 const configManager = require('../connectors/configManager');
-const receptor = require('../connectors/receptor');
 const fifi = require('../remediations/fifi');
 const fifi_2 = require('../remediations/fifi_2');
 const base = require('../test');
@@ -105,7 +104,6 @@ function fake_dispatcher_run_hosts(req) {
 }
 
 
-// TODO: replace old receptor tests and improve rhc-satellite test coverage
 describe('FiFi', function () {
     describe('executable', function () {
         test('remediation is executable with valid remediation id', async () => {
@@ -471,7 +469,7 @@ describe('FiFi', function () {
                 body.should.have.property('status', 'running');
                 body.should.have.property('created_at', '2019-12-23T08:19:36.641Z');
 
-                // Only RHC executor (Direct connected) is returned now - receptor executors are no longer queried
+                // RHC executor (Direct connected) is returned from playbook-dispatcher
                 body.executors[0].should.have.property('executor_id', '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc');
                 body.executors[0].should.have.property('executor_name', 'Direct connected');
                 body.executors[0].should.have.property('status', 'running');
@@ -1238,166 +1236,6 @@ describe('FiFi', function () {
                     'Excluded Executor [722ec903-f4b5-4b1f-9c2f-23fc7b0ba380] not found in list of identified executors');
             });
 
-            test.skip('post playbook_runs with response_mode: diff', async function () {
-                mockDate();
-
-                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
-
-                const {body: {id}} = await request
-                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
-                .send({response_mode: 'diff'})
-                .set(auth.fifi)
-                .expect(201);
-
-                spy.callCount.should.equal(2);
-
-                const payload1 = JSON.parse(spy.firstCall.args[0].payload);
-                payload1.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
-                payload1.should.have.property('playbook_run_id', id);
-                payload1.hosts[0].should.have.equal('355986a3-5f37-40f7-8f36-c3ac928ce190.example.com');
-                payload1.config.should.have.property('text_update_full', false);
-                payload1.config.should.have.property('text_update_interval', 5000);
-
-                const payload2 = JSON.parse(spy.secondCall.args[0].payload);
-                payload2.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
-                payload2.should.have.property('playbook_run_id', id);
-                payload2.hosts[0].should.have.equal('35e9b452-e405-499c-9c6e-120010b7b465.example.com');
-                payload2.config.should.have.property('text_update_full', false);
-                payload2.config.should.have.property('text_update_interval', 5000);
-
-                const records = await db.playbook_run_executors.findAll({
-                    where: {
-                        playbook_run_id: id
-                    }
-                });
-
-                records.should.have.length(2);
-                records.forEach(record => record.text_update_full.should.be.false());
-            });
-
-            test.skip('post playbook_runs with response_mode: full', async function () {
-                mockDate();
-                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
-
-                const {body: {id}} = await request
-                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
-                .send({response_mode: 'full'})
-                .set(auth.fifi)
-                .expect(201);
-
-                spy.callCount.should.equal(2);
-
-                const payload1 = JSON.parse(spy.firstCall.args[0].payload);
-                payload1.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
-                payload1.should.have.property('playbook_run_id', id);
-                payload1.hosts[0].should.have.equal('355986a3-5f37-40f7-8f36-c3ac928ce190.example.com');
-                payload1.config.should.have.property('text_update_full', true);
-                payload1.config.should.have.property('text_update_interval', 5000);
-
-                const payload2 = JSON.parse(spy.secondCall.args[0].payload);
-                payload2.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
-                payload2.should.have.property('playbook_run_id', id);
-                payload2.hosts[0].should.have.equal('35e9b452-e405-499c-9c6e-120010b7b465.example.com');
-                payload2.config.should.have.property('text_update_full', true);
-                payload2.config.should.have.property('text_update_interval', 5000);
-
-                const records = await db.playbook_run_executors.findAll({
-                    where: {
-                        playbook_run_id: id
-                    }
-                });
-
-                records.should.have.length(2);
-                records.forEach(record => record.text_update_full.should.be.true());
-            });
-
-            test.skip('post playbook_runs with (default response mode)', async function () {
-                mockDate();
-                const spy = base.getSandbox().spy(receptor, 'postInitialRequest');
-
-                const {body: {id}} = await request
-                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
-                .send({response_mode: 'full'})
-                .set(auth.fifi)
-                .expect(201);
-
-                spy.callCount.should.equal(2);
-
-                const payload1 = JSON.parse(spy.firstCall.args[0].payload);
-                payload1.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
-                payload1.should.have.property('playbook_run_id', id);
-                payload1.hosts[0].should.have.equal('355986a3-5f37-40f7-8f36-c3ac928ce190.example.com');
-                payload1.config.should.have.property('text_update_full', true);
-                payload1.config.should.have.property('text_update_interval', 5000);
-
-                const payload2 = JSON.parse(spy.secondCall.args[0].payload);
-                payload2.should.have.property('remediation_id', '63d92aeb-9351-4216-8d7c-044d171337bc');
-                payload2.should.have.property('playbook_run_id', id);
-                payload2.hosts[0].should.have.equal('35e9b452-e405-499c-9c6e-120010b7b465.example.com');
-                payload2.config.should.have.property('text_update_full', true);
-                payload2.config.should.have.property('text_update_interval', 5000);
-
-                const records = await db.playbook_run_executors.findAll({
-                    where: {
-                        playbook_run_id: id
-                    }
-                });
-
-                records.should.have.length(2);
-                records.forEach(record => record.text_update_full.should.be.true());
-            });
-
-            test.skip('400 if response_mode is wrong', async function () {
-                await request
-                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
-                .send({response_mode: 'fifi'})
-                .set(auth.fifi)
-                .expect(400);
-            });
-
-            test.skip('400 if response_mode is wrong with right exclude', async function () {
-                await request
-                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
-                .send({response_mode: 'something', exclude: ['722ec903-f4b5-4b1f-9c2f-23fc7b0ba390']})
-                .set(auth.fifi)
-                .expect(400);
-            });
-
-            test.skip('400 if exclude is wrong with right response_mode', async function () {
-                await request
-                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
-                .send({response_mode: 'diff', exclude: ['fifi']})
-                .set(auth.fifi)
-                .expect(400);
-            });
-
-            test.skip('if 1st executor result from receptor connector is request error', async function () {
-                base.getSandbox().stub(receptor, 'postInitialRequest')
-                .rejects(errors.internal.dependencyError(new Error('receptor down'), receptor));
-
-                const {body} = await request
-                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
-                .set(auth.fifi)
-                .expect(503);
-
-                body.errors[0].should.have.property('code', 'DEPENDENCY_UNAVAILABLE');
-                body.errors[0].details.should.have.property('name', 'receptor');
-                body.errors[0].details.should.have.property('impl', 'mock');
-            });
-
-            test('if 2nd executor result from receptor is request error', async function () {
-                const stub = base.getSandbox().stub(receptor, 'postInitialRequest');
-                stub.callThrough();
-                stub.onSecondCall().rejects(errors.internal.dependencyError(new Error('receptor down'), receptor));
-
-                const {body} =  await request
-                .post('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs')
-                .set(auth.fifi)
-                .expect(201);
-
-                body.should.have.property('id');
-            });
-
             test('cancel playbook when there are Sat-RHC systems running', async () => {
                 const spy = base.getSandbox().spy(dispatcher, 'postPlaybookCancelRequest');
                 await request
@@ -1563,49 +1401,6 @@ describe('FiFi', function () {
             });
         });
 
-        test('create playbook run (with 2nd executor failing)', async () => {
-            const stub = base.getSandbox().stub(receptor, 'postInitialRequest');
-            stub.callThrough();
-            stub.onSecondCall().rejects(errors.internal.dependencyError(new Error('receptor down'), receptor));
-
-            const {body: post} = await request
-            .post('/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs')
-            .set(auth.fifi)
-            .expect(201);
-
-            stub.callCount.should.equal(2);
-
-            const {body: run} = await request
-            .get(`/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/${post.id}`)
-            .set(auth.fifi)
-            .expect(200);
-
-            run.should.have.property('status', 'failure');
-            run.executors.should.have.length(2);
-
-            run.executors[0].should.have.property('executor_id', '722ec903-f4b5-4b1f-9c2f-23fc7b0ba390');
-            run.executors[0].should.have.property('status', 'pending');
-            run.executors[0].should.have.property('system_count', 3);
-
-            run.executors[1].should.have.property('executor_id', '63142926-46a5-498b-9614-01f2f66fd40b');
-            run.executors[1].should.have.property('status', 'failure');
-            run.executors[1].should.have.property('system_count', 5);
-
-            const {body: systems} = await request
-            .get(`/v1/remediations/d12efef0-9580-4c82-b604-9888e2269c5a/playbook_runs/${post.id}/systems`)
-            .set(auth.fifi)
-            .expect(200);
-
-            systems.data.should.have.length(8);
-            systems.data[0].should.have.property('status', 'pending');
-            systems.data[1].should.have.property('status', 'failure');
-            systems.data[2].should.have.property('status', 'failure');
-            systems.data[3].should.have.property('status', 'pending');
-            systems.data[4].should.have.property('status', 'failure');
-            systems.data[5].should.have.property('status', 'pending');
-            systems.data[6].should.have.property('status', 'failure');
-            systems.data[7].should.have.property('status', 'failure');
-        });
     });
 
     describe('syncDispatcherRunsForPlaybookRuns', function () {

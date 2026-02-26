@@ -22,7 +22,6 @@ const CONNECTORS = _([
     'vulnerabilities',
     'patchman',
     'rbac',
-    'receptor',
     'sources',
     'bop'
 ]).keyBy().mapValues(id => require(`../connectors/${id}`)).value(); // eslint-disable-line security/detect-non-literal-require
