@@ -801,7 +801,7 @@ paths:
         front-end or other behavior in sync with backend defaults (e.g. retention policy) without
         hardcoding. Response includes:
 
-        - **remediationRetentionDays** (integer): Default retention period in days for remediation
+        - **planRetentionDays** (integer): Default retention period in days for remediation
           plans. New plans get an expiration_date set to creation date plus this many days when
           the client omits expiration_date. Default 270, i.e. 9 months.
       operationId: getConfig
@@ -813,7 +813,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConfigResponse'
               example:
-                remediationRetentionDays: 270
+                planRetentionDays: 270
 
 components:
   parameters:
@@ -2151,10 +2151,10 @@ components:
     ConfigResponse:
       type: object
       additionalProperties: false
-      required: [remediationRetentionDays]
+      required: [planRetentionDays]
       description: Exposed service configuration for UI and clients. Only non-sensitive values are included.
       properties:
-        remediationRetentionDays:
+        planRetentionDays:
           type: integer
           description: Default retention period in days for remediation plans (e.g. 270 for 9 months). Used when expiration_date is omitted on create.
           example: 270
