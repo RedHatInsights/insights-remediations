@@ -25,7 +25,7 @@ sequenceDiagram
        pd ->> rem: [pd_run]
        note left of pd: (see: /doc/responses/playbook-dispatcher/runs.json)
     end
-    loop Check each pd_run until system found
+    loop Check each pd_run until system is found
        rect rgba(191, 223, 255, .1)
           rem -->> pd: GET v1/run_hosts?filter[run][labels][playbook-run]=run_id&filter[run][id]=run.id&filter[inventory_id]=system_id
           pd ->> rem: (host, stdout, inventory_id)
