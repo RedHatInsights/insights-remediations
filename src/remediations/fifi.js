@@ -409,7 +409,7 @@ exports.combineRuns = async function (remediation) {
 
     // array of playbook_run_id
     for (const run of remediation.playbook_runs) {
-        // Initialize executors array if it doesn't exist (query functions no longer return receptor executors)
+        // Initialize executors array if it doesn't exist
         if (!run.executors) {
             run.executors = [];
         }

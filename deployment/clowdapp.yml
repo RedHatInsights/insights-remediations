@@ -313,35 +313,6 @@ objects:
         WHERE updated_at >= TIMESTAMP 'yesterday'
           AND updated_at < TIMESTAMP 'today'
         ORDER BY remediation_id;
-    - prefix: insights/remediations/playbook_run_executors
-      query: >-
-        SELECT playbook_runs.remediation_id,
-               playbook_run_executors.id,
-               playbook_run_executors.executor_id,
-               playbook_run_executors.executor_name,
-               playbook_run_executors.status,
-               playbook_run_executors.playbook_run_id,
-               playbook_run_executors.updated_at
-        FROM playbook_run_executors
-        INNER JOIN playbook_runs ON playbook_run_id = playbook_runs.id 
-        WHERE playbook_run_executors.updated_at >= TIMESTAMP 'yesterday'
-          AND playbook_run_executors.updated_at < TIMESTAMP 'today'
-        ORDER BY remediation_id;
-    - prefix: insights/remediations/playbook_run_systems
-      query: >-
-        SELECT playbook_runs.remediation_id,
-               playbook_run_systems.id,
-               playbook_run_systems.playbook_run_executor_id,
-               playbook_run_systems.system_id,
-               playbook_run_systems.system_name,
-               playbook_run_systems.status,
-               playbook_run_systems.updated_at
-        FROM playbook_run_systems
-        INNER JOIN playbook_run_executors ON playbook_run_executor_id = playbook_run_executors.id
-        INNER JOIN playbook_runs ON playbook_run_executors.playbook_run_id = playbook_runs.id 
-        WHERE playbook_run_systems.updated_at >= TIMESTAMP 'yesterday'
-          AND playbook_run_systems.updated_at < TIMESTAMP 'today'
-        ORDER BY remediation_id;
 
 - apiVersion: metrics.console.redhat.com/v1alpha1
   kind: FloorPlan
