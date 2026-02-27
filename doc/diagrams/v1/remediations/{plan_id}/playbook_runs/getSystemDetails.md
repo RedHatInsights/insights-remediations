@@ -2,7 +2,7 @@
 
 #### Procedure
 1. dispatcher_runs = GET /playbook-dispatcher/v1/runs?filter[labels][playbook-run]=run_id
-2. for run of dispatcher_runs
+2. for each run in dispatcher_runs
    1. run_host = GET /playbook-dispatcher/v1/run_hosts?filter[run][labels][playbook-run]=run_id&filter[run][id]=run.id&filter[inventory_id]=system_id (host, stdout, inventory_id)
    2. if run_host
       1. system = format host details
