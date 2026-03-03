@@ -1205,7 +1205,7 @@ describe('remediations', function () {
                         id,
                         status: 400,
                         code: 'EMPTY_REQUEST',
-                        title: 'At least one of "add", "name", "auto_reboot", "archived" needs to be specified'
+                        title: 'At least one of "add", "name", "auto_reboot", "archived", "expiration_date" must be specified'
                     }]);
                 });
 

@@ -46,6 +46,9 @@ const systems = [
 ];
 
 exports.up = async q => {
+    const { getDefaultExpirationDate } = require('../helpers');
+    const EXPIRATION_DATE = getDefaultExpirationDate();
+
     const remediations = await q.bulkInsert('remediations', [{
         id: '0ecb5db7-2f1a-441b-8220-e5ce45066f50',
         name: 'FiFI playbook',
@@ -55,7 +58,8 @@ exports.up = async q => {
         created_by,
         created_at: '2019-12-23T08:19:36.641Z',
         updated_by: created_by,
-        updated_at: '2019-12-23T08:19:36.641Z'
+        updated_at: '2019-12-23T08:19:36.641Z',
+        expiration_date: EXPIRATION_DATE
     }, {
         id: '249f142c-2ae3-4c3f-b2ec-c8c5881f6927',
         name: 'FiFI playbook 2',
@@ -65,7 +69,8 @@ exports.up = async q => {
         created_by,
         created_at: '2019-12-23T18:19:36.641Z',
         updated_by: created_by,
-        updated_at: '2019-12-23T18:19:36.641Z'
+        updated_at: '2019-12-23T18:19:36.641Z',
+        expiration_date: EXPIRATION_DATE
     }, {
         id: '249f142c-2ae3-4c3f-b2ec-c8c5881f8561',
         name: 'FiFI playbook 3',
@@ -75,7 +80,8 @@ exports.up = async q => {
         created_by,
         created_at: '2020-01-23T18:19:36.641Z',
         updated_by: created_by,
-        updated_at: '2020-01-23T18:19:36.641Z'
+        updated_at: '2020-01-23T18:19:36.641Z',
+        expiration_date: EXPIRATION_DATE
     }, {
         id: 'd12efef0-9580-4c82-b604-9888e2269c5a',
         name: 'FiFI playbook 4',
@@ -85,7 +91,8 @@ exports.up = async q => {
         created_by,
         created_at: '2020-01-23T18:19:36.641Z',
         updated_by: created_by,
-        updated_at: '2020-01-23T18:19:36.641Z'
+        updated_at: '2020-01-23T18:19:36.641Z',
+        expiration_date: EXPIRATION_DATE
     }, {
         id: '63d92aeb-9351-4216-8d7c-044d171337bc',
         name: 'FiFI playbook 5',
@@ -95,7 +102,8 @@ exports.up = async q => {
         created_by,
         created_at: '2020-01-23T18:19:36.641Z',
         updated_by: created_by,
-        updated_at: '2020-01-23T18:19:36.641Z'
+        updated_at: '2020-01-23T18:19:36.641Z',
+        expiration_date: EXPIRATION_DATE
     }, {
         id: '64d92aeb-9351-4216-8d7c-044d171337bd',
         name: 'FiFI playbook 6',
@@ -105,7 +113,8 @@ exports.up = async q => {
         created_by,
         created_at: '2020-01-23T18:19:36.641Z',
         updated_by: created_by,
-        updated_at: '2020-01-23T18:19:36.641Z'
+        updated_at: '2020-01-23T18:19:36.641Z',
+        expiration_date: EXPIRATION_DATE
     }], opts);
 
     const issues = await q.bulkInsert('remediation_issues', [{
@@ -147,7 +156,8 @@ exports.up = async q => {
         created_by,
         created_at: '2023-12-23T08:19:36.641Z',
         updated_by: created_by,
-        updated_at: '2022-12-23T08:19:36.641Z'
+        updated_at: '2022-12-23T08:19:36.641Z',
+        expiration_date: EXPIRATION_DATE
     }], opts);
 
     const vuln_issue_id = await q.bulkInsert('remediation_issues', [{

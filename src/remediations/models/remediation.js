@@ -50,7 +50,7 @@ module.exports = (sequelize, {BOOLEAN, DATE, STRING, UUID, TEXT}) => {
             defaultValue: function () {
                 const config = require('../../config');
                 const d = new Date();
-                d.setDate(d.getDate() + config.remediationRetentionDays);
+                d.setDate(d.getDate() + config.planRetentionDays);
                 return d;
             }
         }

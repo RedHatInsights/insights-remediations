@@ -28,6 +28,9 @@ const status_aggregation_systems = [
 ];
 
 exports.up = async q => {
+    const { getDefaultExpirationDate } = require('../helpers');
+    const EXPIRATION_DATE = getDefaultExpirationDate();
+
     const remediations = await q.bulkInsert('remediations', [
         {
             id: 'bf0af437-2842-44d4-90de-bd83d40f7ea6',
@@ -38,7 +41,8 @@ exports.up = async q => {
             created_by,
             created_at: '2018-11-04T08:19:36.641Z',
             updated_by: created_by,
-            updated_at: '2018-11-04T08:19:36.641Z'
+            updated_at: '2018-11-04T08:19:36.641Z',
+            expiration_date: EXPIRATION_DATE
         },
         {
             id: 'efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3',
@@ -49,7 +53,8 @@ exports.up = async q => {
             created_by,
             created_at: '2024-09-10T11:41:12.221Z',
             updated_by: created_by,
-            updated_at: '2024-09-10T11:41:12.221Z'
+            updated_at: '2024-09-10T11:41:12.221Z',
+            expiration_date: EXPIRATION_DATE
         }
     ], opts);
 

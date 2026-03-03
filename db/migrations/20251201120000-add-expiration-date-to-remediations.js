@@ -2,8 +2,7 @@
 
 const EXPIRATION_DATE_INDEX = 'remediations_expiration_date_idx';
 
-// Matches PR 972 / config.remediationRetentionDays default (REMEDIATION_RETENTION_DAYS). Kept here so migration
-// works before that PR is merged; after rebase the behavior aligns with config.
+// Matches config.planRetentionDays default (PLAN_RETENTION_DAYS).
 const DEFAULT_RETENTION_DAYS = 270;
 
 // Batch size for backfill to avoid long-running locks and timeouts on large tables.
@@ -11,7 +10,7 @@ const BACKFILL_BATCH_SIZE = 1000;
 
 module.exports = {
   up: async (q, {DATE}) => {
-    const retentionDays = parseInt(process.env.REMEDIATION_RETENTION_DAYS, 10) || DEFAULT_RETENTION_DAYS;
+    const retentionDays = parseInt(process.env.PLAN_RETENTION_DAYS, 10) || DEFAULT_RETENTION_DAYS;
 
     await q.addColumn('remediations', 'expiration_date', {
       type: DATE,

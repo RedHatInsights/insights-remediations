@@ -1388,7 +1388,7 @@ components:
     RemediationExpirationDate:
       type: string
       format: date
-      description: Date when the remediation plan is scheduled to expire (retention policy). If omitted on create, defaults to now + remediationRetentionDays from config (see GET /config).
+      description: Date when the remediation plan is scheduled to expire (retention policy). If omitted on create, defaults to now + planRetentionDays from config (see GET /config).
 
     SystemName:
       type: string

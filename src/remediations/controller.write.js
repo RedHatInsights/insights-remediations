@@ -16,7 +16,7 @@ const disambiguator = require('../resolutions/disambiguator');
 const notFound = res => res.status(404).json();
 
 function defaultExpirationDate() {
-    const days = config.remediationRetentionDays;
+    const days = config.planRetentionDays;
     const d = new Date();
     d.setDate(d.getDate() + days);
     return d;

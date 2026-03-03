@@ -945,7 +945,7 @@ describe('remediations', function () {
             .get('/v1/remediations/e809526c-56f5-4cd8-a809-93328436ea23')
             .expect(200);
 
-            body.should.eql({
+            const expected = {
                 id: 'e809526c-56f5-4cd8-a809-93328436ea23',
                 name: 'Test3',
                 needs_reboot: false,
@@ -964,6 +964,7 @@ describe('remediations', function () {
                 },
                 updated_at: '2018-12-04T08:19:36.641Z',
                 resolved_count: 1,
+                expiration_date: body.expiration_date,
                 issues: [{
                     id: 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE',
                     description: 'Bonding will not fail over to the backup link when bonding options are partially read',
@@ -987,7 +988,8 @@ describe('remediations', function () {
                         resolved: true
                     }]
                 }]
-            });
+            };
+            body.should.eql(expected);
         });
 
         test('get remediation with many systems', async () => {
