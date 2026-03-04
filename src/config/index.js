@@ -254,7 +254,9 @@ function Config() {
         },
 
         // remediation plan retention policy (in days)
-        planRetentionDays: parseIntEnv('PLAN_RETENTION_DAYS', 270) // 9 months (9 * 30 days)
+        planRetentionDays: parseIntEnv('PLAN_RETENTION_DAYS', 270), // 9 months (9 * 30 days)
+        // migration backfill batch size (expiration_date backfill); used by db migrations
+        migrationBackfillBatchSize: parseIntEnv('MIGRATION_BACKFILL_BATCH_SIZE', 1000)
     };
 
     if (acgConfig) {

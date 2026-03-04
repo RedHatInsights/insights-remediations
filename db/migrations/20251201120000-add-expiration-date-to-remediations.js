@@ -1,16 +1,13 @@
 'use strict';
 
+const config = require('../../src/config');
+
 const EXPIRATION_DATE_INDEX = 'remediations_expiration_date_idx';
-
-// Matches config.planRetentionDays default (PLAN_RETENTION_DAYS).
-const DEFAULT_RETENTION_DAYS = 270;
-
-// Batch size for backfill to avoid long-running locks and timeouts on large tables.
-const BACKFILL_BATCH_SIZE = 1000;
 
 module.exports = {
   up: async (q, {DATE}) => {
-    const retentionDays = parseInt(process.env.PLAN_RETENTION_DAYS, 10) || DEFAULT_RETENTION_DAYS;
+    const retentionDays = config.planRetentionDays;
+    const batchSize = config.migrationBackfillBatchSize;
 
     await q.addColumn('remediations', 'expiration_date', {
       type: DATE,
@@ -24,7 +21,7 @@ module.exports = {
         `UPDATE remediations
          SET expiration_date = created_at + :days * INTERVAL '1 day'
          WHERE id IN (
-           SELECT id FROM remediations WHERE expiration_date IS NULL LIMIT ${BACKFILL_BATCH_SIZE}
+           SELECT id FROM remediations WHERE expiration_date IS NULL LIMIT ${batchSize}
          )
          RETURNING id`,
         { replacements: { days: retentionDays } }
