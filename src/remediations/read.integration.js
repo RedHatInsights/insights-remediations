@@ -517,6 +517,14 @@ describe('remediations', function () {
             testSorting('system_count', false, r249, refe, r66e, re80, r178, rcbc, r256);
             testSorting('last_run_at', true, refe, r249, r178, r256, r66e, rcbc, re80);
             testSorting('last_run_at', false, r178, r256, r66e, rcbc, re80, r249, refe);
+            test('sort=expiration_date returns 200 and data includes expiration_date', async () => {
+                const { body } = await request.get('/v1/remediations?sort=expiration_date').set(auth.testReadSingle).expect(200);
+                body.data.should.be.an.Array();
+                body.data.forEach(item => item.should.have.property('expiration_date'));
+            });
+            test('sort=-expiration_date returns 200', async () => {
+                await request.get('/v1/remediations?sort=-expiration_date').set(auth.testReadSingle).expect(200);
+            });
 
             // Status tests with isolated data setup
             describe('status tests', function () {
@@ -701,6 +709,23 @@ describe('remediations', function () {
                     testList('last_run_after=date/time query with match', '/v1/remediations?filter[last_run_after]=2016-12-04T08:19:36.641Z', refe, r249);
                     testList('last_run_after=never query with match', '/v1/remediations?filter[last_run_after]=never', r256, r178, re80, rcbc, r66e);
                     testList('name and last_run_after query no match', '/v1/remediations?filter[last_run_after]=2018-12-04T08:19:36.641Z&filter[name]=REBootNoMatch');
+                    testList('expiration_before query with match (all plans expire before 2030)', '/v1/remediations?filter[expiration_before]=2030-01-01', refe, r249, r256, r178, re80, rcbc, r66e);
+                    testList('expiration_before query no match', '/v1/remediations?filter[expiration_before]=2020-01-01');
+                    testList('expiration_after query with match (all plans expire after 2020)', '/v1/remediations?filter[expiration_after]=2020-01-01', refe, r249, r256, r178, re80, rcbc, r66e);
+                    testList('expiration_after query no match', '/v1/remediations?filter[expiration_after]=2030-01-01');
+                    testList('expiring_within_days query with match', '/v1/remediations?filter[expiring_within_days]=400', refe, r249, r256, r178, re80, rcbc, r66e);
+
+                    test('filtered list response includes expiration_date for each plan', async () => {
+                        const { body } = await request
+                            .get('/v1/remediations?filter[expiration_before]=2030-01-01')
+                            .set(auth.testReadSingle)
+                            .expect(200);
+                        should(body.data).be.an.Array();
+                        body.data.forEach(item => {
+                            item.should.have.property('expiration_date');
+                            item.expiration_date.should.match(/^\d{4}-\d{2}-\d{2}$/);
+                        });
+                    });
                 });
 
                 describe('invalid options', function () {

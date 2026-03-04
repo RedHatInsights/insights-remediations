@@ -1,6 +1,7 @@
 'use strict';
 
 const base = require('../test');
+const sinon = require('sinon');
 const {v4: uuid} = require('uuid');
 const queries = require('./remediations.queries');
 const db = require('../db');
@@ -206,5 +207,98 @@ describe('getPlanSystemsDetails', function () {
 
         // Should call database once
         dbSystemsFindAllStub.should.have.been.calledOnce;
+    });
+});
+
+describe('list with expiration_date filter and sort', function () {
+    const tenant_org_id = '3333333';
+    const created_by = 'testuser@redhat.com';
+
+    let sandbox;
+    let findAndCountAllStub;
+
+    beforeEach(() => {
+        sandbox = sinon.createSandbox();
+        findAndCountAllStub = sandbox.stub(db.remediation, 'findAndCountAll');
+        findAndCountAllStub.resolves({ count: [0], rows: [] });
+    });
+
+    afterEach(() => {
+        sandbox.restore();
+    });
+
+    test('adds expiration_before to where when filter.expiration_before is set', async () => {
+        await queries.list(tenant_org_id, created_by, false, 'updated_at', true, { expiration_before: '2026-12-31' }, false, 50, 0);
+
+        sinon.assert.calledOnce(findAndCountAllStub);
+        const query = findAndCountAllStub.firstCall.args[0];
+        query.should.have.property('where');
+        query.where.should.have.property('expiration_date');
+        const exp = query.where.expiration_date;
+        exp.should.have.property(db.Op.lte);
+        new Date(exp[db.Op.lte]).toISOString().should.startWith('2026-12-31');
+    });
+
+    test('adds expiration_after to where when filter.expiration_after is set', async () => {
+        await queries.list(tenant_org_id, created_by, false, 'updated_at', true, { expiration_after: '2026-01-01' }, false, 50, 0);
+
+        sinon.assert.calledOnce(findAndCountAllStub);
+        const query = findAndCountAllStub.firstCall.args[0];
+        query.where.should.have.property('expiration_date');
+        const exp = query.where.expiration_date;
+        exp.should.have.property(db.Op.gte);
+        new Date(exp[db.Op.gte]).toISOString().should.startWith('2026-01-01');
+    });
+
+    test('adds both expiration_before and expiration_after when both are set', async () => {
+        await queries.list(tenant_org_id, created_by, false, 'updated_at', true, {
+            expiration_before: '2026-12-31',
+            expiration_after: '2026-01-01'
+        }, false, 50, 0);
+
+        sinon.assert.calledOnce(findAndCountAllStub);
+        const query = findAndCountAllStub.firstCall.args[0];
+        query.where.should.have.property('expiration_date');
+        query.where.expiration_date.should.have.property(db.Op.and);
+        const andConditions = query.where.expiration_date[db.Op.and];
+        andConditions.should.have.length(2);
+    });
+
+    test('adds expiring_within_days range when filter.expiring_within_days is set', async () => {
+        await queries.list(tenant_org_id, created_by, false, 'updated_at', true, { expiring_within_days: '30' }, false, 50, 0);
+
+        sinon.assert.calledOnce(findAndCountAllStub);
+        const query = findAndCountAllStub.firstCall.args[0];
+        query.where.should.have.property('expiration_date');
+        query.where.expiration_date.should.have.property(db.Op.and);
+        const andConditions = query.where.expiration_date[db.Op.and];
+        andConditions.should.have.length(2);
+    });
+
+    test('ignores invalid expiring_within_days (negative) and does not add expiration_date', async () => {
+        await queries.list(tenant_org_id, created_by, false, 'updated_at', true, { expiring_within_days: '-1' }, false, 50, 0);
+
+        sinon.assert.calledOnce(findAndCountAllStub);
+        const query = findAndCountAllStub.firstCall.args[0];
+        query.where.should.not.have.property('expiration_date');
+    });
+
+    test('sorts by expiration_date when primaryOrder is expiration_date', async () => {
+        await queries.list(tenant_org_id, created_by, false, 'expiration_date', true, false, false, 50, 0);
+
+        sinon.assert.calledOnce(findAndCountAllStub);
+        const query = findAndCountAllStub.firstCall.args[0];
+        query.should.have.property('order');
+        query.order.should.be.an.Array();
+        query.order[0].should.be.an.Array();
+        query.order[0][1].should.equal('ASC');
+    });
+
+    test('sorts by -expiration_date when primaryOrder is expiration_date and asc is false', async () => {
+        await queries.list(tenant_org_id, created_by, false, 'expiration_date', false, false, false, 50, 0);
+
+        sinon.assert.calledOnce(findAndCountAllStub);
+        const query = findAndCountAllStub.firstCall.args[0];
+        query.order[0][1].should.equal('DESC');
     });
 });

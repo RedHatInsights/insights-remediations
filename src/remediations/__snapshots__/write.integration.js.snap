@@ -10,7 +10,7 @@ exports[`remediations delete bulk issues succeeds 1`] = `
     "last_name": "user",
     "username": "testWriteUser",
   },
-  "expiration_date": "2026-11-28",
+  "expiration_date": "2026-11-29",
   "id": "",
   "issues": [
     {
@@ -125,7 +125,7 @@ exports[`remediations delete bulk systems does not remove systems from other pla
     "last_name": "user",
     "username": "testWriteUser",
   },
-  "expiration_date": "2026-11-28",
+  "expiration_date": "2026-11-29",
   "id": "",
   "issues": [
     {
@@ -279,7 +279,7 @@ exports[`remediations delete bulk systems does not remove systems from other pla
     "last_name": "user",
     "username": "testWriteUser",
   },
-  "expiration_date": "2026-11-28",
+  "expiration_date": "2026-11-29",
   "id": "",
   "issues": [
     {
@@ -433,7 +433,7 @@ exports[`remediations delete bulk systems succeeds 1`] = `
     "last_name": "user",
     "username": "testWriteUser",
   },
-  "expiration_date": "2026-11-28",
+  "expiration_date": "2026-11-29",
   "id": "",
   "issues": [
     {
