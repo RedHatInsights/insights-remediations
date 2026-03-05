@@ -24,7 +24,8 @@ const REMEDIATION_ATTRIBUTES = [
     'created_by',
     'created_at',
     'updated_by',
-    'updated_at'
+    'updated_at',
+    'expiration_date'
 ];
 const ISSUE_ATTRIBUTES = ['issue_id', 'resolution', 'precedence'];
 const PLAYBOOK_RUN_ATTRIBUTES = [
@@ -252,6 +253,31 @@ exports.list = async function (
         // updated_after filter
         if (filter.updated_after) {
             query.where["updated_at"] = { [Op.gt]: new Date(filter.updated_after) };
+        }
+
+        // expiration_date filters (before, after, or expiring within N days)
+        const expConditions = [];
+        if (filter.expiration_before) {
+            expConditions.push({ [Op.lte]: new Date(filter.expiration_before) });
+        }
+        if (filter.expiration_after) {
+            expConditions.push({ [Op.gte]: new Date(filter.expiration_after) });
+        }
+        if (filter.expiring_within_days !== undefined && filter.expiring_within_days !== '') {
+            const n = parseInt(filter.expiring_within_days, 10);
+            if (!Number.isNaN(n) && n >= 0) {
+                const now = new Date();
+                now.setHours(0, 0, 0, 0);
+                const end = new Date(now);
+                end.setDate(end.getDate() + n);
+                expConditions.push({ [Op.gte]: now });
+                expConditions.push({ [Op.lte]: end });
+            }
+        }
+        if (expConditions.length > 0) {
+            query.where.expiration_date = expConditions.length === 1
+                ? expConditions[0]
+                : { [Op.and]: expConditions };
         }
 
         // status filter

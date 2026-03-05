@@ -72,7 +72,7 @@ exports.parseSort = function (param) {
 
 exports.list = function (remediations, total, limit, offset, sort, system) {
     const formatted = _.map(remediations,
-        ({id, name, needs_reboot, created_by, created_at, updated_by, updated_at, system_count, issue_count, resolved_count, archived, playbook_runs}) => ({
+        ({id, name, needs_reboot, created_by, created_at, updated_by, updated_at, system_count, issue_count, resolved_count, archived, expiration_date, playbook_runs}) => ({
             id,
             name,
             created_by: _.pick(created_by, USER),
@@ -84,6 +84,7 @@ exports.list = function (remediations, total, limit, offset, sort, system) {
             issue_count,
             resolved_count: (resolved_count === null) ? 0 : resolved_count,
             archived,
+            expiration_date: expiration_date ? (_.isDate(expiration_date) ? expiration_date.toISOString().split('T')[0] : expiration_date) : null,
             playbook_runs: (playbook_runs === null) ? [] : playbook_runs
         })
     );
@@ -99,7 +100,7 @@ exports.list = function (remediations, total, limit, offset, sort, system) {
 };
 
 exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at,
-                            issues, resolved_count, issue_count, issue_count_details, system_count, archived}) {
+                            issues, resolved_count, issue_count, issue_count_details, system_count, archived, expiration_date}) {
     const formatted =  {
         id,
         name,
@@ -108,7 +109,8 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
         created_by: _.pick(created_by, USER),
         created_at: created_at.toISOString(),
         updated_by: _.pick(updated_by, USER),
-        updated_at: updated_at.toISOString()
+        updated_at: updated_at.toISOString(),
+        expiration_date: expiration_date ? (_.isDate(expiration_date) ? expiration_date.toISOString().split('T')[0] : expiration_date) : null
     };
 
     // handle format='detail' items
@@ -190,7 +192,7 @@ exports.issues = function (plan_id, issues, total, limit, offset, sort) {
 };
 
 exports.created = function ({id}) {
-    return {id};
+    return { id };
 };
 
 function playbookNamePrefix (name) {

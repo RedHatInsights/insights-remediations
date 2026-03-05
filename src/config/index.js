@@ -242,6 +242,7 @@ function Config() {
             text_update_interval: parseIntEnv('FIFI_TEXT_UPDATE_INTERVAL', 5000),
             text_update_full: env.FIFI_TEXT_UPDATE_FULL === 'false' ? false : true
         },
+    
         featureFlags: {
             enabled: env.FEATURE_FLAGS_ENABLED === 'true' ? true : false,
             impl: env.FEATURE_FLAGS_IMPL,
@@ -251,8 +252,11 @@ function Config() {
             refreshInterval: parseIntEnv('FEATURE_FLAGS_REFRESH_INTERVAL', 15000), // 15 seconds
             metricsInterval: parseIntEnv('FEATURE_FLAGS_METRICS_INTERVAL', 60000) // 60 seconds
         },
+
         // remediation plan retention policy (in days)
-        planRetentionDays: parseIntEnv('PLAN_RETENTION_DAYS', 270) // 9 months (9 * 30 days)
+        planRetentionDays: parseIntEnv('PLAN_RETENTION_DAYS', 270), // 9 months (9 * 30 days)
+        // migration backfill batch size (expiration_date backfill); used by db migrations
+        migrationBackfillBatchSize: parseIntEnv('MIGRATION_BACKFILL_BATCH_SIZE', 1000)
     };
 
     if (acgConfig) {

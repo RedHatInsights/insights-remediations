@@ -101,6 +101,9 @@ const cves = [
 ];
 
 exports.up = async q => {
+    const { getDefaultExpirationDate } = require('../helpers');
+    const EXPIRATION_DATE = getDefaultExpirationDate();
+
     const remediations = await q.bulkInsert('remediations', [{
         id: '9939e04a-a936-482d-a317-008c058f7918',
         name: 'Patch vulnerabilities on production systems',
@@ -109,7 +112,8 @@ exports.up = async q => {
         created_by,
         created_at: '2018-11-21T10:19:38.541Z',
         updated_by: created_by,
-        updated_at: '2018-11-21T10:19:38.541Z'
+        updated_at: '2018-11-21T10:19:38.541Z',
+        expiration_date: EXPIRATION_DATE
     }, {
         id: '0bcebc81-0d53-4f77-b0f0-1a56e01a55fd',
         name: 'Recommended configuration changes',
@@ -118,7 +122,8 @@ exports.up = async q => {
         created_by,
         created_at: '2018-11-21T09:19:38.541Z',
         updated_by: created_by,
-        updated_at: '2018-11-21T09:19:38.541Z'
+        updated_at: '2018-11-21T09:19:38.541Z',
+        expiration_date: EXPIRATION_DATE
     }, {
         id: '42503118-80d4-49e0-bfee-20ac2d8ea74f',
         name: 'Mixed remediation',
@@ -127,7 +132,8 @@ exports.up = async q => {
         created_by,
         created_at: '2018-11-21T11:19:38.541Z',
         updated_by: created_by,
-        updated_at: '2018-11-21T11:19:38.541Z'
+        updated_at: '2018-11-21T11:19:38.541Z',
+        expiration_date: EXPIRATION_DATE
     }, {
         id: '99999999-99d9-99e9-bfee-99ac9d9ea99f',
         name: 'Remediation with no issues',
@@ -136,7 +142,8 @@ exports.up = async q => {
         created_by,
         created_at: '2018-11-21T11:19:38.541Z',
         updated_by: created_by,
-        updated_at: '2018-11-21T11:19:38.541Z'
+        updated_at: '2018-11-21T11:19:38.541Z',
+        expiration_date: EXPIRATION_DATE
     }, {
         id: '10b533ec-ff1c-4643-8f45-aa0f4a26987a',
         name: 'Vulnerability',
@@ -145,7 +152,8 @@ exports.up = async q => {
         created_by,
         created_at: '2018-11-21T13:19:38.541Z',
         updated_by: created_by,
-        updated_at: '2018-11-21T13:19:38.541Z'
+        updated_at: '2018-11-21T13:19:38.541Z',
+        expiration_date: EXPIRATION_DATE
     }], opts);
 
     const issues = await q.bulkInsert('remediation_issues', [{

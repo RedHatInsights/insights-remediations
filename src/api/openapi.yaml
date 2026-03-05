@@ -896,6 +896,8 @@ components:
           - -updated_at
           - created_at
           - -created_at
+          - expiration_date
+          - -expiration_date
           - last_run_at
           - -last_run_at
           - name
@@ -934,7 +936,10 @@ components:
         - name: plan names matching string, `?filter[name]=my plan name`
         - created_after: created on or after date-time, `filter[created_after]=2025-03-31T08:19:36.641Z`
         - updated_after: modified on or after date-time, `filter[updated_after]=2025-03-31T08:19:36.641Z`
-        - last_run_after: executed on or after date-time or 'never', `filter[last_run_after]=never` 
+        - expiration_before: expires on or before date (YYYY-MM-DD), `filter[expiration_before]=2026-12-31`
+        - expiration_after: expires on or after date (YYYY-MM-DD), `filter[expiration_after]=2026-01-01`
+        - expiring_within_days: expires within N days from today (inclusive), `filter[expiring_within_days]=30`
+        - last_run_after: executed on or after date-time or 'never', `filter[last_run_after]=never`
         - status: status matching one of [running, success, failure], `filter[status]=failure`
       required: false
       schema:
@@ -976,6 +981,24 @@ components:
                   Filter remediations updated on or after this timestamp (ISO 8601 format)
                   Must be a valid ISO 8601 date-time string. Precision should be to the nearest second or millisecond.
                   Example: '2024-09-11T12:00:00Z' or '2024-09-11T12:00:00.123Z'
+              expiration_before:
+                type: string
+                format: date
+                description: >
+                  Filter remediations that expire on or before this date (YYYY-MM-DD).
+                  Example: '2026-12-31'
+              expiration_after:
+                type: string
+                format: date
+                description: >
+                  Filter remediations that expire on or after this date (YYYY-MM-DD).
+                  Example: '2026-01-01'
+              expiring_within_days:
+                type: string
+                pattern: '^\d+$'
+                description: >
+                  Filter remediations that expire within N days from today (inclusive).
+                  Value is a non-negative integer string, e.g. "30" for plans expiring in the next 30 days
       style: deepObject
       explode: true
 
@@ -1385,6 +1408,11 @@ components:
       type: boolean
       description: Indicates whether a remediation has been marked as archived
 
+    RemediationExpirationDate:
+      type: string
+      format: date
+      description: Date when the remediation plan is scheduled to expire (retention policy). If omitted on create, defaults to now + planRetentionDays from config (see GET /config).
+
     SystemName:
       type: string
       example: redhat-213
@@ -1557,6 +1585,8 @@ components:
           $ref: '#/components/schemas/RemediationArchived'
         auto_reboot:
           $ref: '#/components/schemas/RemediationAutoReboot'
+        expiration_date:
+          $ref: '#/components/schemas/RemediationExpirationDate'
         add:
           type: object
           additionalProperties: false
@@ -2162,7 +2192,7 @@ components:
     RemediationDetails:
       type: object
       additionalProperties: false
-      required: [id, name, auto_reboot, created_by, created_at, updated_by, updated_at, archived]
+      required: [id, name, auto_reboot, created_by, created_at, updated_by, updated_at, archived, expiration_date]
       properties:
         id:
           $ref: '#/components/schemas/RemediationId'
@@ -2174,6 +2204,8 @@ components:
           $ref: '#/components/schemas/RemediationArchived'
         auto_reboot:
           $ref: '#/components/schemas/RemediationAutoReboot'
+        expiration_date:
+          $ref: '#/components/schemas/RemediationExpirationDate'
         created_by:
           $ref: '#/components/schemas/UserOut'
         created_at:
@@ -2277,7 +2309,7 @@ components:
     RemediationListItem:
       type: object
       additionalProperties: false
-      required: [id, name, created_by, created_at, updated_by, updated_at, issue_count, system_count, resolved_count, needs_reboot, archived]
+      required: [id, name, created_by, created_at, updated_by, updated_at, issue_count, system_count, resolved_count, needs_reboot, archived, expiration_date]
       properties:
         id:
           $ref: '#/components/schemas/RemediationId'
@@ -2301,6 +2333,8 @@ components:
           $ref: '#/components/schemas/RemediationNeedsReboot'
         archived:
           $ref: '#/components/schemas/RemediationArchived'
+        expiration_date:
+          $ref: '#/components/schemas/RemediationExpirationDate'
         playbook_runs:
           type: array
           items:

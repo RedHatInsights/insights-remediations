@@ -13,6 +13,9 @@ const opts = {
 
 /* eslint-disable security/detect-object-injection */
 exports.up = async q => {
+    const { getDefaultExpirationDate } = require('../helpers');
+    const EXPIRATION_DATE = getDefaultExpirationDate();
+
     const remediations = await q.bulkInsert('remediations', [{
         id: '82aeb63f-fc25-4eef-9333-4fa7e10f7217',
         name: 'missing system 1',
@@ -22,7 +25,8 @@ exports.up = async q => {
         created_by,
         created_at: '2018-11-04T08:19:36.641Z',
         updated_by: created_by,
-        updated_at: '2018-11-04T08:19:36.641Z'
+        updated_at: '2018-11-04T08:19:36.641Z',
+        expiration_date: EXPIRATION_DATE
     }, {
         id: '27e36e14-e1c2-4b5a-9382-ec80ca9a6c1a',
         name: 'missing system 2',
@@ -32,7 +36,8 @@ exports.up = async q => {
         created_by,
         created_at: '2018-11-04T07:19:36.641Z',
         updated_by: created_by,
-        updated_at: '2018-11-04T07:19:36.641Z'
+        updated_at: '2018-11-04T07:19:36.641Z',
+        expiration_date: EXPIRATION_DATE
     }, {
         id: 'ea5b1507-4cd3-4c87-aa5a-6c755d32a7bd',
         name: 'unknown resolution',
@@ -42,7 +47,8 @@ exports.up = async q => {
         created_by,
         created_at: '2018-11-04T06:19:36.641Z',
         updated_by: created_by,
-        updated_at: '2018-11-04T06:19:36.641Z'
+        updated_at: '2018-11-04T06:19:36.641Z',
+        expiration_date: EXPIRATION_DATE
     }, {
         id: '62c95092-ac83-4025-a676-362a67e68579',
         name: 'unknown issues',
@@ -52,7 +58,8 @@ exports.up = async q => {
         created_by,
         created_at: '2018-11-04T05:19:36.641Z',
         updated_by: created_by,
-        updated_at: '2018-11-04T05:19:36.641Z'
+        updated_at: '2018-11-04T05:19:36.641Z',
+        expiration_date: EXPIRATION_DATE
     }, {
         id: 'c3f9f751-4bcc-4222-9b83-77f5e6e603da',
         name: 'many systems',
@@ -62,7 +69,8 @@ exports.up = async q => {
         created_by,
         created_at: '2018-11-04T04:19:36.641Z',
         updated_by: created_by,
-        updated_at: '2018-11-04T04:19:36.641Z'
+        updated_at: '2018-11-04T04:19:36.641Z',
+        expiration_date: EXPIRATION_DATE
     }, {
         id: 'd1b070b5-1db8-4dac-8ecf-891dc1e9225f',
         name: 'no systems',
@@ -72,7 +80,8 @@ exports.up = async q => {
         created_by,
         created_at: '2018-11-04T03:19:36.641Z',
         updated_by: created_by,
-        updated_at: '2018-11-04T03:19:36.641Z'
+        updated_at: '2018-11-04T03:19:36.641Z',
+        expiration_date: EXPIRATION_DATE
     }, {
         id: '5e6d136e-ea32-46e4-a350-325ef41790f4',
         name: 'test namespace',
@@ -82,7 +91,8 @@ exports.up = async q => {
         created_by,
         created_at: '2018-11-04T03:19:36.641Z',
         updated_by: created_by,
-        updated_at: '2018-11-04T03:19:36.641Z'
+        updated_at: '2018-11-04T03:19:36.641Z',
+        expiration_date: EXPIRATION_DATE
     }, {
         id: '7d727f9c-7d9e-458d-a128-a9ffae1802ab',
         name: 'system profile test',
@@ -92,7 +102,8 @@ exports.up = async q => {
         created_by,
         created_at: '2018-11-04T03:19:36.641Z',
         updated_by: created_by,
-        updated_at: '2018-11-04T03:19:36.641Z'
+        updated_at: '2018-11-04T03:19:36.641Z',
+        expiration_date: EXPIRATION_DATE
     }], opts);
 
     const issues = await q.bulkInsert('remediation_issues', [{

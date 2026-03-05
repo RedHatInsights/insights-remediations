@@ -233,6 +233,8 @@ objects:
             value: ${FEATURE_FLAGS_METRICS_INTERVAL}
           - name: PLAN_RETENTION_DAYS
             value: ${PLAN_RETENTION_DAYS}
+          - name: MIGRATION_BACKFILL_BATCH_SIZE
+            value: ${MIGRATION_BACKFILL_BATCH_SIZE}
 
 - apiVersion: v1
   kind: Secret
@@ -511,3 +513,6 @@ parameters:
 - name: PLAN_RETENTION_DAYS
   description: Plan retention policy in days (plans with an expiration date older than this will be deleted)
   value: '270'
+- name: MIGRATION_BACKFILL_BATCH_SIZE
+  description: Batch size for migration backfill (e.g. expiration_date backfill). Smaller values reduce lock time per batch.
+  value: '1000'

@@ -15,6 +15,22 @@ const disambiguator = require('../resolutions/disambiguator');
 
 const notFound = res => res.status(404).json();
 
+function defaultExpirationDate() {
+    const days = config.planRetentionDays;
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return d;
+}
+
+function parseExpirationDate(value) {
+    if (value == null) return null;
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) {
+        throw new errors.BadRequest('INVALID_EXPIRATION_DATE', 'expiration_date must be a valid date string');
+    }
+    return d;
+}
+
 async function validateResolution (id, resolutionId) {
     const identifier = identifiers.parse(id);
     const resolutions = await issues.getHandler(identifier).getResolutionResolver().resolveResolutions(identifier);
@@ -155,12 +171,17 @@ async function storeNewActions (remediation, add, transaction) {
 }
 
 exports.create = errors.async(async function (req, res) {
-    const {add, name, auto_reboot} = req.body;
+    const {add, name, auto_reboot, expiration_date: bodyExpirationDate} = req.body;
 
     let systemsById = null;
     if (add) {
         systemsById = await processNewActions(add);
     }
+
+    // expiration_date is optional: if present use it, otherwise set default from retention policy.
+    const expiration_date = bodyExpirationDate != null
+        ? parseExpirationDate(bodyExpirationDate)
+        : defaultExpirationDate();
 
     const id = uuid.v4();
 
@@ -169,6 +190,7 @@ exports.create = errors.async(async function (req, res) {
             id,
             name,
             auto_reboot,
+            expiration_date,
             tenant_org_id: req.user.tenant_org_id,
             account_number: req.user.account_number,
             created_by: req.user.username,
@@ -195,11 +217,14 @@ exports.create = errors.async(async function (req, res) {
 exports.patch = errors.async(async function (req, res) {
     const id = req.params.id;
     const {tenant_org_id, username} = req.user;
-    const {add, name, auto_reboot, archived} = req.body;
+    const {add, name, auto_reboot, archived, expiration_date: bodyExpirationDate} = req.body;
 
-    if (_.isUndefined(add) && _.isUndefined(name) && _.isUndefined(auto_reboot) && _.isUndefined(archived)) {
+    // Reject empty body only: at least one updatable field must be present. expiration_date is optional.
+    const hasUpdatableField = !_.isUndefined(add) || !_.isUndefined(name) || !_.isUndefined(auto_reboot) ||
+        !_.isUndefined(archived) || !_.isUndefined(bodyExpirationDate);
+    if (!hasUpdatableField) {
         // eslint-disable-next-line max-len
-        throw new errors.BadRequest('EMPTY_REQUEST', 'At least one of "add", "name", "auto_reboot", "archived" needs to be specified');
+        throw new errors.BadRequest('EMPTY_REQUEST', 'At least one of "add", "name", "auto_reboot", "archived", "expiration_date" must be specified');
     }
 
     let systemsById = null;
@@ -237,6 +262,11 @@ exports.patch = errors.async(async function (req, res) {
 
         if (archived !== undefined) {
             remediation.archived = archived;
+        }
+
+        // expiration_date is optional: if present update it, otherwise leave unchanged.
+        if (bodyExpirationDate !== undefined) {
+            remediation.expiration_date = parseExpirationDate(bodyExpirationDate);
         }
 
         remediation.updated_by = username;

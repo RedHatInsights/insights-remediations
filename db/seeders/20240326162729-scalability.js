@@ -6,6 +6,9 @@ const { account_number, tenant_org_id, username: created_by } = require('../../s
 const { systems } = require('../../src/connectors/inventory/impl.unit.data');
 
 exports.up = async q => {
+  const { getDefaultExpirationDate } = require('../helpers');
+  const EXPIRATION_DATE = getDefaultExpirationDate();
+
   // add remediation plan with 120 direct systems...
   const remediations = await q.bulkInsert('remediations', [{
     id: 'dd6a0b1b-5331-4e7b-92ec-9a01806fb181',
@@ -16,7 +19,8 @@ exports.up = async q => {
     created_by,
     created_at: '2019-12-23T08:19:36.641Z',
     updated_by: created_by,
-    updated_at: '2019-12-23T08:19:36.641Z'
+    updated_at: '2019-12-23T08:19:36.641Z',
+    expiration_date: EXPIRATION_DATE
   }], {returning: true});
 
   const issues = await q.bulkInsert('remediation_issues', [{
