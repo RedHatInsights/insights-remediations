@@ -1959,6 +1959,11 @@ exports[`remediations get summary format 1`] = `
   },
   "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
   "issue_count": 6,
+  "issue_count_details": {
+    "advisor": 2,
+    "ssg": 1,
+    "vulnerabilities": 3,
+  },
   "name": "Test1",
   "system_count": 2,
   "updated_at": "2018-10-04T08:19:36.641Z",

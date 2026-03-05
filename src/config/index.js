@@ -178,10 +178,6 @@ function Config() {
             principalDomain: env.KESSEL_PRINCIPAL_DOMAIN || 'redhat'
         },
 
-        receptor: {
-            impl: env.RECEPTOR_IMPL
-        },
-
         sources: {
             impl: env.SOURCES_IMPL
         },
@@ -245,7 +241,18 @@ function Config() {
             text_updates: env.FIFI_TEXT_UPDATES === 'false' ? false : true,
             text_update_interval: parseIntEnv('FIFI_TEXT_UPDATE_INTERVAL', 5000),
             text_update_full: env.FIFI_TEXT_UPDATE_FULL === 'false' ? false : true
-        }
+        },
+        featureFlags: {
+            enabled: env.FEATURE_FLAGS_ENABLED === 'true' ? true : false,
+            impl: env.FEATURE_FLAGS_IMPL,
+            host: env.FEATURE_FLAGS_HOST || '',
+            token: env.FEATURE_FLAGS_TOKEN || '',
+            appName: env.FEATURE_FLAGS_APP_NAME || 'remediations',
+            refreshInterval: parseIntEnv('FEATURE_FLAGS_REFRESH_INTERVAL', 15000), // 15 seconds
+            metricsInterval: parseIntEnv('FEATURE_FLAGS_METRICS_INTERVAL', 60000) // 60 seconds
+        },
+        // remediation plan retention policy (in days)
+        planRetentionDays: parseIntEnv('PLAN_RETENTION_DAYS', 270) // 9 months (9 * 30 days)
     };
 
     if (acgConfig) {
@@ -263,7 +270,6 @@ function Config() {
         config.inventory.host = getHostForApp(dependencyEndpoints, 'host-inventory', 'service', 'INVENTORY') || env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';
         config.patchman.host = getHostForApp(dependencyEndpoints, 'patchman', 'manager', 'PATCHMAN') || env.PATCHMAN_HOST || 'http://localhost:8080';
         config.rbac.host = getHostForApp(dependencyEndpoints, 'rbac', 'service', 'RBAC') || env.RBAC_HOST || 'http://localhost:8080';
-        config.receptor.host = getHostForApp(dependencyEndpoints, 'receptor', 'gateway-clowder', 'RECEPTOR') || env.RECEPTOR_HOST || 'http://localhost:9090';
         config.sources.host = getHostForApp(dependencyEndpoints, 'sources-api', 'svc', 'SOURCES') || env.SOURCES_HOST || 'http://localhost:8080';
         config.ssg.host = getHostForApp(privateDepencencyEndpoints, 'compliance-ssg', 'service', 'SSG') || env.SSG_HOST || 'http://localhost:8090';
         config.vmaas.host = getHostForApp(dependencyEndpoints, 'vmaas', 'webapp-go', 'VMAAS') || env.VMAAS_HOST || 'https://console.redhat.com';
@@ -282,6 +288,11 @@ function Config() {
                 // if the password is set -> we're using TLS: https://github.com/luin/ioredis#tls-options
                 config.redis.tls = {};
             }
+        }
+
+        if (config.featureFlags.enabled && loadedConfig.featureFlags) {
+            config.featureFlags.host = `http://${loadedConfig.featureFlags.hostname}:${loadedConfig.featureFlags.port}/api`;
+            config.featureFlags.token = loadedConfig.featureFlags.clientAccessToken;
         }
 
         if (loadedConfig.database.sslMode !== 'disable') {
@@ -307,7 +318,6 @@ function Config() {
         config.inventory.host = env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';
         config.patchman.host = env.PATCHMAN_HOST || 'http://localhost:8080';
         config.rbac.host = env.RBAC_HOST || 'http://localhost:8080';
-        config.receptor.host = env.RECEPTOR_HOST || 'http://localhost:9090';
         config.sources.host = env.SOURCES_HOST || 'http://localhost:8080';
         config.ssg.host = env.SSG_HOST || 'http://localhost:8090';
         config.vmaas.host = env.VMAAS_HOST || 'https://console.redhat.com';
@@ -327,6 +337,11 @@ function Config() {
                 // if the password is set -> we're using TLS: https://github.com/luin/ioredis#tls-options
                 config.redis.tls = {};
             }
+        }
+
+        if (config.featureFlags.enabled) {
+            config.featureFlags.host = env.FEATURE_FLAGS_HOST || 'http://localhost:4242/api';
+            config.featureFlags.token = env.FEATURE_FLAGS_TOKEN || '';
         }
 
         if (env.DB_SSL_ENABLED !== 'false' && env.DB_CA) {
@@ -350,4 +365,18 @@ if (['development', 'production', 'test'].includes(config.env)) {
     }
 }
 
+/**
+ * Returns configuration values that should be exposed to the client.
+ *
+ * IMPORTANT: This function explicitly constructs the exposed config object.
+ * Only add values here that are safe to expose publicly.
+ * Do NOT copy/paste from the main config without careful consideration.
+ */
+function getExposedConfig() {
+    return {
+        planRetentionDays: config.planRetentionDays
+    };
+}
+
 module.exports = config;
+module.exports.getExposedConfig = getExposedConfig;

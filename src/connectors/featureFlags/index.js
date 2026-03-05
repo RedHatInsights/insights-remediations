@@ -1,8 +1,9 @@
 'use strict';
 
+const { useMock } = require('../common');
 const config = require('../../config');
 
-if (config.receptor.impl === 'mock' || config.env === 'test' || config.env === 'development') {
+if (useMock(config.featureFlags.impl)) {
     module.exports = require('./mock');
 } else {
     module.exports = require('./impl');
