@@ -129,8 +129,7 @@ exports.getSystems = errors.async(async function (req, res) {
     // Optional query param:
     //   ?ansible_host=<substring> - filter by partial hostname match
 
-    // Note: ?executor param is accepted but not currently used for filtering
-    // because it was only implemented for receptor code path which has been retired.
+    // Note: ?executor param is accepted but not currently used for filtering.
 
     // Get RHC runs from dispatcher
     trace.event('fetch RHC runs from dispatcher...');

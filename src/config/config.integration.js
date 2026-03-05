@@ -8,17 +8,17 @@ describe('config endpoint', () => {
         .get('/v1/config')
         .expect(200);
 
-        res.body.should.have.property('remediationRetentionDays');
-        res.body.remediationRetentionDays.should.be.a.Number();
+        res.body.should.have.property('planRetentionDays');
+        res.body.planRetentionDays.should.be.a.Number();
     });
 
-    test('returns remediationRetentionDays with default value', async () => {
+    test('returns planRetentionDays with default value', async () => {
         const res = await request
         .get('/v1/config')
         .expect(200);
 
         // Default is 270 days (9 months)
-        res.body.remediationRetentionDays.should.equal(270);
+        res.body.planRetentionDays.should.equal(270);
     });
 
     test('accepts cert auth (route is mounted before userIdentity)', async () => {
@@ -27,7 +27,7 @@ describe('config endpoint', () => {
             .set(auth.cert01)
             .expect(200);
 
-        res.body.should.have.property('remediationRetentionDays');
-        res.body.remediationRetentionDays.should.be.a.Number();
+        res.body.should.have.property('planRetentionDays');
+        res.body.planRetentionDays.should.be.a.Number();
     });
 });

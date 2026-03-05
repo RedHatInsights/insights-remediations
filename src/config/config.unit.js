@@ -17,9 +17,9 @@ describe('getExposedConfig', () => {
     test('returns only explicitly exposed config values', () => {
         const result = getExposedConfig();
 
-        // Should contain remediationRetentionDays
-        expect(result).toHaveProperty('remediationRetentionDays');
-        expect(typeof result.remediationRetentionDays).toBe('number');
+        // Should contain planRetentionDays
+        expect(result).toHaveProperty('planRetentionDays');
+        expect(typeof result.planRetentionDays).toBe('number');
     });
 
     test('does not expose sensitive config values', () => {
@@ -38,6 +38,6 @@ describe('getExposedConfig', () => {
 
         // The exposed config should only contain the explicitly defined keys
         const keys = Object.keys(result);
-        expect(keys).toEqual(['remediationRetentionDays']);
+        expect(keys).toEqual(['planRetentionDays']);
     });
 });

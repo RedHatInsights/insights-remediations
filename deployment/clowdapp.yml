@@ -151,10 +151,6 @@ objects:
             value: ${RBAC_HOST}
           - name: RBAC_ENFORCE
             value: ${RBAC_ENFORCE}
-          - name: RECEPTOR_IMPL
-            value: ${RECEPTOR_IMPL}
-          - name: RECEPTOR_HOST
-            value: http://${RECEPTOR_CONTROLLER_HOST}:9090
           - name: REDIS_ENABLED
             value: 'true'
           - name: REDIS_HOST
@@ -235,8 +231,8 @@ objects:
             value: ${FEATURE_FLAGS_REFRESH_INTERVAL}
           - name: FEATURE_FLAGS_METRICS_INTERVAL
             value: ${FEATURE_FLAGS_METRICS_INTERVAL}
-          - name: REMEDIATION_RETENTION_DAYS
-            value: ${REMEDIATION_RETENTION_DAYS}
+          - name: PLAN_RETENTION_DAYS
+            value: ${PLAN_RETENTION_DAYS}
 
 - apiVersion: v1
   kind: Secret
@@ -316,35 +312,6 @@ objects:
         FROM playbook_runs
         WHERE updated_at >= TIMESTAMP 'yesterday'
           AND updated_at < TIMESTAMP 'today'
-        ORDER BY remediation_id;
-    - prefix: insights/remediations/playbook_run_executors
-      query: >-
-        SELECT playbook_runs.remediation_id,
-               playbook_run_executors.id,
-               playbook_run_executors.executor_id,
-               playbook_run_executors.executor_name,
-               playbook_run_executors.status,
-               playbook_run_executors.playbook_run_id,
-               playbook_run_executors.updated_at
-        FROM playbook_run_executors
-        INNER JOIN playbook_runs ON playbook_run_id = playbook_runs.id 
-        WHERE playbook_run_executors.updated_at >= TIMESTAMP 'yesterday'
-          AND playbook_run_executors.updated_at < TIMESTAMP 'today'
-        ORDER BY remediation_id;
-    - prefix: insights/remediations/playbook_run_systems
-      query: >-
-        SELECT playbook_runs.remediation_id,
-               playbook_run_systems.id,
-               playbook_run_systems.playbook_run_executor_id,
-               playbook_run_systems.system_id,
-               playbook_run_systems.system_name,
-               playbook_run_systems.status,
-               playbook_run_systems.updated_at
-        FROM playbook_run_systems
-        INNER JOIN playbook_run_executors ON playbook_run_executor_id = playbook_run_executors.id
-        INNER JOIN playbook_runs ON playbook_run_executors.playbook_run_id = playbook_runs.id 
-        WHERE playbook_run_systems.updated_at >= TIMESTAMP 'yesterday'
-          AND playbook_run_systems.updated_at < TIMESTAMP 'today'
         ORDER BY remediation_id;
 
 - apiVersion: metrics.console.redhat.com/v1alpha1
@@ -460,9 +427,6 @@ parameters:
 - name: RBAC_HOST
 - name: RBAC_ENFORCE
   value: 'true'
-- name: RECEPTOR_IMPL
-  value: impl
-- name: RECEPTOR_CONTROLLER_HOST
 - name: REDIS_ENABLED
   value: 'true'
 - name: REDIS_HOST
@@ -544,6 +508,6 @@ parameters:
 - name: FEATURE_FLAGS_METRICS_INTERVAL
   description: Interval in ms to send metrics to Unleash
   value: '60000'
-- name: REMEDIATION_RETENTION_DAYS
-  description: Remediation plan retention policy in days (plans with an expiration date older than this will be deleted)
+- name: PLAN_RETENTION_DAYS
+  description: Plan retention policy in days (plans with an expiration date older than this will be deleted)
   value: '270'

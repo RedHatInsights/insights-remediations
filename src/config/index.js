@@ -178,10 +178,6 @@ function Config() {
             principalDomain: env.KESSEL_PRINCIPAL_DOMAIN || 'redhat'
         },
 
-        receptor: {
-            impl: env.RECEPTOR_IMPL
-        },
-
         sources: {
             impl: env.SOURCES_IMPL
         },
@@ -256,7 +252,7 @@ function Config() {
             metricsInterval: parseIntEnv('FEATURE_FLAGS_METRICS_INTERVAL', 60000) // 60 seconds
         },
         // remediation plan retention policy (in days)
-        remediationRetentionDays: parseIntEnv('REMEDIATION_RETENTION_DAYS', 270) // 9 months (9 * 30 days)
+        planRetentionDays: parseIntEnv('PLAN_RETENTION_DAYS', 270) // 9 months (9 * 30 days)
     };
 
     if (acgConfig) {
@@ -274,7 +270,6 @@ function Config() {
         config.inventory.host = getHostForApp(dependencyEndpoints, 'host-inventory', 'service', 'INVENTORY') || env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';
         config.patchman.host = getHostForApp(dependencyEndpoints, 'patchman', 'manager', 'PATCHMAN') || env.PATCHMAN_HOST || 'http://localhost:8080';
         config.rbac.host = getHostForApp(dependencyEndpoints, 'rbac', 'service', 'RBAC') || env.RBAC_HOST || 'http://localhost:8080';
-        config.receptor.host = getHostForApp(dependencyEndpoints, 'receptor', 'gateway-clowder', 'RECEPTOR') || env.RECEPTOR_HOST || 'http://localhost:9090';
         config.sources.host = getHostForApp(dependencyEndpoints, 'sources-api', 'svc', 'SOURCES') || env.SOURCES_HOST || 'http://localhost:8080';
         config.ssg.host = getHostForApp(privateDepencencyEndpoints, 'compliance-ssg', 'service', 'SSG') || env.SSG_HOST || 'http://localhost:8090';
         config.vmaas.host = getHostForApp(dependencyEndpoints, 'vmaas', 'webapp-go', 'VMAAS') || env.VMAAS_HOST || 'https://console.redhat.com';
@@ -323,7 +318,6 @@ function Config() {
         config.inventory.host = env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';
         config.patchman.host = env.PATCHMAN_HOST || 'http://localhost:8080';
         config.rbac.host = env.RBAC_HOST || 'http://localhost:8080';
-        config.receptor.host = env.RECEPTOR_HOST || 'http://localhost:9090';
         config.sources.host = env.SOURCES_HOST || 'http://localhost:8080';
         config.ssg.host = env.SSG_HOST || 'http://localhost:8090';
         config.vmaas.host = env.VMAAS_HOST || 'https://console.redhat.com';
@@ -380,7 +374,7 @@ if (['development', 'production', 'test'].includes(config.env)) {
  */
 function getExposedConfig() {
     return {
-        remediationRetentionDays: config.remediationRetentionDays
+        planRetentionDays: config.planRetentionDays
     };
 }
 

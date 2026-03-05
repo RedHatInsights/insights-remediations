@@ -241,15 +241,6 @@ exports.playbookCancelRequest = function (playbookRunId) {
     };
 };
 
-exports.receptorCancelRequest = function (playbookCancelRequest, account_number, receptor_id) {
-    return {
-        account: account_number,
-        recipient: receptor_id,
-        payload: JSON.stringify(playbookCancelRequest),
-        directive: 'receptor_satellite:cancel'
-    };
-};
-
 // Returns an array of formatted playbook runs for inclusion in a response.
 exports.formatRuns = (playbookRuns) => {
     return playbookRuns.map(run => ({
