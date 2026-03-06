@@ -236,12 +236,6 @@ function Config() {
             enabled: env.REDIS_ENABLED === 'true' ? true : false
         },
 
-        // responses
-        fifi: {
-            text_updates: env.FIFI_TEXT_UPDATES === 'false' ? false : true,
-            text_update_interval: parseIntEnv('FIFI_TEXT_UPDATE_INTERVAL', 5000),
-            text_update_full: env.FIFI_TEXT_UPDATE_FULL === 'false' ? false : true
-        },
         featureFlags: {
             enabled: env.FEATURE_FLAGS_ENABLED === 'true' ? true : false,
             impl: env.FEATURE_FLAGS_IMPL,

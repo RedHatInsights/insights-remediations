@@ -82,11 +82,6 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "refreshInterval": 15000,
     "token": "",
   },
-  "fifi": {
-    "text_update_full": true,
-    "text_update_interval": 5000,
-    "text_updates": true,
-  },
   "getExposedConfig": [Function],
   "inventory": {
     "host": "http://insights-inventory.platform-ci.svc.cluster.local:8080",
