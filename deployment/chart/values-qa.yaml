@@ -40,9 +40,6 @@ remediations:
   rbac:
     impl: impl
     host: http://rbac.rbac-qa.svc.cluster.local:8080
-  receptor:
-    impl: impl
-    host: http://receptor-controller.platform-qa.svc.cluster.local:9090
   sources:
     impl: impl
     host: http://sources-api.sources-qa.svc.cluster.local:8080

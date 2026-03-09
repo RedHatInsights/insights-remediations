@@ -15,6 +15,8 @@ servers:
     description: relative path
 
 tags:
+  - name: config
+    description: Exposed service configuration
   - name: diagnosis
     description: Host-specific detailed diagnosis information
   - name: generator
@@ -169,7 +171,7 @@ paths:
       operationId: getRemediationIssues
       parameters:
         - $ref: '#/components/parameters/RemediationId'
-        - $ref: '#/components/parameters/Limit50'
+        - $ref: '#/components/parameters/Limit100'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/IssueFilter'
         - $ref: '#/components/parameters/IssueSort'
@@ -292,7 +294,7 @@ paths:
       operationId: getRemediationSystems
       parameters:
         - $ref: '#/components/parameters/RemediationId'
-        - $ref: '#/components/parameters/Limit50'
+        - $ref: '#/components/parameters/Limit100'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/SystemsFilter'
         - $ref: '#/components/parameters/SystemsSort'
@@ -376,7 +378,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/RemediationId'
         - $ref: '#/components/parameters/SystemId'
-        - $ref: '#/components/parameters/Limit50'
+        - $ref: '#/components/parameters/Limit100'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/SystemIssuesSort'
         - $ref: '#/components/parameters/SystemIssuesFilter'
@@ -789,6 +791,30 @@ paths:
                     type: string
                     example: '8b87342'
 
+  /config:
+    get:
+      tags:
+        - config
+      summary: Get exposed configuration
+      description: |
+        Returns configuration values exposed to the UI and other clients. Use this to keep
+        front-end or other behavior in sync with backend defaults (e.g. retention policy) without
+        hardcoding. Response includes:
+
+        - **planRetentionDays** (integer): Default retention period in days for remediation
+          plans. New plans get an expiration_date set to creation date plus this many days when
+          the client omits expiration_date. Default 270, i.e. 9 months.
+      operationId: getConfig
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigResponse'
+              example:
+                planRetentionDays: 270
+
 components:
   parameters:
     Limit200:
@@ -797,7 +823,7 @@ components:
       description: Maximum number of results to return
       required: false
       schema:
-        type: number
+        type: integer
         minimum: 1
         maximum: 200
         default: 50
@@ -808,9 +834,20 @@ components:
       description: Maximum number of results to return
       required: false
       schema:
-        type: number
+        type: integer
         minimum: 1
         maximum: 50
+        default: 10
+
+    Limit100:
+      in: query
+      name: limit
+      description: Maximum number of results to return
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
         default: 10
 
     Offset:
@@ -819,7 +856,7 @@ components:
       description: Indicates the starting position of the query relative to the complete set of items that match the query
       required: false
       schema:
-        type: number
+        type: integer
         minimum: 0
         default: 0
 
@@ -1485,6 +1522,11 @@ components:
                   $ref: '#/components/schemas/SystemId'
               resolution:
                 $ref: '#/components/schemas/ResolutionType'
+              precedence:
+                type: integer
+                nullable: true
+                description: Controls the order in which issues are executed in the generated playbook. Lower numbers execute first. If not specified, issues maintain their request order.
+                example: 1
         auto_reboot:
           $ref: '#/components/schemas/RemediationAutoReboot'
 
@@ -2105,6 +2147,17 @@ components:
         deleted_count:
           type: integer
           description: Count of remediations deleted
+
+    ConfigResponse:
+      type: object
+      additionalProperties: false
+      required: [planRetentionDays]
+      description: Exposed service configuration for UI and clients. Only non-sensitive values are included.
+      properties:
+        planRetentionDays:
+          type: integer
+          description: Default retention period in days for remediation plans (e.g. 270 for 9 months). Used when expiration_date is omitted on create.
+          example: 270
 
     RemediationDetails:
       type: object
