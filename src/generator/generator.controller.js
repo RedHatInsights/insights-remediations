@@ -5,7 +5,7 @@ const P = require('bluebird');
 const etag = require('etag');
 
 const errors = require('../errors');
-const inventory = require('../connectors/inventory');
+const queries = require('../remediations/remediations.queries');
 const templates = require('../templates/static');
 const SpecialPlay = require('./plays/SpecialPlay');
 const format = require('./format');
@@ -17,6 +17,8 @@ const trace = require('../util/trace');
 const db = require('../db');
 const probes = require('../probes');
 const { commit } = require('../util/version');
+const inventory = require('../connectors/inventory');
+const { storeSystemDetails } = require('../remediations/controller.write');
 
 exports.normalizeIssues = function (issues) {
     _.forEach(issues, issue => {
@@ -31,7 +33,6 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
     trace.enter('generator.controller.playbookPipeline');
 
     trace.event('Fetch systems...');
-    // Use return value to get issues with empty systems filtered out (when strict=false)
     issues = await exports.resolveSystems(issues, strict);
 
     trace.event('Parse issue identifiers...');
@@ -129,46 +130,44 @@ exports.resolveSystems = async function (issues, strict = true) {
     trace.enter('generator.controller.resolveSystems');
 
     const systemIds = _(issues).flatMap('systems').uniq().value();
-    if (systemIds.length <= 25) { // avoid logging huge list...
+    if (systemIds.length <= 25) {
         trace.event(`System IDs: ${JSON.stringify(systemIds)}`);
     }
 
-    // bypass cache as ansible_host may change so we want to grab the latest one
-    trace.event('Get system details...');
-    const systems = await inventory.getSystemDetailsBatch(systemIds, true);
+    trace.event('Get system details from local DB...');
+    let systems = await queries.getSystemDetailsForPlaybook(systemIds);
 
-    // If strict=false and there are systems that don't exist in Inventory, remove them from the issues
-    if (!strict) {
-        trace.event('Remove systems for which we have no inventory entry...');
-        _.forEach(issues, issue => issue.systems = issue.systems.filter((id) => {
-            // eslint-disable-next-line security/detect-object-injection
-            return (systems.hasOwnProperty(id));
-        }));
-    }
-
-    // Map system IDs to hostnames and verify all systems exist in Inventory
-    // With strict=false: missing systems were already filtered out above, so this should pass
-    // With strict=true: no filtering happened, so throw an error if any system is missing
-    trace.event('Verify that there are no systems for which we have no inventory entry...');
-    _.forEach(issues, issue => issue.hosts = issue.systems.map(id => {
-        if (!systems.hasOwnProperty(id)) {
-            trace.event(`Found no data for system: ${id}`);
-            probes.failedGeneration(issue.id);
-            throw errors.unknownSystem(id);
+    // Fallback: if any systems missing from local table, fetch from Inventory and store
+    const missingIds = systemIds.filter(id => !(id in systems));
+    if (missingIds.length > 0) {
+        trace.event(`Fetching ${missingIds.length} missing systems from Inventory...`);
+        try {
+            const inventoryData = await inventory.getSystemDetailsBatch(missingIds);
+            storeSystemDetails(inventoryData).catch(err => log.warn({ err }, 'Failed to store system details'));
+            systems = { ...systems, ...inventoryData };
+        } catch (err) {
+            log.warn({ err, missingIds }, 'Failed to fetch systems from Inventory');
         }
-
-        // validated by openapi middleware and also above
-        // eslint-disable-next-line security/detect-object-injection
-        const system = systems[id];
-        return exports.systemToHost(system);
-    }));
-    trace.event('All systems verified!');
-
-    // If strict=false, filter out issues with no systems (systems that were removed because they don't exist in Inventory)
-    if (!strict) {
-        trace.event('Remove issues with no systems...')
-        issues = _.filter(issues, (issue) => (issue.systems.length > 0));
     }
+
+    // For strict=true, fail fast if any system is still missing after fallback
+    if (strict) {
+        const stillMissingId = systemIds.find(id => !(id in systems));
+        if (stillMissingId) {
+            trace.event(`Found no data for system: ${stillMissingId}`);
+            probes.failedGeneration(issues[0]?.id);
+            throw errors.unknownSystem(stillMissingId);
+        }
+    }
+
+    // Filter to existing systems and map to hosts
+    _.forEach(issues, issue => {
+        issue.systems = issue.systems.filter(id => id in systems);
+        issue.hosts = issue.systems.map(id => exports.systemToHost(systems[id]));
+    });
+
+    // Remove issues with no systems
+    issues = _.filter(issues, issue => issue.systems.length > 0);
 
     trace.leave();
     return issues;

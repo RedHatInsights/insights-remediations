@@ -909,3 +909,34 @@ exports.getPlaybookRunsWithDispatcherCounts = async function (playbookRunIds) {
         raw: true
     });
 };
+
+/**
+ * Get system details from local systems table for playbook generation.
+ * Returns only systems that exist in the table (no defaults for missing systems).
+ * 
+ * @param {string[]} systemIds - Array of system UUIDs
+ * @returns {Object} Object keyed by system ID with system details
+ */
+exports.getSystemDetailsForPlaybook = async function (systemIds) {
+    if (!systemIds || systemIds.length === 0) {
+        return {};
+    }
+
+    const systems = await db.systems.findAll({
+        attributes: ['id', 'hostname', 'ansible_hostname', 'display_name', 'satellite_org_id', 'owner_id'],
+        where: { id: systemIds },
+        raw: true
+    });
+
+    return _(systems)
+        .keyBy('id')
+        .mapValues(system => ({
+            id: system.id,
+            hostname: system.hostname,
+            ansible_host: system.ansible_hostname,
+            display_name: system.display_name,
+            satellite_org_id: system.satellite_org_id,
+            owner_id: system.owner_id
+        }))
+        .value();
+};

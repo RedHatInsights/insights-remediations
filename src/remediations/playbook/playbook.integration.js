@@ -4,6 +4,7 @@
 const { request, auth, mockDate, normalizePlaybookVersionForSnapshot, getSandbox, buildRbacResponse } = require('../../test');
 const generator = require('../../generator/generator.controller.js');
 const inventory = require('../../connectors/inventory');
+const queries = require('../remediations.queries');
 const rbac = require('../../connectors/rbac');
 const db = require('../../db');
 const P = require('bluebird');
@@ -347,12 +348,14 @@ describe('playbooks', function () {
         });
 
         test('403 on cert-auth request with non matching owner_ids', async () => {
-            getSandbox().stub(inventory, 'getSystemProfileBatch').resolves({
+            getSandbox().stub(queries, 'getSystemDetailsForPlaybook').resolves({
                 '4bb19a8a-0c07-4ee6-a78c-504dab783cc8': {
                     id: '4bb19a8a-0c07-4ee6-a78c-504dab783cc8',
-                    system_profile: {
-                        owner_id: 'non-existent'
-                    }
+                    hostname: '4bb19a8a-0c07-4ee6-a78c-504dab783cc8.example.com',
+                    display_name: null,
+                    ansible_host: null,
+                    satellite_org_id: null,
+                    owner_id: 'non-matching-owner'
                 }
             });
             mockDate();
@@ -360,6 +363,63 @@ describe('playbooks', function () {
             .get('/v1/remediations/7d727f9c-7d9e-458d-a128-a9ffae1802ab/playbook?hosts=4bb19a8a-0c07-4ee6-a78c-504dab783cc8&localhost')
             .set(auth.cert02)
             .expect(403);
+        });
+
+        test('satellite filtering - only includes systems with matching sat_org_id', async () => {
+            getSandbox().stub(queries, 'getSystemDetailsForPlaybook').resolves({
+                '1040856f-b772-44c7-83a9-eea4813c4be8': {
+                    id: '1040856f-b772-44c7-83a9-eea4813c4be8',
+                    hostname: '1040856f-b772-44c7-83a9-eea4813c4be8.example.com',
+                    display_name: null,
+                    ansible_host: '1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com',
+                    satellite_org_id: '2',
+                    owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
+                },
+                '9dae9304-86a8-4f66-baa3-a1b27dfdd479': {
+                    id: '9dae9304-86a8-4f66-baa3-a1b27dfdd479',
+                    hostname: '9dae9304-86a8-4f66-baa3-a1b27dfdd479.example.com',
+                    display_name: '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system',
+                    ansible_host: '9dae9304-86a8-4f66-baa3-a1b27dfdd479.ansible.example.com',
+                    satellite_org_id: '6',
+                    owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
+                }
+            });
+            mockDate();
+            const {text} = await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/playbook?sat_org=2')
+            .set(auth.testReadSingle)
+            .expect(200);
+
+            // Only system with sat_org_id='2' should be included
+            text.should.containEql('1040856f-b772-44c7-83a9-eea4813c4be8');
+            text.should.not.containEql('9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+        });
+
+        test('satellite filtering - 204 when no systems match sat_org_id', async () => {
+            getSandbox().stub(queries, 'getSystemDetailsForPlaybook').resolves({
+                '1040856f-b772-44c7-83a9-eea4813c4be8': {
+                    id: '1040856f-b772-44c7-83a9-eea4813c4be8',
+                    hostname: '1040856f-b772-44c7-83a9-eea4813c4be8.example.com',
+                    display_name: null,
+                    ansible_host: '1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com',
+                    satellite_org_id: '2',
+                    owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
+                },
+                '9dae9304-86a8-4f66-baa3-a1b27dfdd479': {
+                    id: '9dae9304-86a8-4f66-baa3-a1b27dfdd479',
+                    hostname: '9dae9304-86a8-4f66-baa3-a1b27dfdd479.example.com',
+                    display_name: '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system',
+                    ansible_host: '9dae9304-86a8-4f66-baa3-a1b27dfdd479.ansible.example.com',
+                    satellite_org_id: '2',
+                    owner_id: '81390ad6-ce49-4c8f-aa64-729d374ee65c'
+                }
+            });
+            mockDate();
+            // Request with sat_org_id that doesn't match any system
+            await request
+            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/playbook?sat_org=999')
+            .set(auth.testReadSingle)
+            .expect(204);
         });
 
         test('404 on non-existent remediation', async () => {
