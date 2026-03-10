@@ -5,6 +5,7 @@ const _ = require('lodash');
 const { request, auth, reqId, buildRbacResponse, getSandbox, mockTime } = require('../test');
 const rbac = require('../connectors/rbac');
 const inventory = require('../connectors/inventory');
+const queries = require('./remediations.queries');
 const JSZip = require('jszip');
 const base = require('../test');
 const impl = require('../connectors/dispatcher/impl');
@@ -1197,7 +1198,7 @@ describe('remediations', function () {
             body.meta.count.should.eql(2);
             body.meta.total.should.eql(2);
             body.data[0].should.have.property('id', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
-            body.data[0].should.have.property('hostname', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            body.data[0].should.have.property('hostname', '9dae9304-86a8-4f66-baa3-a1b27dfdd479.example.com');
             body.data[0].should.have.property('display_name', '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system');
 
             body.data[1].should.have.property('id', '1040856f-b772-44c7-83a9-eea4813c4be8');
@@ -1208,30 +1209,18 @@ describe('remediations', function () {
         });
 
         test('gets list of hosts with same display name', async () => {
-            getSandbox().stub(inventory, 'getSystemDetailsBatch').resolves({
+            getSandbox().stub(queries, 'getSystemDetailsForPlaybook').resolves({
                 '1040856f-b772-44c7-83a9-eea4813c4be8': {
                     id: '1040856f-b772-44c7-83a9-eea4813c4be8',
                     hostname: '1040856f-b772-44c7-83a9-eea4813c4be8.example.com',
                     display_name: '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system',
-                    ansible_host: '1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com',
-                    facts: [
-                        {
-                            namespace: 'satellite',
-                            facts: { satellite_instance_id: '72f44b25-64a7-4ee7-a94e-3beed9393972' }
-                        }
-                    ]
+                    ansible_host: '1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com'
                 },
                 '9dae9304-86a8-4f66-baa3-a1b27dfdd479': {
                     id: '9dae9304-86a8-4f66-baa3-a1b27dfdd479',
-                    hostname: '9dae9304-86a8-4f66-baa3-a1b27dfdd479',
+                    hostname: '9dae9304-86a8-4f66-baa3-a1b27dfdd479.example.com',
                     display_name: '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system',
-                    ansible_host: '9dae9304-86a8-4f66-baa3-a1b27dfdd479.ansible.example.com',
-                    facts: [
-                        {
-                            namespace: 'satellite',
-                            facts: { satellite_instance_id: '01bf542e-6092-485c-ba04-c656d77f988a' }
-                        }
-                    ]
+                    ansible_host: '9dae9304-86a8-4f66-baa3-a1b27dfdd479.ansible.example.com'
                 }
             });
 
@@ -1247,7 +1236,7 @@ describe('remediations', function () {
             body.data[0].should.have.property('display_name', '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system');
 
             body.data[1].should.have.property('id', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
-            body.data[1].should.have.property('hostname', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            body.data[1].should.have.property('hostname', '9dae9304-86a8-4f66-baa3-a1b27dfdd479.example.com');
             body.data[1].should.have.property('display_name', '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system');
 
             expect(text).toMatchSnapshot();
@@ -1262,7 +1251,7 @@ describe('remediations', function () {
             body.meta.count.should.eql(2);
             body.meta.total.should.eql(2);
             body.data[0].should.have.property('id', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
-            body.data[0].should.have.property('hostname', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            body.data[0].should.have.property('hostname', '9dae9304-86a8-4f66-baa3-a1b27dfdd479.example.com');
             body.data[0].should.have.property('display_name', '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system');
 
             body.data[1].should.have.property('id', '1040856f-b772-44c7-83a9-eea4813c4be8');
@@ -1286,7 +1275,7 @@ describe('remediations', function () {
             body.data[0].should.have.property('display_name', null);
 
             body.data[1].should.have.property('id', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
-            body.data[1].should.have.property('hostname', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            body.data[1].should.have.property('hostname', '9dae9304-86a8-4f66-baa3-a1b27dfdd479.example.com');
             body.data[1].should.have.property('display_name', '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system');
 
             expect(text).toMatchSnapshot();
@@ -1302,7 +1291,7 @@ describe('remediations', function () {
             body.meta.total.should.eql(2);
 
             body.data[0].should.have.property('id', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
-            body.data[0].should.have.property('hostname', '9dae9304-86a8-4f66-baa3-a1b27dfdd479');
+            body.data[0].should.have.property('hostname', '9dae9304-86a8-4f66-baa3-a1b27dfdd479.example.com');
             body.data[0].should.have.property('display_name', '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system');
 
             expect(text).toMatchSnapshot();

@@ -14,11 +14,36 @@ const SPECIAL_SYSTEMS = {
     '35f36364-6007-4ecc-9666-c4f8d354be9f': { hostname: '35e9b452-e405-499c-9c6e-120010b7b465.example.com' },
     '1040856f-b772-44c7-83a9-eea4813c4be8': { 
         hostname: '1040856f-b772-44c7-83a9-eea4813c4be8.example.com',
-        display_name: 'test-system-1'
+        display_name: null,
+        ansible_host: '1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com'
+    },
+    // System with both example in hostname AND system in display_name for combined filter tests
+    '9dae9304-86a8-4f66-baa3-a1b27dfdd479': {
+        hostname: '9dae9304-86a8-4f66-baa3-a1b27dfdd479.example.com',
+        display_name: '9dae9304-86a8-4f66-baa3-a1b27dfdd479-system',
+        ansible_host: '9dae9304-86a8-4f66-baa3-a1b27dfdd479.ansible.example.com'
     }
 };
 
+// Generate 250 systems used in "many systems" remediation test
+const MANY_SYSTEMS = Array(250).fill(0).map((_, key) => `84762eb3-0bbb-4bd8-ab11-f420c50e9${String(key).padStart(3, '0')}`);
+
 const ALL_SYSTEM_IDS = [
+    // Generator test systems
+    '68799a02-8be9-11e8-9eb6-529269fb1459',
+    '936ef48c-8f05-11e8-9eb6-529269fb1459',
+    '4109fa1a-9a3f-11e8-9eb6-529269fb1459',
+    '11931d66-9a3f-11e8-9eb6-529269fb1459',
+    '53fbcd90-9c8f-11e8-98d0-529269fb1459',
+    'd2c8db4e-bd6a-11e8-a355-529269fb1459',
+    // Special hostname systems (commas, quotes, newlines, whitespace)
+    '1040856f-b772-44c7-83a9-eeeeeeeeee01',
+    '1040856f-b772-44c7-83a9-eeeeeeeeee02',
+    '1040856f-b772-44c7-83a9-eeeeeeeeee03',
+    '1040856f-b772-44c7-83a9-eeeeeeeeee04',
+    // "Many systems" remediation test systems
+    ...MANY_SYSTEMS,
+    // Existing systems
     'fc94beb8-21ee-403d-99b1-949ef7adb762',
     '1f12bdfc-8267-492d-a930-92f498fe65b9',
     '1bada2ce-e379-4e17-9569-8a22e09760af',
@@ -98,17 +123,35 @@ const ALL_SYSTEM_IDS = [
     ...mixedSystems
 ];
 
+const SATELLITES = [
+    '722ec903-f4b5-4b1f-9c2f-23fc7b0ba390', // 0: connected
+    '409dd231-6297-43a6-a726-5ce56923d624', // 1: disconnected
+    '72f44b25-64a7-4ee7-a94e-3beed9393972', // 2: no_receptor
+    '01bf542e-6092-485c-ba04-c656d77f988a', // 3: no_source
+    null,                                   // 4: no_executor (direct)
+    '63142926-46a5-498b-9614-01f2f66fd40b', // 5: connected
+    '893f2788-c7a6-4cc3-89bc-9066ffda695e', // 6: connected (Sat RHC, org_id 2)
+    '893f2788-c7a6-4cc3-89bc-9066ffda695e'  // 7: connected (Sat RHC, org_id 6)
+];
+
 function generateSystemData(id) {
     if (id === NON_EXISTENT_SYSTEM) {
         return null;
     }
+
+    const satelliteIndex = parseInt(id[id.length - 1], 16) % SATELLITES.length;
+    const satellite_instance_id = SATELLITES[satelliteIndex] || null;
+    const satellite_org_id = satellite_instance_id ? ((satelliteIndex === 7) ? '6' : '2') : null;
+    const owner_id = '81390ad6-ce49-4c8f-aa64-729d374ee65c';
 
     if (SPECIAL_SYSTEMS.hasOwnProperty(id)) {
         return {
             id,
             hostname: SPECIAL_SYSTEMS[id].hostname || null,
             display_name: SPECIAL_SYSTEMS[id].display_name || null,
-            ansible_hostname: SPECIAL_SYSTEMS[id].ansible_host || null
+            ansible_hostname: SPECIAL_SYSTEMS[id].ansible_host || null,
+            satellite_org_id,
+            owner_id
         };
     }
 
@@ -116,7 +159,9 @@ function generateSystemData(id) {
         id,
         hostname: /^[0-8]/.test(id) ? `${id}.example.com` : id,
         display_name: id.startsWith('9') ? `${id}-system` : null,
-        ansible_hostname: (id.startsWith('9') || id.startsWith('1')) ? `${id}.ansible.example.com` : null
+        ansible_hostname: (id.startsWith('9') || id.startsWith('1')) ? `${id}.ansible.example.com` : null,
+        satellite_org_id,
+        owner_id
     };
 }
 
