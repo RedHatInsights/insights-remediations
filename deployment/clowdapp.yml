@@ -103,12 +103,6 @@ objects:
             value: /opt/certs/rds-cacert
           - name: DB_SSL_ENABLED
             value: ${DB_SSL_ENABLED}
-          - name: FIFI_TEXT_UPDATES
-            value: 'true'
-          - name: FIFI_TEXT_UPDATE_INTERVAL
-            value: '5000'
-          - name: FIFI_TEXT_UPDATE_FULL
-            value: 'true'
           - name: DEMO_MODE
             value: 'false'
           - name: INVENTORY_IMPL
@@ -389,12 +383,6 @@ parameters:
 - name: DB_SSL_ENABLED
   value: ${DB_SSL_ENABLED}
 - name: ENV_NAME
-- name: FIFI_TEXT_UPDATES
-  value: 'true'
-- name: FIFI_TEXT_UPDATE_INTERVAL
-  value: '5000'
-- name: FIFI_TEXT_UPDATE_FULL
-  value: 'true'
 - name: DEMO_MODE
   value: 'false'
 - name: IMAGE_TAG
