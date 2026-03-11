@@ -246,7 +246,7 @@ function Config() {
             metricsInterval: parseIntEnv('FEATURE_FLAGS_METRICS_INTERVAL', 60000) // 60 seconds
         },
         // remediation plan retention policy (in days)
-        planRetentionDays: parseIntEnv('PLAN_RETENTION_DAYS', 270) // 9 months (9 * 30 days)
+        remediationRetentionDays: parseIntEnv('REMEDIATION_RETENTION_DAYS', 270) // 9 months (9 * 30 days)
     };
 
     if (acgConfig) {
@@ -368,7 +368,7 @@ if (['development', 'production', 'test'].includes(config.env)) {
  */
 function getExposedConfig() {
     return {
-        planRetentionDays: config.planRetentionDays
+        remediationRetentionDays: config.remediationRetentionDays
     };
 }
 
