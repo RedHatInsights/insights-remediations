@@ -11,7 +11,7 @@ exports[`Configuration Verify app-common-js function 1`] = `
   },
   "bodyParserLimit": "1mb",
   "bop": {
-    "host": "http://gateway.3scale-dev.svc.cluster.local:8892",
+    "host": "http://undefined:undefined",
     "impl": undefined,
     "insecure": false,
   },
@@ -52,16 +52,20 @@ exports[`Configuration Verify app-common-js function 1`] = `
       "underscored": true,
     },
     "dialect": "postgres",
-    "dialectOptions": {},
-    "host": "127.0.0.1",
+    "dialectOptions": {
+      "ssl": {
+        "ca": "=== CERTIFICATE ===",
+      },
+    },
+    "host": "hostname",
     "logging": false,
-    "password": "remediations",
+    "password": "adminpassword",
     "pool": {
       "max": 50,
       "min": 5,
     },
-    "port": "5432",
-    "username": "postgres_user",
+    "ssl": true,
+    "username": "adminusername",
   },
   "demo": false,
   "dispatcher": {
@@ -82,7 +86,6 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "refreshInterval": 15000,
     "token": "",
   },
-  "getExposedConfig": [Function],
   "inventory": {
     "host": "http://insights-inventory.platform-ci.svc.cluster.local:8080",
     "impl": undefined,
@@ -107,10 +110,10 @@ exports[`Configuration Verify app-common-js function 1`] = `
       "enabled": false,
       "level": "fatal",
       "options": {
-        "aws_access_key_id": undefined,
-        "aws_region": undefined,
-        "aws_secret_access_key": undefined,
-        "group": "remediations-local",
+        "aws_access_key_id": "ACCESS_KEY",
+        "aws_region": "EU",
+        "aws_secret_access_key": "SECRET_ACCESS_KEY",
+        "group": "base_app",
         "interval": 1000,
         "prefix": "remediations-",
       },
@@ -134,9 +137,8 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "base": "/api/remediations",
     "prefix": "/api",
   },
-  "planRetentionDays": 270,
   "platformHostname": "hostname",
-  "port": 9003,
+  "port": undefined,
   "rbac": {
     "enforce": true,
     "host": "http://localhost:8080",
