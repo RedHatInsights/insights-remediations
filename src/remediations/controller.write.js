@@ -21,38 +21,50 @@ async function validateResolution (id, resolutionId) {
     disambiguator.disambiguate(resolutions, resolutionId, identifier);
 }
 
+function getSatelliteOrgId(facts) {
+    if (!facts) return null;
+    const orgId = facts.find(f => f?.namespace === 'satellite')?.facts?.organization_id;
+    return orgId ? String(orgId) : '';
+}
+
 /**
- * Store system details from Host Based Inventory (HBI) response into local systems table
+ * Store system details from Host Based Inventory (HBI) response into local systems table.
  * 
- * systemsById - Object where keys are system UUIDs and values are system detail objects
- * Example:
- * systemsById = {
+ * For satellite_org_id and owner_id, we use a null vs '' convention:
+ *   null   → needs fetch from Inventory
+ *   ''     → fetched, no value exists
+ *   'xyz'  → actual value
+ * 
+ * This prevents repeated Inventory API calls - systems with null trigger backfill.
+ * 
+ * @param {Object} systemsById - Object keyed by system UUID with HBI system details
+ * @example
+ * // Expected format from inventory.getSystemDetailsBatch():
+ * {
  *   "9615dda7-5868-4957-88ba-c3064c86d332": {
  *     id: "9615dda7-5868-4957-88ba-c3064c86d332",
- *     hostname: "packer-rhel7",           // mapped from API's 'fqdn' field
- *     display_name: "web-server-01",      // can be null
- *     ansible_host: "10.0.2.15",         // can be null
- *     facts: [                            // array of fact objects
- *       {
- *         namespace: "rhc", 
- *         facts: { rhc_client_id: "550e8400-e29b-41d4-a716-446655440000" }
- *       }
- *     ]
+ *     hostname: "server.example.com",
+ *     display_name: "web-server-01",
+ *     ansible_host: "10.0.2.15",
+ *     facts: [{ namespace: "satellite", facts: { organization_id: "2" } }],
+ *     owner_id: "81390ad6-ce49-4c8f-aa64-729d374ee65c"
  *   }
  * }
  */
 async function storeSystemDetails(systemsById) {
-    // Extract system details from HBI response and store in local systems table
     const remediationSystems = Object.values(systemsById).map(system => ({
         id: system.id,
         hostname: system.hostname || null,
         display_name: system.display_name || null,
-        ansible_hostname: system.ansible_host || null
+        ansible_hostname: system.ansible_host || null,
+        satellite_org_id: getSatelliteOrgId(system.facts),
+        // Use empty string if no owner_id (checked but no owner), null means never checked
+        owner_id: system.owner_id || ''
     }));
 
     if (remediationSystems.length > 0) {
         await db.systems.bulkCreate(remediationSystems, {
-            ignoreDuplicates: true
+            updateOnDuplicate: ['hostname', 'display_name', 'ansible_hostname', 'satellite_org_id', 'owner_id', 'updated_at']
         });
     }
 }
@@ -511,3 +523,6 @@ exports.removeSystem = errors.async(async function (req, res) {
 
     return res.status(404).end();
 });
+
+// Export for reuse in controller.read.js (lazy backfill of satellite_org_id/owner_id)
+exports.storeSystemDetails = storeSystemDetails;

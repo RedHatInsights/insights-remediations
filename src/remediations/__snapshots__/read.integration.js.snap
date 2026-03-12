@@ -1917,7 +1917,7 @@ exports[`remediations get get remediation with test namespace resolutions 1`] = 
                 },
                 {
                     "id": "9dae9304-86a8-4f66-baa3-a1b27dfdd479",
-                    "hostname": "9dae9304-86a8-4f66-baa3-a1b27dfdd479",
+                    "hostname": "9dae9304-86a8-4f66-baa3-a1b27dfdd479.example.com",
                     "display_name": "9dae9304-86a8-4f66-baa3-a1b27dfdd479-system",
                     "resolved": false
                 }
@@ -3652,14 +3652,14 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
 }"
 `;
 
-exports[`remediations remediation issue systems gets list of hosts 1`] = `"{"meta":{"count":2,"total":2},"data":[{"id":"9dae9304-86a8-4f66-baa3-a1b27dfdd479","hostname":"9dae9304-86a8-4f66-baa3-a1b27dfdd479","display_name":"9dae9304-86a8-4f66-baa3-a1b27dfdd479-system"},{"id":"1040856f-b772-44c7-83a9-eea4813c4be8","hostname":"1040856f-b772-44c7-83a9-eea4813c4be8.example.com","display_name":null}]}"`;
+exports[`remediations remediation issue systems gets list of hosts 1`] = `"{"meta":{"count":2,"total":2},"data":[{"id":"9dae9304-86a8-4f66-baa3-a1b27dfdd479","hostname":"9dae9304-86a8-4f66-baa3-a1b27dfdd479.example.com","display_name":"9dae9304-86a8-4f66-baa3-a1b27dfdd479-system"},{"id":"1040856f-b772-44c7-83a9-eea4813c4be8","hostname":"1040856f-b772-44c7-83a9-eea4813c4be8.example.com","display_name":null}]}"`;
 
-exports[`remediations remediation issue systems gets list of hosts with same display name 1`] = `"{"meta":{"count":2,"total":2},"data":[{"id":"1040856f-b772-44c7-83a9-eea4813c4be8","hostname":"1040856f-b772-44c7-83a9-eea4813c4be8.example.com","display_name":"9dae9304-86a8-4f66-baa3-a1b27dfdd479-system"},{"id":"9dae9304-86a8-4f66-baa3-a1b27dfdd479","hostname":"9dae9304-86a8-4f66-baa3-a1b27dfdd479","display_name":"9dae9304-86a8-4f66-baa3-a1b27dfdd479-system"}]}"`;
+exports[`remediations remediation issue systems gets list of hosts with same display name 1`] = `"{"meta":{"count":2,"total":2},"data":[{"id":"1040856f-b772-44c7-83a9-eea4813c4be8","hostname":"1040856f-b772-44c7-83a9-eea4813c4be8.example.com","display_name":"9dae9304-86a8-4f66-baa3-a1b27dfdd479-system"},{"id":"9dae9304-86a8-4f66-baa3-a1b27dfdd479","hostname":"9dae9304-86a8-4f66-baa3-a1b27dfdd479.example.com","display_name":"9dae9304-86a8-4f66-baa3-a1b27dfdd479-system"}]}"`;
 
-exports[`remediations remediation issue systems set limit = 1 1`] = `"{"meta":{"count":1,"total":2},"data":[{"id":"9dae9304-86a8-4f66-baa3-a1b27dfdd479","hostname":"9dae9304-86a8-4f66-baa3-a1b27dfdd479","display_name":"9dae9304-86a8-4f66-baa3-a1b27dfdd479-system"}]}"`;
+exports[`remediations remediation issue systems set limit = 1 1`] = `"{"meta":{"count":1,"total":2},"data":[{"id":"9dae9304-86a8-4f66-baa3-a1b27dfdd479","hostname":"9dae9304-86a8-4f66-baa3-a1b27dfdd479.example.com","display_name":"9dae9304-86a8-4f66-baa3-a1b27dfdd479-system"}]}"`;
 
 exports[`remediations remediation issue systems set offset = 1 1`] = `"{"meta":{"count":1,"total":2},"data":[{"id":"1040856f-b772-44c7-83a9-eea4813c4be8","hostname":"1040856f-b772-44c7-83a9-eea4813c4be8.example.com","display_name":null}]}"`;
 
-exports[`remediations remediation issue systems sort list ascending 1`] = `"{"meta":{"count":2,"total":2},"data":[{"id":"9dae9304-86a8-4f66-baa3-a1b27dfdd479","hostname":"9dae9304-86a8-4f66-baa3-a1b27dfdd479","display_name":"9dae9304-86a8-4f66-baa3-a1b27dfdd479-system"},{"id":"1040856f-b772-44c7-83a9-eea4813c4be8","hostname":"1040856f-b772-44c7-83a9-eea4813c4be8.example.com","display_name":null}]}"`;
+exports[`remediations remediation issue systems sort list ascending 1`] = `"{"meta":{"count":2,"total":2},"data":[{"id":"9dae9304-86a8-4f66-baa3-a1b27dfdd479","hostname":"9dae9304-86a8-4f66-baa3-a1b27dfdd479.example.com","display_name":"9dae9304-86a8-4f66-baa3-a1b27dfdd479-system"},{"id":"1040856f-b772-44c7-83a9-eea4813c4be8","hostname":"1040856f-b772-44c7-83a9-eea4813c4be8.example.com","display_name":null}]}"`;
 
-exports[`remediations remediation issue systems sort list descending 1`] = `"{"meta":{"count":2,"total":2},"data":[{"id":"1040856f-b772-44c7-83a9-eea4813c4be8","hostname":"1040856f-b772-44c7-83a9-eea4813c4be8.example.com","display_name":null},{"id":"9dae9304-86a8-4f66-baa3-a1b27dfdd479","hostname":"9dae9304-86a8-4f66-baa3-a1b27dfdd479","display_name":"9dae9304-86a8-4f66-baa3-a1b27dfdd479-system"}]}"`;
+exports[`remediations remediation issue systems sort list descending 1`] = `"{"meta":{"count":2,"total":2},"data":[{"id":"1040856f-b772-44c7-83a9-eea4813c4be8","hostname":"1040856f-b772-44c7-83a9-eea4813c4be8.example.com","display_name":null},{"id":"9dae9304-86a8-4f66-baa3-a1b27dfdd479","hostname":"9dae9304-86a8-4f66-baa3-a1b27dfdd479.example.com","display_name":"9dae9304-86a8-4f66-baa3-a1b27dfdd479-system"}]}"`;

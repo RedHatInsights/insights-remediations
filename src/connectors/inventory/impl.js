@@ -141,6 +141,7 @@ module.exports = new class extends Connector {
         const uri = this.buildHostsUri();
         uri.segment(ids.join());
         uri.addQuery('per_page', String(pageSize));
+        uri.addQuery('fields[system_profile]', 'owner_id');
 
         let response = null;
 
@@ -181,13 +182,14 @@ module.exports = new class extends Connector {
 
         const transformed = _(response.results)
         .keyBy('id')
-        .mapValues(({id, display_name, fqdn: hostname, ansible_host, facts}) =>
-            ({id, display_name, hostname, ansible_host, facts}))
+        .mapValues(({id, display_name, fqdn: hostname, ansible_host, facts, system_profile}) =>
+            ({id, display_name, hostname, ansible_host, facts, owner_id: system_profile?.owner_id || null}))
         .value();
 
         return validate(transformed);
     }
 
+    // TODO: Remove this function because it's not being used anywhere. We now get owner_id from getSystemDetailsBatch.
     async getSystemProfileBatch (ids = [], refresh = false, retries = 2) {
         if (ids.length === 0) {
             return {};
