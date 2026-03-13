@@ -55,7 +55,7 @@ generate-rpms-in-yaml:
 		echo "packages: [$$(echo "$$packages" | tr '\n' ',' | sed -E 's/,/, /g; s/, $$//')]" > rpms.in.yaml; \
 		echo "contentOrigin:" >> rpms.in.yaml; \
 		echo "  repofiles: [\"./ubi.repo\"]" >> rpms.in.yaml; \
-		echo "moduleEnable: [\"nodejs:22\"]" >> rpms.in.yaml; \
+		echo "moduleEnable: [\"nodejs:24\"]" >> rpms.in.yaml; \
 		echo "arches: [x86_64]" >> rpms.in.yaml; \
 	fi
 
