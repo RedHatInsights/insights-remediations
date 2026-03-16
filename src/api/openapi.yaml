@@ -2264,6 +2264,11 @@ components:
           $ref: '#/components/schemas/RemediationNeedsReboot'
         archived:
           $ref: '#/components/schemas/RemediationArchived'
+        last_run_at:
+          description: Timestamp of the most recent playbook run for the remediation or null if never executed
+          type: string
+          format: date-time
+          nullable: true
         playbook_runs:
           type: array
           items:

@@ -2118,7 +2118,8 @@ exports[`remediations list filter basic filter 1`] = `
             "system_count": 0,
             "issue_count": 0,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "178cf0c8-35dd-42a3-96d5-7b50f9d211f6",
@@ -2139,7 +2140,8 @@ exports[`remediations list filter basic filter 1`] = `
             "system_count": 1,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": true
+            "archived": true,
+            "last_run_at": null
         }
     ]
 }"
@@ -2177,7 +2179,8 @@ exports[`remediations list filter empty filter 1`] = `
             "system_count": 10,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": "2024-09-10T22:00:00.000Z"
         },
         {
             "id": "249f142c-2ae3-4c3f-b2ec-c8c5881f8561",
@@ -2198,7 +2201,8 @@ exports[`remediations list filter empty filter 1`] = `
             "system_count": 23,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": "2024-09-11T12:00:00.000Z"
         },
         {
             "id": "256ab1d3-58cf-1292-35e6-1a49c8b122d3",
@@ -2219,7 +2223,8 @@ exports[`remediations list filter empty filter 1`] = `
             "system_count": 0,
             "issue_count": 0,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "178cf0c8-35dd-42a3-96d5-7b50f9d211f6",
@@ -2240,7 +2245,8 @@ exports[`remediations list filter empty filter 1`] = `
             "system_count": 1,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": true
+            "archived": true,
+            "last_run_at": null
         },
         {
             "id": "e809526c-56f5-4cd8-a809-93328436ea23",
@@ -2261,7 +2267,8 @@ exports[`remediations list filter empty filter 1`] = `
             "system_count": 2,
             "issue_count": 1,
             "resolved_count": 1,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "cbc782e4-e8ae-4807-82ab-505387981d2e",
@@ -2282,7 +2289,8 @@ exports[`remediations list filter empty filter 1`] = `
             "system_count": 1,
             "issue_count": 2,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
@@ -2303,7 +2311,8 @@ exports[`remediations list filter empty filter 1`] = `
             "system_count": 2,
             "issue_count": 6,
             "resolved_count": 2,
-            "archived": true
+            "archived": true,
+            "last_run_at": null
         }
     ]
 }"
@@ -2341,7 +2350,8 @@ exports[`remediations list filter filter case does not matter 1`] = `
             "system_count": 1,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": true
+            "archived": true,
+            "last_run_at": null
         }
     ]
 }"
@@ -2379,7 +2389,8 @@ exports[`remediations list filter filter matches on name 1`] = `
             "system_count": 10,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": "2024-09-10T22:00:00.000Z"
         },
         {
             "id": "e809526c-56f5-4cd8-a809-93328436ea23",
@@ -2400,7 +2411,8 @@ exports[`remediations list filter filter matches on name 1`] = `
             "system_count": 2,
             "issue_count": 1,
             "resolved_count": 1,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "cbc782e4-e8ae-4807-82ab-505387981d2e",
@@ -2421,7 +2433,8 @@ exports[`remediations list filter filter matches on name 1`] = `
             "system_count": 1,
             "issue_count": 2,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
@@ -2442,7 +2455,8 @@ exports[`remediations list filter filter matches on name 1`] = `
             "system_count": 2,
             "issue_count": 6,
             "resolved_count": 2,
-            "archived": true
+            "archived": true,
+            "last_run_at": null
         }
     ]
 }"
@@ -2480,7 +2494,8 @@ exports[`remediations list filter filter matches on number 1`] = `
             "system_count": 1,
             "issue_count": 2,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         }
     ]
 }"
@@ -2488,29 +2503,29 @@ exports[`remediations list filter filter matches on number 1`] = `
 
 exports[`remediations list filter test new style filters supported options created_after=date/time query no match 1`] = `"{"meta":{"count":0,"total":0},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[]}"`;
 
-exports[`remediations list filter test new style filters supported options created_after=date/time query with match 1`] = `"{"meta":{"count":4,"total":4},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3","name":"status aggregation test","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2024-09-10T11:41:12.221Z","updated_by":{"username":"testStatus","first_name":"Test","last_name":"Status"},"updated_at":"2024-09-10T11:41:12.221Z","needs_reboot":true,"system_count":10,"issue_count":1,"resolved_count":0,"archived":false},{"id":"249f142c-2ae3-4c3f-b2ec-c8c5881f8561","name":"FiFI playbook 3","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2020-01-23T18:19:36.641Z","updated_by":{"username":"fifi","first_name":"Fi","last_name":"Fi"},"updated_at":"2020-01-23T18:19:36.641Z","needs_reboot":false,"system_count":23,"issue_count":1,"resolved_count":0,"archived":false},{"id":"256ab1d3-58cf-1292-35e6-1a49c8b122d3","name":"Remediation with zero issues","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2018-12-06T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"updated_at":"2018-12-06T08:19:36.641Z","needs_reboot":false,"system_count":0,"issue_count":0,"resolved_count":0,"archived":false},{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true}]}"`;
+exports[`remediations list filter test new style filters supported options created_after=date/time query with match 1`] = `"{"meta":{"count":4,"total":4},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3","name":"status aggregation test","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2024-09-10T11:41:12.221Z","updated_by":{"username":"testStatus","first_name":"Test","last_name":"Status"},"updated_at":"2024-09-10T11:41:12.221Z","needs_reboot":true,"system_count":10,"issue_count":1,"resolved_count":0,"archived":false,"last_run_at":"2024-09-10T22:00:00.000Z"},{"id":"249f142c-2ae3-4c3f-b2ec-c8c5881f8561","name":"FiFI playbook 3","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2020-01-23T18:19:36.641Z","updated_by":{"username":"fifi","first_name":"Fi","last_name":"Fi"},"updated_at":"2020-01-23T18:19:36.641Z","needs_reboot":false,"system_count":23,"issue_count":1,"resolved_count":0,"archived":false,"last_run_at":"2024-09-11T12:00:00.000Z"},{"id":"256ab1d3-58cf-1292-35e6-1a49c8b122d3","name":"Remediation with zero issues","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2018-12-06T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"updated_at":"2018-12-06T08:19:36.641Z","needs_reboot":false,"system_count":0,"issue_count":0,"resolved_count":0,"archived":false,"last_run_at":null},{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true,"last_run_at":null}]}"`;
 
 exports[`remediations list filter test new style filters supported options last_run_after=date/time query no match 1`] = `"{"meta":{"count":0,"total":0},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[]}"`;
 
-exports[`remediations list filter test new style filters supported options last_run_after=date/time query with match 1`] = `"{"meta":{"count":2,"total":2},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3","name":"status aggregation test","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2024-09-10T11:41:12.221Z","updated_by":{"username":"testStatus","first_name":"Test","last_name":"Status"},"updated_at":"2024-09-10T11:41:12.221Z","needs_reboot":true,"system_count":10,"issue_count":1,"resolved_count":0,"archived":false},{"id":"249f142c-2ae3-4c3f-b2ec-c8c5881f8561","name":"FiFI playbook 3","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2020-01-23T18:19:36.641Z","updated_by":{"username":"fifi","first_name":"Fi","last_name":"Fi"},"updated_at":"2020-01-23T18:19:36.641Z","needs_reboot":false,"system_count":23,"issue_count":1,"resolved_count":0,"archived":false}]}"`;
+exports[`remediations list filter test new style filters supported options last_run_after=date/time query with match 1`] = `"{"meta":{"count":2,"total":2},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3","name":"status aggregation test","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2024-09-10T11:41:12.221Z","updated_by":{"username":"testStatus","first_name":"Test","last_name":"Status"},"updated_at":"2024-09-10T11:41:12.221Z","needs_reboot":true,"system_count":10,"issue_count":1,"resolved_count":0,"archived":false,"last_run_at":"2024-09-10T22:00:00.000Z"},{"id":"249f142c-2ae3-4c3f-b2ec-c8c5881f8561","name":"FiFI playbook 3","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2020-01-23T18:19:36.641Z","updated_by":{"username":"fifi","first_name":"Fi","last_name":"Fi"},"updated_at":"2020-01-23T18:19:36.641Z","needs_reboot":false,"system_count":23,"issue_count":1,"resolved_count":0,"archived":false,"last_run_at":"2024-09-11T12:00:00.000Z"}]}"`;
 
-exports[`remediations list filter test new style filters supported options last_run_after=never query with match 1`] = `"{"meta":{"count":5,"total":5},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"256ab1d3-58cf-1292-35e6-1a49c8b122d3","name":"Remediation with zero issues","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-06T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-06T08:19:36.641Z","needs_reboot":false,"system_count":0,"issue_count":0,"resolved_count":0,"archived":false},{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true},{"id":"e809526c-56f5-4cd8-a809-93328436ea23","name":"Test3","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-04T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-04T08:19:36.641Z","needs_reboot":false,"system_count":2,"issue_count":1,"resolved_count":1,"archived":false},{"id":"cbc782e4-e8ae-4807-82ab-505387981d2e","name":"Test2","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-11-04T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-11-04T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":2,"resolved_count":0,"archived":false},{"id":"66eec356-dd06-4c72-a3b6-ef27d1508a02","name":"Test1","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-10-04T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-10-04T08:19:36.641Z","needs_reboot":true,"system_count":2,"issue_count":6,"resolved_count":2,"archived":true}]}"`;
+exports[`remediations list filter test new style filters supported options last_run_after=never query with match 1`] = `"{"meta":{"count":5,"total":5},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"256ab1d3-58cf-1292-35e6-1a49c8b122d3","name":"Remediation with zero issues","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-06T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-06T08:19:36.641Z","needs_reboot":false,"system_count":0,"issue_count":0,"resolved_count":0,"archived":false,"last_run_at":null},{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true,"last_run_at":null},{"id":"e809526c-56f5-4cd8-a809-93328436ea23","name":"Test3","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-04T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-04T08:19:36.641Z","needs_reboot":false,"system_count":2,"issue_count":1,"resolved_count":1,"archived":false,"last_run_at":null},{"id":"cbc782e4-e8ae-4807-82ab-505387981d2e","name":"Test2","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-11-04T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-11-04T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":2,"resolved_count":0,"archived":false,"last_run_at":null},{"id":"66eec356-dd06-4c72-a3b6-ef27d1508a02","name":"Test1","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-10-04T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-10-04T08:19:36.641Z","needs_reboot":true,"system_count":2,"issue_count":6,"resolved_count":2,"archived":true,"last_run_at":null}]}"`;
 
 exports[`remediations list filter test new style filters supported options name and created_after query no match 1`] = `"{"meta":{"count":0,"total":0},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[]}"`;
 
-exports[`remediations list filter test new style filters supported options name and created_after query with match 1`] = `"{"meta":{"count":1,"total":1},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true}]}"`;
+exports[`remediations list filter test new style filters supported options name and created_after query with match 1`] = `"{"meta":{"count":1,"total":1},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true,"last_run_at":null}]}"`;
 
 exports[`remediations list filter test new style filters supported options name and last_run_after query no match 1`] = `"{"meta":{"count":0,"total":0},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[]}"`;
 
 exports[`remediations list filter test new style filters supported options name query no match 1`] = `"{"meta":{"count":0,"total":0},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[]}"`;
 
-exports[`remediations list filter test new style filters supported options name query with match 1`] = `"{"meta":{"count":1,"total":1},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true}]}"`;
+exports[`remediations list filter test new style filters supported options name query with match 1`] = `"{"meta":{"count":1,"total":1},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true,"last_run_at":null}]}"`;
 
 exports[`remediations list filter test new style filters supported options updated_after=date/time query no match 1`] = `"{"meta":{"count":0,"total":0},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[]}"`;
 
-exports[`remediations list filter test new style filters supported options updated_after=date/time query with match 1`] = `"{"meta":{"count":4,"total":4},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3","name":"status aggregation test","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2024-09-10T11:41:12.221Z","updated_by":{"username":"testStatus","first_name":"Test","last_name":"Status"},"updated_at":"2024-09-10T11:41:12.221Z","needs_reboot":true,"system_count":10,"issue_count":1,"resolved_count":0,"archived":false},{"id":"249f142c-2ae3-4c3f-b2ec-c8c5881f8561","name":"FiFI playbook 3","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2020-01-23T18:19:36.641Z","updated_by":{"username":"fifi","first_name":"Fi","last_name":"Fi"},"updated_at":"2020-01-23T18:19:36.641Z","needs_reboot":false,"system_count":23,"issue_count":1,"resolved_count":0,"archived":false},{"id":"256ab1d3-58cf-1292-35e6-1a49c8b122d3","name":"Remediation with zero issues","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2018-12-06T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"updated_at":"2018-12-06T08:19:36.641Z","needs_reboot":false,"system_count":0,"issue_count":0,"resolved_count":0,"archived":false},{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true}]}"`;
+exports[`remediations list filter test new style filters supported options updated_after=date/time query with match 1`] = `"{"meta":{"count":4,"total":4},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3","name":"status aggregation test","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2024-09-10T11:41:12.221Z","updated_by":{"username":"testStatus","first_name":"Test","last_name":"Status"},"updated_at":"2024-09-10T11:41:12.221Z","needs_reboot":true,"system_count":10,"issue_count":1,"resolved_count":0,"archived":false,"last_run_at":"2024-09-10T22:00:00.000Z"},{"id":"249f142c-2ae3-4c3f-b2ec-c8c5881f8561","name":"FiFI playbook 3","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2020-01-23T18:19:36.641Z","updated_by":{"username":"fifi","first_name":"Fi","last_name":"Fi"},"updated_at":"2020-01-23T18:19:36.641Z","needs_reboot":false,"system_count":23,"issue_count":1,"resolved_count":0,"archived":false,"last_run_at":"2024-09-11T12:00:00.000Z"},{"id":"256ab1d3-58cf-1292-35e6-1a49c8b122d3","name":"Remediation with zero issues","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2018-12-06T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"updated_at":"2018-12-06T08:19:36.641Z","needs_reboot":false,"system_count":0,"issue_count":0,"resolved_count":0,"archived":false,"last_run_at":null},{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true,"last_run_at":null}]}"`;
 
-exports[`remediations list hide archived hide_archived 1`] = `"{"meta":{"count":5,"total":5},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3","name":"status aggregation test","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2024-09-10T11:41:12.221Z","updated_by":{"username":"testStatus","first_name":"Test","last_name":"Status"},"updated_at":"2024-09-10T11:41:12.221Z","needs_reboot":true,"system_count":10,"issue_count":1,"resolved_count":0,"archived":false},{"id":"249f142c-2ae3-4c3f-b2ec-c8c5881f8561","name":"FiFI playbook 3","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2020-01-23T18:19:36.641Z","updated_by":{"username":"fifi","first_name":"Fi","last_name":"Fi"},"updated_at":"2020-01-23T18:19:36.641Z","needs_reboot":false,"system_count":23,"issue_count":1,"resolved_count":0,"archived":false},{"id":"256ab1d3-58cf-1292-35e6-1a49c8b122d3","name":"Remediation with zero issues","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2018-12-06T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"updated_at":"2018-12-06T08:19:36.641Z","needs_reboot":false,"system_count":0,"issue_count":0,"resolved_count":0,"archived":false},{"id":"e809526c-56f5-4cd8-a809-93328436ea23","name":"Test3","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2018-12-04T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"updated_at":"2018-12-04T08:19:36.641Z","needs_reboot":false,"system_count":2,"issue_count":1,"resolved_count":1,"archived":false},{"id":"cbc782e4-e8ae-4807-82ab-505387981d2e","name":"Test2","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2018-11-04T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"updated_at":"2018-11-04T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":2,"resolved_count":0,"archived":false}]}"`;
+exports[`remediations list hide archived hide_archived 1`] = `"{"meta":{"count":5,"total":5},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3","name":"status aggregation test","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2024-09-10T11:41:12.221Z","updated_by":{"username":"testStatus","first_name":"Test","last_name":"Status"},"updated_at":"2024-09-10T11:41:12.221Z","needs_reboot":true,"system_count":10,"issue_count":1,"resolved_count":0,"archived":false,"last_run_at":"2024-09-10T22:00:00.000Z"},{"id":"249f142c-2ae3-4c3f-b2ec-c8c5881f8561","name":"FiFI playbook 3","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2020-01-23T18:19:36.641Z","updated_by":{"username":"fifi","first_name":"Fi","last_name":"Fi"},"updated_at":"2020-01-23T18:19:36.641Z","needs_reboot":false,"system_count":23,"issue_count":1,"resolved_count":0,"archived":false,"last_run_at":"2024-09-11T12:00:00.000Z"},{"id":"256ab1d3-58cf-1292-35e6-1a49c8b122d3","name":"Remediation with zero issues","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2018-12-06T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"updated_at":"2018-12-06T08:19:36.641Z","needs_reboot":false,"system_count":0,"issue_count":0,"resolved_count":0,"archived":false,"last_run_at":null},{"id":"e809526c-56f5-4cd8-a809-93328436ea23","name":"Test3","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2018-12-04T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"updated_at":"2018-12-04T08:19:36.641Z","needs_reboot":false,"system_count":2,"issue_count":1,"resolved_count":1,"archived":false,"last_run_at":null},{"id":"cbc782e4-e8ae-4807-82ab-505387981d2e","name":"Test2","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2018-11-04T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"updated_at":"2018-11-04T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":2,"resolved_count":0,"archived":false,"last_run_at":null}]}"`;
 
 exports[`remediations list hide archived no query 1`] = `
 "{
@@ -2544,7 +2559,8 @@ exports[`remediations list hide archived no query 1`] = `
             "system_count": 10,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": "2024-09-10T22:00:00.000Z"
         },
         {
             "id": "249f142c-2ae3-4c3f-b2ec-c8c5881f8561",
@@ -2565,7 +2581,8 @@ exports[`remediations list hide archived no query 1`] = `
             "system_count": 23,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": "2024-09-11T12:00:00.000Z"
         },
         {
             "id": "256ab1d3-58cf-1292-35e6-1a49c8b122d3",
@@ -2586,7 +2603,8 @@ exports[`remediations list hide archived no query 1`] = `
             "system_count": 0,
             "issue_count": 0,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "178cf0c8-35dd-42a3-96d5-7b50f9d211f6",
@@ -2607,7 +2625,8 @@ exports[`remediations list hide archived no query 1`] = `
             "system_count": 1,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": true
+            "archived": true,
+            "last_run_at": null
         },
         {
             "id": "e809526c-56f5-4cd8-a809-93328436ea23",
@@ -2628,7 +2647,8 @@ exports[`remediations list hide archived no query 1`] = `
             "system_count": 2,
             "issue_count": 1,
             "resolved_count": 1,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "cbc782e4-e8ae-4807-82ab-505387981d2e",
@@ -2649,7 +2669,8 @@ exports[`remediations list hide archived no query 1`] = `
             "system_count": 1,
             "issue_count": 2,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
@@ -2670,7 +2691,8 @@ exports[`remediations list hide archived no query 1`] = `
             "system_count": 2,
             "issue_count": 6,
             "resolved_count": 2,
-            "archived": true
+            "archived": true,
+            "last_run_at": null
         }
     ]
 }"
@@ -2708,7 +2730,8 @@ exports[`remediations list list remediations 1`] = `
             "system_count": 10,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": "2024-09-10T22:00:00.000Z"
         },
         {
             "id": "249f142c-2ae3-4c3f-b2ec-c8c5881f8561",
@@ -2729,7 +2752,8 @@ exports[`remediations list list remediations 1`] = `
             "system_count": 23,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": "2024-09-11T12:00:00.000Z"
         },
         {
             "id": "256ab1d3-58cf-1292-35e6-1a49c8b122d3",
@@ -2750,7 +2774,8 @@ exports[`remediations list list remediations 1`] = `
             "system_count": 0,
             "issue_count": 0,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "178cf0c8-35dd-42a3-96d5-7b50f9d211f6",
@@ -2771,7 +2796,8 @@ exports[`remediations list list remediations 1`] = `
             "system_count": 1,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": true
+            "archived": true,
+            "last_run_at": null
         },
         {
             "id": "e809526c-56f5-4cd8-a809-93328436ea23",
@@ -2792,7 +2818,8 @@ exports[`remediations list list remediations 1`] = `
             "system_count": 2,
             "issue_count": 1,
             "resolved_count": 1,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "cbc782e4-e8ae-4807-82ab-505387981d2e",
@@ -2813,7 +2840,8 @@ exports[`remediations list list remediations 1`] = `
             "system_count": 1,
             "issue_count": 2,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
@@ -2834,7 +2862,8 @@ exports[`remediations list list remediations 1`] = `
             "system_count": 2,
             "issue_count": 6,
             "resolved_count": 2,
-            "archived": true
+            "archived": true,
+            "last_run_at": null
         }
     ]
 }"
@@ -2872,7 +2901,8 @@ exports[`remediations list pagination explicit offset 1`] = `
             "system_count": 10,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": "2024-09-10T22:00:00.000Z"
         },
         {
             "id": "249f142c-2ae3-4c3f-b2ec-c8c5881f8561",
@@ -2893,7 +2923,8 @@ exports[`remediations list pagination explicit offset 1`] = `
             "system_count": 23,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": "2024-09-11T12:00:00.000Z"
         }
     ]
 }"
@@ -2931,7 +2962,8 @@ exports[`remediations list pagination offset 1 1`] = `
             "system_count": 23,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": "2024-09-11T12:00:00.000Z"
         },
         {
             "id": "256ab1d3-58cf-1292-35e6-1a49c8b122d3",
@@ -2952,7 +2984,8 @@ exports[`remediations list pagination offset 1 1`] = `
             "system_count": 0,
             "issue_count": 0,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         }
     ]
 }"
@@ -2990,7 +3023,8 @@ exports[`remediations list pagination offset 2 1`] = `
             "system_count": 0,
             "issue_count": 0,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "178cf0c8-35dd-42a3-96d5-7b50f9d211f6",
@@ -3011,7 +3045,8 @@ exports[`remediations list pagination offset 2 1`] = `
             "system_count": 1,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": true
+            "archived": true,
+            "last_run_at": null
         }
     ]
 }"
@@ -3049,7 +3084,8 @@ exports[`remediations list pagination offset 3 1`] = `
             "system_count": 1,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": true
+            "archived": true,
+            "last_run_at": null
         },
         {
             "id": "e809526c-56f5-4cd8-a809-93328436ea23",
@@ -3070,7 +3106,8 @@ exports[`remediations list pagination offset 3 1`] = `
             "system_count": 2,
             "issue_count": 1,
             "resolved_count": 1,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         }
     ]
 }"
@@ -3108,7 +3145,8 @@ exports[`remediations list pagination tiny page 1`] = `
             "system_count": 10,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": "2024-09-10T22:00:00.000Z"
         },
         {
             "id": "249f142c-2ae3-4c3f-b2ec-c8c5881f8561",
@@ -3129,7 +3167,8 @@ exports[`remediations list pagination tiny page 1`] = `
             "system_count": 23,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": "2024-09-11T12:00:00.000Z"
         }
     ]
 }"
@@ -3167,7 +3206,8 @@ exports[`remediations list sorting default 1`] = `
             "system_count": 10,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": "2024-09-10T22:00:00.000Z"
         },
         {
             "id": "249f142c-2ae3-4c3f-b2ec-c8c5881f8561",
@@ -3188,7 +3228,8 @@ exports[`remediations list sorting default 1`] = `
             "system_count": 23,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": "2024-09-11T12:00:00.000Z"
         },
         {
             "id": "256ab1d3-58cf-1292-35e6-1a49c8b122d3",
@@ -3209,7 +3250,8 @@ exports[`remediations list sorting default 1`] = `
             "system_count": 0,
             "issue_count": 0,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "178cf0c8-35dd-42a3-96d5-7b50f9d211f6",
@@ -3230,7 +3272,8 @@ exports[`remediations list sorting default 1`] = `
             "system_count": 1,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": true
+            "archived": true,
+            "last_run_at": null
         },
         {
             "id": "e809526c-56f5-4cd8-a809-93328436ea23",
@@ -3251,7 +3294,8 @@ exports[`remediations list sorting default 1`] = `
             "system_count": 2,
             "issue_count": 1,
             "resolved_count": 1,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "cbc782e4-e8ae-4807-82ab-505387981d2e",
@@ -3272,7 +3316,8 @@ exports[`remediations list sorting default 1`] = `
             "system_count": 1,
             "issue_count": 2,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
@@ -3293,19 +3338,20 @@ exports[`remediations list sorting default 1`] = `
             "system_count": 2,
             "issue_count": 6,
             "resolved_count": 2,
-            "archived": true
+            "archived": true,
+            "last_run_at": null
         }
     ]
 }"
 `;
 
-exports[`remediations list sorting status tests status and last_run_after query 1`] = `"{"meta":{"count":1,"total":1},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true}]}"`;
+exports[`remediations list sorting status tests status and last_run_after query 1`] = `"{"meta":{"count":1,"total":1},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true,"last_run_at":"2019-12-25T08:19:36.641Z"}]}"`;
 
-exports[`remediations list sorting status tests status and name query 1`] = `"{"meta":{"count":1,"total":1},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true}]}"`;
+exports[`remediations list sorting status tests status and name query 1`] = `"{"meta":{"count":1,"total":1},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true,"last_run_at":"2019-12-25T08:19:36.641Z"}]}"`;
 
-exports[`remediations list sorting status tests status query failure 1`] = `"{"meta":{"count":1,"total":1},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3","name":"status aggregation test","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2024-09-10T11:41:12.221Z","updated_by":{"username":"testStatus","first_name":"Test","last_name":"Status"},"updated_at":"2024-09-10T11:41:12.221Z","needs_reboot":true,"system_count":10,"issue_count":1,"resolved_count":0,"archived":false}]}"`;
+exports[`remediations list sorting status tests status query failure 1`] = `"{"meta":{"count":1,"total":1},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"efe9fd2b-fdbd-4c74-93e7-8c69f1b668f3","name":"status aggregation test","created_by":{"username":"tuser@redhat.com","first_name":"Test","last_name":"User"},"created_at":"2024-09-10T11:41:12.221Z","updated_by":{"username":"testStatus","first_name":"Test","last_name":"Status"},"updated_at":"2024-09-10T11:41:12.221Z","needs_reboot":true,"system_count":10,"issue_count":1,"resolved_count":0,"archived":false,"last_run_at":"2024-09-10T22:00:00.000Z"}]}"`;
 
-exports[`remediations list sorting status tests status query running 1`] = `"{"meta":{"count":1,"total":1},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true}]}"`;
+exports[`remediations list sorting status tests status query running 1`] = `"{"meta":{"count":1,"total":1},"links":{"first":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","last":"/api/remediations/v1/remediations?sort=-updated_at&limit=50&offset=0","previous":null,"next":null},"data":[{"id":"178cf0c8-35dd-42a3-96d5-7b50f9d211f6","name":"Remediation with suppressed reboot","created_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"created_at":"2018-12-05T08:19:36.641Z","updated_by":{"username":"tuser@redhat.com","first_name":"test","last_name":"user"},"updated_at":"2018-12-05T08:19:36.641Z","needs_reboot":true,"system_count":1,"issue_count":1,"resolved_count":0,"archived":true,"last_run_at":"2019-12-25T08:19:36.641Z"}]}"`;
 
 exports[`remediations list system filter filters out remediations not featuring the given system (2) 1`] = `
 "{
@@ -3339,7 +3385,8 @@ exports[`remediations list system filter filters out remediations not featuring 
             "system_count": 1,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": true
+            "archived": true,
+            "last_run_at": null
         },
         {
             "id": "e809526c-56f5-4cd8-a809-93328436ea23",
@@ -3360,7 +3407,8 @@ exports[`remediations list system filter filters out remediations not featuring 
             "system_count": 2,
             "issue_count": 1,
             "resolved_count": 1,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "cbc782e4-e8ae-4807-82ab-505387981d2e",
@@ -3381,7 +3429,8 @@ exports[`remediations list system filter filters out remediations not featuring 
             "system_count": 1,
             "issue_count": 2,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
@@ -3402,7 +3451,8 @@ exports[`remediations list system filter filters out remediations not featuring 
             "system_count": 2,
             "issue_count": 6,
             "resolved_count": 2,
-            "archived": true
+            "archived": true,
+            "last_run_at": null
         }
     ]
 }"
@@ -3440,7 +3490,8 @@ exports[`remediations list system filter filters out remediations not featuring 
             "system_count": 2,
             "issue_count": 1,
             "resolved_count": 1,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
@@ -3461,7 +3512,8 @@ exports[`remediations list system filter filters out remediations not featuring 
             "system_count": 2,
             "issue_count": 6,
             "resolved_count": 2,
-            "archived": true
+            "archived": true,
+            "last_run_at": null
         }
     ]
 }"
@@ -3499,7 +3551,8 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             "system_count": 2,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "27e36e14-e1c2-4b5a-9382-ec80ca9a6c1a",
@@ -3520,7 +3573,8 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             "system_count": 2,
             "issue_count": 2,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "ea5b1507-4cd3-4c87-aa5a-6c755d32a7bd",
@@ -3541,7 +3595,8 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             "system_count": 1,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "62c95092-ac83-4025-a676-362a67e68579",
@@ -3562,7 +3617,8 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             "system_count": 1,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "c3f9f751-4bcc-4222-9b83-77f5e6e603da",
@@ -3583,7 +3639,8 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             "system_count": 250,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "5e6d136e-ea32-46e4-a350-325ef41790f4",
@@ -3604,7 +3661,8 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             "system_count": 2,
             "issue_count": 2,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "7d727f9c-7d9e-458d-a128-a9ffae1802ab",
@@ -3625,7 +3683,8 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             "system_count": 1,
             "issue_count": 1,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         },
         {
             "id": "d1b070b5-1db8-4dac-8ecf-891dc1e9225f",
@@ -3646,7 +3705,8 @@ exports[`remediations missing listing of remediations does not blow up 1`] = `
             "system_count": 0,
             "issue_count": 0,
             "resolved_count": 0,
-            "archived": false
+            "archived": false,
+            "last_run_at": null
         }
     ]
 }"
