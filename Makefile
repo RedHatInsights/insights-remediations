@@ -1,5 +1,5 @@
 # Default value for BASE_IMAGE
-BASE_IMAGE ?= registry.access.redhat.com/ubi9/ubi-minimal:9.6-1758184547
+BASE_IMAGE ?= registry.access.redhat.com/ubi9/ubi-minimal:9.7-1773204619
 # Default value for CONTAINERFILE
 CONTAINERFILE ?= Dockerfile
 
@@ -55,7 +55,7 @@ generate-rpms-in-yaml:
 		echo "packages: [$$(echo "$$packages" | tr '\n' ',' | sed -E 's/,/, /g; s/, $$//')]" > rpms.in.yaml; \
 		echo "contentOrigin:" >> rpms.in.yaml; \
 		echo "  repofiles: [\"./ubi.repo\"]" >> rpms.in.yaml; \
-		echo "moduleEnable: [\"nodejs:22\"]" >> rpms.in.yaml; \
+		echo "moduleEnable: [\"nodejs:24\"]" >> rpms.in.yaml; \
 		echo "arches: [x86_64]" >> rpms.in.yaml; \
 	fi
 
