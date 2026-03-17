@@ -16,8 +16,7 @@ const prod_image_files = [
     'src/**/noop.js',
     'certs/**/*',
     'db/**/*',
-    '.sequelizerc',
-    '.npmrc',
+    '.sequelizerc'
 ];
 const test_image_files = [
     'src/**/__snapshots__/*',
