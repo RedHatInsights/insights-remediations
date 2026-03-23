@@ -525,7 +525,7 @@ describe('remediations', function () {
 
                 beforeEach(async () => {
                     const { v4: uuidv4 } = require('uuid');
-                    const now = new Date();
+                    const now = '2019-12-25T08:19:36.641Z'; // Fixed timestamp for snapshot consistency
                     const { username: created_by } = require('../connectors/users/mock').MOCK_USERS.fifi;
                     
                     // Use transaction for atomic setup
