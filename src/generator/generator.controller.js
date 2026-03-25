@@ -5,7 +5,9 @@ const P = require('bluebird');
 const etag = require('etag');
 
 const errors = require('../errors');
+const queries = require('../remediations/remediations.queries');
 const inventory = require('../connectors/inventory');
+const { storeSystemDetails } = require('../remediations/controller.write');
 const templates = require('../templates/static');
 const SpecialPlay = require('./plays/SpecialPlay');
 const format = require('./format');
@@ -146,28 +148,41 @@ exports.resolveSystems = async function (issues, strict = true) {
         trace.event(`System IDs: ${JSON.stringify(systemIds)}`);
     }
 
-    trace.event('Get system details...');
-    // Fetch system details from Inventory:
-    // - refresh=true: bypass cache as ansible_host may change
-    // - strict=true: throw UNKNOWN_SYSTEM error if any systems are missing
-    // - strict=false: return partial results with only known systems
-    const systems = await inventory.getSystemDetailsBatch(systemIds, true, 2, strict)
+    // Try to get systems from local systems table first then fall back to Inventory for any missing systems
+    trace.event('Get system details from local DB...');
+    let systems = await queries.getSystemDetailsForPlaybook(systemIds);
+
+    const missingIds = systemIds.filter(id => !(id in systems));
+    if (missingIds.length > 0) {
+        trace.event(`Fetching ${missingIds.length} missing systems from Inventory...`);
+        // Fetch system details from Inventory:
+        // - refresh=true: bypass cache as ansible_host may change
+        // - strict=true: throw UNKNOWN_SYSTEM error if any systems are missing
+        // - strict=false: return partial results with only known systems
+        const inventoryData = await inventory.getSystemDetailsBatch(missingIds, true, 2, strict)
         .catch(e => {
             probes.failedGeneration('unknown system(s)');
             throw e;
         });
 
-    // When strict=false, filter out missing systems from issues
+        // Store Inventory systems our in our local systems table so we don't have to fetch from Inventory next time
+        storeSystemDetails(inventoryData).catch(err => log.warn({ err }, 'Failed to store system details'));
+        systems = { ...systems, ...inventoryData };
+    }
+
+    // If strict=false and there are systems that don't exist (in our systems table or Inventory), remove them from the issues
     if (!strict) {
-        trace.event('Remove systems for which we have no inventory entry...');
+        trace.event('Remove systems for which we have no entry...');
         _.forEach(issues, issue => issue.systems = issue.systems.filter((id) => {
             // eslint-disable-next-line security/detect-object-injection
             return (systems.hasOwnProperty(id));
         }));
     }
 
-    // Map system IDs to hostnames
-    trace.event('Map system IDs to hosts...');
+    // Map system IDs to hostnames and verify all systems exist in either our systems table or Inventory
+    // With strict=false: missing systems were already filtered out above, so this should pass
+    // With strict=true: no filtering happened, so throw an error if any system is missing
+    trace.event('Verify that there are no systems for which we have no entry in our systems table or Inventory...');
     _.forEach(issues, issue => issue.hosts = issue.systems.map(id => {
         // eslint-disable-next-line security/detect-object-injection
         const system = systems[id];
@@ -175,7 +190,7 @@ exports.resolveSystems = async function (issues, strict = true) {
     }));
     trace.event('All systems mapped!');
 
-    // If strict=false, filter out issues with no systems (systems that were removed because they don't exist in Inventory)
+    // If strict=false, filter out issues with no systems (systems that were removed because they don't exist in our systems table or Inventory)
     if (!strict) {
         trace.event('Remove issues with no systems...')
         issues = _.filter(issues, (issue) => (issue.systems.length > 0));
