@@ -5,7 +5,6 @@ const express = require('express');
 const log = require('./util/log');
 const pinoHttp = require('pino-http');
 const prettyJson = require('./middleware/prettyJson');
-const httpContext = require('express-http-context');
 const identity = require('./middleware/identity/impl');
 const userIdentity = require('./middleware/identity/userIdentity');
 const identitySwitcher = require('./middleware/identity/switcher');
@@ -63,7 +62,6 @@ module.exports = async function (app) {
     });
     /*eslint-enable no-unused-vars*/
 
-    app.use(httpContext.middleware);
     app.use(cls.middleware);
     app.use(prettyJson);
 

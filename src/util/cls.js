@@ -1,24 +1,18 @@
 'use strict';
 
-const httpContext = require('express-http-context');
+const { AsyncLocalStorage } = require('async_hooks');
 
-const P = require('bluebird');
-const sequelize = require('sequelize');
-const clsBluebird = require('cls-bluebird');
-clsBluebird(httpContext.ns, P);
-sequelize.useCLS(httpContext.ns);
+const asyncLocalStorage = new AsyncLocalStorage();
 
 exports.middleware = function (req, res, next) {
-    httpContext.set('req', req);
-    next();
+    asyncLocalStorage.run({ req }, next);
 };
 
 exports.getReq = function () {
-    return httpContext.get('req');
+    const store = asyncLocalStorage.getStore();
+    return store ? store.req : undefined;
 };
 
 exports.patchMiddleware = function (fn) {
-    return function (req, res, next) {
-        return fn(req, res, httpContext.ns.bind(next));
-    };
+    return fn;
 };
