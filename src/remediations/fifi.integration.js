@@ -1097,12 +1097,18 @@ describe('FiFi', function () {
 
             test('execute playbook_run with false smartManagement but with system connected to RHC', async () => {
                 base.getSandbox().stub(config, 'isMarketplace').value(true);
-                await request
+                const { body } = await request
                 .post('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs')
                 .set(utils.IDENTITY_HEADER, utils.createIdentityHeader('fifi', 'fifi', '6666666', true, data => {
                     return data;
                 }))
                 .expect(201);
+
+                // Clean up the created playbook run to avoid affecting other tests
+                if (body && body.id) {
+                    await db.dispatcher_runs.destroy({ where: { remediations_run_id: body.id }, force: true });
+                    await db.playbook_runs.destroy({ where: { id: body.id }, force: true });
+                }
             });
 
             test('403 with descriptive message when RHC is disabled for playbook execution', async () => {
