@@ -214,6 +214,38 @@ module.exports = new class extends Connector {
         return validate(transformed);
     }
 
+    /**
+     * Handles 404 from Inventory API gracefully by removing not_found_ids and retrying with remaining IDs.
+     * Returns partial results of found systems.
+     */
+    async getSystemDetailsBatchPartial (ids = [], refresh = false) {
+        if (ids.length === 0) {
+            return {};
+        }
+
+        try {
+            return await this.getSystemDetailsBatch(ids, refresh);
+        } catch (e) {
+            // Check if it's an UNKNOWN_SYSTEM error with notFoundIds
+            if (!e.notFoundIds) {
+                throw e;
+            }
+
+            // Some systems not found - retry with remaining IDs
+            const notFoundIds = e.notFoundIds;
+            const remainingIds = _.difference(ids, notFoundIds);
+
+            log.warn({ notFoundIds }, 'Systems not found in Inventory, filtering them out');
+
+            // No remaining systems to fetch
+            if (remainingIds.length === 0) {
+                return {};
+            }
+
+            return await this.getSystemDetailsBatch(remainingIds, refresh);
+        }
+    }
+
     async getSystemProfileBatch (ids = [], refresh = false, retries = 2) {
         if (ids.length === 0) {
             return {};

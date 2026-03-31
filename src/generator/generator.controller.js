@@ -148,10 +148,10 @@ exports.resolveSystems = async function (issues, strict = true) {
         trace.event(`System IDs: ${JSON.stringify(systemIds)}`);
     }
 
-    // Try to get systems from local systems table first then fall back to Inventory for any missing systems
     trace.event('Get system details from local DB...');
     let systems = await queries.getSystemDetailsForPlaybook(systemIds);
 
+    // Fallback: if any systems missing from local table, fetch from Inventory and store
     const missingIds = systemIds.filter(id => !(id in systems));
     if (missingIds.length > 0) {
         trace.event(`Fetching ${missingIds.length} missing systems from Inventory...`);
@@ -165,36 +165,23 @@ exports.resolveSystems = async function (issues, strict = true) {
             throw e;
         });
 
-        // Store Inventory systems our in our local systems table so we don't have to fetch from Inventory next time
+        // Store Inventory systems in our local systems table so we don't have to fetch from Inventory next time
         storeSystemDetails(inventoryData).catch(err => log.warn({ err }, 'Failed to store system details'));
         systems = { ...systems, ...inventoryData };
     }
 
-    // If strict=false and there are systems that don't exist (in our systems table or Inventory), remove them from the issues
-    if (!strict) {
-        trace.event('Remove systems for which we have no entry...');
-        _.forEach(issues, issue => issue.systems = issue.systems.filter((id) => {
-            // eslint-disable-next-line security/detect-object-injection
-            return (systems.hasOwnProperty(id));
-        }));
-    }
-
-    // Map system IDs to hostnames and verify all systems exist in either our systems table or Inventory
-    // With strict=false: missing systems were already filtered out above, so this should pass
-    // With strict=true: no filtering happened, so throw an error if any system is missing
-    trace.event('Verify that there are no systems for which we have no entry in our systems table or Inventory...');
-    _.forEach(issues, issue => issue.hosts = issue.systems.map(id => {
+    // Filter out systems not found in local systems table or Inventory, then map to hosts
+    // For strict=true this is a no-op since getSystemDetailsBatch throws if any systems are missing
+    trace.event('Filter systems and map to hosts...');
+    _.forEach(issues, issue => {
+        issue.systems = issue.systems.filter(id => id in systems);
         // eslint-disable-next-line security/detect-object-injection
-        const system = systems[id];
-        return exports.systemToHost(system);
-    }));
-    trace.event('All systems mapped!');
+        issue.hosts = issue.systems.map(id => exports.systemToHost(systems[id]));
+    });
 
-    // If strict=false, filter out issues with no systems (systems that were removed because they don't exist in our systems table or Inventory)
-    if (!strict) {
-        trace.event('Remove issues with no systems...')
-        issues = _.filter(issues, (issue) => (issue.systems.length > 0));
-    }
+    // Remove issues that have no systems left after filtering
+    // For strict=true this is a no-op since all systems should exist
+    issues = _.filter(issues, issue => issue.systems.length > 0);
 
     trace.leave();
     return issues;
