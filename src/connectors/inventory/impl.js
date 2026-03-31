@@ -81,6 +81,11 @@ module.exports = new class extends Connector {
                 e.error.details.message = 'Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.';
                 throw e;
             }
+
+            // UNKNOWN_SYSTEM errors (from 404) bubble up directly
+            if (e.notFoundIds) {
+                throw e;
+            }
             
             if (retries > 0) {
                 log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
@@ -90,8 +95,7 @@ module.exports = new class extends Connector {
             throw e;
         }
 
-        // Inventory returns 404 with message "One or more hosts not found." when one or more requested hosts don't exist
-        // doHttp returns null when the response status is 404
+        // Handle 404 without not_found_ids (unexpected case, but be defensive)
         if (response === null) {
             throw new errors.BadRequest('UNKNOWN_SYSTEM', 'One or more requested systems do not exist in Inventory');
         }
@@ -164,6 +168,11 @@ module.exports = new class extends Connector {
                 e.error.details.message = 'Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.';
                 throw e;
             }
+
+            // UNKNOWN_SYSTEM errors (from 404) bubble up directly
+            if (e.notFoundIds) {
+                throw e;
+            }
             
             if (retries > 0) {
                 log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
@@ -173,8 +182,7 @@ module.exports = new class extends Connector {
             throw e;
         }
 
-        // Inventory returns 404 with message "One or more hosts not found." when one or more requested hosts don't exist
-        // doHttp returns null when the response status is 404
+        // Handle 404 without not_found_ids (unexpected case, but be defensive)
         if (response === null) {
             throw new errors.BadRequest('UNKNOWN_SYSTEM', 'One or more requested systems do not exist in Inventory');
         }
@@ -186,6 +194,38 @@ module.exports = new class extends Connector {
         .value();
 
         return validate(transformed);
+    }
+
+    /**
+     * Handles 404 from Inventory API gracefully by removing not_found_ids and retrying with remaining IDs.
+     * Returns partial results of found systems.
+     */
+    async getSystemDetailsBatchPartial (ids = [], refresh = false) {
+        if (ids.length === 0) {
+            return {};
+        }
+
+        try {
+            return await this.getSystemDetailsBatch(ids, refresh);
+        } catch (e) {
+            // Check if it's an UNKNOWN_SYSTEM error with notFoundIds
+            if (!e.notFoundIds) {
+                throw e;
+            }
+
+            // Some systems not found - retry with remaining IDs
+            const notFoundIds = e.notFoundIds;
+            const remainingIds = _.difference(ids, notFoundIds);
+
+            log.warn({ notFoundIds }, 'Systems not found in Inventory, filtering them out');
+
+            // No remaining systems to fetch
+            if (remainingIds.length === 0) {
+                return {};
+            }
+
+            return await this.getSystemDetailsBatch(remainingIds, refresh);
+        }
     }
 
     async getSystemProfileBatch (ids = [], refresh = false, retries = 2) {
@@ -229,6 +269,11 @@ module.exports = new class extends Connector {
                 e.error.details.message = 'Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.';
                 throw e;
             }
+
+            // UNKNOWN_SYSTEM errors (from 404) bubble up directly
+            if (e.notFoundIds) {
+                throw e;
+            }
             
             if (retries > 0) {
                 log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
@@ -238,8 +283,7 @@ module.exports = new class extends Connector {
             throw e;
         }
 
-        // Inventory returns 404 with message "One or more hosts not found." when one or more requested hosts don't exist
-        // doHttp returns null when the response status is 404
+        // Handle 404 without not_found_ids (unexpected case, but be defensive)
         if (response === null) {
             throw new errors.BadRequest('UNKNOWN_SYSTEM', 'One or more requested systems do not exist in Inventory');
         }

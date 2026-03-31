@@ -34,7 +34,15 @@ function doHttp (options, cached, metrics) {
             case 207:
             case 304: return res;
             case 403: throw new errors.Forbidden("Access denied.");
-            case 404: return null;
+            case 404:
+                // If response contains not_found_ids (Inventory API), throw UNKNOWN_SYSTEM
+                if (res.body?.not_found_ids) {
+                    const notFoundIds = res.body.not_found_ids;
+                    const err = new errors.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${notFoundIds.join(', ')}"`);
+                    err.notFoundIds = notFoundIds;
+                    throw err;
+                }
+                return null;
             default: throw new StatusCodeError(res.statusCode, opts, res.body);
         }
     });

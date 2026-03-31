@@ -135,52 +135,39 @@ exports.resolveSystems = async function (issues, strict = true) {
         trace.event(`System IDs: ${JSON.stringify(systemIds)}`);
     }
 
-    // Try to get systems from local systems table first then fall back to Inventory for any missing systems
     trace.event('Get system details from local DB...');
     let systems = await queries.getSystemDetailsForPlaybook(systemIds);
 
+    // Fallback: if any systems missing from local table, fetch from Inventory and store
     const missingIds = systemIds.filter(id => !(id in systems));
     if (missingIds.length > 0) {
         trace.event(`Fetching ${missingIds.length} missing systems from Inventory...`);
-        // bypass cache as ansible_host may change so we want to grab the latest one
-        const inventoryData = await inventory.getSystemDetailsBatch(missingIds, true);
-        // Store Inventory systems our in our local systems table so we don't have to fetch from Inventory next time
-        storeSystemDetails(inventoryData).catch(err => log.warn({ err }, 'Failed to store system details'));
-        systems = { ...systems, ...inventoryData };
-    }
 
-    // If strict=false and there are systems that don't exist (in our systems table or Inventory), remove them from the issues
-    if (!strict) {
-        trace.event('Remove systems for which we have no entry...');
-        _.forEach(issues, issue => issue.systems = issue.systems.filter((id) => {
-            // eslint-disable-next-line security/detect-object-injection
-            return (systems.hasOwnProperty(id));
-        }));
-    }
-
-    // Map system IDs to hostnames and verify all systems exist in either our systems table or Inventory
-    // With strict=false: missing systems were already filtered out above, so this should pass
-    // With strict=true: no filtering happened, so throw an error if any system is missing
-    trace.event('Verify that there are no systems for which we have no entry in our systems table or Inventory...');
-    _.forEach(issues, issue => issue.hosts = issue.systems.map(id => {
-        if (!systems.hasOwnProperty(id)) {
-            trace.event(`Found no data for system: ${id}`);
-            probes.failedGeneration(issue.id);
-            throw errors.unknownSystem(id);
+        let inventorySystems;
+        if (strict) {
+            // strict=true: throw UNKNOWN_SYSTEM error if any systems are missing from Inventory
+            inventorySystems = await inventory.getSystemDetailsBatch(missingIds, true);
+        } else {
+            // strict=false: gracefully handle missing systems, return partial results
+            inventorySystems = await inventory.getSystemDetailsBatchPartial(missingIds, true);
         }
 
-        // validated by openapi middleware and also above
-        // eslint-disable-next-line security/detect-object-injection
-        const system = systems[id];
-        return exports.systemToHost(system);
-    }));
-    trace.event('All systems verified!');
-
-    // If strict=false, filter out issues with no systems (systems that were removed because they don't exist in our systems table or Inventory)
-    if (!strict) {
-        trace.event('Remove issues with no systems...')
-        issues = _.filter(issues, (issue) => (issue.systems.length > 0));
+        storeSystemDetails(inventorySystems).catch(err => log.warn({ err }, 'Failed to store system details'));
+        systems = { ...systems, ...inventorySystems };
     }
+
+    // Filter out systems not found in local systems table or Inventory, then map to hosts
+    // For strict=true this is a no-op since getSystemDetailsBatch throws if any systems are missing
+    trace.event('Filter systems and map to hosts...');
+    _.forEach(issues, issue => {
+        issue.systems = issue.systems.filter(id => id in systems);
+        // eslint-disable-next-line security/detect-object-injection
+        issue.hosts = issue.systems.map(id => exports.systemToHost(systems[id]));
+    });
+
+    // Remove issues that have no systems left after filtering
+    // For strict=true this is a no-op since all systems should exist
+    issues = _.filter(issues, issue => issue.systems.length > 0);
 
     trace.leave();
     return issues;
