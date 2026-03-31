@@ -135,10 +135,16 @@ exports.resolveSystems = async function (issues, strict = true) {
 
     // bypass cache as ansible_host may change so we want to grab the latest one
     trace.event('Get system details...');
-    const systems = await inventory.getSystemDetailsBatch(systemIds, true);
 
-    // If strict=false and there are systems that don't exist in Inventory, remove them from the issues
-    if (!strict) {
+    let systems;
+    if (strict) {
+        // strict=true: throw UNKNOWN_SYSTEM error if any systems are missing
+        systems = await inventory.getSystemDetailsBatch(systemIds, true);
+    } else {
+        // strict=false: gracefully handle missing systems, return partial results
+        systems = await inventory.getSystemDetailsBatchPartial(systemIds, true);
+
+        // Filter out missing systems from issues
         trace.event('Remove systems for which we have no inventory entry...');
         _.forEach(issues, issue => issue.systems = issue.systems.filter((id) => {
             // eslint-disable-next-line security/detect-object-injection
@@ -146,23 +152,14 @@ exports.resolveSystems = async function (issues, strict = true) {
         }));
     }
 
-    // Map system IDs to hostnames and verify all systems exist in Inventory
-    // With strict=false: missing systems were already filtered out above, so this should pass
-    // With strict=true: no filtering happened, so throw an error if any system is missing
-    trace.event('Verify that there are no systems for which we have no inventory entry...');
+    // Map system IDs to hostnames
+    trace.event('Map system IDs to hosts...');
     _.forEach(issues, issue => issue.hosts = issue.systems.map(id => {
-        if (!systems.hasOwnProperty(id)) {
-            trace.event(`Found no data for system: ${id}`);
-            probes.failedGeneration(issue.id);
-            throw errors.unknownSystem(id);
-        }
-
-        // validated by openapi middleware and also above
         // eslint-disable-next-line security/detect-object-injection
         const system = systems[id];
         return exports.systemToHost(system);
     }));
-    trace.event('All systems verified!');
+    trace.event('All systems mapped!');
 
     // If strict=false, filter out issues with no systems (systems that were removed because they don't exist in Inventory)
     if (!strict) {
