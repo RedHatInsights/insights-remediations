@@ -141,23 +141,18 @@ exports.resolveSystems = async function (issues, strict = true) {
     const missingIds = systemIds.filter(id => !(id in systems));
     if (missingIds.length > 0) {
         trace.event(`Fetching ${missingIds.length} missing systems from Inventory...`);
-        try {
-            const inventoryData = await inventory.getSystemDetailsBatch(missingIds);
-            storeSystemDetails(inventoryData).catch(err => log.warn({ err }, 'Failed to store system details'));
-            systems = { ...systems, ...inventoryData };
-        } catch (err) {
-            log.warn({ err, missingIds }, 'Failed to fetch systems from Inventory');
-        }
-    }
 
-    // For strict=true, fail fast if any system is still missing after fallback
-    if (strict) {
-        const stillMissingId = systemIds.find(id => !(id in systems));
-        if (stillMissingId) {
-            trace.event(`Found no data for system: ${stillMissingId}`);
-            probes.failedGeneration(issues[0]?.id);
-            throw errors.unknownSystem(stillMissingId);
+        let inventorySystems;
+        if (strict) {
+            // strict=true: throw UNKNOWN_SYSTEM error if any systems are missing from Inventory
+            inventorySystems = await inventory.getSystemDetailsBatch(missingIds);
+        } else {
+            // strict=false: gracefully handle missing systems, return partial results
+            inventorySystems = await inventory.getSystemDetailsBatchPartial(missingIds);
         }
+
+        storeSystemDetails(inventorySystems).catch(err => log.warn({ err }, 'Failed to store system details'));
+        systems = { ...systems, ...inventorySystems };
     }
 
     // Filter to existing systems and map to hosts
