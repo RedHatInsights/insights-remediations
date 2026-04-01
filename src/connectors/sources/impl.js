@@ -5,6 +5,7 @@ const P = require('bluebird');
 const URI = require('urijs');
 const assert = require('assert');
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 
 const {host, insecure} = require('../../config').sources;
 
@@ -52,16 +53,21 @@ module.exports = new class extends Connector {
     async getEndpoints (id) {
         const uri = this.buildUri(host, 'sources', 'v2.0', 'sources', String(id), 'endpoints');
 
-        const result = await this.doHttp({
-            uri: uri.toString(),
-            method: 'GET',
-            json: true,
-            rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders()
-        }, false, this.endpointMetrics);
+        let result;
+        try {
+            result = await this.doHttp({
+                uri: uri.toString(),
+                method: 'GET',
+                json: true,
+                rejectUnauthorized: !insecure,
+                headers: this.getForwardedHeaders()
+            }, false, this.endpointMetrics);
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return null;
+            }
 
-        if (!result) {
-            return null;
+            throw e;
         }
 
         assert(result.meta.count <= result.meta.limit);
@@ -86,16 +92,21 @@ module.exports = new class extends Connector {
     async getRHCConnections (id) {
         const uri = this.buildUri(host, 'sources', 'v3.1', 'sources', String(id), 'rhc_connections');
 
-        const result = await this.doHttp({
-            uri: uri.toString(),
-            method: 'GET',
-            json: true,
-            rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders()
-        }, false, this.rhcConnectionsMetrics);
+        let result;
+        try {
+            result = await this.doHttp({
+                uri: uri.toString(),
+                method: 'GET',
+                json: true,
+                rejectUnauthorized: !insecure,
+                headers: this.getForwardedHeaders()
+            }, false, this.rhcConnectionsMetrics);
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return null;
+            }
 
-        if (!result) {
-            return null;
+            throw e;
         }
 
         assert(result.meta.count <= result.meta.limit);

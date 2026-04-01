@@ -47,6 +47,11 @@ module.exports = class Connector {
                 throw e;
             }
 
+            // Let 404 errors pass through so connectors can handle them appropriately
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                throw e;
+            }
+
             // Log request and response details for HTTP 400 errors
             if (e instanceof StatusCodeError && e.statusCode === 400) {
                 log.error({

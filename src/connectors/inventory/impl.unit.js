@@ -6,6 +6,7 @@ const impl = require('./impl');
 const base = require('../../test');
 const http = require('../http');
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 const { mockRequest, mockCache } = require('../testUtils');
 const request = require('../../util/request');
 const RequestError = require('request-promise-core/errors').RequestError;
@@ -54,10 +55,12 @@ describe('inventory impl', function () {
         });
 
         test('throws unknownSystem error when Inventory returns 404', async function () {
-            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(null);
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, { not_found_ids: ['non-existent-id'] })
+            );
 
             await expect(impl.getSystemInfoBatch(['non-existent-id']))
-                .rejects.toThrow('One or more requested systems do not exist in Inventory');
+                .rejects.toThrow('Unknown system identifier "non-existent-id"');
 
             spy.calledOnce.should.be.true();
         });
@@ -283,12 +286,40 @@ describe('inventory impl', function () {
 
         test('throws unknownSystem error when Inventory returns 404', async function () {
             const cache = mockCache();
-            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(null);
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, { not_found_ids: ['non-existent-id'] })
+            );
 
             await expect(impl.getSystemDetailsBatch(['non-existent-id']))
-                .rejects.toThrow('One or more requested systems do not exist in Inventory');
+                .rejects.toThrow('Unknown system identifier "non-existent-id"');
 
             spy.calledOnce.should.be.true();
+        });
+
+        test('throws unknownSystem error with original ids when not_found_ids is missing', async function () {
+            const cache = mockCache();
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, { detail: 'Not found' })
+            );
+
+            await expect(impl.getSystemDetailsBatch(['id-1', 'id-2']))
+                .rejects.toThrow('Unknown system identifier "id-1, id-2"');
+
+            spy.calledOnce.should.be.true();
+        });
+
+        test('sets notFoundIds property on UNKNOWN_SYSTEM error', async function () {
+            const cache = mockCache();
+            base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, { not_found_ids: ['missing-id-1', 'missing-id-2'] })
+            );
+
+            try {
+                await impl.getSystemDetailsBatch(['missing-id-1', 'missing-id-2']);
+                throw new Error('Should have thrown');
+            } catch (e) {
+                expect(e.notFoundIds).toEqual(['missing-id-1', 'missing-id-2']);
+            }
         });
     });
 
@@ -436,10 +467,12 @@ describe('inventory impl', function () {
 
         test('throws unknownSystem error when Inventory returns 404', async function () {
             const cache = mockCache();
-            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(null);
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, { not_found_ids: ['non-existent-id'] })
+            );
 
             await expect(impl.getSystemProfileBatch(['non-existent-id']))
-                .rejects.toThrow('One or more requested systems do not exist in Inventory');
+                .rejects.toThrow('Unknown system identifier "non-existent-id"');
 
             spy.calledOnce.should.be.true();
         });

@@ -138,6 +138,18 @@ describe('advisor impl', function () {
                 }
             });
         });
+
+        test('returns empty object on 404', async function () {
+            const http = base.getSandbox().stub(request, 'run').resolves({
+                statusCode: 404,
+                body: { detail: 'Not found' },
+                headers: {}
+            });
+
+            const result = await impl.getDiagnosis('unknown-system');
+            expect(result).toEqual({});
+            http.callCount.should.equal(1);
+        });
     });
 
     describe('getSystems', function () {

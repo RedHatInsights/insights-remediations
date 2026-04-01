@@ -5,6 +5,7 @@ const _ = require('lodash');
 const { host, revalidationInterval } = require('../../config').patchman;
 const URI = require('urijs');
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 const metrics = require('../metrics');
 
 module.exports = new class extends Connector {
@@ -13,23 +14,32 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    getErratum (id, refresh = false) {
+    async getErratum (id, refresh = false) {
         const uri = new URI(host);
         uri.path('/api/patch/v3/advisories');
         uri.segment(id);
 
-        return this.doHttp({
-            uri: uri.toString(),
-            method: 'GET',
-            json: true,
-            headers: this.getForwardedHeaders()
-        },
-        {
-            refresh,
-            revalidationInterval
-        },
-        this.metrics
-        ).then(res => _.get(res, ['data'], null));
+        try {
+            const res = await this.doHttp({
+                uri: uri.toString(),
+                method: 'GET',
+                json: true,
+                headers: this.getForwardedHeaders()
+            },
+            {
+                refresh,
+                revalidationInterval
+            },
+            this.metrics);
+
+            return _.get(res, ['data'], null);
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return null;
+            }
+
+            throw e;
+        }
     }
 
     async ping () {
