@@ -909,3 +909,25 @@ exports.getPlaybookRunsWithDispatcherCounts = async function (playbookRunIds) {
         raw: true
     });
 };
+
+exports.getSystemDetailsForPlaybook = async function (systemIds) {
+    if (!systemIds || systemIds.length === 0) {
+        return {};
+    }
+
+    const systems = await db.systems.findAll({
+        attributes: ['id', 'hostname', 'ansible_hostname', 'display_name'],
+        where: { id: systemIds },
+        raw: true
+    });
+
+    return _(systems)
+        .keyBy('id')
+        .mapValues(system => ({
+            id: system.id,
+            hostname: system.hostname,
+            ansible_host: system.ansible_hostname,
+            display_name: system.display_name
+        }))
+        .value();
+};

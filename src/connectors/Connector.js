@@ -47,6 +47,11 @@ module.exports = class Connector {
                 throw e;
             }
 
+            // UNKNOWN_SYSTEM errors with notFoundIds bubble up directly
+            if (e.notFoundIds) {
+                throw e;
+            }
+
             // Log request and response details for HTTP 400 errors
             if (e instanceof StatusCodeError && e.statusCode === 400) {
                 log.error({
