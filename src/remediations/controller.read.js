@@ -286,8 +286,9 @@ exports.list = errors.async(async function (req, res) {
 async function resolveSystems (remediation) {
     const ids = _(remediation.issues).flatMap('systems').map('system_id').uniq().value();
 
-    // Fetch known systems from Inventory
-    const resolvedSystems = await inventory.getSystemDetailsBatchPartial(ids);
+    // Fetch systems from Inventory
+    // strict=false gracefully handles 404 and returns partial response with known systems
+    const resolvedSystems = await inventory.getSystemDetailsBatch(ids, false, 2, false);
 
     // Filter out systems not in inventory and add hostname/display_name
     remediation.issues.forEach(issue => {

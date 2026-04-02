@@ -125,6 +125,19 @@ exports.systemToHost = function (system) {
     return system.ansible_host || system.hostname || system.id;
 };
 
+/**
+ * Resolves system IDs to hostnames by fetching system details from Inventory.
+ * Adds a `hosts` property to each issue containing the resolved hostnames.
+ *
+ * @param {Array} issues - Array of issue objects, each containing a `systems` array of system IDs
+ * @param {boolean} strict - Controls error handling for missing systems:
+ *   - true (default): Throws UNKNOWN_SYSTEM error if any system ID is not found in Inventory
+ *   - false: Gracefully handles missing systems by filtering them out and removing empty issues
+ *
+ * Returns the issues array with `hosts` added to each issue
+ * Or throws UNKNOWN_SYSTEM error if strict=true and some systems weren't found in Inventory.
+ * When strict=false, missing systems are filtered out and issues with no remaining systems are removed.
+ */
 exports.resolveSystems = async function (issues, strict = true) {
     trace.enter('generator.controller.resolveSystems');
 
@@ -133,18 +146,15 @@ exports.resolveSystems = async function (issues, strict = true) {
         trace.event(`System IDs: ${JSON.stringify(systemIds)}`);
     }
 
-    // bypass cache as ansible_host may change so we want to grab the latest one
     trace.event('Get system details...');
+    // Fetch system details from Inventory:
+    // - refresh=true: bypass cache as ansible_host may change
+    // - strict=true: throw UNKNOWN_SYSTEM error if any systems are missing
+    // - strict=false: return partial results with only known systems
+    const systems = await inventory.getSystemDetailsBatch(systemIds, true, 2, strict);
 
-    let systems;
-    if (strict) {
-        // strict=true: throw UNKNOWN_SYSTEM error if any systems are missing
-        systems = await inventory.getSystemDetailsBatch(systemIds, true);
-    } else {
-        // strict=false: gracefully handle missing systems, return partial results
-        systems = await inventory.getSystemDetailsBatchPartial(systemIds, true);
-
-        // Filter out missing systems from issues
+    // When strict=false, filter out missing systems from issues
+    if (!strict) {
         trace.event('Remove systems for which we have no inventory entry...');
         _.forEach(issues, issue => issue.systems = issue.systems.filter((id) => {
             // eslint-disable-next-line security/detect-object-injection

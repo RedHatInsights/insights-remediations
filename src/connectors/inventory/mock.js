@@ -17,25 +17,19 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    getSystemDetailsBatch (systems) {
+    getSystemDetailsBatch (systems, refresh = false, retries = 2, strict = true) {
         // Check for non-existent systems first (new Inventory behavior)
         const notFoundIds = systems.filter(id => generator.generateSystem(id) === null);
-        if (notFoundIds.length > 0) {
+        
+        if (notFoundIds.length > 0 && strict) {
             return Promise.reject(createUnknownSystemError(notFoundIds));
         }
 
+        // If strict=false, filter out missing systems instead of throwing
         return Promise.resolve(_(systems)
         .keyBy()
         .mapValues(generator.generateSystem)
-        .value());
-    }
-
-    getSystemDetailsBatchPartial (systems) {
-        // Returns partial results - filters out missing systems instead of throwing
-        return Promise.resolve(_(systems)
-        .keyBy()
-        .mapValues(generator.generateSystem)
-        .pickBy()
+        .pickBy() // removes null values (non-existent systems)
         .value());
     }
 
