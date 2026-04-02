@@ -4,6 +4,7 @@ const _ = require('lodash');
 const assert = require('assert');
 const URI = require('urijs');
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 const log = require('../../util/log');
 const cls = require('../../util/cls');
 
@@ -58,6 +59,9 @@ module.exports = new class extends Connector {
 
             return result;
         } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return {};
+            }
             log.warn({ error: e }, `Failed to retrieve tenant org_ids for accounts: ${accounts}`);
             throw e;
         }
@@ -98,6 +102,9 @@ module.exports = new class extends Connector {
 
             return result;
         } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return {};
+            }
             log.warn({ error: e }, `Failed to retrieve EBS_accounts for tenant org_ids: ${tenant_org_ids}`);
             throw e;
         }

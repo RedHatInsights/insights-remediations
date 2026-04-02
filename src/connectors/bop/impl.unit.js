@@ -6,6 +6,7 @@ const impl = require('./impl');
 const base = require('../../test');
 const http = require('../http');
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 const { mockRequest, mockCache } = require('../testUtils');
 const request = require('../../util/request');
 const RequestError = require('request-promise-core/errors').RequestError;
@@ -119,6 +120,24 @@ describe('inventory impl', () => {
 
             result.should.be.empty();
             spy.called.should.be.false();
+        });
+
+        test('returns empty object on 404', async function () {
+            base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, {})
+            );
+
+            await expect(impl.getTenantOrgIds([540155])).resolves.toEqual({});
+        });
+    });
+
+    describe('404 handling', function () {
+        test('getEBSAccounts returns empty object on 404', async function () {
+            base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, {})
+            );
+
+            await expect(impl.getEBSAccounts([1979710])).resolves.toEqual({});
         });
     });
 });

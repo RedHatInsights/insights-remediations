@@ -9,6 +9,8 @@ const compliance = require('./compliance');
 const base = require('../../test');
 const { mockRequest } = require('../testUtils');
 const request = require('../../util/request');
+const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 
 describe('compliance impl', function () {
     beforeEach(mockRequest);
@@ -59,5 +61,13 @@ describe('compliance impl', function () {
         expect(results[0].template).toMatchSnapshot();
         expect(results[1].template).toMatchSnapshot();
         http.callCount.should.equal(1);
+    });
+
+    test('returns null on 404', async function () {
+        base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+            new StatusCodeError(404, {}, {})
+        );
+
+        await expect(compliance.getTemplate('unknown-rule')).resolves.toBeNull();
     });
 });
