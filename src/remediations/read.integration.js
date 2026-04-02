@@ -1208,7 +1208,7 @@ describe('remediations', function () {
         });
 
         test('gets list of hosts with same display name', async () => {
-            getSandbox().stub(inventory, 'getSystemDetailsBatchPartial').resolves({
+            getSandbox().stub(inventory, 'getSystemDetailsBatch').resolves({
                 '1040856f-b772-44c7-83a9-eea4813c4be8': {
                     id: '1040856f-b772-44c7-83a9-eea4813c4be8',
                     hostname: '1040856f-b772-44c7-83a9-eea4813c4be8.example.com',
@@ -2378,7 +2378,7 @@ describe('remediations', function () {
             const sandbox = base.getSandbox();
 
             // Stub the partial fetch helper to return only existing systems
-            sandbox.stub(inventory, 'getSystemDetailsBatchPartial').resolves({
+            sandbox.stub(inventory, 'getSystemDetailsBatch').resolves({
                 [existingSystemId1]: { id: existingSystemId1, hostname: 'host1.example.com', display_name: 'Host 1' },
                 [existingSystemId2]: { id: existingSystemId2, hostname: 'host2.example.com', display_name: 'Host 2' }
             });
@@ -2406,7 +2406,7 @@ describe('remediations', function () {
         test('succeeds when all systems exist in inventory', async () => {
             const sandbox = base.getSandbox();
 
-            sandbox.stub(inventory, 'getSystemDetailsBatchPartial').resolves({
+            sandbox.stub(inventory, 'getSystemDetailsBatch').resolves({
                 [existingSystemId1]: { id: existingSystemId1, hostname: 'host1.example.com', display_name: 'Host 1' },
                 [existingSystemId2]: { id: existingSystemId2, hostname: 'host2.example.com', display_name: 'Host 2' },
                 [missingSystemId]: { id: missingSystemId, hostname: 'exists.example.com', display_name: 'Exists' }
@@ -2426,7 +2426,7 @@ describe('remediations', function () {
             const sandbox = base.getSandbox();
 
             // Inventory returns empty object (all systems not found - gracefully handled)
-            sandbox.stub(inventory, 'getSystemDetailsBatchPartial').resolves({});
+            sandbox.stub(inventory, 'getSystemDetailsBatch').resolves({});
 
             const { body } = await request
                 .get(`/v1/remediations/${createdRemediationId}`)

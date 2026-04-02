@@ -330,7 +330,7 @@ describe('inventory impl', function () {
         });
     });
 
-    describe('getSystemDetailsBatchPartial', function () {
+    describe('getSystemDetailsBatch with strict=false', function () {
         test('returns systems when all exist', async function () {
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves({
                 results: [{
@@ -342,7 +342,7 @@ describe('inventory impl', function () {
                 }]
             });
 
-            const result = await impl.getSystemDetailsBatchPartial(['existing-id']);
+            const result = await impl.getSystemDetailsBatch(['existing-id'], false, 2, false);
 
             result.should.have.size(1);
             result.should.have.property('existing-id');
@@ -354,7 +354,7 @@ describe('inventory impl', function () {
                 new StatusCodeError(404, {}, { not_found_ids: ['missing-id'] })
             );
 
-            const result = await impl.getSystemDetailsBatchPartial(['missing-id']);
+            const result = await impl.getSystemDetailsBatch(['missing-id'], false, 2, false);
 
             result.should.be.empty();
             spy.calledOnce.should.be.true();
@@ -375,17 +375,17 @@ describe('inventory impl', function () {
                 }]
             });
 
-            const result = await impl.getSystemDetailsBatchPartial(['existing-id', 'missing-id']);
+            const result = await impl.getSystemDetailsBatch(['existing-id', 'missing-id'], false, 2, false);
 
             result.should.have.size(1);
             result.should.have.property('existing-id');
             spy.calledTwice.should.be.true();
         });
 
-        test('throws non-UNKNOWN_SYSTEM errors', async function () {
+        test('throws non-404 errors even with strict=false', async function () {
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(new Error('Network error'));
 
-            await expect(impl.getSystemDetailsBatchPartial(['id'])).rejects.toThrow();
+            await expect(impl.getSystemDetailsBatch(['id'], false, 0, false)).rejects.toThrow();
         });
     });
 
