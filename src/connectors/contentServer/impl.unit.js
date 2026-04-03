@@ -5,6 +5,8 @@ const base = require('../../test');
 const { mockRequest, mockCache } = require('../testUtils');
 const request = require('../../util/request');
 const errors = require('../../errors');
+const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 
 /* eslint-disable max-len */
 describe('content server impl', function () {
@@ -92,5 +94,14 @@ describe('content server impl', function () {
         result.should.have.length(1);
         const resolution = result[0];
         resolution.should.have.property('resolution_type', 'fix');
+    });
+
+    test('returns empty array on 404', async function () {
+        mockCache();
+        base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+            new StatusCodeError(404, {}, {})
+        );
+
+        await expect(impl.getResolutions('unknown-resolution')).resolves.toEqual([]);
     });
 });

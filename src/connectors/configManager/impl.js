@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const assert = require('assert');
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 
 const { host } = require('../../config').configManager;
 
@@ -26,13 +27,20 @@ module.exports = new class extends Connector {
             headers: this.getForwardedHeaders()
         };
 
-        const result = await this.doHttp (options, false, this.currentProfile);
+        try {
+            const result = await this.doHttp (options, false, this.currentProfile);
 
-        if (!result) {
-            return null;
+            if (!result) {
+                return null;
+            }
+
+            return result;
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return null;
+            }
+            throw e;
         }
-
-        return result;
     }
 
     async ping () {
