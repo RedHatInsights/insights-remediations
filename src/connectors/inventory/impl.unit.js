@@ -13,6 +13,13 @@ const RequestError = require('request-promise-core/errors').RequestError;
 const inventory_GET = require('./inventory_GET.json');
 const errors = require('../../errors');
 
+// Helper to create UNKNOWN_SYSTEM error with notFoundIds (simulates what http.js throws)
+function createUnknownSystemError(notFoundIds) {
+    const err = new errors.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${notFoundIds.join(', ')}"`);
+    err.notFoundIds = notFoundIds;
+    return err;
+}
+
 function inventoryResponse (results, total = results.length) {
     return {
         results,
@@ -284,7 +291,7 @@ describe('inventory impl', function () {
             spy.calledOnce.should.be.true();
         });
 
-        test('throws unknownSystem error when Inventory returns 404', async function () {
+        test('throws UNKNOWN_SYSTEM when Inventory returns 404', async function () {
             const cache = mockCache();
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
                 new StatusCodeError(404, {}, { not_found_ids: ['non-existent-id'] })
@@ -320,6 +327,65 @@ describe('inventory impl', function () {
             } catch (e) {
                 expect(e.notFoundIds).toEqual(['missing-id-1', 'missing-id-2']);
             }
+        });
+    });
+
+    describe('getSystemDetailsBatch with strict=false', function () {
+        test('returns systems when all exist', async function () {
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves({
+                results: [{
+                    id: 'existing-id',
+                    display_name: 'Existing System',
+                    fqdn: 'existing.example.com',
+                    ansible_host: null,
+                    facts: []
+                }]
+            });
+
+            const result = await impl.getSystemDetailsBatch(['existing-id'], false, 2, false);
+
+            result.should.have.size(1);
+            result.should.have.property('existing-id');
+            spy.calledOnce.should.be.true();
+        });
+
+        test('returns empty object when all systems not found', async function () {
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, { not_found_ids: ['missing-id'] })
+            );
+
+            const result = await impl.getSystemDetailsBatch(['missing-id'], false, 2, false);
+
+            result.should.be.empty();
+            spy.calledOnce.should.be.true();
+        });
+
+        test('retries with remaining IDs when some systems not found', async function () {
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp');
+            // First call throws 404 with not_found_ids
+            spy.onFirstCall().rejects(new StatusCodeError(404, {}, { not_found_ids: ['missing-id'] }));
+            // Second call returns the remaining system
+            spy.onSecondCall().resolves({
+                results: [{
+                    id: 'existing-id',
+                    display_name: 'Existing System',
+                    fqdn: 'existing.example.com',
+                    ansible_host: null,
+                    facts: []
+                }]
+            });
+
+            const result = await impl.getSystemDetailsBatch(['existing-id', 'missing-id'], false, 2, false);
+
+            result.should.have.size(1);
+            result.should.have.property('existing-id');
+            spy.calledTwice.should.be.true();
+        });
+
+        test('throws non-404 errors even with strict=false', async function () {
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(new Error('Network error'));
+
+            await expect(impl.getSystemDetailsBatch(['id'], false, 0, false)).rejects.toThrow();
         });
     });
 

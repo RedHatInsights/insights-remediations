@@ -2320,4 +2320,122 @@ describe('remediations', function () {
                 .expect(403);
         });
     });
+
+    describe('inventory missing systems handling', function () {
+        let createdRemediationId;
+        let existingSystemId1;
+        let existingSystemId2;
+        let missingSystemId;
+
+        beforeEach(async () => {
+            createdRemediationId = uuidv4();
+            existingSystemId1 = uuidv4();
+            existingSystemId2 = uuidv4();
+            missingSystemId = uuidv4();
+
+            await db.remediation.create({
+                id: createdRemediationId,
+                name: 'missing-systems-test-remediation',
+                needs_reboot: false,
+                tenant_org_id: '0000000',
+                account_number: '0000000',
+                created_by: 'tuser@redhat.com',
+                updated_by: 'tuser@redhat.com'
+            });
+
+            await db.issue.create({
+                remediation_id: createdRemediationId,
+                issue_id: 'test:ping',
+                resolution: 'fix'
+            });
+
+            const issueRecord = await db.issue.findOne({ where: { remediation_id: createdRemediationId } });
+
+            await db.issue_system.bulkCreate([
+                { remediation_issue_id: issueRecord.id, system_id: existingSystemId1 },
+                { remediation_issue_id: issueRecord.id, system_id: existingSystemId2 },
+                { remediation_issue_id: issueRecord.id, system_id: missingSystemId }
+            ]);
+
+            await db.systems.bulkCreate([
+                { id: existingSystemId1, hostname: 'host1.example.com', display_name: 'Host 1' },
+                { id: existingSystemId2, hostname: 'host2.example.com', display_name: 'Host 2' },
+                { id: missingSystemId, hostname: 'missing.example.com', display_name: 'Missing' }
+            ]);
+        });
+
+        afterEach(async () => {
+            const issueRecord = await db.issue.findOne({ where: { remediation_id: createdRemediationId } });
+            if (issueRecord) {
+                await db.issue_system.destroy({ where: { remediation_issue_id: issueRecord.id }, force: true });
+            }
+            await db.issue.destroy({ where: { remediation_id: createdRemediationId }, force: true });
+            await db.remediation.destroy({ where: { id: createdRemediationId }, force: true });
+            await db.systems.destroy({ where: { id: [existingSystemId1, existingSystemId2, missingSystemId] } });
+        });
+
+        test('filters out systems not found in inventory from the response', async () => {
+            const sandbox = base.getSandbox();
+
+            // Stub the partial fetch helper to return only existing systems
+            sandbox.stub(inventory, 'getSystemDetailsBatch').resolves({
+                [existingSystemId1]: { id: existingSystemId1, hostname: 'host1.example.com', display_name: 'Host 1' },
+                [existingSystemId2]: { id: existingSystemId2, hostname: 'host2.example.com', display_name: 'Host 2' }
+            });
+
+            const { body } = await request
+                .get(`/v1/remediations/${createdRemediationId}`)
+                .expect(200);
+
+            body.should.have.property('id', createdRemediationId);
+            body.should.have.property('issues');
+            body.issues.should.have.length(1);
+            body.issues[0].systems.should.have.length(2);
+
+            const systemIds = body.issues[0].systems.map(s => s.id);
+            systemIds.should.containDeep([existingSystemId1, existingSystemId2]);
+            systemIds.should.not.containEql(missingSystemId);
+
+            // DB should NOT be modified (no cleanup during reads)
+            const issueSystemsInDb = await db.issue_system.findAll({
+                include: [{ model: db.issue, where: { remediation_id: createdRemediationId } }]
+            });
+            issueSystemsInDb.should.have.length(3);
+        });
+
+        test('succeeds when all systems exist in inventory', async () => {
+            const sandbox = base.getSandbox();
+
+            sandbox.stub(inventory, 'getSystemDetailsBatch').resolves({
+                [existingSystemId1]: { id: existingSystemId1, hostname: 'host1.example.com', display_name: 'Host 1' },
+                [existingSystemId2]: { id: existingSystemId2, hostname: 'host2.example.com', display_name: 'Host 2' },
+                [missingSystemId]: { id: missingSystemId, hostname: 'exists.example.com', display_name: 'Exists' }
+            });
+
+            const { body } = await request
+                .get(`/v1/remediations/${createdRemediationId}`)
+                .expect(200);
+
+            body.should.have.property('id', createdRemediationId);
+            body.should.have.property('issues');
+            body.issues.should.have.length(1);
+            body.issues[0].systems.should.have.length(3);
+        });
+
+        test('returns empty issues when all systems are missing from inventory', async () => {
+            const sandbox = base.getSandbox();
+
+            // Inventory returns empty object (all systems not found - gracefully handled)
+            sandbox.stub(inventory, 'getSystemDetailsBatch').resolves({});
+
+            const { body } = await request
+                .get(`/v1/remediations/${createdRemediationId}`)
+                .expect(200);
+
+            body.should.have.property('id', createdRemediationId);
+            body.should.have.property('issues');
+            // When all systems are filtered out, the issue has no systems and gets filtered out
+            body.issues.should.have.length(0);
+        });
+    });
 });

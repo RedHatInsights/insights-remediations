@@ -47,7 +47,7 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
 
         // Always throw an error if an issue cannot be added to the playbook
         // to prevent generating partial playbooks with missing issues
-        probes.failedGeneration(issue.id);
+        probes.failedGeneration();
         throw e;
     })).filter(issue => issue);
 
@@ -125,6 +125,19 @@ exports.systemToHost = function (system) {
     return system.ansible_host || system.hostname || system.id;
 };
 
+/**
+ * Resolves system IDs to hostnames by fetching system details from Inventory.
+ * Adds a `hosts` property to each issue containing the resolved hostnames.
+ *
+ * @param {Array} issues - Array of issue objects, each containing a `systems` array of system IDs
+ * @param {boolean} strict - Controls error handling for missing systems:
+ *   - true (default): Throws UNKNOWN_SYSTEM error if any system ID is not found in Inventory
+ *   - false: Gracefully handles missing systems by filtering them out and removing empty issues
+ *
+ * Returns the issues array with `hosts` added to each issue
+ * Or throws UNKNOWN_SYSTEM error if strict=true and some systems weren't found in Inventory.
+ * When strict=false, missing systems are filtered out and issues with no remaining systems are removed.
+ */
 exports.resolveSystems = async function (issues, strict = true) {
     trace.enter('generator.controller.resolveSystems');
 
@@ -133,11 +146,18 @@ exports.resolveSystems = async function (issues, strict = true) {
         trace.event(`System IDs: ${JSON.stringify(systemIds)}`);
     }
 
-    // bypass cache as ansible_host may change so we want to grab the latest one
     trace.event('Get system details...');
-    const systems = await inventory.getSystemDetailsBatch(systemIds, true);
+    // Fetch system details from Inventory:
+    // - refresh=true: bypass cache as ansible_host may change
+    // - strict=true: throw UNKNOWN_SYSTEM error if any systems are missing
+    // - strict=false: return partial results with only known systems
+    const systems = await inventory.getSystemDetailsBatch(systemIds, true, 2, strict)
+        .catch(e => {
+            probes.failedGeneration();
+            throw e;
+        });
 
-    // If strict=false and there are systems that don't exist in Inventory, remove them from the issues
+    // When strict=false, filter out missing systems from issues
     if (!strict) {
         trace.event('Remove systems for which we have no inventory entry...');
         _.forEach(issues, issue => issue.systems = issue.systems.filter((id) => {
@@ -146,23 +166,14 @@ exports.resolveSystems = async function (issues, strict = true) {
         }));
     }
 
-    // Map system IDs to hostnames and verify all systems exist in Inventory
-    // With strict=false: missing systems were already filtered out above, so this should pass
-    // With strict=true: no filtering happened, so throw an error if any system is missing
-    trace.event('Verify that there are no systems for which we have no inventory entry...');
+    // Map system IDs to hostnames
+    trace.event('Map system IDs to hosts...');
     _.forEach(issues, issue => issue.hosts = issue.systems.map(id => {
-        if (!systems.hasOwnProperty(id)) {
-            trace.event(`Found no data for system: ${id}`);
-            probes.failedGeneration(issue.id);
-            throw errors.unknownSystem(id);
-        }
-
-        // validated by openapi middleware and also above
         // eslint-disable-next-line security/detect-object-injection
         const system = systems[id];
         return exports.systemToHost(system);
     }));
-    trace.event('All systems verified!');
+    trace.event('All systems mapped!');
 
     // If strict=false, filter out issues with no systems (systems that were removed because they don't exist in Inventory)
     if (!strict) {
