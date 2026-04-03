@@ -47,7 +47,7 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
 
         // Always throw an error if an issue cannot be added to the playbook
         // to prevent generating partial playbooks with missing issues
-        probes.failedGeneration(issue.id);
+        probes.failedGeneration();
         throw e;
     })).filter(issue => issue);
 
@@ -151,7 +151,11 @@ exports.resolveSystems = async function (issues, strict = true) {
     // - refresh=true: bypass cache as ansible_host may change
     // - strict=true: throw UNKNOWN_SYSTEM error if any systems are missing
     // - strict=false: return partial results with only known systems
-    const systems = await inventory.getSystemDetailsBatch(systemIds, true, 2, strict);
+    const systems = await inventory.getSystemDetailsBatch(systemIds, true, 2, strict)
+        .catch(e => {
+            probes.failedGeneration();
+            throw e;
+        });
 
     // When strict=false, filter out missing systems from issues
     if (!strict) {
