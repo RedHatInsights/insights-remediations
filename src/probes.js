@@ -71,9 +71,12 @@ exports.playbookGenerated = function (req, {auto_reboot, issues}, name) {
     }, 'playbook generated');
 };
 
-exports.failedGeneration = function () {
+exports.failedGeneration = function ({ issueId = null, systemIds = null } = {}) {
     failedPlaybookCounter.inc();
-    log.info('playbook generation failed');
+    log.info({
+        issue_id: issueId,
+        system_ids: systemIds
+    }, 'playbook generation failed');
 };
 
 exports.rbacErrorCount = function (permission, availablePermissions) {
