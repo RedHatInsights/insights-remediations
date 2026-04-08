@@ -47,7 +47,7 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
 
         // Always throw an error if an issue cannot be added to the playbook
         // to prevent generating partial playbooks with missing issues
-        probes.failedGeneration({ issueId: issue.id });
+        probes.failedGeneration(`failed to get snippet for issue: ${issue.id}`);
         throw e;
     })).filter(issue => issue);
 
@@ -153,7 +153,7 @@ exports.resolveSystems = async function (issues, strict = true) {
     // - strict=false: return partial results with only known systems
     const systems = await inventory.getSystemDetailsBatch(systemIds, true, 2, strict)
         .catch(e => {
-            probes.failedGeneration({ systemIds });
+            probes.failedGeneration('unknown system(s)');
             throw e;
         });
 
