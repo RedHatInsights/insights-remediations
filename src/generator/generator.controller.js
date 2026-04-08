@@ -128,17 +128,17 @@ exports.systemToHost = function (system) {
 };
 
 /**
- * Resolves system IDs to hostnames by fetching system details from Inventory.
+ * Resolves system IDs to hostnames by first checking the local systems table,
+ * then falling back to Inventory for any missing systems.
  * Adds a `hosts` property to each issue containing the resolved hostnames.
  *
  * @param {Array} issues - Array of issue objects, each containing a `systems` array of system IDs
  * @param {boolean} strict - Controls error handling for missing systems:
- *   - true (default): Throws UNKNOWN_SYSTEM error if any system ID is not found in Inventory
- *   - false: Gracefully handles missing systems by filtering them out and removing empty issues
+ *   - true (default): Throws UNKNOWN_SYSTEM error if any system ID is not found
+ *   - false: Filters out missing systems from hosts and removes issues with no valid systems/hosts
  *
- * Returns the issues array with `hosts` added to each issue
- * Or throws UNKNOWN_SYSTEM error if strict=true and some systems weren't found in Inventory.
- * When strict=false, missing systems are filtered out and issues with no remaining systems are removed.
+ * Returns the issues array with `hosts` added. Issues with no valid hosts are removed (strict=false only).
+ * Systems fetched from Inventory are stored locally for future lookups.
  */
 exports.resolveSystems = async function (issues, strict = true) {
     trace.enter('generator.controller.resolveSystems');
@@ -155,6 +155,7 @@ exports.resolveSystems = async function (issues, strict = true) {
     const missingIds = systemIds.filter(id => !(id in systems));
     if (missingIds.length > 0) {
         trace.event(`Fetching ${missingIds.length} missing systems from Inventory...`);
+
         // Fetch system details from Inventory:
         // - refresh=true: bypass cache as ansible_host may change
         // - strict=true: throw UNKNOWN_SYSTEM error if any systems are missing
@@ -170,18 +171,19 @@ exports.resolveSystems = async function (issues, strict = true) {
         systems = { ...systems, ...inventoryData };
     }
 
-    // Filter out systems not found in local systems table or Inventory, then map to hosts
+    // Map system IDs to Ansible hostnames and filters out any systems not found in local systems table or Inventory
     // For strict=true this is a no-op since getSystemDetailsBatch throws if any systems are missing
     trace.event('Filter systems and map to hosts...');
     _.forEach(issues, issue => {
-        issue.systems = issue.systems.filter(id => id in systems);
         // eslint-disable-next-line security/detect-object-injection
-        issue.hosts = issue.systems.map(id => exports.systemToHost(systems[id]));
+        issue.hosts = issue.systems
+            .filter(id => id in systems)
+            .map(id => exports.systemToHost(systems[id]));
     });
 
-    // Remove issues that have no systems left after filtering
-    // For strict=true this is a no-op since all systems should exist
-    issues = _.filter(issues, issue => issue.systems.length > 0);
+    // Remove issues that have no hosts after filtering
+    // For strict=true this is a no-op since no systems should have been filtered out
+    issues = _.filter(issues, issue => issue.hosts.length > 0);
 
     trace.leave();
     return issues;
