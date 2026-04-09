@@ -145,6 +145,16 @@ Update deployment configuration files to call `sequelize` CLI directly instead o
 - `deployment/chart/values-qa.yaml`
 - `deployment/chart/values-prod.yaml`
 
+**IMPORTANT - External Configuration:**
+
+The `${MIGRATION_COMMAND}` variable in `deployment/clowdapp.yml` is populated from the **app-interface** repository, not from this codebase. The actual migration command values are defined in:
+
+- **Repository:** `https://gitlab.cee.redhat.com/service/app-interface`
+- **File:** `data/services/insights/remediations/deploy-clowder.yml`
+- **Reference:** [commit 589010f](https://gitlab.cee.redhat.com/service/app-interface/-/blob/589010f48d9266b3eed9ebf5c3c0123ab51d5751/data/services/insights/remediations/deploy-clowder.yml)
+
+This external configuration must be updated in addition to the local values files.
+
 **Changes:**
 
 ```yaml
@@ -262,9 +272,11 @@ COPY --from=build $APP_ROOT/node_modules ./node_modules
 - Update `dist` stage to copy node_modules instead of running npm ci
 
 ### Step 2: Update Deployment Configs
-- Update `deployment/chart/values-ci.yaml`
-- Update `deployment/chart/values-qa.yaml`
-- Update `deployment/chart/values-prod.yaml`
+
+**External repository (app-interface):**
+- Update `data/services/insights/remediations/deploy-clowder.yml` in app-interface repository
+- Change `MIGRATION_COMMAND` values from `npm run` to direct `node_modules/.bin/sequelize` calls
+- Coordinate deployment timing with app-interface changes
 
 ### Step 3: Test Locally
 - Build image
@@ -294,8 +306,11 @@ COPY --from=build $APP_ROOT/node_modules ./node_modules
 If issues arise:
 
 1. **Immediate**: Revert deployment config changes (restore `npm run` commands)
-2. **Next deploy**: Revert Dockerfile changes
+   - Revert app-interface repository changes to restore original `MIGRATION_COMMAND` values
+   - Revert local values-*.yaml files if necessary
+2. **Next deploy**: Revert Dockerfile changes (restore npm in prod-base)
 3. **Low risk**: Changes are isolated and easily reversible
+4. **Coordination**: Ensure app-interface rollback is coordinated with image rollback if needed
 
 ## Future Enhancements (Out of Scope)
 
