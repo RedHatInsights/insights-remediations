@@ -26,7 +26,7 @@ const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_
 
 const RUNSFIELDS = Object.freeze({fields: {data: ['id', 'labels', 'status', 'service', 'created_at', 'updated_at', 'url']}});
 const RUNHOSTFIELDS = Object.freeze({fields: {data: ['host', 'stdout', 'inventory_id']}});
-const RHCRUNFIELDS = Object.freeze({fields: {data: ['host', 'status', 'inventory_id']}});
+const RHCRUNFIELDS = Object.freeze({fields: {data: ['host', 'status', 'inventory_id', 'run']}});
 const RHCSTATUSES = ['timeout', 'failure', 'success', 'running', 'canceled'];
 
 const DIFF_MODE = false;
@@ -232,41 +232,39 @@ exports.formatRunHosts = async function (dispatcherRuns, playbook_run_id) {
     let hosts = [];
 
     if (dispatcherRuns?.data) {
-        // Collect all inventory IDs to fetch system details in batch
-        const allInventoryIds = [];
-        const allHosts = [];
+        // Build a map of run.id -> run for looking up updated_at
+        const runsMap = _.keyBy(dispatcherRuns.data, 'id');
 
-        for (const run of dispatcherRuns.data) {
-            // get dispatcher run hosts...
-            const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run.id);
-            const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
+        // Fetch all hosts for this playbook run in a single API call.
+        // We filter by the 'playbook-run' label (set to the remediation's playbook_run_id when runs are created).
+        // Playbook-dispatcher returns all hosts across all dispatcher runs that have this label.
+        const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id);
+        const allRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
 
-            // Collect hosts and inventory IDs for batch processing
-            for (const host of rhcRunHosts.data) {
-                allInventoryIds.push(host.inventory_id);
-                allHosts.push({
-                    host,
-                    run,
-                    playbook_run_id
-                });
-            }
+        if (!allRunHosts?.data) {
+            return hosts;
         }
+
+        // Collect all inventory IDs for batch system details lookup
+        const allInventoryIds = allRunHosts.data.map(host => host.inventory_id);
 
         // Fetch system details for all inventory IDs in batch
         const systemDetails = await queries.getPlanSystemsDetails(allInventoryIds);
 
         // Format hosts with proper system names
-        hosts = allHosts.map(({ host, run, playbook_run_id }) => {
+        hosts = allRunHosts.data.map(host => {
             const details = systemDetails[host.inventory_id];
             // Use display_name if available, fallback to hostname, then to host.host
             const systemName = details?.display_name || details?.hostname || host.host;
             const isDirect = (host.host === 'localhost');
+            // Look up the parent run to get updated_at
+            const run = runsMap[host.run?.id] || {};
             return {
                 system_id: host.inventory_id,
                 system_name: systemName,
                 status: (host.status === 'timeout' ? 'failure' : host.status),
                 updated_at: run.updated_at,
-                playbook_run_executor_id: isDirect ? playbook_run_id : run.id,
+                playbook_run_executor_id: isDirect ? playbook_run_id : host.run?.id,
                 executor_type: isDirect ? 'direct' : 'satellite'
             };
         });
