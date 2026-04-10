@@ -311,11 +311,15 @@ describe('formatRunHosts and formatRHCHostDetails', function () {
                 data: [
                     {
                         inventory_id: system1Id,
-                        status: 'success'
+                        host: 'localhost',
+                        status: 'success',
+                        run: { id: 'run1' }
                     },
                     {
                         inventory_id: system2Id,
-                        status: 'running'
+                        host: 'localhost',
+                        status: 'running',
+                        run: { id: 'run1' }
                     }
                 ]
             });
@@ -325,6 +329,7 @@ describe('formatRunHosts and formatRHCHostDetails', function () {
             result.should.have.length(2);
             result[0].should.have.property('system_id', system1Id);
             result[0].should.have.property('system_name', 'Production Server 1'); // Uses display_name
+            result[0].should.have.property('updated_at', '2023-10-01T12:00:00.000Z');
             result[1].should.have.property('system_id', system2Id);
             result[1].should.have.property('system_name', 'Production Server 2'); // Uses display_name
         });
@@ -350,7 +355,9 @@ describe('formatRunHosts and formatRHCHostDetails', function () {
             base.sandbox.stub(dispatcher, 'fetchPlaybookRunHosts').resolves({
                 data: [{
                     inventory_id: system1Id,
-                    status: 'success'
+                    host: 'localhost',
+                    status: 'success',
+                    run: { id: 'run1' }
                 }]
             });
 
@@ -377,7 +384,8 @@ describe('formatRunHosts and formatRHCHostDetails', function () {
                 data: [{
                     inventory_id: system3Id,
                     status: 'success',
-                    host: 'dispatcher-host-name'
+                    host: 'dispatcher-host-name',
+                    run: { id: 'run1' }
                 }]
             });
 
