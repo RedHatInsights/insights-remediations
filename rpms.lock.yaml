@@ -4,41 +4,41 @@ lockfileVendor: redhat
 arches:
 - arch: x86_64
   packages:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/n/nodejs-22.22.0-1.module+el9.7.0+23896+b5802de9.x86_64.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/n/nodejs-22.22.2-1.module+el9.7.0+24157+8ddb2461.x86_64.rpm
     repoid: ubi-9-for-x86_64-appstream-rpms
-    size: 2519345
-    checksum: sha256:bea943bd09a1cc059281e8d82598d1abb29469c336e572d25cb70a0779802cfa
+    size: 2392597
+    checksum: sha256:9bd07b86de1b32ab5c9bcc189f489906235550ef8fe90f5dc65953329d260af1
     name: nodejs
-    evr: 1:22.22.0-1.module+el9.7.0+23896+b5802de9
-    sourcerpm: nodejs-22.22.0-1.module+el9.7.0+23896+b5802de9.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/n/nodejs-docs-22.22.0-1.module+el9.7.0+23896+b5802de9.noarch.rpm
+    evr: 1:22.22.2-1.module+el9.7.0+24157+8ddb2461
+    sourcerpm: nodejs-22.22.2-1.module+el9.7.0+24157+8ddb2461.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/n/nodejs-docs-22.22.2-1.module+el9.7.0+24157+8ddb2461.noarch.rpm
     repoid: ubi-9-for-x86_64-appstream-rpms
-    size: 9650998
-    checksum: sha256:57df304d9bb54c9ba65cf1140defd62aca871dbc9288f42d8eb2fec6f37e75f9
+    size: 9697379
+    checksum: sha256:a05a841a36332d6c37b7bfad11a364121b1ed8a6a7a3aed5ed26d1bf19285edd
     name: nodejs-docs
-    evr: 1:22.22.0-1.module+el9.7.0+23896+b5802de9
-    sourcerpm: nodejs-22.22.0-1.module+el9.7.0+23896+b5802de9.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/n/nodejs-full-i18n-22.22.0-1.module+el9.7.0+23896+b5802de9.x86_64.rpm
+    evr: 1:22.22.2-1.module+el9.7.0+24157+8ddb2461
+    sourcerpm: nodejs-22.22.2-1.module+el9.7.0+24157+8ddb2461.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/n/nodejs-full-i18n-22.22.2-1.module+el9.7.0+24157+8ddb2461.x86_64.rpm
     repoid: ubi-9-for-x86_64-appstream-rpms
-    size: 9025936
-    checksum: sha256:5e2ef11ef157be91017519eaadd96aaeefc15645aafbf2369fee3dd0f2c5b427
+    size: 9307454
+    checksum: sha256:6997ffc4b1b4c173f754c948ecc5c4e2556081e61cb68364bf4739355d4ffa46
     name: nodejs-full-i18n
-    evr: 1:22.22.0-1.module+el9.7.0+23896+b5802de9
-    sourcerpm: nodejs-22.22.0-1.module+el9.7.0+23896+b5802de9.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/n/nodejs-libs-22.22.0-1.module+el9.7.0+23896+b5802de9.x86_64.rpm
+    evr: 1:22.22.2-1.module+el9.7.0+24157+8ddb2461
+    sourcerpm: nodejs-22.22.2-1.module+el9.7.0+24157+8ddb2461.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/n/nodejs-libs-22.22.2-1.module+el9.7.0+24157+8ddb2461.x86_64.rpm
     repoid: ubi-9-for-x86_64-appstream-rpms
-    size: 21375668
-    checksum: sha256:108df51ed02cb3c0a3fd36992fd15555ec3558c9faf108192a203ae65f2a4733
+    size: 21516839
+    checksum: sha256:798d481fa711081e5de0935441804d0d7ab7ebf03276493edd41cc6b1297ed6e
     name: nodejs-libs
-    evr: 1:22.22.0-1.module+el9.7.0+23896+b5802de9
-    sourcerpm: nodejs-22.22.0-1.module+el9.7.0+23896+b5802de9.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/n/npm-10.9.4-1.22.22.0.1.module+el9.7.0+23896+b5802de9.x86_64.rpm
+    evr: 1:22.22.2-1.module+el9.7.0+24157+8ddb2461
+    sourcerpm: nodejs-22.22.2-1.module+el9.7.0+24157+8ddb2461.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/n/npm-10.9.7-1.22.22.2.1.module+el9.7.0+24157+8ddb2461.x86_64.rpm
     repoid: ubi-9-for-x86_64-appstream-rpms
-    size: 2730645
-    checksum: sha256:18ab0f8f57a477ea2bd50b89735a61133c2aabd53d967ae4daacf7b02f28f141
+    size: 2604983
+    checksum: sha256:69bc1c72dbc7bbea22bf63af79c9718d637e84d5b87c40818678940473c0114a
     name: npm
-    evr: 1:10.9.4-1.22.22.0.1.module+el9.7.0+23896+b5802de9
-    sourcerpm: nodejs-22.22.0-1.module+el9.7.0+23896+b5802de9.src.rpm
+    evr: 1:10.9.7-1.22.22.2.1.module+el9.7.0+24157+8ddb2461
+    sourcerpm: nodejs-22.22.2-1.module+el9.7.0+24157+8ddb2461.src.rpm
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/o/oniguruma-6.9.6-1.el9.5.x86_64.rpm
     repoid: ubi-9-for-x86_64-appstream-rpms
     size: 226331
@@ -69,7 +69,7 @@ arches:
     sourcerpm: openssl-3.5.1-7.el9_7.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/repodata/74965c6aec164f3ab0062e0a3301c89a360993635788f716c9079cf899dd8784-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/repodata/f4869060161a646325dafe515cffaf5305da27c98d6deaa59905f5b61ff0d9f1-modules.yaml.gz
     repoid: ubi-9-for-x86_64-appstream-rpms
-    size: 8674
-    checksum: sha256:74965c6aec164f3ab0062e0a3301c89a360993635788f716c9079cf899dd8784
+    size: 8756
+    checksum: sha256:f4869060161a646325dafe515cffaf5305da27c98d6deaa59905f5b61ff0d9f1
