@@ -245,8 +245,8 @@ exports.formatRunHosts = async function (dispatcherRuns, playbook_run_id) {
             return hosts;
         }
 
-        // Collect all inventory IDs for batch system details lookup
-        const allInventoryIds = allRunHosts.data.map(host => host.inventory_id);
+        // Collect unique inventory IDs for batch system details lookup
+        const allInventoryIds = _.uniq(allRunHosts.data.map(host => host.inventory_id));
 
         // Fetch system details for all inventory IDs in batch
         const systemDetails = await queries.getPlanSystemsDetails(allInventoryIds);
