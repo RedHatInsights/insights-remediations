@@ -13,6 +13,13 @@ const RequestError = require('request-promise-core/errors').RequestError;
 const inventory_GET = require('./inventory_GET.json');
 const errors = require('../../errors');
 
+// Helper to create UNKNOWN_SYSTEM error with notFoundIds (simulates what http.js throws)
+function createUnknownSystemError(notFoundIds) {
+    const err = new errors.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${notFoundIds.join(', ')}"`);
+    err.notFoundIds = notFoundIds;
+    return err;
+}
+
 function inventoryResponse (results, total = results.length) {
     return {
         results,
@@ -284,7 +291,7 @@ describe('inventory impl', function () {
             spy.calledOnce.should.be.true();
         });
 
-        test('throws unknownSystem error when Inventory returns 404', async function () {
+        test('throws UNKNOWN_SYSTEM when Inventory returns 404', async function () {
             const cache = mockCache();
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
                 new StatusCodeError(404, {}, { not_found_ids: ['non-existent-id'] })
@@ -320,6 +327,156 @@ describe('inventory impl', function () {
             } catch (e) {
                 expect(e.notFoundIds).toEqual(['missing-id-1', 'missing-id-2']);
             }
+        });
+    });
+
+    describe('getSystemDetailsBatch with strict=false', function () {
+        test('returns systems when all exist', async function () {
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves({
+                results: [{
+                    id: 'existing-id',
+                    display_name: 'Existing System',
+                    fqdn: 'existing.example.com',
+                    ansible_host: null,
+                    facts: []
+                }]
+            });
+
+            const result = await impl.getSystemDetailsBatch(['existing-id'], false, 2, false);
+
+            result.should.have.size(1);
+            result.should.have.property('existing-id');
+            spy.calledOnce.should.be.true();
+        });
+
+        test('returns empty object when all systems not found', async function () {
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, { not_found_ids: ['missing-id'] })
+            );
+
+            const result = await impl.getSystemDetailsBatch(['missing-id'], false, 2, false);
+
+            result.should.be.empty();
+            spy.calledOnce.should.be.true();
+        });
+
+        test('retries with remaining IDs when some systems not found', async function () {
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp');
+            // First call throws 404 with not_found_ids
+            spy.onFirstCall().rejects(new StatusCodeError(404, {}, { not_found_ids: ['missing-id'] }));
+            // Second call returns the remaining system
+            spy.onSecondCall().resolves({
+                results: [{
+                    id: 'existing-id',
+                    display_name: 'Existing System',
+                    fqdn: 'existing.example.com',
+                    ansible_host: null,
+                    facts: []
+                }]
+            });
+
+            const result = await impl.getSystemDetailsBatch(['existing-id', 'missing-id'], false, 2, false);
+
+            result.should.have.size(1);
+            result.should.have.property('existing-id');
+            spy.calledTwice.should.be.true();
+        });
+
+        test('throws non-404 errors even with strict=false', async function () {
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(new Error('Network error'));
+
+            await expect(impl.getSystemDetailsBatch(['id'], false, 0, false)).rejects.toThrow();
+        });
+
+        test('handles chunking with 404s - multiple chunks with missing systems', async function () {
+            // Create 301 system IDs (4 chunks with pageSize=100: 100, 100, 100, 1)
+            const allIds = Array(301).fill(0).map((_, i) => 
+                `84762eb3-0bbb-4bd8-ab11-f420c50e9${String(i).padStart(3, '0')}`
+            );
+
+            // Define which systems are "missing" from each chunk
+            // Chunk 1 (indices 0-99): 1 missing
+            // Chunk 2 (indices 100-199): 3 missing
+            // Chunk 3 (indices 200-299): 8 missing
+            // Chunk 4 (index 300): 1 missing (the only one in this chunk)
+            const missingIds = new Set([
+                allIds[0],   // 1 from chunk 1
+                allIds[100], allIds[101], allIds[102],  // 3 from chunk 2
+                allIds[200], allIds[201], allIds[202], allIds[203], 
+                allIds[204], allIds[205], allIds[206], allIds[207],  // 8 from chunk 3
+                allIds[300]  // 1 from chunk 4 (the only one)
+            ]);
+
+            // Create mock data for all "existing" systems
+            const existingSystems = allIds
+                .filter(id => !missingIds.has(id))
+                .reduce((acc, id) => {
+                    acc[id] = {
+                        id,
+                        display_name: `System ${id}`,
+                        fqdn: `${id}.example.com`,
+                        ansible_host: null,
+                        facts: []
+                    };
+                    return acc;
+                }, {});
+
+            // Track which chunks have been called (to simulate 404 on first call, success on retry)
+            const chunkAttempts = {};
+
+            base.getSandbox().stub(request, 'run').callsFake(params => {
+                const { path } = URI.parse(params.uri);
+                const parts = path.split('/');
+                const requestedIds = parts[parts.length - 1].split(',');
+
+                // Create a key to identify this chunk (sorted IDs)
+                const chunkKey = [...requestedIds].sort().join(',');
+
+                // Find missing IDs in this request
+                const missingInRequest = requestedIds.filter(id => missingIds.has(id));
+
+                // First attempt for a chunk with missing IDs: return 404
+                if (missingInRequest.length > 0 && !chunkAttempts[chunkKey]) {
+                    chunkAttempts[chunkKey] = true;
+                    return Promise.resolve({
+                        statusCode: 404,
+                        body: { not_found_ids: missingInRequest },
+                        headers: {}
+                    });
+                }
+
+                // Retry or no missing IDs: return success with existing systems
+                const results = requestedIds
+                    .filter(id => existingSystems[id])
+                    .map(id => existingSystems[id]);
+
+                return Promise.resolve({
+                    statusCode: 200,
+                    body: {
+                        count: results.length,
+                        page: 1,
+                        per_page: 100,
+                        results,
+                        total: results.length
+                    },
+                    headers: {}
+                });
+            });
+
+            const result = await impl.getSystemDetailsBatch(allIds, false, 2, false);
+
+            // Should have 301 - 13 = 288 systems
+            result.should.have.size(288);
+
+            // Verify none of the missing IDs are in the result
+            missingIds.forEach(id => {
+                expect(result).not.toHaveProperty(id);
+            });
+
+            // Verify all existing systems are in the result
+            Object.keys(existingSystems).forEach(id => {
+                expect(result).toHaveProperty(id);
+            });
         });
     });
 

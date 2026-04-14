@@ -128,7 +128,14 @@ module.exports = new class extends Connector {
         return result;
     }
 
-    async getSystemDetailsBatch (ids = [], refresh = false, retries = 2) {
+    /**
+     * Fetches system details from Inventory API.
+     * @param {string[]} ids - System IDs to fetch
+     * @param {boolean} refresh - Force cache refresh
+     * @param {number} retries - Number of retries on failure
+     * @param {boolean} strict - If true (default), throws on 404. If false, returns partial results.
+     */
+    async getSystemDetailsBatch (ids = [], refresh = false, retries = 2, strict = true) {
         if (ids.length === 0) {
             return {};
         }
@@ -137,7 +144,7 @@ module.exports = new class extends Connector {
 
         if (ids.length > pageSize) {
             const chunks = _.chunk(ids, pageSize);
-            const results = await P.map(chunks, chunk => this.getSystemDetailsBatch(chunk, refresh));
+            const results = await P.map(chunks, chunk => this.getSystemDetailsBatch(chunk, refresh, retries, strict));
             return _.assign({}, ...results);
         }
 
@@ -168,9 +175,23 @@ module.exports = new class extends Connector {
                 throw e;
             }
 
-            // Handle 404 from Inventory - throw UNKNOWN_SYSTEM with not_found_ids if available
+            // Handle 404 from Inventory
             if (e instanceof StatusCodeError && e.statusCode === 404) {
                 const notFoundIds = e.details?.not_found_ids || ids;
+
+                // If strict=false, retry with remaining IDs instead of throwing
+                if (!strict) {
+                    const remainingIds = _.difference(ids, notFoundIds);
+                    log.warn({ notFoundIds }, 'Systems not found in Inventory, filtering them out');
+
+                    if (remainingIds.length === 0) {
+                        return {};
+                    }
+
+                    return this.getSystemDetailsBatch(remainingIds, refresh, retries, strict);
+                }
+
+                // Otherwise throw UNKNOWN_SYSTEM error
                 const err = new errors.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${notFoundIds.join(', ')}"`);
                 err.notFoundIds = notFoundIds;
                 throw err;
@@ -178,7 +199,7 @@ module.exports = new class extends Connector {
             
             if (retries > 0) {
                 log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
-                return this.getSystemDetailsBatch(ids, true, retries - 1);
+                return this.getSystemDetailsBatch(ids, true, retries - 1, strict);
             }
 
             throw e;

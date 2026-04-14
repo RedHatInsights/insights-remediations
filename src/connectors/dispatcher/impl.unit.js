@@ -7,6 +7,7 @@ const { mockRequest } = require('../testUtils');
 const request = require('../../util/request');
 const errors = require('../../errors');
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 const {systems: host_list, mixed_systems} = require('../inventory/impl.unit.data');
 const URI = require("urijs");
 const _ = require("lodash");
@@ -127,6 +128,14 @@ describe('dispatcher impl', function () {
         test('status code handling dispatcherWorkRequest', async function () {
             base.mockRequestStatusCode();
             await expect(impl.postPlaybookRunRequests(DISPATCHERWORKREQUEST)).rejects.toThrow(errors.DependencyError);
+        });
+
+        test('returns null on 404', async function () {
+            base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, {})
+            );
+
+            await expect(impl.postPlaybookRunRequests(DISPATCHERWORKREQUEST)).resolves.toBeNull();
         });
 
         test('handles many requests', async function () {
@@ -276,6 +285,14 @@ describe('dispatcher impl', function () {
             base.mockRequestStatusCode();
             await expect(impl.fetchPlaybookRuns(MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
         });
+
+        test('returns null on 404', async function () {
+            base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, {})
+            );
+
+            await expect(impl.fetchPlaybookRuns(MOCKFILTER, MOCKFIELDS)).resolves.toBeNull();
+        });
     });
 
     describe('getPlaybookRunHosts', function () {
@@ -366,6 +383,14 @@ describe('dispatcher impl', function () {
             base.mockRequestStatusCode();
             await expect(impl.fetchPlaybookRunHosts(MOCKFILTER, MOCKFIELDS)).rejects.toThrow(errors.DependencyError);
         });
+
+        test('returns null on 404', async function () {
+            base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, {})
+            );
+
+            await expect(impl.fetchPlaybookRunHosts(MOCKFILTER, MOCKFIELDS)).resolves.toBeNull();
+        });
     });
 
     describe('postPlaybookCancelRequest', function () {
@@ -413,6 +438,14 @@ describe('dispatcher impl', function () {
         test('status code handling playbookCancelRequest', async function () {
             base.mockRequestStatusCode();
             await expect(impl.postPlaybookCancelRequest(MOCKCANCELREQUEST)).rejects.toThrow(errors.DependencyError);
+        });
+
+        test('returns null on 404', async function () {
+            base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, {})
+            );
+
+            await expect(impl.postPlaybookCancelRequest(MOCKCANCELREQUEST)).resolves.toBeNull();
         });
     });
 
@@ -478,6 +511,14 @@ describe('dispatcher impl', function () {
             base.mockRequestStatusCode();
             await expect(impl.getPlaybookRunRecipientStatus(DISPATCHSTATUSREQUEST)).rejects.toThrow(errors.DependencyError);
         });
+
+        test('returns null on 404', async function () {
+            base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, {})
+            );
+
+            await expect(impl.getPlaybookRunRecipientStatus(DISPATCHSTATUSREQUEST)).resolves.toBeNull();
+        });
     });
 
     describe('getConnectionStatus', () => {
@@ -530,6 +571,14 @@ describe('dispatcher impl', function () {
         test('status code handling dispatcherV2StatusRequest', async () => {
             base.mockRequestStatusCode();
             await expect(impl.getConnectionStatus(DISPATCHV2STATUSREUEST)).rejects.toThrow(errors.DependencyError);
+        });
+
+        test('returns empty array on 404', async function () {
+            base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, {})
+            );
+
+            await expect(impl.getConnectionStatus(DISPATCHV2STATUSREUEST)).resolves.toEqual([]);
         });
     });
 });

@@ -6,6 +6,7 @@ const qs = require('qs');
 const {host, insecure, auth, pageSize} = require('../../config').dispatcher;
 
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 const metrics = require('../metrics');
 const log = require('../../util/log');
 const P = require("bluebird");
@@ -57,7 +58,15 @@ module.exports = new class extends Connector {
             options.headers.Authorization = `PSK ${auth}`;
         }
 
-        const result = await this.doHttp (options, false, this.postRunRequests);
+        let result;
+        try {
+            result = await this.doHttp (options, false, this.postRunRequests);
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return null;
+            }
+            throw e;
+        }
 
         if (_.isEmpty(result)) {
             return null;
@@ -156,7 +165,15 @@ module.exports = new class extends Connector {
             options.headers.Authorization = `PSK ${auth}`;
         }
 
-        const result = await this.doHttp (options, false, this.postV2ConnectionStatus);
+        let result;
+        try {
+            result = await this.doHttp (options, false, this.postV2ConnectionStatus);
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return [];
+            }
+            throw e;
+        }
 
         if (_.isEmpty(result)) {
             return [];
@@ -192,7 +209,15 @@ module.exports = new class extends Connector {
             options.headers.Authorization = `PSK ${auth}`;
         }
 
-        const result = await this.doHttp (options, false, this.postV2RunRequests);
+        let result;
+        try {
+            result = await this.doHttp (options, false, this.postV2RunRequests);
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return null;
+            }
+            throw e;
+        }
 
         if (_.isEmpty(result)) {
             return null;
@@ -225,9 +250,17 @@ module.exports = new class extends Connector {
         do {
             // grab a page
             options.uri = uri;
-            const batch = await this.doHttp (options,
-                false,
-                this.fetchRuns);
+            let batch;
+            try {
+                batch = await this.doHttp (options,
+                    false,
+                    this.fetchRuns);
+            } catch (e) {
+                if (e instanceof StatusCodeError && e.statusCode === 404) {
+                    break;
+                }
+                throw e;
+            }
 
             // bail if we got nothing
             if (!batch?.data) {
@@ -273,9 +306,17 @@ module.exports = new class extends Connector {
         do {
             // grab a page
             options.uri = uri;
-            const batch = await this.doHttp (options,
-                false,
-                this.fetchRunHosts);
+            let batch;
+            try {
+                batch = await this.doHttp (options,
+                    false,
+                    this.fetchRunHosts);
+            } catch (e) {
+                if (e instanceof StatusCodeError && e.statusCode === 404) {
+                    break;
+                }
+                throw e;
+            }
 
             // bail if we got nothing
             if (!batch?.data) {
@@ -323,7 +364,15 @@ module.exports = new class extends Connector {
             options.headers.Authorization = `PSK ${auth}`;
         }
 
-        const result = await this.doHttp (options, false, this.postPlaybookCancelRequests);
+        let result;
+        try {
+            result = await this.doHttp (options, false, this.postPlaybookCancelRequests);
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return null;
+            }
+            throw e;
+        }
 
         if (_.isEmpty(result.data)) {
             return null;
@@ -362,7 +411,15 @@ module.exports = new class extends Connector {
         }
 
         log.info({request: dispatcherStatusRequest}, 'PRE RunRecipientStatus');
-        const result = await this.doHttp (options, false, this.getRunRecipientStatus);
+        let result;
+        try {
+            result = await this.doHttp (options, false, this.getRunRecipientStatus);
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return null;
+            }
+            throw e;
+        }
         // TODO: ehh, we probably shouldn't be logging this...
         log.info({result: result}, 'POST RunRecipientStatus');
 

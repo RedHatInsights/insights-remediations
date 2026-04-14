@@ -4,6 +4,8 @@ const impl = require('./vmaas');
 const base = require('../../test');
 const { mockRequest, mockCache } = require('../testUtils');
 const request = require('../../util/request');
+const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 
 describe('vmaas impl', function () {
 
@@ -77,5 +79,31 @@ describe('vmaas impl', function () {
         http.callCount.should.equal(1);
         cache.get.callCount.should.equal(1);
         cache.setex.callCount.should.equal(0);
+    });
+
+    test('getCve returns null on 404', async function () {
+        mockCache();
+        base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+            new StatusCodeError(404, {}, {})
+        );
+
+        await expect(impl.getCve('CVE-unknown')).resolves.toBeNull();
+    });
+
+    test('getErratum returns null on 404', async function () {
+        base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+            new StatusCodeError(404, {}, {})
+        );
+
+        await expect(impl.getErratum('RHBA-unknown')).resolves.toBeNull();
+    });
+
+    test('getPackage returns null on 404', async function () {
+        mockCache();
+        base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+            new StatusCodeError(404, {}, {})
+        );
+
+        await expect(impl.getPackage('unknown-package')).resolves.toBeNull();
     });
 });
