@@ -37,7 +37,7 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "auth": "",
     "host": "http://insights-advisor-api.advisor-ci.svc.cluster.local:8000",
     "impl": undefined,
-    "insecure": true,
+    "insecure": false,
     "revalidationInterval": 3600,
   },
   "db": {

@@ -284,19 +284,23 @@ exports.list = errors.async(async function (req, res) {
 });
 
 async function resolveSystems (remediation) {
-    const systems = _.flatMap(remediation.issues, 'systems');
-    const ids = _(systems).map('system_id').uniq().value();
+    const ids = _(remediation.issues).flatMap('systems').map('system_id').uniq().value();
 
-    const resolvedSystems = await inventory.getSystemDetailsBatch(ids);
+    // Fetch systems from Inventory
+    // strict=false gracefully handles 404 and returns partial response with known systems
+    const resolvedSystems = await inventory.getSystemDetailsBatch(ids, false, 2, false);
 
-    remediation.issues.forEach(issue => issue.systems = issue.systems
-    .filter(({system_id}) => _.has(resolvedSystems, system_id)) // filter out systems not found in inventory
-    .map(({system_id, resolved}) => {
-        // filtered above
-        // eslint-disable-next-line security/detect-object-injection
-        const { hostname, display_name } = resolvedSystems[system_id];
-        return { system_id, hostname, display_name, resolved };
-    }));
+    // Filter out systems not in inventory and add hostname/display_name
+    remediation.issues.forEach(issue => {
+        issue.systems = issue.systems
+            .filter(({ system_id }) => resolvedSystems[system_id])
+            .map(({ system_id, resolved }) => ({
+                system_id,
+                resolved,
+                hostname: resolvedSystems[system_id].hostname,
+                display_name: resolvedSystems[system_id].display_name
+            }));
+    });
 }
 
 function resolveIssues (remediation) {

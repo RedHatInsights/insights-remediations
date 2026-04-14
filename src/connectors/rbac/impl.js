@@ -4,6 +4,7 @@ const _ = require('lodash');
 const assert = require('assert');
 const URI = require('urijs');
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 const log = require('../../util/log');
 
 const { host, insecure } = require('../../config').rbac;
@@ -35,6 +36,9 @@ module.exports = new class extends Connector {
 
             return result;
         } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return null;
+            }
             if (retries > 0) {
                 log.warn({ error: e, retries }, 'RBAC access fetch failed. Retrying');
                 return this.getRemediationsAccess(retries - 1);

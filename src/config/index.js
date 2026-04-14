@@ -136,7 +136,7 @@ function Config() {
         contentServer: {
             impl: env.CONTENT_SERVER_IMPL,
             auth: env.CONTENT_SERVER_AUTH || '',
-            insecure: (env.CONTENT_SERVER_INSECURE === 'false') ? false : true,
+            insecure: (env.CONTENT_SERVER_INSECURE === 'true') ? true : false,
             revalidationInterval: parseIntEnv('CONTENT_SERVER_REVALIDATION_INTERVAL', 60 * 60) // 1 hour
         },
 
