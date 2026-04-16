@@ -6,8 +6,8 @@ const generator = require('./systemGenerator');
 const errors = require('../../errors');
 
 // Helper to create UNKNOWN_SYSTEM error with notFoundIds (matches http.js behavior)
-function createUnknownSystemError(notFoundIds) {
-    const err = new errors.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${notFoundIds.join(', ')}"`);
+function createUnknownSystemError(notFoundIds, req) {
+    const err = new errors.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${notFoundIds.join(', ')}"`, undefined, req);
     err.notFoundIds = notFoundIds;
     return err;
 }
@@ -17,12 +17,12 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    getSystemDetailsBatch (systems, refresh = false, retries = 2, strict = true) {
+    getSystemDetailsBatch (req, systems, refresh = false, retries = 2, strict = true) {
         // Check for non-existent systems first (new Inventory behavior)
         const notFoundIds = systems.filter(id => generator.generateSystem(id) === null);
         
         if (notFoundIds.length > 0 && strict) {
-            return Promise.reject(createUnknownSystemError(notFoundIds));
+            return Promise.reject(createUnknownSystemError(notFoundIds, req));
         }
 
         // If strict=false, filter out missing systems instead of throwing
@@ -33,11 +33,11 @@ module.exports = new class extends Connector {
         .value());
     }
 
-    getSystemInfoBatch (systems) {
+    getSystemInfoBatch (req, systems) {
         // Check for non-existent systems first (new Inventory behavior)
         const notFoundIds = systems.filter(id => generator.generateSystemInfo(id) === null);
         if (notFoundIds.length > 0) {
-            return Promise.reject(createUnknownSystemError(notFoundIds));
+            return Promise.reject(createUnknownSystemError(notFoundIds, req));
         }
 
         return Promise.resolve(_(systems)
@@ -46,11 +46,11 @@ module.exports = new class extends Connector {
             .value());
     }
 
-    getSystemProfileBatch (systems) {
+    getSystemProfileBatch (req, systems) {
         // Check for non-existent systems first (new Inventory behavior)
         const notFoundIds = systems.filter(id => generator.generateSystemProfile(id) === null);
         if (notFoundIds.length > 0) {
-            return Promise.reject(createUnknownSystemError(notFoundIds));
+            return Promise.reject(createUnknownSystemError(notFoundIds, req));
         }
 
         return Promise.resolve(_(systems)
@@ -59,7 +59,7 @@ module.exports = new class extends Connector {
         .value());
     }
 
-    getSystemsByInsightsId (id) {
+    getSystemsByInsightsId (req, id) {
         if (id !== '9a212816-a472-11e8-98d0-529269fb1459') {
             return [];
         }
@@ -91,7 +91,7 @@ module.exports = new class extends Connector {
         }];
     }
 
-    getSystemsByOwnerId () {
+    getSystemsByOwnerId (req) {
         return [{
             account: 'diagnosis01',
             id: 'none',

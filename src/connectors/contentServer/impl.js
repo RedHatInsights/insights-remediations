@@ -15,7 +15,7 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    async getResolutions (id, refresh = false) {
+    async getResolutions (req, id, refresh = false) {
         const uri = new URI(host);
         uri.segment('private');
         uri.segment('playbooks');
@@ -26,11 +26,12 @@ module.exports = new class extends Connector {
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders(false)
+            headers: this.getForwardedHeaders(req, false)
         };
 
         if (auth) {
             options.headers = {
+                ...options.headers,
                 Authorization: auth
             };
         }
@@ -42,7 +43,9 @@ module.exports = new class extends Connector {
                 revalidationInterval,
                 cacheable: body => body.length > 0 // only cache responses with resolutions
             },
-            this.metrics);
+            this.metrics,
+            undefined,
+            req);
         } catch (e) {
             if (e instanceof StatusCodeError && e.statusCode === 404) {
                 return [];
@@ -64,8 +67,7 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        const result = await this.getResolutions('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE', true);
+        const result = await this.getResolutions(null, 'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE', true);
         assert(result.length > 0);
     }
 }();
-

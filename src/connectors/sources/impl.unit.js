@@ -6,7 +6,10 @@ const { mockRequest } = require('../testUtils');
 const request = require('../../util/request');
 
 describe('sources impl', function () {
-    beforeEach(mockRequest);
+    let testReq;
+    beforeEach(function () {
+        testReq = mockRequest();
+    });
 
     describe('findSources', function () {
         test('obtains a list of sources by source_ref', async function () {
@@ -39,7 +42,7 @@ describe('sources impl', function () {
                 headers: {}
             });
 
-            const results = await impl.findSources([
+            const results = await impl.findSources(testReq, [
                 '72e67490-010a-4c69-a445-97017ef2a696', 'de91d755-e1da-4ae2-b173-7d56f5df7c86'
             ]);
             results.should.have.size(2);
@@ -53,7 +56,7 @@ describe('sources impl', function () {
             options.uri.should.equal('http://localhost:8080/api/sources/v2.0/sources?filter%5Bsource_ref%5D%5Beq%5D%5B%5D=72e67490-010a-4c69-a445-97017ef2a696&filter%5Bsource_ref%5D%5Beq%5D%5B%5D=de91d755-e1da-4ae2-b173-7d56f5df7c86');
             options.headers.should.have.size(2);
             options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-            options.headers.should.have.property('x-rh-identity', 'identity');
+            options.headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
         });
     });
 
@@ -80,7 +83,7 @@ describe('sources impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getEndpoints(['1231']);
+            const results = await impl.getEndpoints(testReq, ['1231']);
             results.should.have.size(1);
             results[0].should.have.property('receptor_node', 'dsasd');
 
@@ -88,7 +91,7 @@ describe('sources impl', function () {
             options.uri.should.equal('http://localhost:8080/api/sources/v2.0/sources/1231/endpoints');
             options.headers.should.have.size(2);
             options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-            options.headers.should.have.property('x-rh-identity', 'identity');
+            options.headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
         });
 
         test('returns null on 404', async function () {
@@ -97,7 +100,7 @@ describe('sources impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getEndpoints(['1231']);
+            const results = await impl.getEndpoints(testReq, ['1231']);
             (results === null).should.be.true();
         });
     });
@@ -163,7 +166,7 @@ describe('sources impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getSourceInfo([
+            const results = await impl.getSourceInfo(testReq, [
                 '72e67490-010a-4c69-a445-97017ef2a696', 'de91d755-e1da-4ae2-b173-7d56f5df7c86'
             ]);
             results.should.have.size(2);
@@ -182,7 +185,7 @@ describe('sources impl', function () {
         test('does not call anything on an empty list', async function () {
             const spy = base.getSandbox().spy(request, 'run');
 
-            const results = await impl.getSourceInfo([]);
+            const results = await impl.getSourceInfo(testReq, []);
             results.should.be.empty();
             spy.callCount.should.equal(0);
         });
@@ -211,7 +214,7 @@ describe('sources impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getRHCConnections('5');
+            const results = await impl.getRHCConnections(testReq, '5');
             results.should.have.size(1);
 
             const result = results[0];
@@ -223,7 +226,7 @@ describe('sources impl', function () {
             options.uri.should.equal('http://localhost:8080/api/sources/v3.1/sources/5/rhc_connections');
             options.headers.should.have.size(2);
             options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-            options.headers.should.have.property('x-rh-identity', 'identity');
+            options.headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
         });
 
         test('returns null on 404', async function () {
@@ -232,7 +235,7 @@ describe('sources impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getRHCConnections('1231');
+            const results = await impl.getRHCConnections(testReq, '1231');
             (results === null).should.be.true();
         });
     });

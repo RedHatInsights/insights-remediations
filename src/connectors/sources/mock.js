@@ -98,7 +98,7 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    async findSources () {
+    async findSources (req, ids) {
         throw new Error('unsupported');
     }
 
@@ -106,18 +106,18 @@ module.exports = new class extends Connector {
         throw new Error('unsupported');
     }
 
-    async getSourceInfo (ids) {
+    async getSourceInfo (req, ids) {
         return _(ids)
         .keyBy()
         .mapValues(id => _.get(SOURCES, id, null))
         .value();
     }
 
-    async getRHCConnections (id) {
+    async getRHCConnections (req, id) {
         return [_.get(RHC_CONNECTIONS, id, null)];
     }
 
     async ping () {
-        await this.findSources('test');
+        await this.findSources(null, 'test');
     }
 }();

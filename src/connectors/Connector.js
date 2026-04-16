@@ -4,7 +4,6 @@ const _ = require('lodash');
 const assert = require('assert');
 const http = require('./http');
 const errors = require('../errors');
-const cls = require('../util/cls');
 const log = require('../util/log');
 const URI = require('urijs');
 const config = require('../config');
@@ -38,7 +37,8 @@ module.exports = class Connector {
         return uri;
     }
 
-    async doHttp (options, caching, metrics = false, responseTransformer) {
+    async doHttp (options, caching, metrics = false, responseTransformer, req) {
+        const logger = log.getLogger(req);
         try {
             const result = await http.request(options, caching, metrics, responseTransformer);
             return result;
@@ -54,7 +54,7 @@ module.exports = class Connector {
 
             // Log request and response details for HTTP 400 errors
             if (e instanceof StatusCodeError && e.statusCode === 400) {
-                log.error({
+                logger.error({
                     request: {
                         uri: options.uri,
                         method: options.method,
@@ -72,30 +72,32 @@ module.exports = class Connector {
                 }, `HTTP 400 error from ${this.getName()} connector`);
             }
 
-            log.trace(e, 'dependency error');
+            logger.trace(e, 'dependency error');
             metrics && metrics.error.inc();
-            throw errors.internal.dependencyError(e, this);
+            throw errors.internal.dependencyError(e, this, req);
         }
     }
 
-    getForwardedHeaders (identity = true) {
-        const req = cls.getReq();
-        assert(req, 'request not available in CLS');
+    getForwardedHeaders (req, identity = true) {
+        const name = this.getName();
         const toPick = [REQ_ID_HEADER];
         if (identity) {
             toPick.push(IDENTITY_HEADER);
         }
 
-        const forwarded = _.pick(req.headers, toPick);
+        const source = req?.headers;
+        const forwarded = source ? _.pick(source, toPick) : {[REQ_ID_HEADER]: 'internal'};
 
-        const name = this.getName();
         if (identity) {
+            assert(source, `request headers required for outbound ${name} request`);
             // eslint-disable-next-line security/detect-object-injection
             assert(forwarded[IDENTITY_HEADER], `identity header not available for outbound ${name} request`);
         }
 
-        // eslint-disable-next-line security/detect-object-injection
-        assert(forwarded[REQ_ID_HEADER], `request id header not available for outbound ${name} request`);
+        if (!forwarded[REQ_ID_HEADER]) {
+            forwarded[REQ_ID_HEADER] = 'internal';
+        }
+
         return forwarded;
     }
 };

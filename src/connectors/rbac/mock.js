@@ -27,11 +27,11 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    async getRemediationsAccess () {
+    async getRemediationsAccess (req) {
         return ACCESS;
     }
 
     async ping () {
-        await this.getRemediationsAccess();
+        await this.getRemediationsAccess(null);
     }
 }();

@@ -16,7 +16,7 @@ module.exports = new class extends Connector {
         this.accessMetrics = metrics.createConnectorMetric(this.getName(), 'getRemediationsAccess');
     }
 
-    async getRemediationsAccess (retries = 2) {
+    async getRemediationsAccess (req, retries = 2) {
         const uri = new URI(host);
         uri.path('/api/rbac/v1/access/');
         uri.query({application: 'remediations'});
@@ -27,8 +27,8 @@ module.exports = new class extends Connector {
                 method: 'GET',
                 json: true,
                 rejectUnauthorized: !insecure,
-                headers: this.getForwardedHeaders()
-            }, false, this.accessMetrics);
+                headers: this.getForwardedHeaders(req, req != null)
+            }, false, this.accessMetrics, undefined, req);
 
             if (_.isEmpty(result)) {
                 return null;
@@ -41,7 +41,7 @@ module.exports = new class extends Connector {
             }
             if (retries > 0) {
                 log.warn({ error: e, retries }, 'RBAC access fetch failed. Retrying');
-                return this.getRemediationsAccess(retries - 1);
+                return this.getRemediationsAccess(req, retries - 1);
             }
 
             throw e;
@@ -49,7 +49,7 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        const result = await this.getRemediationsAccess();
+        const result = await this.getRemediationsAccess(null);
         assert(result !== null);
     }
 }();

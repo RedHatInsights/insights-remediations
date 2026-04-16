@@ -12,8 +12,11 @@ const request = require('../../util/request');
 const RequestError = require('request-promise-core/errors').RequestError;
 
 
-describe('inventory impl', () => {
-    beforeEach(mockRequest);
+describe('bop impl', () => {
+    let testReq;
+    beforeEach(() => {
+        testReq = mockRequest();
+    });
 
     describe('Tenant org_id to EBS account number translations', () => {
 
@@ -21,7 +24,7 @@ describe('inventory impl', () => {
             const stub = base.getSandbox().stub(http, 'request');
             stub.returns({"1979710": "540155"});
 
-            const result = await impl.getEBSAccounts(1979710);
+            const result = await impl.getEBSAccounts(testReq, 1979710);
 
             stub.getCall(0).args[0].body.should.be.array;
             stub.getCall(0).args[0].body[0].should.be.String;
@@ -31,7 +34,7 @@ describe('inventory impl', () => {
             const stub = base.getSandbox().stub(http, 'request');
             stub.returns({"1979710": "540155", "38393949": "3098430"});
 
-            const result = await impl.getEBSAccounts([1979710, 38393949]);
+            const result = await impl.getEBSAccounts(testReq, [1979710, 38393949]);
 
             stub.getCall(0).args[0].body.should.be.array;
             for (const account of stub.getCall(0).args[0].body) {
@@ -47,7 +50,7 @@ describe('inventory impl', () => {
                 "38393949": "3098430"
             });
 
-            const result = await impl.getEBSAccounts([1979710, "38393949", 29393933]);
+            const result = await impl.getEBSAccounts(testReq, [1979710, "38393949", 29393933]);
 
             stub.getCall(0).args[0].body.should.be.array;
             for (const account of stub.getCall(0).args[0].body) {
@@ -59,7 +62,7 @@ describe('inventory impl', () => {
             const stub = base.getSandbox().stub(http, 'request');
             stub.returns({});
 
-            const result = await impl.getEBSAccounts(1979710);
+            const result = await impl.getEBSAccounts(testReq, 1979710);
 
             stub.getCall(0).args[0].body.should.be.array;
             stub.getCall(0).args[0].body[0].should.be.String;
@@ -67,7 +70,7 @@ describe('inventory impl', () => {
 
         test('does not make a call for empty list', async () => {
             const spy = base.getSandbox().spy(http, 'request');
-            const result = await impl.getEBSAccounts([]);
+            const result = await impl.getEBSAccounts(testReq, []);
 
             result.should.be.empty();
             spy.called.should.be.false();
@@ -80,7 +83,7 @@ describe('inventory impl', () => {
             const stub = base.getSandbox().stub(http, 'request');
             stub.returns({"540155": "1979710"});
 
-            const result = await impl.getTenantOrgIds(540155);
+            const result = await impl.getTenantOrgIds(testReq, 540155);
 
             stub.getCall(0).args[0].body.should.be.array;
             stub.getCall(0).args[0].body[0].should.be.String;
@@ -90,7 +93,7 @@ describe('inventory impl', () => {
             const stub = base.getSandbox().stub(http, 'request');
             stub.returns({"540155": "1979710", "3098430": "38393949"});
 
-            const result = await impl.getTenantOrgIds([540155, 3098430]);
+            const result = await impl.getTenantOrgIds(testReq, [540155, 3098430]);
 
             stub.getCall(0).args[0].body.should.be.array;
             for (const account of stub.getCall(0).args[0].body) {
@@ -106,7 +109,7 @@ describe('inventory impl', () => {
                 "3098430": "38393949"
             });
 
-            const result = await impl.getTenantOrgIds([540155, "3098430", 2828282]);
+            const result = await impl.getTenantOrgIds(testReq, [540155, "3098430", 2828282]);
 
             stub.getCall(0).args[0].body.should.be.array;
             for (const account of stub.getCall(0).args[0].body) {
@@ -116,7 +119,7 @@ describe('inventory impl', () => {
 
         test('does not make a call for empty list', async () => {
             const spy = base.getSandbox().spy(http, 'request');
-            const result = await impl.getTenantOrgIds([]);
+            const result = await impl.getTenantOrgIds(testReq, []);
 
             result.should.be.empty();
             spy.called.should.be.false();
@@ -127,7 +130,7 @@ describe('inventory impl', () => {
                 new StatusCodeError(404, {}, {})
             );
 
-            await expect(impl.getTenantOrgIds([540155])).resolves.toEqual({});
+            await expect(impl.getTenantOrgIds(testReq, [540155])).resolves.toEqual({});
         });
     });
 
@@ -137,7 +140,7 @@ describe('inventory impl', () => {
                 new StatusCodeError(404, {}, {})
             );
 
-            await expect(impl.getEBSAccounts([1979710])).resolves.toEqual({});
+            await expect(impl.getEBSAccounts(testReq, [1979710])).resolves.toEqual({});
         });
     });
 });

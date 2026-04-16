@@ -7,7 +7,7 @@ const Connector = require('../Connector');
 const StatusCodeError = require('../StatusCodeError');
 const {host, insecure, pageSize} = require('../../config').vulnerabilities;
 const metrics = require('../metrics');
-const trace = require('../../util/trace');
+const getTrace = require('../../util/trace');
 
 module.exports = new class extends Connector {
     constructor () {
@@ -20,8 +20,8 @@ module.exports = new class extends Connector {
         throw new Error('not implemented');
     }
 
-    async getSystems (id) {
-        trace.enter('vulnerabilities_impl.getSystems');
+    async getSystems (req, id) {
+        getTrace(req).enter('vulnerabilities_impl.getSystems');
         const _uri = this.buildUri(host, 'vulnerability', 'v1', 'cves', id, 'affected_systems', 'ids');
         _uri.query({limit: String(pageSize)});
 
@@ -33,7 +33,7 @@ module.exports = new class extends Connector {
         // get affected systems...
         do {
             // grab a page
-            trace.event(`Fetch ${uri}`);
+            getTrace(req).event(`Fetch ${uri}`);
             let batch;
             try {
                 batch = await this.doHttp({
@@ -41,10 +41,12 @@ module.exports = new class extends Connector {
                         method: 'GET',
                         json: true,
                         rejectUnauthorized: !insecure,
-                        headers: this.getForwardedHeaders()
+                        headers: this.getForwardedHeaders(req)
                     },
                     false,
-                    this.systemsMetrics);
+                    this.systemsMetrics,
+                    undefined,
+                    req);
             } catch (e) {
                 if (e instanceof StatusCodeError && e.statusCode === 404) {
                     break;
@@ -69,12 +71,12 @@ module.exports = new class extends Connector {
             }
         } while (next);
 
-        trace.leave();
+        getTrace(req).leave();
         return inventory_ids;
     }
 
-    async getResolutions (issue) {
-        trace.enter('connectors/vulnerabilities/impl.getResolutions');
+    async getResolutions (req, issue) {
+        getTrace(req).enter('connectors/vulnerabilities/impl.getResolutions');
 
         const uri = this.buildUri(host, 'vulnerability', 'v1', 'playbooks', 'templates', issue);
 
@@ -83,31 +85,33 @@ module.exports = new class extends Connector {
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders()
+            headers: this.getForwardedHeaders(req)
         };
 
-        trace.event(`GET options: ${JSON.stringify(options)}`);
+        getTrace(req).event(`GET options: ${JSON.stringify(options)}`);
 
         let resolutions;
         try {
             resolutions = await this.doHttp(
                 options,
                 false,
-                this.systemsMetrics);
+                this.systemsMetrics,
+                undefined,
+                req);
         } catch (e) {
             if (e instanceof StatusCodeError && e.statusCode === 404) {
-                trace.leave('No resolutions found (404)!');
+                getTrace(req).leave('No resolutions found (404)!');
                 return [];
             }
             throw e;
         }
 
         if (!resolutions) {
-            trace.leave('No resolutions found!');
+            getTrace(req).leave('No resolutions found!');
             return [];
         }
 
-        trace.event(`Got data back!`);
+        getTrace(req).event(`Got data back!`);
 
         const result =  _.map(resolutions.data, resolution =>
             _(resolution)
@@ -120,7 +124,7 @@ module.exports = new class extends Connector {
             .value()
         );
 
-        trace.leave(`Returning results`);
+        getTrace(req).leave(`Returning results`);
         return result;
     }
 

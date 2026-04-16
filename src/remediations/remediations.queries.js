@@ -8,7 +8,7 @@ const db = require('../db');
 const inventory = require('../connectors/inventory');
 const {NULL_NAME_VALUE} = require('./models/remediation');
 const _ = require('lodash');
-const trace = require('../util/trace');
+const getTrace = require('../util/trace');
 const dispatcher = require('../connectors/dispatcher');
 const fifi2 = require('./fifi_2');
 
@@ -289,7 +289,8 @@ exports.list = async function (
     return result;
 };
 
-exports.loadDetails = async function (tenant_org_id, created_by, rows) {
+exports.loadDetails = async function (req, tenant_org_id, created_by, rows) {
+    const trace = getTrace(req);
     trace.enter('remediations.queries.loadDetails');
     const {Op, s: {literal}} = db;
 

@@ -8,7 +8,10 @@ const { mockRequest } = require('../testUtils');
 const request = require('../../util/request');
 
 describe('ssg impl', function () {
-    beforeEach(mockRequest);
+    let testReq;
+    beforeEach(function () {
+        testReq = mockRequest();
+    });
 
     test('returns template', async function () {
         // eslint-disable-next-line security/detect-non-literal-fs-filename
@@ -22,7 +25,7 @@ describe('ssg impl', function () {
             }
         });
 
-        const { template, version } = await impl.getTemplate('rhel7', 'standard', 'sshd_disable_root_login');
+        const { template, version } = await impl.getTemplate(testReq, 'rhel7', 'standard', 'sshd_disable_root_login');
         version.should.equal('unit');
         expect(template).toMatchSnapshot();
         http.callCount.should.equal(1);
@@ -35,7 +38,7 @@ describe('ssg impl', function () {
             headers: {}
         });
 
-        const result = await impl.getTemplate('rhel7', 'standard', 'unknown_rule');
+        const result = await impl.getTemplate(testReq, 'rhel7', 'standard', 'unknown_rule');
         expect(result).toBeNull();
         http.callCount.should.equal(1);
     });

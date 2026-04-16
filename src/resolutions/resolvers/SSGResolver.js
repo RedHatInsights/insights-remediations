@@ -10,7 +10,6 @@ const yamlUtils = require('../../util/yaml');
 const yaml = require('js-yaml');
 const log = require('../../util/log');
 const identifiers = require('../../util/identifiers');
-const errors = require('../../errors');
 
 const PLACEHOLDER_REGEX = /(@([A-Z_])+@)/;
 const FALLBACK_PROFILE = 'all';
@@ -24,8 +23,8 @@ function testPlaceholders (raw) {
 }
 
 module.exports = class SSGResolver extends Resolver {
-    async resolveResolutions (id) {
-        const {platform, profile, rule, ssgVersion} = identifiers.parseSSG(id);
+    async resolveResolutions (req, id) {
+        const {platform, profile, rule, ssgVersion} = identifiers.parseSSG(id, req);
         let raw = {};
 
         log.debug(`Resolving SSG issue: ${id.issue}`);
@@ -39,11 +38,11 @@ module.exports = class SSGResolver extends Resolver {
         if (id.issue.includes('rsyslog_remote_loghost')) {return [];}
 
         if (config.ssg.impl === 'compliance') {
-            raw = await ssg.getTemplate(id.issue);
+            raw = await ssg.getTemplate(req, id.issue);
         } else {
             const [primary, fallback] = await P.all([
-                ssg.getTemplate(platform, profile, rule),
-                ssg.getTemplate(platform, FALLBACK_PROFILE, rule)
+                ssg.getTemplate(req, platform, profile, rule),
+                ssg.getTemplate(req, platform, FALLBACK_PROFILE, rule)
             ]);
 
             raw = primary || fallback;

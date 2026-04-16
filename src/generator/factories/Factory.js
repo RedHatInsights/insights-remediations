@@ -8,7 +8,7 @@ module.exports = class Factory {
         throw new Error('not implemented');
     }
 
-    disambiguate (resolutions, resolution, id, strict) {
-        return disambiguator.disambiguate(resolutions, resolution, id, strict);
+    disambiguate (resolutions, resolution, id, strict, req) {
+        return disambiguator.disambiguate(resolutions, resolution, id, strict, true, req);
     }
 };

@@ -14,7 +14,7 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    async getErratum (id, refresh = false) {
+    async getErratum (req, id, refresh = false) {
         const uri = new URI(host);
         uri.path('/api/patch/v3/advisories');
         uri.segment(id);
@@ -24,13 +24,15 @@ module.exports = new class extends Connector {
                 uri: uri.toString(),
                 method: 'GET',
                 json: true,
-                headers: this.getForwardedHeaders()
+                headers: this.getForwardedHeaders(req)
             },
             {
                 refresh,
                 revalidationInterval
             },
-            this.metrics);
+            this.metrics,
+            undefined,
+            req);
 
             return _.get(res, ['data'], null);
         } catch (e) {
@@ -43,7 +45,7 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        const result = await this.getErratum('RHBA-2019:0689', true);
+        const result = await this.getErratum(null, 'RHBA-2019:0689', true);
         assert(result.id === 'RHBA-2019:0689');
     }
 }();

@@ -7,6 +7,7 @@ const fifi2 = require('./fifi_2');
 const db = require('../db');
 const dispatcher = require('../connectors/dispatcher');
 const queries = require('./remediations.queries');
+const { mockRequest } = require('../connectors/testUtils');
 
 const SYSTEMS = [
     {
@@ -123,6 +124,7 @@ describe('syncDispatcherRunsForPlaybookRuns', function () {
 
         // Should call API with correct filter
         dispatcher.fetchPlaybookRuns.calledOnceWith(
+            null,
             { filter: { service: 'remediations', labels: { 'playbook-run': mockPlaybookRunId1 } } },
             { fields: { data: ['id', 'status'] } }
         ).should.equal(true);
@@ -170,6 +172,7 @@ describe('syncDispatcherRunsForPlaybookRuns', function () {
 
         // Should call API with correct filter
         dispatcher.fetchPlaybookRuns.calledOnceWith(
+            null,
             { filter: { service: 'remediations', labels: { 'playbook-run': mockPlaybookRunId2 } } },
             { fields: { data: ['id', 'status'] } }
         ).should.equal(true);
@@ -250,12 +253,14 @@ describe('syncDispatcherRunsForPlaybookRuns', function () {
         // Mock API to succeed for first run, fail for second
         const apiStub = base.sandbox.stub(dispatcher, 'fetchPlaybookRuns');
         apiStub.withArgs(
+            null,
             { filter: { service: 'remediations', labels: { 'playbook-run': mockPlaybookRunId4 } } },
             { fields: { data: ['id', 'status'] } }
         ).resolves({
             data: [{ id: 'dispatcher-run-success', status: 'success' }]
         });
         apiStub.withArgs(
+            null,
             { filter: { service: 'remediations', labels: { 'playbook-run': mockPlaybookRunId5 } } },
             { fields: { data: ['id', 'status'] } }
         ).rejects(new Error('API Error'));
@@ -278,8 +283,10 @@ describe('formatRunHosts and formatRHCHostDetails', function () {
     const playbookRunId = '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc';
 
     let getPlanSystemsDetailsStub;
+    let testReq;
 
     beforeEach(() => {
+        testReq = mockRequest();
         getPlanSystemsDetailsStub = base.sandbox.stub(queries, 'getPlanSystemsDetails');
     });
 
@@ -324,7 +331,7 @@ describe('formatRunHosts and formatRHCHostDetails', function () {
                 ]
             });
 
-            const result = await fifi.formatRunHosts(mockRhcRuns, playbookRunId);
+            const result = await fifi.formatRunHosts(testReq, mockRhcRuns, playbookRunId);
 
             result.should.have.length(2);
             result[0].should.have.property('system_id', system1Id);
@@ -361,7 +368,7 @@ describe('formatRunHosts and formatRHCHostDetails', function () {
                 }]
             });
 
-            const result = await fifi.formatRunHosts(mockRhcRuns, playbookRunId);
+            const result = await fifi.formatRunHosts(testReq, mockRhcRuns, playbookRunId);
 
             result.should.have.length(1);
             result[0].should.have.property('system_id', system1Id);
@@ -389,7 +396,7 @@ describe('formatRunHosts and formatRHCHostDetails', function () {
                 }]
             });
 
-            const result = await fifi.formatRunHosts(mockRhcRuns, playbookRunId);
+            const result = await fifi.formatRunHosts(testReq, mockRhcRuns, playbookRunId);
 
             result.should.have.length(1);
             result[0].should.have.property('system_id', system3Id);

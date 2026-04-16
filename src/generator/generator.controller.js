@@ -13,7 +13,7 @@ const identifiers = require('../util/identifiers');
 const erratumPlayAggregator = require('./erratumPlayAggregator');
 const issueManager = require('../issues');
 const log = require('../util/log');
-const trace = require('../util/trace');
+const getTrace = require('../util/trace');
 const db = require('../db');
 const probes = require('../probes');
 const { commit } = require('../util/version');
@@ -27,23 +27,23 @@ exports.normalizeIssues = function (issues) {
     return issues;
 };
 
-exports.playbookPipeline = async function ({issues, auto_reboot = true}, remediation = false, strict = true, localhost = false) {
-    trace.enter('generator.controller.playbookPipeline');
+exports.playbookPipeline = async function (req, {issues, auto_reboot = true}, remediation = false, strict = true, localhost = false) {
+    getTrace(req).enter('generator.controller.playbookPipeline');
 
-    trace.event('Fetch systems...');
+    getTrace(req).event('Fetch systems...');
     // Use return value to get issues with empty systems filtered out (when strict=false)
-    issues = await exports.resolveSystems(issues, strict);
+    issues = await exports.resolveSystems(req, issues, strict);
 
-    trace.event('Parse issue identifiers...');
+    getTrace(req).event('Parse issue identifiers...');
     _.forEach(issues, issue => {
-        issue.id = identifiers.parse(issue.id);
-        trace.event(`issue.id = ${issue.id}`);
+        issue.id = identifiers.parse(issue.id, req);
+        getTrace(req).event(`issue.id = ${issue.id}`);
     });
 
-    trace.event('Get play snippets for each issue...');
-    issues = await P.map(issues, issue => issueManager.getPlayFactory(issue.id).createPlay(issue, strict).catch((e) => {
-        trace.event(`Caught error getting snippet for: ${JSON.stringify(issue.id)}`);
-        trace.event(`(error: ${JSON.stringify(e)})`)
+    getTrace(req).event('Get play snippets for each issue...');
+    issues = await P.map(issues, issue => issueManager.getPlayFactory(req, issue.id).createPlay(req, issue, strict).catch((e) => {
+        getTrace(req).event(`Caught error getting snippet for: ${JSON.stringify(issue.id)}`);
+        getTrace(req).event(`(error: ${JSON.stringify(e)})`)
 
         // Always throw an error if an issue cannot be added to the playbook
         // to prevent generating partial playbooks with missing issues
@@ -52,12 +52,12 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
     })).filter(issue => issue);
 
     if (issues.length === 0) {
-        trace.leave('Returning: no issues');
+        getTrace(req).leave('Returning: no issues');
         return;
     }
 
     if (localhost) {
-        trace.event('Set hosts to \'localhost\'...');
+        getTrace(req).event('Set hosts to \'localhost\'...');
         issues.forEach(issue => {
             issue.hosts = ['localhost'];
         });
@@ -74,50 +74,50 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
             hosts}))
     };
 
-    trace.event('Aggregate erratum plays...');
+    getTrace(req).event('Aggregate erratum plays...');
     issues = erratumPlayAggregator.process(issues);
 
     // Add play that generates a new Compliance report when there are Compliance(ssg) issues  
     const complianceIssue = _.some(issues, issue => issue.id.app === 'ssg');
     if (complianceIssue) {
-        trace.event('Generate new Compliance report...');
+        getTrace(req).event('Generate new Compliance report...');
         issues = addComplianceReportPlay(issues);
     }
 
-    trace.event('Add reboot play...');
+    getTrace(req).event('Add reboot play...');
     issues = addRebootPlay(issues, auto_reboot, localhost);
 
     // post run check-in is already included in the localhost reboot snippet...
     if ( !(localhost && auto_reboot)) {
-        trace.event('Add post run check-in play...');
+        getTrace(req).event('Add post run check-in play...');
         issues = addPostRunCheckIn(issues);
     }
 
-    trace.event('Add dianosis play...');
+    getTrace(req).event('Add dianosis play...');
     issues = addDiagnosisPlay(issues, remediation);
 
-    trace.event('Render yaml...');
+    getTrace(req).event('Render yaml...');
     const yaml = format.render(issues, remediation);
 
-    trace.event('Validate yaml...')
+    getTrace(req).event('Validate yaml...')
     format.validate(yaml);
 
-    trace.leave();
+    getTrace(req).leave();
     return { yaml, definition };
 };
 
 exports.generate = errors.async(async function (req, res) {
-    trace.enter('generator.controller.generate');
+    getTrace(req).enter('generator.controller.generate');
 
     const input = { ...req.body };
 
     // Sort issues by precedence (NULLS LAST), otherwise maintain original request order
     input.issues = _.orderBy(input.issues, [issue => issue.precedence == null ? 1 : 0, 'precedence']);
 
-    trace.event(`generate playbook for: ${JSON.stringify(input)}`);
-    const playbook = await exports.playbookPipeline(input);
+    getTrace(req).event(`generate playbook for: ${JSON.stringify(input)}`);
+    const playbook = await exports.playbookPipeline(req, input);
 
-    trace.leave();
+    getTrace(req).leave();
     return exports.send(req, res, playbook);
 });
 
@@ -138,20 +138,20 @@ exports.systemToHost = function (system) {
  * Or throws UNKNOWN_SYSTEM error if strict=true and some systems weren't found in Inventory.
  * When strict=false, missing systems are filtered out and issues with no remaining systems are removed.
  */
-exports.resolveSystems = async function (issues, strict = true) {
-    trace.enter('generator.controller.resolveSystems');
+exports.resolveSystems = async function (req, issues, strict = true) {
+    getTrace(req).enter('generator.controller.resolveSystems');
 
     const systemIds = _(issues).flatMap('systems').uniq().value();
     if (systemIds.length <= 25) { // avoid logging huge list...
-        trace.event(`System IDs: ${JSON.stringify(systemIds)}`);
+        getTrace(req).event(`System IDs: ${JSON.stringify(systemIds)}`);
     }
 
-    trace.event('Get system details...');
+    getTrace(req).event('Get system details...');
     // Fetch system details from Inventory:
     // - refresh=true: bypass cache as ansible_host may change
     // - strict=true: throw UNKNOWN_SYSTEM error if any systems are missing
     // - strict=false: return partial results with only known systems
-    const systems = await inventory.getSystemDetailsBatch(systemIds, true, 2, strict)
+    const systems = await inventory.getSystemDetailsBatch(req, systemIds, true, 2, strict)
         .catch(e => {
             probes.failedGeneration('unknown system(s)');
             throw e;
@@ -159,7 +159,7 @@ exports.resolveSystems = async function (issues, strict = true) {
 
     // When strict=false, filter out missing systems from issues
     if (!strict) {
-        trace.event('Remove systems for which we have no inventory entry...');
+        getTrace(req).event('Remove systems for which we have no inventory entry...');
         _.forEach(issues, issue => issue.systems = issue.systems.filter((id) => {
             // eslint-disable-next-line security/detect-object-injection
             return (systems.hasOwnProperty(id));
@@ -167,21 +167,21 @@ exports.resolveSystems = async function (issues, strict = true) {
     }
 
     // Map system IDs to hostnames
-    trace.event('Map system IDs to hosts...');
+    getTrace(req).event('Map system IDs to hosts...');
     _.forEach(issues, issue => issue.hosts = issue.systems.map(id => {
         // eslint-disable-next-line security/detect-object-injection
         const system = systems[id];
         return exports.systemToHost(system);
     }));
-    trace.event('All systems mapped!');
+    getTrace(req).event('All systems mapped!');
 
     // If strict=false, filter out issues with no systems (systems that were removed because they don't exist in Inventory)
     if (!strict) {
-        trace.event('Remove issues with no systems...')
+        getTrace(req).event('Remove issues with no systems...')
         issues = _.filter(issues, (issue) => (issue.systems.length > 0));
     }
 
-    trace.leave();
+    getTrace(req).leave();
     return issues;
 };
 

@@ -53,7 +53,7 @@ const RESOLUTIONS = Object.freeze({
 });
 
 module.exports = class TestResolver extends Resolver {
-    async resolveResolutions (id) {
+    async resolveResolutions (req, id) {
         if (RESOLUTIONS[id.issue]) {
             return RESOLUTIONS[id.issue];
         }

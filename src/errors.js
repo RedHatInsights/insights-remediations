@@ -2,16 +2,17 @@
 
 const _ = require('lodash');
 const log = require('./util/log');
-const cls = require('./util/cls');
 const RequestSpecValidationError = require('./middleware/openapi/RequestSpecValidationError');
 
 class HttpError extends Error {
-    constructor (status, code, title, details) {
+    constructor (status, code, title, details, req) {
         super(title);
-        const req = cls.getReq();
         this.name = this.constructor.name;
+        const requestId = req && (req.id || req.headers?.['x-rh-insights-request-id'])
+            ? (req.id || req.headers['x-rh-insights-request-id'])
+            : 'unknown';
         this.error = {
-            id: req ? req.id : 'unknown',
+            id: requestId,
             status,
             code,
             title
@@ -58,31 +59,31 @@ class CompositeError extends Error {
 exports.CompositeError = CompositeError;
 
 exports.BadRequest = class BadRequest extends HttpError {
-    constructor (code, title, details) {
-        super(400, code, title, details);
+    constructor (code, title, details, req) {
+        super(400, code, title, details, req);
     }
 };
 
 exports.Unauthorized = class Unauthorized extends HttpError {
-    constructor () {
-        super(401, 'UNAUTHORIZED', 'Authorization headers missing');
+    constructor (req) {
+        super(401, 'UNAUTHORIZED', 'Authorization headers missing', undefined, req);
     }
 };
 
 exports.Forbidden = class Forbidden extends HttpError {
-    constructor (message) {
-        super(403, 'FORBIDDEN', 'Access forbidden', {message});
+    constructor (message, req) {
+        super(403, 'FORBIDDEN', 'Access forbidden', {message}, req);
     }
 };
 
 exports.Unprocessable = class BadRequest extends HttpError {
-    constructor (code, title, details) {
-        super(422, code, title, details);
+    constructor (code, title, details, req) {
+        super(422, code, title, details, req);
     }
 };
 
 exports.DependencyError = class DependencyError extends HttpError {
-    constructor (e, connector) {
+    constructor (e, connector, req) {
         super(
             503,
             'DEPENDENCY_UNAVAILABLE',
@@ -90,19 +91,23 @@ exports.DependencyError = class DependencyError extends HttpError {
             'Internal service dependency is temporarily unavailable.  If the issue persists please contact Red Hat support: https://access.redhat.com/support/cases/', {
                 name: connector.getName(),
                 impl: connector.getImpl()
-            }
+            },
+            req
         );
         this.cause = e;
     }
 };
 
-function mapValidationError ({id}, {code, message: title}) {
-    return { id, status: 400, code, title };
+function mapValidationError (req, openapiErr) {
+    const { code, message: title } = openapiErr;
+    const requestId = (req && (req.id || req.headers?.['x-rh-insights-request-id'])) || 'unknown';
+    return { id: requestId, status: 400, code, title };
 }
 
-function errorResponse ({id}, res, status, code, title) {
+function errorResponse (req, res, status, code, title) {
+    const requestId = (req && (req.id || req.headers?.['x-rh-insights-request-id'])) || 'unknown';
     res.status(status).json({
-        errors: [{id, status, code, title}]
+        errors: [{id: requestId, status, code, title}]
     });
 }
 
@@ -181,22 +186,22 @@ exports.async = fn => (req, res, next) => {
     return result;
 };
 
-exports.unknownIssue = id =>
-    new exports.BadRequest('UNKNOWN_ISSUE', `Unknown issue identifier "${id.full}"`);
+exports.unknownIssue = (id, req) =>
+    new exports.BadRequest('UNKNOWN_ISSUE', `Unknown issue identifier "${id.full}"`, undefined, req);
 
-exports.unknownSystem = id =>
-    new exports.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${id}"`);
+exports.unknownSystem = (id, req) =>
+    new exports.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${id}"`, undefined, req);
 
-exports.unsupportedIssue = id =>
-    new exports.BadRequest('UNSUPPORTED_ISSUE', `Issue "${id.full}" does not have Ansible support`);
+exports.unsupportedIssue = (id, req) =>
+    new exports.BadRequest('UNSUPPORTED_ISSUE', `Issue "${id.full}" does not have Ansible support`, undefined, req);
 
-exports.unknownResolution = (id, resolution) =>
-    new exports.BadRequest('UNKNOWN_RESOLUTION', `Issue "${id.full}" does not have Ansible resolution "${resolution}"`);
+exports.unknownResolution = (id, resolution, req) =>
+    new exports.BadRequest('UNKNOWN_RESOLUTION', `Issue "${id.full}" does not have Ansible resolution "${resolution}"`, undefined, req);
 
-exports.invalidIssueId = (id) => new exports.BadRequest('INVALID_ISSUE_IDENTIFIER', `"${id}" is not a valid issue identifier.`);
+exports.invalidIssueId = (id, req) => new exports.BadRequest('INVALID_ISSUE_IDENTIFIER', `"${id}" is not a valid issue identifier.`, undefined, req);
 
-exports.invalidOffset = (offset, max) =>
-    new exports.BadRequest('INVALID_OFFSET', `Requested starting offset ${offset} out of range: [0, ${max}]`);
+exports.invalidOffset = (offset, max, req) =>
+    new exports.BadRequest('INVALID_OFFSET', `Requested starting offset ${offset} out of range: [0, ${max}]`, undefined, req);
 
 exports.noExecutors = remediation =>
     new exports.Unprocessable('NO_EXECUTORS', `No executors available for Playbook "${remediation.name}" (${remediation.id})`);
@@ -227,8 +232,8 @@ exports.internal = {
         return new InternalError('PLAYBOOK_RENDERING_FAILED', `Playbook rendering failed for template ${template}`, {cause: e});
     },
 
-    dependencyError (e, connector) {
-        return new exports.DependencyError(e, connector);
+    dependencyError (e, connector, req) {
+        return new exports.DependencyError(e, connector, req);
     },
 
     preconditionFailed (msg) {

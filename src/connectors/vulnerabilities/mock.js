@@ -40,7 +40,7 @@ module.exports = new class extends Connector {
 
     // TODO: this function is not implemented in the real version of this connector,
     //       it is only used in ping() below and should be removed.
-    getRule (id) {
+    getRule (req, id) {
         if (_.has(DATA, id)) {
             // eslint-disable-next-line security/detect-object-injection
             return DATA[id];
@@ -49,23 +49,23 @@ module.exports = new class extends Connector {
         return null;
     }
 
-    getSystems () {
+    getSystems (req, id) {
         return [
             '2317adf3-911e-4db3-84fd-27fad9724196',
             '286f602a-157f-4095-8bf2-ad4849ab6c43'
         ];
     }
 
-    getResolutions (id) {
-        if (_.has(RESOLUTION_DATA, id)) {
+    getResolutions (req, issue) {
+        if (_.has(RESOLUTION_DATA, issue)) {
             // eslint-disable-next-line security/detect-object-injection
-            return RESOLUTION_DATA[id];
+            return RESOLUTION_DATA[issue];
         }
 
         return null;
     }
 
     ping () {
-        return this.getRule('CVE_2017_6074_kernel|KERNEL_CVE_2017_6074');
+        return this.getRule(null, 'CVE_2017_6074_kernel|KERNEL_CVE_2017_6074');
     }
 }();

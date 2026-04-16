@@ -15,10 +15,10 @@ const disambiguator = require('../resolutions/disambiguator');
 
 const notFound = res => res.status(404).json();
 
-async function validateResolution (id, resolutionId) {
-    const identifier = identifiers.parse(id);
-    const resolutions = await issues.getHandler(identifier).getResolutionResolver().resolveResolutions(identifier);
-    disambiguator.disambiguate(resolutions, resolutionId, identifier);
+async function validateResolution (req, id, resolutionId) {
+    const identifier = identifiers.parse(id, req);
+    const resolutions = await issues.getHandler(identifier, req).getResolutionResolver().resolveResolutions(req, identifier);
+    disambiguator.disambiguate(resolutions, resolutionId, identifier, true, true, req);
 }
 
 /**
@@ -57,10 +57,10 @@ async function storeSystemDetails(systemsById) {
     }
 }
 
-async function processNewActions(add) {
+async function processNewActions(req, add) {
     // Validate maximum 50 issues per request
     if (add.issues.length > 50) {
-        throw new errors.BadRequest('TOO_MANY_ISSUES', `Too many issues. Maximum 50 issues per request, got ${add.issues.length}`);
+        throw new errors.BadRequest('TOO_MANY_ISSUES', `Too many issues. Maximum 50 issues per request, got ${add.issues.length}`, undefined, req);
     }
 
     add.issues.forEach(issue => {
@@ -69,32 +69,32 @@ async function processNewActions(add) {
 
         // Every issue must have at least one system
         if (issue.systems.length === 0) {
-            throw new errors.BadRequest('NO_SYSTEMS', `Systems not specified for "${issue.id}"`);
+            throw new errors.BadRequest('NO_SYSTEMS', `Systems not specified for "${issue.id}"`, undefined, req);
         }
     });
 
     const duplicateIssues = _(add.issues).groupBy('id').pickBy(value => value.length > 1).value();
     if (_.size(duplicateIssues)) {
         throw new errors.BadRequest('DUPLICATE_ISSUE',
-            `Issue "${Object.keys(duplicateIssues)[0]}" specified more than once in the issue list`);
+            `Issue "${Object.keys(duplicateIssues)[0]}" specified more than once in the issue list`, undefined, req);
     }
 
     const systems = _(add.issues).flatMap('systems').uniq().value();
 
     // Validate maximum 50 unique systems per request
     if (systems.length > 50) {
-        throw new errors.BadRequest('TOO_MANY_SYSTEMS', `Too many systems. Maximum 50 unique systems per request, got ${systems.length}`);
+        throw new errors.BadRequest('TOO_MANY_SYSTEMS', `Too many systems. Maximum 50 unique systems per request, got ${systems.length}`, undefined, req);
     }
 
     const [systemsById] = await P.all([
-        inventory.getSystemDetailsBatch(systems),
-        P.all(add.issues.map(issue => validateResolution(issue.id, issue.resolution)))
+        inventory.getSystemDetailsBatch(req, systems),
+        P.all(add.issues.map(issue => validateResolution(req, issue.id, issue.resolution)))
     ]);
 
     // verify systems identifiers are valid
     systems.forEach(system => {
         if (!systemsById.hasOwnProperty(system)) {
-            throw errors.unknownSystem(system);
+            throw errors.unknownSystem(system, req);
         }
     });
 
@@ -159,7 +159,7 @@ exports.create = errors.async(async function (req, res) {
 
     let systemsById = null;
     if (add) {
-        systemsById = await processNewActions(add);
+        systemsById = await processNewActions(req, add);
     }
 
     const id = uuid.v4();
@@ -199,12 +199,12 @@ exports.patch = errors.async(async function (req, res) {
 
     if (_.isUndefined(add) && _.isUndefined(name) && _.isUndefined(auto_reboot) && _.isUndefined(archived)) {
         // eslint-disable-next-line max-len
-        throw new errors.BadRequest('EMPTY_REQUEST', 'At least one of "add", "name", "auto_reboot", "archived" needs to be specified');
+        throw new errors.BadRequest('EMPTY_REQUEST', 'At least one of "add", "name", "auto_reboot", "archived" needs to be specified', undefined, req);
     }
 
     let systemsById = null;
     if (add) {
-        systemsById = await processNewActions(add);
+        systemsById = await processNewActions(req, add);
     }
 
     const result = await db.s.transaction(async transaction => {
@@ -258,7 +258,7 @@ exports.patchIssue = errors.async(async function (req, res) {
     const { resolution: rid } = req.body;
 
     // validate that the given resolution exists
-    await validateResolution(iid, rid);
+    await validateResolution(req, iid, rid);
 
     const result = await db.s.transaction(async transaction => {
         const issue = await db.issue.findOne(findIssueQuery(req), {transaction});

@@ -9,11 +9,11 @@ const contentServerResolver = new(require('../resolutions/resolvers/ContentServe
 
 module.exports = class AdvisorHandler extends Handler {
 
-    async getIssueDetails (id) {
-        const raw = await advisor.getRule(id.issue);
+    async getIssueDetails (req, id) {
+        const raw = await advisor.getRule(req, id.issue);
 
         if (!raw) {
-            throw errors.unknownIssue(id);
+            throw errors.unknownIssue(id, req);
         }
 
         return {
@@ -30,7 +30,7 @@ module.exports = class AdvisorHandler extends Handler {
         return advisorFactory;
     }
 
-    getSystems (id) {
-        return advisor.getSystems(id.issue);
+    getSystems (req, id) {
+        return advisor.getSystems(req, id.issue);
     }
 };

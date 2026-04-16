@@ -207,7 +207,7 @@ describe('FiFi', function () {
 
             // Verify dispatcher WAS called with non-empty hosts array
             dispatcherSpy.calledOnce.should.be.true();
-            const callArgs = dispatcherSpy.getCall(0).args[0];
+            const callArgs = dispatcherSpy.getCall(0).args[1];
             callArgs.should.have.property('org_id');
             callArgs.should.have.property('hosts');
             callArgs.hosts.should.not.be.empty();
@@ -1056,7 +1056,7 @@ describe('FiFi', function () {
                 // c061da50-e9eb-43be-9cea-751a8d64d8d9
                 // b76f065b-2ec6-4022-8bde-91dc1df6b344
 
-                const result = dispatcher_mock.getConnectionStatus(TEST_DATA);
+                const result = dispatcher_mock.getConnectionStatus(null, TEST_DATA);
 
                 // await request
                 //     .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
@@ -1178,11 +1178,11 @@ describe('FiFi', function () {
 
                 spy.callCount.should.equal(1);
 
-                const payload = spy.firstCall.args[0];
+                const payload = spy.firstCall.args[1];
 
                 payload.should.have.length(8);
 
-                expect(spy.args).toMatchSnapshot();
+                expect(spy.args.map(args => args.slice(1))).toMatchSnapshot();
             });
 
             test('exclude all connected connectors and return 400 NO_EXECUTORS', async function () {
@@ -1219,7 +1219,7 @@ describe('FiFi', function () {
                     .set(auth.fifi)
                     .expect(201);
 
-                expect(spy.args).toMatchSnapshot();
+                expect(spy.args.map(args => args.slice(1))).toMatchSnapshot();
             });
 
             test('post playbook_runs with wrong exclude statement', async function () {
@@ -1251,7 +1251,7 @@ describe('FiFi', function () {
 
                 spy.callCount.should.equal(1);
 
-                spy.firstCall.args[0].should.eql([{
+                spy.firstCall.args[1].should.eql([{
                     run_id: '88d0ba73-0015-4e7d-a6d6-4b530cbfb7bc',
                     org_id: '6666666',
                     principal: 'fifi'

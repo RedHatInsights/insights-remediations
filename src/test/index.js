@@ -34,8 +34,10 @@ exports.mockDate = () => exports.sandbox.stub(Date.prototype, 'toUTCString').ret
 exports.mockTime = () => exports.sandbox.stub(Date.prototype, 'getTime').returns(1546071635);
 
 afterEach(() => {
-    exports.sandbox.restore();
-    delete exports.sandbox;
+    if (exports.sandbox) {
+        exports.sandbox.restore();
+        delete exports.sandbox;
+    }
 });
 
 afterAll(async () => {

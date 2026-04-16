@@ -32,7 +32,7 @@ module.exports = function (permission) {
                 hasAccess = await checkKesselPermission(srcPermission, req);
             } else {
                 // Use traditional RBAC
-                hasAccess = await checkTraditionalRbacPermission(srcPermission, permission);
+                hasAccess = await checkTraditionalRbacPermission(srcPermission, permission, req);
             }
 
             if (hasAccess) {
@@ -51,8 +51,8 @@ module.exports = function (permission) {
     };
 };
 
-async function checkTraditionalRbacPermission(srcPermission, permission) {
-    const access = await rbacConnector.getRemediationsAccess();
+async function checkTraditionalRbacPermission(srcPermission, permission, req) {
+    const access = await rbacConnector.getRemediationsAccess(req);
     
     if (!access || !access.data) {
         return false;

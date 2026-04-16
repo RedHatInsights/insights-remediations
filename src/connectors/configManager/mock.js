@@ -7,7 +7,7 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    async getCurrentProfile () {
+    async getCurrentProfile (req) {
         return {
             account_id: '654321',
             active: true,

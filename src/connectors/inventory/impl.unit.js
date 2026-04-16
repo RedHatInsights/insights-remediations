@@ -28,7 +28,10 @@ function inventoryResponse (results, total = results.length) {
 }
 
 describe('inventory impl', function () {
-    beforeEach(mockRequest);
+    let testReq;
+    beforeEach(function () {
+        testReq = mockRequest();
+    });
 
     describe('getSystemInfoBatch', function () {
         test('returns expected data', async function () {
@@ -37,7 +40,7 @@ describe('inventory impl', function () {
 
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(inventory_GET);
 
-            const result = await impl.getSystemInfoBatch([
+            const result = await impl.getSystemInfoBatch(testReq, [
                 "9cc31c02-96f9-4d33-8d14-ea8467393b51",
                 "2c9284a9-a489-43d4-a7bb-1ef43cf890b8"
             ]);
@@ -52,7 +55,7 @@ describe('inventory impl', function () {
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(new errors.Forbidden('Access denied.'));
 
             try {
-                await impl.getSystemInfoBatch(['id1', 'id2']);
+                await impl.getSystemInfoBatch(testReq, ['id1', 'id2']);
                 should.fail('Expected error to be thrown');
             } catch (error) {
                 error.message.should.equal('Access forbidden');
@@ -66,7 +69,7 @@ describe('inventory impl', function () {
                 new StatusCodeError(404, {}, { not_found_ids: ['non-existent-id'] })
             );
 
-            await expect(impl.getSystemInfoBatch(['non-existent-id']))
+            await expect(impl.getSystemInfoBatch(testReq, ['non-existent-id']))
                 .rejects.toThrow('Unknown system identifier "non-existent-id"');
 
             spy.calledOnce.should.be.true();
@@ -76,7 +79,7 @@ describe('inventory impl', function () {
     describe('getSystemDetailsBatch', function () {
         test('does not make a call for empty list', async function () {
             const spy = base.getSandbox().spy(http, 'request');
-            const result = await impl.getSystemDetailsBatch([]);
+            const result = await impl.getSystemDetailsBatch(testReq, []);
 
             result.should.be.empty();
             spy.called.should.be.false();
@@ -85,10 +88,10 @@ describe('inventory impl', function () {
         test('forwards request headers', async function () {
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(inventoryResponse([]));
 
-            await impl.getSystemDetailsBatch(['id']);
+            await impl.getSystemDetailsBatch(testReq, ['id']);
             const headers = spy.args[0][0].headers;
             headers.should.have.size(2);
-            headers.should.have.property('x-rh-identity', 'identity');
+            headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
             headers.should.have.property('x-rh-insights-request-id', 'request-id');
         });
 
@@ -136,7 +139,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getSystemDetailsBatch(['id']);
+            const results = await impl.getSystemDetailsBatch(testReq, ['id']);
             results.should.have.size(1);
             results.should.have.property('9615dda7-5868-4957-88ba-c3064c86d332');
             const result = results['9615dda7-5868-4957-88ba-c3064c86d332'];
@@ -149,11 +152,11 @@ describe('inventory impl', function () {
             const options = http.args[0][0];
             options.headers.should.have.size(2);
             options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-            options.headers.should.have.property('x-rh-identity', 'identity');
+            options.headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
             cache.get.callCount.should.equal(1);
             cache.setex.callCount.should.equal(1);
 
-            await impl.getSystemDetailsBatch(['id']);
+            await impl.getSystemDetailsBatch(testReq, ['id']);
             cache.get.callCount.should.equal(2);
             cache.setex.callCount.should.equal(1);
         });
@@ -198,7 +201,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getSystemDetailsBatch(['id']);
+            const results = await impl.getSystemDetailsBatch(testReq, ['id']);
             results.should.have.size(1);
             results.should.have.property('9615dda7-5868-4957-88ba-c3064c86d332');
             const result = results['9615dda7-5868-4957-88ba-c3064c86d332'];
@@ -210,11 +213,11 @@ describe('inventory impl', function () {
             const options = http.args[0][0];
             options.headers.should.have.size(2);
             options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-            options.headers.should.have.property('x-rh-identity', 'identity');
+            options.headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
             cache.get.callCount.should.equal(3);
             cache.setex.callCount.should.equal(1);
 
-            await impl.getSystemDetailsBatch(['id']);
+            await impl.getSystemDetailsBatch(testReq, ['id']);
             cache.get.callCount.should.equal(4);
             cache.setex.callCount.should.equal(1);
         });
@@ -234,7 +237,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            await expect(impl.getSystemDetailsBatch(['id'])).resolves.toEqual({});
+            await expect(impl.getSystemDetailsBatch(testReq, ['id'])).resolves.toEqual({});
 
             http.callCount.should.equal(1);
             cache.get.callCount.should.equal(1);
@@ -273,7 +276,7 @@ describe('inventory impl', function () {
 
             const ids = Array(250).fill(0).map((value, key) => `84762eb3-0bbb-4bd8-ab11-f420c50e9${String(key).padStart(3, '0')}`);
 
-            const result = await impl.getSystemDetailsBatch(ids);
+            const result = await impl.getSystemDetailsBatch(testReq, ids);
             result.should.have.size(250);
             ids.forEach(id => _.has(result, id).should.be.true());
         });
@@ -282,7 +285,7 @@ describe('inventory impl', function () {
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(new errors.Forbidden('Access denied.'));
 
             try {
-                await impl.getSystemDetailsBatch(['id1', 'id2']);
+                await impl.getSystemDetailsBatch(testReq, ['id1', 'id2']);
                 should.fail('Expected error to be thrown');
             } catch (error) {
                 error.message.should.equal('Access forbidden');
@@ -297,7 +300,7 @@ describe('inventory impl', function () {
                 new StatusCodeError(404, {}, { not_found_ids: ['non-existent-id'] })
             );
 
-            await expect(impl.getSystemDetailsBatch(['non-existent-id']))
+            await expect(impl.getSystemDetailsBatch(testReq, ['non-existent-id']))
                 .rejects.toThrow('Unknown system identifier "non-existent-id"');
 
             spy.calledOnce.should.be.true();
@@ -309,7 +312,7 @@ describe('inventory impl', function () {
                 new StatusCodeError(404, {}, { detail: 'Not found' })
             );
 
-            await expect(impl.getSystemDetailsBatch(['id-1', 'id-2']))
+            await expect(impl.getSystemDetailsBatch(testReq, ['id-1', 'id-2']))
                 .rejects.toThrow('Unknown system identifier "id-1, id-2"');
 
             spy.calledOnce.should.be.true();
@@ -322,7 +325,7 @@ describe('inventory impl', function () {
             );
 
             try {
-                await impl.getSystemDetailsBatch(['missing-id-1', 'missing-id-2']);
+                await impl.getSystemDetailsBatch(testReq, ['missing-id-1', 'missing-id-2']);
                 throw new Error('Should have thrown');
             } catch (e) {
                 expect(e.notFoundIds).toEqual(['missing-id-1', 'missing-id-2']);
@@ -342,7 +345,7 @@ describe('inventory impl', function () {
                 }]
             });
 
-            const result = await impl.getSystemDetailsBatch(['existing-id'], false, 2, false);
+            const result = await impl.getSystemDetailsBatch(testReq, ['existing-id'], false, 2, false);
 
             result.should.have.size(1);
             result.should.have.property('existing-id');
@@ -354,7 +357,7 @@ describe('inventory impl', function () {
                 new StatusCodeError(404, {}, { not_found_ids: ['missing-id'] })
             );
 
-            const result = await impl.getSystemDetailsBatch(['missing-id'], false, 2, false);
+            const result = await impl.getSystemDetailsBatch(testReq, ['missing-id'], false, 2, false);
 
             result.should.be.empty();
             spy.calledOnce.should.be.true();
@@ -375,7 +378,7 @@ describe('inventory impl', function () {
                 }]
             });
 
-            const result = await impl.getSystemDetailsBatch(['existing-id', 'missing-id'], false, 2, false);
+            const result = await impl.getSystemDetailsBatch(testReq, ['existing-id', 'missing-id'], false, 2, false);
 
             result.should.have.size(1);
             result.should.have.property('existing-id');
@@ -385,7 +388,7 @@ describe('inventory impl', function () {
         test('throws non-404 errors even with strict=false', async function () {
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(new Error('Network error'));
 
-            await expect(impl.getSystemDetailsBatch(['id'], false, 0, false)).rejects.toThrow();
+            await expect(impl.getSystemDetailsBatch(testReq, ['id'], false, 0, false)).rejects.toThrow();
         });
 
         test('handles chunking with 404s - multiple chunks with missing systems', async function () {
@@ -463,7 +466,7 @@ describe('inventory impl', function () {
                 });
             });
 
-            const result = await impl.getSystemDetailsBatch(allIds, false, 2, false);
+            const result = await impl.getSystemDetailsBatch(testReq, allIds, false, 2, false);
 
             // Should have 301 - 13 = 288 systems
             result.should.have.size(288);
@@ -483,7 +486,7 @@ describe('inventory impl', function () {
     describe('getSystemsProfileBatch', function () {
         test('does not make a call for empty list', async function () {
             const spy = base.getSandbox().spy(http, 'request');
-            const result = await impl.getSystemProfileBatch([]);
+            const result = await impl.getSystemProfileBatch(testReq, []);
 
             result.should.be.empty();
             spy.called.should.be.false();
@@ -492,10 +495,10 @@ describe('inventory impl', function () {
         test('forwards request headers', async function () {
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(inventoryResponse([]));
 
-            await impl.getSystemProfileBatch(['id']);
+            await impl.getSystemProfileBatch(testReq, ['id']);
             const headers = spy.args[0][0].headers;
             headers.should.have.size(2);
-            headers.should.have.property('x-rh-identity', 'identity');
+            headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
             headers.should.have.property('x-rh-insights-request-id', 'request-id');
         });
 
@@ -519,7 +522,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getSystemProfileBatch(['id']);
+            const results = await impl.getSystemProfileBatch(testReq, ['id']);
             results.should.have.size(1);
             results.should.have.property('9dae9304-86a8-4f66-baa3-a1b27dfdd479');
             const result = results['9dae9304-86a8-4f66-baa3-a1b27dfdd479'];
@@ -532,11 +535,11 @@ describe('inventory impl', function () {
             const options = http.args[0][0];
             options.headers.should.have.size(2);
             options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-            options.headers.should.have.property('x-rh-identity', 'identity');
+            options.headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
             cache.get.callCount.should.equal(1);
             cache.setex.callCount.should.equal(1);
 
-            await impl.getSystemProfileBatch(['id']);
+            await impl.getSystemProfileBatch(testReq, ['id']);
             cache.get.callCount.should.equal(2);
             cache.setex.callCount.should.equal(1);
         });
@@ -565,7 +568,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getSystemProfileBatch(['id']);
+            const results = await impl.getSystemProfileBatch(testReq, ['id']);
             results.should.have.size(1);
             results.should.have.property('9dae9304-86a8-4f66-baa3-a1b27dfdd479');
             const result = results['9dae9304-86a8-4f66-baa3-a1b27dfdd479'];
@@ -578,11 +581,11 @@ describe('inventory impl', function () {
             const options = http.args[0][0];
             options.headers.should.have.size(2);
             options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-            options.headers.should.have.property('x-rh-identity', 'identity');
+            options.headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
             cache.get.callCount.should.equal(3);
             cache.setex.callCount.should.equal(1);
 
-            await impl.getSystemProfileBatch(['id']);
+            await impl.getSystemProfileBatch(testReq, ['id']);
             cache.get.callCount.should.equal(4);
             cache.setex.callCount.should.equal(1);
         });
@@ -602,7 +605,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            await expect(impl.getSystemProfileBatch(['id'])).resolves.toEqual({});
+            await expect(impl.getSystemProfileBatch(testReq, ['id'])).resolves.toEqual({});
 
             http.callCount.should.equal(1);
             cache.get.callCount.should.equal(1);
@@ -613,7 +616,7 @@ describe('inventory impl', function () {
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(new errors.Forbidden('Access denied.'));
 
             try {
-                await impl.getSystemProfileBatch(['id1', 'id2']);
+                await impl.getSystemProfileBatch(testReq, ['id1', 'id2']);
                 should.fail('Expected error to be thrown');
             } catch (error) {
                 error.message.should.equal('Access forbidden');
@@ -628,7 +631,7 @@ describe('inventory impl', function () {
                 new StatusCodeError(404, {}, { not_found_ids: ['non-existent-id'] })
             );
 
-            await expect(impl.getSystemProfileBatch(['non-existent-id']))
+            await expect(impl.getSystemProfileBatch(testReq, ['non-existent-id']))
                 .rejects.toThrow('Unknown system identifier "non-existent-id"');
 
             spy.calledOnce.should.be.true();
@@ -639,10 +642,10 @@ describe('inventory impl', function () {
         test('forwards request headers', async function () {
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(inventoryResponse([]));
 
-            await impl.getSystemsByOwnerId('id');
+            await impl.getSystemsByOwnerId(testReq, 'id');
             const headers = spy.args[0][0].headers;
             headers.should.have.size(2);
-            headers.should.have.property('x-rh-identity', 'identity');
+            headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
             headers.should.have.property('x-rh-insights-request-id', 'request-id');
         });
 
@@ -690,7 +693,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getSystemsByOwnerId('id');
+            const results = await impl.getSystemsByOwnerId(testReq, 'id');
             results.should.have.size(1);
             const result = results[0];
             result.should.have.property('id', '9615dda7-5868-4957-88ba-c3064c86d332');
@@ -701,11 +704,11 @@ describe('inventory impl', function () {
             const options = http.args[0][0];
             options.headers.should.have.size(2);
             options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-            options.headers.should.have.property('x-rh-identity', 'identity');
+            options.headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
             cache.get.callCount.should.equal(1);
             cache.setex.callCount.should.equal(1);
 
-            await impl.getSystemsByOwnerId('id');
+            await impl.getSystemsByOwnerId(testReq, 'id');
             cache.get.callCount.should.equal(2);
             cache.setex.callCount.should.equal(1);
         });
@@ -750,7 +753,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getSystemsByOwnerId('id');
+            const results = await impl.getSystemsByOwnerId(testReq, 'id');
             results.should.have.size(1);
             const result = results[0];
             result.should.have.property('id', '9615dda7-5868-4957-88ba-c3064c86d332');
@@ -761,11 +764,11 @@ describe('inventory impl', function () {
             const options = http.args[0][0];
             options.headers.should.have.size(2);
             options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-            options.headers.should.have.property('x-rh-identity', 'identity');
+            options.headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
             cache.get.callCount.should.equal(3);
             cache.setex.callCount.should.equal(1);
 
-            await impl.getSystemsByOwnerId('id');
+            await impl.getSystemsByOwnerId(testReq, 'id');
             cache.get.callCount.should.equal(4);
             cache.setex.callCount.should.equal(1);
         });
@@ -785,7 +788,7 @@ describe('inventory impl', function () {
                 headers: {}
             });
 
-            await expect(impl.getSystemsByOwnerId('id')).resolves.toEqual([]);
+            await expect(impl.getSystemsByOwnerId(testReq, 'id')).resolves.toEqual([]);
 
             http.callCount.should.equal(1);
             cache.get.callCount.should.equal(1);
@@ -796,7 +799,7 @@ describe('inventory impl', function () {
             const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(new errors.Forbidden('Access denied.'));
 
             try {
-                await impl.getSystemsByOwnerId('owner123');
+                await impl.getSystemsByOwnerId(testReq, 'owner123');
                 should.fail('Expected error to be thrown');
             } catch (error) {
                 error.message.should.equal('Access forbidden');
@@ -827,7 +830,7 @@ describe('inventory impl', function () {
                 total: 1
             });
 
-            const result = await impl.getSystemsByInsightsId('3ecd82fb-abdd-471c-9ca2-249c055644b8');
+            const result = await impl.getSystemsByInsightsId(testReq, '3ecd82fb-abdd-471c-9ca2-249c055644b8');
             result.should.has.size(2);
             result[0].should.have.property('insights_id', '3ecd82fb-abdd-471c-9ca2-249c055644b8');
             result[1].should.have.property('insights_id', '3ecd82fb-abdd-471c-9ca2-249c055644b8');

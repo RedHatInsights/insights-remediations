@@ -10,7 +10,10 @@ const errors = require('../../errors');
 const RequestError = require('request-promise-core/errors').RequestError;
 
 describe('rbac impl', function () {
-    beforeEach(mockRequest);
+    let testReq;
+    beforeEach(function () {
+        testReq = mockRequest();
+    });
 
     test('get remediations access', async function () {
         const cache = mockCache();
@@ -38,7 +41,7 @@ describe('rbac impl', function () {
             headers: {}
         });
 
-        const result = await impl.getRemediationsAccess();
+        const result = await impl.getRemediationsAccess(testReq);
         result.meta.should.have.property('count', 1);
         result.meta.should.have.property('limit', 10);
         result.meta.should.have.property('offset', 0);
@@ -59,7 +62,7 @@ describe('rbac impl', function () {
         options.uri.should.equal('http://localhost:8080/api/rbac/v1/access/?application=remediations');
         options.headers.should.have.size(2);
         options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-        options.headers.should.have.property('x-rh-identity', 'identity');
+        options.headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
 
         cache.get.callCount.should.equal(0);
         cache.setex.callCount.should.equal(0);
@@ -95,7 +98,7 @@ describe('rbac impl', function () {
             headers: {}
         });
 
-        const result = await impl.getRemediationsAccess();
+        const result = await impl.getRemediationsAccess(testReq);
         result.meta.should.have.property('count', 1);
         result.meta.should.have.property('limit', 10);
         result.meta.should.have.property('offset', 0);
@@ -117,7 +120,7 @@ describe('rbac impl', function () {
         options.uri.should.equal('http://localhost:8080/api/rbac/v1/access/?application=remediations');
         options.headers.should.have.size(2);
         options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-        options.headers.should.have.property('x-rh-identity', 'identity');
+        options.headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
 
         cache.get.callCount.should.equal(0);
         cache.setex.callCount.should.equal(0);
@@ -125,7 +128,7 @@ describe('rbac impl', function () {
 
     test('returns null when operation failed', async function () {
         base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
-        await expect(impl.getRemediationsAccess()).resolves.toBeNull();
+        await expect(impl.getRemediationsAccess(testReq)).resolves.toBeNull();
     });
 
     test('ping', async function () {
@@ -156,12 +159,12 @@ describe('rbac impl', function () {
 
     test('access error handling', async function () {
         base.mockRequestError();
-        await expect(impl.getRemediationsAccess()).rejects.toThrow(errors.DependencyError);
+        await expect(impl.getRemediationsAccess(testReq)).rejects.toThrow(errors.DependencyError);
     });
 
     test('status code handling', async function () {
         base.mockRequestStatusCode();
-        await expect(impl.getRemediationsAccess()).rejects.toThrow(errors.DependencyError);
+        await expect(impl.getRemediationsAccess(testReq)).rejects.toThrow(errors.DependencyError);
     });
 
     test('returns null on 404', async function () {
@@ -169,6 +172,6 @@ describe('rbac impl', function () {
             new StatusCodeError(404, {}, {})
         );
 
-        await expect(impl.getRemediationsAccess()).resolves.toBeNull();
+        await expect(impl.getRemediationsAccess(testReq)).resolves.toBeNull();
     });
 });
