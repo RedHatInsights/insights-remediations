@@ -583,4 +583,86 @@ describe('formatRunHosts and formatRHCHostDetails', function () {
             result.should.have.property('status', 'failure'); // timeout mapped to failure
         });
     });
+
+    describe('getRunHostDetails', function () {
+        const prId = '8ff5717a-cce8-4738-907b-a89eaa559275';
+        const inventoryId = 'c8aea8e7-cce7-4d2c-b45c-97408158fa44';
+        const dispatcherRunId = '14cdbad8-94e7-44ba-bff3-ba365bc3184a';
+
+        test('calls fetchPlaybookRunHosts then fetchPlaybookRuns when dispatcher_runs row is missing', async () => {
+            const fetchHosts = base.sandbox.stub(dispatcher, 'fetchPlaybookRunHosts').resolves({
+                data: [{
+                    inventory_id: inventoryId,
+                    host: 'localhost',
+                    stdout: 'log',
+                    run: { id: dispatcherRunId }
+                }]
+            });
+            const fetchRuns = base.sandbox.stub(dispatcher, 'fetchPlaybookRuns').resolves({
+                data: [{
+                    id: dispatcherRunId,
+                    status: 'running',
+                    updated_at: '2024-09-10T22:00:01.000Z',
+                    url: 'https://example.com/p'
+                }]
+            });
+            base.sandbox.stub(queries, 'getDispatcherRunForPlaybookRun').resolves(null);
+            getPlanSystemsDetailsStub.resolves({
+                [inventoryId]: { display_name: 'Sys', hostname: 'h.example.com' }
+            });
+
+            const result = await fifi.getRunHostDetails(prId, inventoryId);
+
+            result.should.have.property('system_id', inventoryId);
+            fetchHosts.callCount.should.equal(1);
+            fetchRuns.callCount.should.equal(1);
+        });
+
+        test('uses dispatcher_runs and skips fetchPlaybookRuns when row exists', async () => {
+            base.sandbox.stub(dispatcher, 'fetchPlaybookRunHosts').resolves({
+                data: [{
+                    inventory_id: inventoryId,
+                    host: 'localhost',
+                    stdout: 'log',
+                    run: { id: dispatcherRunId }
+                }]
+            });
+            const fetchRuns = base.sandbox.stub(dispatcher, 'fetchPlaybookRuns');
+            base.sandbox.stub(queries, 'getDispatcherRunForPlaybookRun').resolves({
+                status: 'success',
+                updated_at: new Date('2024-09-10T22:00:01.000Z')
+            });
+            getPlanSystemsDetailsStub.resolves({
+                [inventoryId]: { display_name: 'Sys', hostname: 'h.example.com' }
+            });
+
+            const result = await fifi.getRunHostDetails(prId, inventoryId);
+
+            result.should.have.property('system_id', inventoryId);
+            result.should.have.property('status', 'success');
+            fetchRuns.called.should.be.false();
+        });
+
+        test('returns null when run_hosts is empty and does not call fetchPlaybookRuns', async () => {
+            base.sandbox.stub(dispatcher, 'fetchPlaybookRunHosts').resolves({ data: [] });
+            const fetchRuns = base.sandbox.stub(dispatcher, 'fetchPlaybookRuns');
+
+            const result = await fifi.getRunHostDetails(prId, inventoryId);
+
+            (result === null).should.be.true();
+            fetchRuns.called.should.be.false();
+        });
+
+        test('returns null when run_hosts row has no run.id', async () => {
+            base.sandbox.stub(dispatcher, 'fetchPlaybookRunHosts').resolves({
+                data: [{ inventory_id: inventoryId, host: 'localhost', stdout: '' }]
+            });
+            const fetchRuns = base.sandbox.stub(dispatcher, 'fetchPlaybookRuns');
+
+            const result = await fifi.getRunHostDetails(prId, inventoryId);
+
+            (result === null).should.be.true();
+            fetchRuns.called.should.be.false();
+        });
+    });
 });

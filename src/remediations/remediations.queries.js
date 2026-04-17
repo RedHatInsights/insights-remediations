@@ -869,6 +869,20 @@ exports.updateDispatcherRuns = async function (dispatcherRunId, remediationsRunI
     );
 };
 
+/**
+ * Status and timestamps for a dispatcher run when we already know its id (e.g. from run_hosts).
+ */
+exports.getDispatcherRunForPlaybookRun = async function (remediations_run_id, dispatcher_run_id) {
+    const row = await db.dispatcher_runs.findOne({
+        where: { remediations_run_id, dispatcher_run_id },
+        attributes: ['status', 'updated_at']
+    });
+    if (!row) {
+        return null;
+    }
+    return { status: row.status, updated_at: row.updated_at };
+};
+
 exports.getPlaybookRunsWithDispatcherCounts = async function (playbookRunIds) {
     return db.playbook_runs.findAll({
         where: {

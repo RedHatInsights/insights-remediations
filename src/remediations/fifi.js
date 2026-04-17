@@ -25,7 +25,7 @@ const MIN_SAT_RHC_VERSION = [6, 11, 0];
 const SYSTEM_FIELDS = Object.freeze(['id', 'ansible_host', 'hostname', 'display_name', 'rhc_client']);
 
 const RUNSFIELDS = Object.freeze({fields: {data: ['id', 'labels', 'status', 'service', 'created_at', 'updated_at', 'url']}});
-const RUNHOSTFIELDS = Object.freeze({fields: {data: ['host', 'stdout', 'inventory_id']}});
+const RUNHOSTFIELDS = Object.freeze({fields: {data: ['host', 'stdout', 'inventory_id', 'run']}});
 const RHCRUNFIELDS = Object.freeze({fields: {data: ['host', 'status', 'inventory_id', 'run']}});
 const RHCSTATUSES = ['timeout', 'failure', 'success', 'running', 'canceled'];
 
@@ -346,52 +346,42 @@ exports.getRHCRuns = async function (playbook_run_id = null) {
 
 exports.getRunHostDetails = async function (playbook_run_id, system_id) {
     trace.enter('fifi.getRunHostDetails');
-    // So... given the remediations playbook_run_id and a system_id find the matching
-    // dispatcher run_hosts entry.  /dispatcher/runs?playbook_run_id will return an
-    // entry for every RHC-direct host that was part of the playbook run, and one for
-    // each <satellite,org> with one or more systems.  We need the *dispatcher* run_id
-    // and the system_id to query dispatcher run_hosts...
+    // Fetch the run_host for the given playbook_run_id and system_id
+    const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, null, system_id);
+    trace.event(`fetch playbook-dispatcher/v1/run_hosts with filter: ${JSON.stringify(runHostsFilter)}`);
+    const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RUNHOSTFIELDS);
+    trace.event(`playbook-dispatcher/v1/run_hosts returned: ${JSON.stringify(rhcRunHosts)}`);
 
-    const runsFilter = createDispatcherRunsFilter(playbook_run_id);
-    trace.event(`fetch playbook-dispatcher/v1/runs with filter: ${JSON.stringify(runsFilter)}`);
-    const rhcRuns = await dispatcher.fetchPlaybookRuns(runsFilter, RUNSFIELDS);
-    trace.event(`playbook-dispatcher returned: ${JSON.stringify(rhcRuns)}`);
-
-    if (!rhcRuns || !rhcRuns.data) {
-        trace.leave('playbook-dispatcher returned nothing useful!');
-        return null; // didn't find any dispatcher runs for playbook_run_id...
+    // rhcRunHosts will always have one row for the given playbook_run_id and system_id
+    // For direct: one dispatcher run per host 
+    // For satellite: many systems can share one dispatcher run but each system will still
+    // have its own run_host (same run.id, different inventory_id)
+    const dispatcherRunId = rhcRunHosts?.data?.[0]?.run?.id;
+    if (!dispatcherRunId) {
+        trace.leave(rhcRunHosts?.data?.length ? 'run_hosts row missing run.id' : 'data for system not found');
+        return null;
     }
 
-    // TODO: Don't do this; it's really inefficient.  Determine the
-    //  playbook-dispatcher run_id for this host/playbook run and fetch the
-    //  results that way.
-
-    // For each dispatcher run in rhcRuns
-    //   get run_hosts for this run_id and system_id
-    //   return the first match found
-
-    for (const run of rhcRuns.data) {
-        const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run.id, system_id);
-        trace.event(`fetch playbook-dispatcher/v1/run_hosts with filter: ${JSON.stringify(runHostsFilter)}`);
-        const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RUNHOSTFIELDS)
-        trace.event(`playbook-dispatcher/v1/run_hosts returned: ${JSON.stringify(rhcRunHosts)}`);
-
-        if (!rhcRunHosts || !rhcRunHosts.data) {
-            trace.event('No data for host in this run - continuing...');
-            continue; // didn't find any runHosts for dispatcher_run_id + system_id...
+    // Try to find the dispatcher run in the local dispatcher_runs table
+    let run = await queries.getDispatcherRunForPlaybookRun(playbook_run_id, dispatcherRunId);
+    if (!run) {
+        trace.event(`dispatcher_runs miss for dispatcher_run_id=${dispatcherRunId}; fetch playbook-dispatcher/v1/runs`);
+        // If we couldn't find the dispatcher run in the local dispatcher_runs table, fetch it from playbook-dispatcher
+        const rhcRuns = await exports.getRHCRuns(playbook_run_id);
+        trace.event(`playbook-dispatcher returned: ${JSON.stringify(rhcRuns)}`);
+        // Find the dispatcher run that has id == dispatcherRunId
+        run = _.find(rhcRuns?.data, { id: dispatcherRunId });
+        if (!run) {
+            trace.leave('dispatcher run not found for run_host');
+            return null;
         }
-
-        if (rhcRunHosts.data) {
-            // there should only ever be one run_hosts entry for a given system_id in a
-            // dispatcher run, right?  Just grab the first entry...
-            const result = await exports.formatRHCHostDetails(run, rhcRunHosts, playbook_run_id);
-            trace.leave(`Found a match - returning: ${JSON.stringify(result)}`);
-            return result;
-        }
+    } else {
+        trace.event(`dispatcher_runs hit for dispatcher_run_id=${dispatcherRunId}`);
     }
 
-    trace.leave('data for system not found');
-    return null; // didn't find any systems...
+    const result = await exports.formatRHCHostDetails(run, rhcRunHosts, playbook_run_id);
+    trace.leave(`Found a match - returning: ${JSON.stringify(result)}`);
+    return result;
 };
 
 exports.combineHosts = async function (rhcRunHosts, systems, playbook_run_id, filter_hostname = null) {
