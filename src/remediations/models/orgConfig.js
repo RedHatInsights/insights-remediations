@@ -7,11 +7,11 @@ module.exports = (sequelize, {DATE, INTEGER, TEXT}) => {
             primaryKey: true,
             allowNull: false
         },
-        retention_period_days: {
+        plan_retention_days: {
             type: INTEGER,
             allowNull: false
         },
-        retention_warning_days: {
+        plan_warning_days: {
             type: INTEGER,
             allowNull: false
         },
