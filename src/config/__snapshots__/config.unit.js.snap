@@ -137,6 +137,10 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "base": "/api/remediations",
     "prefix": "/api",
   },
+  "plan_retention": {
+    "retentionDays": 120,
+    "warningDays": 30,
+  },
   "platformHostname": "hostname",
   "port": undefined,
   "rbac": {
@@ -149,10 +153,6 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "enabled": false,
   },
   "requestTimeout": 10000,
-  "retention": {
-    "periodDays": 120,
-    "warningDays": 30,
-  },
   "sources": {
     "host": "http://localhost:8080",
     "impl": undefined,

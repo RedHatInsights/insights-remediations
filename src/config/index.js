@@ -246,9 +246,9 @@ function Config() {
             metricsInterval: parseIntEnv('FEATURE_FLAGS_METRICS_INTERVAL', 60000) // 60 seconds
         },
 
-        retention: {
-            periodDays: parseIntEnv('RETENTION_PERIOD_DAYS', 120), // days of inactivity before expiration
-            warningDays: parseIntEnv('RETENTION_WARNING_DAYS', 30) // days before expiration to show warning
+        plan_retention: {
+            retentionDays: parseIntEnv('PLAN_RETENTION_DAYS', 120), // days of inactivity before plan expiration
+            warningDays: parseIntEnv('PLAN_WARNING_DAYS', 30) // days before expiration to show warning
         }
     };
 

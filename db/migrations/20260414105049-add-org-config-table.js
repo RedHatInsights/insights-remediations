@@ -9,13 +9,13 @@ module.exports = {
                 allowNull: false,
                 comment: 'Organization ID'
             },
-            retention_period_days: {
+            plan_retention_days: {
                 type: INTEGER,
                 allowNull: false,
                 defaultValue: 120,
                 comment: 'Days of inactivity before remediation plan expiration'
             },
-            retention_warning_days: {
+            plan_warning_days: {
                 type: INTEGER,
                 allowNull: false,
                 defaultValue: 30,
