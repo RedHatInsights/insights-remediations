@@ -12,13 +12,13 @@ const { mockRequest } = require('./testUtils');
 describe('Connector', function () {
 
     test('wraps errors', async function () {
-        mockRequest();
+        const req = mockRequest();
         base.getSandbox().stub(http, 'request').rejects(new StatusCodeError(500));
-        await expect(vmaas.getCve('id')).rejects.toThrow(errors.DependencyError);
+        await expect(vmaas.getCve(req, 'id')).rejects.toThrow(errors.DependencyError);
     });
 
     test('logs HTTP 400 errors with request and response details', async function () {
-        mockRequest();
+        const req = mockRequest();
         
         const errorResponseBody = { error: 'Bad request', message: 'Invalid input' };
         const statusCodeError = new StatusCodeError(400, {
@@ -48,7 +48,7 @@ describe('Connector', function () {
             body: { test: 'data' }
         };
         
-        await expect(connector.doHttp(options)).rejects.toThrow(errors.DependencyError);
+        await expect(connector.doHttp(options, false, undefined, undefined, req)).rejects.toThrow(errors.DependencyError);
         
         // Verify log.error was called (the Proxy may make callCount 0, but we verify the error structure)
         // The log.error call happens in the catch block when StatusCodeError with statusCode 400 is detected
@@ -58,7 +58,7 @@ describe('Connector', function () {
         
         // Verify the error that was thrown is a DependencyError wrapping the StatusCodeError
         try {
-            await connector.doHttp(options);
+            await connector.doHttp(options, false, undefined, undefined, req);
         } catch (error) {
             expect(error).toBeInstanceOf(errors.DependencyError);
             expect(error.cause).toBeInstanceOf(StatusCodeError);

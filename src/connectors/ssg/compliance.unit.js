@@ -13,7 +13,11 @@ const Connector = require('../Connector');
 const StatusCodeError = require('../StatusCodeError');
 
 describe('compliance impl', function () {
-    beforeEach(mockRequest);
+    let testReq;
+
+    beforeEach(function () {
+        testReq = mockRequest();
+    });
 
     test('returns template', async function () {
         const http = base.getSandbox().stub(request, 'run').resolves({
@@ -27,7 +31,7 @@ describe('compliance impl', function () {
             }
         });
 
-        const { template, version } = await compliance.getTemplate('rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled');
+        const { template, version } = await compliance.getTemplate(testReq, 'rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled');
 
         version.should.equal('unit');
         expect(template).toMatchSnapshot();
@@ -50,8 +54,8 @@ describe('compliance impl', function () {
         });
 
         const pending = [
-            compliance.getTemplate('rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled'),
-            compliance.getTemplate('rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsylog_enabled.yml')
+            compliance.getTemplate(testReq, 'rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled'),
+            compliance.getTemplate(testReq, 'rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsylog_enabled.yml')
         ];
 
         const results = await P.all(pending);
@@ -68,6 +72,6 @@ describe('compliance impl', function () {
             new StatusCodeError(404, {}, {})
         );
 
-        await expect(compliance.getTemplate('unknown-rule')).resolves.toBeNull();
+        await expect(compliance.getTemplate(testReq, 'unknown-rule')).resolves.toBeNull();
     });
 });

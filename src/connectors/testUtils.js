@@ -3,22 +3,34 @@
 /* eslint-disable security/detect-object-injection */
 
 const base = require('../test');
-const cls = require('../util/cls');
 const cache = require('../cache');
 const config = require('../config');
 
+/**
+ * Builds a minimal Express-like request object for connector tests.
+ */
+const DEFAULT_IDENTITY_B64 = Buffer.from(JSON.stringify({
+    identity: {
+        type: 'User',
+        account_number: '12345',
+        org_id: '12345',
+        user: {username: 'test', is_internal: false}
+    }
+}), 'utf8').toString('base64');
+
 exports.mockRequest = function (headers = {
-    'x-rh-identity': 'identity',
+    'x-rh-identity': DEFAULT_IDENTITY_B64,
     'x-rh-insights-request-id': 'request-id'
 }, user = {
     username: 'test',
     account_number: 'test'
 }, identity = {type: 'test'}) {
-    base.getSandbox().stub(cls, 'getReq').returns({
+    return {
         headers,
         identity,
-        user
-    });
+        user,
+        id: headers['x-rh-insights-request-id']
+    };
 };
 
 exports.mockCache = function () {

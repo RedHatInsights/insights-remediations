@@ -44,14 +44,15 @@ module.exports = new class extends Connector {
         return this.buildUri(host, 'inventory', 'api', 'v1', 'hosts');
     }
 
-    async getSystemInfoBatch (ids = [], refresh = false, retries = 2) {
+    async getSystemInfoBatch (req, ids = [], refresh = false, retries = 2) {
+        const logger = log.getLogger(req);
         if (ids.length === 0) {
             return {};
         }
 
         if (ids.length > pageSize) {
             const chunks = _.chunk(ids, pageSize);
-            const results = await P.map(chunks, chunk => this.getSystemInfoBatch(chunk, refresh));
+            const results = await P.map(chunks, chunk => this.getSystemInfoBatch(req, chunk, refresh));
             return _.assign({}, ...results);
         }
 
@@ -68,7 +69,7 @@ module.exports = new class extends Connector {
                     method: 'GET',
                     json: true,
                     rejectUnauthorized: !insecure,
-                    headers: this.getForwardedHeaders()
+                    headers: this.getForwardedHeaders(req)
                 },
                 {
                     key: `remediations|http-cache|inventory|${ids.join()}`,
@@ -76,7 +77,9 @@ module.exports = new class extends Connector {
                     revalidationInterval,
                     cacheable: body => body.count > 0 // only cache responses with at least 1 record
                 },
-                this.detailsMetrics);
+                this.detailsMetrics,
+                undefined,
+                req);
         } catch (e) {
             if (e instanceof errors.Forbidden) {
                 e.error.details.message = 'Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.';
@@ -86,14 +89,14 @@ module.exports = new class extends Connector {
             // Handle 404 from Inventory - throw UNKNOWN_SYSTEM with not_found_ids if available
             if (e instanceof StatusCodeError && e.statusCode === 404) {
                 const notFoundIds = e.details?.not_found_ids || ids;
-                const err = new errors.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${notFoundIds.join(', ')}"`);
+                const err = new errors.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${notFoundIds.join(', ')}"`, undefined, req);
                 err.notFoundIds = notFoundIds;
                 throw err;
             }
-            
+
             if (retries > 0) {
-                log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
-                return this.getSystemInfoBatch(ids, true, retries - 1);
+                logger.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
+                return this.getSystemInfoBatch(req, ids, true, retries - 1);
             }
 
             throw e;
@@ -135,7 +138,8 @@ module.exports = new class extends Connector {
      * @param {number} retries - Number of retries on failure
      * @param {boolean} strict - If true (default), throws on 404. If false, returns partial results.
      */
-    async getSystemDetailsBatch (ids = [], refresh = false, retries = 2, strict = true) {
+    async getSystemDetailsBatch (req, ids = [], refresh = false, retries = 2, strict = true) {
+        const logger = log.getLogger(req);
         if (ids.length === 0) {
             return {};
         }
@@ -144,7 +148,7 @@ module.exports = new class extends Connector {
 
         if (ids.length > pageSize) {
             const chunks = _.chunk(ids, pageSize);
-            const results = await P.map(chunks, chunk => this.getSystemDetailsBatch(chunk, refresh, retries, strict));
+            const results = await P.map(chunks, chunk => this.getSystemDetailsBatch(req, chunk, refresh, retries, strict));
             return _.assign({}, ...results);
         }
 
@@ -160,7 +164,7 @@ module.exports = new class extends Connector {
                 method: 'GET',
                 json: true,
                 rejectUnauthorized: !insecure,
-                headers: this.getForwardedHeaders()
+                headers: this.getForwardedHeaders(req)
             },
             {
                 key: `remediations|http-cache|inventory|${ids.join()}`,
@@ -168,7 +172,9 @@ module.exports = new class extends Connector {
                 revalidationInterval,
                 cacheable: body => body.count > 0 // only cache responses with at least 1 record
             },
-            this.detailsMetrics);
+            this.detailsMetrics,
+            undefined,
+            req);
         } catch (e) {
             if (e instanceof errors.Forbidden) {
                 e.error.details.message = 'Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.';
@@ -182,24 +188,24 @@ module.exports = new class extends Connector {
                 // If strict=false, retry with remaining IDs instead of throwing
                 if (!strict) {
                     const remainingIds = _.difference(ids, notFoundIds);
-                    log.warn({ notFoundIds }, 'Systems not found in Inventory, filtering them out');
+                    logger.warn({ notFoundIds }, 'Systems not found in Inventory, filtering them out');
 
                     if (remainingIds.length === 0) {
                         return {};
                     }
 
-                    return this.getSystemDetailsBatch(remainingIds, refresh, retries, strict);
+                    return this.getSystemDetailsBatch(req, remainingIds, refresh, retries, strict);
                 }
 
                 // Otherwise throw UNKNOWN_SYSTEM error
-                const err = new errors.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${notFoundIds.join(', ')}"`);
+                const err = new errors.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${notFoundIds.join(', ')}"`, undefined, req);
                 err.notFoundIds = notFoundIds;
                 throw err;
             }
-            
+
             if (retries > 0) {
-                log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
-                return this.getSystemDetailsBatch(ids, true, retries - 1, strict);
+                logger.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
+                return this.getSystemDetailsBatch(req, ids, true, retries - 1, strict);
             }
 
             throw e;
@@ -214,7 +220,8 @@ module.exports = new class extends Connector {
         return validate(transformed);
     }
 
-    async getSystemProfileBatch (ids = [], refresh = false, retries = 2) {
+    async getSystemProfileBatch (req, ids = [], refresh = false, retries = 2) {
+        const logger = log.getLogger(req);
         if (ids.length === 0) {
             return {};
         }
@@ -223,7 +230,7 @@ module.exports = new class extends Connector {
 
         if (ids.length > pageSize) {
             const chunks = _.chunk(ids, pageSize);
-            const results = await P.map(chunks, chunk => this.getSystemProfileBatch(chunk, refresh));
+            const results = await P.map(chunks, chunk => this.getSystemProfileBatch(req, chunk, refresh));
             return _.assign({}, ...results);
         }
 
@@ -241,7 +248,7 @@ module.exports = new class extends Connector {
                 method: 'GET',
                 json: true,
                 rejectUnauthorized: !insecure,
-                headers: this.getForwardedHeaders()
+                headers: this.getForwardedHeaders(req)
             },
             {
                 key: `remediations|http-cache|inventory|system_profile|${ids.join()}`,
@@ -249,7 +256,9 @@ module.exports = new class extends Connector {
                 revalidationInterval,
                 cacheable: body => body.count > 0 // only cache responses with at least 1 record
             },
-            this.profileMetrics);
+            this.profileMetrics,
+            undefined,
+            req);
         } catch (e) {
             if (e instanceof errors.Forbidden) {
                 e.error.details.message = 'Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.';
@@ -259,14 +268,14 @@ module.exports = new class extends Connector {
             // Handle 404 from Inventory - throw UNKNOWN_SYSTEM with not_found_ids if available
             if (e instanceof StatusCodeError && e.statusCode === 404) {
                 const notFoundIds = e.details?.not_found_ids || ids;
-                const err = new errors.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${notFoundIds.join(', ')}"`);
+                const err = new errors.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${notFoundIds.join(', ')}"`, undefined, req);
                 err.notFoundIds = notFoundIds;
                 throw err;
             }
-            
+
             if (retries > 0) {
-                log.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
-                return this.getSystemProfileBatch(ids, true, retries - 1);
+                logger.warn({ error: e, ids, retries }, 'Inventory fetch failed. Retrying');
+                return this.getSystemProfileBatch(req, ids, true, retries - 1);
             }
 
             throw e;
@@ -281,7 +290,7 @@ module.exports = new class extends Connector {
         return transformed;
     }
 
-    async getSystemsByInsightsId (id) {
+    async getSystemsByInsightsId (req, id) {
         const uri = this.buildHostsUri();
         uri.addQuery('per_page', String(pageSize));
         uri.addQuery('insights_id', id);
@@ -291,8 +300,8 @@ module.exports = new class extends Connector {
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders()
-        }, false);
+            headers: this.getForwardedHeaders(req)
+        }, false, undefined, undefined, req);
 
         assert(response.total <= pageSize, `results exceed page (${response.total})`);
 
@@ -305,7 +314,8 @@ module.exports = new class extends Connector {
         return transformed;
     }
 
-    async getSystemsByOwnerId (owner_id, refresh = false, retries = 2) {
+    async getSystemsByOwnerId (req, owner_id, refresh = false, retries = 2) {
+        const logger = log.getLogger(req);
         const uri = this.buildHostsUri();
         uri.addQuery('per_page', String(pageSize));
         uri.addQuery('filter[system_profile][owner_id]', owner_id);
@@ -318,7 +328,7 @@ module.exports = new class extends Connector {
                 method: 'GET',
                 json: true,
                 rejectUnauthorized: !insecure,
-                headers: this.getForwardedHeaders()
+                headers: this.getForwardedHeaders(req)
             },
             {
                 key: `remediations|http-cache|inventory|owner-id|${owner_id}`,
@@ -326,16 +336,18 @@ module.exports = new class extends Connector {
                 revalidationInterval,
                 cacheable: body => body.count > 0 // only cache responses with at least 1 record
             },
-            this.hostsMetrics);
+            this.hostsMetrics,
+            undefined,
+            req);
         } catch (e) {
             if (e instanceof errors.Forbidden) {
                 e.error.details.message = 'Access to inventory service denied. You don\'t have the required \'inventory:hosts:read\' permission. Please check your RBAC permissions.';
                 throw e;
             }
-            
+
             if (retries > 0) {
-                log.warn({ error: e, retries }, 'Inventory fetch failed. Retrying');
-                return this.getSystemsByOwnerId(owner_id, false, retries - 1);
+                logger.warn({ error: e, retries }, 'Inventory fetch failed. Retrying');
+                return this.getSystemsByOwnerId(req, owner_id, false, retries - 1);
             }
 
             throw e;
@@ -359,8 +371,8 @@ module.exports = new class extends Connector {
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders()
-        });
+            headers: this.getForwardedHeaders(null)
+        }, false, undefined, undefined, null);
 
         assert(Array.isArray(response.results));
     }

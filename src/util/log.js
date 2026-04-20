@@ -4,7 +4,6 @@ const _ = require('lodash');
 const pino = require('pino');
 const pinoHttp = require('pino-http');
 const config = require('../config');
-const cls = require('./cls');
 
 const MAX_TRACE_SIZE = 200000; // cloudwatch max = 262144
 
@@ -109,7 +108,7 @@ const serializers = {
     options: optionsSerialized
 };
 
-const logger = pino(
+const rootLogger = pino(
     {
         name: 'remediations',
         level: config.logging.level,
@@ -119,39 +118,37 @@ const logger = pino(
 );
 
 if (config.logging.cloudwatch.enabled) {
-    logger.info({group: config.logging.cloudwatch.options.group}, 'CloudWatch enabled');
+    rootLogger.info({group: config.logging.cloudwatch.options.group}, 'CloudWatch enabled');
 }
 
-function getLogger () {
-    const req = cls.getReq();
-
+/**
+ * Returns a child logger with request correlation when `req` is provided and
+ * `attachRequestLogger` has run (or `req.logger` was set). Otherwise falls back
+ * to the root logger.
+ */
+function getLogger (req) {
     if (!req) {
-        return logger; // outside of request, fallback to default logger
+        return rootLogger;
     }
 
     if (!req.logger) {
-        req.logger = logger.child({reqId: req.id});
+        const reqId = req.id || req.headers?.['x-rh-insights-request-id'];
+        req.logger = reqId ? rootLogger.child({reqId}) : rootLogger;
     }
 
     return req.logger;
 }
 
-// Export a logger proxy, so we can redirect logging calls to req.logger (a
-// child logger that has an additional reqID correlation parameter) if we're
-// called in the context of a request.  Otherwise, pass the call onto the default
-// logger.
-module.exports = new Proxy (logger, {
-    get (target, key, receiver) {
-        const logger = getLogger();
+/** Express middleware: sets req.logger after pino-http has assigned req.id. */
+function attachRequestLogger (req, res, next) {
+    getLogger(req);
+    next();
+}
 
-        const result = Reflect.get(logger, key, receiver);
-        if (typeof result === 'function') {
-            return result.bind(logger); // bind so that we do not proxy inner calls (??)
-        }
-
-        return result;
-    }
-});
+module.exports = rootLogger;
+module.exports.rootLogger = rootLogger;
+module.exports.getLogger = getLogger;
+module.exports.attachRequestLogger = attachRequestLogger;
 
 // pino-http won't respect the base-logger's serializers, so it's going to need
 // a copy too...

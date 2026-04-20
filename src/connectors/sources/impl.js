@@ -19,7 +19,7 @@ module.exports = new class extends Connector {
         this.rhcConnectionsMetrics = metrics.createConnectorMetric(this.getName(), 'getRHCConnections');
     }
 
-    async findSources (ids) {
+    async findSources (req, ids) {
         // TODO: Chunk this is list of ids is long
 
         if (ids.length === 0) {
@@ -38,8 +38,8 @@ module.exports = new class extends Connector {
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders()
-        }, false, this.sourcesMetrics);
+            headers: this.getForwardedHeaders(req)
+        }, false, this.sourcesMetrics, undefined, req);
 
         assert(result.meta.count <= result.meta.limit);
         const data = _(result.data).keyBy('source_ref').value();
@@ -50,7 +50,7 @@ module.exports = new class extends Connector {
         .value();
     }
 
-    async getEndpoints (id) {
+    async getEndpoints (req, id) {
         const uri = this.buildUri(host, 'sources', 'v2.0', 'sources', String(id), 'endpoints');
 
         let result;
@@ -60,8 +60,8 @@ module.exports = new class extends Connector {
                 method: 'GET',
                 json: true,
                 rejectUnauthorized: !insecure,
-                headers: this.getForwardedHeaders()
-            }, false, this.endpointMetrics);
+                headers: this.getForwardedHeaders(req)
+            }, false, this.endpointMetrics, undefined, req);
         } catch (e) {
             if (e instanceof StatusCodeError && e.statusCode === 404) {
                 return null;
@@ -74,22 +74,22 @@ module.exports = new class extends Connector {
         return result.data;
     }
 
-    async getSourceInfo (ids) {
-        const sources = await this.findSources(ids);
+    async getSourceInfo (req, ids) {
+        const sources = await this.findSources(req, ids);
 
         await P.map(_.values(sources), async source => {
             if (source === null) {
                 return source;
             }
 
-            source.endpoints = await this.getEndpoints(source.id);
+            source.endpoints = await this.getEndpoints(req, source.id);
             return source;
         });
 
         return sources;
     }
 
-    async getRHCConnections (id) {
+    async getRHCConnections (req, id) {
         const uri = this.buildUri(host, 'sources', 'v3.1', 'sources', String(id), 'rhc_connections');
 
         let result;
@@ -99,8 +99,8 @@ module.exports = new class extends Connector {
                 method: 'GET',
                 json: true,
                 rejectUnauthorized: !insecure,
-                headers: this.getForwardedHeaders()
-            }, false, this.rhcConnectionsMetrics);
+                headers: this.getForwardedHeaders(req)
+            }, false, this.rhcConnectionsMetrics, undefined, req);
         } catch (e) {
             if (e instanceof StatusCodeError && e.statusCode === 404) {
                 return null;
@@ -114,6 +114,6 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        await this.findSources('test');
+        await this.findSources(null, 'test');
     }
 }();

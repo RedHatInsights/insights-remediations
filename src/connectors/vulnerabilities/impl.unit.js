@@ -9,8 +9,10 @@ const StatusCodeError = require('../StatusCodeError');
 
 /* eslint-disable max-len */
 describe('vulnerabilities impl', function () {
-
-    beforeEach(mockRequest);
+    let testReq;
+    beforeEach(function () {
+        testReq = mockRequest();
+    });
 
     describe('getSystems', function () {
         test('returns system ids', async function () {
@@ -51,7 +53,7 @@ describe('vulnerabilities impl', function () {
                 headers: {}
             });
 
-            await expect(impl.getSystems('rule')).resolves.toEqual([
+            await expect(impl.getSystems(testReq, 'rule')).resolves.toEqual([
                 '802cab91-410f-473b-b4c6-b1524c45ba8c',
                 '6ac1bb84-333d-48e5-bf02-7a9b0263d220'
             ]);
@@ -80,7 +82,7 @@ describe('vulnerabilities impl', function () {
                 headers: {}
             });
 
-            await expect(impl.getSystems('unknown-rule')).resolves.toEqual([]);
+            await expect(impl.getSystems(testReq, 'unknown-rule')).resolves.toEqual([]);
 
             http.callCount.should.equal(1);
             cache.get.callCount.should.equal(0);
@@ -92,7 +94,7 @@ describe('vulnerabilities impl', function () {
                 new StatusCodeError(404, {}, {})
             );
 
-            await expect(impl.getSystems('unknown-rule')).resolves.toEqual([]);
+            await expect(impl.getSystems(testReq, 'unknown-rule')).resolves.toEqual([]);
         });
     });
 
@@ -122,7 +124,7 @@ describe('vulnerabilities impl', function () {
                 headers: {}
             });
 
-            const results = await impl.getResolutions('rule');
+            const results = await impl.getResolutions(testReq, 'rule');
             http.callCount.should.equal(1);
 
             const resolution = results[0];
@@ -152,7 +154,7 @@ describe('vulnerabilities impl', function () {
                 headers: {}
             });
 
-            await expect(impl.getResolutions('unknown-rule')).resolves.toEqual([]);
+            await expect(impl.getResolutions(testReq, 'unknown-rule')).resolves.toEqual([]);
 
             http.callCount.should.equal(1);
             cache.get.callCount.should.equal(0);
@@ -164,7 +166,7 @@ describe('vulnerabilities impl', function () {
                 new StatusCodeError(404, {}, {})
             );
 
-            await expect(impl.getResolutions('unknown-rule')).resolves.toEqual([]);
+            await expect(impl.getResolutions(testReq, 'unknown-rule')).resolves.toEqual([]);
         });
     });
 });

@@ -8,11 +8,14 @@ const { mockRequest } = require('../testUtils');
 const RequestError = require('request-promise-core/errors').RequestError;
 
 describe('inventory xjoin', function () {
-    beforeEach(mockRequest);
+    let testReq;
+    beforeEach(function () {
+        testReq = mockRequest();
+    });
 
     test('does not make a call for empty list', async function () {
         const spy = base.getSandbox().spy(queries, 'runQuery');
-        const result = await xjoin.getSystemDetailsBatch([]);
+        const result = await xjoin.getSystemDetailsBatch(testReq, []);
 
         result.should.be.empty();
         spy.called.should.be.false();
@@ -39,10 +42,10 @@ describe('inventory xjoin', function () {
             }
         });
 
-        await xjoin.getSystemDetailsBatch(['22cd8e39-13bb-4d02-8316-84b850dc5136']);
+        await xjoin.getSystemDetailsBatch(testReq, ['22cd8e39-13bb-4d02-8316-84b850dc5136']);
         const headers = spy.args[0][2];
         headers.should.have.size(2);
-        headers.should.have.property('x-rh-identity', 'identity');
+        headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
         headers.should.have.property('x-rh-insights-request-id', 'request-id');
     });
 
@@ -67,7 +70,7 @@ describe('inventory xjoin', function () {
             }
         });
 
-        const results = await xjoin.getSystemDetailsBatch(['22cd8e39-13bb-4d02-8316-84b850dc5136']);
+        const results = await xjoin.getSystemDetailsBatch(testReq, ['22cd8e39-13bb-4d02-8316-84b850dc5136']);
         results.should.have.size(1);
         results.should.have.property('22cd8e39-13bb-4d02-8316-84b850dc5136');
         const result = results['22cd8e39-13bb-4d02-8316-84b850dc5136'];
@@ -104,7 +107,7 @@ describe('inventory xjoin', function () {
             }
         });
 
-        const results = await xjoin.getSystemDetailsBatch(['22cd8e39-13bb-4d02-8316-84b850dc5136']);
+        const results = await xjoin.getSystemDetailsBatch(testReq, ['22cd8e39-13bb-4d02-8316-84b850dc5136']);
         results.should.have.size(1);
         results.should.have.property('22cd8e39-13bb-4d02-8316-84b850dc5136');
         const result = results['22cd8e39-13bb-4d02-8316-84b850dc5136'];
@@ -127,7 +130,7 @@ describe('inventory xjoin', function () {
             }
         });
 
-        await expect(xjoin.getSystemDetailsBatch(['22cd8e39-13bb-4d02-8316-84b850dc5136'])).resolves.toEqual({});
+        await expect(xjoin.getSystemDetailsBatch(testReq, ['22cd8e39-13bb-4d02-8316-84b850dc5136'])).resolves.toEqual({});
         http.callCount.should.equal(1);
     });
 
@@ -154,7 +157,7 @@ describe('inventory xjoin', function () {
 
         const ids = Array(250).fill(0).map((value, key) => `84762eb3-0bbb-4bd8-ab11-f420c50e9${String(key).padStart(3, '0')}`);
 
-        const result = await xjoin.getSystemDetailsBatch(ids);
+        const result = await xjoin.getSystemDetailsBatch(testReq, ids);
         result.should.have.size(250);
         ids.forEach(id => _.has(result, id).should.be.true());
     });
@@ -162,7 +165,7 @@ describe('inventory xjoin', function () {
     describe('getSystemProfileBatch', function () {
         test('does not make a call for empty list', async function () {
             const spy = base.getSandbox().spy(queries, 'runQuery');
-            const result = await xjoin.getSystemProfileBatch([]);
+            const result = await xjoin.getSystemProfileBatch(testReq, []);
 
             result.should.be.empty();
             spy.called.should.be.false();
@@ -188,10 +191,10 @@ describe('inventory xjoin', function () {
                 }
             });
 
-            await xjoin.getSystemProfileBatch(['9dae9304-86a8-4f66-baa3-a1b27dfdd479']);
+            await xjoin.getSystemProfileBatch(testReq, ['9dae9304-86a8-4f66-baa3-a1b27dfdd479']);
             const headers = spy.args[0][2];
             headers.should.have.size(2);
-            headers.should.have.property('x-rh-identity', 'identity');
+            headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
             headers.should.have.property('x-rh-insights-request-id', 'request-id');
         });
 
@@ -215,7 +218,7 @@ describe('inventory xjoin', function () {
                 }
             });
 
-            const results = await xjoin.getSystemProfileBatch(['9dae9304-86a8-4f66-baa3-a1b27dfdd479']);
+            const results = await xjoin.getSystemProfileBatch(testReq, ['9dae9304-86a8-4f66-baa3-a1b27dfdd479']);
             results.should.have.size(1);
             results.should.have.property('9dae9304-86a8-4f66-baa3-a1b27dfdd479');
             const result = results['9dae9304-86a8-4f66-baa3-a1b27dfdd479'];
@@ -251,7 +254,7 @@ describe('inventory xjoin', function () {
                 }
             });
 
-            const results = await xjoin.getSystemProfileBatch(['9dae9304-86a8-4f66-baa3-a1b27dfdd479']);
+            const results = await xjoin.getSystemProfileBatch(testReq, ['9dae9304-86a8-4f66-baa3-a1b27dfdd479']);
             results.should.have.size(1);
             results.should.have.property('9dae9304-86a8-4f66-baa3-a1b27dfdd479');
             const result = results['9dae9304-86a8-4f66-baa3-a1b27dfdd479'];
@@ -274,7 +277,7 @@ describe('inventory xjoin', function () {
                 }
             });
 
-            await expect(xjoin.getSystemProfileBatch(['9dae9304-86a8-4f66-baa3-a1b27dfdd479'])).resolves.toEqual({});
+            await expect(xjoin.getSystemProfileBatch(testReq, ['9dae9304-86a8-4f66-baa3-a1b27dfdd479'])).resolves.toEqual({});
             http.callCount.should.equal(1);
         });
     });
@@ -310,7 +313,7 @@ describe('inventory xjoin', function () {
                 }
             });
 
-            const result = await xjoin.getSystemsByInsightsId('d46c20e5-8f10-43ed-94e4-6c467a581ec7');
+            const result = await xjoin.getSystemsByInsightsId(testReq, 'd46c20e5-8f10-43ed-94e4-6c467a581ec7');
             result.should.has.size(2);
             result[0].should.have.property('id', '22cd8e39-13bb-4d02-8316-84b850dc5136');
             result[0].should.have.property('account', 'test');
@@ -357,7 +360,7 @@ describe('inventory xjoin', function () {
                 }
             });
 
-            const result = await xjoin.getSystemsByOwnerId('d46c20e5-8f10-43ed-94e4-6c467a581ec7');
+            const result = await xjoin.getSystemsByOwnerId(testReq, 'd46c20e5-8f10-43ed-94e4-6c467a581ec7');
             result.should.has.size(2);
             result[0].should.have.property('id', '22cd8e39-13bb-4d02-8316-84b850dc5136');
             result[0].should.have.property('account', 'test');

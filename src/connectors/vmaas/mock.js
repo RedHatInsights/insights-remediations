@@ -52,16 +52,20 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    getErratum (id) {
+    getErratum (req, id) {
         return P.resolve(ERRATA[id]);
     }
 
-    getCve (id) {
+    getCve (req, id) {
         return P.resolve(CVES[id]);
     }
 
+    getPackage (req, id) {
+        return P.resolve(null);
+    }
+
     ping () {
-        return this.getCve('CVE-2017-17712');
+        return this.getCve(null, 'CVE-2017-17712');
     }
 }();
 

@@ -4,7 +4,6 @@ const impl = require('./impl');
 const base = require('../../test');
 const Connector = require('../Connector');
 const StatusCodeError = require('../StatusCodeError');
-const cls = require("../../util/cls");
 const { mockRequest, mockCache } = require('../testUtils');
 const request = require('../../util/request');
 const errors = require('../../errors');
@@ -25,8 +24,11 @@ const MOCK_USER = {
 };
 
 describe('users impl', function () {
+    let testReq;
 
-    beforeEach(mockRequest);
+    beforeEach(function () {
+        testReq = mockRequest();
+    });
 
     test('obtains user info', async function () {
         const http = base.getSandbox().stub(request, 'run').resolves({
@@ -35,7 +37,7 @@ describe('users impl', function () {
             headers: {}
         });
 
-        const result = await impl.getUser('someUsername');
+        const result = await impl.getUser(testReq, 'someUsername');
         result.should.have.property('username', 'someUsername');
         result.should.have.property('first_name', 'Jozef');
         result.should.have.property('last_name', 'Hartinger');
@@ -51,7 +53,7 @@ describe('users impl', function () {
 
     test('returns null when user does not exist', async function () {
         base.getSandbox().stub(Connector.prototype, 'doHttp').resolves([]);
-        await expect(impl.getUser('someUsername')).resolves.toBeNull();
+        await expect(impl.getUser(testReq, 'someUsername')).resolves.toBeNull();
     });
 
     test('ping', async function () {
@@ -68,13 +70,13 @@ describe('users impl', function () {
 
         const cache = mockCache();
 
-        await impl.getUser('someUsername');
+        await impl.getUser(testReq, 'someUsername');
         http.callCount.should.equal(1);
         cache.get.callCount.should.equal(1);
         cache.get.args[0][0].should.equal('remediations|http-cache|users|someUsername');
         cache.setex.callCount.should.equal(1);
 
-        await impl.getUser('someUsername');
+        await impl.getUser(testReq, 'someUsername');
         http.callCount.should.equal(1);
         cache.get.callCount.should.equal(2);
         cache.get.args[1][0].should.equal('remediations|http-cache|users|someUsername');
@@ -90,7 +92,7 @@ describe('users impl', function () {
 
         const cache = mockCache();
 
-        await impl.getUser('non-existent-user');
+        await impl.getUser(testReq, 'non-existent-user');
         http.callCount.should.equal(1);
         cache.get.callCount.should.equal(1);
         cache.get.args[0][0].should.equal('remediations|http-cache|users|non-existent-user');
@@ -99,12 +101,12 @@ describe('users impl', function () {
 
     test('connection error handling', async function () {
         base.mockRequestError();
-        await expect(impl.getUser('someUsername')).rejects.toThrow(errors.DependencyError);
+        await expect(impl.getUser(testReq, 'someUsername')).rejects.toThrow(errors.DependencyError);
     });
 
     test('status code handling', async function () {
         base.mockRequestStatusCode();
-        await expect(impl.getUser('someUsername')).rejects.toThrow(errors.DependencyError);
+        await expect(impl.getUser(testReq, 'someUsername')).rejects.toThrow(errors.DependencyError);
     });
 
     test('returns null on 404', async function () {
@@ -112,6 +114,6 @@ describe('users impl', function () {
             new StatusCodeError(404, {}, {})
         );
 
-        await expect(impl.getUser('someUsername')).resolves.toBeNull();
+        await expect(impl.getUser(testReq, 'someUsername')).resolves.toBeNull();
     });
 });

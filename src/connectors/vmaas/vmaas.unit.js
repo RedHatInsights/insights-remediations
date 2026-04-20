@@ -8,8 +8,10 @@ const Connector = require('../Connector');
 const StatusCodeError = require('../StatusCodeError');
 
 describe('vmaas impl', function () {
-
-    beforeEach(mockRequest);
+    let testReq;
+    beforeEach(function () {
+        testReq = mockRequest();
+    });
 
     test('obtains CVE info', async function () {
         const cache = mockCache();
@@ -44,7 +46,7 @@ describe('vmaas impl', function () {
             headers: {}
         });
 
-        const result = await impl.getCve('CVE-2017-5715');
+        const result = await impl.getCve(testReq, 'CVE-2017-5715');
         result.should.have.property('description', 'An industry-wide issue was found in the way many modern microprocessor.');
         result.should.have.property('synopsis', 'CVE-2017-5715');
 
@@ -55,7 +57,7 @@ describe('vmaas impl', function () {
         cache.get.callCount.should.equal(1);
         cache.setex.callCount.should.equal(1);
 
-        await impl.getCve('CVE-2017-5715');
+        await impl.getCve(testReq, 'CVE-2017-5715');
         cache.get.callCount.should.equal(2);
         cache.setex.callCount.should.equal(1);
     });
@@ -74,7 +76,7 @@ describe('vmaas impl', function () {
             headers: {}
         });
 
-        await expect(impl.getCve('CVE-2017-57155')).resolves.toBeNull();
+        await expect(impl.getCve(testReq, 'CVE-2017-57155')).resolves.toBeNull();
 
         http.callCount.should.equal(1);
         cache.get.callCount.should.equal(1);
@@ -87,7 +89,7 @@ describe('vmaas impl', function () {
             new StatusCodeError(404, {}, {})
         );
 
-        await expect(impl.getCve('CVE-unknown')).resolves.toBeNull();
+        await expect(impl.getCve(testReq, 'CVE-unknown')).resolves.toBeNull();
     });
 
     test('getErratum returns null on 404', async function () {
@@ -95,7 +97,7 @@ describe('vmaas impl', function () {
             new StatusCodeError(404, {}, {})
         );
 
-        await expect(impl.getErratum('RHBA-unknown')).resolves.toBeNull();
+        await expect(impl.getErratum(testReq, 'RHBA-unknown')).resolves.toBeNull();
     });
 
     test('getPackage returns null on 404', async function () {
@@ -104,6 +106,6 @@ describe('vmaas impl', function () {
             new StatusCodeError(404, {}, {})
         );
 
-        await expect(impl.getPackage('unknown-package')).resolves.toBeNull();
+        await expect(impl.getPackage(testReq, 'unknown-package')).resolves.toBeNull();
     });
 });

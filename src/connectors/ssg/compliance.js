@@ -3,7 +3,6 @@
 
 const assert = require('assert');
 const _ = require('lodash');
-const cls = require('../../util/cls');
 const log = require('../../util/log');
 const {host, insecure, revalidationInterval} = require('../../config').compliance;
 
@@ -20,7 +19,8 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    async getTemplate (id, refresh = false) {
+    async getTemplate (req, id, refresh = false) {
+        this._batchHttpReq = req;
         const p = new Promise(function(resolve, reject) {
             PROMISES.push({resolve, reject});
         });
@@ -42,9 +42,11 @@ module.exports = new class extends Connector {
         REQUESTS = [];
         PROMISES = [];
 
-        const req = cls.getReq();
+        const httpReq = this._batchHttpReq;
         const uri = this.buildUri(host, 'compliance', 'rules');
         uri.segment(copyIds.join());
+
+        const accountKey = httpReq?.user?.account_number ?? 'internal';
 
         try {
             const results = await this.doHttp({
@@ -54,15 +56,17 @@ module.exports = new class extends Connector {
                 body: { copyIds },
                 rejectUnauthorized: !insecure,
                 headers: {
-                    ...this.getForwardedHeaders()
+                    ...this.getForwardedHeaders(httpReq)
                 }
             },
             {
-                key: `remediations|http-cache|compliance|${req.user.account_number}|${copyIds}`,
+                key: `remediations|http-cache|compliance|${accountKey}|${copyIds}`,
                 refresh,
                 revalidationInterval
             },
-            this.metrics);
+            this.metrics,
+            undefined,
+            httpReq);
 
             for (let i = 0; i < copyPromises.length ; ++i) {
                 copyPromises[i].resolve(results[i]);
@@ -80,7 +84,7 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        const result = await this.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', true);
+        const result = await this.getTemplate(null, 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
         assert(result !== null);
     }
-};
+}();

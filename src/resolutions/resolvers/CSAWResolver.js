@@ -6,25 +6,25 @@ const identifier = require('../../util/identifiers');
 const vulnerabilities = require('../../connectors/vulnerabilities');
 const cveResolver = new(require('./CVEResolver'))();
 const shared = require('./SharedFunctions');
-const trace = require('../../util/trace');
+const getTrace = require('../../util/trace');
 
-module.exports = class CVEResolver extends Resolver {
+module.exports = class CSAWResolver extends Resolver {
 
-    async resolveResolutions (id) {
-        trace.enter('CSAWResolver.resolveResolutions');
+    async resolveResolutions (req, id) {
+        getTrace(req).enter('CSAWResolver.resolveResolutions');
 
-        const parsed = identifier.parseCSAW(id);
-        trace.event(`Fetch vulnerabilities resolutions for id: ${parsed.csaw}`);
+        const parsed = identifier.parseCSAW(id, req);
+        getTrace(req).event(`Fetch vulnerabilities resolutions for id: ${parsed.csaw}`);
         id.issue = parsed.csaw;
-        const resolutions = await vulnerabilities.getResolutions(id.issue);
-        trace.event(`Resolutions: ${JSON.stringify(resolutions)}`);
+        const resolutions = await vulnerabilities.getResolutions(req, id.issue);
+        getTrace(req).event(`Resolutions: ${JSON.stringify(resolutions)}`);
 
         if (_.isEmpty(resolutions)) {
             if (!_.isUndefined(parsed.cve)) {
                 id.issue = parsed.cve;
-                trace.event(`Fetch CVE resolution for id: ${parsed.cve}`);
-                const result = await cveResolver.resolveResolutions(id);
-                trace.leave(`Returning CVE resolution: ${JSON.stringify(result)}`);
+                getTrace(req).event(`Fetch CVE resolution for id: ${parsed.cve}`);
+                const result = await cveResolver.resolveResolutions(req, id);
+                getTrace(req).leave(`Returning CVE resolution: ${JSON.stringify(result)}`);
                 return result;
             }
 
@@ -32,7 +32,7 @@ module.exports = class CVEResolver extends Resolver {
         }
 
         const result = resolutions.map(resolution => shared.parseResolution(resolution));
-        trace.leave(`Returning: ${JSON.stringify(result)}`);
+        getTrace(req).leave(`Returning: ${JSON.stringify(result)}`);
         return result;
     }
 };

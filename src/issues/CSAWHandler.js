@@ -8,29 +8,29 @@ const vulnerabilities = require('../connectors/vulnerabilities');
 const csawResolver = new(require('../resolutions/resolvers/CSAWResolver'))();
 const csawFactory = new(require('../generator/factories/CSAWFactory'))();
 
-module.exports = class CVEHandler extends Handler {
+module.exports = class CSAWHandler extends Handler {
 
-    getCSAWIssueDetailsInternal (id) {
-        return vulnerabilities.getResolutions(id.issue);
+    getCSAWIssueDetailsInternal (req, id) {
+        return vulnerabilities.getResolutions(req, id.issue);
     }
 
-    getCVEIssueDetailsInternal (id) {
-        return vmaas.getCve(id.issue);
+    getCVEIssueDetailsInternal (req, id) {
+        return vmaas.getCve(req, id.issue);
     }
 
-    async getIssueDetails (id) {
-        const parsed = identifiers.parseCSAW(id);
+    async getIssueDetails (req, id) {
+        const parsed = identifiers.parseCSAW(id, req);
         id.issue = parsed.csaw;
 
-        let raw = await this.getCSAWIssueDetailsInternal(id);
+        let raw = await this.getCSAWIssueDetailsInternal(req, id);
 
         if (!raw && parsed.cve) {
             id.issue = parsed.cve;
-            raw = await this.getCVEIssueDetailsInternal(id);
+            raw = await this.getCVEIssueDetailsInternal(req, id);
         }
 
         if (!raw) {
-            throw errors.unknownIssue(id);
+            throw errors.unknownIssue(id, req);
         }
 
         return {

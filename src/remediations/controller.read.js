@@ -6,7 +6,7 @@ const etag = require('etag');
 const JSZip = require('jszip');
 const errors = require('../errors');
 const log = require('../util/log');
-const trace = require('../util/trace');
+const getTrace = require('../util/trace');
 const Issues = require('../issues');
 const queries = require('./remediations.queries');
 const format = require('./remediations.format');
@@ -31,11 +31,11 @@ const catchErrorCode = (code, fn) => e => {
     throw e;
 };
 
-function resolveResolutions (...remediations) {
+function resolveResolutions (req, ...remediations) {
     return P.all(_(remediations).flatMap('issues').map(async issue => {
-        const id = identifiers.parse(issue.issue_id);
-        const resolutions = await Issues.getHandler(id).getResolutionResolver().resolveResolutions(id);
-        const resolution = disambiguator.disambiguate(resolutions, issue.resolution, id, false, false);
+        const id = identifiers.parse(issue.issue_id, req);
+        const resolutions = await Issues.getHandler(id, req).getResolutionResolver().resolveResolutions(req, id);
+        const resolution = disambiguator.disambiguate(resolutions, issue.resolution, id, false, false, req);
 
         if (resolution) {
             issue.resolution = resolution;
@@ -46,7 +46,7 @@ function resolveResolutions (...remediations) {
     }).value());
 }
 
-function resolveResolutionsNeedReboot (...remediations) {
+function resolveResolutionsNeedReboot (req, ...remediations) {
     // Filter out invalid remediations (null/undefined or missing issues array)
     const validRemediations = remediations.filter(r => r && Array.isArray(r.issues));
     
@@ -62,8 +62,8 @@ function resolveResolutionsNeedReboot (...remediations) {
     
     // Resolve reboot status for each issue in parallel
     return P.all(allIssues.map(async issue => {
-        const id = identifiers.parse(issue.issue_id);
-        const needsReboot = await Issues.getHandler(id).getResolutionResolver().isRebootNeeded(id, issue.resolution);
+        const id = identifiers.parse(issue.issue_id, req);
+        const needsReboot = await Issues.getHandler(id, req).getResolutionResolver().isRebootNeeded(req, id, issue.resolution);
         
         issue.resolution = needsReboot !== null ? { needsReboot } : false;
     }));
@@ -78,7 +78,7 @@ exports.getUsers = async function (req, usernames) {
         };
     }
 
-    const resolvedUsers = await P.map(usernames, username => users.getUser(username));
+    const resolvedUsers = await P.map(usernames, username => users.getUser(req, username));
     return _.keyBy(resolvedUsers, 'username');
 };
 
@@ -111,9 +111,9 @@ function inferNeedsReboot (remediation) {
 }
 
 exports.list = errors.async(async function (req, res) {
-    trace.enter('controller.read.list');
+    getTrace(req).enter('controller.read.list');
 
-    trace.event('Get sort and query parms from url');
+    getTrace(req).event('Get sort and query parms from url');
     const {column, asc} = format.parseSort(req.query.sort);
     const {offset, hide_archived} = req.query;
     var limit = req.query.limit;
@@ -144,7 +144,7 @@ exports.list = errors.async(async function (req, res) {
     // Check for name in fields query param:
     // fields[data]=name
     if (fieldsArray.includes('name')) {
-        trace.event('Include name data');
+        getTrace(req).event('Include name data');
         let plan_names = await queries.getPlanNames(
             req.user.tenant_org_id
         );
@@ -154,15 +154,15 @@ exports.list = errors.async(async function (req, res) {
         const total = fifi.getListSize(plan_names);
         limit = limit || 1;
 
-        trace.event('Format response');
+        getTrace(req).event('Format response');
         const resp = format.planNames(plan_names, total, limit, offset, req.query.sort, req.query.system)
 
-        trace.leave();
+        getTrace(req).leave();
 
         return res.json(resp);
     }
 
-    trace.event('Query db for list of remediations');
+    getTrace(req).event('Query db for list of remediations');
     
     // allow service accounts to see all remediations
     // if the request comes from a service account
@@ -180,32 +180,32 @@ exports.list = errors.async(async function (req, res) {
         limit,
         offset);
 
-    trace.event('Validate offset query parm');
+    getTrace(req).event('Validate offset query parm');
     if (offset >= Math.max(count.length, 1)) {
-        throw errors.invalidOffset(offset, count.length - 1);
+        throw errors.invalidOffset(offset, count.length - 1, req);
     }
 
-    trace.event('Fetch remediation details from DB');
-    let remediations = await queries.loadDetails(req.user.tenant_org_id, creator_sa_filter, rows);
+    getTrace(req).event('Fetch remediation details from DB');
+    let remediations = await queries.loadDetails(req, req.user.tenant_org_id, creator_sa_filter, rows);
 
     if (column === 'name') {
-        trace.event('Accomodate sort ordering for null names');
+        getTrace(req).event('Accomodate sort ordering for null names');
         // TODO: remove null name support?
         // if sorting by name re-order as db does not order null names (Unnamed playbook) properly
         remediations = _.orderBy(remediations, [r => (r.name || '').toLowerCase()], [asc ? 'asc' : 'desc']);
     }
 
-    trace.event('Resolve user names and reboot flag');
+    getTrace(req).event('Resolve user names and reboot flag');
     await P.all([
-        resolveResolutionsNeedReboot(...remediations),
+        resolveResolutionsNeedReboot(req, ...remediations),
         resolveUsers(req, ...remediations)
     ]);
 
     // Add 'details' if they exist to each issue in remediation.issues
-    trace.event('Fetch issue details');
-    await P.map(remediations, remediation => resolveIssues(remediation));
+    getTrace(req).event('Fetch issue details');
+    await P.map(remediations, remediation => resolveIssues(req, remediation));
 
-    trace.event('Remove empty issues');
+    getTrace(req).event('Remove empty issues');
     remediations.forEach(remediation => {
         // filter out issues with 0 systems, unknown issues and details
         remediation.issues = remediation.issues.filter(issue => issue.resolution && issue.details);
@@ -221,7 +221,7 @@ exports.list = errors.async(async function (req, res) {
     });
 
     if (fieldsArray.includes('playbook_runs') || fieldsArray.includes('last_playbook_run')) {
-        trace.event('Include playbook_runs data');
+        getTrace(req).event('Include playbook_runs data');
 
         // set limit to 1 if not explicitly set & fields[data]=playbook_runs
         limit = limit || 1;
@@ -229,8 +229,8 @@ exports.list = errors.async(async function (req, res) {
         let iteration = 1;
         await P.map(remediations, async (remediation) => {
             const local_iteration = iteration++;
-            trace.enter(`[${local_iteration}] Process remediation: ${remediation.id}`);
-            trace.event(`[${local_iteration}] Fetch playbook run`);
+            getTrace(req).enter(`[${local_iteration}] Process remediation: ${remediation.id}`);
+            getTrace(req).event(`[${local_iteration}] Fetch playbook run`);
             let playbook_runs;
             if (fieldsArray.includes('last_playbook_run')) {
                 playbook_runs = await queries.getLatestPlaybookRun(
@@ -252,18 +252,18 @@ exports.list = errors.async(async function (req, res) {
                 playbook_runs = playbook_runs.toJSON();
 
                 // Join rhcRuns and playbookRuns
-                trace.event(`[${local_iteration}] Combine runs`);
+                getTrace(req).event(`[${local_iteration}] Combine runs`);
                 playbook_runs.iteration = local_iteration;
-                await fifi.combineRuns(playbook_runs);
+                await fifi.combineRuns(req, playbook_runs);
 
-                trace.event(`[${local_iteration}] Resolve users`);
+                getTrace(req).event(`[${local_iteration}] Resolve users`);
                 playbook_runs = await fifi.resolveUsers(req, playbook_runs);
 
                 // Update playbook_run status based on executor status (RHC)
-                trace.event(`[${local_iteration}] Update playbook run status`);
+                getTrace(req).event(`[${local_iteration}] Update playbook run status`);
                 fifi.updatePlaybookRunsStatus(playbook_runs.playbook_runs);
 
-                trace.event(`[${local_iteration}] Format playbook run`);
+                getTrace(req).event(`[${local_iteration}] Format playbook run`);
                 const formattedRuns = format.formatRuns(playbook_runs.playbook_runs);
                 
                 // When 'playbook_runs' is requested: contains all playbook runs for the remediation
@@ -271,24 +271,24 @@ exports.list = errors.async(async function (req, res) {
                 remediation.playbook_runs = formattedRuns;
             }
 
-            trace.leave(`[${local_iteration}] Process remediation: ${remediation.id}`);
+            getTrace(req).leave(`[${local_iteration}] Process remediation: ${remediation.id}`);
         })
     }
 
-    trace.event('Format response');
+    getTrace(req).event('Format response');
     const resp = format.list(remediations, count.length, limit, offset, req.query.sort, req.query.system);
 
-    trace.leave();
+    getTrace(req).leave();
 
     return res.json(resp);
 });
 
-async function resolveSystems (remediation) {
+async function resolveSystems (req, remediation) {
     const ids = _(remediation.issues).flatMap('systems').map('system_id').uniq().value();
 
     // Fetch systems from Inventory
     // strict=false gracefully handles 404 and returns partial response with known systems
-    const resolvedSystems = await inventory.getSystemDetailsBatch(ids, false, 2, false);
+    const resolvedSystems = await inventory.getSystemDetailsBatch(req, ids, false, 2, false);
 
     // Filter out systems not in inventory and add hostname/display_name
     remediation.issues.forEach(issue => {
@@ -303,10 +303,10 @@ async function resolveSystems (remediation) {
     });
 }
 
-function resolveIssues (remediation) {
+function resolveIssues (req, remediation) {
     return P.map(remediation.issues, async issue => {
-        const id = identifiers.parse(issue.issue_id);
-        return Issues.getIssueDetails(id)
+        const id = identifiers.parse(issue.issue_id, req);
+        return Issues.getIssueDetails(req, id)
         .then(result => issue.details = result)
         .catch(catchErrorCode('UNKNOWN_ISSUE', () => issue.details = false));
     });
@@ -345,9 +345,9 @@ exports.get = errors.async(async function (req, res) {
     else {
         // fetch plan issue and system details
         await P.all([
-            resolveSystems(remediation),
-            resolveResolutions(remediation),
-            resolveIssues(remediation),
+            resolveSystems(req, remediation),
+            resolveResolutions(req, remediation),
+            resolveIssues(req, remediation),
         ]);
 
         // filter out issues with 0 systems or missing issue details
@@ -366,7 +366,7 @@ exports.bulkPlaybook = errors.async(async function (req, res) {
 });
 
 exports.playbook = errors.async(async function (req, res) {
-    trace.enter('controller.read(playbook)');
+    getTrace(req).enter('controller.read(playbook)');
     const id = req.params.id;
     const selected_hosts = req.query.hosts;
     const localhost = req.query.localhost;
@@ -384,7 +384,7 @@ exports.playbook = errors.async(async function (req, res) {
     const USE_CACHE = true;
     const EXCLUDE_RESOLVED_COUNT = false;
 
-    trace.event('Get remediation plan from db (w/caching)');
+    getTrace(req).event('Get remediation plan from db (w/caching)');
     const remediation = await queries.get(id, tenant_org_id, creator_sa_filter, EXCLUDE_RESOLVED_COUNT, USE_CACHE);
 
     if (!remediation) {
@@ -397,7 +397,7 @@ exports.playbook = errors.async(async function (req, res) {
         return noContent(res);
     }
 
-    trace.event('Normalize issues');
+    getTrace(req).event('Normalize issues');
     let normalizedIssues = generator.normalizeIssues(issues);
 
     if (_.isEmpty(normalizedIssues)) {
@@ -405,7 +405,7 @@ exports.playbook = errors.async(async function (req, res) {
     }
 
     // remove any hosts not in selected_host list
-    trace.event('Remove non-selected hosts');
+    getTrace(req).event('Remove non-selected hosts');
     if (selected_hosts) {
         _.forEach(normalizedIssues, issue => {
             issue.systems = _.filter(issue.systems, system => selected_hosts.includes(system));
@@ -413,7 +413,7 @@ exports.playbook = errors.async(async function (req, res) {
     }
 
     if (sat_org_id || cert_auth) {
-        trace.event('do sat / cert-auth stuff...');
+        getTrace(req).event('do sat / cert-auth stuff...');
         // get list of unique systems from issues
         const all_systems = _(normalizedIssues)
         .map('systems')
@@ -423,7 +423,7 @@ exports.playbook = errors.async(async function (req, res) {
 
         // remove any systems not in specified satellite organization
         if (sat_org_id) {
-            const batchDetailInfo = await inventory.getSystemDetailsBatch(all_systems);
+            const batchDetailInfo = await inventory.getSystemDetailsBatch(req, all_systems);
             _.forEach(normalizedIssues, issue => {
                 issue.systems = _.filter(issue.systems, system => {
                     // eslint-disable-next-line security/detect-object-injection
@@ -439,7 +439,7 @@ exports.playbook = errors.async(async function (req, res) {
 
         // validate system ownership if using certificate authentication
         if (cert_auth) {
-            const batchProfileInfo = await inventory.getSystemProfileBatch(all_systems);
+            const batchProfileInfo = await inventory.getSystemProfileBatch(req, all_systems);
 
             if (_.isEmpty(batchProfileInfo)) {
                 return notFound(res); // Eh, this is really more of an internal error...
@@ -460,17 +460,17 @@ exports.playbook = errors.async(async function (req, res) {
     }
 
     // If any issues have 0 systems based on the changes above filter them out
-    trace.event('Prune empty issues');
+    getTrace(req).event('Prune empty issues');
     normalizedIssues = _.filter(normalizedIssues, issue => !_.isEmpty(issue.systems));
 
     if (_.isEmpty(normalizedIssues)) {
         // Remediation exists but has no issues with systems - return 204
-        trace.leave('No issues with systems, returning 204');
+        getTrace(req).leave('No issues with systems, returning 204');
         return noContent(res);
     }
 
-    trace.event('Generate playbook')
-    const playbook = await generator.playbookPipeline({
+    getTrace(req).event('Generate playbook')
+    const playbook = await generator.playbookPipeline(req, {
         issues: normalizedIssues,
         auto_reboot: remediation.auto_reboot
     }, remediation, false, localhost);
@@ -479,10 +479,10 @@ exports.playbook = errors.async(async function (req, res) {
         return noContent(res);
     }
 
-    trace.event('Send playbook!');
+    getTrace(req).event('Send playbook!');
     generator.send(req, res, playbook, format.playbookName(remediation));
 
-    trace.leave();
+    getTrace(req).leave();
 });
 
 exports.downloadPlaybooks = errors.async(async function (req, res) {
@@ -515,7 +515,7 @@ exports.downloadPlaybooks = errors.async(async function (req, res) {
 
         const normalizedIssues = generator.normalizeIssues(issues);
 
-        const playbook = await generator.playbookPipeline({
+        const playbook = await generator.playbookPipeline(req, {
             issues: normalizedIssues,
             auto_reboot: remediation.auto_reboot
         }, remediation, false);
@@ -565,15 +565,15 @@ exports.getIssues = errors.async(async function (req, res) {
 
     // fetch resolution and details for selected issues
     const promises = selected_issues.map(async issue => {
-        const id = identifiers.parse(issue.issue_id);
+        const id = identifiers.parse(issue.issue_id, req);
 
         const [resolutions, details] = await Promise.all([
-            Issues.getHandler(id).getResolutionResolver().resolveResolutions(id),
-            Issues.getIssueDetails(id)
+            Issues.getHandler(id, req).getResolutionResolver().resolveResolutions(req, id),
+            Issues.getIssueDetails(req, id)
             .catch(catchErrorCode('UNKNOWN_ISSUE', () => false))
         ]);
 
-        const resolution = disambiguator.disambiguate(resolutions, issue.resolution, id, false, false);
+        const resolution = disambiguator.disambiguate(resolutions, issue.resolution, id, false, false, req);
 
         if (resolution) {
             issue.resolution = resolution;
@@ -610,7 +610,7 @@ exports.getIssueSystems = errors.async(async function (req, res) {
         return notFound(res);
     }
 
-    await resolveSystems(remediation);
+    await resolveSystems(req, remediation);
 
     // filter out issues with 0 systems
     remediation.issues = remediation.issues.filter(issue => issue.systems.length);
@@ -626,7 +626,7 @@ exports.getIssueSystems = errors.async(async function (req, res) {
     remediation.issues[0].systems = await fifi.pagination(remediation.issues[0].systems, total, limit, offset);
 
     if (_.isNull(remediation.issues[0].systems)) {
-        throw errors.invalidOffset(offset, total);
+        throw errors.invalidOffset(offset, total, req);
     }
 
     res.json(format.issueSystems(remediation.issues[0], total));
@@ -653,7 +653,7 @@ exports.getRemediationSystems = errors.async(async function (req, res) {
     const { count: total, rows } = await queries.getPlanSystems(plan_id, tenant_org_id, creator_sa_filter, column, asc, filter, limit, offset);
 
     if (offset >= Math.max(total, 1)) {
-        throw errors.invalidOffset(offset, total - 1);
+        throw errors.invalidOffset(offset, total - 1, req);
     }
 
     return res.json(format.planSystems(plan_id, rows, total, limit, offset, sort));
@@ -694,15 +694,15 @@ exports.getSystemIssues = errors.async(async function (req, res) {
 
     // Fetch issue details
     const issues = await P.map(rows, async row => {
-        const id = identifiers.parse(row.issue_id);
+        const id = identifiers.parse(row.issue_id, req);
         const [resolutions, details] = await Promise.all([
-            Issues.getHandler(id).getResolutionResolver().resolveResolutions(id),
-            Issues.getIssueDetails(id).catch(catchErrorCode('UNKNOWN_ISSUE', () => false))
+            Issues.getHandler(id, req).getResolutionResolver().resolveResolutions(req, id),
+            Issues.getIssueDetails(req, id).catch(catchErrorCode('UNKNOWN_ISSUE', () => false))
         ]);
 
         let resolution = false;
         if (row.resolution) {
-            resolution = disambiguator.disambiguate(resolutions, row.resolution, id, false, false) || false;
+            resolution = disambiguator.disambiguate(resolutions, row.resolution, id, false, false, req) || false;
         }
 
         return {

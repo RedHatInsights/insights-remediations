@@ -22,10 +22,10 @@ const SSG_PATTERN = /^(?<originalPlatform>[\w.-]+)(?:\|(?<ssgVersion>\d+\.\d+\.\
 const CSAW_PATTERN = /^(CVE-20[\d]{2}-[\d]{4,}):(\w+\|[A-Z\d_]+)$/;
 const CSAW_RULE_PATTERN = /^(\w+\|[A-Z\d_]+)$/;
 
-function match (id) {
+function match (id, req) {
     const match = PATTERN.exec(id);
     if (!match) {
-        throw errors.invalidIssueId(id);
+        throw errors.invalidIssueId(id, req);
     }
 
     return match;
@@ -45,15 +45,15 @@ exports.Identifier = class Identifier {
     }
 };
 
-exports.parse = function (id) {
-    const result = match(id);
+exports.parse = function (id, req) {
+    const result = match(id, req);
 
     return new exports.Identifier(result[1], result[2], id);
 };
 
-exports.parseCSAW = function (id) {
+exports.parseCSAW = function (id, req) {
     if (!(id instanceof exports.Identifier)) {
-        id = exports.parse(id);
+        id = exports.parse(id, req);
     }
 
     const csawResult = CSAW_PATTERN.exec(id.issue);
@@ -70,18 +70,18 @@ exports.parseCSAW = function (id) {
         };
     }
 
-    throw errors.invalidIssueId(id);
+    throw errors.invalidIssueId(id, req);
 };
 
-exports.parseSSG = function (id) {
+exports.parseSSG = function (id, req) {
     if (!(id instanceof exports.Identifier)) {
-        id = exports.parse(id);
+        id = exports.parse(id, req);
     }
 
     const result = SSG_PATTERN.exec(id.issue);
 
     if (!result?.groups) {
-        throw errors.invalidIssueId(id);
+        throw errors.invalidIssueId(id, req);
     }
 
     const { originalPlatform, ssgVersion, profile, rule } = result.groups;

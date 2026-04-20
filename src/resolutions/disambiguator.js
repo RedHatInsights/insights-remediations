@@ -3,10 +3,10 @@
 const _ = require('lodash');
 const errors = require('../errors');
 
-exports.disambiguate = function (templates, resolution, id, strict = true, strictOnEmpty = true) {
+exports.disambiguate = function (templates, resolution, id, strict = true, strictOnEmpty = true, req) {
     if (!templates.length) {
         if (strictOnEmpty) {
-            throw errors.unsupportedIssue(id);
+            throw errors.unsupportedIssue(id, req);
         }
 
         return;
@@ -24,7 +24,7 @@ exports.disambiguate = function (templates, resolution, id, strict = true, stric
         }
 
         if (strict) {
-            throw errors.unknownResolution(id, resolution);
+            throw errors.unknownResolution(id, resolution, req);
         }
     }
 

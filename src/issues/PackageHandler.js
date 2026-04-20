@@ -6,7 +6,7 @@ const cveFactory = new(require('../generator/factories/CVEFactory'))();
 
 module.exports = class PackageHandler extends Handler {
 
-    async getIssueDetails (id) {
+    async getIssueDetails (req, id) {
         return {
             description: id.issue
         };

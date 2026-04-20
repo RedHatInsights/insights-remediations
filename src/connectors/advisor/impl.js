@@ -26,7 +26,7 @@ module.exports = new class extends Connector {
         return this.buildUri(host, 'advisor', 'v1');
     }
 
-    async getRule (id, refresh = false) {
+    async getRule (httpReq, id, refresh = false) {
         const uri = this.buildBaseUri(host, 'advisor', 'v1');
         uri.segment('rule');
         uri.segment(id);
@@ -38,13 +38,15 @@ module.exports = new class extends Connector {
                 json: true,
                 rejectUnauthorized: !insecure,
                 headers: {
-                    ...this.getForwardedHeaders()
+                    ...this.getForwardedHeaders(httpReq)
                 }
             }, {
                 refresh,
                 revalidationInterval
             },
-            this.ruleMetrics);
+            this.ruleMetrics,
+            undefined,
+            httpReq);
         } catch (e) {
             if (e instanceof StatusCodeError && e.statusCode === 404) {
                 return null;
@@ -54,7 +56,7 @@ module.exports = new class extends Connector {
         }
     }
 
-    async getDiagnosis (system, branchId = null) {
+    async getDiagnosis (httpReq, system, branchId = null) {
         const uri = this.buildBaseUri();
         uri.segment('system');
         uri.segment(system);
@@ -73,9 +75,9 @@ module.exports = new class extends Connector {
                 json: true,
                 rejectUnauthorized: !insecure,
                 headers: {
-                    ...this.getForwardedHeaders()
+                    ...this.getForwardedHeaders(httpReq)
                 }
-            }, false, this.diagnosisMetrics);
+            }, false, this.diagnosisMetrics, undefined, httpReq);
         } catch (e) {
             if (e instanceof StatusCodeError && e.statusCode === 404) {
                 return {};
@@ -101,7 +103,7 @@ module.exports = new class extends Connector {
         .value();
     }
 
-    async getSystems (id) {
+    async getSystems (httpReq, id) {
         const uri = this.buildBaseUri(host, 'advisor', 'v1');
         uri.segment('rule');
         uri.segment(id);
@@ -114,10 +116,12 @@ module.exports = new class extends Connector {
                 method: 'GET',
                 json: true,
                 rejectUnauthorized: !insecure,
-                headers: this.getForwardedHeaders()
+                headers: this.getForwardedHeaders(httpReq)
             },
             false,
-            this.systemsMetrics);
+            this.systemsMetrics,
+            undefined,
+            httpReq);
         } catch (e) {
             if (e instanceof StatusCodeError && e.statusCode === 404) {
                 return [];
@@ -130,7 +134,7 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        const result = await this.getRule('network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE', true);
+        const result = await this.getRule(null, 'network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE', true);
         assert(result !== null);
     }
 }();

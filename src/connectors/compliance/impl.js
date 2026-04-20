@@ -16,13 +16,15 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    async getRule(id, ssgRefId = null, ssgVersion = null, refresh = false, retries = 2) {
+    async getRule(req, id, ssgRefId = null, ssgVersion = null, refresh = false, retries = 2) {
         // Compliance API v1 is deprecated. Require v2 format with ssgVersion
         // Note: ssgVersion is extracted by identifiers.parseSSG() and will be null for v1 format
         if (!ssgVersion) {
             throw new errors.BadRequest(
                 'INVALID_ISSUE_IDENTIFIER',
-                `Compliance v1 issue identifiers have been retired. Please update your v1 issue ID, "ssg:<platform>|<profile>|${id}", to the v2 format of "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|<version>|<profile>|${id}"`
+                `Compliance v1 issue identifiers have been retired. Please update your v1 issue ID, "ssg:<platform>|<profile>|${id}", to the v2 format of "ssg:xccdf_org.ssgproject.content_benchmark_RHEL-X|<version>|<profile>|${id}"`,
+                undefined,
+                req
             );
         }
 
@@ -32,7 +34,7 @@ module.exports = new class extends Connector {
         for (let i = 0; i <= retries; i++) {
             try {
                 // Build URI that will fetch the rule using Compliance API v2
-                const uri = await this.buildV2Uri(id, ssgRefId, ssgVersion, refresh, retries);
+                const uri = await this.buildV2Uri(req, id, ssgRefId, ssgVersion, refresh, retries);
 
                 // Fetch the rule from Compliance
                 const result = await this.doHttp({
@@ -40,12 +42,12 @@ module.exports = new class extends Connector {
                     method: 'GET',
                     json: true,
                     rejectUnauthorized: !insecure,
-                    headers: { ...this.getForwardedHeaders() }
+                    headers: { ...this.getForwardedHeaders(req) }
                 }, {
                     key: `remediations|http-cache|complianceRule|${host}|${id}`,
                     refresh,
                     revalidationInterval
-                }, this.metrics);
+                }, this.metrics, undefined, req);
 
                 // In Compliance api v2, rule info is directly under data
                 return _.get(result, 'data') || null;
@@ -60,7 +62,7 @@ module.exports = new class extends Connector {
         }
     }
 
-    async buildV2Uri(id, ssgRefId, ssgVersion, refresh, retries) {
+    async buildV2Uri(req, id, ssgRefId, ssgVersion, refresh, retries) {
       // Build the Compliance v2 URI with the correct filters
       const ssgUri = this.buildUri(host, 'compliance', 'v2', 'security_guides');
 
@@ -73,12 +75,12 @@ module.exports = new class extends Connector {
         method: 'GET',
         json: true,
         rejectUnauthorized: !insecure,
-        headers: { ...this.getForwardedHeaders() }
+        headers: { ...this.getForwardedHeaders(req) }
       }, {
         key: `remediations|http-cache|complianceSG|${host}|${id}`,
         refresh,
         revalidationInterval
-      }, this.metrics);
+      }, this.metrics, undefined, req);
 
       const ssgId = _.get(ssgResult, 'data[0].id');
       if(!ssgId){
@@ -89,7 +91,7 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        const result = await this.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.1.57', true);
+        const result = await this.getRule(null, 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.1.57', true);
         assert(result !== null);
     }
 }();

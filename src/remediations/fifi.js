@@ -12,8 +12,7 @@ const sources = require('../connectors/sources');
 const configManager = require('../connectors/configManager');
 const dispatcher = require('../connectors/dispatcher');
 const log = require('../util/log');
-const trace = require('../util/trace');
-const cls = require("../util/cls");
+const getTrace = require('../util/trace');
 const queries = require('./remediations.queries');
 
 const probes = require('../probes');
@@ -113,8 +112,8 @@ exports.findRunStatus = function (run) {
 
 // Create array of maps: one representing all RCH-direct hosts, and one for each RHC-satellite
 // Compute aggregate system_count, status counts and overall status for each
-async function formatRHCRuns (dispatcherRuns, playbook_run_id) {
-    trace.enter('fifi.js[formatRHCRuns]');
+async function formatRHCRuns (req, dispatcherRuns, playbook_run_id) {
+    getTrace(req).enter('fifi.js[formatRHCRuns]');
 
     // dispatcherRuns contains all the dispatcher runs for this playbook_run_id
     // One for each RHC-(satellite, org), one for each RHC-direct host
@@ -136,12 +135,12 @@ async function formatRHCRuns (dispatcherRuns, playbook_run_id) {
         count_canceled: 0
     }
 
-    trace.event(`processing ${dispatcherRuns.data.length} runs...`);
+    getTrace(req).event(`processing ${dispatcherRuns.data.length} runs...`);
 
     for (const run of dispatcherRuns.data) {
         // get dispatcher run hosts
         const runHostsFilter = createDispatcherRunHostsFilter(run.labels['playbook-run'], run.id);
-        const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
+        const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(req, runHostsFilter, RHCRUNFIELDS);
         // If host === 'localhost' then add to RHCDirect
         if (_.get(rhcRunHosts, 'data[0][host]') === 'localhost') {
             rhcDirect.playbook = run.url;
@@ -192,7 +191,7 @@ async function formatRHCRuns (dispatcherRuns, playbook_run_id) {
         executors.push(rhcDirect);
     }
 
-    trace.leave();
+    getTrace(req).leave();
     return executors;
 }
 
@@ -228,7 +227,7 @@ async function formatRHCRuns (dispatcherRuns, playbook_run_id) {
  *   }
  * ]
  */
-exports.formatRunHosts = async function (dispatcherRuns, playbook_run_id) {
+exports.formatRunHosts = async function (req, dispatcherRuns, playbook_run_id) {
     let hosts = [];
 
     if (dispatcherRuns?.data) {
@@ -239,7 +238,7 @@ exports.formatRunHosts = async function (dispatcherRuns, playbook_run_id) {
         // We filter by the 'playbook-run' label (set to the remediation's playbook_run_id when runs are created).
         // Playbook-dispatcher returns all hosts across all dispatcher runs that have this label.
         const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id);
-        const allRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
+        const allRunHosts = await dispatcher.fetchPlaybookRunHosts(req, runHostsFilter, RHCRUNFIELDS);
 
         if (!allRunHosts?.data) {
             return hosts;
@@ -332,15 +331,15 @@ function pushRHCExecutor (rhcRuns, satRun) {
     }
 }
 
-exports.getRHCRuns = async function (playbook_run_id = null) {
+exports.getRHCRuns = async function (req, playbook_run_id = null) {
     const filter = createDispatcherRunsFilter(playbook_run_id);
-    const rhcRuns = await dispatcher.fetchPlaybookRuns(filter, RUNSFIELDS);
+    const rhcRuns = await dispatcher.fetchPlaybookRuns(req, filter, RUNSFIELDS);
 
     return rhcRuns;
 };
 
-exports.getRunHostDetails = async function (playbook_run_id, system_id) {
-    trace.enter('fifi.getRunHostDetails');
+exports.getRunHostDetails = async function (req, playbook_run_id, system_id) {
+    getTrace(req).enter('fifi.getRunHostDetails');
     // So... given the remediations playbook_run_id and a system_id find the matching
     // dispatcher run_hosts entry.  /dispatcher/runs?playbook_run_id will return an
     // entry for every RHC-direct host that was part of the playbook run, and one for
@@ -348,12 +347,12 @@ exports.getRunHostDetails = async function (playbook_run_id, system_id) {
     // and the system_id to query dispatcher run_hosts...
 
     const runsFilter = createDispatcherRunsFilter(playbook_run_id);
-    trace.event(`fetch playbook-dispatcher/v1/runs with filter: ${JSON.stringify(runsFilter)}`);
-    const rhcRuns = await dispatcher.fetchPlaybookRuns(runsFilter, RUNSFIELDS);
-    trace.event(`playbook-dispatcher returned: ${JSON.stringify(rhcRuns)}`);
+    getTrace(req).event(`fetch playbook-dispatcher/v1/runs with filter: ${JSON.stringify(runsFilter)}`);
+    const rhcRuns = await dispatcher.fetchPlaybookRuns(req, runsFilter, RUNSFIELDS);
+    getTrace(req).event(`playbook-dispatcher returned: ${JSON.stringify(rhcRuns)}`);
 
     if (!rhcRuns || !rhcRuns.data) {
-        trace.leave('playbook-dispatcher returned nothing useful!');
+        getTrace(req).leave('playbook-dispatcher returned nothing useful!');
         return null; // didn't find any dispatcher runs for playbook_run_id...
     }
 
@@ -367,12 +366,12 @@ exports.getRunHostDetails = async function (playbook_run_id, system_id) {
 
     for (const run of rhcRuns.data) {
         const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id, run.id, system_id);
-        trace.event(`fetch playbook-dispatcher/v1/run_hosts with filter: ${JSON.stringify(runHostsFilter)}`);
-        const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RUNHOSTFIELDS)
-        trace.event(`playbook-dispatcher/v1/run_hosts returned: ${JSON.stringify(rhcRunHosts)}`);
+        getTrace(req).event(`fetch playbook-dispatcher/v1/run_hosts with filter: ${JSON.stringify(runHostsFilter)}`);
+        const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(req, runHostsFilter, RUNHOSTFIELDS);
+        getTrace(req).event(`playbook-dispatcher/v1/run_hosts returned: ${JSON.stringify(rhcRunHosts)}`);
 
         if (!rhcRunHosts || !rhcRunHosts.data) {
-            trace.event('No data for host in this run - continuing...');
+            getTrace(req).event('No data for host in this run - continuing...');
             continue; // didn't find any runHosts for dispatcher_run_id + system_id...
         }
 
@@ -380,17 +379,17 @@ exports.getRunHostDetails = async function (playbook_run_id, system_id) {
             // there should only ever be one run_hosts entry for a given system_id in a
             // dispatcher run, right?  Just grab the first entry...
             const result = await exports.formatRHCHostDetails(run, rhcRunHosts, playbook_run_id);
-            trace.leave(`Found a match - returning: ${JSON.stringify(result)}`);
+            getTrace(req).leave(`Found a match - returning: ${JSON.stringify(result)}`);
             return result;
         }
     }
 
-    trace.leave('data for system not found');
+    getTrace(req).leave('data for system not found');
     return null; // didn't find any systems...
 };
 
-exports.combineHosts = async function (rhcRunHosts, systems, playbook_run_id, filter_hostname = null) {
-    rhcRunHosts = await exports.formatRunHosts(rhcRunHosts, playbook_run_id);
+exports.combineHosts = async function (req, rhcRunHosts, systems, playbook_run_id, filter_hostname = null) {
+    rhcRunHosts = await exports.formatRunHosts(req, rhcRunHosts, playbook_run_id);
 
     _.forEach(rhcRunHosts, host => {
         if (!filter_hostname || host.system_name.indexOf(filter_hostname) >= 0) {
@@ -400,10 +399,10 @@ exports.combineHosts = async function (rhcRunHosts, systems, playbook_run_id, fi
 };
 
 // add rhc playbook run data to remediation
-exports.combineRuns = async function (remediation) {
+exports.combineRuns = async function (req, remediation) {
     const iteration = remediation.iteration;  // this was added to make the logging prettier
 
-    trace.enter(`[${iteration}] fifi.combineRuns`);
+    getTrace(req).enter(`[${iteration}] fifi.combineRuns`);
 
     // array of playbook_run_id
     for (const run of remediation.playbook_runs) {
@@ -414,17 +413,17 @@ exports.combineRuns = async function (remediation) {
 
         // query playbook-dispatcher to see if there are any RHC direct or
         // RHC satellite hosts for this playbook run...
-        trace.event(`[${iteration}] Fetch run details for run: ${run.id}`);
-        const dispatcherRuns = await exports.getRHCRuns(run.id); // run.id is playbook_run_id
+        getTrace(req).event(`[${iteration}] Fetch run details for run: ${run.id}`);
+        const dispatcherRuns = await exports.getRHCRuns(req, run.id); // run.id is playbook_run_id
 
         if (dispatcherRuns) {
-            trace.event(`[${iteration}] Format run details and add it to the remediation`)
-            const executors = await formatRHCRuns(dispatcherRuns, run.id);
+            getTrace(req).event(`[${iteration}] Format run details and add it to the remediation`);
+            const executors = await formatRHCRuns(req, dispatcherRuns, run.id);
             pushRHCExecutor(executors, run);
         }
     }
 
-    trace.leave(`[${iteration}] fifi.combineRuns`);
+    getTrace(req).leave(`[${iteration}] fifi.combineRuns`);
     return remediation.playbook_runs;
 };
 
@@ -472,9 +471,9 @@ function prepareRHCCancelRequest (org_id, playbook_run_id, username) {
     return { run_id: playbook_run_id, org_id, principal: username};
 }
 
-async function dispatchRHCCancelRequests (dispatcherCancelRequest, playbook_run_id) {
+async function dispatchRHCCancelRequests (req, dispatcherCancelRequest, playbook_run_id) {
     try {
-        const response = await dispatcher.postPlaybookCancelRequest(dispatcherCancelRequest);
+        const response = await dispatcher.postPlaybookCancelRequest(req, dispatcherCancelRequest);
         probes.dispatcherCancelDispatched(dispatcherCancelRequest);
         return response;
     } catch (e) {
@@ -482,7 +481,7 @@ async function dispatchRHCCancelRequests (dispatcherCancelRequest, playbook_run_
     }
 }
 
-exports.cancelPlaybookRun = async function (org_id, playbook_run_id, username) {
+exports.cancelPlaybookRun = async function (req, org_id, playbook_run_id, username) {
     const request = [prepareRHCCancelRequest(org_id, playbook_run_id, username)];
-    await dispatchRHCCancelRequests(request, playbook_run_id);
+    await dispatchRHCCancelRequests(req, request, playbook_run_id);
 };

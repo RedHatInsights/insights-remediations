@@ -11,15 +11,18 @@ const RequestError = require('request-promise-core/errors').RequestError;
 /* eslint-disable max-len */
 describe('compliance impl', function () {
 
-    beforeEach(mockRequest);
+    let testReq;
+    beforeEach(function () {
+        testReq = mockRequest();
+    });
 
     test('throws invalidIssueId error for deprecated v1 format (no ssgVersion)', async function () {
-        await expect(impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login'))
+        await expect(impl.getRule(testReq,'xccdf_org.ssgproject.content_rule_sshd_disable_root_login'))
             .rejects.toThrow(errors.BadRequest);
         
         // Also verify the specific error details
         try {
-            await impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
+            await impl.getRule(testReq,'xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
         } catch (error) {
             error.should.be.instanceOf(errors.BadRequest);
             error.error.code.should.equal('INVALID_ISSUE_IDENTIFIER');
@@ -31,8 +34,8 @@ describe('compliance impl', function () {
         const http = base.getSandbox().stub(request, 'run');
         
         // Test cases that represent v1 format (ssgVersion is null)
-        await expect(impl.getRule('rule', 'ref', null)).rejects.toThrow(errors.BadRequest);
-        await expect(impl.getRule('rule', 'ref')).rejects.toThrow(errors.BadRequest);
+        await expect(impl.getRule(testReq,'rule', 'ref', null)).rejects.toThrow(errors.BadRequest);
+        await expect(impl.getRule(testReq,'rule', 'ref')).rejects.toThrow(errors.BadRequest);
         
         // Should not make any HTTP calls since validation fails first
         http.callCount.should.equal(0);
@@ -81,7 +84,7 @@ describe('compliance impl', function () {
             headers: {}
         });
 
-        const result = await impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0');
+        const result = await impl.getRule(testReq,'xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0');
         result.should.property('ref_id', 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
         result.should.property('title', 'Disable SSH Root Login');
 
@@ -90,13 +93,13 @@ describe('compliance impl', function () {
         const options = http.args[0][0];
         options.headers.should.have.size(2);
         options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-        options.headers.should.have.property('x-rh-identity', 'identity');
+        options.headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
         
         // Verify cache is being used, but don't assert on setex behavior as it's implementation-dependent
         cache.get.callCount.should.equal(2);
 
         // Second call should use cache and not make additional HTTP requests
-        const result2 = await impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0');
+        const result2 = await impl.getRule(testReq,'xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0');
         result2.should.property('ref_id', 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
         
         // HTTP calls should remain the same (cache hit)
@@ -131,7 +134,7 @@ describe('compliance impl', function () {
             headers: {}
         });
 
-        const result = await impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0');
+        const result = await impl.getRule(testReq,'xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0');
         result.should.property('ref_id', 'xccdf_org.ssgproject.content_rule_sshd_disable_root_login');
         result.should.property('title', 'Disable SSH Root Login');
 
@@ -139,10 +142,10 @@ describe('compliance impl', function () {
         const options = http.args[0][0];
         options.headers.should.have.size(2);
         options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-        options.headers.should.have.property('x-rh-identity', 'identity');
+        options.headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
         cache.get.callCount.should.equal(4);
 
-        await impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0');
+        await impl.getRule(testReq,'xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0');
         cache.get.callCount.should.equal(6);
     });
 
@@ -155,7 +158,7 @@ describe('compliance impl', function () {
             headers: {}
         });
 
-        await expect(impl.getRule('unknown-rule', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0')).resolves.toBeNull();
+        await expect(impl.getRule(testReq,'unknown-rule', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0')).resolves.toBeNull();
 
         // 404 on first call (buildV2Uri) is caught and returns null immediately
         http.callCount.should.equal(1);
@@ -165,12 +168,12 @@ describe('compliance impl', function () {
 
     test('status code handling', async function () {
         base.mockRequestStatusCode();
-        await expect(impl.getRule('unknown-rule', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0')).rejects.toThrow(errors.DependencyError);
+        await expect(impl.getRule(testReq,'unknown-rule', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0')).rejects.toThrow(errors.DependencyError);
     });
 
     test('403 response handling', async function () {
         base.mockRequestStatusCode(403);
-        await expect(impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0')).rejects.toThrow(errors.Forbidden);
+        await expect(impl.getRule(testReq,'xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0')).rejects.toThrow(errors.Forbidden);
     });
 
     test('correctly parses ssgId from /security_guides?filter response and then builds v2 URI', async function () {
@@ -196,7 +199,7 @@ describe('compliance impl', function () {
         });
 
         // Call the function under test
-        const result = await impl.buildV2Uri(
+        const result = await impl.buildV2Uri(testReq,
             'xccdf_org.ssgproject.content_rule_sshd_disable_root_login',
             'xccdf_org.ssgproject.content_benchmark_RHEL-8',
             '0.1.45',
@@ -216,7 +219,7 @@ describe('compliance impl', function () {
         const options = http.args[0][0];
         options.headers.should.have.size(2); // Ensure headers were passed
         options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-        options.headers.should.have.property('x-rh-identity', 'identity');
+        options.headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
     });
 
     test('correctly builds the ssgUri with the filter in the buildV2Uri function', async function () {
@@ -262,7 +265,7 @@ describe('compliance impl', function () {
             headers: {}
         });
 
-        await impl.getRule('xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0');
+        await impl.getRule(testReq,'xccdf_org.ssgproject.content_rule_sshd_disable_root_login', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0');
         http.callCount.should.equal(2);
     });
 });

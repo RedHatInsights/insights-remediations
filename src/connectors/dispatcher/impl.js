@@ -32,11 +32,11 @@ module.exports = new class extends Connector {
         this.getRunRecipientStatus = metrics.createConnectorMetric(this.getName(), 'getPlaybookRunRecipientStatus');
     }
 
-    async postPlaybookRunRequests (dispatcherWorkRequest) {
+    async postPlaybookRunRequests (httpReq, dispatcherWorkRequest) {
         // chunk this request if necessary...
         if (dispatcherWorkRequest.length > pageSize) {
             const chunks = _.chunk(dispatcherWorkRequest, pageSize);
-            const results = await P.map(chunks, chunk => this.postPlaybookRunRequests(chunk));
+            const results = await P.map(chunks, chunk => this.postPlaybookRunRequests(httpReq, chunk));
             return results.flat();
         }
 
@@ -49,7 +49,7 @@ module.exports = new class extends Connector {
             method: 'POST',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders(),
+            headers: this.getForwardedHeaders(httpReq),
             body: dispatcherWorkRequest
         };
 
@@ -60,7 +60,7 @@ module.exports = new class extends Connector {
 
         let result;
         try {
-            result = await this.doHttp (options, false, this.postRunRequests);
+            result = await this.doHttp (options, false, this.postRunRequests, undefined, httpReq);
         } catch (e) {
             if (e instanceof StatusCodeError && e.statusCode === 404) {
                 return null;
@@ -102,13 +102,13 @@ module.exports = new class extends Connector {
     //     },
     //     {
     //         "org_id": "5318290",
-    //         "recipient": "32af5948-301f-449a-a25b-ff34c83264a2",
+    //         "recipient": "32af594e-301f-449a-a25b-ff34c83264a2",
     //         "recipient_type": "directConnect",
     //         "sat_id": "",
     //         "sat_org_id": "",
     //         "status": "connected",
     //         "systems": [
-    //             "fe30b997-c15a-44a9-89df-c236c3b5c540"
+    //             "fe30b997-c15a-44a9-89df-c236c5b5c540"
     //         ]
     //     }
     // ]
@@ -116,18 +116,18 @@ module.exports = new class extends Connector {
     //  - one object per satellite_organization (recipient_type == satellite)
     //  - one object for each direct-connect hosts
     //  - one object for hosts with recipient_type == none (e.g. no_rhc)
-    async getConnectionStatus (dispatcherConnectionStatusRequest) {
+    async getConnectionStatus (httpReq, dispatcherConnectionStatusRequest) {
         // chunk this request if necessary...
         if (dispatcherConnectionStatusRequest.hosts.length > pageSize) {
             const chunks = _.chunk(dispatcherConnectionStatusRequest.hosts, pageSize);
 
             const results = await P.map(chunks, chunk => {
-                const req = {
+                const chunkRequest = {
                     org_id: dispatcherConnectionStatusRequest.org_id,
                     hosts: chunk
                 };
 
-                return this.getConnectionStatus(req);
+                return this.getConnectionStatus(httpReq, chunkRequest);
             });
 
             // merge items with same recipient id & status
@@ -156,7 +156,7 @@ module.exports = new class extends Connector {
             method: 'POST',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders(),
+            headers: this.getForwardedHeaders(httpReq),
             body: dispatcherConnectionStatusRequest
         };
 
@@ -167,7 +167,7 @@ module.exports = new class extends Connector {
 
         let result;
         try {
-            result = await this.doHttp (options, false, this.postV2ConnectionStatus);
+            result = await this.doHttp (options, false, this.postV2ConnectionStatus, undefined, httpReq);
         } catch (e) {
             if (e instanceof StatusCodeError && e.statusCode === 404) {
                 return [];
@@ -182,11 +182,11 @@ module.exports = new class extends Connector {
         return result;
     }
 
-    async postV2PlaybookRunRequests (dispatcherV2WorkRequests) {
+    async postV2PlaybookRunRequests (httpReq, dispatcherV2WorkRequests) {
         // chunk this request if necessary...
         if (dispatcherV2WorkRequests.length > pageSize) {
             const chunks = _.chunk(dispatcherV2WorkRequests, pageSize);
-            const results = await P.map(chunks, chunk => this.postV2PlaybookRunRequests(chunk));
+            const results = await P.map(chunks, chunk => this.postV2PlaybookRunRequests(httpReq, chunk));
             return results.flat();
         }
 
@@ -200,7 +200,7 @@ module.exports = new class extends Connector {
             method: 'POST',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders(),
+            headers: this.getForwardedHeaders(httpReq),
             body: dispatcherV2WorkRequests
         };
 
@@ -211,7 +211,7 @@ module.exports = new class extends Connector {
 
         let result;
         try {
-            result = await this.doHttp (options, false, this.postV2RunRequests);
+            result = await this.doHttp (options, false, this.postV2RunRequests, undefined, httpReq);
         } catch (e) {
             if (e instanceof StatusCodeError && e.statusCode === 404) {
                 return null;
@@ -226,7 +226,7 @@ module.exports = new class extends Connector {
         return result;
     }
 
-    async fetchPlaybookRuns (filter, fields, sort_by = null) {
+    async fetchPlaybookRuns (httpReq, filter, fields, sort_by = null) {
         const _uri = this.buildUri(host, 'playbook-dispatcher', 'v1', 'runs');
         _uri.search(generateQueries(filter, fields));
 
@@ -243,7 +243,7 @@ module.exports = new class extends Connector {
         const options = {
             method: 'GET',
             json: true,
-            headers: this.getForwardedHeaders()
+            headers: this.getForwardedHeaders(httpReq)
         };
 
         // get playbook runs...
@@ -254,7 +254,9 @@ module.exports = new class extends Connector {
             try {
                 batch = await this.doHttp (options,
                     false,
-                    this.fetchRuns);
+                    this.fetchRuns,
+                    undefined,
+                    httpReq);
             } catch (e) {
                 if (e instanceof StatusCodeError && e.statusCode === 404) {
                     break;
@@ -287,7 +289,7 @@ module.exports = new class extends Connector {
         return results;
     }
 
-    async fetchPlaybookRunHosts (filter, fields) {
+    async fetchPlaybookRunHosts (httpReq, filter, fields) {
         const _uri = this.buildUri(host, 'playbook-dispatcher', 'v1', 'run_hosts');
         _uri.search(generateQueries(filter, fields));
 
@@ -300,7 +302,7 @@ module.exports = new class extends Connector {
         const options = {
             method: 'GET',
             json: true,
-            headers: this.getForwardedHeaders()
+            headers: this.getForwardedHeaders(httpReq)
         };
 
         do {
@@ -310,7 +312,9 @@ module.exports = new class extends Connector {
             try {
                 batch = await this.doHttp (options,
                     false,
-                    this.fetchRunHosts);
+                    this.fetchRunHosts,
+                    undefined,
+                    httpReq);
             } catch (e) {
                 if (e instanceof StatusCodeError && e.statusCode === 404) {
                     break;
@@ -344,7 +348,7 @@ module.exports = new class extends Connector {
         return results;
     }
 
-    async postPlaybookCancelRequest (cancelPlaybookRunsRequest) {
+    async postPlaybookCancelRequest (httpReq, cancelPlaybookRunsRequest) {
         const uri = new URI(host);
         uri.segment('internal');
         uri.segment('v2');
@@ -355,7 +359,7 @@ module.exports = new class extends Connector {
             method: 'POST',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders(),
+            headers: this.getForwardedHeaders(httpReq),
             body: cancelPlaybookRunsRequest
         };
 
@@ -366,7 +370,7 @@ module.exports = new class extends Connector {
 
         let result;
         try {
-            result = await this.doHttp (options, false, this.postPlaybookCancelRequests);
+            result = await this.doHttp (options, false, this.postPlaybookCancelRequests, undefined, httpReq);
         } catch (e) {
             if (e instanceof StatusCodeError && e.statusCode === 404) {
                 return null;
@@ -381,12 +385,12 @@ module.exports = new class extends Connector {
         return result;
     }
 
-    async getPlaybookRunRecipientStatus (dispatcherStatusRequest) {
+    async getPlaybookRunRecipientStatus (httpReq, dispatcherStatusRequest) {
 
         // chunk this request if necessary...
         if (dispatcherStatusRequest.length > pageSize) {
             const chunks = _.chunk(dispatcherStatusRequest, pageSize);
-            const results = await P.map(chunks, chunk => this.getPlaybookRunRecipientStatus(chunk));
+            const results = await P.map(chunks, chunk => this.getPlaybookRunRecipientStatus(httpReq, chunk));
             return results.flat();
         }
 
@@ -401,7 +405,7 @@ module.exports = new class extends Connector {
             method: 'POST',
             json: true,
             rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders(),
+            headers: this.getForwardedHeaders(httpReq),
             body: dispatcherStatusRequest
         };
 
@@ -413,7 +417,7 @@ module.exports = new class extends Connector {
         log.info({request: dispatcherStatusRequest}, 'PRE RunRecipientStatus');
         let result;
         try {
-            result = await this.doHttp (options, false, this.getRunRecipientStatus);
+            result = await this.doHttp (options, false, this.getRunRecipientStatus, undefined, httpReq);
         } catch (e) {
             if (e instanceof StatusCodeError && e.statusCode === 404) {
                 return null;

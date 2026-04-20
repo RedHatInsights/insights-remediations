@@ -29,7 +29,7 @@ const NONE = 'none';
 
 
 exports.checkRhcEnabled = async function () {
-    const rhcProfiles = await configManager.getCurrentProfile();
+    const rhcProfiles = await configManager.getCurrentProfile(null);
 
     return !! rhcProfiles?.remediations;
 };
@@ -75,7 +75,7 @@ exports.uuidv4 = function () {
 // remediation - the id of the associated remediation
 // username - the username of the entity initiating the playbook run
 //--------------------------------------------
-exports.createPlaybookRun = async function (recipients, exclude, remediation, username) {
+exports.createPlaybookRun = async function (req, recipients, exclude, remediation, username) {
     // create UUID for this run
     const playbook_run_id = exports.uuidv4();
 
@@ -94,7 +94,7 @@ exports.createPlaybookRun = async function (recipients, exclude, remediation, us
     await storePlaybookRun(playbook_run_id, remediation, username);
 
     // dispatch requests
-    const response = await dispatchWorkRequests(workRequests, playbook_run_id);
+    const response = await dispatchWorkRequests(req, workRequests, playbook_run_id);
 
     if (response === null) {
         return null;
@@ -171,10 +171,10 @@ function createWorkRequests (playbook_run_id, recipients, exclude, remediation, 
 //----------------------------------------------
 // Submit work requests to playbook-dispatcher
 //----------------------------------------------
-async function dispatchWorkRequests (workRequests, playbook_run_id) {
+async function dispatchWorkRequests (req, workRequests, playbook_run_id) {
     try {
         probes.workRequest(workRequests, playbook_run_id);
-        const response = await dispatcher.postV2PlaybookRunRequests(workRequests);
+        const response = await dispatcher.postV2PlaybookRunRequests(req, workRequests);
         probes.JobDispatched(response, playbook_run_id);
 
         // Store all dispatcher runs
@@ -273,7 +273,7 @@ exports.syncDispatcherRunsForPlaybookRuns = async function (playbookRunIds) {
                         fields: { data: ['id', 'status'] }
                     };
                     
-                    const dispatcherResponse = await dispatcher.fetchPlaybookRuns(filter, fields);
+                    const dispatcherResponse = await dispatcher.fetchPlaybookRuns(null, filter, fields);
                     
                     if (dispatcherResponse?.data) {
                         if (needsBackfill.includes(playbookRunId)) {

@@ -1,6 +1,6 @@
 'use strict';
 
-const trace = require('../../util/trace');
+const getTrace = require('../../util/trace');
 const issues = require('../../issues');
 const errors = require('../../errors');
 const ErratumPlay = require('../plays/ErratumPlay');
@@ -8,26 +8,26 @@ const Factory = require('./Factory');
 
 module.exports = class CVEFactory extends Factory {
 
-    async createPlay ({id, hosts, resolution}, strict = true) {
-        trace.enter('CVEFactory.createPlay');
+    async createPlay (req, {id, hosts, resolution}, strict = true) {
+        getTrace(req).enter('CVEFactory.createPlay');
 
-        trace.event(`Resolve resolutions for issue: ${id}`);
-        const resolver = issues.getHandler(id).getResolutionResolver();
-        const resolutions = await resolver.resolveResolutions(id);
+        getTrace(req).event(`Resolve resolutions for issue: ${id}`);
+        const resolver = issues.getHandler(id, req).getResolutionResolver();
+        const resolutions = await resolver.resolveResolutions(req, id);
 
         if (!resolutions.length) {
-            trace.event('Issue/resolution not found!');
-            throw errors.unknownIssue(id);
+            getTrace(req).event('Issue/resolution not found!');
+            throw errors.unknownIssue(id, req);
         }
 
-        trace.event(`Disambiguate resolution...`);
-        const disambiguatedResolution = this.disambiguate(resolutions, resolution, id, strict);
-        trace.event(`Disambiguated resolution.`);
+        getTrace(req).event(`Disambiguate resolution...`);
+        const disambiguatedResolution = this.disambiguate(resolutions, resolution, id, strict, req);
+        getTrace(req).event(`Disambiguated resolution.`);
 
-        trace.event('Create erratum play...');
+        getTrace(req).event('Create erratum play...');
         const result = new ErratumPlay(id, hosts, disambiguatedResolution, disambiguatedResolution.description);
 
-        trace.leave();
+        getTrace(req).leave();
         return result;
     }
 };

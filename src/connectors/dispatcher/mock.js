@@ -315,15 +315,15 @@ module.exports = new class extends Connector {
         super(module);
     }
 
-    postPlaybookRunRequests () {
+    postPlaybookRunRequests (req, dispatcherWorkRequest) {
         return MOCKDISPATCHRESPONSE;
     }
 
-    postV2PlaybookRunRequests () {
+    postV2PlaybookRunRequests (req, dispatcherV2WorkRequests) {
         return MOCKDISPATCHRESPONSE;
     }
 
-    fetchPlaybookRuns (filter = null) {
+    fetchPlaybookRuns (req, filter = null) {
         if (filter) {
             if (!_.isUndefined(filter.filter.labels)) {
                 const run = RUNS[filter.filter.labels['playbook-run']];
@@ -349,7 +349,7 @@ module.exports = new class extends Connector {
         };
     }
 
-    fetchPlaybookRunHosts (filter = null) {
+    fetchPlaybookRunHosts (req, filter = null) {
         if (filter) {
             if (!_.isUndefined(filter.filter.inventory_id)) {
                 return {
@@ -397,7 +397,7 @@ module.exports = new class extends Connector {
         };
     }
 
-    postPlaybookCancelRequest (request) {
+    postPlaybookCancelRequest (req, request) {
         if (request[0].run_id !== '88d0ba73-0015-4e7d-a6d6-4b530cbfb7bc') {
             return {
                 meta: {
@@ -424,7 +424,7 @@ module.exports = new class extends Connector {
         return RUNSTATUSES;
     }
 
-    getConnectionStatus (dispatcherConnectionStatusRequest) {
+    getConnectionStatus (req, dispatcherConnectionStatusRequest) {
         const hosts = dispatcherConnectionStatusRequest.hosts;
 
         // get system data

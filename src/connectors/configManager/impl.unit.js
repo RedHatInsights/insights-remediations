@@ -9,7 +9,10 @@ const request = require('../../util/request');
 const errors = require('../../errors');
 
 describe('config manager impl', function () {
-    beforeEach(mockRequest);
+    let testReq;
+    beforeEach(function () {
+        testReq = mockRequest();
+    });
 
     describe('getCurrentProfile', function () {
         test('get profile', async function () {
@@ -31,7 +34,7 @@ describe('config manager impl', function () {
                 headers: {}
             });
 
-            const result = await impl.getCurrentProfile();
+            const result = await impl.getCurrentProfile(testReq);
 
             result.should.have.property('id', 'c5639a03-4640-4ae3-93ce-9966cae18df7');
             result.should.have.property('account_id', '654321');
@@ -49,17 +52,17 @@ describe('config manager impl', function () {
             const options = http.args[0][0];
             options.headers.should.have.size(2);
             options.headers.should.have.property('x-rh-insights-request-id', 'request-id');
-            options.headers.should.have.property('x-rh-identity', 'identity');
+            options.headers.should.have.property('x-rh-identity', testReq.headers['x-rh-identity']);
         });
 
         test('connection error handling', async function () {
             base.mockRequestError();
-            await expect(impl.getCurrentProfile()).rejects.toThrow(errors.DependencyError);
+            await expect(impl.getCurrentProfile(testReq)).rejects.toThrow(errors.DependencyError);
         });
 
         test('status code handling', async function () {
             base.mockRequestStatusCode();
-            await expect(impl.getCurrentProfile()).rejects.toThrow(errors.DependencyError);
+            await expect(impl.getCurrentProfile(testReq)).rejects.toThrow(errors.DependencyError);
         });
 
         test('returns null on 404', async function () {
@@ -67,7 +70,7 @@ describe('config manager impl', function () {
                 new StatusCodeError(404, {}, {})
             );
 
-            await expect(impl.getCurrentProfile()).resolves.toBeNull();
+            await expect(impl.getCurrentProfile(testReq)).resolves.toBeNull();
         });
     });
 });

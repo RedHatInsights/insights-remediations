@@ -10,8 +10,8 @@ const resolver = new(require('../resolutions/resolvers/SSGResolver'))();
 const identifiers = require('../util/identifiers');
 
 module.exports = class ComplianceHandler extends Handler {
-    async getIssueDetails (id) {
-        const ssgId = identifiers.parseSSG(id);
+    async getIssueDetails (req, id) {
+        const ssgId = identifiers.parseSSG(id, req);
 
         // TODO: If/when we start calling the Compliance API again to get rule descriptions (via getRule),
         // add a fallback rule description when:

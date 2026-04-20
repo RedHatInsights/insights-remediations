@@ -1,7 +1,5 @@
 'use strict';
 
-const cls = require('./cls');
-
 const DEFAULT_THRESHOLD = 1000;  // default timeout in ms
 const MAX_ARRAY_SIZE = 250;
 
@@ -120,44 +118,24 @@ class Trace {
 
 }
 
-const dummy = new Trace();
+const noopTrace = new Trace();
 
-// Returns a Proxy object that directs calls to either the trace object attached
-// to the current request or a dummy trace object that does nothing.  This is
-// useful for functions that might be called outside the context of a request.
-module.exports = new Proxy(dummy, {
-    apply (target, thisArg, args) {
-        const trace = cls.getReq()?.trace;
-
-        if (trace) {
-            return Reflect.apply(trace, thisArg, args);
-        }
-        // do nothing if there was no req.trace
-    },
-
-    get (target, key, receiver) {
-        const trace = cls.getReq()?.trace;
-
-        if (trace) {
-            return Reflect.get(trace, key, receiver);
-        }
-
-        // return dummy object attr if no req.trace
-        return Reflect.get(target, key, receiver);
-    },
-
-    set (obj, prop, value) {
-        const trace = cls.getReq()?.trace;
-
-        if (trace) {
-            return Reflect.set(trace, prop, value);
-        }
-
-        // return dummy object attr if no req.trace
-        this[prop] = Object.assign({}, );
-        return Reflect.set(obj, prop, value);
+/**
+ * Returns the trace object for this request, or a shared no-op trace when there
+ * is no request or req.trace was not initialized (same behavior as the former
+ * CLS-based proxy).
+ */
+function getTrace (req) {
+    if (req && req.trace) {
+        return req.trace;
     }
-});
+
+    return noopTrace;
+}
+
+module.exports = getTrace;
+module.exports.Trace = Trace;
+module.exports.noopTrace = noopTrace;
 
 // Either functions as middleware that attaches a trace object with a default
 // timeout to the request object OR returns a middleware function that attaches

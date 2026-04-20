@@ -15,7 +15,7 @@ module.exports = new class extends Connector {
         this.currentProfile = metrics.createConnectorMetric(this.getName(), 'getCurrentProfile');
     }
 
-    async getCurrentProfile () {
+    async getCurrentProfile (req) {
         const uri = this.buildUri(host, 'config-manager', 'v2');
         uri.segment('profiles');
         uri.segment('current');
@@ -24,11 +24,11 @@ module.exports = new class extends Connector {
             uri: uri.toString(),
             method: 'GET',
             json: true,
-            headers: this.getForwardedHeaders()
+            headers: this.getForwardedHeaders(req)
         };
 
         try {
-            const result = await this.doHttp (options, false, this.currentProfile);
+            const result = await this.doHttp (options, false, this.currentProfile, undefined, req);
 
             if (!result) {
                 return null;
@@ -44,7 +44,7 @@ module.exports = new class extends Connector {
     }
 
     async ping () {
-        const results = await this.getCurrentProfile();
+        const results = await this.getCurrentProfile(null);
         assert(_.isObject(results));
     }
 }();
