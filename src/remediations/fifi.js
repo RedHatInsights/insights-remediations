@@ -148,8 +148,8 @@ async function formatRHCRuns (dispatcherRuns, playbook_run_id) {
     for (const run of dispatcherRuns.data) {
         const hostList = hostsByRunId[run.id];
 
-        // For RHC direct there should be one run_host per dispatcher run (localhost) but still using _.some just to be safe.
-        if (_.some(hostList, ['host', 'localhost'])) {
+        // For RHC direct there should be one run_host per dispatcher run where host === 'localhost'
+        if (hostList?.length === 1 && hostList[0].host === 'localhost') {
             rhcDirect.playbook = run.url;
             rhcDirect.updated_at = run.updated_at;
             rhcDirect.system_count += hostList.length; // should always be 1, but...
