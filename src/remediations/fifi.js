@@ -138,25 +138,31 @@ async function formatRHCRuns (dispatcherRuns, playbook_run_id) {
 
     trace.event(`processing ${dispatcherRuns.data.length} runs...`);
 
+    // Fetch every run host for this playbook run from playbook-dispatcher
+    const runHostsFilter = createDispatcherRunHostsFilter(playbook_run_id);
+    const allRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
+
+    // Index run hosts by dispatcher run id (skip rows missing run.id so they aren't grouped under undefined)
+    const hostsByRunId = _.groupBy(_.filter(allRunHosts?.data ?? [], 'run.id'), 'run.id');
+
     for (const run of dispatcherRuns.data) {
-        // get dispatcher run hosts
-        const runHostsFilter = createDispatcherRunHostsFilter(run.labels['playbook-run'], run.id);
-        const rhcRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
-        // If host === 'localhost' then add to RHCDirect
-        if (_.get(rhcRunHosts, 'data[0][host]') === 'localhost') {
+        const hostList = hostsByRunId[run.id];
+
+        // For RHC direct there should be one run_host per dispatcher run where host === 'localhost'
+        if (hostList?.length === 1 && hostList[0].host === 'localhost') {
             rhcDirect.playbook = run.url;
             rhcDirect.updated_at = run.updated_at;
-            rhcDirect.system_count += rhcRunHosts.meta.count; // should always be 1, but...
+            rhcDirect.system_count += hostList.length; // should always be 1, but...
             rhcDirect[`count_${run.status}`]++;
         }
 
         // else create a new sat executor
-        else if (!_.isEmpty(rhcRunHosts)) {
+        else if (!_.isEmpty(hostList)) {
             let satExecutor = {
                 name: 'RHC Satellite',
                 executor_id: run.id,
                 status: null,
-                system_count: rhcRunHosts.meta.count,
+                system_count: hostList.length,
                 playbook_run_id: playbook_run_id,
                 playbook: run.url,
                 updated_at: run.updated_at,
@@ -169,7 +175,7 @@ async function formatRHCRuns (dispatcherRuns, playbook_run_id) {
 
             // Assign each status count
             RHCSTATUSES.forEach(status => {
-                satExecutor[`count_${status}`] = _.size(_.filter(rhcRunHosts.data, run => run.status === status));
+                satExecutor[`count_${status}`] = _.size(_.filter(hostList, runHost => runHost.status === status));
             });
 
             // timeouts also count as errors since count_timeout doesn't get propogated
@@ -195,7 +201,6 @@ async function formatRHCRuns (dispatcherRuns, playbook_run_id) {
     trace.leave();
     return executors;
 }
-
 
 /**
  * Format RHC (Red Hat Connect) run hosts data by fetching proper system names (display_name || hostname)

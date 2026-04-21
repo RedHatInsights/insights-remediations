@@ -4,6 +4,7 @@ const P = require('bluebird');
 const _ = require('lodash');
 const URI = require('urijs');
 const queryString = require('querystring');
+const qs = require('qs');
 
 const { request, auth, mockDate, buildRbacResponse, sandbox} = require('../test');
 const sinon = require('sinon');
@@ -80,27 +81,59 @@ function fake_dispatcher_runs(req) {
     return Promise.resolve(resp);
 }
 
-// For now, this just fakes a single run host for direct targets
+const FAKE_RUN_HOST_STDOUT = "[WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not match 'all'\r\nPLAY [Set owner and permissions on /etc/sshd/sshd_config to root:root 0600] ****\r\nTASK [Gathering Facts] *********************************************************ok: [localhost]\r\nTASK [Set the owner and permissions of ssh config file to root:root 0600] ******changed: [localhost]\r\nPLAY [run insights] ************************************************************\r\nTASK [run insights] ************************************************************ok: [localhost]\r\nPLAY RECAP *********************************************************************\r\nlocalhost                  : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   \r\n";
+
+// Fakes playbook-dispatcher /v1/run_hosts. Per-run queries use filter.run.id; batched formatRHCRuns/formatRunHosts
+// use filter.run.labels['playbook-run'] only — each returned row must include run.id so hosts can be grouped by dispatcher run.
 function fake_dispatcher_run_hosts(req) {
     const uri = new URI(req.uri);
-    const params = queryString.parse(uri.query());
+    const parsed = qs.parse(uri.query(), { depth: 10 });
+    const runFilter = parsed.filter?.run || {};
+    const runId = runFilter.id;
+    const playbookRunLabel = runFilter.labels?.['playbook-run'];
 
-    // construct response
-    const resp = {
+    if (runId) {
+        return Promise.resolve({
+            data: [{
+                host: 'localhost',
+                inventory_id: runId,
+                status: 'success',
+                stdout: FAKE_RUN_HOST_STDOUT,
+                run: { id: runId }
+            }],
+            links: {},
+            meta: { count: 1, total: 1 }
+        });
+    }
+
+    if (playbookRunLabel) {
+        const data = systems.map((systemId) => ({
+            host: 'localhost',
+            inventory_id: systemId,
+            status: 'success',
+            stdout: FAKE_RUN_HOST_STDOUT,
+            run: { id: systemId }
+        }));
+        return Promise.resolve({
+            data,
+            links: {},
+            meta: { count: data.length, total: data.length }
+        });
+    }
+
+    const flat = queryString.parse(uri.query());
+    const legacyRunId = flat['filter[run][id]'];
+    return Promise.resolve({
         data: [{
-            "host": "localhost",
-            "inventory_id": params['filter[run][id]'],
-            "status": "success",
-            "stdout": "[WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not match 'all'\r\nPLAY [Set owner and permissions on /etc/sshd/sshd_config to root:root 0600] ****\r\nTASK [Gathering Facts] *********************************************************ok: [localhost]\r\nTASK [Set the owner and permissions of ssh config file to root:root 0600] ******changed: [localhost]\r\nPLAY [run insights] ************************************************************\r\nTASK [run insights] ************************************************************ok: [localhost]\r\nPLAY RECAP *********************************************************************\r\nlocalhost                  : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   \r\n"
+            host: 'localhost',
+            inventory_id: legacyRunId,
+            status: 'success',
+            stdout: FAKE_RUN_HOST_STDOUT,
+            run: { id: legacyRunId }
         }],
         links: {},
-        meta: {
-            count: 1,
-            total:1
-        }
-    };
-
-    return Promise.resolve(resp);
+        meta: { count: 1, total: 1 }
+    });
 }
 
 

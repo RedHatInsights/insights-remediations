@@ -397,6 +397,76 @@ describe('formatRunHosts and formatRHCHostDetails', function () {
         });
     });
 
+    describe('combineRuns', function () {
+        const playbookRunId = '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc';
+
+        test('fetches run hosts once per playbook run (batch)', async () => {
+            const fetchHostsStub = base.sandbox.stub(dispatcher, 'fetchPlaybookRunHosts').resolves({
+                data: [
+                    {
+                        inventory_id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                        host: 'localhost',
+                        status: 'success',
+                        run: { id: 'dispatcher-run-direct' }
+                    },
+                    {
+                        inventory_id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+                        host: 'sat-host',
+                        status: 'success',
+                        run: { id: 'dispatcher-run-sat' }
+                    },
+                    {
+                        inventory_id: 'cccccccc-cccc-cccc-cccc-cccccccccccc',
+                        host: 'sat-host2',
+                        status: 'failure',
+                        run: { id: 'dispatcher-run-sat' }
+                    }
+                ],
+                meta: { count: 3 }
+            });
+
+            const dispatcherRuns = {
+                data: [
+                    {
+                        id: 'dispatcher-run-direct',
+                        labels: { 'playbook-run': playbookRunId },
+                        url: 'http://direct',
+                        updated_at: '2023-10-01T12:00:00.000Z',
+                        status: 'success'
+                    },
+                    {
+                        id: 'dispatcher-run-sat',
+                        labels: { 'playbook-run': playbookRunId },
+                        url: 'http://sat',
+                        updated_at: '2023-10-01T13:00:00.000Z',
+                        status: 'success'
+                    }
+                ]
+            };
+
+            base.sandbox.stub(fifi, 'getRHCRuns').resolves(dispatcherRuns);
+
+            const remediation = {
+                iteration: 0,
+                playbook_runs: [{ id: playbookRunId, executors: [] }]
+            };
+
+            await fifi.combineRuns(remediation);
+
+            fetchHostsStub.callCount.should.equal(1);
+            const executors = remediation.playbook_runs[0].executors;
+            executors.should.have.length(2);
+            const direct = executors.find(e => e.executor_name === 'Direct connected');
+            const sat = executors.find(e => e.executor_name === 'RHC Satellite');
+            direct.should.exist;
+            direct.system_count.should.equal(1);
+            sat.should.exist;
+            sat.system_count.should.equal(2);
+            sat.count_success.should.equal(1);
+            sat.count_failure.should.equal(1);
+        });
+    });
+
     describe('formatRHCHostDetails', function () {
         test('should use display_name as system_name when available', async () => {
             // Mock system details with display_name available
