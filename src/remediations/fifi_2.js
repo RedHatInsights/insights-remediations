@@ -5,7 +5,6 @@ const uuid = require("uuid");
 
 const format = require("./remediations.format_2");
 const errors = require("../errors");
-const configManager = require("../connectors/configManager");
 const probes = require("../probes");
 const dispatcher = require("../connectors/dispatcher");
 const log = require("../util/log");
@@ -26,14 +25,6 @@ const CANCELED = 'canceled';
 const DIRECT = 'directConnect';
 const SATELLITE = 'satellite';
 const NONE = 'none';
-
-
-exports.checkRhcEnabled = async function () {
-    const rhcProfiles = await configManager.getCurrentProfile();
-
-    return !! rhcProfiles?.remediations;
-};
-
 
 //======================================================================================================================
 

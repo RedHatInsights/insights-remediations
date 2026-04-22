@@ -17,7 +17,6 @@ objects:
     - advisor-backend
     - compliance
     - compliance-ssg
-    - config-manager
     - cloud-connector
     # add MQTT mock (mosquitto) from cloud-connector
     - mosquitto
@@ -91,12 +90,6 @@ objects:
             value: http://${COMPLIANCE_HOST}:3000
           - name: CONTENT_SERVER_HOST
             value: http://${ADVISOR_HOST}:8000
-          - name: CONFIG_MANAGER_IMPL
-            value: ${CONFIG_MANAGER_IMPL}
-          - name: CONFIG_MANAGER_PORT
-            value: ${CONFIG_MANAGER_PORT}
-          - name: CONFIG_MANAGER_HOST
-            value: http://${CONFIG_MANAGER_HOST}:${CONFIG_MANAGER_PORT}
           - name: CLOWDER_ENABLED
             value: ${CLOWDER_ENABLED}
           - name: DB_CA
@@ -368,12 +361,6 @@ parameters:
 - name: COMPLIANCE_IMPL
   value: impl
 - name: COMPLIANCE_HOST
-- name: CONFIG_MANAGER_IMPL
-  value: impl
-- name: CONFIG_MANAGER_PORT
-  value: ${CONFIG_MANAGER_PORT}
-- name: CONFIG_MANAGER_HOST
-  value: ${CONFIG_MANAGER_HOST}
 - name: CLOWDER_ENABLED
   value: 'true'
 - name: DB_CA

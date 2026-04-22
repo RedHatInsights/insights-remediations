@@ -10,7 +10,6 @@ const { request, auth, mockDate, buildRbacResponse, sandbox} = require('../test'
 const sinon = require('sinon');
 
 const utils = require('../middleware/identity/utils');
-const configManager = require('../connectors/configManager');
 const fifi = require('../remediations/fifi');
 const fifi_2 = require('../remediations/fifi_2');
 const base = require('../test');
@@ -332,18 +331,6 @@ describe('FiFi', function () {
             .set(auth.fifi)
             .set('if-none-match', '"b48-TyVONjo4V6eLe5E3p90RxLra8So"')
             .expect(304);
-        });
-
-        test('403 with descriptive message when RHC is disabled', async () => {
-            base.getSandbox().stub(fifi_2, 'checkRhcEnabled').resolves(false);
-            
-            const {body} = await request
-            .get('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/connection_status')
-            .set(auth.fifi)
-            .expect(403);
-            
-            body.errors[0].should.have.property('details');
-            body.errors[0].details.should.have.property('message', 'RHC Manager permission is required for this operation. Please visit https://console.redhat.com/insights/connector to enable this permission.');
         });
     });
 
@@ -1143,19 +1130,6 @@ describe('FiFi', function () {
                     await db.playbook_runs.destroy({ where: { id: body.id }, force: true });
                 }
             });
-
-            test('403 with descriptive message when RHC is disabled for playbook execution', async () => {
-                base.getSandbox().stub(fifi_2, 'checkRhcEnabled').resolves(false);
-                
-                const {body} = await request
-                .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs')
-                .set(auth.fifi)
-                .expect(403);
-                
-                body.errors[0].should.have.property('details');
-                body.errors[0].details.should.have.property('message', 'RHC Manager permission is required for this operation. Please visit https://console.redhat.com/insights/connector to enable this permission.');
-            });
-
             test('sets ETag', async () => {
                 const {headers} = await request
                 .post('/v1/remediations/0ecb5db7-2f1a-441b-8220-e5ce45066f50/playbook_runs?pretty')
