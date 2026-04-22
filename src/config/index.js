@@ -126,13 +126,6 @@ function Config() {
             revalidationInterval: parseIntEnv('COMPLIANCE_REVALIDATION_INTERVAL', 60 * 60) // 1 hour
         },
 
-        configManager: {
-            impl: env.CONFIG_MANAGER_IMPL,
-            auth: env.CONFIG_MANAGER_AUTH,
-            insecure: (env.CONFIG_MANAGER_INSECURE === 'true') ? true : false,
-            revalidationInterval: parseIntEnv('CONFIG_MANAGER_INTERVAL', 60 * 60) // 1 hour
-        },
-
         contentServer: {
             impl: env.CONTENT_SERVER_IMPL,
             auth: env.CONTENT_SERVER_AUTH || '',
@@ -261,7 +254,6 @@ function Config() {
         config.advisor.host = getHostForApp(dependencyEndpoints, 'advisor-backend', 'api', 'ADVISOR') || env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
         config.bop.host = getHostForApp(dependencyEndpoints, 'bop', 'service', 'TENANT_TRANSLATOR') || `http://${env.TENANT_TRANSLATOR_HOST}:${env.TENANT_TRANSLATOR_PORT}` || 'http://gateway.3scale-dev.svc.cluster.local:8892';
         config.compliance.host = getHostForApp(dependencyEndpoints, 'compliance', 'service', 'COMPLIANCE') || env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
-        config.configManager.host = getHostForApp(dependencyEndpoints, 'config-manager', 'service', 'CONFIG_MANAGER') || env.CONFIG_MANAGER_HOST || 'http://config-manager-service.config-manager-ci.svc.cluster.local:8081';
         config.contentServer.host = getHostForApp(dependencyEndpoints, 'advisor-backend', 'api', 'CONTENT_SERVER') || env.CONTENT_SERVER_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
         config.dispatcher.host = getHostForApp(dependencyEndpoints, 'playbook-dispatcher', 'api', 'PLAYBOOK_DISPATCHER') || env.PLAYBOOK_DISPATCHER_HOST || 'http://playbook-dispatcher-api.playbook-dispatcher-ci.svc.cluster.local:8000';
         config.inventory.host = getHostForApp(dependencyEndpoints, 'host-inventory', 'service', 'INVENTORY') || env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';
@@ -309,7 +301,6 @@ function Config() {
         config.advisor.host = env.ADVISOR_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
         config.bop.host = env.BOP_HOST || 'http://gateway.3scale-dev.svc.cluster.local:8892';
         config.compliance.host = env.COMPLIANCE_HOST || 'http://compliance-backend.compliance-ci.svc.cluster.local:3000';
-        config.configManager.host = env.CONFIG_MANAGER_HOST || 'http://config-manager-service.config-manager-ci.svc.cluster.local:8081';
         config.contentServer.host = env.CONTENT_SERVER_HOST || 'http://insights-advisor-api.advisor-ci.svc.cluster.local:8000';
         config.dispatcher.host = env.PLAYBOOK_DISPATCHER_HOST || 'http://playbook-dispatcher-api.playbook-dispatcher-ci.svc.cluster.local:8000';
         config.inventory.host = env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';

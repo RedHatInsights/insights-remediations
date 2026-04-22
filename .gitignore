@@ -4,6 +4,9 @@ dist
 test
 .npm
 artifacts
+plans
+.jira-templates
+CLAUDE.md
 
 \.vscode/
 .idea

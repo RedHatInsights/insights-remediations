@@ -26,13 +26,6 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "insecure": false,
     "revalidationInterval": 3600,
   },
-  "configManager": {
-    "auth": undefined,
-    "host": "http://config-manager-service.config-manager-ci.svc.cluster.local:8081",
-    "impl": undefined,
-    "insecure": false,
-    "revalidationInterval": 3600,
-  },
   "contentServer": {
     "auth": "",
     "host": "http://insights-advisor-api.advisor-ci.svc.cluster.local:8000",
