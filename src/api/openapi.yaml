@@ -912,7 +912,7 @@ components:
         - updated_after: modified on or after date-time, `filter[updated_after]=2025-03-31T08:19:36.641Z`
         - last_run_after: executed on or after date-time or 'never', `filter[last_run_after]=never` 
         - status: status matching one of [running, success, failure], `filter[status]=failure`
-        - expires_within: positive whole number of days as digits (e.g. 30) — plans that expire within N days (expires_at date is on or before now + N days), `filter[expires_within]=30`
+        - expires_within: number of days as a positive whole number (e.g. 30) — plans that expire within N days (expires_at date is on or before now + N days), `filter[expires_within]=30`
       required: false
       schema:
         anyOf:
@@ -954,11 +954,11 @@ components:
                   Must be a valid ISO 8601 date-time string. Precision should be to the nearest second or millisecond.
                   Example: '2024-09-11T12:00:00Z' or '2024-09-11T12:00:00.123Z'
               expires_within:
-                type: string
-                pattern: '^[1-9][0-9]*$'
+                type: integer
+                minimum: 1
                 description: >
                   Return remediations that expire within N days. This means that their expires_at date is on or before now + N days.
-                  Query values are strings; use digits only with no leading zeros (minimum effective value 1).
+                  Must be a positive whole number of days (at least 1).
       style: deepObject
       explode: true
 

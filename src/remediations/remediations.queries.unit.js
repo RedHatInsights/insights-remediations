@@ -2,7 +2,6 @@
 
 const base = require('../test');
 const config = require('../config');
-const errors = require('../errors');
 const queries = require('./remediations.queries');
 const db = require('../db');
 const inventory = require('../connectors/inventory');
@@ -428,43 +427,12 @@ describe('list filter expires_within', function () {
         );
     }
 
-    test('rejects non-numeric expires_within before querying', async () => {
-        try {
-            await listWithFilter('notanumber');
-            throw new Error('expected throw');
-        } catch (e) {
-            e.should.be.instanceof(errors.BadRequest);
-            e.error.code.should.equal('INVALID_EXPIRES_WITHIN');
-        }
-        findAndCountAllStub.should.not.have.been.called;
-    });
-
-    test('rejects fractional string expires_within before querying', async () => {
-        try {
-            await listWithFilter('1.5');
-            throw new Error('expected throw');
-        } catch (e) {
-            e.should.be.instanceof(errors.BadRequest);
-        }
-        findAndCountAllStub.should.not.have.been.called;
-    });
-
-    test('rejects negative integer expires_within before querying', async () => {
-        try {
-            await listWithFilter(-1);
-            throw new Error('expected throw');
-        } catch (e) {
-            e.should.be.instanceof(errors.BadRequest);
-        }
-        findAndCountAllStub.should.not.have.been.called;
-    });
-
-    test('accepts positive integer string and queries', async () => {
+    test('accepts whole number as string and queries', async () => {
         await listWithFilter('30');
         findAndCountAllStub.should.have.been.calledOnce;
     });
 
-    test('accepts positive integer number and queries', async () => {
+    test('accepts whole number and queries', async () => {
         await listWithFilter(30);
         findAndCountAllStub.should.have.been.calledOnce;
     });

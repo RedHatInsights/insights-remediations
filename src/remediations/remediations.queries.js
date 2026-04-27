@@ -5,7 +5,6 @@
 const config = require('../config');
 const cache = require('../cache');
 const db = require('../db');
-const errors = require('../errors');
 const inventory = require('../connectors/inventory');
 const {NULL_NAME_VALUE} = require('./models/remediation');
 const _ = require('lodash');
@@ -296,14 +295,6 @@ exports.list = async function (
         // expires_within filter
         if (filter.expires_within) {
             const days = Number(filter.expires_within);
-            // Need this extra validation before we use "days" in the SQL below
-            // This is just to be safe but OpenAPI validation should catch this before we get here
-            if (!Number.isInteger(days) || days < 1) {
-                throw new errors.BadRequest(
-                    'INVALID_EXPIRES_WITHIN',
-                    'filter expires_within must be a positive whole number of days'
-                );
-            }
             query.where[Op.and] = [
                 ...(query.where[Op.and] || []),
                 where(

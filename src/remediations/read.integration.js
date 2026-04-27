@@ -780,17 +780,21 @@ describe('remediations', function () {
                         'enum.openapi.requestValidation',
                         'must be equal to one of the allowed values (location: query, path: filter.status)'
                     );
-                    test400(
-                        'expires_within rejects zero',
-                        '/v1/remediations?filter[expires_within]=0',
-                        'pattern.openapi.requestValidation',
-                        'must match pattern "^[1-9][0-9]*$" (location: query, path: filter.expires_within)'
-                    );
+                    test('expires_within rejects zero', async () => {
+                        const {header} = reqId();
+                        const {body} = await request
+                            .get('/v1/remediations?filter[expires_within]=0')
+                            .set(header)
+                            .expect(400);
+                        // anyOf(legacy string | object) + nested integer can yield several validation errors;
+                        // require at least one error scoped to filter.expires_within
+                        body.errors.some(e => e.title && e.title.includes('filter.expires_within')).should.equal(true);
+                    });
                     test400(
                         'expires_within rejects non-numeric value',
                         '/v1/remediations?filter[expires_within]=notanumber',
-                        'pattern.openapi.requestValidation',
-                        'must match pattern "^[1-9][0-9]*$" (location: query, path: filter.expires_within)'
+                        'type.openapi.requestValidation',
+                        'must be integer (location: query, path: filter.expires_within)'
                     );
                 });
             });
