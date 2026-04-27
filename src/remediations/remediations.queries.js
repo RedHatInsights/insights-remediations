@@ -5,6 +5,7 @@
 const config = require('../config');
 const cache = require('../cache');
 const db = require('../db');
+const errors = require('../errors');
 const inventory = require('../connectors/inventory');
 const {NULL_NAME_VALUE} = require('./models/remediation');
 const _ = require('lodash');
@@ -35,6 +36,30 @@ const PLAYBOOK_RUN_ATTRIBUTES = [
     'created_at',
     'updated_at'
 ];
+
+/**
+ * Calculates the expires_at timestamp for a remediation plan
+ * expires_at = last remediation plan activity + org retention period
+ * last remediation plan activity is the last time the plan was updated or executed
+ * org retention period comes is the retention period from org_config or falls back to the default retention period
+ */
+function remediationExpiresAtSql () {
+    const defaultRetentionDays = config.plan_retention.retentionDays;
+
+    const lastActivityTimestamp = `
+        GREATEST(
+            "remediation"."updated_at",
+            (SELECT MAX("pr"."created_at") FROM "playbook_runs" AS "pr" WHERE "pr"."remediation_id" = "remediation"."id")
+        )`;
+
+    const retentionDays = `
+        COALESCE(
+            (SELECT "oc"."plan_retention_days" FROM "org_config" AS "oc" WHERE "oc"."org_id" = "remediation"."tenant_org_id"),
+            ${defaultRetentionDays}
+        )`;
+
+    return `(${lastActivityTimestamp} + (${retentionDays}) * INTERVAL '1 day')`;
+}
 
 function aggregateStatusSQL() {
     return `CASE
@@ -126,6 +151,10 @@ exports.list = async function (
             sortOrder.push([literal('MAX(playbook_runs.created_at)'), asc ? 'ASC NULLS LAST' : 'DESC NULLS FIRST']);
             break;
 
+        case 'expires_at':
+            sortOrder.push([literal(remediationExpiresAtSql()), asc ? 'ASC' : 'DESC']);
+            break;
+
         case 'issue_count':
             sortOrder.push([col('issue_count'), asc ? 'ASC' : 'DESC']);
             break;
@@ -147,7 +176,8 @@ exports.list = async function (
             [cast(COUNT(DISTINCT(col('issues.id'))), 'int'), 'issue_count'],
             [cast(COUNT(DISTINCT(col('issues->systems.system_id'))), 'int'), 'system_count'],
             [resolvedCountSubquery(), 'resolved_count'],
-            [MAX(col('playbook_runs.created_at')), 'last_run_at']
+            [MAX(col('playbook_runs.created_at')), 'last_run_at'],
+            [literal(remediationExpiresAtSql()), 'expires_at']
         ],
         include: [{
             attributes: [],
@@ -261,6 +291,26 @@ exports.list = async function (
                 literal(aggregateStatusSQL()), 
                 { [Op.eq]: filter.status }
             );
+        }
+
+        // expires_within filter
+        if (filter.expires_within) {
+            const days = Number(filter.expires_within);
+            // Need this extra validation before we use "days" in the SQL below
+            // This is just to be safe but OpenAPI validation should catch this before we get here
+            if (!Number.isInteger(days) || days < 1) {
+                throw new errors.BadRequest(
+                    'INVALID_EXPIRES_WITHIN',
+                    'filter expires_within must be a positive whole number of days'
+                );
+            }
+            query.where[Op.and] = [
+                ...(query.where[Op.and] || []),
+                where(
+                    literal(remediationExpiresAtSql()),
+                    {[Op.lte]: literal(`(NOW() + (${days}::integer * INTERVAL '1 day'))`)}
+                )
+            ];
         }
     }
 
@@ -388,6 +438,8 @@ exports.get = async function (id, tenant_org_id, created_by = null, includeResol
     // Remediation plan changes during a playbook run are undesireable anyway so allow for caching these results
     // to ease the load on the database.
 
+    const {s: {literal}} = db;
+
     const query = {
         attributes: [
             ...REMEDIATION_ATTRIBUTES
@@ -417,6 +469,8 @@ exports.get = async function (id, tenant_org_id, created_by = null, includeResol
             [db.issue, db.issue.associations.systems, 'system_id']
         ]
     };
+
+    query.attributes.push([literal(remediationExpiresAtSql()), 'expires_at']);
 
     if (includeResolvedCount) {
         query.attributes.push([resolvedCountSubquery(), 'resolved_count']);
@@ -969,3 +1023,5 @@ exports.getPlaybookRunsWithDispatcherCounts = async function (playbookRunIds) {
         raw: true
     });
 };
+
+exports.remediationExpiresAtSql = remediationExpiresAtSql;

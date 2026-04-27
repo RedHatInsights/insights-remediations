@@ -1,6 +1,8 @@
 'use strict';
 
 const base = require('../test');
+const config = require('../config');
+const errors = require('../errors');
 const queries = require('./remediations.queries');
 const db = require('../db');
 const inventory = require('../connectors/inventory');
@@ -392,5 +394,78 @@ describe('getPlanSystemsDetails', function () {
                 display_name: null
             }
         });
+    });
+});
+
+describe('remediationExpiresAtSql', function () {
+    test('uses org_config and plan retention default', function () {
+        const sql = queries.remediationExpiresAtSql();
+        sql.includes('org_config').should.equal(true);
+        sql.includes('plan_retention_days').should.equal(true);
+        sql.includes('playbook_runs').should.equal(true);
+        sql.includes(String(config.plan_retention.retentionDays)).should.equal(true);
+    });
+});
+
+describe('list filter expires_within', function () {
+    let findAndCountAllStub;
+
+    beforeEach(() => {
+        findAndCountAllStub = base.sandbox.stub(db.remediation, 'findAndCountAll').resolves({count: [], rows: []});
+    });
+
+    async function listWithFilter (expires_within) {
+        return queries.list(
+            '0000000',
+            null,
+            false,
+            'updated_at',
+            true,
+            {expires_within},
+            false,
+            50,
+            0
+        );
+    }
+
+    test('rejects non-numeric expires_within before querying', async () => {
+        try {
+            await listWithFilter('notanumber');
+            throw new Error('expected throw');
+        } catch (e) {
+            e.should.be.instanceof(errors.BadRequest);
+            e.error.code.should.equal('INVALID_EXPIRES_WITHIN');
+        }
+        findAndCountAllStub.should.not.have.been.called;
+    });
+
+    test('rejects fractional string expires_within before querying', async () => {
+        try {
+            await listWithFilter('1.5');
+            throw new Error('expected throw');
+        } catch (e) {
+            e.should.be.instanceof(errors.BadRequest);
+        }
+        findAndCountAllStub.should.not.have.been.called;
+    });
+
+    test('rejects negative integer expires_within before querying', async () => {
+        try {
+            await listWithFilter(-1);
+            throw new Error('expected throw');
+        } catch (e) {
+            e.should.be.instanceof(errors.BadRequest);
+        }
+        findAndCountAllStub.should.not.have.been.called;
+    });
+
+    test('accepts positive integer string and queries', async () => {
+        await listWithFilter('30');
+        findAndCountAllStub.should.have.been.calledOnce;
+    });
+
+    test('accepts positive integer number and queries', async () => {
+        await listWithFilter(30);
+        findAndCountAllStub.should.have.been.calledOnce;
     });
 });

@@ -872,6 +872,8 @@ components:
           - -created_at
           - last_run_at
           - -last_run_at
+          - expires_at
+          - -expires_at
           - name
           - -name
           - system_count
@@ -910,6 +912,7 @@ components:
         - updated_after: modified on or after date-time, `filter[updated_after]=2025-03-31T08:19:36.641Z`
         - last_run_after: executed on or after date-time or 'never', `filter[last_run_after]=never` 
         - status: status matching one of [running, success, failure], `filter[status]=failure`
+        - expires_within: positive whole number of days as digits (e.g. 30) — plans that expire within N days (expires_at date is on or before now + N days), `filter[expires_within]=30`
       required: false
       schema:
         anyOf:
@@ -950,6 +953,12 @@ components:
                   Filter remediations updated on or after this timestamp (ISO 8601 format)
                   Must be a valid ISO 8601 date-time string. Precision should be to the nearest second or millisecond.
                   Example: '2024-09-11T12:00:00Z' or '2024-09-11T12:00:00.123Z'
+              expires_within:
+                type: string
+                pattern: '^[1-9][0-9]*$'
+                description: >
+                  Return remediations that expire within N days. This means that their expires_at date is on or before now + N days.
+                  Query values are strings; use digits only with no leading zeros (minimum effective value 1).
       style: deepObject
       explode: true
 
@@ -2125,7 +2134,7 @@ components:
     RemediationDetails:
       type: object
       additionalProperties: false
-      required: [id, name, auto_reboot, created_by, created_at, updated_by, updated_at, archived]
+      required: [id, name, auto_reboot, created_by, created_at, updated_by, updated_at, archived, expires_at]
       properties:
         id:
           $ref: '#/components/schemas/RemediationId'
@@ -2144,6 +2153,8 @@ components:
         updated_by:
           $ref: '#/components/schemas/UserOut'
         updated_at:
+          $ref: '#/components/schemas/DateTime'
+        expires_at:
           $ref: '#/components/schemas/DateTime'
         resolved_count:
           $ref: '#/components/schemas/ResolvedCount'
@@ -2240,7 +2251,7 @@ components:
     RemediationListItem:
       type: object
       additionalProperties: false
-      required: [id, name, created_by, created_at, updated_by, updated_at, issue_count, system_count, resolved_count, needs_reboot, archived]
+      required: [id, name, created_by, created_at, updated_by, updated_at, issue_count, system_count, resolved_count, needs_reboot, archived, expires_at]
       properties:
         id:
           $ref: '#/components/schemas/RemediationId'
@@ -2269,6 +2280,10 @@ components:
           type: string
           format: date-time
           nullable: true
+        expires_at:
+          type: string
+          format: date-time
+          description: When the plan is treated as expired (last activity plus org retention period, or app default when no org_config row).
         playbook_runs:
           type: array
           items:
