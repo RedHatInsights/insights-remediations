@@ -123,7 +123,7 @@ Viable as a quick interim step; not ideal for production at scale.
 │ Composite PK (dispatcher_run_id, system_id)│
 └───────────┬────────────────────────────────┘
             │
-            │ N:1
+            │ N:N
             ↓
 ┌─────────────────────────────────────┐
 │           systems                   │
