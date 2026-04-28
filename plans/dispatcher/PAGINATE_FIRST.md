@@ -560,6 +560,54 @@ Remove `combineHosts` (logic moves into `formatRunHosts`), remove the separate p
 
 **Regression:** Mitigated by unit + integration tests and monitoring during rollout.
 
+**Partial backfill failures:** If `backfillDispatcherRuns` succeeds but `populateDispatcherRunSystems` fails (either synchronously or asynchronously), the system self-heals on the next request:
+- `dispatcher_runs_backfilled = TRUE` means `resolveDispatcherRunIds` will query the local table (no retry of `backfillDispatcherRuns`)
+- `getDispatcherRunSystems` checks `dispatcherRunSystemsExist` independently
+- If no rows found, `populateDispatcherRunSystems` is called again (idempotent via `ignoreDuplicates: true`)
+- Edge case: if `dispatcher_runs` bulkCreate fails after the flag is set, `resolveDispatcherRunIds` returns empty array → `getDispatcherRunSystems` returns empty result. This is acceptable because it indicates a database consistency issue that requires investigation, not a transient failure.
+
+**Recommendation:** Add error telemetry to track backfill failures and monitor self-healing recovery on subsequent requests.
+
+**Concurrent requests:** Multiple simultaneous requests for the same `remediationsRunId` may trigger duplicate backfill operations:
+- Both see `dispatcher_runs_backfilled = FALSE` → both call `backfillDispatcherRuns`
+- Both see empty `dispatcher_run_systems` → both call `populateDispatcherRunSystems`
+- Duplicate work is wasteful (redundant dispatcher API calls) but safe:
+  - `bulkCreate(..., { ignoreDuplicates: true })` prevents duplicate rows
+  - `markDispatcherRunsBackfilled` is idempotent (sets same boolean to TRUE)
+  - Last write wins for the flag (same result regardless of order)
+
+**Mitigation options:**
+1. *Accept the race* (recommended for initial implementation): Duplicate backfills are rare (only on first request for old runs) and self-limiting (flag prevents future duplicates). Monitor dispatcher API call patterns to confirm.
+2. *Add in-memory deduplication guard* (if monitoring shows excessive duplicate work): Maintain a `Map<remediationsRunId, Promise>` of pending backfills. Before starting a backfill, check if one is already in progress and await the same promise. Clear the map entry when the promise settles.
+
+```javascript
+// Example deduplication guard (optional)
+const pendingBackfills = new Map();
+
+exports.resolveDispatcherRunIds = async function (remediationsRunId) {
+    if (await queries.isDispatcherRunsBackfilled(remediationsRunId)) {
+        return await queries.getDispatcherRunIdsByPlaybookRun(remediationsRunId);
+    }
+
+    // Check for in-flight backfill
+    if (pendingBackfills.has(remediationsRunId)) {
+        return await pendingBackfills.get(remediationsRunId);
+    }
+
+    // Start new backfill and cache the promise
+    const backfillPromise = exports.backfillDispatcherRuns(remediationsRunId)
+        .finally(() => pendingBackfills.delete(remediationsRunId));
+    
+    pendingBackfills.set(remediationsRunId, backfillPromise);
+    return await backfillPromise;
+};
+```
+
+Database-level locking (SELECT FOR UPDATE) is not recommended because:
+- Adds transaction overhead and potential lock contention
+- Duplicate work is rare and self-limiting
+- Application-level deduplication is simpler and sufficient if needed
+
 ## Future Enhancements
 
 ### Soft-Delete Systems (Preserves Historical Records)
