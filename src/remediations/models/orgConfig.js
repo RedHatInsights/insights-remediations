@@ -24,6 +24,7 @@ module.exports = (sequelize, {DATE, INTEGER, TEXT}) => {
             allowNull: false
         }
     }, {
+        tableName: 'org_config',
         timestamps: true,
         createdAt: 'created_at',
         updatedAt: 'updated_at'

@@ -765,6 +765,44 @@ paths:
         400:
           $ref: '#/components/responses/BadRequest'
 
+  /config:
+    get:
+      tags:
+        - remediations
+      summary: Get organization configuration
+      description: Returns organization-wide configuration for the current organization
+      operationId: getConfig
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigResponse'
+    patch:
+      tags:
+        - remediations
+      summary: Update organization configuration
+      description: Updates organization-wide configuration for the current organization (organization admin only)
+      operationId: updateConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigInput'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
   /version:
     get:
       tags:
@@ -1574,6 +1612,29 @@ components:
                 systems:
                   - a8799a02-8be9-11e8-9eb6-529269fb1459
 
+    ConfigInput:
+      type: object
+      additionalProperties: false
+      x-remediations-strict: false
+      description: >
+        Writable properties are plan_retention_days and plan_warning_days. When both are omitted,
+        the resolved values (from stored configuration or service defaults) are persisted. If only one
+        property is sent, the other uses the existing organization value when set; otherwise service-wide
+        defaults apply.
+      properties:
+        plan_retention_days:
+          type: integer
+          minimum: 1
+          maximum: 365
+          description: Days of plan inactivity after which a plan is treated as expired.
+          example: 90
+        plan_warning_days:
+          type: integer
+          minimum: 1
+          maximum: 365
+          description: Days before plan expiration when a warning is shown.
+          example: 14
+
     RemediationsList:
       type: object
       additionalProperties: false
@@ -1650,6 +1711,27 @@ components:
     #
     # Output schemas
     #
+    ConfigResponse:
+      type: object
+      additionalProperties: false
+      description: Organization configuration for the current organization
+      required: [data]
+      properties:
+        data:
+          type: object
+          additionalProperties: false
+          description: >
+            Values reflect stored organization configuration when available. If there are no stored values,
+            default values are plan_retention_days = 120, plan_warning_days = 30.
+          required: [plan_retention_days, plan_warning_days]
+          properties:
+            plan_retention_days:
+              type: integer
+              example: 90
+            plan_warning_days:
+              type: integer
+              example: 14
+
     RequestError:
       type: object
       additionalProperties: false
