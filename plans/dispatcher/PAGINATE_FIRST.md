@@ -28,14 +28,6 @@ The `GET /v1/remediations/{id}/playbook_runs/{playbook_run_id}/systems` endpoint
 
 **Example:** `?limit=10` on a 1,000-system run: fetches 1,000 run_hosts, queries 1,000 system details, formats 1,000 objects, returns 10.
 
-### Important Context: Immutable System List
-
-Systems are determined at run creation time. The list is fixed — only system **status** changes (pending → running → success/failure). The pagination problem is purely about efficiently querying a fixed, known set of systems.
-
-### Longstanding Bug: RHC Direct Systems Display as "localhost"
-
-RHC direct systems use `host = "localhost"` in dispatcher. The current fallback `details?.display_name || details?.hostname || host.host` returns `"localhost"` when lookup fails — a meaningless name. The recommended solution (Option 3) resolves this naturally by always using `inventory_id` as the lookup key.
-
 ## Options
 
 ### Option 1: Dispatcher Native Pagination — Not Feasible
@@ -53,12 +45,109 @@ Viable as a quick interim step; not ideal for production at scale.
 
 ### Option 3: Local Database Storage — Recommended ✅
 
-Populate a `dispatcher_run_systems` join table at run creation. Use a SQL JOIN with the `systems` table to sort and paginate. Fetch run_hosts from dispatcher only for the paginated N systems.
+**Core solution:** Maintain complete historical records of which dispatcher runs and systems belong to each playbook run in local tables (`dispatcher_runs.remediations_run_id` and `dispatcher_run_systems`). This enables:
+1. SQL-based sorting and pagination (no need to fetch all systems before paginating)
+2. Eliminating unnecessary playbook-dispatcher API calls (query local tables instead)
 
-- **Pro:** True SQL pagination (LIMIT/OFFSET returns exactly N rows); fast indexed sorting; `getPlanSystemsDetails` called for N systems only
-- **Con:** DB schema change + migration
+**Implementation:** Both tables are populated eagerly for new runs (at creation time) and backfilled on-demand for pre-existing runs (during user requests). A `dispatcher_runs_backfilled` boolean on `playbook_runs` tracks completion status.
+
+- **Pro:** True SQL pagination (LIMIT/OFFSET returns exactly N rows); fast indexed sorting; `getPlanSystemsDetails` called for N systems only; eliminates dispatcher API call for resolving run IDs
+- **Con:** DB schema changes + migrations; backfill logic for pre-existing runs
 
 ## Implementation (Option 3)
+
+### Schema Changes Overview
+
+**Before:**
+```
+┌─────────────────────────┐
+│    playbook_runs        │
+├─────────────────────────┤
+│ • id (PK)               │
+│ • remediation_id        │
+│ • status                │
+└───────────┬─────────────┘
+            │
+            │ 1:N
+            ↓
+┌─────────────────────────────┐
+│     dispatcher_runs         │
+├─────────────────────────────┤
+│ • dispatcher_run_id (PK)    │
+│ • remediations_run_id (FK)  │ ← Links to playbook_runs
+└─────────────────────────────┘
+            │
+            │ No direct link to systems!
+            │ Must fetch ALL run_hosts from
+            │ playbook-dispatcher API to get
+            │ system list → pagination happens
+            │ after fetching all data
+             
+┌─────────────────────────┐
+│       systems           │
+├─────────────────────────┤
+│ • id (PK)               │
+│ • display_name          │
+│ • hostname              │
+└─────────────────────────┘
+```
+
+**After:**
+```
+┌─────────────────────────────────┐
+│         playbook_runs           │
+├─────────────────────────────────┤
+│ • id (PK)                       │
+│ • remediation_id                │
+│ • status                        │
+│ • dispatcher_runs_backfilled ──────┐ ← NEW: completeness flag
+└───────────┬─────────────────────┘  │
+            │                        │
+            │ 1:N                    │ Tracks if dispatcher_runs
+            ↓                        │ backfill is complete
+┌─────────────────────────────────┐  │
+│      dispatcher_runs            │  │
+├─────────────────────────────────┤  │
+│ • dispatcher_run_id (PK)        │  │
+│ • remediations_run_id (FK)      │◄─┘
+└───────────┬─────────────────────┘
+            │
+            │ 1:N
+            ↓
+┌────────────────────────────────────────────┐
+│     dispatcher_run_systems (NEW)           │
+├────────────────────────────────────────────┤
+│ • dispatcher_run_id (PK, FK)               │ ← Historical record of
+│ • system_id (PK, FK)                       │   which systems were in
+│                                            │   each dispatcher run
+│ Composite PK (dispatcher_run_id, system_id)│
+└───────────┬────────────────────────────────┘
+            │
+            │ N:1
+            ↓
+┌─────────────────────────────────────┐
+│           systems                   │
+├─────────────────────────────────────┤
+│ • id (PK)                           │
+│ • display_name                      │
+│ • hostname                          │
+│ • system_name (GENERATED) ──────────┤ ← NEW: indexed generated column
+│   = COALESCE(display_name, hostname)│   for fast sorting/filtering
+└─────────────────────────────────────┘
+
+Query Flow:
+───────────
+1. Check playbook_runs.dispatcher_runs_backfilled
+   → If FALSE: fetch from dispatcher API, persist, mark TRUE
+   → If TRUE: query local dispatcher_runs table
+
+2. SQL JOIN: dispatcher_run_systems ⟗ systems
+   → ORDER BY system_name (indexed!)
+   → LIMIT/OFFSET (paginate in SQL!)
+   → Returns exactly N system IDs
+
+3. Fetch run_hosts from dispatcher for those N systems only
+```
 
 ### Phase 1: Database Migrations
 
@@ -71,6 +160,8 @@ ALTER TABLE systems
 
 CREATE INDEX idx_systems_system_name ON systems(system_name);
 ```
+
+**Note:** `GENERATED ALWAYS AS ... STORED` requires **PostgreSQL 12+**. The generated column is automatically maintained by PostgreSQL whenever `display_name` or `hostname` changes — no application code needed.
 
 **Migration 2 — Create `dispatcher_run_systems` table:**
 
@@ -86,6 +177,19 @@ CREATE TABLE dispatcher_run_systems (
 CREATE INDEX idx_dispatcher_run_systems_run
     ON dispatcher_run_systems(dispatcher_run_id);
 ```
+
+**Migration 3 — Add backfill tracking to `playbook_runs` table:**
+
+The `dispatcher_runs` table already has a `remediations_run_id` column that associates dispatcher runs with playbook runs.
+
+Add backfill tracking to `playbook_runs`:
+```sql
+ALTER TABLE playbook_runs ADD COLUMN dispatcher_runs_backfilled BOOLEAN DEFAULT FALSE;
+```
+
+This boolean tracks whether we've completed the historical record for a given playbook run — new runs created after deployment will be marked `TRUE` immediately, old runs will be backfilled on-demand during user requests.
+
+**Note:** Code examples use `remediations_run_id` for both the variable name and the `dispatcher_runs` column name. The term "playbook run" in function names (like `getDispatcherRunIdsByPlaybookRun`) refers to remediations playbook runs, not dispatcher playbook runs.
 
 ### Phase 2: Sequelize Model
 
@@ -122,53 +226,57 @@ module.exports = (sequelize, { UUID }) => {
 };
 ```
 
-### Phase 3: Populate and Query Functions
+### Phase 3: Backfill and Query Functions
 
-**Key principle:** `dispatcher_run_systems` is the historical record of which systems were part of each dispatched playbook run. It stores `(dispatcher_run_id, system_id)` pairs only — status and system names remain live data from playbook-dispatcher and the `systems` table respectively.
+**Key principles:**
+- `dispatcher_run_systems` is the historical record of which systems were part of each dispatched playbook run
+- `dispatcher_runs.remediations_run_id` is the historical record of which dispatcher runs belong to each playbook run
+- Both tables were not originally populated for old runs — we backfill them on-demand during user requests
+- New runs populate these tables eagerly at creation time
 
-**File:** `src/remediations/fifi.js`
+**Note:** Code examples use `remediationsRunId` as the variable/parameter name to match the column name `remediations_run_id` in the `dispatcher_runs` table. This avoids ambiguity between dispatcher playbook runs and remediations playbook runs.
+
+**Layer split:**
+- **`src/remediations/remediations.queries.js`** — DB operations: backfill status checks, dispatcher run ID lookups, paginated JOIN query
+- **`src/remediations/fifi.js`** — orchestration: resolve dispatcher run IDs, trigger backfills (calls dispatcher connector, so cannot live in queries.js)
+
+**File:** `src/remediations/remediations.queries.js`
 
 ```javascript
-exports.populateDispatcherRunSystems = async function (playbookRunId) {
-    trace.enter('fifi.populateDispatcherRunSystems');
-
-    const dispatcherRuns = await exports.getRHCRuns(playbookRunId);
-    if (!dispatcherRuns?.data?.length) { trace.leave('No dispatcher runs found'); return; }
-
-    const runHostsFilter = createDispatcherRunHostsFilter(playbookRunId);
-    const allRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
-    if (!allRunHosts?.data?.length) { trace.leave('No run_hosts found'); return; }
-
-    const records = allRunHosts.data
-        .filter(host => host.run?.id && host.inventory_id)
-        .map(host => ({ dispatcher_run_id: host.run.id, system_id: host.inventory_id }));
-
-    await db.dispatcher_run_systems.bulkCreate(records, { ignoreDuplicates: true });
-    trace.event(`Populated ${records.length} rows`);
-    trace.leave();
+exports.isDispatcherRunsBackfilled = async function (remediationsRunId) {
+    const run = await db.playbook_runs.findByPk(remediationsRunId, {
+        attributes: ['dispatcher_runs_backfilled']
+    });
+    return run?.dispatcher_runs_backfilled ?? false;
 };
 
-exports.getDispatcherRunSystems = async function (playbookRunId, options = {}) {
-    trace.enter('fifi.getDispatcherRunSystems');
+exports.markDispatcherRunsBackfilled = async function (remediationsRunId) {
+    await db.playbook_runs.update(
+        { dispatcher_runs_backfilled: true },
+        { where: { id: remediationsRunId } }
+    );
+};
 
+exports.getDispatcherRunIdsByPlaybookRun = async function (remediationsRunId) {
+    const runs = await db.dispatcher_runs.findAll({
+        where: { remediations_run_id: remediationsRunId },
+        attributes: ['dispatcher_run_id'],
+        raw: true
+    });
+    return runs.map(r => r.dispatcher_run_id);
+};
+
+exports.dispatcherRunSystemsExist = async function (dispatcherRunIds) {
+    const count = await db.dispatcher_run_systems.count({
+        where: { dispatcher_run_id: dispatcherRunIds }
+    });
+    return count > 0;
+};
+
+exports.getDispatcherRunSystemsPage = async function (dispatcherRunIds, options = {}) {
     const { limit = 50, offset = 0, sortAsc = true, hostnameFilter = null } = options;
-
-    const dispatcherRuns = await exports.getRHCRuns(playbookRunId);
-    const dispatcherRunIds = (dispatcherRuns?.data ?? []).map(r => r.id);
-
-    if (dispatcherRunIds.length === 0) {
-        trace.leave('No dispatcher runs found');
-        return { systemIds: [], total: 0 };
-    }
-
-    // On-demand fallback for pre-existing runs
-    const existingCount = await db.dispatcher_run_systems.count({ where: { dispatcher_run_id: dispatcherRunIds } });
-    if (existingCount === 0) {
-        trace.event('No rows in dispatcher_run_systems — populating from dispatcher');
-        await exports.populateDispatcherRunSystems(playbookRunId);
-    }
-
     const sortDir = sortAsc ? 'ASC' : 'DESC';
+
     const systemInclude = {
         model: db.systems,
         as: 'system',
@@ -191,13 +299,110 @@ exports.getDispatcherRunSystems = async function (playbookRunId, options = {}) {
         raw: false
     });
 
-    const systems = result.rows.map(row => ({
-        system_id: row.system_id,
-        system_name: row.system?.system_name ?? row.system_id
+    return {
+        systems: result.rows.map(row => ({
+            system_id: row.system_id,
+            system_name: row.system?.system_name ?? row.system_id
+        })),
+        total: result.count
+    };
+};
+```
+
+**File:** `src/remediations/fifi.js`
+
+```javascript
+exports.backfillDispatcherRuns = async function (remediationsRunId) {
+    trace.enter('fifi.backfillDispatcherRuns');
+
+    // Fetch dispatcher runs from playbook-dispatcher API
+    const dispatcherRuns = await exports.getRHCRuns(remediationsRunId);
+    if (!dispatcherRuns?.data?.length) {
+        trace.leave('No dispatcher runs found in playbook-dispatcher');
+        return [];
+    }
+
+    const dispatcherRunIds = dispatcherRuns.data.map(r => r.id);
+
+    // Persist dispatcher run → playbook run associations
+    const records = dispatcherRunIds.map(dispatcher_run_id => ({
+        remediations_run_id: remediationsRunId,
+        dispatcher_run_id
+        // Note: if dispatcher_runs table has other columns from the response, map them here
     }));
 
+    await db.dispatcher_runs.bulkCreate(records, { ignoreDuplicates: true });
+    await queries.markDispatcherRunsBackfilled(remediationsRunId);
+
+    trace.event(`Backfilled ${dispatcherRunIds.length} dispatcher runs`);
     trace.leave();
-    return { systems, total: result.count };
+    return dispatcherRunIds;
+};
+
+exports.resolveDispatcherRunIds = async function (remediationsRunId) {
+    trace.enter('fifi.resolveDispatcherRunIds');
+
+    // Check if we've completed the historical record for this playbook run
+    if (await queries.isDispatcherRunsBackfilled(remediationsRunId)) {
+        const dispatcherRunIds = await queries.getDispatcherRunIdsByPlaybookRun(remediationsRunId);
+        trace.event(`Found ${dispatcherRunIds.length} dispatcher runs in local table`);
+        trace.leave();
+        return dispatcherRunIds;
+    }
+
+    // Historical record is incomplete — backfill from playbook-dispatcher
+    trace.event('dispatcher_runs not backfilled — fetching from playbook-dispatcher');
+    const dispatcherRunIds = await exports.backfillDispatcherRuns(remediationsRunId);
+    trace.leave();
+    return dispatcherRunIds;
+};
+
+exports.populateDispatcherRunSystems = async function (remediationsRunId) {
+    trace.enter('fifi.populateDispatcherRunSystems');
+
+    // Use local dispatcher_runs table when available (already backfilled)
+    const dispatcherRunIds = await exports.resolveDispatcherRunIds(remediationsRunId);
+    if (!dispatcherRunIds.length) {
+        trace.leave('No dispatcher runs found');
+        return;
+    }
+
+    const runHostsFilter = createDispatcherRunHostsFilter(remediationsRunId);
+    const allRunHosts = await dispatcher.fetchPlaybookRunHosts(runHostsFilter, RHCRUNFIELDS);
+    if (!allRunHosts?.data?.length) {
+        trace.leave('No run_hosts found');
+        return;
+    }
+
+    const records = allRunHosts.data
+        .filter(host => host.run?.id && host.inventory_id)
+        .map(host => ({ dispatcher_run_id: host.run.id, system_id: host.inventory_id }));
+
+    await db.dispatcher_run_systems.bulkCreate(records, { ignoreDuplicates: true });
+    trace.event(`Populated ${records.length} dispatcher_run_systems rows`);
+    trace.leave();
+};
+
+exports.getDispatcherRunSystems = async function (remediationsRunId, options = {}) {
+    trace.enter('fifi.getDispatcherRunSystems');
+
+    // Resolve dispatcher run IDs from local table (backfills if needed)
+    const dispatcherRunIds = await exports.resolveDispatcherRunIds(remediationsRunId);
+
+    if (dispatcherRunIds.length === 0) {
+        trace.leave('No dispatcher runs found');
+        return { systems: [], total: 0 };
+    }
+
+    // On-demand backfill of dispatcher_run_systems if needed
+    if (!await queries.dispatcherRunSystemsExist(dispatcherRunIds)) {
+        trace.event('No rows in dispatcher_run_systems — populating from dispatcher');
+        await exports.populateDispatcherRunSystems(remediationsRunId);
+    }
+
+    const result = await queries.getDispatcherRunSystemsPage(dispatcherRunIds, options);
+    trace.leave();
+    return result;
 };
 ```
 
@@ -269,13 +474,30 @@ exports.getSystems = errors.async(async function (req, res) {
 
 ### Phase 4b: Populate at Run Creation
 
-After dispatching to playbook-dispatcher, populate the table asynchronously (don't block the response — fallback handles any failure):
+**When playbook run is created** (after successful dispatch to playbook-dispatcher):
 
 ```javascript
-fifi.populateDispatcherRunSystems(playbookRunId).catch(err => {
-    log.error({ err, playbook_run_id: playbookRunId }, 'Failed to populate dispatcher_run_systems');
+// After dispatching to playbook-dispatcher, the response contains dispatcher run data
+const dispatcherRunIds = dispatchResponse.data.map(r => r.id);
+
+// 1. Populate dispatcher_runs table (complete historical record)
+const dispatcherRunRecords = dispatcherRunIds.map(dispatcher_run_id => ({
+    remediations_run_id: remediationsRunId,
+    dispatcher_run_id
+    // Add other fields from dispatchResponse.data if needed by dispatcher_runs schema
+}));
+
+await db.dispatcher_runs.bulkCreate(dispatcherRunRecords, { ignoreDuplicates: true });
+await queries.markDispatcherRunsBackfilled(remediationsRunId);
+
+// 2. Populate dispatcher_run_systems asynchronously (non-blocking)
+fifi.populateDispatcherRunSystems(remediationsRunId).catch(err => {
+    log.error({ err, playbook_run_id: remediationsRunId }, 'Failed to populate dispatcher_run_systems');
+    // Non-critical — on-demand fallback will handle it on first GET request
 });
 ```
+
+New runs created after deployment will have complete historical records from creation. Old runs will be backfilled on-demand during user requests.
 
 ### Phase 5: Cleanup
 
@@ -283,7 +505,25 @@ fifi.populateDispatcherRunSystems(playbookRunId).catch(err => {
 
 ## Handling Pre-existing Runs
 
-A backfill migration is not feasible — playbook-dispatcher has a data retention policy and historical volume makes bulk backfill impractical. Instead, `getDispatcherRunSystems` implements an **on-demand fallback**: if no rows exist for a run, it fetches from dispatcher, persists the results, and serves from the local table. If dispatcher has no data (retention window passed), the endpoint falls back gracefully to the existing behavior.
+**Why backfill migrations are not feasible:**
+- Playbook-dispatcher is multi-tenant with its own authentication — no non-tenant-specific way to retrieve historical data
+- Playbook-dispatcher has a data retention policy — older data may not be available
+- Historical volume makes bulk backfill impractical
+
+**On-demand backfill strategy:**
+Both `dispatcher_runs` and `dispatcher_run_systems` use on-demand backfills triggered by user requests:
+
+1. **First request** for a pre-existing playbook run triggers backfills:
+   - `resolveDispatcherRunIds` checks `dispatcher_runs_backfilled` flag
+   - If `FALSE`, fetches from playbook-dispatcher API (authenticated with user's tenant context)
+   - Persists to `dispatcher_runs` table and marks `dispatcher_runs_backfilled = TRUE`
+   - Then checks `dispatcher_run_systems` and populates if needed
+
+2. **Subsequent requests** use local tables:
+   - `dispatcher_runs_backfilled = TRUE` → query local `dispatcher_runs` table (no dispatcher API call)
+   - `dispatcher_run_systems` populated → query local table with SQL pagination
+
+3. **Retention window expired:** If dispatcher has no data for a very old run, the backfill returns empty and the endpoint serves an empty result (acceptable — data is genuinely unavailable).
 
 ## Alternative: In-Memory Optimization (Option 2)
 
@@ -292,8 +532,9 @@ If time-constrained, this can land before the DB table as an interim improvement
 ### Updated `formatRunHosts` signature
 
 ```javascript
-exports.formatRunHosts = async function (dispatcherRuns, playbook_run_id, options = {})
-// options: { limit, offset, sortColumn, sortAsc, hostnameFilter }
+exports.formatRunHosts = async function (dispatcherRuns, playbook_run_id, options = {}) {
+    // options: { limit, offset, sortColumn, sortAsc, hostnameFilter }
+}
 ```
 
 **Logic:**
@@ -355,9 +596,10 @@ CREATE INDEX idx_systems_system_name_search ON systems USING GIN(system_name_tsv
 
 1. Run migration: add `system_name` generated column + index to `systems`
 2. Run migration: create `dispatcher_run_systems` table
-3. Deploy code
-4. No backfill — fallback handles pre-existing runs on demand
-5. Monitor `/playbook_runs/{id}/systems` response time and `getPlanSystemsDetails` query counts
+3. Run migration: add `dispatcher_runs_backfilled` boolean to `playbook_runs`
+4. Deploy code
+5. No bulk backfill — on-demand backfills handle pre-existing runs during user requests
+6. Monitor `/playbook_runs/{id}/systems` response time and `getPlanSystemsDetails` query counts
 
 ## Acceptance Criteria
 
@@ -366,11 +608,21 @@ CREATE INDEX idx_systems_system_name_search ON systems USING GIN(system_name_tsv
 - [ ] FKs with ON DELETE CASCADE to both `dispatcher_runs` and `systems`
 - [ ] Index on `dispatcher_run_id`
 - [ ] `systems.system_name` generated column with `idx_systems_system_name` index
+- [ ] `dispatcher_runs.remediations_run_id` column exists with FK to `playbook_runs.id` and index
+- [ ] `playbook_runs.dispatcher_runs_backfilled` boolean column (default FALSE)
 - [ ] Sequelize model with associations
 
-### Population
+### Historical Record Completeness (dispatcher_runs)
+- [ ] `backfillDispatcherRuns()` fetches from playbook-dispatcher, persists to `dispatcher_runs`, and marks `dispatcher_runs_backfilled = TRUE`
+- [ ] `resolveDispatcherRunIds()` checks `dispatcher_runs_backfilled` flag first
+- [ ] If `TRUE`, query local `dispatcher_runs` table (no dispatcher API call)
+- [ ] If `FALSE`, call `backfillDispatcherRuns()` to complete the historical record
+- [ ] New playbook runs populate `dispatcher_runs` at creation and mark `dispatcher_runs_backfilled = TRUE` immediately
+- [ ] Pre-existing runs backfilled on-demand during first user request
+
+### Historical Record Completeness (dispatcher_run_systems)
 - [ ] `populateDispatcherRunSystems()` inserts only `(dispatcher_run_id, system_id)` pairs
-- [ ] Populated at playbook run creation (async, non-blocking)
+- [ ] New playbook runs populate `dispatcher_run_systems` at creation (async, non-blocking)
 - [ ] `ignoreDuplicates: true` prevents errors on double-population
 - [ ] On-demand fallback populates when no rows exist for a run
 - [ ] Graceful fallback when dispatcher has no data (retention window passed)
@@ -386,9 +638,13 @@ CREATE INDEX idx_systems_system_name_search ON systems USING GIN(system_name_tsv
 
 ### Testing
 - [ ] All existing tests pass
+- [ ] Unit tests: `backfillDispatcherRuns` (backfill tracking, marks flag correctly)
+- [ ] Unit tests: `resolveDispatcherRunIds` (uses local table when backfilled, calls backfill when not)
 - [ ] Unit tests: `populateDispatcherRunSystems`, `getDispatcherRunSystems` (pagination, sorting, fallback, empty dispatcher response)
-- [ ] Integration tests: end-to-end populate → SQL paginate → filter dispatcher → format
+- [ ] Integration tests: end-to-end backfill → populate → SQL paginate → filter dispatcher → format
 - [ ] Performance tests confirm improvement for large runs (1000+ systems)
+- [ ] Test pre-existing run: first request triggers backfills, second request uses local tables
+- [ ] Test new run: created with backfilled flag TRUE, no dispatcher API call on GET
 
 ## Related Work
 
