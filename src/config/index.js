@@ -244,6 +244,11 @@ function Config() {
             appName: env.FEATURE_FLAGS_APP_NAME || 'remediations',
             refreshInterval: parseIntEnv('FEATURE_FLAGS_REFRESH_INTERVAL', 15000), // 15 seconds
             metricsInterval: parseIntEnv('FEATURE_FLAGS_METRICS_INTERVAL', 60000) // 60 seconds
+        },
+
+        plan_retention: {
+            retentionDays: parseIntEnv('PLAN_RETENTION_DAYS', 120), // days of inactivity before plan expiration
+            warningDays: parseIntEnv('PLAN_WARNING_DAYS', 30) // days before expiration to show warning
         }
     };
 

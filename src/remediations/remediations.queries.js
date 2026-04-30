@@ -535,6 +535,27 @@ exports.getIssueSystems = function (id, tenant_org_id, created_by, issueId) {
     });
 };
 
+// Fetch missing system details from inventory service and store in systems table
+async function fetch_missing_system_data(missingIds) {
+    // just being diligent and validating our input parameters...
+    if (missingIds.length === 0) {
+        return;
+    }
+
+    const systemDetails = await inventory.getSystemDetailsBatch(missingIds);
+    const remediationSystems = Object.values(systemDetails).map(system => ({
+        id: system.id,
+        hostname: system.hostname || null,
+        display_name: system.display_name || null,
+        ansible_hostname: system.ansible_host || null
+    }));
+
+    if (remediationSystems.length > 0) {
+        await db.systems.bulkCreate(remediationSystems, {
+            updateOnDuplicate: ['hostname', 'display_name', 'ansible_hostname', 'updated_at']
+        });
+    }
+}
 
 // Return a paginated, sorted list of distinct systems for a remediation plan
 exports.getPlanSystems = async function (
@@ -572,6 +593,19 @@ exports.getPlanSystems = async function (
     if (distinctSystemIds.length === 0) {
         return { count: 0, rows: [] };
     }
+
+    // If there are systems that don't exist in the systems table yet,
+    // fall back to calling Inventory to retrieve and store system info first
+    const existingSystems = await db.systems.findAll({
+        attributes: ['id'],
+        where: { id: { [Op.in]: distinctSystemIds } },
+        raw: true
+    });
+    const existingIds = _.map(existingSystems, 'id');
+    const missingIds = _.difference(distinctSystemIds, existingIds);
+
+    // If there are missing systems, fetch their details from inventory service
+    await fetch_missing_system_data(missingIds);
 
     const where = { [Op.and]: [{ id: { [Op.in]: distinctSystemIds } }] };
 
@@ -689,6 +723,18 @@ exports.getPlanSystemsDetails = async function (inventoryIds, chunkSize = 50) {
     if (!inventoryIds || inventoryIds.length === 0) {
         return {};
     }
+
+    // Check which systems already exist in the systems table
+    const existingSystems = await db.systems.findAll({
+        attributes: ['id'],
+        where: { id: inventoryIds },
+        raw: true
+    });
+    const existingIds = existingSystems.map(s => s.id);
+    const missingIds = _.difference(inventoryIds, existingIds);
+
+    // Fetch missing system details from inventory service and store them
+    await fetch_missing_system_data(missingIds);
 
     const result = {};
 
@@ -867,6 +913,20 @@ exports.updateDispatcherRuns = async function (dispatcherRunId, remediationsRunI
             }
         }
     );
+};
+
+/**
+ * Status and timestamps for a dispatcher run when we already know its id (e.g. from run_hosts).
+ */
+exports.getDispatcherRunForPlaybookRun = async function (remediations_run_id, dispatcher_run_id) {
+    const row = await db.dispatcher_runs.findOne({
+        where: { remediations_run_id, dispatcher_run_id },
+        attributes: ['status', 'updated_at']
+    });
+    if (!row) {
+        return null;
+    }
+    return { status: row.status, updated_at: row.updated_at };
 };
 
 exports.getPlaybookRunsWithDispatcherCounts = async function (playbookRunIds) {

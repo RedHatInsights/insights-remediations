@@ -137,6 +137,10 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "base": "/api/remediations",
     "prefix": "/api",
   },
+  "plan_retention": {
+    "retentionDays": 120,
+    "warningDays": 30,
+  },
   "platformHostname": "hostname",
   "port": undefined,
   "rbac": {
