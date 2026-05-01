@@ -72,7 +72,7 @@ exports.parseSort = function (param) {
 
 exports.list = function (remediations, total, limit, offset, sort, system) {
     const formatted = _.map(remediations,
-        ({id, name, needs_reboot, created_by, created_at, updated_by, updated_at, system_count, issue_count, resolved_count, archived, last_run_at, playbook_runs}) => ({
+        ({id, name, needs_reboot, created_by, created_at, updated_by, updated_at, system_count, issue_count, resolved_count, archived, last_run_at, expires_at, playbook_runs}) => ({
             id,
             name,
             created_by: _.pick(created_by, USER),
@@ -85,6 +85,7 @@ exports.list = function (remediations, total, limit, offset, sort, system) {
             resolved_count: (resolved_count === null) ? 0 : resolved_count,
             archived,
             last_run_at: last_run_at ? last_run_at.toISOString() : null,
+            expires_at: expires_at ? expires_at.toISOString() : null,
             playbook_runs: (playbook_runs === null) ? [] : playbook_runs
         })
     );
@@ -100,7 +101,7 @@ exports.list = function (remediations, total, limit, offset, sort, system) {
 };
 
 exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, created_at, updated_by, updated_at,
-                            issues, resolved_count, issue_count, issue_count_details, system_count, archived}) {
+                            issues, resolved_count, issue_count, issue_count_details, system_count, archived, expires_at}) {
     const formatted =  {
         id,
         name,
@@ -109,7 +110,8 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
         created_by: _.pick(created_by, USER),
         created_at: created_at.toISOString(),
         updated_by: _.pick(updated_by, USER),
-        updated_at: updated_at.toISOString()
+        updated_at: updated_at.toISOString(),
+        expires_at: expires_at == null ? null : (expires_at instanceof Date ? expires_at.toISOString() : String(expires_at))
     };
 
     // handle format='detail' items
