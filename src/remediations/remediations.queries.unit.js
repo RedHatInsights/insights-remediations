@@ -394,3 +394,111 @@ describe('getPlanSystemsDetails', function () {
         });
     });
 });
+
+describe('getSystemDetailsForPlaybook', function () {
+    const system1Id = 'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c';
+    const system2Id = 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d';
+    const missingSystemId = '00000000-0000-0000-0000-000000000000';
+
+    let dbSystemsFindAllStub;
+
+    beforeEach(() => {
+        dbSystemsFindAllStub = base.sandbox.stub(db.systems, 'findAll');
+    });
+
+    test('should return empty object for empty input', async () => {
+        const result = await queries.getSystemDetailsForPlaybook([]);
+        result.should.deepEqual({});
+        
+        dbSystemsFindAllStub.should.not.have.been.called;
+    });
+
+    test('should return empty object for null input', async () => {
+        const result = await queries.getSystemDetailsForPlaybook(null);
+        result.should.deepEqual({});
+        
+        dbSystemsFindAllStub.should.not.have.been.called;
+    });
+
+    test('should fetch system details from database and map to playbook format', async () => {
+        const systemIds = [system1Id, system2Id];
+        
+        dbSystemsFindAllStub.resolves([
+            {
+                id: system1Id,
+                hostname: 'server1.example.com',
+                ansible_hostname: 'ansible1.example.com',
+                display_name: 'Server 1'
+            },
+            {
+                id: system2Id,
+                hostname: 'server2.example.com', 
+                ansible_hostname: null,
+                display_name: 'Server 2'
+            }
+        ]);
+
+        const result = await queries.getSystemDetailsForPlaybook(systemIds);
+
+        // Should map ansible_hostname to ansible_host for playbook compatibility
+        result.should.deepEqual({
+            [system1Id]: {
+                id: system1Id,
+                hostname: 'server1.example.com',
+                ansible_host: 'ansible1.example.com',
+                display_name: 'Server 1'
+            },
+            [system2Id]: {
+                id: system2Id,
+                hostname: 'server2.example.com',
+                ansible_host: null,
+                display_name: 'Server 2'
+            }
+        });
+
+        dbSystemsFindAllStub.should.have.been.calledOnce;
+    });
+
+    test('should only return systems found in database (no fallback for missing)', async () => {
+        const systemIds = [system1Id, missingSystemId];
+        
+        // Only system1 found in database
+        dbSystemsFindAllStub.resolves([
+            {
+                id: system1Id,
+                hostname: 'server1.example.com',
+                ansible_hostname: 'ansible1.example.com',
+                display_name: 'Server 1'
+            }
+        ]);
+
+        const result = await queries.getSystemDetailsForPlaybook(systemIds);
+
+        // Should NOT include missingSystemId - only returns what's in DB
+        result.should.deepEqual({
+            [system1Id]: {
+                id: system1Id,
+                hostname: 'server1.example.com',
+                ansible_host: 'ansible1.example.com',
+                display_name: 'Server 1'
+            }
+        });
+
+        // missingSystemId should not be in result
+        result.should.not.have.property(missingSystemId);
+        
+        dbSystemsFindAllStub.should.have.been.calledOnce;
+    });
+
+    test('should return empty object when no systems found in database', async () => {
+        const systemIds = [missingSystemId];
+        
+        dbSystemsFindAllStub.resolves([]);
+
+        const result = await queries.getSystemDetailsForPlaybook(systemIds);
+
+        result.should.deepEqual({});
+        
+        dbSystemsFindAllStub.should.have.been.calledOnce;
+    });
+});
