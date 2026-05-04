@@ -316,6 +316,58 @@ function orderSystems (systems, column, asc = true) {
     return _.orderBy(systems, [column, 'id'], [asc ? 'asc' : 'desc']);
 }
 
+/**
+ * GET /v1/remediations/:id — sends `res.json(format.get(remediation))`.
+ *
+ * Default (`format` omitted or `detail`) loads full issues/systems and returns `needs_reboot`, `resolved_count`,
+ * and `issues`. `?format=summary` uses `queries.getSummary` and returns counts only (no `issues`).
+ *
+ * @example Summary (`?format=summary`) response body
+ * {
+ *   "id": "9197ba55-0abc-4028-9bbe-269e530f8bd5",
+ *   "name": "Fix Critical CVEs",
+ *   "auto_reboot": true,
+ *   "archived": false,
+ *   "created_by": { "username": "user@redhat.com", "first_name": "Jane", "last_name": "Doe" },
+ *   "created_at": "2018-12-05T08:19:36.641Z",
+ *   "updated_by": { "username": "user@redhat.com", "first_name": "Jane", "last_name": "Doe" },
+ *   "updated_at": "2018-12-05T08:19:36.641Z",
+ *   "issue_count": 8,
+ *   "issue_count_details": { "advisor": 1, "ssg": 1, "patch-advisory": 1, "vulnerabilities": 2 },
+ *   "system_count": 12
+ * }
+ *
+ * @example Detail (default) response body — `issues[]` shaped by `remediations.format.get`
+ * {
+ *   "id": "66eec356-dd06-4c72-a3b6-ef27d1508a02",
+ *   "name": "remediation 1",
+ *   "auto_reboot": true,
+ *   "archived": false,
+ *   "created_by": { "username": "tuser@redhat.com", "first_name": "T", "last_name": "User" },
+ *   "created_at": "2018-10-04T08:19:36.641Z",
+ *   "updated_by": { "username": "tuser@redhat.com", "first_name": "T", "last_name": "User" },
+ *   "updated_at": "2018-10-04T08:19:36.641Z",
+ *   "needs_reboot": false,
+ *   "resolved_count": 1,
+ *   "issues": [
+ *     {
+ *       "id": "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+ *       "description": "Kernel CVE description",
+ *       "resolution": {
+ *         "id": "fix",
+ *         "description": "Apply security errata",
+ *         "resolution_risk": 1,
+ *         "needs_reboot": true
+ *       },
+ *       "resolutions_available": [],
+ *       "precedence": 1,
+ *       "systems": [
+ *         { "id": "fc94beb8-21ee-403d-99b1-949ef7adb762", "hostname": "host1", "display_name": "Host 1", "resolved": false }
+ *       ]
+ *     }
+ *   ]
+ * }
+ */
 exports.get = errors.async(async function (req, res) {
     // are we just summarizing?
     const summarize = req.query['format'] == 'summary';

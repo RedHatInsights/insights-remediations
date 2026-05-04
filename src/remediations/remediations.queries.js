@@ -473,6 +473,28 @@ exports.get = async function (id, tenant_org_id, created_by = null, includeResol
  * and per-issue-type counts (issue_id prefix before `:`).
  *
  * Lightweight because it does not load issues or issue-system rows.
+ *
+ * @returns {Promise<object|null>} `null` if no remediation matches. Otherwise a plain object like:
+ * @example
+ * {
+ *   id: '9197ba55-0abc-4028-9bbe-269e530f8bd5',
+ *   name: 'Fix Critical CVEs',
+ *   auto_reboot: true,
+ *   archived: false,
+ *   account_number: '1234567',
+ *   tenant_org_id: '5318290',
+ *   created_by: 'user@redhat.com',
+ *   created_at: '2018-12-05T08:19:36.641Z',
+ *   updated_by: 'user@redhat.com',
+ *   updated_at: '2018-12-05T08:19:36.641Z',
+ *   issue_count: 8,
+ *   system_count: 12,
+ *   issue_count_details: { advisor: 1, ssg: 1, 'patch-advisory': 1, vulnerabilities: 2 },
+ *   issues: undefined,
+ *   resolved_count: undefined
+ * }
+ * (`created_at` / `updated_at` are whatever `remediation.toJSON()` emits; `created_by` / `updated_by` are
+ * usernames until the controller runs `resolveUsers`.)
  */
 exports.getSummary = async function (id, tenant_org_id, created_by = null) {
     const { fn, col } = db.s;
