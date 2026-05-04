@@ -466,6 +466,68 @@ exports.get = async function (id, tenant_org_id, created_by = null, includeResol
     }
 };
 
+/**
+ * Gets counts and remediation metadata for `GET /v1/remediations/:id?format=summary`.
+ *
+ * Loads the remediation row plus aggregates: total issue count, distinct system count across those issues,
+ * and per-issue-type counts (issue_id prefix before `:`).
+ *
+ * Lightweight because it does not load issues or issue-system rows.
+ */
+exports.getSummary = async function (id, tenant_org_id, created_by = null) {
+    const { fn, col } = db.s;
+
+    const remediation = await db.remediation.findOne({
+        attributes: REMEDIATION_ATTRIBUTES,
+        where: {
+            id,
+            tenant_org_id,
+            ...(created_by ? { created_by } : {})
+        }
+    });
+
+    if (!remediation) {
+        return null;
+    }
+
+    const [issue_count, system_count, issueCountsGroupedByType] = await Promise.all([
+        db.issue.count({ where: { remediation_id: id } }),
+        db.issue_system.count({
+            distinct: true,
+            col: 'system_id',
+            include: [{
+                model: db.issue,
+                attributes: [],
+                required: true,
+                where: { remediation_id: id }
+            }]
+        }),
+        db.issue.findAll({
+            attributes: [
+                [fn('split_part', col('issue_id'), ':', 1), 'issue_type'],
+                [fn('COUNT', col('id')), 'count']
+            ],
+            where: { remediation_id: id },
+            group: [fn('split_part', col('issue_id'), ':', 1)],
+            raw: true
+        })
+    ]);
+
+    const issue_count_details = {};
+    for (const row of issueCountsGroupedByType) {
+        issue_count_details[row.issue_type] = Number(row.count);
+    }
+
+    return {
+        ...remediation.toJSON(),
+        issue_count,
+        system_count,
+        issue_count_details,
+        issues: undefined,
+        resolved_count: undefined
+    };
+};
+
 // Fetch issues and systems from the specified remediation plan, with optional sorting and filtering by issue name
 exports.getIssues = async function (remediation_plan_id, tenant_org_id, created_by = null, issue_name = null, asc = true) {
     const query = {

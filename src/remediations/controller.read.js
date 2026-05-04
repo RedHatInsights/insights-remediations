@@ -325,7 +325,9 @@ exports.get = errors.async(async function (req, res) {
     // otherwise use creator
     const creator_sa_filter = req.type == "ServiceAccount" ? null : req.user.username;
 
-    let remediation = await queries.get(req.params.id, req.user.tenant_org_id, creator_sa_filter);
+    const remediation = summarize
+        ? await queries.getSummary(req.params.id, req.user.tenant_org_id, creator_sa_filter)
+        : await queries.get(req.params.id, req.user.tenant_org_id, creator_sa_filter);
 
     if (!remediation) {
         return notFound(res);
@@ -334,15 +336,7 @@ exports.get = errors.async(async function (req, res) {
     // look up user details
     await resolveUsers(req, remediation);
 
-    if (summarize) {
-        remediation.issue_count = remediation.issues.length;
-        remediation.system_count = _(remediation.issues).flatMap('systems').map('system_id').uniq().value().length;
-        remediation.issue_count_details = _.countBy(remediation.issues, issue => issue.issue_id.split(':')[0]);
-        remediation.issues = undefined;
-        remediation.resolved_count = undefined;
-    }
-
-    else {
+    if (!summarize) {
         // fetch plan issue and system details
         await P.all([
             resolveSystems(remediation),
