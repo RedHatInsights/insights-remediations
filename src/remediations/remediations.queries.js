@@ -550,6 +550,20 @@ exports.getSummary = async function (id, tenant_org_id, created_by = null) {
     };
 };
 
+// Return `{ id }` when id, tenant_org_id, and created_by match (remediation exists).
+// Return null if no remediation matches (does not exist or wrong scope).
+exports.checkExecutable = async function (id, tenant_org_id, created_by) {
+    return db.remediation.findOne({
+        attributes: ['id'],
+        where: {
+            id,
+            tenant_org_id,
+            created_by
+        },
+        raw: true
+    });
+};
+
 // Fetch issues and systems from the specified remediation plan, with optional sorting and filtering by issue name
 exports.getIssues = async function (remediation_plan_id, tenant_org_id, created_by = null, issue_name = null, asc = true) {
     const query = {
