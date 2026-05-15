@@ -4,7 +4,7 @@ const errors = require('../errors');
 const db = require('../db');
 const config = require('../config');
 
-function formatResponse(plan_retention_days, plan_warning_days) {
+function formatConfigResponse(plan_retention_days, plan_warning_days) {
     return {
         data: {
             plan_retention_days,
@@ -27,7 +27,7 @@ exports.get = errors.async(async function (req, res) {
     const org_id = req.user?.tenant_org_id || req.identity?.org_id;
     const orgConfig = await db.org_config.findByPk(org_id);
 
-    return res.json(formatResponse(
+    return res.json(formatConfigResponse(
         orgConfig?.plan_retention_days ?? config.plan_retention.retentionDays,
         orgConfig?.plan_warning_days ?? config.plan_retention.warningDays
     ));
@@ -39,13 +39,16 @@ exports.patch = errors.async(async function (req, res) {
     const { plan_retention_days: bodyRetentionDays, plan_warning_days: bodyWarningDays } = body;
 
     const existing = await db.org_config.findByPk(org_id);
-    const { retentionDays, warningDays } = config.plan_retention;
+    const {
+        retentionDays: defaultRetentionDays,
+        warningDays: defaultWarningDays
+    } = config.plan_retention;
 
     // For each field: use the request body when that property is not null or undefined,
     // otherwise use the existing value in the org_config row,
     // otherwise use config.plan_retention defaults.
-    const plan_retention_days = bodyRetentionDays ?? existing?.plan_retention_days ?? retentionDays;
-    const plan_warning_days = bodyWarningDays ?? existing?.plan_warning_days ?? warningDays;
+    const plan_retention_days = bodyRetentionDays ?? existing?.plan_retention_days ?? defaultRetentionDays;
+    const plan_warning_days = bodyWarningDays ?? existing?.plan_warning_days ?? defaultWarningDays;
 
     await db.org_config.upsert({
         org_id,
@@ -53,5 +56,5 @@ exports.patch = errors.async(async function (req, res) {
         plan_warning_days
     });
 
-    return res.json(formatResponse(plan_retention_days, plan_warning_days));
+    return res.json(formatConfigResponse(plan_retention_days, plan_warning_days));
 });

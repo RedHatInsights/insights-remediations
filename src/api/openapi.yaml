@@ -23,6 +23,8 @@ tags:
     description: Ansible Playbook Builder
   - name: resolutions
     description: Information about available Ansible resolutions
+  - name: configuration
+    description: Organization-wide configuration for remediation plans
 
 paths:
   /remediations:
@@ -719,6 +721,44 @@ paths:
         400:
           $ref: '#/components/responses/BadRequest'
 
+  /config:
+    get:
+      tags:
+        - configuration
+      summary: Get organization-wide configurable items
+      description: Returns organization-wide configurable items for the caller's organization
+      operationId: getConfig
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigResponse'
+    patch:
+      tags:
+        - configuration
+      summary: Update organization configuration
+      description: Updates organization-wide configurable items for the caller's organization (restricted to organization admins only)
+      operationId: updateConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigInput'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
   /diagnosis/{system}:
     get:
       tags:
@@ -764,44 +804,6 @@ paths:
                 type: string
         400:
           $ref: '#/components/responses/BadRequest'
-
-  /config:
-    get:
-      tags:
-        - remediations
-      summary: Get organization configuration
-      description: Returns organization-wide configuration for the current organization
-      operationId: getConfig
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigResponse'
-    patch:
-      tags:
-        - remediations
-      summary: Update organization configuration
-      description: Updates organization-wide configuration for the current organization (organization admin only)
-      operationId: updateConfig
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ConfigInput'
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigResponse'
-        400:
-          $ref: '#/components/responses/BadRequest'
-        403:
-          $ref: '#/components/responses/Forbidden'
 
   /version:
     get:
@@ -1617,22 +1619,27 @@ components:
       additionalProperties: false
       x-remediations-strict: false
       description: >
-        Writable properties are plan_retention_days and plan_warning_days. When both are omitted,
-        the resolved values (from stored configuration or service defaults) are persisted. If only one
-        property is sent, the other uses the existing organization value when set; otherwise service-wide
-        defaults apply.
+        To set one or more of the organization-wide config values, send the desired value(s) in the request body. 
+        Include the properties that you want to set and omit the ones that you want to leave as is (whether that's the current saved value or the default value).
+        
+        Ommitting a property will not reset it to the default value, it will just leave it as is. If you want to reset a property to
+        it's default value, include it in the request body with the default value for that property.
       properties:
         plan_retention_days:
           type: integer
           minimum: 1
           maximum: 365
-          description: Days of plan inactivity after which a plan is treated as expired.
+          description: >
+            If a plan isn't updated or executed within this many days, it will be treated as expired.
+            Default value is 120 days.
           example: 90
         plan_warning_days:
           type: integer
           minimum: 1
           maximum: 365
-          description: Days before plan expiration when a warning is shown.
+          description: >
+            If a plan is within this many days of being expired, a warning will be shown.
+            Default value is 30 days.
           example: 14
 
     RemediationsList:
@@ -1714,15 +1721,14 @@ components:
     ConfigResponse:
       type: object
       additionalProperties: false
-      description: Organization configuration for the current organization
       required: [data]
       properties:
         data:
           type: object
           additionalProperties: false
           description: >
-            Values reflect stored organization configuration when available. If there are no stored values,
-            default values are plan_retention_days = 120, plan_warning_days = 30.
+            Returns the current organization-wide config values.
+            All properties will be included in the response whether they are custom values or default values.
           required: [plan_retention_days, plan_warning_days]
           properties:
             plan_retention_days:
