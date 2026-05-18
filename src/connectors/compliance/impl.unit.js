@@ -157,8 +157,9 @@ describe('compliance impl', function () {
 
         await expect(impl.getRule('unknown-rule', 'xccdf_org.ssgproject.content_benchmark_RHEL-8', '0.0.0')).resolves.toBeNull();
 
-        http.callCount.should.equal(2);
-        cache.get.callCount.should.equal(2);
+        // 404 on first call (buildV2Uri) is caught and returns null immediately
+        http.callCount.should.equal(1);
+        cache.get.callCount.should.equal(1);
         // Note: No cache entries should be set for null results
     });
 

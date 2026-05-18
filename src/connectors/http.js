@@ -34,7 +34,6 @@ function doHttp (options, cached, metrics) {
             case 207:
             case 304: return res;
             case 403: throw new errors.Forbidden("Access denied.");
-            case 404: return null;
             default: throw new StatusCodeError(res.statusCode, opts, res.body);
         }
     });
@@ -65,7 +64,7 @@ function saveCachedEntry (redis, key, etag, body) {
     }));
 }
 
-async function run (options, useCache = false, metrics = false, responseTransformer = res => res === null ? null : res.body) {
+async function run (options, useCache = false, metrics = false, responseTransformer = res => res.body) {
     if (!useCache || !config.redis.enabled || cache.get().status !== 'ready') {
         metrics && metrics.miss.inc();
         return doHttp(options, false, metrics).then(responseTransformer);
@@ -90,14 +89,17 @@ async function run (options, useCache = false, metrics = false, responseTransfor
     }
 
     metrics && metrics.miss.inc();
-    const res = await doHttp(options, cached, metrics);
 
-    if (!res) { // 404
-        if (cached) {
+    let res;
+    try {
+        res = await doHttp(options, cached, metrics);
+    } catch (e) {
+        // On 404, invalidate cache if it exists
+        if (e instanceof StatusCodeError && e.statusCode === 404 && cached) {
             cache.get().del(key);
         }
 
-        return null;
+        throw e;
     }
 
     if (res.statusCode === 304) {

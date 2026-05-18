@@ -4,6 +4,8 @@ const impl = require('./impl');
 const base = require('../../test');
 const { mockRequest, mockCache } = require('../testUtils');
 const request = require('../../util/request');
+const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 
 /* eslint-disable max-len */
 describe('vulnerabilities impl', function () {
@@ -59,7 +61,7 @@ describe('vulnerabilities impl', function () {
             cache.setex.callCount.should.equal(0);
         });
 
-        test('returns empty array on 404', async function () {
+        test('returns empty array on empty response', async function () {
             const cache = mockCache();
 
             const http = base.getSandbox().stub(request, 'run').resolves({
@@ -83,6 +85,14 @@ describe('vulnerabilities impl', function () {
             http.callCount.should.equal(1);
             cache.get.callCount.should.equal(0);
             cache.setex.callCount.should.equal(0);
+        });
+
+        test('returns empty array on 404', async function () {
+            base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, {})
+            );
+
+            await expect(impl.getSystems('unknown-rule')).resolves.toEqual([]);
         });
     });
 
@@ -123,7 +133,7 @@ describe('vulnerabilities impl', function () {
             resolution.should.have.property('version', 'unknown');
         });
 
-        test('returns empty array on 404', async function () {
+        test('returns empty array on empty response', async function () {
             const cache = mockCache();
 
             const http = base.getSandbox().stub(request, 'run').resolves({
@@ -147,6 +157,14 @@ describe('vulnerabilities impl', function () {
             http.callCount.should.equal(1);
             cache.get.callCount.should.equal(0);
             cache.setex.callCount.should.equal(0);
+        });
+
+        test('returns empty array on 404', async function () {
+            base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, {})
+            );
+
+            await expect(impl.getResolutions('unknown-rule')).resolves.toEqual([]);
         });
     });
 });

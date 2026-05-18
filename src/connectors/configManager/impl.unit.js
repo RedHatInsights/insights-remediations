@@ -2,6 +2,8 @@
 
 const impl = require('./impl');
 const base = require('../../test');
+const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 const { mockRequest } = require('../testUtils');
 const request = require('../../util/request');
 const errors = require('../../errors');
@@ -58,6 +60,14 @@ describe('config manager impl', function () {
         test('status code handling', async function () {
             base.mockRequestStatusCode();
             await expect(impl.getCurrentProfile()).rejects.toThrow(errors.DependencyError);
+        });
+
+        test('returns null on 404', async function () {
+            base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+                new StatusCodeError(404, {}, {})
+            );
+
+            await expect(impl.getCurrentProfile()).resolves.toBeNull();
         });
     });
 });

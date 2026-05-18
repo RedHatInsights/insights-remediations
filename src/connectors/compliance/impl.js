@@ -7,6 +7,7 @@ const errors = require('../../errors');
 const {host, insecure, revalidationInterval} = require('../../config').compliance;
 
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 const metrics = require('../metrics');
 
 module.exports = new class extends Connector {
@@ -49,6 +50,11 @@ module.exports = new class extends Connector {
                 // In Compliance api v2, rule info is directly under data
                 return _.get(result, 'data') || null;
             } catch (error) {
+                // 404 means rule not found, return null
+                if (error instanceof StatusCodeError && error.statusCode === 404) {
+                    return null;
+                }
+
                 if (i === retries) throw error;
             }
         }

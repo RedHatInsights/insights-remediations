@@ -2,6 +2,7 @@
 
 const URI = require('urijs');
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 const metrics = require('../metrics');
 const assert = require('assert');
 const trace = require('../../util/trace');
@@ -15,7 +16,7 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    getTemplate (platform, profile, rule) {
+    async getTemplate (platform, profile, rule) {
         trace.enter('ssg_impl.getTemplate');
         const uri = new URI(host);
         uri.segment('/playbooks');
@@ -26,16 +27,26 @@ module.exports = new class extends Connector {
 
         trace.event(`Fetching: ${platform}|${profile}|${rule}`);
 
-        const result = this.doHttp(
-            { uri: uri.toString() },
-            {
-                key: `remediations|http-cache|ssg|${uri.path()}`,
-                revalidationInterval
-            },
-            this.metrics,
-            // eslint-disable-next-line security/detect-object-injection
-            res => res === null ? null : ({template: res.body, version: res.headers[VERSION_HEADER]})
-        );
+        let result;
+        try {
+            result = await this.doHttp(
+                { uri: uri.toString() },
+                {
+                    key: `remediations|http-cache|ssg|${uri.path()}`,
+                    revalidationInterval
+                },
+                this.metrics,
+                // eslint-disable-next-line security/detect-object-injection
+                res => ({template: res.body, version: res.headers[VERSION_HEADER]})
+            );
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                trace.leave();
+                return null;
+            }
+
+            throw e;
+        }
 
         trace.leave();
 

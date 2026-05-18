@@ -3,33 +3,59 @@
 const _ = require('lodash');
 const Connector = require('../Connector');
 const generator = require('./systemGenerator');
+const errors = require('../../errors');
+
+// Helper to create UNKNOWN_SYSTEM error with notFoundIds (matches http.js behavior)
+function createUnknownSystemError(notFoundIds) {
+    const err = new errors.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${notFoundIds.join(', ')}"`);
+    err.notFoundIds = notFoundIds;
+    return err;
+}
 
 module.exports = new class extends Connector {
     constructor () {
         super(module);
     }
 
-    getSystemDetailsBatch (systems) {
+    getSystemDetailsBatch (systems, refresh = false, retries = 2, strict = true) {
+        // Check for non-existent systems first (new Inventory behavior)
+        const notFoundIds = systems.filter(id => generator.generateSystem(id) === null);
+        
+        if (notFoundIds.length > 0 && strict) {
+            return Promise.reject(createUnknownSystemError(notFoundIds));
+        }
+
+        // If strict=false, filter out missing systems instead of throwing
         return Promise.resolve(_(systems)
         .keyBy()
         .mapValues(generator.generateSystem)
-        .pickBy()
+        .pickBy() // removes null values (non-existent systems)
         .value());
     }
 
     getSystemInfoBatch (systems) {
+        // Check for non-existent systems first (new Inventory behavior)
+        const notFoundIds = systems.filter(id => generator.generateSystemInfo(id) === null);
+        if (notFoundIds.length > 0) {
+            return Promise.reject(createUnknownSystemError(notFoundIds));
+        }
+
         return Promise.resolve(_(systems)
             .keyBy()
             .mapValues(generator.generateSystemInfo)
-            .pickBy()
             .value());
     }
 
     getSystemProfileBatch (systems) {
+        // Check for non-existent systems first (new Inventory behavior)
+        const notFoundIds = systems.filter(id => generator.generateSystemProfile(id) === null);
+        if (notFoundIds.length > 0) {
+            return Promise.reject(createUnknownSystemError(notFoundIds));
+        }
+
         return Promise.resolve(_(systems)
         .keyBy()
         .mapValues(generator.generateSystemProfile)
-        .pickBy()
         .value());
     }
 

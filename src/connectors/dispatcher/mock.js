@@ -360,12 +360,31 @@ module.exports = new class extends Connector {
                 };
             }
 
-            if (!_.isUndefined(filter.filter.run.id)) {
+            if (!_.isUndefined(filter.filter.run?.id)) {
                 return {
                     meta: {
                         count: 1
                     },
                     data: [RUNHOSTS[filter.filter.run.id]]
+                };
+            }
+
+            // Handle filtering by playbook-run label (returns all hosts for that playbook run)
+            if (!_.isUndefined(filter.filter.run?.labels?.['playbook-run'])) {
+                const playbookRunId = filter.filter.run.labels['playbook-run'];
+                const runs = RUNS[playbookRunId];
+                if (!runs) {
+                    return { meta: { count: 0 }, data: [] };
+                }
+                // Get all run IDs that have this playbook-run label
+                const runIds = runs.map(run => run.id);
+                // Return all hosts whose run.id is in that list
+                const hostsData = runIds.map(runId => RUNHOSTS[runId]).filter(Boolean);
+                return {
+                    meta: {
+                        count: hostsData.length
+                    },
+                    data: hostsData
                 };
             }
         }

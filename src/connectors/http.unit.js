@@ -115,11 +115,10 @@ describe('connector caching', function () {
         base.sandbox.spy(MOCK_CACHE, 'setex');
         base.sandbox.spy(MOCK_CACHE, 'del');
 
-        const result = await http.request({
+        await expect(http.request({
             uri: 'https://example.com'
-        }, true);
+        }, true)).rejects.toBeInstanceOf(StatusCodeError);
 
-        expect(result).toBeNull();
         MOCK_CACHE.get.callCount.should.equal(1);
         request.run.callCount.should.equal(1);
         MOCK_CACHE.setex.callCount.should.equal(0);
@@ -157,11 +156,10 @@ describe('connector caching', function () {
         });
         base.sandbox.spy(MOCK_CACHE, 'setex');
 
-        const result = await http.request({
+        await expect(http.request({
             uri: 'https://example.com'
-        }, true);
+        }, true)).rejects.toBeInstanceOf(StatusCodeError);
 
-        expect(result).toBeNull();
         MOCK_CACHE.get.callCount.should.equal(1);
         request.run.callCount.should.equal(1);
         MOCK_CACHE.setex.callCount.should.equal(0);
@@ -204,9 +202,9 @@ describe('connector caching', function () {
         });
         base.sandbox.stub(MOCK_CACHE, 'setex').resolves(null);
 
-        await http.request({
+        await expect(http.request({
             uri: 'https://example.com'
-        });
+        })).rejects.toBeInstanceOf(StatusCodeError);
 
         MOCK_CACHE.get.callCount.should.equal(0);
         request.run.callCount.should.equal(1);

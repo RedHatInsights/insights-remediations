@@ -5,6 +5,7 @@ const path = require('path');
 const URI = require('urijs');
 const assert = require('assert');
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 
 const {host, insecure, auth, env, clientId, revalidationInterval, testAccount} = require('../../config').users;
 
@@ -25,28 +26,36 @@ module.exports = new class extends Connector {
         const uri = new URI(host);
         uri.path('/v1/users');
 
-        const result = await this.doHttp({
-            uri: uri.toString(),
-            method: 'POST',
-            json: true,
-            ca,
-            cert,
-            rejectUnauthorized: !insecure,
-            headers: {
-                'x-rh-apitoken': auth,
-                'x-rh-insights-env': env,
-                'x-rh-clientid': clientId,
-                ...this.getForwardedHeaders(false)
-            },
-            body: {
-                users: [id]
+        let result;
+        try {
+            result = await this.doHttp({
+                uri: uri.toString(),
+                method: 'POST',
+                json: true,
+                ca,
+                cert,
+                rejectUnauthorized: !insecure,
+                headers: {
+                    'x-rh-apitoken': auth,
+                    'x-rh-insights-env': env,
+                    'x-rh-clientid': clientId,
+                    ...this.getForwardedHeaders(false)
+                },
+                body: {
+                    users: [id]
+                }
+            }, {
+                refresh,
+                key: `remediations|http-cache|users|${id}`,
+                revalidationInterval,
+                cacheable: body => body.length === 1 // only cache responses with exactly 1 match
+            }, this.metrics);
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return null;
             }
-        }, {
-            refresh,
-            key: `remediations|http-cache|users|${id}`,
-            revalidationInterval,
-            cacheable: body => body.length === 1 // only cache responses with exactly 1 match
-        }, this.metrics);
+            throw e;
+        }
 
         if (result.length !== 1) {
             return null;

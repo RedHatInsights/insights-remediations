@@ -3,6 +3,7 @@
 const impl = require('./impl');
 const base = require('../../test');
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 const cls = require("../../util/cls");
 const { mockRequest, mockCache } = require('../testUtils');
 const request = require('../../util/request');
@@ -104,5 +105,13 @@ describe('users impl', function () {
     test('status code handling', async function () {
         base.mockRequestStatusCode();
         await expect(impl.getUser('someUsername')).rejects.toThrow(errors.DependencyError);
+    });
+
+    test('returns null on 404', async function () {
+        base.getSandbox().stub(Connector.prototype, 'doHttp').rejects(
+            new StatusCodeError(404, {}, {})
+        );
+
+        await expect(impl.getUser('someUsername')).resolves.toBeNull();
     });
 });

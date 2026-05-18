@@ -6,6 +6,7 @@ const assert = require('assert');
 
 const {host, auth, insecure, revalidationInterval} = require('../../config').contentServer;
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 const metrics = require('../metrics');
 
 module.exports = new class extends Connector {
@@ -34,12 +35,20 @@ module.exports = new class extends Connector {
             };
         }
 
-        const resolutions = await this.doHttp(options, {
-            refresh,
-            revalidationInterval,
-            cacheable: body => body.length > 0 // only cache responses with resolutions
-        },
-        this.metrics);
+        let resolutions;
+        try {
+            resolutions = await this.doHttp(options, {
+                refresh,
+                revalidationInterval,
+                cacheable: body => body.length > 0 // only cache responses with resolutions
+            },
+            this.metrics);
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return [];
+            }
+            throw e;
+        }
 
         return _(resolutions)
         .filter(resolution => resolution.play) // workaround for https://issues.redhat.com/browse/ADVISOR-1728

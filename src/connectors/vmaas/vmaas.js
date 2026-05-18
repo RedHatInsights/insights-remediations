@@ -5,6 +5,7 @@ const _ = require('lodash');
 const { host, revalidationInterval } = require('../../config').vmaas;
 const URI = require('urijs');
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 const metrics = require('../metrics');
 const trace = require('../../util/trace');
 
@@ -14,21 +15,28 @@ module.exports = new class extends Connector {
         this.metrics = metrics.createConnectorMetric(this.getName());
     }
 
-    getErratum (id) {
+    async getErratum (id) {
         const uri = new URI(host);
         uri.path('/api/vmaas/v3/errata');
         uri.segment(id);
 
-        return this.doHttp({
-            uri: uri.toString(),
-            method: 'GET',
-            json: true,
-            headers: this.getForwardedHeaders(false)
-        }, false)
-        .then(res => _.get(res, ['errata_list', id], null));
+        try {
+            const res = await this.doHttp({
+                uri: uri.toString(),
+                method: 'GET',
+                json: true,
+                headers: this.getForwardedHeaders(false)
+            }, false);
+            return _.get(res, ['errata_list', id], null);
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return null;
+            }
+            throw e;
+        }
     }
 
-    getCve (id, refresh = false) {
+    async getCve (id, refresh = false) {
         trace.enter('connectors/vmaas/vmaas.getCve');
 
         const uri = new URI(host);
@@ -51,34 +59,45 @@ module.exports = new class extends Connector {
         trace.event(`GET options: ${options}`);
         trace.event(`GET caching: ${caching}`);
 
-        const promise = this.doHttp(options, caching, this.metrics)
-            .then(res => {
-                trace.event(`Got data back!`);
-                return _.get(res, ['cve_list', id], null);
-            });
-
-        trace.leave(`Returning promise: ${JSON.stringify(promise)}`);
-        return promise;
+        try {
+            const res = await this.doHttp(options, caching, this.metrics);
+            trace.event(`Got data back!`);
+            trace.leave();
+            return _.get(res, ['cve_list', id], null);
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                trace.leave('Not found (404)');
+                return null;
+            }
+            throw e;
+        }
     }
 
-    getPackage (id, refresh = false) {
+    async getPackage (id, refresh = false) {
         const uri = new URI(host);
         uri.path('/api/vmaas/v3/packages');
         uri.segment(id);
 
-        return this.doHttp({
-            uri: uri.toString(),
-            method: 'GET',
-            json: true,
-            headers: this.getForwardedHeaders(false)
-        },
-        {
-            refresh,
-            revalidationInterval,
-            cacheable: body => body.pages === 1 // only cache responses with exactly 1 match
-        },
-        this.metrics
-        ).then(res => _.get(res, ['package_list', id], null));
+        try {
+            const res = await this.doHttp({
+                uri: uri.toString(),
+                method: 'GET',
+                json: true,
+                headers: this.getForwardedHeaders(false)
+            },
+            {
+                refresh,
+                revalidationInterval,
+                cacheable: body => body.pages === 1 // only cache responses with exactly 1 match
+            },
+            this.metrics);
+            return _.get(res, ['package_list', id], null);
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return null;
+            }
+            throw e;
+        }
     }
 
     async ping () {

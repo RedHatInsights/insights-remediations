@@ -4,6 +4,7 @@ const _ = require('lodash');
 const assert = require('assert');
 
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 const {host, insecure, revalidationInterval} = require('../../config').advisor;
 const metrics = require('../metrics');
 const config = require('../../config');
@@ -25,24 +26,32 @@ module.exports = new class extends Connector {
         return this.buildUri(host, 'advisor', 'v1');
     }
 
-    getRule (id, refresh = false) {
+    async getRule (id, refresh = false) {
         const uri = this.buildBaseUri(host, 'advisor', 'v1');
         uri.segment('rule');
         uri.segment(id);
 
-        return this.doHttp({
-            uri: uri.toString(),
-            method: 'GET',
-            json: true,
-            rejectUnauthorized: !insecure,
-            headers: {
-                ...this.getForwardedHeaders()
+        try {
+            return await this.doHttp({
+                uri: uri.toString(),
+                method: 'GET',
+                json: true,
+                rejectUnauthorized: !insecure,
+                headers: {
+                    ...this.getForwardedHeaders()
+                }
+            }, {
+                refresh,
+                revalidationInterval
+            },
+            this.ruleMetrics);
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return null;
             }
-        }, {
-            refresh,
-            revalidationInterval
-        },
-        this.ruleMetrics);
+
+            throw e;
+        }
     }
 
     async getDiagnosis (system, branchId = null) {
@@ -56,18 +65,23 @@ module.exports = new class extends Connector {
             uri.query({branch_id: branchId});
         }
 
-        const data = await this.doHttp({
-            uri: uri.toString(),
-            method: 'GET',
-            json: true,
-            rejectUnauthorized: !insecure,
-            headers: {
-                ...this.getForwardedHeaders()
+        let data;
+        try {
+            data = await this.doHttp({
+                uri: uri.toString(),
+                method: 'GET',
+                json: true,
+                rejectUnauthorized: !insecure,
+                headers: {
+                    ...this.getForwardedHeaders()
+                }
+            }, false, this.diagnosisMetrics);
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return {};
             }
-        }, false, this.diagnosisMetrics);
 
-        if (!data) {
-            return {};
+            throw e;
         }
 
         return _(data)
@@ -93,18 +107,23 @@ module.exports = new class extends Connector {
         uri.segment(id);
         uri.segment('systems');
 
-        const data = await this.doHttp({
-            uri: uri.toString(),
-            method: 'GET',
-            json: true,
-            rejectUnauthorized: !insecure,
-            headers: this.getForwardedHeaders()
-        },
-        false,
-        this.systemsMetrics);
+        let data;
+        try {
+            data = await this.doHttp({
+                uri: uri.toString(),
+                method: 'GET',
+                json: true,
+                rejectUnauthorized: !insecure,
+                headers: this.getForwardedHeaders()
+            },
+            false,
+            this.systemsMetrics);
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                return [];
+            }
 
-        if (!data) {
-            return [];
+            throw e;
         }
 
         return data.host_ids;

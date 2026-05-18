@@ -466,6 +466,104 @@ exports.get = async function (id, tenant_org_id, created_by = null, includeResol
     }
 };
 
+/**
+ * Gets counts and remediation metadata for `GET /v1/remediations/:id?format=summary`.
+ *
+ * Loads the remediation row plus aggregates: total issue count, distinct system count across those issues,
+ * and per-issue-type counts (issue_id prefix before `:`).
+ *
+ * Lightweight because it does not load issues or issue-system rows.
+ *
+ * @returns {Promise<object|null>} `null` if no remediation matches. Otherwise a plain object like:
+ * @example
+ * {
+ *   id: '9197ba55-0abc-4028-9bbe-269e530f8bd5',
+ *   name: 'Fix Critical CVEs',
+ *   auto_reboot: true,
+ *   archived: false,
+ *   account_number: '1234567',
+ *   tenant_org_id: '5318290',
+ *   created_by: 'user@redhat.com',
+ *   created_at: '2018-12-05T08:19:36.641Z',
+ *   updated_by: 'user@redhat.com',
+ *   updated_at: '2018-12-05T08:19:36.641Z',
+ *   issue_count: 8,
+ *   system_count: 12,
+ *   issue_count_details: { advisor: 1, ssg: 1, 'patch-advisory': 1, vulnerabilities: 2 },
+ *   issues: undefined,
+ *   resolved_count: undefined
+ * }
+ * (`created_at` / `updated_at` are whatever `remediation.toJSON()` emits; `created_by` / `updated_by` are
+ * usernames until the controller runs `resolveUsers`.)
+ */
+exports.getSummary = async function (id, tenant_org_id, created_by = null) {
+    const { fn, col } = db.s;
+
+    const remediation = await db.remediation.findOne({
+        attributes: REMEDIATION_ATTRIBUTES,
+        where: {
+            id,
+            tenant_org_id,
+            ...(created_by ? { created_by } : {})
+        }
+    });
+
+    if (!remediation) {
+        return null;
+    }
+
+    const [issue_count, system_count, issueCountsGroupedByType] = await Promise.all([
+        db.issue.count({ where: { remediation_id: id } }),
+        db.issue_system.count({
+            distinct: true,
+            col: 'system_id',
+            include: [{
+                model: db.issue,
+                attributes: [],
+                required: true,
+                where: { remediation_id: id }
+            }]
+        }),
+        db.issue.findAll({
+            attributes: [
+                [fn('split_part', col('issue_id'), ':', 1), 'issue_type'],
+                [fn('COUNT', col('id')), 'count']
+            ],
+            where: { remediation_id: id },
+            group: [fn('split_part', col('issue_id'), ':', 1)],
+            raw: true
+        })
+    ]);
+
+    const issue_count_details = {};
+    for (const row of issueCountsGroupedByType) {
+        issue_count_details[row.issue_type] = Number(row.count);
+    }
+
+    return {
+        ...remediation.toJSON(),
+        issue_count,
+        system_count,
+        issue_count_details,
+        issues: undefined,
+        resolved_count: undefined
+    };
+};
+
+// Return `{ id }` when id, tenant_org_id, and created_by match (remediation exists).
+// Return null if no remediation matches (does not exist or wrong scope).
+exports.checkExecutable = async function (id, tenant_org_id, created_by) {
+    return db.remediation.findOne({
+        attributes: ['id'],
+        where: {
+            id,
+            tenant_org_id,
+            created_by
+        },
+        raw: true
+    });
+};
+
 // Fetch issues and systems from the specified remediation plan, with optional sorting and filtering by issue name
 exports.getIssues = async function (remediation_plan_id, tenant_org_id, created_by = null, issue_name = null, asc = true) {
     const query = {
@@ -535,6 +633,27 @@ exports.getIssueSystems = function (id, tenant_org_id, created_by, issueId) {
     });
 };
 
+// Fetch missing system details from inventory service and store in systems table
+async function fetch_missing_system_data(missingIds) {
+    // just being diligent and validating our input parameters...
+    if (missingIds.length === 0) {
+        return;
+    }
+
+    const systemDetails = await inventory.getSystemDetailsBatch(missingIds);
+    const remediationSystems = Object.values(systemDetails).map(system => ({
+        id: system.id,
+        hostname: system.hostname || null,
+        display_name: system.display_name || null,
+        ansible_hostname: system.ansible_host || null
+    }));
+
+    if (remediationSystems.length > 0) {
+        await db.systems.bulkCreate(remediationSystems, {
+            updateOnDuplicate: ['hostname', 'display_name', 'ansible_hostname', 'updated_at']
+        });
+    }
+}
 
 // Return a paginated, sorted list of distinct systems for a remediation plan
 exports.getPlanSystems = async function (
@@ -572,6 +691,19 @@ exports.getPlanSystems = async function (
     if (distinctSystemIds.length === 0) {
         return { count: 0, rows: [] };
     }
+
+    // If there are systems that don't exist in the systems table yet,
+    // fall back to calling Inventory to retrieve and store system info first
+    const existingSystems = await db.systems.findAll({
+        attributes: ['id'],
+        where: { id: { [Op.in]: distinctSystemIds } },
+        raw: true
+    });
+    const existingIds = _.map(existingSystems, 'id');
+    const missingIds = _.difference(distinctSystemIds, existingIds);
+
+    // If there are missing systems, fetch their details from inventory service
+    await fetch_missing_system_data(missingIds);
 
     const where = { [Op.and]: [{ id: { [Op.in]: distinctSystemIds } }] };
 
@@ -689,6 +821,18 @@ exports.getPlanSystemsDetails = async function (inventoryIds, chunkSize = 50) {
     if (!inventoryIds || inventoryIds.length === 0) {
         return {};
     }
+
+    // Check which systems already exist in the systems table
+    const existingSystems = await db.systems.findAll({
+        attributes: ['id'],
+        where: { id: inventoryIds },
+        raw: true
+    });
+    const existingIds = existingSystems.map(s => s.id);
+    const missingIds = _.difference(inventoryIds, existingIds);
+
+    // Fetch missing system details from inventory service and store them
+    await fetch_missing_system_data(missingIds);
 
     const result = {};
 
@@ -867,6 +1011,20 @@ exports.updateDispatcherRuns = async function (dispatcherRunId, remediationsRunI
             }
         }
     );
+};
+
+/**
+ * Status and timestamps for a dispatcher run when we already know its id (e.g. from run_hosts).
+ */
+exports.getDispatcherRunForPlaybookRun = async function (remediations_run_id, dispatcher_run_id) {
+    const row = await db.dispatcher_runs.findOne({
+        where: { remediations_run_id, dispatcher_run_id },
+        attributes: ['status', 'updated_at']
+    });
+    if (!row) {
+        return null;
+    }
+    return { status: row.status, updated_at: row.updated_at };
 };
 
 exports.getPlaybookRunsWithDispatcherCounts = async function (playbookRunIds) {

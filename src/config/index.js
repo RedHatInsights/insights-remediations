@@ -136,7 +136,7 @@ function Config() {
         contentServer: {
             impl: env.CONTENT_SERVER_IMPL,
             auth: env.CONTENT_SERVER_AUTH || '',
-            insecure: (env.CONTENT_SERVER_INSECURE === 'false') ? false : true,
+            insecure: (env.CONTENT_SERVER_INSECURE === 'true') ? true : false,
             revalidationInterval: parseIntEnv('CONTENT_SERVER_REVALIDATION_INTERVAL', 60 * 60) // 1 hour
         },
 
@@ -245,8 +245,11 @@ function Config() {
             refreshInterval: parseIntEnv('FEATURE_FLAGS_REFRESH_INTERVAL', 15000), // 15 seconds
             metricsInterval: parseIntEnv('FEATURE_FLAGS_METRICS_INTERVAL', 60000) // 60 seconds
         },
-        // remediation plan retention policy (in days)
-        planRetentionDays: parseIntEnv('PLAN_RETENTION_DAYS', 270) // 9 months (9 * 30 days)
+
+        plan_retention: {
+            retentionDays: parseIntEnv('PLAN_RETENTION_DAYS', 120), // days of inactivity before plan expiration
+            warningDays: parseIntEnv('PLAN_WARNING_DAYS', 30) // days before expiration to show warning
+        }
     };
 
     if (acgConfig) {
@@ -359,18 +362,4 @@ if (['development', 'production', 'test'].includes(config.env)) {
     }
 }
 
-/**
- * Returns configuration values that should be exposed to the client.
- *
- * IMPORTANT: This function explicitly constructs the exposed config object.
- * Only add values here that are safe to expose publicly.
- * Do NOT copy/paste from the main config without careful consideration.
- */
-function getExposedConfig() {
-    return {
-        planRetentionDays: config.planRetentionDays
-    };
-}
-
 module.exports = config;
-module.exports.getExposedConfig = getExposedConfig;

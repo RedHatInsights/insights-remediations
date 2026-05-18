@@ -27,4 +27,16 @@ describe('ssg impl', function () {
         expect(template).toMatchSnapshot();
         http.callCount.should.equal(1);
     });
+
+    test('returns null on 404', async function () {
+        const http = base.getSandbox().stub(request, 'run').resolves({
+            statusCode: 404,
+            body: 'Not Found',
+            headers: {}
+        });
+
+        const result = await impl.getTemplate('rhel7', 'standard', 'unknown_rule');
+        expect(result).toBeNull();
+        http.callCount.should.equal(1);
+    });
 });

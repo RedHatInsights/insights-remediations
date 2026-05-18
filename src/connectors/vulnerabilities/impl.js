@@ -4,6 +4,7 @@ const _ = require('lodash');
 const assert = require('assert');
 
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 const {host, insecure, pageSize} = require('../../config').vulnerabilities;
 const metrics = require('../metrics');
 const trace = require('../../util/trace');
@@ -33,15 +34,23 @@ module.exports = new class extends Connector {
         do {
             // grab a page
             trace.event(`Fetch ${uri}`);
-            const batch = await this.doHttp({
-                    uri: uri,
-                    method: 'GET',
-                    json: true,
-                    rejectUnauthorized: !insecure,
-                    headers: this.getForwardedHeaders()
-                },
-                false,
-                this.systemsMetrics);
+            let batch;
+            try {
+                batch = await this.doHttp({
+                        uri: uri,
+                        method: 'GET',
+                        json: true,
+                        rejectUnauthorized: !insecure,
+                        headers: this.getForwardedHeaders()
+                    },
+                    false,
+                    this.systemsMetrics);
+            } catch (e) {
+                if (e instanceof StatusCodeError && e.statusCode === 404) {
+                    break;
+                }
+                throw e;
+            }
 
             // bail if we got nothing back
             if (!batch) {
@@ -79,10 +88,19 @@ module.exports = new class extends Connector {
 
         trace.event(`GET options: ${JSON.stringify(options)}`);
 
-        const resolutions = await this.doHttp(
-        options,
-        false,
-        this.systemsMetrics);
+        let resolutions;
+        try {
+            resolutions = await this.doHttp(
+                options,
+                false,
+                this.systemsMetrics);
+        } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                trace.leave('No resolutions found (404)!');
+                return [];
+            }
+            throw e;
+        }
 
         if (!resolutions) {
             trace.leave('No resolutions found!');

@@ -8,6 +8,7 @@ const log = require('../../util/log');
 const {host, insecure, revalidationInterval} = require('../../config').compliance;
 
 const Connector = require('../Connector');
+const StatusCodeError = require('../StatusCodeError');
 const metrics = require('../metrics');
 
 let REQUESTS = [];
@@ -67,6 +68,12 @@ module.exports = new class extends Connector {
                 copyPromises[i].resolve(results[i]);
             }
         } catch (e) {
+            if (e instanceof StatusCodeError && e.statusCode === 404) {
+                for (let i = 0; i < copyPromises.length ; ++i) {
+                    copyPromises[i].resolve(null);
+                }
+                return;
+            }
             log.error('Group Compliance fetch failed');
             throw e;
         }
