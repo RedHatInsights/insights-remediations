@@ -6,7 +6,7 @@ const config = require('../config');
 const rbac = require('../connectors/rbac');
 const { request, reqId, auth, getSandbox, buildRbacResponse } = require('../test');
 const { NON_EXISTENT_SYSTEM } = require('../connectors/inventory/mock');
-const uuid = require('uuid');
+const { randomUUID } = require('crypto');
 const db = require('../db');
 
 function testIssue (remediation, id, resolution, systems) {
@@ -207,7 +207,7 @@ describe('remediations', function () {
             const name = `new remediation with 20k systems`;
             const TOTAL_SYSTEMS = 20000;
             const BATCH_SIZE = 50;
-            const allSystems = _.times(TOTAL_SYSTEMS, () => uuid.v4());
+            const allSystems = _.times(TOTAL_SYSTEMS, () => randomUUID());
 
             // Create initial remediation with first batch
             const firstBatch = allSystems.slice(0, BATCH_SIZE);
@@ -255,7 +255,7 @@ describe('remediations', function () {
 
         test('does not create remediations with more than 50 unique systems', async () => {
             const name = 'remediation with too many systems';
-            const systems = _.times(51, () => uuid.v4());
+            const systems = _.times(51, () => randomUUID());
 
             const {body} = await request
             .post('/v1/remediations')
