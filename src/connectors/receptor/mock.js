@@ -1,7 +1,7 @@
 'use strict';
 
+const { randomUUID } = require('crypto');
 const Connector = require('../Connector');
-const uuid = require('uuid');
 
 const CONNECTION_STATUS = {status: 'connected'};
 
@@ -19,7 +19,7 @@ module.exports = new class extends Connector {
     }
 
     async postInitialRequest () {
-        return {id: uuid.v4()};
+        return {id: randomUUID()};
     }
 
     async ping () {

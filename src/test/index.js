@@ -3,7 +3,7 @@
 require('should');
 const sinon = require('sinon');
 const supertest = require('supertest');
-const uuid = require('uuid');
+const { randomUUID } = require('crypto');
 
 const app = require('../app');
 const config = require('../config');
@@ -156,7 +156,7 @@ exports.throw404 = () => {
 };
 
 exports.reqId = () => {
-    const id = uuid.v4();
+    const id = randomUUID();
 
     return {
         header: {
