@@ -759,6 +759,37 @@ paths:
         403:
           $ref: '#/components/responses/Forbidden'
 
+  /config/{field}:
+    delete:
+      tags:
+        - configuration
+      summary: Reset an organization-wide config field to its default value
+      description: >
+        Resets an organization-wide config field 
+        to its default value (restricted to organization admins only).
+      operationId: deleteConfigField
+      parameters:
+        - name: field
+          in: path
+          required: true
+          description: Config field to reset to the default value (`plan_retention_days` or `plan_warning_days`)
+          schema:
+            type: string
+            enum:
+              - plan_retention_days
+              - plan_warning_days
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
   /diagnosis/{system}:
     get:
       tags:
@@ -1619,11 +1650,11 @@ components:
       additionalProperties: false
       x-remediations-strict: false
       description: >
-        To set one or more of the organization-wide config values, send the desired value(s) in the request body. 
+        To set one or more of the organization-wide config values, include the desired value(s) in the request body. 
         Include the properties that you want to set and omit the ones that you want to leave as is (whether that's the current saved value or the default value).
-        
-        Ommitting a property will not reset it to the default value, it will just leave it as is. If you want to reset a property to
-        it's default value, include it in the request body with the default value for that property.
+
+        Ommitting a property will not reset it to the default value, it will just leave it as is. To reset a property to the default 
+        value, use `DELETE /config/{field}` (for example `DELETE /config/plan_retention_days`).
       properties:
         plan_retention_days:
           type: integer
@@ -1727,9 +1758,14 @@ components:
           type: object
           additionalProperties: false
           description: >
-            Returns the current organization-wide config values.
-            All properties will be included in the response whether they are custom values or default values.
-          required: [plan_retention_days, plan_warning_days]
+            Returns the current organization-wide config values and the default values
+            for each field. All properties will be included in the response so you can 
+            see which values are custom and which are the default.
+          required:
+            - plan_retention_days
+            - plan_warning_days
+            - default_plan_retention_days
+            - default_plan_warning_days
           properties:
             plan_retention_days:
               type: integer
@@ -1737,6 +1773,10 @@ components:
             plan_warning_days:
               type: integer
               example: 14
+            default_plan_retention_days:
+              type: integer
+            default_plan_warning_days:
+              type: integer
 
     RequestError:
       type: object

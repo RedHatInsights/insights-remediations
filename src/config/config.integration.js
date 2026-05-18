@@ -8,6 +8,15 @@ const { MOCK_USERS } = require('../connectors/users/mock');
 
 const TEST_USER = MOCK_USERS.testWriteUser;
 const TEST_ORG_ID = TEST_USER.tenant_org_id;
+
+function expectedConfigData(plan_retention_days, plan_warning_days) {
+    return {
+        plan_retention_days,
+        plan_warning_days,
+        default_plan_retention_days: config.plan_retention.retentionDays,
+        default_plan_warning_days: config.plan_retention.warningDays
+    };
+}
 const ADMIN_AUTH = {
     [identityUtils.IDENTITY_HEADER]: identityUtils.createIdentityHeader(
         TEST_USER.username,
@@ -37,10 +46,10 @@ describe('config endpoints', () => {
             .expect(200);
 
         body.should.eql({
-            data: {
-                plan_retention_days: config.plan_retention.retentionDays,
-                plan_warning_days: config.plan_retention.warningDays
-            }
+            data: expectedConfigData(
+                config.plan_retention.retentionDays,
+                config.plan_retention.warningDays
+            )
         });
     });
 
@@ -57,10 +66,7 @@ describe('config endpoints', () => {
             .expect(200);
 
         body.should.eql({
-            data: {
-                plan_retention_days: 90,
-                plan_warning_days: 14
-            }
+            data: expectedConfigData(90, 14)
         });
     });
 
@@ -91,10 +97,7 @@ describe('config endpoints', () => {
             .expect(200);
 
         body.should.eql({
-            data: {
-                plan_retention_days: 90,
-                plan_warning_days: 14
-            }
+            data: expectedConfigData(90, 14)
         });
 
         const saved = await db.org_config.findByPk(TEST_ORG_ID);
@@ -124,10 +127,7 @@ describe('config endpoints', () => {
             .expect(200);
 
         body.should.eql({
-            data: {
-                plan_retention_days: 45,
-                plan_warning_days: 7
-            }
+            data: expectedConfigData(45, 7)
         });
     });
 
@@ -153,10 +153,7 @@ describe('config endpoints', () => {
             .expect(200);
 
         body.should.eql({
-            data: {
-                plan_retention_days: 55,
-                plan_warning_days: config.plan_retention.warningDays
-            }
+            data: expectedConfigData(55, config.plan_retention.warningDays)
         });
     });
 
@@ -168,10 +165,10 @@ describe('config endpoints', () => {
             .expect(200);
 
         body.should.eql({
-            data: {
-                plan_retention_days: config.plan_retention.retentionDays,
-                plan_warning_days: config.plan_retention.warningDays
-            }
+            data: expectedConfigData(
+                config.plan_retention.retentionDays,
+                config.plan_retention.warningDays
+            )
         });
 
         const saved = await db.org_config.findByPk(TEST_ORG_ID);
@@ -193,10 +190,73 @@ describe('config endpoints', () => {
             .expect(200);
 
         body.should.eql({
-            data: {
-                plan_retention_days: 90,
-                plan_warning_days: 21
-            }
+            data: expectedConfigData(90, 21)
+        });
+    });
+
+    test('DELETE /config/:field returns 403 for non-admin users', async () => {
+        await request
+            .delete('/v1/config/plan_retention_days')
+            .set(auth.testWrite)
+            .expect(403);
+    });
+
+    test('DELETE /config/:field resets plan_retention_days to default; warning unchanged', async () => {
+        await db.org_config.upsert({
+            org_id: TEST_ORG_ID,
+            plan_retention_days: 90,
+            plan_warning_days: 14
+        });
+
+        const { body } = await request
+            .delete('/v1/config/plan_retention_days')
+            .set(ADMIN_AUTH)
+            .expect(200);
+
+        body.should.eql({
+            data: expectedConfigData(config.plan_retention.retentionDays, 14)
+        });
+
+        const saved = await db.org_config.findByPk(TEST_ORG_ID);
+        saved.plan_retention_days.should.equal(config.plan_retention.retentionDays);
+        saved.plan_warning_days.should.equal(14);
+    });
+
+    test('DELETE /config/:field updates row when both fields are at defaults after reset', async () => {
+        await db.org_config.upsert({
+            org_id: TEST_ORG_ID,
+            plan_retention_days: config.plan_retention.retentionDays,
+            plan_warning_days: 10
+        });
+
+        const { body } = await request
+            .delete('/v1/config/plan_warning_days')
+            .set(ADMIN_AUTH)
+            .expect(200);
+
+        body.should.eql({
+            data: expectedConfigData(
+                config.plan_retention.retentionDays,
+                config.plan_retention.warningDays
+            )
+        });
+
+        const saved = await db.org_config.findByPk(TEST_ORG_ID);
+        saved.plan_retention_days.should.equal(config.plan_retention.retentionDays);
+        saved.plan_warning_days.should.equal(config.plan_retention.warningDays);
+    });
+
+    test('DELETE /config/:field when no org row returns deployment defaults', async () => {
+        const { body } = await request
+            .delete('/v1/config/plan_retention_days')
+            .set(ADMIN_AUTH)
+            .expect(200);
+
+        body.should.eql({
+            data: expectedConfigData(
+                config.plan_retention.retentionDays,
+                config.plan_retention.warningDays
+            )
         });
     });
 });

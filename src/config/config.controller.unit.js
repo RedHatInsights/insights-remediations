@@ -8,6 +8,15 @@ const db = require('../db');
 const config = require('../config');
 const errors = require('../errors');
 
+function expectedConfigData(plan_retention_days, plan_warning_days) {
+    return {
+        plan_retention_days,
+        plan_warning_days,
+        default_plan_retention_days: config.plan_retention.retentionDays,
+        default_plan_warning_days: config.plan_retention.warningDays
+    };
+}
+
 describe('config controller unit tests', function () {
     let sandbox;
 
@@ -75,10 +84,7 @@ describe('config controller unit tests', function () {
             await controller.get(req, res);
 
             sinon.assert.calledWithExactly(res.json, {
-                data: {
-                    plan_retention_days: 90,
-                    plan_warning_days: 14
-                }
+                data: expectedConfigData(90, 14)
             });
         });
 
@@ -96,10 +102,10 @@ describe('config controller unit tests', function () {
             await controller.get(req, res);
 
             sinon.assert.calledWithExactly(res.json, {
-                data: {
-                    plan_retention_days: config.plan_retention.retentionDays,
-                    plan_warning_days: config.plan_retention.warningDays
-                }
+                data: expectedConfigData(
+                    config.plan_retention.retentionDays,
+                    config.plan_retention.warningDays
+                )
             });
         });
     });
@@ -129,10 +135,7 @@ describe('config controller unit tests', function () {
                 plan_warning_days: 20
             });
             sinon.assert.calledWithExactly(res.json, {
-                data: {
-                    plan_retention_days: 100,
-                    plan_warning_days: 20
-                }
+                data: expectedConfigData(100, 20)
             });
         });
 
@@ -192,10 +195,10 @@ describe('config controller unit tests', function () {
                 plan_warning_days: config.plan_retention.warningDays
             });
             sinon.assert.calledWithExactly(res.json, {
-                data: {
-                    plan_retention_days: config.plan_retention.retentionDays,
-                    plan_warning_days: config.plan_retention.warningDays
-                }
+                data: expectedConfigData(
+                    config.plan_retention.retentionDays,
+                    config.plan_retention.warningDays
+                )
             });
         });
 
@@ -219,11 +222,88 @@ describe('config controller unit tests', function () {
                 plan_warning_days: 9
             });
             sinon.assert.calledWithExactly(res.json, {
-                data: {
-                    plan_retention_days: 88,
-                    plan_warning_days: 9
-                }
+                data: expectedConfigData(88, 9)
             });
         });
+    });
+
+    describe('deleteConfig', function () {
+        test('returns deployment defaults when org has no config row', async () => {
+            db.org_config.findByPk.resolves(null);
+            const req = {
+                user: { tenant_org_id: '5318290' },
+                params: { field: 'plan_retention_days' }
+            };
+            const res = { json: sandbox.stub() };
+
+            await controller.deleteConfig(req, res, sandbox.stub());
+
+            sinon.assert.calledWithExactly(res.json, {
+                data: expectedConfigData(
+                    config.plan_retention.retentionDays,
+                    config.plan_retention.warningDays
+                )
+            });
+        });
+
+        test('resets one field to default and updates row when other stays customized', async () => {
+            const fakeRow = {
+                plan_retention_days: 90,
+                plan_warning_days: 14
+            };
+            fakeRow.update = sandbox.stub().resolves();
+            fakeRow.destroy = sandbox.stub().resolves();
+            db.org_config.findByPk.resolves(fakeRow);
+
+            const req = {
+                user: { tenant_org_id: '5318290' },
+                params: { field: 'plan_retention_days' }
+            };
+            const res = { json: sandbox.stub() };
+
+            await controller.deleteConfig(req, res, sandbox.stub());
+
+            sinon.assert.calledOnce(fakeRow.update);
+            should(fakeRow.update.firstCall.args[0]).eql({
+                plan_retention_days: config.plan_retention.retentionDays,
+                plan_warning_days: 14
+            });
+            sinon.assert.notCalled(fakeRow.destroy);
+            sinon.assert.calledWithExactly(res.json, {
+                data: expectedConfigData(config.plan_retention.retentionDays, 14)
+            });
+        });
+
+        test('updates row when both fields are at defaults after reset', async () => {
+            const fakeRow = {
+                plan_retention_days: config.plan_retention.retentionDays,
+                plan_warning_days: 10
+            };
+            fakeRow.update = sandbox.stub().resolves();
+            fakeRow.destroy = sandbox.stub().resolves();
+            db.org_config.findByPk.resolves(fakeRow);
+
+            const req = {
+                user: { tenant_org_id: '5318290' },
+                params: { field: 'plan_warning_days' }
+            };
+            const res = { json: sandbox.stub() };
+
+            await controller.deleteConfig(req, res, sandbox.stub());
+
+            sinon.assert.calledOnce(fakeRow.update);
+            should(fakeRow.update.firstCall.args[0]).eql({
+                plan_retention_days: config.plan_retention.retentionDays,
+                plan_warning_days: config.plan_retention.warningDays
+            });
+            sinon.assert.notCalled(fakeRow.destroy);
+            sinon.assert.calledWithExactly(res.json, {
+                data: expectedConfigData(
+                    config.plan_retention.retentionDays,
+                    config.plan_retention.warningDays
+                )
+            });
+        });
+
     });
 });
