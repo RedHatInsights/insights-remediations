@@ -6,7 +6,6 @@ const should = require('should');
 const controller = require('./config.controller');
 const db = require('../db');
 const config = require('../config');
-const errors = require('../errors');
 
 function expectedConfigData(plan_retention_days, plan_warning_days) {
     return {
@@ -30,40 +29,6 @@ describe('config controller unit tests', function () {
 
     afterEach(() => {
         sandbox.restore();
-    });
-
-    describe('requireOrgAdmin', function () {
-        test('allows org admins', () => {
-            const req = {
-                identity: {
-                    user: {
-                        is_org_admin: true
-                    }
-                }
-            };
-            const next = sandbox.stub();
-
-            controller.requireOrgAdmin(req, {}, next);
-
-            sinon.assert.calledWithExactly(next);
-        });
-
-        test('returns forbidden for non-admin users', () => {
-            const req = {
-                identity: {
-                    user: {
-                        is_org_admin: false
-                    }
-                }
-            };
-            const next = sandbox.stub();
-
-            controller.requireOrgAdmin(req, {}, next);
-
-            sinon.assert.calledOnce(next);
-            should(next.firstCall.args[0]).be.instanceOf(errors.Forbidden);
-            should(next.firstCall.args[0].error.details.message).eql('Organization admin access required');
-        });
     });
 
     describe('get', function () {

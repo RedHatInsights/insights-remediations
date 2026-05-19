@@ -15,16 +15,6 @@ function formatConfigResponse(plan_retention_days, plan_warning_days) {
     };
 }
 
-exports.requireOrgAdmin = function (req, res, next) {
-    const { user, service_account: serviceAccount } = req.identity ?? {};
-
-    if (user?.is_org_admin === true || serviceAccount?.is_org_admin === true) {
-        return next();
-    }
-
-    return next(new errors.Forbidden('Organization admin access required'));
-};
-
 exports.get = errors.async(async function (req, res) {
     const { tenant_org_id } = req.user;
     const orgConfig = await db.org_config.findByPk(tenant_org_id);
