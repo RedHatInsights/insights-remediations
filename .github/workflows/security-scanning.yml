@@ -36,9 +36,10 @@ jobs:
     ## use '--build-arg', those can be define below as well.
 
     with:
-    #   dockerbuild_path: './buildtest'
-      dockerfile_path: './build'
-      dockerfile_name: 'Dockerfile'
+    # Hummingbird spike: scan Dockerfile.hummingbird (revert to ./build + Dockerfile after evaluation)
+      dockerfile_path: '.'
+      dockerfile_name: 'Dockerfile.hummingbird'
+      app_name: 'Dockerfile.hummingbird'
     #   base_image_build: true
     #   base_dockerbuild_path: './testbuild.base'
     #   base_dockerfile_path: './test'
