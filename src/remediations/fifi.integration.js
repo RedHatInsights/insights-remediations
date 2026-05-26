@@ -1,5 +1,6 @@
 /*eslint-disable max-len*/
 'use strict';
+const { randomUUID } = require('crypto');
 const P = require('bluebird');
 const _ = require('lodash');
 const URI = require('urijs');
@@ -959,15 +960,13 @@ describe('FiFi', function () {
 
             test('post playbook run and store dispatcher runs', async () => {
                 const sandbox = base.getSandbox();
-                const { v4: uuidv4 } = require('uuid');
-
                 const remediationId = '0ecb5db7-2f1a-441b-8220-e5ce45066f50';
-                const fakeRunId = uuidv4();
-                sandbox.stub(fifi_2, 'uuidv4').returns(fakeRunId);
+                const fakeRunId = randomUUID();
+                sandbox.stub(fifi_2, 'generatePlaybookRunId').returns(fakeRunId);
 
                 const dispatcherResponse = [
-                    { code: 200, id: uuidv4() },
-                    { code: 200, id: uuidv4() }
+                    { code: 200, id: randomUUID() },
+                    { code: 200, id: randomUUID() }
                 ];
 
                 sandbox.stub(dispatcher, 'postV2PlaybookRunRequests').resolves(dispatcherResponse);
@@ -1001,22 +1000,20 @@ describe('FiFi', function () {
 
             test('post playbook run with dispatcher partial failure - saves all runs and returns 201', async function () {
                 const sandbox = base.getSandbox();
-                const { v4: uuidv4 } = require('uuid');
-
                 const remediationId = '0ecb5db7-2f1a-441b-8220-e5ce45066f50';
-                const fakeRunId = uuidv4();
-                sandbox.stub(fifi_2, 'uuidv4').returns(fakeRunId);
+                const fakeRunId = randomUUID();
+                sandbox.stub(fifi_2, 'generatePlaybookRunId').returns(fakeRunId);
 
                 const dispatcherResponse = [
-                    { code: 200, id: uuidv4() },
-                    { code: 200, id: uuidv4() },
-                    { code: 400, id: uuidv4() },
-                    { code: 200, id: uuidv4() },
-                    { code: 500, id: uuidv4() },
-                    { code: 200, id: uuidv4() },
-                    { code: 200, id: uuidv4() },
-                    { code: 200, id: uuidv4() },
-                    { code: 200, id: uuidv4() }
+                    { code: 200, id: randomUUID() },
+                    { code: 200, id: randomUUID() },
+                    { code: 400, id: randomUUID() },
+                    { code: 200, id: randomUUID() },
+                    { code: 500, id: randomUUID() },
+                    { code: 200, id: randomUUID() },
+                    { code: 200, id: randomUUID() },
+                    { code: 200, id: randomUUID() },
+                    { code: 200, id: randomUUID() }
                 ];
 
                 sandbox.stub(dispatcher, 'postV2PlaybookRunRequests').resolves(dispatcherResponse);
@@ -1172,8 +1169,8 @@ describe('FiFi', function () {
                 // do not create db record
                 base.getSandbox().stub(queries, 'insertRHCPlaybookRun').returns();
 
-                // force uuid for snapshot test
-                base.getSandbox().stub(fifi_2, 'uuidv4').returns('b995e750-c1d3-4c5b-a3ec-eee897ee9065');
+                // fixed playbook run ID for snapshot test
+                base.getSandbox().stub(fifi_2, 'generatePlaybookRunId').returns('b995e750-c1d3-4c5b-a3ec-eee897ee9065');
 
                 const spy = base.getSandbox().spy(dispatcher, 'postV2PlaybookRunRequests');
 
@@ -1215,8 +1212,8 @@ describe('FiFi', function () {
                 // do not create db record
                 base.getSandbox().stub(queries, 'insertRHCPlaybookRun').returns();
 
-                // force uuid for snapshot test
-                base.getSandbox().stub(fifi_2, 'uuidv4').returns('b995e750-c1d3-4c5b-a3ec-eee897ee9065');
+                // fixed playbook run ID for snapshot test
+                base.getSandbox().stub(fifi_2, 'generatePlaybookRunId').returns('b995e750-c1d3-4c5b-a3ec-eee897ee9065');
 
                 const spy = base.getSandbox().spy(dispatcher, 'postV2PlaybookRunRequests');
 
@@ -1419,16 +1416,14 @@ describe('FiFi', function () {
     describe('syncDispatcherRunsForPlaybookRuns', function () {
         test('syncDispatcherRunsForPlaybookRuns backfill', async () => {
             const sandbox = base.getSandbox();
-            const { v4: uuidv4 } = require('uuid');
-
             // Use an existing playbook run that has no dispatcher_runs
             const playbookRunId = '88d0ba73-0015-4e7d-a6d6-4b530cbfb5bc';
 
             // Mock dispatcher API response
             sandbox.stub(dispatcher, 'fetchPlaybookRuns').resolves({
                 data: [
-                    { id: uuidv4(), status: 'success' },
-                    { id: uuidv4(), status: 'pending' }
+                    { id: randomUUID(), status: 'success' },
+                    { id: randomUUID(), status: 'pending' }
                 ]
             });
 
@@ -1462,14 +1457,12 @@ describe('FiFi', function () {
 
         test('syncDispatcherRunsForPlaybookRuns status update', async () => {
             const sandbox = base.getSandbox();
-            const { v4: uuidv4 } = require('uuid');
-
             // Use an existing playbook run
             const playbookRunId = '88d0ba73-0015-4e7d-a6d6-4b530cbfb6bc';
 
             // Create some incomplete dispatcher_runs first
-            const dispatcherRunId1 = uuidv4();
-            const dispatcherRunId2 = uuidv4();
+            const dispatcherRunId1 = randomUUID();
+            const dispatcherRunId2 = randomUUID();
             
             await db.dispatcher_runs.bulkCreate([
                 {
@@ -1520,15 +1513,13 @@ describe('FiFi', function () {
 
         test('syncDispatcherRunsForPlaybookRuns skip failed', async () => {
             const sandbox = base.getSandbox();
-            const { v4: uuidv4 } = require('uuid');
-
             // Use an existing playbook run
             const playbookRunId = '11f7f24a-346b-405c-8dcc-c953511fb21c';
 
             // Create dispatcher_runs with one failed status
             await db.dispatcher_runs.bulkCreate([
                 {
-                    dispatcher_run_id: uuidv4(),
+                    dispatcher_run_id: randomUUID(),
                     remediations_run_id: playbookRunId,
                     status: 'failure',
                     created_at: new Date(),
@@ -1536,7 +1527,7 @@ describe('FiFi', function () {
                     pd_response_code: null
                 },
                 {
-                    dispatcher_run_id: uuidv4(),
+                    dispatcher_run_id: randomUUID(),
                     remediations_run_id: playbookRunId,
                     status: 'pending',
                     created_at: new Date(),
