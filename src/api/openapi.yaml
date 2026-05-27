@@ -725,8 +725,11 @@ paths:
     get:
       tags:
         - configuration
-      summary: Get organization-wide configurable items
-      description: Returns organization-wide configurable items for the caller's organization
+      summary: Get organization-wide configuration
+      description: |
+        Returns the current and default configuration values for the caller's organization.
+
+        Compare the current values with the default values to determine if settings have been customized.
       operationId: getConfig
       responses:
         200:
@@ -735,11 +738,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigResponse'
+              example:
+                data:
+                  plan_retention_days:
+                    current: 90
+                    default: 120
+                  plan_warning_days:
+                    current: 14
+                    default: 30
     patch:
       tags:
         - configuration
       summary: Update organization configuration
-      description: Updates organization-wide configurable items for the caller's organization (restricted to organization admins only)
+      description: |
+        Updates organization-wide configurable items for the caller's organization (restricted to organization admins only).
+
+        Sets custom values that override the system defaults. Use DELETE /config/{field} to reset a field back to its default value.
+
+        **Valid ranges:**
+        - `plan_retention_days`: 1-365 days
+        - `plan_warning_days`: 1-365 days
       operationId: updateConfig
       requestBody:
         required: true
@@ -747,6 +765,8 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ConfigInput'
+            example:
+              plan_retention_days: 90
       responses:
         200:
           description: OK
@@ -754,6 +774,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigResponse'
+              example:
+                data:
+                  plan_retention_days:
+                    current: 90
+                    default: 120
+                  plan_warning_days:
+                    current: 30
+                    default: 30
         400:
           $ref: '#/components/responses/BadRequest'
         403:
@@ -764,9 +792,10 @@ paths:
       tags:
         - configuration
       summary: Reset an organization-wide config field to its default value
-      description: >
-        Resets an organization-wide config field 
-        to its default value (restricted to organization admins only).
+      description: |
+        Resets an organization-wide config field to its default value (restricted to organization admins only).
+
+        After reset, the field's current value will match its default value in the GET /config response.
       operationId: deleteConfigField
       parameters:
         - name: field
@@ -785,6 +814,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigResponse'
+              example:
+                data:
+                  plan_retention_days:
+                    current: 120
+                    default: 120
+                  plan_warning_days:
+                    current: 14
+                    default: 30
         400:
           $ref: '#/components/responses/BadRequest'
         403:
@@ -1649,12 +1686,12 @@ components:
       type: object
       additionalProperties: false
       x-remediations-strict: false
-      description: >
-        To set one or more of the organization-wide config values, include the desired value(s) in the request body. 
-        Include the properties that you want to set and omit the ones that you want to leave as is (whether that's the current saved value or the default value).
+      description: |
+        Updates one or more organization-wide config values. Include only the properties you want to change.
 
-        Ommitting a property will not reset it to the default value, it will just leave it as is. To reset a property to the default 
-        value, use `DELETE /config/{field}` (for example `DELETE /config/plan_retention_days`).
+        **Important:**
+        - Omitted properties remain unchanged (whether custom or default)
+        - To reset a property to its default value, use `DELETE /config/{field}` instead
       properties:
         plan_retention_days:
           type: integer
@@ -1758,25 +1795,52 @@ components:
           type: object
           additionalProperties: false
           description: >
-            Returns the current organization-wide config values and the default values
-            for each field. All properties will be included in the response so you can 
-            see which values are custom and which are the default.
+            Configuration values for this organization. Each setting includes both the current
+            value and the system default. Compare current with default to determine if settings
+            have been customized.
           required:
             - plan_retention_days
             - plan_warning_days
-            - default_plan_retention_days
-            - default_plan_warning_days
           properties:
             plan_retention_days:
-              type: integer
-              example: 90
+              type: object
+              description: >
+                Remediation plans that haven't been updated or executed within this many days
+                will be considered expired.
+              additionalProperties: false
+              required: [current, default]
+              properties:
+                current:
+                  type: integer
+                  minimum: 1
+                  maximum: 365
+                  description: Current organization setting
+                  example: 90
+                default:
+                  type: integer
+                  minimum: 1
+                  maximum: 365
+                  description: System default (applies if not customized)
+                  example: 120
             plan_warning_days:
-              type: integer
-              example: 14
-            default_plan_retention_days:
-              type: integer
-            default_plan_warning_days:
-              type: integer
+              type: object
+              description: >
+                Show warning when a remediation plan is within this many days of expiring.
+              additionalProperties: false
+              required: [current, default]
+              properties:
+                current:
+                  type: integer
+                  minimum: 1
+                  maximum: 365
+                  description: Current organization setting
+                  example: 14
+                default:
+                  type: integer
+                  minimum: 1
+                  maximum: 365
+                  description: System default (applies if not customized)
+                  example: 30
 
     RequestError:
       type: object
