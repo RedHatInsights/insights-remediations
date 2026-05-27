@@ -9,12 +9,19 @@ const { MOCK_USERS } = require('../connectors/users/mock');
 const TEST_USER = MOCK_USERS.testWriteUser;
 const TEST_ORG_ID = TEST_USER.tenant_org_id;
 
-function expectedConfigData(plan_retention_days, plan_warning_days) {
+function expectedConfigData(orgConfig) {
+    const plan_retention_days = orgConfig?.plan_retention_days ?? null;
+    const plan_warning_days = orgConfig?.plan_warning_days ?? null;
+
     return {
-        plan_retention_days,
-        plan_warning_days,
-        default_plan_retention_days: config.plan_retention.retentionDays,
-        default_plan_warning_days: config.plan_retention.warningDays
+        plan_retention_days: {
+            override: plan_retention_days,
+            default: config.plan_retention.retentionDays
+        },
+        plan_warning_days: {
+            override: plan_warning_days,
+            default: config.plan_retention.warningDays
+        }
     };
 }
 const ADMIN_AUTH = {
@@ -39,18 +46,13 @@ describe('config endpoints', () => {
         });
     });
 
-    test('GET /config returns defaults when no org config exists', async () => {
+    test('GET /config returns null overrides when no org config exists', async () => {
         const { body } = await request
             .get('/v1/config')
             .set(auth.testWrite)
             .expect(200);
 
-        body.should.eql({
-            data: expectedConfigData(
-                config.plan_retention.retentionDays,
-                config.plan_retention.warningDays
-            )
-        });
+        body.should.eql(expectedConfigData(null));
     });
 
     test('GET /config returns saved organization values', async () => {
@@ -65,9 +67,7 @@ describe('config endpoints', () => {
             .set(auth.testWrite)
             .expect(200);
 
-        body.should.eql({
-            data: expectedConfigData(90, 14)
-        });
+        body.should.eql(expectedConfigData({ plan_retention_days: 90, plan_warning_days: 14 }));
     });
 
     test('PATCH /config returns 403 for non-admin users', async () => {
@@ -96,9 +96,7 @@ describe('config endpoints', () => {
             })
             .expect(200);
 
-        body.should.eql({
-            data: expectedConfigData(90, 14)
-        });
+        body.should.eql(expectedConfigData({ plan_retention_days: 90, plan_warning_days: 14 }));
 
         const saved = await db.org_config.findByPk(TEST_ORG_ID);
         saved.plan_retention_days.should.equal(90);
@@ -126,9 +124,7 @@ describe('config endpoints', () => {
             .set(auth.testWrite)
             .expect(200);
 
-        body.should.eql({
-            data: expectedConfigData(45, 7)
-        });
+        body.should.eql(expectedConfigData({ plan_retention_days: 45, plan_warning_days: 7 }));
     });
 
     test('PATCH /config validates retention range', async () => {
@@ -145,35 +141,28 @@ describe('config endpoints', () => {
         body.errors[0].code.should.equal('minimum.openapi.requestValidation');
     });
 
-    test('PATCH /config can send only plan_retention_days; warning uses system default when no row', async () => {
+    test('PATCH /config can send only plan_retention_days; warning stays null when no row', async () => {
         const { body } = await request
             .patch('/v1/config')
             .set(ADMIN_AUTH)
             .send({ plan_retention_days: 55 })
             .expect(200);
 
-        body.should.eql({
-            data: expectedConfigData(55, config.plan_retention.warningDays)
-        });
+        body.should.eql(expectedConfigData({ plan_retention_days: 55, plan_warning_days: null }));
     });
 
-    test('PATCH /config with empty body persists defaults and creates org row', async () => {
+    test('PATCH /config with empty body persists nulls and creates org row', async () => {
         const { body } = await request
             .patch('/v1/config')
             .set(ADMIN_AUTH)
             .send({})
             .expect(200);
 
-        body.should.eql({
-            data: expectedConfigData(
-                config.plan_retention.retentionDays,
-                config.plan_retention.warningDays
-            )
-        });
+        body.should.eql(expectedConfigData(null));
 
         const saved = await db.org_config.findByPk(TEST_ORG_ID);
-        saved.plan_retention_days.should.equal(config.plan_retention.retentionDays);
-        saved.plan_warning_days.should.equal(config.plan_retention.warningDays);
+        should(saved.plan_retention_days).equal(null);
+        should(saved.plan_warning_days).equal(null);
     });
 
     test('PATCH /config can send only one field; other keeps existing org value', async () => {
@@ -189,9 +178,7 @@ describe('config endpoints', () => {
             .send({ plan_warning_days: 21 })
             .expect(200);
 
-        body.should.eql({
-            data: expectedConfigData(90, 21)
-        });
+        body.should.eql(expectedConfigData({ plan_retention_days: 90, plan_warning_days: 21 }));
     });
 
     test('DELETE /config/:field returns 403 for non-admin users', async () => {
@@ -201,7 +188,7 @@ describe('config endpoints', () => {
             .expect(403);
     });
 
-    test('DELETE /config/:field resets plan_retention_days to default; warning unchanged', async () => {
+    test('DELETE /config/:field resets plan_retention_days to null; warning unchanged', async () => {
         await db.org_config.upsert({
             org_id: TEST_ORG_ID,
             plan_retention_days: 90,
@@ -213,19 +200,17 @@ describe('config endpoints', () => {
             .set(ADMIN_AUTH)
             .expect(200);
 
-        body.should.eql({
-            data: expectedConfigData(config.plan_retention.retentionDays, 14)
-        });
+        body.should.eql(expectedConfigData({ plan_retention_days: null, plan_warning_days: 14 }));
 
         const saved = await db.org_config.findByPk(TEST_ORG_ID);
-        saved.plan_retention_days.should.equal(config.plan_retention.retentionDays);
+        should(saved.plan_retention_days).equal(null);
         saved.plan_warning_days.should.equal(14);
     });
 
-    test('DELETE /config/:field updates row when both fields are at defaults after reset', async () => {
+    test('DELETE /config/:field updates row setting field to null', async () => {
         await db.org_config.upsert({
             org_id: TEST_ORG_ID,
-            plan_retention_days: config.plan_retention.retentionDays,
+            plan_retention_days: 120,
             plan_warning_days: 10
         });
 
@@ -234,29 +219,141 @@ describe('config endpoints', () => {
             .set(ADMIN_AUTH)
             .expect(200);
 
-        body.should.eql({
-            data: expectedConfigData(
-                config.plan_retention.retentionDays,
-                config.plan_retention.warningDays
-            )
-        });
+        body.should.eql(expectedConfigData({ plan_retention_days: 120, plan_warning_days: null }));
 
         const saved = await db.org_config.findByPk(TEST_ORG_ID);
-        saved.plan_retention_days.should.equal(config.plan_retention.retentionDays);
-        saved.plan_warning_days.should.equal(config.plan_retention.warningDays);
+        saved.plan_retention_days.should.equal(120);
+        should(saved.plan_warning_days).equal(null);
     });
 
-    test('DELETE /config/:field when no org row returns deployment defaults', async () => {
+    test('DELETE /config/:field when no org row returns null overrides', async () => {
         const { body } = await request
             .delete('/v1/config/plan_retention_days')
             .set(ADMIN_AUTH)
             .expect(200);
 
-        body.should.eql({
-            data: expectedConfigData(
-                config.plan_retention.retentionDays,
-                config.plan_retention.warningDays
-            )
+        body.should.eql(expectedConfigData(null));
+    });
+
+    describe('validation: plan_warning_days must be less than plan_retention_days', () => {
+        test('PATCH /config rejects when warning >= retention (both explicit)', async () => {
+            const { body } = await request
+                .patch('/v1/config')
+                .set(ADMIN_AUTH)
+                .send({
+                    plan_retention_days: 30,
+                    plan_warning_days: 30
+                })
+                .expect(400);
+
+            body.errors[0].status.should.equal(400);
+            body.errors[0].code.should.equal('INVALID_CONFIG');
+            body.errors[0].title.should.equal('Data validation error');
+        });
+
+        test('PATCH /config rejects when warning > retention', async () => {
+            const { body } = await request
+                .patch('/v1/config')
+                .set(ADMIN_AUTH)
+                .send({
+                    plan_retention_days: 10,
+                    plan_warning_days: 20
+                })
+                .expect(400);
+
+            body.errors[0].code.should.equal('INVALID_CONFIG');
+        });
+
+        test('PATCH /config rejects when retention too low for default warning', async () => {
+            // Default warning is 30 days
+            const { body } = await request
+                .patch('/v1/config')
+                .set(ADMIN_AUTH)
+                .send({
+                    plan_retention_days: 20,
+                    plan_warning_days: null
+                })
+                .expect(400);
+
+            body.errors[0].code.should.equal('INVALID_CONFIG');
+            body.errors[0].details.message.should.match(/30 days.*20 days/);
+        });
+
+        test('PATCH /config rejects when warning too high for default retention', async () => {
+            // Default retention is 120 days
+            const { body } = await request
+                .patch('/v1/config')
+                .set(ADMIN_AUTH)
+                .send({
+                    plan_retention_days: null,
+                    plan_warning_days: 120
+                })
+                .expect(400);
+
+            body.errors[0].code.should.equal('INVALID_CONFIG');
+            body.errors[0].details.message.should.match(/120 days.*120 days/);
+        });
+
+        test('PATCH /config rejects when updating one field violates rule with existing value', async () => {
+            await db.org_config.upsert({
+                org_id: TEST_ORG_ID,
+                plan_retention_days: 60,
+                plan_warning_days: 10
+            });
+
+            const { body } = await request
+                .patch('/v1/config')
+                .set(ADMIN_AUTH)
+                .send({ plan_retention_days: 5 })
+                .expect(400);
+
+            body.errors[0].code.should.equal('INVALID_CONFIG');
+        });
+
+        test('DELETE /config/:field rejects when reset would violate rule', async () => {
+            // Set up: retention=25, warning=20 (valid state)
+            // Delete warning -> warning becomes 30 (default), retention stays 25
+            // 30 >= 25, invalid!
+            await db.org_config.upsert({
+                org_id: TEST_ORG_ID,
+                plan_retention_days: 25,
+                plan_warning_days: 20
+            });
+
+            const { body } = await request
+                .delete('/v1/config/plan_warning_days')
+                .set(ADMIN_AUTH)
+                .expect(400);
+
+            body.errors[0].code.should.equal('INVALID_CONFIG');
+            body.errors[0].details.message.should.match(/30 days.*25 days/);
+        });
+
+        test('PATCH /config accepts when warning < retention', async () => {
+            const { body } = await request
+                .patch('/v1/config')
+                .set(ADMIN_AUTH)
+                .send({
+                    plan_retention_days: 90,
+                    plan_warning_days: 14
+                })
+                .expect(200);
+
+            body.should.eql(expectedConfigData({ plan_retention_days: 90, plan_warning_days: 14 }));
+        });
+
+        test('PATCH /config accepts when both null (uses defaults)', async () => {
+            // Default: retention=120, warning=30, which satisfies 30 < 120
+            const { body } = await request
+                .patch('/v1/config')
+                .set(ADMIN_AUTH)
+                .send({
+                    plan_retention_days: null,
+                    plan_warning_days: null
+                })
+                .expect(200);
+
+            body.should.eql(expectedConfigData(null));
         });
     });
 });
