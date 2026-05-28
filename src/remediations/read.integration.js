@@ -11,7 +11,7 @@ const impl = require('../connectors/dispatcher/impl');
 const dispatcher = require('../connectors/dispatcher');
 const fifi2 = require('./fifi_2');
 const db = require('../db');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
 
 function test400 (name, url, code, title) {
     test(name, async () => {
@@ -57,7 +57,7 @@ describe('remediations', function () {
         });
 
         test('v1 SSG issue id succeeds via SSG template lookup', async () => {
-            const remId = uuidv4();
+            const remId = randomUUID();
             createdIds.push(remId);
 
             await db.remediation.create({
@@ -92,7 +92,7 @@ describe('remediations', function () {
         });
 
         test('v2 SSG issue id succeeds', async () => {
-            const remId = uuidv4();
+            const remId = randomUUID();
             createdIds.push(remId);
 
             await db.remediation.create({
@@ -353,12 +353,11 @@ describe('remediations', function () {
         });
 
         test('last_playbook_run returns the actual latest playbook run per remediation', async () => {
-            const { v4: uuidv4 } = require('uuid');
             const { username: created_by } = require('../connectors/users/mock').MOCK_USERS.fifi;
             
             // Create a temporary remediation for this test
             const testRemediation = await db.remediation.create({
-                id: uuidv4(),
+                id: randomUUID(),
                 name: 'Test Latest Run Remediation',
                 created_by,
                 updated_by: created_by,
@@ -371,9 +370,9 @@ describe('remediations', function () {
             
             try {
                 // Create test playbook runs with different timestamps to verify "latest" logic
-                const testRun1Id = uuidv4();
-                const testRun2Id = uuidv4();
-                const testRun3Id = uuidv4();
+                const testRun1Id = randomUUID();
+                const testRun2Id = randomUUID();
+                const testRun3Id = randomUUID();
                 
                 // Create runs with different timestamps - testRun2 should be the latest
                 const testRun1 = await db.playbook_runs.create({
@@ -409,7 +408,7 @@ describe('remediations', function () {
                 // Create dispatcher_runs to give the playbook runs proper status
                 // testRun1: success status
                 const dispatcherRun1 = await db.dispatcher_runs.create({
-                    dispatcher_run_id: uuidv4(),
+                    dispatcher_run_id: randomUUID(),
                     remediations_run_id: testRun1Id,
                     status: 'success',
                     created_at: '2019-12-22T08:19:36.641Z',
@@ -419,7 +418,7 @@ describe('remediations', function () {
                 
                 // testRun2: running status (should be the latest)
                 const dispatcherRun2 = await db.dispatcher_runs.create({
-                    dispatcher_run_id: uuidv4(),
+                    dispatcher_run_id: randomUUID(),
                     remediations_run_id: testRun2Id,
                     status: 'running',
                     created_at: '2019-12-24T08:19:36.641Z',
@@ -429,7 +428,7 @@ describe('remediations', function () {
                 
                 // testRun3: failure status
                 const dispatcherRun3 = await db.dispatcher_runs.create({
-                    dispatcher_run_id: uuidv4(),
+                    dispatcher_run_id: randomUUID(),
                     remediations_run_id: testRun3Id,
                     status: 'failure',
                     created_at: '2019-12-23T08:19:36.641Z',
@@ -524,7 +523,6 @@ describe('remediations', function () {
                 let isolatedDispatcherRunIds = [];
 
                 beforeEach(async () => {
-                    const { v4: uuidv4 } = require('uuid');
                     const now = '2019-12-25T08:19:36.641Z'; // Fixed timestamp for snapshot consistency
                     const { username: created_by } = require('../connectors/users/mock').MOCK_USERS.fifi;
                     
@@ -562,7 +560,7 @@ describe('remediations', function () {
                         });
 
                         // Create a fresh playbook_run for r178 to use for running status
-                        const r178PlaybookRunId = uuidv4();
+                        const r178PlaybookRunId = randomUUID();
                         await db.playbook_runs.create({
                             id: r178PlaybookRunId,
                             status: 'running',
@@ -573,9 +571,9 @@ describe('remediations', function () {
                         }, { transaction });
 
                         // Create isolated dispatcher_runs with unique IDs we can track
-                        const runningDispatcherRun1 = uuidv4();
-                        const runningDispatcherRun2 = uuidv4();
-                        const failureDispatcherRun = uuidv4();
+                        const runningDispatcherRun1 = randomUUID();
+                        const runningDispatcherRun2 = randomUUID();
+                        const failureDispatcherRun = randomUUID();
                         
                         isolatedDispatcherRunIds = [runningDispatcherRun1, runningDispatcherRun2, failureDispatcherRun, r178PlaybookRunId];
 
@@ -803,8 +801,8 @@ describe('remediations', function () {
         });
 
         test('sort by id asc/desc', async () => {
-            const remId = uuidv4();
-            const systemId = uuidv4();
+            const remId = randomUUID();
+            const systemId = randomUUID();
             createdIds.push(remId);
 
             await db.remediation.create({
@@ -840,8 +838,8 @@ describe('remediations', function () {
         // removed: sort by resolved asc/desc (endpoint no longer supports resolved)
 
         test('filter by id (partial)', async () => {
-            const remId = uuidv4();
-            const systemId = uuidv4();
+            const remId = randomUUID();
+            const systemId = randomUUID();
             createdIds.push(remId);
 
             await db.remediation.create({
@@ -877,8 +875,8 @@ describe('remediations', function () {
         });
 
         test('pagination limit/offset', async () => {
-            const remId = uuidv4();
-            const systemId = uuidv4();
+            const remId = randomUUID();
+            const systemId = randomUUID();
             createdIds.push(remId);
 
             await db.remediation.create({
@@ -908,9 +906,9 @@ describe('remediations', function () {
         });
 
         test('returns 404 when system does not exist in remediation', async () => {
-            const remId = uuidv4();
-            const systemInRemediation = uuidv4();
-            const systemNotInRemediation = uuidv4();
+            const remId = randomUUID();
+            const systemInRemediation = randomUUID();
+            const systemNotInRemediation = randomUUID();
             createdIds.push(remId);
 
             await db.remediation.create({
@@ -1090,7 +1088,7 @@ describe('remediations', function () {
         // The seeded 'unknown issues' plan includes a v1 SSG id that now returns 400 (invalid identifier), so we can't use it here.
         test('get remediation with unknown issues', async () => {
             const { account_number, tenant_org_id, username: created_by } = require('../connectors/users/mock').MOCK_USERS.testReadSingleUser;
-            const remId = uuidv4();
+            const remId = randomUUID();
 
             try {
                 await db.remediation.create({
@@ -1827,7 +1825,7 @@ describe('remediations', function () {
         beforeAll(async () => {
             // Create test remediations with different users
             const { id: rem1 } = await db.remediation.create({
-                id: uuidv4(),
+                id: randomUUID(),
                 name: 'user1-remediation',
                 needs_reboot: false,
                 tenant_org_id: '0000000',
@@ -1839,7 +1837,7 @@ describe('remediations', function () {
             createdRemediationIds.push(rem1);
 
             const { id: rem2 } = await db.remediation.create({
-                id: uuidv4(),
+                id: randomUUID(),
                 name: 'user2-remediation',
                 needs_reboot: false,
                 tenant_org_id: '0000000',
@@ -1851,7 +1849,7 @@ describe('remediations', function () {
             createdRemediationIds.push(rem2);
 
             const { id: rem3 } = await db.remediation.create({
-                id: uuidv4(),
+                id: randomUUID(),
                 name: 'service-account-remediation',
                 needs_reboot: false,
                 tenant_org_id: '0000000',
@@ -2052,7 +2050,7 @@ describe('remediations', function () {
         test('normal user can only download playbooks for their own remediations', async () => {
             // First create a remediation for the test user
             const { id: testUserRemId } = await db.remediation.create({
-                id: uuidv4(),
+                id: randomUUID(),
                 name: 'test-user-remediation',
                 needs_reboot: false,
                 tenant_org_id: '4444444', // Match testReadSingleUser's tenant_org_id
@@ -2101,7 +2099,7 @@ describe('remediations', function () {
         test('service account filtering works with different org_ids', async () => {
             // Create remediation in different org
             const { id: differentOrgRemId } = await db.remediation.create({
-                id: uuidv4(),
+                id: randomUUID(),
                 name: 'different-org-remediation',
                 needs_reboot: false,
                 tenant_org_id: '1111111', // Different org
@@ -2339,10 +2337,10 @@ describe('remediations', function () {
         let missingSystemId;
 
         beforeEach(async () => {
-            createdRemediationId = uuidv4();
-            existingSystemId1 = uuidv4();
-            existingSystemId2 = uuidv4();
-            missingSystemId = uuidv4();
+            createdRemediationId = randomUUID();
+            existingSystemId1 = randomUUID();
+            existingSystemId2 = randomUUID();
+            missingSystemId = randomUUID();
 
             await db.remediation.create({
                 id: createdRemediationId,

@@ -2,14 +2,12 @@
 /* eslint-disable max-len */
 
 const _ = require('lodash');
-const {v4: uuidv4} = require('uuid');
 
 const config = require('../config');
 const errors = require('../errors');
 const generator = require('../generator/generator.controller');
 const inventory = require('../connectors/inventory');
 const sources = require('../connectors/sources');
-const configManager = require('../connectors/configManager');
 const dispatcher = require('../connectors/dispatcher');
 const log = require('../util/log');
 const trace = require('../util/trace');

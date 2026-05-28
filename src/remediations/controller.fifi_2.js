@@ -24,21 +24,13 @@ exports.connection_status = errors.async(async function (req, res) {
     const exclude = req.body.exclude || [];
 
     //----------------------------------------------------------------
-    // fetch remediation and GET enabled status from config-manager
+    // fetch remediation
     //----------------------------------------------------------------
-    const [remediation, rhcEnabled] = await Promise.all([
-        queries.get(remediationId, tenantOrgId, username),
-        fifi.checkRhcEnabled()
-    ]);
+    const remediation = await queries.get(remediationId, tenantOrgId, username);
 
     if (!remediation) {
         // 404 if remediation not found
         return notFound(res);
-    }
-
-    if (!rhcEnabled) {
-        // 403 if remediations not enabled
-        throw new errors.Forbidden('RHC Manager permission is required for this operation. Please visit https://console.redhat.com/insights/connector to enable this permission.');
     }
 
     //--------------------------------------------------------------
@@ -102,21 +94,13 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
     });
 
     //----------------------------------------------------------------
-    // fetch remediation and GET enabled status from config-manager
+    // fetch remediation
     //----------------------------------------------------------------
-    const [remediation, rhcEnabled] = await Promise.all([
-        queries.get(remediationId, tenantOrgId, username),
-        fifi.checkRhcEnabled()
-    ]);
+    const remediation = await queries.get(remediationId, tenantOrgId, username);
 
     if (!remediation) {
         // 404 if remediation not found
         return notFound(res);
-    }
-
-    if (!rhcEnabled) {
-        // 403 if remediations not enabled
-        throw new errors.Forbidden('RHC Manager permission is required for this operation. Please visit https://console.redhat.com/insights/connector to enable this permission.');
     }
 
     //--------------------------------------------------------------
