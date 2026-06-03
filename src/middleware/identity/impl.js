@@ -33,7 +33,8 @@ module.exports = function (req, res, next) {
                 account_number: req.identity.account_number || '', // empty string for anemic tenant
                 tenant_org_id: req.identity.org_id,
                 username: req.identity.user.username,
-                is_internal: req.identity.user.is_internal
+                is_internal: req.identity.user.is_internal,
+                is_org_admin: req.identity.user.is_org_admin === true
             };
             req.type = "User";
 
@@ -47,7 +48,8 @@ module.exports = function (req, res, next) {
                 account_number: '',
                 tenant_org_id: req.identity.org_id,
                 username: req.identity.service_account.username,
-                is_internal: false
+                is_internal: false,
+                is_org_admin: req.identity.service_account.is_org_admin === true
             };
             req.type = "ServiceAccount";
         }

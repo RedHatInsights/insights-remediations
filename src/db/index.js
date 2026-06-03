@@ -48,7 +48,10 @@ exports.connect = async function () {
     exports.s = new Sequelize(config.database, config.username, config.password, config);
     await exports.s.authenticate();
 
-    const models = loadModels(exports.s, path.join(__dirname, '..', 'remediations', 'models'));
+    // Load models from remediations and config directories
+    const remediationModels = loadModels(exports.s, path.join(__dirname, '..', 'remediations', 'models'));
+    const configModels = loadModels(exports.s, path.join(__dirname, '..', 'config', 'models'));
+    const models = {...remediationModels, ...configModels};
     _.assign(exports, models);
 
     log.info({ssl: config.ssl || false }, `connected to database '${config.database}'`);
