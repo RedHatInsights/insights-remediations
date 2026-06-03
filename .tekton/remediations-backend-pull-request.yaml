@@ -19,10 +19,8 @@ metadata:
   namespace: insights-management-tenant
 spec:
   params:
-  # Hummingbird spike: hi/nodejs is not preloaded when buildah uses --pull=never.
-  # Allow registry pull for base images; npm prefetch can stay enabled.
   - name: hermetic
-    value: "false"
+    value: "true"
   - name: prefetch-input
     value: '[{"type": "npm", "path": "."}]'
   - name: git-url
