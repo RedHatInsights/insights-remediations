@@ -727,13 +727,15 @@ paths:
         - configuration
       summary: Get organization-wide configuration
       description: |
-        Returns the current and default configuration values for the caller's organization.
+        Returns the effective value of each organization-wide configuration field for the
+        caller's organization.
 
-        Each field has an `override` value (custom setting) and a `default` value (system default).
-        - `override: null` means no custom value is set; the system default is used
-        - `override: <value>` means a custom value has been explicitly configured
+        Each field reflects a custom override value when one has been set, or the system default
+        value when no override exists. All configuration fields are always included in the response.
 
-        The effective value for a field is: `override ?? default`
+        To see only the system default value for each field, use **GET /config/defaults**.
+
+        To see only fields with custom override values, use **GET /config/overrides**.
       operationId: getConfig
       responses:
         200:
@@ -743,37 +745,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConfigResponse'
               example:
-                plan_retention_days:
-                  override: null
-                  default: 120
-                plan_warning_days:
-                  override: 14
-                  default: 30
-    patch:
+                plan_retention_days: 120
+                plan_warning_days: 14
+
+  /config/defaults:
+    get:
       tags:
         - configuration
-      summary: Update organization configuration
-      description: |
-        Updates organization-wide configurable items for the caller's organization (restricted to organization admins only).
-
-        Sets custom values that override the system defaults. Use DELETE /config/{field} to reset a field back to its default value.  Alternately, send `null` to clear an override.
-
-        **Valid ranges:**
-        - `plan_retention_days`: 1-365 days (or `null` to use default)
-        - `plan_warning_days`: 1-365 days (or `null` to use default)
-
-        **Validation rules:**
-        - `plan_warning_days` must be less than `plan_retention_days` (using effective values after resolving nulls to system defaults)
-      operationId: updateConfig
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ConfigInput'
-            example:
-              plan_retention_days: 90
-              plan_warning_days: null
+      summary: Get system default values for organization-wide configuration fields
+      description: Returns the system default value for each organization-wide configuration field.
+      operationId: getConfigDefaults
       responses:
         200:
           description: OK
@@ -782,12 +763,79 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConfigResponse'
               example:
-                plan_retention_days:
-                  override: 90
-                  default: 120
-                plan_warning_days:
-                  override: null
-                  default: 30
+                plan_retention_days: 120
+                plan_warning_days: 30
+
+  /config/overrides:
+    get:
+      tags:
+        - configuration
+      summary: Get custom override values for organization-wide configuration fields
+      description: |
+        Returns the custom override value for each organization-wide configuration field that
+        has been overridden for the caller's organization.
+
+        Only fields with a custom override value are included. Fields using the system default
+        are omitted from the response.
+
+        To see only the system default value for each field, use **GET /config/defaults**.
+      operationId: getConfigOverrides
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigResponse'
+              example:
+                plan_warning_days: 14
+    put:
+      tags:
+        - configuration
+      summary: Replace organization-wide configuration overrides
+      description: |
+        Replaces override values for organization-wide configuration fields (restricted to
+        organization admins only).
+
+        Fields omitted from the request body, or set to `null`, revert to the system default (stored as null).
+        To keep an existing override unchanged when updating another field, include that field in the request 
+        body with its current override value. To reset all overrides, send an empty object `{}`.
+
+        Only fields with a custom override value are included in the response.
+
+        **Valid ranges:**
+        - `plan_retention_days`: 1–366 days (omit from request body or set to `null` to use system default)
+        - `plan_warning_days`: 1–366 days (omit from request body or set to `null` to use system default)
+
+        **Validation:** `plan_warning_days` must be less than `plan_retention_days`. The validation
+        compares the effective value of each field based on the request body, so make sure the
+        **new** values are valid (When a field is omitted or set to null, the system default is used). 
+      operationId: putConfigOverrides
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigInput'
+            examples:
+              single_field:
+                summary: Override one field and reset the other to system default
+                value:
+                  plan_warning_days: 14
+              both_fields:
+                summary: Override both fields **or** override one field and leave the other override value unchanged by using its current value
+                value:
+                  plan_retention_days: 90
+                  plan_warning_days: 14
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigResponse'
+              example:
+                plan_warning_days: 14
         400:
           description: Bad Request
           content:
@@ -813,57 +861,6 @@ paths:
                         title: Data validation error
                         details:
                           message: Warning period (30 days) must be less than retention period (20 days)
-
-  /config/{field}:
-    delete:
-      tags:
-        - configuration
-      summary: Reset an organization-wide config field to its default value
-      description: |
-        Resets an organization-wide config field to its default value (restricted to organization admins only).
-
-        After reset, the field's `override` will be `null` in the GET /config response, indicating the system default is in use.
-
-        **Note:** The reset will be rejected if it would violate the constraint that `plan_warning_days` must be less than `plan_retention_days`.
-      operationId: deleteConfigField
-      parameters:
-        - name: field
-          in: path
-          required: true
-          description: Config field to reset to the default value (`plan_retention_days` or `plan_warning_days`)
-          schema:
-            type: string
-            enum:
-              - plan_retention_days
-              - plan_warning_days
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigResponse'
-              example:
-                plan_retention_days:
-                  override: null
-                  default: 120
-                plan_warning_days:
-                  override: 14
-                  default: 30
-        400:
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RequestError'
-              example:
-                errors:
-                  - id: 550e8400-e29b-41d4-a716-446655440000
-                    status: 400
-                    code: INVALID_CONFIG
-                    title: Data validation error
-                    details:
-                      message: Warning period (30 days) must be less than retention period (25 days)
 
   /diagnosis/{system}:
     get:
@@ -1725,30 +1722,31 @@ components:
       additionalProperties: false
       x-remediations-strict: false
       description: |
-        Updates one or more organization-wide config values. Include only the properties you want to change.
+        Override values for organization-wide configuration fields.
 
-        **Important:**
-        - Omitted properties remain unchanged
-        - Set to null to clear an override and use system default
-        - Set to a value (1-365) to create/update a custom override
+        **Important:** Fields omitted from the request body, or set to `null`, revert to the system default (stored as null).
+        To keep an existing override unchanged when updating another field, include that field in the request 
+        body with its current override value. To reset all overrides, send an empty object `{}`.
       properties:
         plan_retention_days:
           type: integer
           nullable: true
           minimum: 1
-          maximum: 365
+          maximum: 366
           description: >
-            If a plan isn't updated or executed within this many days, it will be treated as expired.
-            Set to null to use system default (120 days). Set to 1-365 to override.
+            Organization-wide configuration field. If a plan isn't updated or executed within this
+            many days, it will be treated as expired. Omit this field from the request body or set
+            to `null` to use the system default. Must be greater than `plan_warning_days`.
           example: 90
         plan_warning_days:
           type: integer
           nullable: true
           minimum: 1
-          maximum: 365
+          maximum: 366
           description: >
-            If a plan is within this many days of being expired, a warning will be shown.
-            Set to null to use system default (30 days). Set to 1-365 to override.
+            Organization-wide configuration field. If a plan is within this many days of being
+            expired, a warning will be shown. Omit this field from the request body or set to
+            `null` to use the system default. Must be less than `plan_retention_days`.
           example: 14
 
     RemediationsList:
@@ -1830,54 +1828,25 @@ components:
     ConfigResponse:
       type: object
       additionalProperties: false
-      description: >
-        Configuration values for this organization. Each setting includes an optional override
-        and the system default. null override = using system default, non-null = custom override.
-      required:
-        - plan_retention_days
-        - plan_warning_days
+      x-remediations-strict: false # suppress validation since none of the properties is required
+      description: Values for organization-wide configuration fields.
       properties:
         plan_retention_days:
-          type: object
+          type: integer
+          minimum: 1
+          maximum: 366
           description: >
-            Remediation plans that haven't been updated or executed within this many days
-            will be considered expired.
-          additionalProperties: false
-          required: [override, default]
-          properties:
-            override:
-              type: integer
-              nullable: true
-              minimum: 1
-              maximum: 365
-              description: Custom override value, or null to use system default
-              example: 90
-            default:
-              type: integer
-              minimum: 1
-              maximum: 365
-              description: System default value
-              example: 120
+            Organization-wide configuration field. Remediation plans that haven't been updated or
+            executed within this many days will be treated as expired.
+          example: 120
         plan_warning_days:
-          type: object
+          type: integer
+          minimum: 1
+          maximum: 366
           description: >
-            Show warning when a remediation plan is within this many days of expiring.
-          additionalProperties: false
-          required: [override, default]
-          properties:
-            override:
-              type: integer
-              nullable: true
-              minimum: 1
-              maximum: 365
-              description: Custom override value, or null to use system default
-              example: 14
-            default:
-              type: integer
-              minimum: 1
-              maximum: 365
-              description: System default value
-              example: 30
+            Organization-wide configuration field. Show a warning when a plan is within this many
+            days of being expired.
+          example: 30
 
     RequestError:
       type: object

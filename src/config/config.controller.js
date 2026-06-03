@@ -5,144 +5,118 @@ const db = require('../db');
 const config = require('../config');
 const { ValidationError } = require('sequelize');
 
-function formatConfigResponse(orgConfig) {
-    const plan_retention_days = orgConfig?.plan_retention_days ?? null;
-    const plan_warning_days = orgConfig?.plan_warning_days ?? null;
-
-    return {
-        plan_retention_days: {
-            override: plan_retention_days,
-            default: config.plan_retention.retentionDays
-        },
-        plan_warning_days: {
-            override: plan_warning_days,
-            default: config.plan_retention.warningDays
-        }
-    };
+function formatOverridesResponse(orgConfig) {
+    const overrides = {};
+    if (orgConfig?.plan_retention_days != null) {
+        overrides.plan_retention_days = orgConfig.plan_retention_days;
+    }
+    if (orgConfig?.plan_warning_days != null) {
+        overrides.plan_warning_days = orgConfig.plan_warning_days;
+    }
+    return overrides;
 }
 
 /**
  * GET /v1/config
  *
- * Retrieves the organization's configuration settings for plan retention and warning periods.
- * Returns both the custom override values (null if not set) and system defaults.
+ * Returns the organization-wide configuration values in use for plan retention and warning
+ * periods. Each field reflects a custom override value when set, or the system default when
+ * no override exists. All configuration fields are always included in the response.
  *
- * Sample response:
+ * To see only system default values, use GET /v1/config/defaults.
+ * To see only custom overrides, use GET /v1/config/overrides.
+ *
+ * Sample response (retention uses default, warning overridden):
  * {
- *   "plan_retention_days": {
- *     "override": null,     // null = using system default
- *     "default": 120
- *   },
- *   "plan_warning_days": {
- *     "override": 14,       // custom value set
- *     "default": 30
- *   }
+ *   "plan_retention_days": 120,
+ *   "plan_warning_days": 14
+ * }
+ *
+ * Sample response (no overrides):
+ * {
+ *   "plan_retention_days": 120,
+ *   "plan_warning_days": 30
  * }
  */
 exports.get = errors.async(async function (req, res) {
     const { tenant_org_id } = req.user;
     const orgConfig = await db.org_config.findByPk(tenant_org_id);
 
-    // Return null for override when no custom value is set
-    return res.json(formatConfigResponse(orgConfig));
+    return res.json({
+        plan_retention_days: orgConfig?.plan_retention_days ?? config.plan_retention.retentionDays,
+        plan_warning_days: orgConfig?.plan_warning_days ?? config.plan_retention.warningDays
+    });
 });
 
 /**
- * PATCH /v1/config
+ * GET /v1/config/defaults
  *
- * Updates organization configuration settings. Only organization admins can call this endpoint.
- * Omitted fields remain unchanged. Set a field to null to clear the override and use the system default.
- * Validates that plan_warning_days < plan_retention_days (using effective values).
- *
- * Sample input:
- * {
- *   "plan_retention_days": 90,
- *   "plan_warning_days": null    // Clear override, use system default (30)
- * }
+ * Returns the system default value for each organization-wide configuration field.
+ * All configuration fields are always included in the response.
  *
  * Sample response:
  * {
- *   "plan_retention_days": {
- *     "override": 90,
- *     "default": 120
- *   },
- *   "plan_warning_days": {
- *     "override": null,
- *     "default": 30
- *   }
- * }
- *
- * Sample error (validation failure):
- * {
- *   "errors": [{
- *     "status": 400,
- *     "code": "INVALID_CONFIG",
- *     "title": "Data validation error",
- *     "details": {
- *       "message": "Warning period (30 days) must be less than retention period (20 days)"
- *     }
- *   }]
+ *   "plan_retention_days": 120,
+ *   "plan_warning_days": 30
  * }
  */
-exports.patch = errors.async(async function (req, res) {
-    const { tenant_org_id } = req.user;
-    const body = req.body ?? {};
-    const { plan_retention_days: bodyRetentionDays, plan_warning_days: bodyWarningDays } = body;
-
-    const current = await db.org_config.findByPk(tenant_org_id);
-
-    // For each field:
-    // - If present in request body (including null), use that value
-    // - Otherwise, keep current value (including null)
-    // - If no row in table, use null (meaning use system default)
-    const plan_retention_days = ('plan_retention_days' in body) ? bodyRetentionDays : (current?.plan_retention_days ?? null);
-    const plan_warning_days = ('plan_warning_days' in body) ? bodyWarningDays : (current?.plan_warning_days ?? null);
-
-    // We're creating a new object here because "current" will be null if there are no existing overrides
-    const orgConfig = {
-        org_id: tenant_org_id,
-        plan_retention_days,
-        plan_warning_days
-    };
-
-    try {
-        await db.org_config.upsert(orgConfig);
-    } catch (err) {
-        if (err instanceof ValidationError) {
-            throw new errors.BadRequest(
-                'INVALID_CONFIG',
-                'Data validation error',
-                { message: err.errors[0].message }
-            );
-        }
-        throw err;
-    }
-
-    return res.json(formatConfigResponse(orgConfig));
+exports.getDefaults = errors.async(async function (req, res) {
+    return res.json({
+        plan_retention_days: config.plan_retention.retentionDays,
+        plan_warning_days: config.plan_retention.warningDays
+    });
 });
 
 /**
- * DELETE /v1/config/:field
+ * GET /v1/config/overrides
  *
- * Resets a specific configuration field to null (use system default). Only organization admins can call this endpoint.
- * Validates that the reset won't violate the rule: plan_warning_days < plan_retention_days.
+ * Returns the custom override value for each organization-wide configuration field that
+ * has been overridden for the caller's organization. Only fields with a custom override
+ * value are included; fields using the system default are omitted.
  *
- * Path parameter:
- *   field: "plan_retention_days" or "plan_warning_days"
- *
- * Sample request:
- *   DELETE /v1/config/plan_warning_days
- *
- * Sample response:
+ * Sample response (one field overridden):
  * {
- *   "plan_retention_days": {
- *     "override": 90,
- *     "default": 120
- *   },
- *   "plan_warning_days": {
- *     "override": null,      // Reset to system default
- *     "default": 30
- *   }
+ *   "plan_warning_days": 14
+ * }
+ *
+ * Sample response (no overrides):
+ * {}
+ */
+exports.getOverrides = errors.async(async function (req, res) {
+    const { tenant_org_id } = req.user;
+    const orgConfig = await db.org_config.findByPk(tenant_org_id);
+
+    return res.json(formatOverridesResponse(orgConfig));
+});
+
+/**
+ * PUT /v1/config/overrides
+ *
+ * Replaces organization-wide configuration override values. Only organization admins can call this endpoint.
+ * Omitted fields are cleared (override set to null; system default is used). To change one override while
+ * keeping another, include the current value for the field that should stay overridden.
+ * Validates that plan_warning_days < plan_retention_days (using effective values).
+ *
+ * Sample input (override one field; other reverts to default):
+ * {
+ *   "plan_warning_days": 14
+ * }
+ *
+ * Sample input (override both, or update one while preserving the other):
+ * {
+ *   "plan_retention_days": 90,
+ *   "plan_warning_days": 14
+ * }
+ *
+ * Sample response (single field in request):
+ * {
+ *   "plan_warning_days": 14
+ * }
+ *
+ * Sample response (both fields in request, including an unchanged override):
+ * {
+ *   "plan_retention_days": 90,
+ *   "plan_warning_days": 14
  * }
  *
  * Sample error (validation failure):
@@ -157,19 +131,19 @@ exports.patch = errors.async(async function (req, res) {
  *   }]
  * }
  */
-exports.deleteConfig = errors.async(async function (req, res) {
+exports.putOverrides = errors.async(async function (req, res) {
     const { tenant_org_id } = req.user;
-    const { field } = req.params;
+    const { plan_retention_days, plan_warning_days } = req.body ?? {};
 
-    const existing = await db.org_config.findByPk(tenant_org_id);
-    if (!existing) {
-        // No org config row exists, return all nulls
-        return res.json(formatConfigResponse(null));
-    }
+    const orgConfigRow = {
+        org_id: tenant_org_id,
+        plan_retention_days: plan_retention_days !== undefined ? plan_retention_days : null,
+        plan_warning_days: plan_warning_days !== undefined ? plan_warning_days : null
+    };
 
+    let orgConfig;
     try {
-        // Set the specified field to null (use system default)
-        await existing.update({ [field]: null });
+        [orgConfig] = await db.org_config.upsert(orgConfigRow);
     } catch (err) {
         if (err instanceof ValidationError) {
             throw new errors.BadRequest(
@@ -181,6 +155,6 @@ exports.deleteConfig = errors.async(async function (req, res) {
         throw err;
     }
 
-    // After update(), the instance is updated in memory
-    return res.json(formatConfigResponse(existing));
+    // Return the fields that have a custom override value (i.e. not null which means they use the system default)
+    return res.json(formatOverridesResponse(orgConfig));
 });
