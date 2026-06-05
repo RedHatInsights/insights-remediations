@@ -10,6 +10,7 @@ exports[`remediations delete bulk issues succeeds 1`] = `
     "last_name": "user",
     "username": "testWriteUser",
   },
+  "expires_at": "",
   "id": "",
   "issues": [
     {
@@ -124,6 +125,7 @@ exports[`remediations delete bulk systems does not remove systems from other pla
     "last_name": "user",
     "username": "testWriteUser",
   },
+  "expires_at": "",
   "id": "",
   "issues": [
     {
@@ -277,6 +279,7 @@ exports[`remediations delete bulk systems does not remove systems from other pla
     "last_name": "user",
     "username": "testWriteUser",
   },
+  "expires_at": "",
   "id": "",
   "issues": [
     {
@@ -430,6 +433,7 @@ exports[`remediations delete bulk systems succeeds 1`] = `
     "last_name": "user",
     "username": "testWriteUser",
   },
+  "expires_at": "",
   "id": "",
   "issues": [
     {

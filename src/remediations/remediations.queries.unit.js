@@ -1,6 +1,7 @@
 'use strict';
 
 const base = require('../test');
+const config = require('../config');
 const queries = require('./remediations.queries');
 const db = require('../db');
 const inventory = require('../connectors/inventory');
@@ -392,5 +393,47 @@ describe('getPlanSystemsDetails', function () {
                 display_name: null
             }
         });
+    });
+});
+
+describe('remediationExpiresAtSql', function () {
+    test('uses org_config and plan retention default', function () {
+        const sql = queries.remediationExpiresAtSql();
+        sql.includes('org_config').should.equal(true);
+        sql.includes('plan_retention_days').should.equal(true);
+        sql.includes('playbook_runs').should.equal(true);
+        sql.includes(String(config.plan_retention.retentionDays)).should.equal(true);
+    });
+});
+
+describe('list filter expires_within', function () {
+    let findAndCountAllStub;
+
+    beforeEach(() => {
+        findAndCountAllStub = base.sandbox.stub(db.remediation, 'findAndCountAll').resolves({count: [], rows: []});
+    });
+
+    async function listWithFilter (expires_within) {
+        return queries.list(
+            '0000000',
+            null,
+            false,
+            'updated_at',
+            true,
+            {expires_within},
+            false,
+            50,
+            0
+        );
+    }
+
+    test('accepts whole number as string and queries', async () => {
+        await listWithFilter('30');
+        findAndCountAllStub.should.have.been.calledOnce;
+    });
+
+    test('accepts whole number and queries', async () => {
+        await listWithFilter(30);
+        findAndCountAllStub.should.have.been.calledOnce;
     });
 });
