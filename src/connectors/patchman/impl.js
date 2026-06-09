@@ -12,6 +12,7 @@ module.exports = new class extends Connector {
     constructor () {
         super(module);
         this.metrics = metrics.createConnectorMetric(this.getName());
+        this.templateMetrics = metrics.createConnectorMetric(this.getName(), 'getTemplateSystemIds');
     }
 
     async getErratum (id, refresh = false) {
@@ -40,6 +41,26 @@ module.exports = new class extends Connector {
 
             throw e;
         }
+    }
+
+    async getTemplateSystemIds (systemIds) {
+        const uri = new URI(host);
+        uri.path('/api/patch/v3/systems');
+        uri.search({
+            'filter[id]': `in:${systemIds.join(',')}`,
+            'filter[template_uuid]': 'neq:null',
+            limit: -1
+        });
+
+        const res = await this.doHttp({
+            uri: uri.toString(),
+            method: 'GET',
+            json: true,
+            headers: this.getForwardedHeaders()
+        }, false, this.templateMetrics);
+
+        const ids = _.get(res, ['data'], []).map(system => system.id);
+        return new Set(ids);
     }
 
     async ping () {
