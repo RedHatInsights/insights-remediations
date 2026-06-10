@@ -8,19 +8,17 @@ const controller = require('./config.controller');
 const db = require('../db');
 const config = require('../config');
 
-function expectedConfigData(orgConfig) {
-    const plan_retention_days = orgConfig?.plan_retention_days ?? null;
-    const plan_warning_days = orgConfig?.plan_warning_days ?? null;
-
+function expectedEffective(orgConfig) {
     return {
-        plan_retention_days: {
-            override: plan_retention_days,
-            default: config.plan_retention.retentionDays
-        },
-        plan_warning_days: {
-            override: plan_warning_days,
-            default: config.plan_retention.warningDays
-        }
+        plan_retention_days: orgConfig?.plan_retention_days ?? config.plan_retention.retentionDays,
+        plan_warning_days: orgConfig?.plan_warning_days ?? config.plan_retention.warningDays
+    };
+}
+
+function expectedDefaults() {
+    return {
+        plan_retention_days: config.plan_retention.retentionDays,
+        plan_warning_days: config.plan_retention.warningDays
     };
 }
 
@@ -40,7 +38,7 @@ describe('config controller unit tests', function () {
     });
 
     describe('get', function () {
-        test('returns organization values when configured', async () => {
+        test('returns effective values when configured', async () => {
             db.org_config.findByPk.resolves({
                 plan_retention_days: 90,
                 plan_warning_days: 14
@@ -56,10 +54,10 @@ describe('config controller unit tests', function () {
 
             await controller.get(req, res);
 
-            sinon.assert.calledWithExactly(res.json, expectedConfigData({ plan_retention_days: 90, plan_warning_days: 14 }));
+            sinon.assert.calledWithExactly(res.json, expectedEffective({ plan_retention_days: 90, plan_warning_days: 14 }));
         });
 
-        test('returns null overrides when org has no config', async () => {
+        test('returns defaults when org has no config', async () => {
             db.org_config.findByPk.resolves(null);
             const req = {
                 user: {
@@ -72,14 +70,55 @@ describe('config controller unit tests', function () {
 
             await controller.get(req, res);
 
-            sinon.assert.calledWithExactly(res.json, expectedConfigData(null));
+            sinon.assert.calledWithExactly(res.json, expectedEffective(null));
         });
     });
 
-    describe('patch', function () {
-        test('creates or updates org config and returns payload', async () => {
+    describe('getDefaults', function () {
+        test('returns system defaults', async () => {
+            const res = { json: sandbox.stub() };
+
+            await controller.getDefaults({}, res);
+
+            sinon.assert.calledWithExactly(res.json, expectedDefaults());
+        });
+    });
+
+    describe('getOverrides', function () {
+        test('returns only non-null override fields', async () => {
+            db.org_config.findByPk.resolves({
+                plan_retention_days: null,
+                plan_warning_days: 14
+            });
+            const req = {
+                user: { tenant_org_id: '5318290' }
+            };
+            const res = { json: sandbox.stub() };
+
+            await controller.getOverrides(req, res);
+
+            sinon.assert.calledWithExactly(res.json, { plan_warning_days: 14 });
+        });
+
+        test('returns empty object when org has no config', async () => {
             db.org_config.findByPk.resolves(null);
-            db.org_config.upsert.resolves();
+            const req = {
+                user: { tenant_org_id: '5318290' }
+            };
+            const res = { json: sandbox.stub() };
+
+            await controller.getOverrides(req, res);
+
+            sinon.assert.calledWithExactly(res.json, {});
+        });
+    });
+
+    describe('putOverrides', function () {
+        test('creates or updates org config and returns persisted override values', async () => {
+            db.org_config.upsert.resolves([{
+                plan_retention_days: 100,
+                plan_warning_days: 20
+            }, true]);
             const req = {
                 user: {
                     tenant_org_id: '5318290'
@@ -93,98 +132,103 @@ describe('config controller unit tests', function () {
                 json: sandbox.stub()
             };
 
-            await controller.patch(req, res);
+            await controller.putOverrides(req, res);
 
             sinon.assert.calledWithExactly(db.org_config.upsert, {
                 org_id: '5318290',
                 plan_retention_days: 100,
                 plan_warning_days: 20
             });
-            sinon.assert.calledWithExactly(res.json, expectedConfigData({ plan_retention_days: 100, plan_warning_days: 20 }));
+            sinon.assert.notCalled(db.org_config.findByPk);
+            sinon.assert.calledWithExactly(res.json, { plan_retention_days: 100, plan_warning_days: 20 });
         });
 
-        test('fills omitted field from existing org row', async () => {
-            db.org_config.findByPk.resolves({
-                plan_retention_days: 90,
-                plan_warning_days: 14
-            });
-            db.org_config.upsert.resolves();
-            const req = {
-                user: { tenant_org_id: '5318290' },
-                body: { plan_retention_days: 60 }
-            };
-            const res = { json: sandbox.stub() };
-
-            await controller.patch(req, res);
-
-            sinon.assert.calledWithExactly(db.org_config.upsert, {
-                org_id: '5318290',
-                plan_retention_days: 60,
-                plan_warning_days: 14
-            });
-        });
-
-        test('fills omitted field with null when no org row', async () => {
-            db.org_config.findByPk.resolves(null);
-            db.org_config.upsert.resolves();
+        test('clears omitted fields to null and omits them from response', async () => {
+            db.org_config.upsert.resolves([{
+                plan_retention_days: 50,
+                plan_warning_days: null
+            }, false]);
             const req = {
                 user: { tenant_org_id: '5318290' },
                 body: { plan_retention_days: 50 }
             };
             const res = { json: sandbox.stub() };
 
-            await controller.patch(req, res);
+            await controller.putOverrides(req, res);
 
             sinon.assert.calledWithExactly(db.org_config.upsert, {
                 org_id: '5318290',
                 plan_retention_days: 50,
                 plan_warning_days: null
             });
+            sinon.assert.calledWithExactly(res.json, { plan_retention_days: 50 });
         });
 
-        test('when body omits both fields and no org row, upserts nulls and returns them', async () => {
-            db.org_config.findByPk.resolves(null);
-            db.org_config.upsert.resolves();
+        test('omits null values from response', async () => {
+            db.org_config.upsert.resolves([{
+                plan_retention_days: null,
+                plan_warning_days: 14
+            }, false]);
+            const req = {
+                user: { tenant_org_id: '5318290' },
+                body: {
+                    plan_retention_days: null,
+                    plan_warning_days: 14
+                }
+            };
+            const res = { json: sandbox.stub() };
+
+            await controller.putOverrides(req, res);
+
+            sinon.assert.calledWithExactly(db.org_config.upsert, {
+                org_id: '5318290',
+                plan_retention_days: null,
+                plan_warning_days: 14
+            });
+            sinon.assert.calledWithExactly(res.json, { plan_warning_days: 14 });
+        });
+
+        test('empty body clears all overrides', async () => {
+            db.org_config.upsert.resolves([{
+                plan_retention_days: null,
+                plan_warning_days: null
+            }, false]);
             const req = {
                 user: { tenant_org_id: '5318290' },
                 body: {}
             };
             const res = { json: sandbox.stub() };
 
-            await controller.patch(req, res);
+            await controller.putOverrides(req, res);
 
             sinon.assert.calledWithExactly(db.org_config.upsert, {
                 org_id: '5318290',
                 plan_retention_days: null,
                 plan_warning_days: null
             });
-            sinon.assert.calledWithExactly(res.json, expectedConfigData(null));
+            sinon.assert.calledWithExactly(res.json, {});
         });
 
-        test('when body omits both fields and org row exists, upserts same values and returns them', async () => {
-            db.org_config.findByPk.resolves({
-                plan_retention_days: 88,
-                plan_warning_days: 9
-            });
-            db.org_config.upsert.resolves();
+        test('returns persisted values rather than request body when they differ', async () => {
+            db.org_config.upsert.resolves([{
+                plan_retention_days: 51,
+                plan_warning_days: 14
+            }, false]);
             const req = {
                 user: { tenant_org_id: '5318290' },
-                body: {}
+                body: {
+                    plan_retention_days: 50,
+                    plan_warning_days: 14
+                }
             };
             const res = { json: sandbox.stub() };
 
-            await controller.patch(req, res);
+            await controller.putOverrides(req, res);
 
-            sinon.assert.calledWithExactly(db.org_config.upsert, {
-                org_id: '5318290',
-                plan_retention_days: 88,
-                plan_warning_days: 9
-            });
-            sinon.assert.calledWithExactly(res.json, expectedConfigData({ plan_retention_days: 88, plan_warning_days: 9 }));
+            sinon.assert.calledWithExactly(res.json, { plan_retention_days: 51, plan_warning_days: 14 });
         });
 
         test('rejects when warning >= retention', async () => {
-            db.org_config.findByPk.resolves(null);
             const validationError = new ValidationError('Validation error', [
                 { message: 'Warning period (30 days) must be less than retention period (30 days)' }
             ]);
@@ -200,8 +244,7 @@ describe('config controller unit tests', function () {
             const res = { json: sandbox.stub() };
             const next = sandbox.stub();
 
-            // Don't await - let errors.async catch and call next
-            await controller.patch(req, res, next).catch(() => {});
+            await controller.putOverrides(req, res, next).catch(() => {});
 
             sinon.assert.calledOnce(next);
             const err = next.firstCall.args[0];
@@ -210,32 +253,7 @@ describe('config controller unit tests', function () {
             err.error.title.should.equal('Data validation error');
         });
 
-        test('rejects when warning > retention', async () => {
-            db.org_config.findByPk.resolves(null);
-            const validationError = new ValidationError('Validation error', [
-                { message: 'Warning period (20 days) must be less than retention period (10 days)' }
-            ]);
-            db.org_config.upsert.rejects(validationError);
-
-            const req = {
-                user: { tenant_org_id: '5318290' },
-                body: {
-                    plan_retention_days: 10,
-                    plan_warning_days: 20
-                }
-            };
-            const res = { json: sandbox.stub() };
-            const next = sandbox.stub();
-
-            await controller.patch(req, res, next).catch(() => {});
-
-            sinon.assert.calledOnce(next);
-            const err = next.firstCall.args[0];
-            err.error.code.should.equal('INVALID_CONFIG');
-        });
-
         test('rejects when retention too low for default warning (30 days)', async () => {
-            db.org_config.findByPk.resolves(null);
             const validationError = new ValidationError('Validation error', [
                 { message: 'Warning period (30 days) must be less than retention period (20 days)' }
             ]);
@@ -244,14 +262,13 @@ describe('config controller unit tests', function () {
             const req = {
                 user: { tenant_org_id: '5318290' },
                 body: {
-                    plan_retention_days: 20,
-                    plan_warning_days: null
+                    plan_retention_days: 20
                 }
             };
             const res = { json: sandbox.stub() };
             const next = sandbox.stub();
 
-            await controller.patch(req, res, next).catch(() => {});
+            await controller.putOverrides(req, res, next).catch(() => {});
 
             sinon.assert.calledOnce(next);
             const err = next.firstCall.args[0];
@@ -259,9 +276,30 @@ describe('config controller unit tests', function () {
             err.error.details.message.should.match(/30 days.*20 days/);
         });
 
+        test('returns persisted override values', async () => {
+            db.org_config.upsert.resolves([{
+                plan_retention_days: 90,
+                plan_warning_days: 21
+            }, false]);
+            const req = {
+                user: { tenant_org_id: '5318290' },
+                body: {
+                    plan_retention_days: 90,
+                    plan_warning_days: 21
+                }
+            };
+            const res = { json: sandbox.stub() };
+
+            await controller.putOverrides(req, res);
+
+            sinon.assert.calledWithExactly(res.json, { plan_retention_days: 90, plan_warning_days: 21 });
+        });
+
         test('accepts when warning < retention', async () => {
-            db.org_config.findByPk.resolves(null);
-            db.org_config.upsert.resolves();
+            db.org_config.upsert.resolves([{
+                plan_retention_days: 90,
+                plan_warning_days: 14
+            }, false]);
             const req = {
                 user: { tenant_org_id: '5318290' },
                 body: {
@@ -271,133 +309,10 @@ describe('config controller unit tests', function () {
             };
             const res = { json: sandbox.stub() };
 
-            await controller.patch(req, res);
+            await controller.putOverrides(req, res);
 
             sinon.assert.calledOnce(db.org_config.upsert);
-            sinon.assert.calledWithExactly(res.json, expectedConfigData({ plan_retention_days: 90, plan_warning_days: 14 }));
-        });
-    });
-
-    describe('deleteConfig', function () {
-        test('returns null overrides when org has no config row', async () => {
-            db.org_config.findByPk.resolves(null);
-            const req = {
-                user: { tenant_org_id: '5318290' },
-                params: { field: 'plan_retention_days' }
-            };
-            const res = { json: sandbox.stub() };
-
-            await controller.deleteConfig(req, res, sandbox.stub());
-
-            sinon.assert.calledWithExactly(res.json, expectedConfigData(null));
-        });
-
-        test('resets one field to null and updates row when other stays customized', async () => {
-            const fakeRow = {
-                plan_retention_days: 90,
-                plan_warning_days: 14
-            };
-            fakeRow.update = sandbox.stub().callsFake(function(updates) {
-                Object.assign(fakeRow, updates);
-                return Promise.resolve();
-            });
-            fakeRow.destroy = sandbox.stub().resolves();
-            db.org_config.findByPk.resolves(fakeRow);
-
-            const req = {
-                user: { tenant_org_id: '5318290' },
-                params: { field: 'plan_retention_days' }
-            };
-            const res = { json: sandbox.stub() };
-
-            await controller.deleteConfig(req, res, sandbox.stub());
-
-            sinon.assert.calledOnce(fakeRow.update);
-            sinon.assert.calledWithExactly(fakeRow.update, { plan_retention_days: null });
-            sinon.assert.notCalled(fakeRow.destroy);
-            sinon.assert.calledWithExactly(res.json, expectedConfigData({ plan_retention_days: null, plan_warning_days: 14 }));
-        });
-
-        test('updates row setting both fields to null after reset', async () => {
-            const fakeRow = {
-                plan_retention_days: 120,
-                plan_warning_days: 10
-            };
-            fakeRow.update = sandbox.stub().callsFake(function(updates) {
-                Object.assign(fakeRow, updates);
-                return Promise.resolve();
-            });
-            fakeRow.destroy = sandbox.stub().resolves();
-            db.org_config.findByPk.resolves(fakeRow);
-
-            const req = {
-                user: { tenant_org_id: '5318290' },
-                params: { field: 'plan_warning_days' }
-            };
-            const res = { json: sandbox.stub() };
-
-            await controller.deleteConfig(req, res, sandbox.stub());
-
-            sinon.assert.calledOnce(fakeRow.update);
-            sinon.assert.calledWithExactly(fakeRow.update, { plan_warning_days: null });
-            sinon.assert.notCalled(fakeRow.destroy);
-            sinon.assert.calledWithExactly(res.json, expectedConfigData({ plan_retention_days: 120, plan_warning_days: null }));
-        });
-
-        test('rejects when resetting warning to default would violate rule', async () => {
-            // retention=25, warning=20 -> delete warning -> warning becomes 30
-            // 30 >= 25, so should fail
-            const validationError = new ValidationError('Validation error', [
-                { message: 'Warning period (30 days) must be less than retention period (25 days)' }
-            ]);
-
-            const fakeRow = {
-                plan_retention_days: 25,
-                plan_warning_days: 20
-            };
-            fakeRow.update = sandbox.stub().rejects(validationError);
-            fakeRow.destroy = sandbox.stub().resolves();
-            db.org_config.findByPk.resolves(fakeRow);
-
-            const req = {
-                user: { tenant_org_id: '5318290' },
-                params: { field: 'plan_warning_days' }
-            };
-            const res = { json: sandbox.stub() };
-            const next = sandbox.stub();
-
-            await controller.deleteConfig(req, res, next).catch(() => {});
-
-            sinon.assert.calledOnce(next);
-            const err = next.firstCall.args[0];
-            err.error.code.should.equal('INVALID_CONFIG');
-            err.error.details.message.should.match(/30 days.*25 days/);
-        });
-
-        test('accepts when resetting to default still satisfies rule', async () => {
-            // retention=150, warning=50 -> delete warning -> warning becomes 30
-            // 30 < 150, valid
-            const fakeRow = {
-                plan_retention_days: 150,
-                plan_warning_days: 50
-            };
-            fakeRow.update = sandbox.stub().callsFake(function(updates) {
-                Object.assign(fakeRow, updates);
-                return Promise.resolve();
-            });
-            fakeRow.destroy = sandbox.stub().resolves();
-            db.org_config.findByPk.resolves(fakeRow);
-
-            const req = {
-                user: { tenant_org_id: '5318290' },
-                params: { field: 'plan_warning_days' }
-            };
-            const res = { json: sandbox.stub() };
-
-            await controller.deleteConfig(req, res, sandbox.stub());
-
-            sinon.assert.calledOnce(fakeRow.update);
-            sinon.assert.calledWithExactly(res.json, expectedConfigData({ plan_retention_days: 150, plan_warning_days: null }));
+            sinon.assert.calledWithExactly(res.json, { plan_retention_days: 90, plan_warning_days: 14 });
         });
     });
 });

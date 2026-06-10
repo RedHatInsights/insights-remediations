@@ -6,6 +6,7 @@ const orgAdmin = require('../middleware/identity/orgAdmin');
 
 module.exports = function (router) {
     router.get('/config', openapi('getConfig'), controller.get);
-    router.patch('/config', orgAdmin, openapi('updateConfig'), controller.patch);
-    router.delete('/config/:field', orgAdmin, openapi('deleteConfigField'), controller.deleteConfig);
+    router.get('/config/defaults', openapi('getConfigDefaults'), controller.getDefaults);
+    router.get('/config/overrides', openapi('getConfigOverrides'), controller.getOverrides);
+    router.put('/config/overrides', orgAdmin, openapi('putConfigOverrides'), controller.putOverrides);
 };
