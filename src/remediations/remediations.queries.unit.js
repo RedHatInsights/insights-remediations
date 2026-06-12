@@ -397,12 +397,11 @@ describe('getPlanSystemsDetails', function () {
 });
 
 describe('remediationExpiresAtSql', function () {
-    test('uses org_config and plan retention default', function () {
-        const sql = queries.remediationExpiresAtSql();
-        sql.includes('org_config').should.equal(true);
-        sql.includes('plan_retention_days').should.equal(true);
+    test('injects retention days and uses playbook_runs', function () {
+        const sql = queries.remediationExpiresAtSql(120);
+        sql.includes('org_config').should.equal(false);
         sql.includes('playbook_runs').should.equal(true);
-        sql.includes(String(config.plan_retention.retentionDays)).should.equal(true);
+        sql.includes('120').should.equal(true);
     });
 });
 
@@ -411,6 +410,7 @@ describe('list filter expires_within', function () {
 
     beforeEach(() => {
         findAndCountAllStub = base.sandbox.stub(db.remediation, 'findAndCountAll').resolves({count: [], rows: []});
+        base.sandbox.stub(db.org_config, 'findByPk').resolves(null);
     });
 
     async function listWithFilter (expires_within) {

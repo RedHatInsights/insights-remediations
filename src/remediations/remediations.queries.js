@@ -13,6 +13,7 @@ const dispatcher = require('../connectors/dispatcher');
 const fifi2 = require('./fifi_2');
 
 const CACHE_TTL = config.db.cache.ttl;
+const ORG_CONFIG_CACHE_KEY = org_id => `remediations|db-cache|org-config|${org_id}`;
 
 const REMEDIATION_ATTRIBUTES = [
     'id',
@@ -37,24 +38,38 @@ const PLAYBOOK_RUN_ATTRIBUTES = [
 ];
 
 /**
- * Calculates the expires_at timestamp for a remediation plan
- * expires_at = last remediation plan activity + org retention period
- * last remediation plan activity is the last time the plan was updated or executed
- * org retention period comes is the retention period from org_config or falls back to the default retention period
+ * Fetches the effective plan retention period for the given org, with Redis caching.
+ * Falls back to the system default when no org override exists.
  */
-function remediationExpiresAtSql () {
-    const defaultRetentionDays = config.plan_retention.retentionDays;
+async function getEffectiveRetentionDays(tenant_org_id) {
+    if (config.redis.enabled && cache.get().status === 'ready') {
+        const cached = await cache.get().get(ORG_CONFIG_CACHE_KEY(tenant_org_id));
+        if (cached !== null) {
+            return Number(cached);
+        }
+    }
 
+    const orgConfig = await db.org_config.findByPk(tenant_org_id);
+    const retentionDays = orgConfig?.plan_retention_days ?? config.plan_retention.retentionDays;
+
+    if (config.redis.enabled && cache.get().status === 'ready') {
+        await cache.get().setex(ORG_CONFIG_CACHE_KEY(tenant_org_id), CACHE_TTL, String(retentionDays));
+    }
+
+    return retentionDays;
+}
+
+/**
+ * Builds the expires_at SQL expression for a remediation plan.
+ * expires_at = GREATEST(updated_at, last_run_at) + retentionDays
+ * retentionDays is resolved once per request via getEffectiveRetentionDays rather than
+ * as a per-row correlated subquery.
+ */
+function remediationExpiresAtSql (retentionDays) {
     const lastActivityTimestamp = `
         GREATEST(
             "remediation"."updated_at",
             (SELECT MAX("pr"."created_at") FROM "playbook_runs" AS "pr" WHERE "pr"."remediation_id" = "remediation"."id")
-        )`;
-
-    const retentionDays = `
-        COALESCE(
-            (SELECT "oc"."plan_retention_days" FROM "org_config" AS "oc" WHERE "oc"."org_id" = "remediation"."tenant_org_id"),
-            ${defaultRetentionDays}
         )`;
 
     return `(${lastActivityTimestamp} + (${retentionDays}) * INTERVAL '1 day')`;
@@ -122,6 +137,51 @@ function resolvedCountSubquery () {
     );
 }
 
+/*
+  Fetches a paginated, sorted, optionally filtered list of remediation plan summaries for the
+  given org (and optionally a single user). Returns lightweight aggregate rows — no issue or
+  system detail. Callers pass this result to loadDetails() to merge in name, created_by, etc.,
+  then to format.list() to shape the HTTP response.
+
+  Sorting: updated_at (default), name, issue_count, system_count, last_run_at, expires_at, status.
+  All sort keys have id as a stable tie-breaker. Sorting by status or filtering by status triggers
+  a dispatcher-run sync before the query so status values are current.
+
+  Filtering (via the filter object):
+    name          — case-insensitive substring match on plan name
+    status        — one of 'pending' | 'running' | 'success' | 'failure'
+    last_run_after — ISO timestamp, or the string 'never' for plans with no runs
+    created_after  — ISO timestamp
+    updated_after  — ISO timestamp
+    expires_within — integer N: plans whose expires_at is on or before now + N days
+
+  expires_at is calculated as GREATEST(updated_at, last_run_at) + effective retention days,
+  where the retention period is resolved once per call via getEffectiveRetentionDays (cached).
+
+  Returns the result of findAndCountAll:
+
+  {
+    count: 2,
+    rows: [
+      {
+        id: "66eec356-dd06-4c72-a3b6-ef27d1508a02",
+        issue_count: 3,
+        system_count: 5,
+        resolved_count: 1,
+        last_run_at: "2025-11-01T14:23:00.000Z",
+        expires_at: "2026-03-01T14:23:00.000Z"
+      },
+      {
+        id: "9197ba55-0abc-4028-9bbe-269e530f8bd5",
+        issue_count: 1,
+        system_count: 2,
+        resolved_count: 0,
+        last_run_at: null,
+        expires_at: "2026-04-15T08:00:00.000Z"
+      }
+    ]
+  }
+*/
 exports.list = async function (
     tenant_org_id,
     created_by,
@@ -134,6 +194,8 @@ exports.list = async function (
     offset) {
 
     const {Op, s: {literal, where, col, cast}, fn: { DISTINCT, COUNT, MAX }} = db;
+
+    const retentionDays = await getEffectiveRetentionDays(tenant_org_id);
 
     // Check if we need to sync dispatcher runs to accurately sort/filter by status
     const needsStatusSync = primaryOrder === 'status' || (filter && filter.status);
@@ -151,7 +213,7 @@ exports.list = async function (
             break;
 
         case 'expires_at':
-            sortOrder.push([literal(remediationExpiresAtSql()), asc ? 'ASC' : 'DESC']);
+            sortOrder.push([literal(remediationExpiresAtSql(retentionDays)), asc ? 'ASC' : 'DESC']);
             break;
 
         case 'issue_count':
@@ -176,7 +238,7 @@ exports.list = async function (
             [cast(COUNT(DISTINCT(col('issues->systems.system_id'))), 'int'), 'system_count'],
             [resolvedCountSubquery(), 'resolved_count'],
             [MAX(col('playbook_runs.created_at')), 'last_run_at'],
-            [literal(remediationExpiresAtSql()), 'expires_at']
+            [literal(remediationExpiresAtSql(retentionDays)), 'expires_at']
         ],
         include: [{
             attributes: [],
@@ -298,7 +360,7 @@ exports.list = async function (
             query.where[Op.and] = [
                 ...(query.where[Op.and] || []),
                 where(
-                    literal(remediationExpiresAtSql()),
+                    literal(remediationExpiresAtSql(retentionDays)),
                     {[Op.lte]: literal(`(NOW() + (${days}::integer * INTERVAL '1 day'))`)}
                 )
             ];
@@ -431,6 +493,8 @@ exports.get = async function (id, tenant_org_id, created_by = null, includeResol
 
     const {s: {literal}} = db;
 
+    const retentionDays = await getEffectiveRetentionDays(tenant_org_id);
+
     const query = {
         attributes: [
             ...REMEDIATION_ATTRIBUTES
@@ -461,7 +525,7 @@ exports.get = async function (id, tenant_org_id, created_by = null, includeResol
         ]
     };
 
-    query.attributes.push([literal(remediationExpiresAtSql()), 'expires_at']);
+    query.attributes.push([literal(remediationExpiresAtSql(retentionDays)), 'expires_at']);
 
     if (includeResolvedCount) {
         query.attributes.push([resolvedCountSubquery(), 'resolved_count']);
@@ -544,10 +608,12 @@ exports.get = async function (id, tenant_org_id, created_by = null, includeResol
 exports.getSummary = async function (id, tenant_org_id, created_by = null) {
     const { fn, col, literal } = db.s;
 
+    const retentionDays = await getEffectiveRetentionDays(tenant_org_id);
+
     const remediation = await db.remediation.findOne({
         attributes: [
             ...REMEDIATION_ATTRIBUTES,
-            [literal(remediationExpiresAtSql()), 'expires_at']
+            [literal(remediationExpiresAtSql(retentionDays)), 'expires_at']
         ],
         where: {
             id,
@@ -1117,3 +1183,9 @@ exports.getPlaybookRunsWithDispatcherCounts = async function (playbookRunIds) {
 };
 
 exports.remediationExpiresAtSql = remediationExpiresAtSql;
+
+exports.clearOrgConfigCache = async function (tenant_org_id) {
+    if (config.redis.enabled && cache.get().status === 'ready') {
+        await cache.get().del(ORG_CONFIG_CACHE_KEY(tenant_org_id));
+    }
+};
