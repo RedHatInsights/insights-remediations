@@ -63,6 +63,7 @@
     "supertest": "^7.1.4"
   },
   "overrides": {
+    "ajv": "^8.18.0",
     "brace-expansion": "^2.0.2",
     "loader-utils": "^3.2.1",
     "tough-cookie": "^4.1.3",
