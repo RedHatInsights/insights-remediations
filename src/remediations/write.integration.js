@@ -1631,6 +1631,7 @@ describe('remediations', function () {
                 r2.body.id = '';
                 r2.body.created_at = '';
                 r2.body.updated_at = '';
+                r2.body.expires_at = '';
 
                 expect(r2.body).toMatchSnapshot();
             });
@@ -1920,6 +1921,7 @@ describe('remediations', function () {
                 r3.body.id = '';
                 r3.body.created_at = '';
                 r3.body.updated_at = '';
+                r3.body.expires_at = '';
 
                 expect(r3.body).toMatchSnapshot();
             });
@@ -1957,6 +1959,7 @@ describe('remediations', function () {
                 r2.body.id = '';
                 r2.body.created_at = '';
                 r2.body.updated_at = '';
+                r2.body.expires_at = '';
 
                 expect(r2.body).toMatchSnapshot();
 
@@ -1967,6 +1970,7 @@ describe('remediations', function () {
                 r3.body.id = '';
                 r3.body.created_at = '';
                 r3.body.updated_at = '';
+                r3.body.expires_at = '';
 
                 expect(r3.body).toMatchSnapshot();
             });
