@@ -797,7 +797,7 @@ paths:
         Replaces override values for organization-wide configuration fields (restricted to
         organization admins only).
 
-        Fields omitted from the request body, or set to `null`, revert to the system default (stored as null).
+        Fields omitted from the request body, or set to `null`, revert to the system default.
         To keep an existing override unchanged when updating another field, include that field in the request 
         body with its current override value. To reset all overrides, send an empty object `{}`.
 

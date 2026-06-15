@@ -8,6 +8,7 @@ const db = require('../db');
 const inventory = require('../connectors/inventory');
 const {NULL_NAME_VALUE} = require('./models/remediation');
 const _ = require('lodash');
+const log = require('../util/log');
 const trace = require('../util/trace');
 const dispatcher = require('../connectors/dispatcher');
 const fifi2 = require('./fifi_2');
@@ -43,9 +44,13 @@ const PLAYBOOK_RUN_ATTRIBUTES = [
  */
 async function getEffectiveRetentionDays(tenant_org_id) {
     if (config.redis.enabled && cache.get().status === 'ready') {
-        const cached = await cache.get().get(ORG_CONFIG_CACHE_KEY(tenant_org_id));
-        if (cached !== null) {
-            return Number(cached);
+        try {
+            const cached = await cache.get().get(ORG_CONFIG_CACHE_KEY(tenant_org_id));
+            if (cached !== null) {
+                return Number(cached);
+            }
+        } catch (err) {
+            log.warn(err, 'failed to read org config retention from cache');
         }
     }
 
@@ -53,7 +58,11 @@ async function getEffectiveRetentionDays(tenant_org_id) {
     const retentionDays = orgConfig?.plan_retention_days ?? config.plan_retention.retentionDays;
 
     if (config.redis.enabled && cache.get().status === 'ready') {
-        await cache.get().setex(ORG_CONFIG_CACHE_KEY(tenant_org_id), CACHE_TTL, String(retentionDays));
+        try {
+            await cache.get().setex(ORG_CONFIG_CACHE_KEY(tenant_org_id), CACHE_TTL, String(retentionDays));
+        } catch (err) {
+            log.warn(err, 'failed to write org config retention to cache');
+        }
     }
 
     return retentionDays;
@@ -1186,6 +1195,10 @@ exports.remediationExpiresAtSql = remediationExpiresAtSql;
 
 exports.clearOrgConfigCache = async function (tenant_org_id) {
     if (config.redis.enabled && cache.get().status === 'ready') {
-        await cache.get().del(ORG_CONFIG_CACHE_KEY(tenant_org_id));
+        try {
+            await cache.get().del(ORG_CONFIG_CACHE_KEY(tenant_org_id));
+        } catch (err) {
+            log.warn(err, 'failed to clear org config retention cache');
+        }
     }
 };
