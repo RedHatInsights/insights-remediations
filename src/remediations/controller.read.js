@@ -151,11 +151,8 @@ exports.list = errors.async(async function (req, res) {
 
         plan_names = _.map(plan_names, name => name.toJSON())
 
-        const total = fifi.getListSize(plan_names);
-        limit = limit || 1;
-
         trace.event('Format response');
-        const resp = format.planNames(plan_names, total, limit, offset, req.query.sort, req.query.system)
+        const resp = format.planNames(plan_names)
 
         trace.leave();
 
