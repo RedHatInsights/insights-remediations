@@ -511,3 +511,6 @@ exports.removeSystem = errors.async(async function (req, res) {
 
     return res.status(404).end();
 });
+
+// Export for reuse in generator.controller.js (backfill systems not in local DB)
+exports.storeSystemDetails = storeSystemDetails;

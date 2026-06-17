@@ -14,7 +14,8 @@ const SPECIAL_SYSTEMS = {
     '35f36364-6007-4ecc-9666-c4f8d354be9f': { hostname: '35e9b452-e405-499c-9c6e-120010b7b465.example.com' },
     '1040856f-b772-44c7-83a9-eea4813c4be8': { 
         hostname: '1040856f-b772-44c7-83a9-eea4813c4be8.example.com',
-        display_name: 'test-system-1'
+        display_name: 'test-system-1',
+        ansible_hostname: '1040856f-b772-44c7-83a9-eea4813c4be8.ansible.example.com'
     }
 };
 
@@ -108,7 +109,7 @@ function generateSystemData(id) {
             id,
             hostname: SPECIAL_SYSTEMS[id].hostname || null,
             display_name: SPECIAL_SYSTEMS[id].display_name || null,
-            ansible_hostname: SPECIAL_SYSTEMS[id].ansible_host || null
+            ansible_hostname: SPECIAL_SYSTEMS[id].ansible_hostname || null
         };
     }
 
