@@ -22,7 +22,7 @@ spec:
   - name: hermetic
     value: "true"
   - name: prefetch-input
-    value: '[{"type": "npm", "path": "."}, {"type": "rpm", "path": "."}]'
+    value: '[{"type": "npm", "path": "."}]'
   - name: git-url
     value: '{{source_url}}'
   - name: revision
@@ -32,7 +32,7 @@ spec:
   - name: image-expires-after
     value: 5d
   - name: dockerfile
-    value: Dockerfile
+    value: Dockerfile.hummingbird
   - name: path-context
     value: .
   - name: prefetch-dev-package-managers

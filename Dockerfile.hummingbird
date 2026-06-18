@@ -1,0 +1,96 @@
+# Phase-1 spike: Hummingbird Node FIPS (fips-builder → fips).
+#
+# Pin an explicit release tag (not rolling :24-fips or :latest-fips).
+# Digest is optional; Konflux SBOM/provenance records the resolved digest at build time.
+#
+# Bump process: update NODE_*_TAG when moving to a new patch release (e.g. 24.16.0-fips).
+#
+# Local build:
+#   podman build -f Dockerfile.hummingbird --target dist -t remediations:hummingbird .
+
+ARG NODE_REGISTRY=registry.access.redhat.com/hi/nodejs
+ARG BUILD_PLATFORM=linux/amd64
+
+# Node 24.15.0 FIPS (stream 24, Active LTS — target production upgrade from Node 22)
+ARG NODE_BUILDER_TAG=24.15.0-fips-builder
+ARG NODE_RUNTIME_TAG=24.15.0-fips
+
+FROM --platform=${BUILD_PLATFORM} ${NODE_REGISTRY}:${NODE_BUILDER_TAG} AS build
+
+WORKDIR /app
+
+RUN mkdir -p /app/.npm/{_logs,_cacache} && chmod -R ug+rwX /app
+
+COPY package.json package-lock.json .npmrc ./
+RUN npm ci
+
+COPY ./certs ./certs
+COPY ./db ./db
+COPY ./src ./src
+COPY jest.config.js gulpfile.js .sequelizerc ./
+
+RUN npx clean-modules -y
+RUN npm run build
+
+#----------------------- build-prod deps -----------------------
+# Produce production-only node_modules for the final runtime stage.
+
+FROM --platform=${BUILD_PLATFORM} ${NODE_REGISTRY}:${NODE_BUILDER_TAG} AS build-prod
+
+WORKDIR /app
+
+RUN mkdir -p /app/.npm/{_logs,_cacache} && chmod -R ug+rwX /app
+
+COPY package.json package-lock.json .npmrc ./
+RUN npm ci --omit=dev && npm cache clean --force
+RUN npx clean-modules -y
+
+#----------------------- test image -----------------------
+
+FROM --platform=${BUILD_PLATFORM} ${NODE_REGISTRY}:${NODE_BUILDER_TAG} AS test
+
+WORKDIR /app
+
+COPY --from=build /app/dist ./
+COPY --from=build /app/test ./
+COPY --from=build /app/node_modules ./node_modules
+
+ENV NODE_ENV=test
+
+CMD ["npm", "run", "test:ci"]
+
+#----------------------- production -----------------------
+
+FROM --platform=${BUILD_PLATFORM} ${NODE_REGISTRY}:${NODE_RUNTIME_TAG} AS dist
+
+WORKDIR /app
+
+# Hummingbird fips image defaults to USER 65532; /licenses requires root.
+USER root
+RUN mkdir -p /licenses
+COPY LICENSE /licenses/
+
+LABEL url="https://www.redhat.com"
+LABEL name="iop-remediations" \
+      description="insights-remediations on Project Hummingbird Node (spike)" \
+      summary="Hummingbird-based IoP remediations image (evaluation)"
+LABEL com.redhat.component="iop-remediations" \
+      io.k8s.display-name="IoP Remediations" \
+      io.openshift.tags="insights satellite iop remediations"
+
+COPY --from=build /app/dist ./
+COPY --from=build-prod /app/node_modules ./node_modules
+
+# The hi/nodejs:fips runtime image installs npm and its dependencies under /usr/lib/node_modules_24/npm 
+# Grype reports CVEs for those packages
+# We only use npm in the build stage, not in production so we don't need it in the prod image
+# Remove npm from the prod image so scans reflect app + base OS
+RUN rm -f /usr/bin/npm /usr/bin/npx /usr/bin/npm-24 /usr/bin/npx-24 && \
+    rm -rf /usr/lib/node_modules/npm /usr/lib/node_modules_24/npm
+
+EXPOSE 9002
+ENV NODE_ENV=production
+
+USER 65532
+
+CMD ["node", "--max-http-header-size=16384", "src/start.js"]
