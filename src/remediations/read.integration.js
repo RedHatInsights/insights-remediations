@@ -517,6 +517,36 @@ describe('remediations', function () {
             testSorting('last_run_at', true, refe, r249, r178, r256, r66e, rcbc, re80);
             testSorting('last_run_at', false, r178, r256, r66e, rcbc, re80, r249, refe);
 
+            test('sort=expires_at orders by expires_at ascending', async () => {
+                const {body} = await request
+                    .get('/v1/remediations?pretty&sort=expires_at')
+                    .expect(200);
+
+                body.data.length.should.be.above(0);
+                body.data.forEach(r => {
+                    expect(r.expires_at).toBeTruthy();
+                    expect(Number.isNaN(Date.parse(r.expires_at))).toBe(false);
+                });
+                const times = body.data.map(r => new Date(r.expires_at).getTime());
+                const sortedAsc = [...times].sort((a, b) => a - b);
+                sortedAsc.should.eql(times);
+            });
+
+            test('sort=-expires_at orders by expires_at descending', async () => {
+                const {body} = await request
+                    .get('/v1/remediations?pretty&sort=-expires_at')
+                    .expect(200);
+
+                body.data.length.should.be.above(0);
+                body.data.forEach(r => {
+                    expect(r.expires_at).toBeTruthy();
+                    expect(Number.isNaN(Date.parse(r.expires_at))).toBe(false);
+                });
+                const times = body.data.map(r => new Date(r.expires_at).getTime());
+                const sortedDesc = [...times].sort((a, b) => b - a);
+                sortedDesc.should.eql(times);
+            });
+
             // Status tests with isolated data setup
             describe('status tests', function () {
                 // Use existing test remediations but create isolated dispatcher_runs 
@@ -710,6 +740,17 @@ describe('remediations', function () {
                     testList('last_run_after=date/time query with match', '/v1/remediations?filter[last_run_after]=2016-12-04T08:19:36.641Z', refe, r249);
                     testList('last_run_after=never query with match', '/v1/remediations?filter[last_run_after]=never', r256, r178, re80, rcbc, r66e);
                     testList('name and last_run_after query no match', '/v1/remediations?filter[last_run_after]=2018-12-04T08:19:36.641Z&filter[name]=REBootNoMatch');
+
+                    test('filter[expires_within] with maximum window returns the same plans as an unfiltered list', async () => {
+                        const {body: baseline} = await request
+                            .get('/v1/remediations?pretty')
+                            .expect(200);
+                        const {body} = await request
+                            .get('/v1/remediations?pretty&filter[expires_within]=366')
+                            .expect(200);
+
+                        _.map(body.data, 'id').should.eql(_.map(baseline.data, 'id'));
+                    });
                 });
 
                 describe('invalid options', function () {
@@ -737,6 +778,18 @@ describe('remediations', function () {
                         'enum.openapi.requestValidation',
                         'must be equal to one of the allowed values (location: query, path: filter.status)'
                     );
+                    test('expires_within rejects invalid values', async () => {
+                        for (const value of ['0', 'notanumber', '367']) {
+                            const {body} = await request
+                                .get(`/v1/remediations?filter[expires_within]=${value}`)
+                                .expect(400);
+
+                            body.errors[0].code.should.equal('INVALID_REQUEST');
+                            body.errors[0].title.should.equal(
+                                'filter.expires_within must be an integer from 1 to 366'
+                            );
+                        }
+                    });
                 });
             });
         });
@@ -966,6 +1019,7 @@ describe('remediations', function () {
                     last_name: 'user'
                 },
                 created_at: '2018-12-04T08:19:36.641Z',
+                expires_at: '2019-04-03T08:19:36.641Z',
                 updated_by: {
                     username: 'tuser@redhat.com',
                     first_name: 'test',

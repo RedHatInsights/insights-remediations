@@ -4,6 +4,7 @@ const errors = require('../errors');
 const db = require('../db');
 const config = require('../config');
 const { ValidationError } = require('sequelize');
+const queries = require('../remediations/remediations.queries');
 
 function formatOverridesResponse(orgConfig) {
     const overrides = {};
@@ -154,6 +155,8 @@ exports.putOverrides = errors.async(async function (req, res) {
         }
         throw err;
     }
+
+    await queries.clearOrgConfigCache(tenant_org_id);
 
     // Return the fields that have a custom override value (i.e. not null which means they use the system default)
     return res.json(formatOverridesResponse(orgConfig));

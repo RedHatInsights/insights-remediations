@@ -797,7 +797,7 @@ paths:
         Replaces override values for organization-wide configuration fields (restricted to
         organization admins only).
 
-        Fields omitted from the request body, or set to `null`, revert to the system default (stored as null).
+        Fields omitted from the request body, or set to `null`, revert to the system default.
         To keep an existing override unchanged when updating another field, include that field in the request 
         body with its current override value. To reset all overrides, send an empty object `{}`.
 
@@ -1015,6 +1015,8 @@ components:
           - -created_at
           - last_run_at
           - -last_run_at
+          - expires_at
+          - -expires_at
           - name
           - -name
           - system_count
@@ -1053,6 +1055,7 @@ components:
         - updated_after: modified on or after date-time, `filter[updated_after]=2025-03-31T08:19:36.641Z`
         - last_run_after: executed on or after date-time or 'never', `filter[last_run_after]=never` 
         - status: status matching one of [running, success, failure], `filter[status]=failure`
+        - expires_within: plans that expire within N days (expires_at date is on or before now + N days where N is an integer 1–366), `filter[expires_within]=30`
       required: false
       schema:
         anyOf:
@@ -1093,6 +1096,11 @@ components:
                   Filter remediations updated on or after this timestamp (ISO 8601 format)
                   Must be a valid ISO 8601 date-time string. Precision should be to the nearest second or millisecond.
                   Example: '2024-09-11T12:00:00Z' or '2024-09-11T12:00:00.123Z'
+              expires_within:
+                type: string
+                description: >
+                  Filter remediation plans that expire within N days (expires_at date is on or before now + N days).
+                  Must be an integer from 1 to 366 (e.g. 30).
       style: deepObject
       explode: true
 
@@ -2323,7 +2331,7 @@ components:
     RemediationDetails:
       type: object
       additionalProperties: false
-      required: [id, name, auto_reboot, created_by, created_at, updated_by, updated_at, archived]
+      required: [id, name, auto_reboot, created_by, created_at, updated_by, updated_at, archived, expires_at]
       properties:
         id:
           $ref: '#/components/schemas/RemediationId'
@@ -2342,6 +2350,8 @@ components:
         updated_by:
           $ref: '#/components/schemas/UserOut'
         updated_at:
+          $ref: '#/components/schemas/DateTime'
+        expires_at:
           $ref: '#/components/schemas/DateTime'
         resolved_count:
           $ref: '#/components/schemas/ResolvedCount'
@@ -2438,7 +2448,7 @@ components:
     RemediationListItem:
       type: object
       additionalProperties: false
-      required: [id, name, created_by, created_at, updated_by, updated_at, issue_count, system_count, resolved_count, needs_reboot, archived]
+      required: [id, name, created_by, created_at, updated_by, updated_at, issue_count, system_count, resolved_count, needs_reboot, archived, expires_at]
       properties:
         id:
           $ref: '#/components/schemas/RemediationId'
@@ -2467,6 +2477,12 @@ components:
           type: string
           format: date-time
           nullable: true
+        expires_at:
+          type: string
+          format: date-time
+          description: >
+            Timestamp when the plan expires: period of time since the plan was last updated or executed, plus the retention period
+            in effect for the organization (custom value or system default).
         playbook_runs:
           type: array
           items:
