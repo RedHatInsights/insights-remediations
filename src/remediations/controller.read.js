@@ -124,6 +124,15 @@ exports.list = errors.async(async function (req, res) {
         filter = {name: filter};
     }
 
+    // OpenAPI request validator does not coerce or validate integer min/max on nested
+    // deepObject filter fields when the filter parameter uses anyOf so we validate filter.expires_within here
+    if (filter?.expires_within != null) {
+        const days = Number(filter.expires_within);
+        if (!Number.isInteger(days) || days < 1 || days > 366) {
+            throw new errors.BadRequest('INVALID_REQUEST', 'filter.expires_within must be an integer from 1 to 366');
+        }
+    }
+
     // NOTE: OpenAPI request validator is not enforcing enumerated string restrictions for array elements,
     // so we're validating fields[data] parameter here to prevent partial matches and enforce allowed values
     const fieldsData = _.get(req, 'query.fields.data', []);
