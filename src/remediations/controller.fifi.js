@@ -16,7 +16,7 @@ const notMatching = res => res.sendStatus(412);
 const notFound = res => res.sendStatus(404);
 
 exports.checkExecutable = errors.async(async function (req, res) {
-    const exists = await queries.checkExecutable(
+    const exists = await queries.checkPlanExistence(
         req.params.id,
         req.user.tenant_org_id,
         req.user.username
