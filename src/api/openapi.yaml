@@ -1238,6 +1238,7 @@ components:
             "first_name": "Jozef",
             "last_name": "Hartinger"
           },
+          "expires_at": "2019-04-04T08:19:36.641Z",
           "issue_count": 8,
           "issue_count_details": {
             "advisor": 1,
