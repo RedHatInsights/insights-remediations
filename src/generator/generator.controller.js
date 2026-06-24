@@ -6,8 +6,6 @@ const etag = require('etag');
 
 const errors = require('../errors');
 const queries = require('../remediations/remediations.queries');
-const inventory = require('../connectors/inventory');
-const { storeSystemDetails } = require('../remediations/controller.write');
 const templates = require('../templates/static');
 const SpecialPlay = require('./plays/SpecialPlay');
 const format = require('./format');
@@ -124,7 +122,7 @@ exports.generate = errors.async(async function (req, res) {
 });
 
 exports.systemToHost = function (system) {
-    return system.ansible_host || system.hostname || system.id;
+    return system.ansible_hostname || system.ansible_host || system.hostname || system.id;
 };
 
 /**
@@ -148,31 +146,17 @@ exports.resolveSystems = async function (issues, strict = true) {
         trace.event(`System IDs: ${JSON.stringify(systemIds)}`);
     }
 
-    trace.event('Get system details from local DB...');
-    let systems = await queries.getSystemDetailsForPlaybook(systemIds);
-
-    // Fallback: if any systems missing from local table, fetch from Inventory and store
-    const missingIds = systemIds.filter(id => !(id in systems));
-    if (missingIds.length > 0) {
-        trace.event(`Fetching ${missingIds.length} missing systems from Inventory...`);
-
-        // Fetch system details from Inventory:
-        // - refresh=true: bypass cache as ansible_host may change
-        // - strict=true: throw UNKNOWN_SYSTEM error if any systems are missing
-        // - strict=false: return partial results with only known systems
-        const inventoryData = await inventory.getSystemDetailsBatch(missingIds, true, 2, strict)
-        .catch(e => {
-            probes.failedGeneration('unknown system(s)');
-            throw e;
-        });
-
-        // Store Inventory systems in our local systems table so we don't have to fetch from Inventory next time
-        storeSystemDetails(inventoryData).catch(err => log.warn({ err }, 'Failed to store system details'));
-        systems = { ...systems, ...inventoryData };
+    trace.event('Get system details...');
+    let systems;
+    try {
+        systems = await queries.getPlanSystemsDetails(systemIds, 50, true, strict);
+    } catch (e) {
+        probes.failedGeneration('unknown system(s)');
+        throw e;
     }
 
-    // Map system IDs to Ansible hostnames and filters out any systems not found in local systems table or Inventory
-    // For strict=true this is a no-op since getSystemDetailsBatch throws if any systems are missing
+    // Build issue.hosts from resolved system ids
+    // Skip system ids that weren't found in the local systems table or Inventory
     trace.event('Filter systems and map to hosts...');
     _.forEach(issues, issue => {
         // eslint-disable-next-line security/detect-object-injection
@@ -181,7 +165,7 @@ exports.resolveSystems = async function (issues, strict = true) {
             .map(id => exports.systemToHost(systems[id]));
     });
 
-    // Remove issues that have no hosts after filtering
+    // Remove issues that have no issue.hosts after filtering
     // For strict=true this is a no-op since no systems should have been filtered out
     issues = _.filter(issues, issue => issue.hosts.length > 0);
 
