@@ -741,12 +741,12 @@ describe('remediations', function () {
                     testList('last_run_after=never query with match', '/v1/remediations?filter[last_run_after]=never', r256, r178, re80, rcbc, r66e);
                     testList('name and last_run_after query no match', '/v1/remediations?filter[last_run_after]=2018-12-04T08:19:36.641Z&filter[name]=REBootNoMatch');
 
-                    test('filter[expires_within] with a large window returns the same plans as an unfiltered list', async () => {
+                    test('filter[expires_within] with maximum window returns the same plans as an unfiltered list', async () => {
                         const {body: baseline} = await request
                             .get('/v1/remediations?pretty')
                             .expect(200);
                         const {body} = await request
-                            .get('/v1/remediations?pretty&filter[expires_within]=99999')
+                            .get('/v1/remediations?pretty&filter[expires_within]=366')
                             .expect(200);
 
                         _.map(body.data, 'id').should.eql(_.map(baseline.data, 'id'));
@@ -778,18 +778,18 @@ describe('remediations', function () {
                         'enum.openapi.requestValidation',
                         'must be equal to one of the allowed values (location: query, path: filter.status)'
                     );
-                    test400(
-                        'expires_within rejects zero',
-                        '/v1/remediations?filter[expires_within]=0',
-                        'pattern.openapi.requestValidation',
-                        'must match pattern "^[1-9][0-9]*$" (location: query, path: filter.expires_within)'
-                    );
-                    test400(
-                        'expires_within rejects non-numeric value',
-                        '/v1/remediations?filter[expires_within]=notanumber',
-                        'pattern.openapi.requestValidation',
-                        'must match pattern "^[1-9][0-9]*$" (location: query, path: filter.expires_within)'
-                    );
+                    test('expires_within rejects invalid values', async () => {
+                        for (const value of ['0', 'notanumber', '367']) {
+                            const {body} = await request
+                                .get(`/v1/remediations?filter[expires_within]=${value}`)
+                                .expect(400);
+
+                            body.errors[0].code.should.equal('INVALID_REQUEST');
+                            body.errors[0].title.should.equal(
+                                'filter.expires_within must be an integer from 1 to 366'
+                            );
+                        }
+                    });
                 });
             });
         });
