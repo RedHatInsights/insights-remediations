@@ -753,7 +753,6 @@ describe('host sanitation', function () {
 describe('resolveSystems', function () {
     const controller = require('./generator.controller');
     const queries = require('../remediations/remediations.queries');
-    const inventory = require('../connectors/inventory');
     const errors = require('../errors');
 
     const system1Id = '68799a02-8be9-11e8-9eb6-529269fb1459';
@@ -761,88 +760,58 @@ describe('resolveSystems', function () {
     const missingSystemId = '00000000-0000-0000-0000-000000000000';
 
     let queriesStub;
-    let inventoryStub;
 
     beforeEach(() => {
-        queriesStub = getSandbox().stub(queries, 'getSystemDetailsForPlaybook');
-        inventoryStub = getSandbox().stub(inventory, 'getSystemDetailsBatch');
-        // Note: storeSystemDetails is imported via destructuring, so we can't stub it easily
-        // The call happens but we test it indirectly by verifying Inventory data is used
+        queriesStub = getSandbox().stub(queries, 'getPlanSystemsDetails');
     });
 
     test('uses systems from local DB when all found (Inventory not called)', async () => {
         const issues = [{ id: 'test:ping', systems: [system1Id, system2Id] }];
         
-        // All systems found in local DB
         queriesStub.resolves({
-            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_host: null, display_name: 'Host 1' },
-            [system2Id]: { id: system2Id, hostname: 'host2.example.com', ansible_host: null, display_name: 'Host 2' }
+            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_hostname: null, display_name: 'Host 1' },
+            [system2Id]: { id: system2Id, hostname: 'host2.example.com', ansible_hostname: null, display_name: 'Host 2' }
         });
 
         const result = await controller.resolveSystems(issues, true);
 
-        // Should have hosts mapped
         result[0].hosts.should.deepEqual(['host1.example.com', 'host2.example.com']);
-        
-        // Inventory should NOT be called since all systems were in local DB
-        inventoryStub.should.not.have.been.called;
+        queriesStub.calledOnceWith([system1Id, system2Id], 50, true, true).should.equal(true);
     });
 
     test('falls back to Inventory for systems missing from local DB', async () => {
         const issues = [{ id: 'test:ping', systems: [system1Id, system2Id] }];
         
-        // Only system1 found in local DB
         queriesStub.resolves({
-            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_host: null, display_name: 'Host 1' }
-        });
-        
-        // system2 fetched from Inventory
-        inventoryStub.resolves({
-            [system2Id]: { id: system2Id, hostname: 'host2.example.com', ansible_host: null, display_name: 'Host 2' }
+            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_hostname: null, display_name: 'Host 1' },
+            [system2Id]: { id: system2Id, hostname: 'host2.example.com', ansible_hostname: null, display_name: 'Host 2' }
         });
 
         const result = await controller.resolveSystems(issues, true);
 
-        // Should have both hosts mapped
         result[0].hosts.should.deepEqual(['host1.example.com', 'host2.example.com']);
-        
-        // Inventory should be called only for missing system
-        inventoryStub.should.have.been.calledOnce;
-        inventoryStub.firstCall.args[0].should.deepEqual([system2Id]);
+        queriesStub.calledOnceWith([system1Id, system2Id], 50, true, true).should.equal(true);
     });
 
     test('fetches from Inventory when systems missing from local DB', async () => {
         const issues = [{ id: 'test:ping', systems: [system1Id] }];
         
-        // No systems in local DB
-        queriesStub.resolves({});
-        
-        // System fetched from Inventory
-        const inventoryData = {
-            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_host: null, display_name: 'Host 1' }
-        };
-        inventoryStub.resolves(inventoryData);
+        queriesStub.resolves({
+            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_hostname: null, display_name: 'Host 1' }
+        });
 
         const result = await controller.resolveSystems(issues, true);
 
-        // Inventory should be called for the missing system
-        inventoryStub.should.have.been.calledOnce;
-        inventoryStub.firstCall.args[0].should.deepEqual([system1Id]);
-        
-        // Result should have the host mapped
+        queriesStub.calledOnceWith([system1Id], 50, true, true).should.equal(true);
         result[0].hosts.should.deepEqual(['host1.example.com']);
     });
 
     test('throws UNKNOWN_SYSTEM error when strict=true and system not found', async () => {
         const issues = [{ id: 'test:ping', systems: [missingSystemId] }];
         
-        // No systems in local DB
-        queriesStub.resolves({});
-        
-        // Inventory throws UNKNOWN_SYSTEM error
         const unknownSystemError = new errors.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${missingSystemId}"`);
         unknownSystemError.notFoundIds = [missingSystemId];
-        inventoryStub.rejects(unknownSystemError);
+        queriesStub.rejects(unknownSystemError);
 
         await expect(controller.resolveSystems(issues, true))
             .rejects.toThrow('Unknown system identifier');
@@ -851,20 +820,15 @@ describe('resolveSystems', function () {
     test('filters out missing systems when strict=false', async () => {
         const issues = [{ id: 'test:ping', systems: [system1Id, missingSystemId] }];
         
-        // Only system1 in local DB
         queriesStub.resolves({
-            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_host: null, display_name: 'Host 1' }
+            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_hostname: null, display_name: 'Host 1' }
         });
-        
-        // Inventory returns empty (strict=false filters out missing)
-        inventoryStub.resolves({});
 
         const result = await controller.resolveSystems(issues, false);
 
-        // Should only have host for system1, missingSystemId filtered out
         result[0].hosts.should.deepEqual(['host1.example.com']);
-        // systems array is NOT modified - only hosts is filtered
         result[0].systems.should.deepEqual([system1Id, missingSystemId]);
+        queriesStub.calledOnceWith([system1Id, missingSystemId], 50, true, false).should.equal(true);
     });
 
     test('removes issues with no systems when strict=false', async () => {
@@ -873,18 +837,30 @@ describe('resolveSystems', function () {
             { id: 'test:reboot', systems: [system1Id] }
         ];
         
-        // Only system1 in local DB
         queriesStub.resolves({
-            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_host: null, display_name: 'Host 1' }
+            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_hostname: null, display_name: 'Host 1' }
         });
-        
-        // Inventory returns empty for missing system
-        inventoryStub.resolves({});
 
         const result = await controller.resolveSystems(issues, false);
 
-        // First issue should be removed (no valid hosts)
         result.should.have.length(1);
         result[0].id.should.equal('test:reboot');
+    });
+
+    test('prefers ansible_hostname over hostname for playbook hosts', async () => {
+        const issues = [{ id: 'test:ping', systems: [system1Id] }];
+
+        queriesStub.resolves({
+            [system1Id]: {
+                id: system1Id,
+                hostname: 'host1.example.com',
+                ansible_hostname: 'ansible1.example.com',
+                display_name: 'Host 1'
+            }
+        });
+
+        const result = await controller.resolveSystems(issues, true);
+
+        result[0].hosts.should.deepEqual(['ansible1.example.com']);
     });
 });
