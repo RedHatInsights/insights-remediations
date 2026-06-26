@@ -14,7 +14,7 @@
     "@project-kessel/kessel-sdk": "^3.2.0",
     "app-common-js": "^2.2.4",
     "bluebird": "^3.7.2",
-    "body-parser": "^1.20.3",
+    "body-parser": "^2.0.0",
     "clean-modules": "^3.1.1",
     "cls-bluebird": "^2.1.0",
     "dedent-js": "^1.0.1",
