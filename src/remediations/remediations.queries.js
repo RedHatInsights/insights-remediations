@@ -675,7 +675,7 @@ exports.getSummary = async function (id, tenant_org_id, created_by = null) {
 
 // Return `{ id }` when id, tenant_org_id, and created_by match (remediation exists).
 // Return null if no remediation matches (does not exist or wrong scope).
-exports.checkExecutable = async function (id, tenant_org_id, created_by) {
+exports.checkPlanExistence = async function (id, tenant_org_id, created_by) {
     return db.remediation.findOne({
         attributes: ['id'],
         where: {
@@ -778,21 +778,14 @@ async function fetch_missing_system_data(missingIds) {
     }
 }
 
-// Return a paginated, sorted list of distinct systems for a remediation plan
-exports.getPlanSystems = async function (
-    remediation_plan_id,
-    tenant_org_id,
-    created_by,
-    column = 'display_name',
-    asc = true,
-    filter = null,
-    limit = 50,
-    offset = 0
-) {
-    const { Op, s: { literal, col, cast }, fn: { DISTINCT, COUNT }, issue, issue_system, remediation } = db;
+/**
+ * Returns a sorted list of distinct system IDs for a remediation plan scoped by org and creator,
+ * or an empty array when the plan has no systems or is out of scope.
+ */
+exports.getPlanSystemIds = async function (remediation_plan_id, tenant_org_id, created_by) {
+    const { s: { col }, fn: { DISTINCT }, issue, issue_system, remediation } = db;
 
-    // Fetch distinct system ids for the plan scoped by tenant/user
-    const distinctSystemIds = (await issue_system.findAll({
+    const rows = await issue_system.findAll({
         attributes: [[DISTINCT(col('issue_system.system_id')), 'system_id']],
         include: [{
             attributes: [],
@@ -808,7 +801,26 @@ exports.getPlanSystems = async function (
             }]
         }],
         raw: true
-    })).map(r => r.system_id);
+    });
+
+    return rows.map(r => r.system_id).sort();
+};
+
+// Return a paginated, sorted list of distinct systems for a remediation plan
+exports.getPlanSystems = async function (
+    remediation_plan_id,
+    tenant_org_id,
+    created_by,
+    column = 'display_name',
+    asc = true,
+    filter = null,
+    limit = 50,
+    offset = 0
+) {
+    const { Op, s: { col, cast }, fn: { COUNT } } = db;
+
+    // Fetch distinct system ids for the plan scoped by tenant/user
+    const distinctSystemIds = await exports.getPlanSystemIds(remediation_plan_id, tenant_org_id, created_by);
 
     // If no systems found for the remediation plan, return empty results
     if (distinctSystemIds.length === 0) {
