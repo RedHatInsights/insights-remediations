@@ -6,6 +6,7 @@ const config = require('../config');
 const cache = require('../cache');
 const db = require('../db');
 const inventory = require('../connectors/inventory');
+const { storeSystemDetails } = require('./controller.write');
 const {NULL_NAME_VALUE} = require('./models/remediation');
 const _ = require('lodash');
 const log = require('../util/log');
@@ -756,26 +757,13 @@ exports.getIssueSystems = function (id, tenant_org_id, created_by, issueId) {
     });
 };
 
-// Fetch missing system details from inventory service and store in systems table
-async function fetch_missing_system_data(missingIds) {
-    // just being diligent and validating our input parameters...
+async function fetch_missing_system_data(missingIds, { refresh = false, strict = false } = {}) {
     if (missingIds.length === 0) {
         return;
     }
 
-    const systemDetails = await inventory.getSystemDetailsBatch(missingIds);
-    const remediationSystems = Object.values(systemDetails).map(system => ({
-        id: system.id,
-        hostname: system.hostname || null,
-        display_name: system.display_name || null,
-        ansible_hostname: system.ansible_host || null
-    }));
-
-    if (remediationSystems.length > 0) {
-        await db.systems.bulkCreate(remediationSystems, {
-            updateOnDuplicate: ['hostname', 'display_name', 'ansible_hostname', 'updated_at']
-        });
-    }
+    const inventoryData = await inventory.getSystemDetailsBatch(missingIds, refresh, 2, strict);
+    await storeSystemDetails(inventoryData);
 }
 
 // Return a paginated, sorted list of distinct systems for a remediation plan
@@ -893,7 +881,9 @@ exports.getPlanSystems = async function (
  * and stores them locally. Returns hostname, ansible_hostname, and display_name for each system.
  * 
  * @param {string[]} inventoryIds - Array of inventory/system UUIDs to fetch details for
- * @param {number} [chunkSize=50] - Number of systems to process in each database chunk (default: 50)
+ * @param {number} [chunkSize=50] - Number of systems to process in each database chunk
+ * @param {boolean} [refresh=false] - Bypass Inventory cache when fetching missing systems
+ * @param {boolean} [strict=false] - Throw UNKNOWN_SYSTEM when Inventory cannot resolve a system
  * @returns {Object} Object with inventory UUIDs as keys and system details as values
  * 
  * @example
@@ -920,27 +910,8 @@ exports.getPlanSystems = async function (
  * const systemDetails = await getPlanSystemsDetails([
  *   'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c'
  * ], 25);
- * 
- * @example
- * // Handling systems not found in inventory (fallback to UUID as hostname)
- * const systemDetails = await getPlanSystemsDetails([
- *   'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c',
- *   '00000000-0000-0000-0000-000000000000'
- * ]);
- * // Returns: {
- * //   'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c': { 
- * //     hostname: 'server1.example.com', 
- * //     ansible_hostname: 'ansible1', 
- * //     display_name: 'Server 1'
- * //   },
- * //   '00000000-0000-0000-0000-000000000000': { 
- * //     hostname: '00000000-0000-0000-0000-000000000000', 
- * //     ansible_hostname: null, 
- * //     display_name: null
- * //   }
- * // }
  */
-exports.getPlanSystemsDetails = async function (inventoryIds, chunkSize = 50) {
+exports.getPlanSystemsDetails = async function (inventoryIds, chunkSize = 50, refresh = false, strict = false) {
     if (!inventoryIds || inventoryIds.length === 0) {
         return {};
     }
@@ -955,42 +926,28 @@ exports.getPlanSystemsDetails = async function (inventoryIds, chunkSize = 50) {
     const missingIds = _.difference(inventoryIds, existingIds);
 
     // Fetch missing system details from inventory service and store them
-    await fetch_missing_system_data(missingIds);
+    await fetch_missing_system_data(missingIds, { refresh, strict });
 
     const result = {};
 
     // Process in configurable chunks
-    const chunks = _.chunk(inventoryIds, chunkSize);
-
-    for (const chunk of chunks) {
+    for (const chunk of _.chunk(inventoryIds, chunkSize)) {
         const systems = await db.systems.findAll({
             attributes: ['id', 'hostname', 'ansible_hostname', 'display_name'],
-            where: {
-                id: chunk
-            },
+            where: { id: chunk },
             raw: true
         });
 
         // Add systems to result object
         systems.forEach(system => {
             result[system.id] = {
+                id: system.id,
                 hostname: system.hostname,
                 ansible_hostname: system.ansible_hostname,
                 display_name: system.display_name
             };
         });
     }
-
-    // For any systems we still couldn't find details for, set default values
-    inventoryIds.forEach(inventoryId => {
-        if (!result[inventoryId]) {
-            result[inventoryId] = {
-                hostname: null,
-                ansible_hostname: null,
-                display_name: null
-            };
-        }
-    });
 
     return result;
 };

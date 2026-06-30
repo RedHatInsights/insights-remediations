@@ -749,3 +749,118 @@ describe('host sanitation', function () {
         expect(text).toMatchSnapshot();
     });
 });
+
+describe('resolveSystems', function () {
+    const controller = require('./generator.controller');
+    const queries = require('../remediations/remediations.queries');
+    const errors = require('../errors');
+
+    const system1Id = '68799a02-8be9-11e8-9eb6-529269fb1459';
+    const system2Id = '936ef48c-8f05-11e8-9eb6-529269fb1459';
+    const missingSystemId = '00000000-0000-0000-0000-000000000000';
+
+    let queriesStub;
+
+    beforeEach(() => {
+        queriesStub = getSandbox().stub(queries, 'getPlanSystemsDetails');
+    });
+
+    test('uses systems from local DB when all found (Inventory not called)', async () => {
+        const issues = [{ id: 'test:ping', systems: [system1Id, system2Id] }];
+        
+        queriesStub.resolves({
+            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_hostname: null, display_name: 'Host 1' },
+            [system2Id]: { id: system2Id, hostname: 'host2.example.com', ansible_hostname: null, display_name: 'Host 2' }
+        });
+
+        const result = await controller.resolveSystems(issues, true);
+
+        result[0].hosts.should.deepEqual(['host1.example.com', 'host2.example.com']);
+        queriesStub.calledOnceWith([system1Id, system2Id], 50, true, true).should.equal(true);
+    });
+
+    test('falls back to Inventory for systems missing from local DB', async () => {
+        const issues = [{ id: 'test:ping', systems: [system1Id, system2Id] }];
+        
+        queriesStub.resolves({
+            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_hostname: null, display_name: 'Host 1' },
+            [system2Id]: { id: system2Id, hostname: 'host2.example.com', ansible_hostname: null, display_name: 'Host 2' }
+        });
+
+        const result = await controller.resolveSystems(issues, true);
+
+        result[0].hosts.should.deepEqual(['host1.example.com', 'host2.example.com']);
+        queriesStub.calledOnceWith([system1Id, system2Id], 50, true, true).should.equal(true);
+    });
+
+    test('fetches from Inventory when systems missing from local DB', async () => {
+        const issues = [{ id: 'test:ping', systems: [system1Id] }];
+        
+        queriesStub.resolves({
+            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_hostname: null, display_name: 'Host 1' }
+        });
+
+        const result = await controller.resolveSystems(issues, true);
+
+        queriesStub.calledOnceWith([system1Id], 50, true, true).should.equal(true);
+        result[0].hosts.should.deepEqual(['host1.example.com']);
+    });
+
+    test('throws UNKNOWN_SYSTEM error when strict=true and system not found', async () => {
+        const issues = [{ id: 'test:ping', systems: [missingSystemId] }];
+        
+        const unknownSystemError = new errors.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${missingSystemId}"`);
+        unknownSystemError.notFoundIds = [missingSystemId];
+        queriesStub.rejects(unknownSystemError);
+
+        await expect(controller.resolveSystems(issues, true))
+            .rejects.toThrow('Unknown system identifier');
+    });
+
+    test('filters out missing systems when strict=false', async () => {
+        const issues = [{ id: 'test:ping', systems: [system1Id, missingSystemId] }];
+        
+        queriesStub.resolves({
+            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_hostname: null, display_name: 'Host 1' }
+        });
+
+        const result = await controller.resolveSystems(issues, false);
+
+        result[0].hosts.should.deepEqual(['host1.example.com']);
+        result[0].systems.should.deepEqual([system1Id, missingSystemId]);
+        queriesStub.calledOnceWith([system1Id, missingSystemId], 50, true, false).should.equal(true);
+    });
+
+    test('removes issues with no systems when strict=false', async () => {
+        const issues = [
+            { id: 'test:ping', systems: [missingSystemId] },
+            { id: 'test:reboot', systems: [system1Id] }
+        ];
+        
+        queriesStub.resolves({
+            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_hostname: null, display_name: 'Host 1' }
+        });
+
+        const result = await controller.resolveSystems(issues, false);
+
+        result.should.have.length(1);
+        result[0].id.should.equal('test:reboot');
+    });
+
+    test('prefers ansible_hostname over hostname for playbook hosts', async () => {
+        const issues = [{ id: 'test:ping', systems: [system1Id] }];
+
+        queriesStub.resolves({
+            [system1Id]: {
+                id: system1Id,
+                hostname: 'host1.example.com',
+                ansible_hostname: 'ansible1.example.com',
+                display_name: 'Host 1'
+            }
+        });
+
+        const result = await controller.resolveSystems(issues, true);
+
+        result[0].hosts.should.deepEqual(['ansible1.example.com']);
+    });
+});
