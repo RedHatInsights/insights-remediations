@@ -84,7 +84,7 @@ exports.list = function (remediations, total, limit, offset, sort, system) {
             resolved_count: (resolved_count === null) ? 0 : resolved_count,
             archived,
             last_run_at: last_run_at ? last_run_at.toISOString() : null,
-            expires_at: expires_at ? expires_at.toISOString() : null,
+            expires_at: _.isDate(expires_at) ? expires_at.toISOString() : expires_at,
             playbook_runs: (playbook_runs === null) ? [] : playbook_runs
         })
     );
@@ -110,7 +110,7 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
         created_at: created_at.toISOString(),
         updated_by: _.pick(updated_by, USER),
         updated_at: updated_at.toISOString(),
-        expires_at: expires_at instanceof Date ? expires_at.toISOString() : String(expires_at)
+        expires_at: _.isDate(expires_at) ? expires_at.toISOString() : expires_at
     };
 
     // handle format='detail' items

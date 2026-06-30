@@ -1055,7 +1055,7 @@ components:
         - updated_after: modified on or after date-time, `filter[updated_after]=2025-03-31T08:19:36.641Z`
         - last_run_after: executed on or after date-time or 'never', `filter[last_run_after]=never` 
         - status: status matching one of [running, success, failure], `filter[status]=failure`
-        - expires_within: plans that expire within N days (expires_at date is on or before now + N days), `filter[expires_within]=30`
+        - expires_within: plans that expire within N days (expires_at date is on or before now + N days where N is an integer 1–366), `filter[expires_within]=30`
       required: false
       schema:
         anyOf:
@@ -1098,10 +1098,9 @@ components:
                   Example: '2024-09-11T12:00:00Z' or '2024-09-11T12:00:00.123Z'
               expires_within:
                 type: string
-                pattern: '^[1-9][0-9]*$'
                 description: >
                   Filter remediation plans that expire within N days (expires_at date is on or before now + N days).
-                  Must be an integer >= 1 (e.g. 30).
+                  Must be an integer from 1 to 366 (e.g. 30).
       style: deepObject
       explode: true
 
