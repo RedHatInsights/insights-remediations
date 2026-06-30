@@ -69,7 +69,7 @@ arches:
     sourcerpm: openssl-3.5.5-4.el9_8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/repodata/9cfecf89b5815144033d54bad8637384c4ad6ec28dc4a0f512cec26ad346d598-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/repodata/949d40b28982e30c417e3fa85001b9af6b1adff01ad2a1ec4d8a4b9ca0404071-modules.yaml.gz
     repoid: ubi-9-for-x86_64-appstream-rpms
     size: 8642
-    checksum: sha256:9cfecf89b5815144033d54bad8637384c4ad6ec28dc4a0f512cec26ad346d598
+    checksum: sha256:949d40b28982e30c417e3fa85001b9af6b1adff01ad2a1ec4d8a4b9ca0404071
