@@ -160,11 +160,8 @@ exports.list = errors.async(async function (req, res) {
 
         plan_names = _.map(plan_names, name => name.toJSON())
 
-        const total = fifi.getListSize(plan_names);
-        limit = limit || 1;
-
         trace.event('Format response');
-        const resp = format.planNames(plan_names, total, limit, offset, req.query.sort, req.query.system)
+        const resp = format.planNames(plan_names)
 
         trace.leave();
 
@@ -643,7 +640,7 @@ exports.getIssues = errors.async(async function (req, res) {
     await Promise.all(promises);
 
     // return formatted results
-    const result = format.issues(plan_id, selected_issues, issue_count, limit, offset);
+    const result = format.issues(plan_id, selected_issues, issue_count, limit, offset, sort);
 
     res.json(result);
 });
