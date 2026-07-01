@@ -640,7 +640,7 @@ exports.getIssues = errors.async(async function (req, res) {
     await Promise.all(promises);
 
     // return formatted results
-    const result = format.issues(plan_id, selected_issues, issue_count, limit, offset);
+    const result = format.issues(plan_id, selected_issues, issue_count, limit, offset, sort);
 
     res.json(result);
 });

@@ -2020,8 +2020,8 @@ exports[`remediations issues get filtered plan issues 1`] = `
     },
   ],
   "links": {
-    "first": "/api/remediations/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02/issues?limit=10&offset=0",
-    "last": "/api/remediations/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02/issues?limit=10&offset=0",
+    "first": "/api/remediations/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02/issues?sort=id&limit=10&offset=0",
+    "last": "/api/remediations/v1/remediations/66eec356-dd06-4c72-a3b6-ef27d1508a02/issues?sort=id&limit=10&offset=0",
     "next": null,
     "previous": null,
   },
@@ -2049,8 +2049,8 @@ exports[`remediations issues get remediation plan issues 1`] = `
     },
   ],
   "links": {
-    "first": "/api/remediations/v1/remediations/e809526c-56f5-4cd8-a809-93328436ea23/issues?limit=4&offset=0",
-    "last": "/api/remediations/v1/remediations/e809526c-56f5-4cd8-a809-93328436ea23/issues?limit=4&offset=0",
+    "first": "/api/remediations/v1/remediations/e809526c-56f5-4cd8-a809-93328436ea23/issues?sort=id&limit=4&offset=0",
+    "last": "/api/remediations/v1/remediations/e809526c-56f5-4cd8-a809-93328436ea23/issues?sort=id&limit=4&offset=0",
     "next": null,
     "previous": null,
   },
