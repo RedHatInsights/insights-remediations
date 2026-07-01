@@ -2,6 +2,7 @@
 
 const base = require('../test');
 const { request } = base;
+const patchman = require('../connectors/patchman');
 
 describe('patchman', function () {
     test('generates a simple playbook with single patchman advisory remediation', async () => {
@@ -97,6 +98,92 @@ describe('patchman', function () {
         .expect(200);
 
         expect(res.text).toMatchSnapshot();
+    });
+
+    test('adds subscription refresh play for template-managed systems', async () => {
+        base.getSandbox().stub(patchman, 'getTemplateSystemIds').resolves(
+            new Set(['68799a02-8be9-11e8-9eb6-529269fb1459'])
+        );
+
+        const data = {
+            issues: [{
+                id: 'patch-advisory:RHBA-2019:4105',
+                systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+            }]
+        };
+
+        const res = await request
+        .post('/v1/playbook')
+        .send(data)
+        .expect(200);
+
+        expect(res.text).toMatchSnapshot();
+        expect(res.text.indexOf('refresh subscription-manager')).toBeLessThan(
+            res.text.indexOf('update packages')
+        );
+    });
+
+    test('subscription refresh targets only template-managed hosts', async () => {
+        base.getSandbox().stub(patchman, 'getTemplateSystemIds').resolves(
+            new Set(['68799a02-8be9-11e8-9eb6-529269fb1459'])
+        );
+
+        const data = {
+            issues: [{
+                id: 'patch-advisory:RHBA-2019:4105',
+                systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+            }, {
+                id: 'patch-advisory:RHBA-2019:0689',
+                systems: ['53fbcd90-9c8f-11e8-98d0-529269fb1459']
+            }]
+        };
+
+        const res = await request
+        .post('/v1/playbook')
+        .send(data)
+        .expect(200);
+
+        expect(res.text).toMatchSnapshot();
+        expect(res.text.indexOf('refresh subscription-manager')).toBeLessThan(
+            res.text.indexOf('update packages')
+        );
+    });
+
+    test('skips subscription refresh when no systems are template-managed', async () => {
+        const data = {
+            issues: [{
+                id: 'patch-advisory:RHBA-2019:4105',
+                systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+            }]
+        };
+
+        const res = await request
+        .post('/v1/playbook')
+        .send(data)
+        .expect(200);
+
+        expect(res.text).not.toContain('subscription-manager refresh');
+    });
+
+    test('generates playbook without subscription refresh on patchman API failure', async () => {
+        base.getSandbox().stub(patchman, 'getTemplateSystemIds').rejects(
+            new Error('patchman API error')
+        );
+
+        const data = {
+            issues: [{
+                id: 'patch-advisory:RHBA-2019:4105',
+                systems: ['68799a02-8be9-11e8-9eb6-529269fb1459']
+            }]
+        };
+
+        const res = await request
+        .post('/v1/playbook')
+        .send(data)
+        .expect(200);
+
+        expect(res.text).not.toContain('subscription-manager refresh');
+        expect(res.text).toContain('update packages');
     });
 
     test('400s on unknown issue', async () => {

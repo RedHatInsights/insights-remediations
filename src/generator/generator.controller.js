@@ -11,6 +11,7 @@ const SpecialPlay = require('./plays/SpecialPlay');
 const format = require('./format');
 const identifiers = require('../util/identifiers');
 const erratumPlayAggregator = require('./erratumPlayAggregator');
+const patchman = require('../connectors/patchman');
 const issueManager = require('../issues');
 const log = require('../util/log');
 const trace = require('../util/trace');
@@ -38,6 +39,26 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
     _.forEach(issues, issue => {
         issue.id = identifiers.parse(issue.id);
         trace.event(`issue.id = ${issue.id}`);
+    });
+
+    const patchmanSystemIds = _(issues)
+        .filter(i => i.id.app === 'patch-advisory')
+        .flatMap('systems')
+        .uniq()
+        .value();
+
+    const templateSystemIdsPromise = patchmanSystemIds.length > 0
+        ? patchman.getTemplateSystemIds(patchmanSystemIds).catch(e => {
+            log.warn(e, 'failed to query patchman for template systems, skipping subscription refresh play');
+            return new Set();
+        })
+        : Promise.resolve(new Set());
+
+    const systemIdToHostMap = new Map();
+    issues.forEach(issue => {
+        issue.systems.forEach((systemId, index) => {
+            systemIdToHostMap.set(systemId, issue.hosts[index]);
+        });
     });
 
     trace.event('Get play snippets for each issue...');
@@ -77,7 +98,12 @@ exports.playbookPipeline = async function ({issues, auto_reboot = true}, remedia
     trace.event('Aggregate erratum plays...');
     issues = erratumPlayAggregator.process(issues);
 
-    // Add play that generates a new Compliance report when there are Compliance(ssg) issues  
+    if (patchmanSystemIds.length > 0) {
+        trace.event('Add subscription-manager refresh play...');
+        issues = await addSubscriptionRefreshPlay(issues, templateSystemIdsPromise, systemIdToHostMap);
+    }
+
+    // Add play that generates a new Compliance report when there are Compliance(ssg) issues
     const complianceIssue = _.some(issues, issue => issue.id.app === 'ssg');
     if (complianceIssue) {
         trace.event('Generate new Compliance report...');
@@ -226,6 +252,27 @@ function addDiagnosisPlay (plays, remediation = false) {
 
     const hosts = _(diagnosisPlays).flatMap('hosts').uniq().sort().value();
     return [new SpecialPlay('special:diagnosis', hosts, templates.special.diagnosis), ...plays];
+}
+
+async function addSubscriptionRefreshPlay (plays, templateSystemIdsPromise, systemIdToHostMap) {
+    const templateSystemIds = await templateSystemIdsPromise;
+
+    if (templateSystemIds.size === 0) {
+        return plays;
+    }
+
+    const hosts = _(Array.from(templateSystemIds))
+        .map(id => systemIdToHostMap.get(id))
+        .filter()
+        .uniq()
+        .sort()
+        .value();
+
+    if (hosts.length === 0) {
+        return plays;
+    }
+
+    return [new SpecialPlay('special:subscription-refresh', hosts, templates.special.subscriptionRefresh), ...plays];
 }
 
 exports.send = async function (req, res, {yaml, definition}, attachment = false) {
