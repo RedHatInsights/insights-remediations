@@ -695,9 +695,10 @@ exports.getRemediationSystems = errors.async(async function (req, res) {
     // otherwise use creator
     const creator_sa_filter = req.type == "ServiceAccount" ? null : username;
 
-    let remediation = await queries.get(plan_id, tenant_org_id, creator_sa_filter);
+    const remediation = await queries.checkPlanExistence(plan_id, tenant_org_id, creator_sa_filter);
 
     if (!remediation) {
+        // 404 if remediation not found
         return notFound(res);
     }
 
