@@ -673,16 +673,17 @@ exports.getSummary = async function (id, tenant_org_id, created_by = null) {
     };
 };
 
-// Return `{ id }` when id, tenant_org_id, and created_by match (remediation exists).
+// Return `{ id }` when a remediation matches id and tenant_org_id.
+// created_by is null for service accounts (org-wide access); otherwise filter to that user.
 // Return null if no remediation matches (does not exist or wrong scope).
 exports.checkPlanExistence = async function (id, tenant_org_id, created_by) {
+    const where = { id, tenant_org_id };
+    if (created_by) {
+        where.created_by = created_by;
+    }
     return db.remediation.findOne({
         attributes: ['id'],
-        where: {
-            id,
-            tenant_org_id,
-            created_by
-        },
+        where,
         raw: true
     });
 };
@@ -779,11 +780,16 @@ async function fetch_missing_system_data(missingIds) {
 }
 
 /**
- * Returns a sorted list of distinct system IDs for a remediation plan scoped by org and creator,
- * or an empty array when the plan has no systems or is out of scope.
+ * Returns a sorted list of distinct system IDs for a remediation plan,
+ * or an empty array when the plan does not exist, is out of scope, or has no systems.
  */
 exports.getPlanSystemIds = async function (remediation_plan_id, tenant_org_id, created_by) {
-    const { s: { col }, fn: { DISTINCT }, issue, issue_system, remediation } = db;
+    const plan = await exports.checkPlanExistence(remediation_plan_id, tenant_org_id, created_by);
+    if (!plan) {
+        return [];
+    }
+
+    const { s: { col }, fn: { DISTINCT }, issue, issue_system } = db;
 
     const rows = await issue_system.findAll({
         attributes: [[DISTINCT(col('issue_system.system_id')), 'system_id']],
@@ -791,14 +797,7 @@ exports.getPlanSystemIds = async function (remediation_plan_id, tenant_org_id, c
             attributes: [],
             model: issue,
             required: true,
-            where: { remediation_id: remediation_plan_id },
-            include: [{
-                attributes: [],
-                association: issue.associations.remediation,
-                model: remediation,
-                required: true,
-                where: { tenant_org_id, created_by }
-            }]
+            where: { remediation_id: remediation_plan_id }
         }],
         raw: true
     });
@@ -819,7 +818,6 @@ exports.getPlanSystems = async function (
 ) {
     const { Op, s: { col, cast }, fn: { COUNT } } = db;
 
-    // Fetch distinct system ids for the plan scoped by tenant/user
     const distinctSystemIds = await exports.getPlanSystemIds(remediation_plan_id, tenant_org_id, created_by);
 
     // If no systems found for the remediation plan, return empty results
