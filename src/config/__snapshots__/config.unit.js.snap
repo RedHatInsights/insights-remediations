@@ -130,6 +130,11 @@ exports[`Configuration Verify app-common-js function 1`] = `
     "base": "/api/remediations",
     "prefix": "/api",
   },
+  "planLimits": {
+    "bypassFeatureFlag": "remediations.plan-limits-bypass",
+    "maxIssues": 20000,
+    "maxSystems": 20000,
+  },
   "plan_retention": {
     "retentionDays": 120,
     "warningDays": 30,

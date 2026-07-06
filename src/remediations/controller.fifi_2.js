@@ -1,6 +1,8 @@
 'use strict';
 
 const errors = require("../errors");
+const config = require('../config');
+const featureFlags = require('../connectors/featureFlags');
 const queries = require("./remediations.queries");
 const fifi = require("./fifi_2");
 const _ = require("lodash");
@@ -12,6 +14,36 @@ const format = require("./remediations.format_2");
 
 const notMatching = res => res.sendStatus(412);
 const notFound = res => res.sendStatus(404);
+
+
+function validatePlanSize(issueCount, systemCount, req) {
+    const { maxSystems, maxIssues, bypassFeatureFlag } = config.planLimits;
+
+    if (featureFlags.isEnabled(bypassFeatureFlag, {
+        userId: req.user.username,
+        properties: {
+            tenantOrgId: req.user.tenant_org_id,
+            accountNumber: req.user.account_number
+        }
+    })) {
+        return;
+    }
+
+    const messages = [];
+
+    if (systemCount > maxSystems) {
+        messages.push(`plan would contain ${systemCount} systems, exceeding the maximum of ${maxSystems}`);
+    }
+
+    if (issueCount > maxIssues) {
+        messages.push(`plan would contain ${issueCount} issues, exceeding the maximum of ${maxIssues}`);
+    }
+
+    if (messages.length) {
+        throw new errors.BadRequest('PLAN_SIZE_LIMIT_EXCEEDED',
+            `Remediation plan exceeds size limits: ${messages.join('; ')}`);
+    }
+}
 
 
 //-------------------------------------------------------------------------------------
@@ -111,6 +143,8 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
         // no systems
         throw errors.noSystems(remediation);
     }
+
+    validatePlanSize(remediation.issues.length, systemIds.length, req);
 
     //-----------------------------------------------
     // get connection status of referenced systems
