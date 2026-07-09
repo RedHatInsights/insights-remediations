@@ -1,7 +1,7 @@
 'use strict';
 
 const base = require('../test');
-const {v4: uuid} = require('uuid');
+const { randomUUID } = require('crypto');
 const fifi = require('./fifi');
 const fifi2 = require('./fifi_2');
 const db = require('../db');
@@ -34,21 +34,21 @@ const REMEDIATIONISSUES = [
         issue_id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled',
         resolution: null,
         systems: [
-            {system_id: uuid()}, {system_id: uuid()}, {system_id: SYSTEMS[0].id}
+            {system_id: randomUUID()}, {system_id: randomUUID()}, {system_id: SYSTEMS[0].id}
         ]
     },
     {
         issue_id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_enabled',
         resolution: null,
         systems: [
-            {system_id: uuid()}, {system_id: uuid()}, {system_id: uuid()}
+            {system_id: randomUUID()}, {system_id: randomUUID()}, {system_id: randomUUID()}
         ]
     },
     {
         issue_id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_connected',
         resolution: null,
         systems: [
-            {system_id: SYSTEMS[0].id}, {system_id: SYSTEMS[1].id}, {system_id: uuid()}
+            {system_id: SYSTEMS[0].id}, {system_id: SYSTEMS[1].id}, {system_id: randomUUID()}
         ]
     },
     {
@@ -83,9 +83,9 @@ describe('playbook run functions', function () {
 });
 
 describe('syncDispatcherRunsForPlaybookRuns', function () {
-    const mockPlaybookRunId1 = uuid();
-    const mockPlaybookRunId2 = uuid();
-    const mockPlaybookRunId3 = uuid();
+    const mockPlaybookRunId1 = randomUUID();
+    const mockPlaybookRunId2 = randomUUID();
+    const mockPlaybookRunId3 = randomUUID();
 
     test('should return empty array when no playbook run IDs provided', async () => {
         const result = await fifi2.syncDispatcherRunsForPlaybookRuns([]);
@@ -228,8 +228,8 @@ describe('syncDispatcherRunsForPlaybookRuns', function () {
     });
 
     test('should return only successfully synced playbook runs in mixed scenarios', async () => {
-        const mockPlaybookRunId4 = uuid();
-        const mockPlaybookRunId5 = uuid();
+        const mockPlaybookRunId4 = randomUUID();
+        const mockPlaybookRunId5 = randomUUID();
         
         // Mock queries.getPlaybookRunsWithDispatcherCounts - both need backfill
         base.sandbox.stub(queries, 'getPlaybookRunsWithDispatcherCounts').resolves([

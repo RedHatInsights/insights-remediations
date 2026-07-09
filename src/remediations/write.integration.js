@@ -5,7 +5,7 @@ const config = require('../config');
 const rbac = require('../connectors/rbac');
 const { request, reqId, auth, getSandbox, buildRbacResponse } = require('../test');
 const { NON_EXISTENT_SYSTEM } = require('../connectors/inventory/mock');
-const uuid = require('uuid');
+const { randomUUID } = require('crypto');
 const db = require('../db');
 
 function testIssue (remediation, id, resolution, systems) {
@@ -204,7 +204,7 @@ describe('remediations', function () {
 
         test('creates a new remediation with 20k systems', async () => {
             const name = `new remediation with issues 2`;
-            const systems = _.times(20000, () => uuid.v4());
+            const systems = _.times(20000, () => randomUUID());
 
             const {body: {id}} = await request
             .post('/v1/remediations')

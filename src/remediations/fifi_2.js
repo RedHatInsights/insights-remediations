@@ -1,7 +1,7 @@
 'use strict';
 
+const { randomUUID } = require('crypto');
 const _ = require("lodash");
-const uuid = require("uuid");
 
 const format = require("./remediations.format_2");
 const errors = require("../errors");
@@ -37,9 +37,9 @@ exports.checkRhcEnabled = async function () {
 
 //======================================================================================================================
 
-// This is just so we can stub uuid.v4 to force a uuid for snapshot testing
-exports.uuidv4 = function () {
-    return uuid.v4();
+// Exported so tests can stub a fixed playbook run ID (snapshots, DB assertions)
+exports.generatePlaybookRunId = function () {
+    return randomUUID();
 };
 
 //--------------------------------------------
@@ -77,7 +77,7 @@ exports.uuidv4 = function () {
 //--------------------------------------------
 exports.createPlaybookRun = async function (recipients, exclude, remediation, username) {
     // create UUID for this run
-    const playbook_run_id = exports.uuidv4();
+    const playbook_run_id = exports.generatePlaybookRunId();
 
     // check if excludes contains anything NOT in targets
     validateExcludes(exclude, recipients);

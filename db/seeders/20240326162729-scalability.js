@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const UUID = require('uuid');
 const { account_number, tenant_org_id, username: created_by } = require('../../src/connectors/users/mock').MOCK_USERS.fifi;
 const { systems } = require('../../src/connectors/inventory/impl.unit.data');
 
