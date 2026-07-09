@@ -3,7 +3,6 @@
 
 const _ = require('lodash');
 const P = require('bluebird');
-const {v4: uuidv4} = require('uuid');
 
 const config = require('../config');
 const errors = require('../errors');

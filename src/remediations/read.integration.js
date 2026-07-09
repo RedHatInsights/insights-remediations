@@ -11,7 +11,7 @@ const impl = require('../connectors/dispatcher/impl');
 const dispatcher = require('../connectors/dispatcher');
 const fifi2 = require('./fifi_2');
 const db = require('../db');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
 
 function test400 (name, url, code, title) {
     test(name, async () => {
@@ -57,7 +57,7 @@ describe('remediations', function () {
         });
 
         test('v1 SSG issue id fails with INVALID_ISSUE_IDENTIFIER', async () => {
-            const remId = uuidv4();
+            const remId = randomUUID();
             createdIds.push(remId);
 
             await db.remediation.create({
@@ -93,7 +93,7 @@ describe('remediations', function () {
         });
 
         test('v2 SSG issue id succeeds', async () => {
-            const remId = uuidv4();
+            const remId = randomUUID();
             createdIds.push(remId);
 
             await db.remediation.create({
@@ -284,7 +284,6 @@ describe('remediations', function () {
                 let isolatedDispatcherRunIds = [];
 
                 beforeEach(async () => {
-                    const { v4: uuidv4 } = require('uuid');
                     const now = new Date();
                     const { username: created_by } = require('../connectors/users/mock').MOCK_USERS.fifi;
                     
@@ -309,7 +308,7 @@ describe('remediations', function () {
                         });
 
                         // Create a fresh playbook_run for r178 to use for running status
-                        const r178PlaybookRunId = uuidv4();
+                        const r178PlaybookRunId = randomUUID();
                         await db.playbook_runs.create({
                             id: r178PlaybookRunId,
                             status: 'running',
@@ -320,9 +319,9 @@ describe('remediations', function () {
                         }, { transaction });
 
                         // Create isolated dispatcher_runs with unique IDs we can track
-                        const runningDispatcherRun1 = uuidv4();
-                        const runningDispatcherRun2 = uuidv4();
-                        const failureDispatcherRun = uuidv4();
+                        const runningDispatcherRun1 = randomUUID();
+                        const runningDispatcherRun2 = randomUUID();
+                        const failureDispatcherRun = randomUUID();
                         
                         isolatedDispatcherRunIds = [runningDispatcherRun1, runningDispatcherRun2, failureDispatcherRun, r178PlaybookRunId];
 
@@ -664,7 +663,7 @@ describe('remediations', function () {
         // The seeded 'unknown issues' plan includes a v1 SSG id that now returns 400 (invalid identifier), so we can't use it here.
         test('get remediation with unknown issues', async () => {
             const { account_number, tenant_org_id, username: created_by } = require('../connectors/users/mock').MOCK_USERS.testReadSingleUser;
-            const remId = uuidv4();
+            const remId = randomUUID();
 
             try {
                 await db.remediation.create({

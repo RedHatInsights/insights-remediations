@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require("lodash");
-const UUID = require("uuid");
 
 const NON_EXISTENT_SYSTEM = '1040856f-b772-44c7-83a9-eeeeeeeeeeee';
 const DISCONNECTED_SATELLITE = '409dd231-6297-43a6-a726-5ce56923d624';

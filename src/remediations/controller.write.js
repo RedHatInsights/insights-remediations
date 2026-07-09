@@ -1,6 +1,6 @@
 'use strict';
 
-const uuid = require('uuid');
+const { randomUUID } = require('crypto');
 const _ = require('lodash');
 const P = require('bluebird');
 
@@ -149,7 +149,7 @@ exports.create = errors.async(async function (req, res) {
         await storeSystemDetails(systemsById);
     }
 
-    const id = uuid.v4();
+    const id = randomUUID();
 
     const result = await db.s.transaction(async transaction => {
         const remediation = await db.remediation.create({
