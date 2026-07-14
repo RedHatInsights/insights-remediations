@@ -21,29 +21,21 @@ exports.connection_status = errors.async(async function (req, res) {
     const remediationId = req.params.id;
     const tenantOrgId = req.user.tenant_org_id;
     const username = req.user.username;
-    const exclude = req.body.exclude || [];
 
     //----------------------------------------------------------------
-    // fetch remediation
+    // verify remediation exists
     //----------------------------------------------------------------
-    const remediation = await queries.get(remediationId, tenantOrgId, username);
+    const remediation = await queries.checkPlanExistence(remediationId, tenantOrgId, username);
 
     if (!remediation) {
         // 404 if remediation not found
         return notFound(res);
     }
 
-    //--------------------------------------------------------------
-    // Extract unique, sorted list of system_ids from remediation
-    //--------------------------------------------------------------
-    const systemIds = [
-        ... new Set(
-            _(remediation.issues)
-                .flatMap('systems')
-                .map('system_id')
-                .value()
-        )
-    ].sort();
+    //----------------------------------------------------------------
+    // fetch distinct system ids for the plan
+    //----------------------------------------------------------------
+    const systemIds = await queries.getPlanSystemIds(remediationId, tenantOrgId, username);
 
     // If no systems, return empty result without calling dispatcher
     if (systemIds.length === 0) {

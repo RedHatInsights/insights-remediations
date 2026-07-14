@@ -234,12 +234,31 @@ describe('remediations', function () {
             .set(auth.fifi)
             .expect(200);
 
+            expect(body.links).toBeUndefined();
+            expect(body.meta.count).toBe(body.meta.total);
+            expect(body.meta.count).toBe(body.data.length);
+
             // items in list should have 'id' and 'name' fields
             for (const item of body.data) {
                 expect(Object.keys(item)).toHaveLength(2);
                 expect(item).toHaveProperty('id');
                 expect(item).toHaveProperty('name');
             }
+        });
+
+        test('list remediation plan names ignores limit', async () => {
+            const {body: limited} = await request
+            .get('/v1/remediations?fields[data]=name&limit=3')
+            .set(auth.fifi)
+            .expect(200);
+
+            const {body: unlimited} = await request
+            .get('/v1/remediations?fields[data]=name')
+            .set(auth.fifi)
+            .expect(200);
+
+            expect(limited.links).toBeUndefined();
+            expect(limited.data.length).toBe(unlimited.data.length);
         });
 
         test('fields[data]=names cannot be combined', async () => {
@@ -956,6 +975,9 @@ describe('remediations', function () {
             body.data.map(i => i.id).should.eql(['test:reboot']);
             body.meta.count.should.equal(1);
             body.meta.total.should.equal(2);
+            expect(body.links.first).toContain(`/v1/remediations/${remId}/systems/${systemId}/issues`);
+            expect(body.links.previous).toContain('offset=0');
+            expect(body.links.next).toBeNull();
         });
 
         test('returns 404 when system does not exist in remediation', async () => {
@@ -1213,10 +1235,14 @@ describe('remediations', function () {
 
     describe('issues', function () {
         test('get remediation plan issues', async () => {
+            const planId = 'e809526c-56f5-4cd8-a809-93328436ea23';
             const {body} = await request
-            .get('/v1/remediations/e809526c-56f5-4cd8-a809-93328436ea23/issues?limit=4')
+            .get(`/v1/remediations/${planId}/issues?limit=4`)
             .expect(200);
 
+            expect(body.links.first).toContain(`/v1/remediations/${planId}/issues`);
+            expect(body.links.first).toContain('limit=4');
+            expect(body.links.first).toContain('offset=0');
             expect(body).toMatchSnapshot();
         });
 
@@ -1463,8 +1489,9 @@ describe('remediations', function () {
 
     describe('remediation plan systems', function () {
         test('gets list of distinct systems with limit=2', async () => {
+            const planId = '5e6d136e-ea32-46e4-a350-325ef41790f4';
             const { body } = await request
-            .get('/v1/remediations/5e6d136e-ea32-46e4-a350-325ef41790f4/systems?limit=2')
+            .get(`/v1/remediations/${planId}/systems?limit=2`)
             .set(auth.testReadSingle)
             .expect(200);
 
@@ -1474,6 +1501,13 @@ describe('remediations', function () {
             body.should.have.property('data');
             body.data.should.be.Array();
             body.data.length.should.equal(body.meta.count);
+            expect(body.links.first).toContain(`/v1/remediations/${planId}/systems`);
+            expect(body.links.first).toContain('limit=2');
+            expect(body.links.first).toContain('offset=0');
+            if (body.meta.total > 2) {
+                expect(body.links.next).toContain(`/v1/remediations/${planId}/systems`);
+                expect(body.links.next).toContain('offset=2');
+            }
             if (body.data.length > 0) {
                 body.data[0].should.have.property('id');
                 body.data[0].should.have.property('hostname');
