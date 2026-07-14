@@ -11,12 +11,11 @@ const config = require('../config');
 const {filterIssuesPerExecutor} = require("./fifi");
 const {systemToHost} = require("../generator/generator.controller");
 
-const listLinkBuilder = (path, sort, system) => (limit, page) =>
-    new URI(config.path.base)
-    .segment('v1')
-    .segment('remediations')
-    .query({system, sort, limit, offset: page * limit})
-    .toString();
+const listLinkBuilder = (path, sort, system) => (limit, page) => {
+    const uri = new URI(config.path.base);
+    path.split('/').forEach(segment => uri.segment(segment));
+    return uri.query({system, sort, limit, offset: page * limit}).toString();
+};
 
 function buildListLinks (path, total, limit, offset, sort, system) {
     const lastPage = Math.floor(Math.max(total - 1, 0) / limit);
@@ -377,8 +376,7 @@ exports.planSystems = function (plan_id, systems, total, limit, offset, sort) {
     };
 };
 
-exports.planNames = function (names, total, limit, offset, sort, system) {
-    // Format data to include both id and name
+exports.planNames = function (names) {
     const formatted_data = _.map(names, plan => ({
         id: plan.id,
         name: plan.name
@@ -387,10 +385,9 @@ exports.planNames = function (names, total, limit, offset, sort, system) {
     return {
         meta: {
             count: names.length,
-            total
+            total: names.length
         },
-        data: formatted_data,
-        links: buildListLinks(total, limit, offset, sort, system),
+        data: formatted_data
     };
 };
 
