@@ -1196,7 +1196,7 @@ components:
       name: fields[data]
       description: |
         Include specified items
-        - name: list all remediation plan names and IDs in organization (cannot be combined with other fields)
+        - name: list all remediation plan names and IDs in organization (cannot be combined with other fields; limit and offset are ignored)
         - playbook_runs: include playbook run data in the response (cannot be combined with other fields)
         - last_playbook_run: include latest playbook run summary in the response (cannot be combined with other fields)
       required: false
@@ -1238,6 +1238,7 @@ components:
             "first_name": "Jozef",
             "last_name": "Hartinger"
           },
+          "expires_at": "2019-04-04T08:19:36.641Z",
           "issue_count": 8,
           "issue_count_details": {
             "advisor": 1,
@@ -2491,7 +2492,7 @@ components:
     RemediationNameList:
       type: object
       additionalProperties: false
-      required: [data, meta, links]
+      required: [data, meta]
       properties:
         data:
           type: array
@@ -2499,8 +2500,6 @@ components:
             $ref: '#/components/schemas/RemediationNameListItem'
         meta:
           $ref: '#/components/schemas/Meta'
-        links:
-          $ref: '#/components/schemas/Links'
 
     RemediationNameListItem:
       type: object

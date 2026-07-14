@@ -11,12 +11,11 @@ const config = require('../config');
 const {filterIssuesPerExecutor} = require("./fifi");
 const {systemToHost} = require("../generator/generator.controller");
 
-const listLinkBuilder = (path, sort, system) => (limit, page) =>
-    new URI(config.path.base)
-    .segment('v1')
-    .segment('remediations')
-    .query({system, sort, limit, offset: page * limit})
-    .toString();
+const listLinkBuilder = (path, sort, system) => (limit, page) => {
+    const uri = new URI(config.path.base);
+    path.split('/').forEach(segment => uri.segment(segment));
+    return uri.query({system, sort, limit, offset: page * limit}).toString();
+};
 
 function buildListLinks (path, total, limit, offset, sort, system) {
     const lastPage = Math.floor(Math.max(total - 1, 0) / limit);
@@ -85,7 +84,7 @@ exports.list = function (remediations, total, limit, offset, sort, system) {
             resolved_count: (resolved_count === null) ? 0 : resolved_count,
             archived,
             last_run_at: last_run_at ? last_run_at.toISOString() : null,
-            expires_at: expires_at ? expires_at.toISOString() : null,
+            expires_at: _.isDate(expires_at) ? expires_at.toISOString() : expires_at,
             playbook_runs: (playbook_runs === null) ? [] : playbook_runs
         })
     );
@@ -111,7 +110,7 @@ exports.get = function ({id, name, needs_reboot, auto_reboot, created_by, create
         created_at: created_at.toISOString(),
         updated_by: _.pick(updated_by, USER),
         updated_at: updated_at.toISOString(),
-        expires_at: expires_at instanceof Date ? expires_at.toISOString() : String(expires_at)
+        expires_at: _.isDate(expires_at) ? expires_at.toISOString() : expires_at
     };
 
     // handle format='detail' items
@@ -377,8 +376,7 @@ exports.planSystems = function (plan_id, systems, total, limit, offset, sort) {
     };
 };
 
-exports.planNames = function (names, total, limit, offset, sort, system) {
-    // Format data to include both id and name
+exports.planNames = function (names) {
     const formatted_data = _.map(names, plan => ({
         id: plan.id,
         name: plan.name
@@ -387,10 +385,9 @@ exports.planNames = function (names, total, limit, offset, sort, system) {
     return {
         meta: {
             count: names.length,
-            total
+            total: names.length
         },
-        data: formatted_data,
-        links: buildListLinks(total, limit, offset, sort, system),
+        data: formatted_data
     };
 };
 
