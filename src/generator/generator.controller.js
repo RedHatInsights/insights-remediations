@@ -121,10 +121,6 @@ exports.generate = errors.async(async function (req, res) {
     return exports.send(req, res, playbook);
 });
 
-exports.systemToHost = function (system) {
-    return system.ansible_hostname || system.ansible_host || system.hostname || system.id;
-};
-
 /**
  * Resolves system IDs to hostnames by first checking the local systems table,
  * then falling back to Inventory for any missing systems.
@@ -149,20 +145,22 @@ exports.resolveSystems = async function (issues, strict = true) {
     trace.event('Get system details...');
     let systems;
     try {
-        systems = await queries.getPlanSystemsDetails(systemIds, 50, true, strict);
+        systems = await queries.getPlanSystemsDetails(systemIds, strict, true);
     } catch (e) {
-        probes.failedGeneration('unknown system(s)');
+        if (e.error?.code === 'UNKNOWN_SYSTEM') {
+            probes.failedGeneration('unknown system(s)');
+        }
         throw e;
     }
 
-    // Build issue.hosts from resolved system ids
+    // Build issue.hosts from resolved system ids: ansible_host → hostname → system id
     // Skip system ids that weren't found in the local systems table or Inventory
     trace.event('Filter systems and map to hosts...');
     _.forEach(issues, issue => {
         // eslint-disable-next-line security/detect-object-injection
         issue.hosts = issue.systems
             .filter(id => id in systems)
-            .map(id => exports.systemToHost(systems[id]));
+            .map(id => systems[id].ansible_host || systems[id].hostname || id);
     });
 
     // Remove issues that have no issue.hosts after filtering

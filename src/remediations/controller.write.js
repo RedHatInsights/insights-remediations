@@ -52,7 +52,7 @@ async function storeSystemDetails(systemsById) {
 
     if (remediationSystems.length > 0) {
         await db.systems.bulkCreate(remediationSystems, {
-            ignoreDuplicates: true
+            updateOnDuplicate: ['hostname', 'display_name', 'ansible_hostname', 'updated_at']
         });
     }
 }

@@ -888,12 +888,12 @@ exports.getPlanSystems = async function (
 /**
  * Fetch system details for a list of inventory UUIDs from the systems table.
  * For any systems not found in the local systems table, fetches details from the inventory service
- * and stores them locally. Returns hostname, ansible_hostname, and display_name for each system.
+ * and stores them locally. Returns hostname, ansible_host, and display_name for each system.
  * 
  * @param {string[]} inventoryIds - Array of inventory/system UUIDs to fetch details for
- * @param {number} [chunkSize=50] - Number of systems to process in each database chunk
- * @param {boolean} [refresh=false] - Bypass Inventory cache when fetching missing systems
  * @param {boolean} [strict=false] - Throw UNKNOWN_SYSTEM when Inventory cannot resolve a system
+ * @param {boolean} [refresh=false] - Bypass Inventory cache when fetching missing systems
+ * @param {number} [chunkSize=50] - Number of systems to process in each database chunk
  * @returns {Object} Object with inventory UUIDs as keys and system details as values
  * 
  * @example
@@ -905,12 +905,12 @@ exports.getPlanSystems = async function (
  * // Returns: {
  * //   'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c': { 
  * //     hostname: 'server1.example.com', 
- * //     ansible_hostname: 'ansible1', 
+ * //     ansible_host: 'ansible1',
  * //     display_name: 'Server 1'
  * //   },
  * //   'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d': { 
  * //     hostname: 'server2.example.com', 
- * //     ansible_hostname: 'ansible2', 
+ * //     ansible_host: 'ansible2',
  * //     display_name: 'Server 2'
  * //   }
  * // }
@@ -919,28 +919,35 @@ exports.getPlanSystems = async function (
  * // Custom chunk size for performance tuning
  * const systemDetails = await getPlanSystemsDetails([
  *   'f6b7a1c2-3d4e-5f6a-7b8c-9d0e1f2a3b4c'
- * ], 25);
+ * ], false, false, 25);
  */
-exports.getPlanSystemsDetails = async function (inventoryIds, chunkSize = 50, refresh = false, strict = false) {
+exports.getPlanSystemsDetails = async function (inventoryIds, strict = false, refresh = false, chunkSize = 50) {
     if (!inventoryIds || inventoryIds.length === 0) {
         return {};
     }
 
+    // Process inventoryIds in chunks because a very large WHERE id IN (...) clause
+    // can potentially hit SQL query/message size limits
+
     // Check which systems already exist in the systems table
-    const existingSystems = await db.systems.findAll({
-        attributes: ['id'],
-        where: { id: inventoryIds },
-        raw: true
-    });
-    const existingIds = existingSystems.map(s => s.id);
-    const missingIds = _.difference(inventoryIds, existingIds);
+    const existingIds = new Set();
+    for (const chunk of _.chunk(inventoryIds, chunkSize)) {
+        const rows = await db.systems.findAll({
+            attributes: ['id'],
+            where: { id: chunk },
+            raw: true
+        });
+        rows.forEach(row => existingIds.add(row.id));
+    }
+
+    const missingIds = inventoryIds.filter(id => !existingIds.has(id));
 
     // Fetch missing system details from inventory service and store them
     await fetch_missing_system_data(missingIds, { refresh, strict });
 
     const result = {};
 
-    // Process in configurable chunks
+    // Read system details from the systems table
     for (const chunk of _.chunk(inventoryIds, chunkSize)) {
         const systems = await db.systems.findAll({
             attributes: ['id', 'hostname', 'ansible_hostname', 'display_name'],
@@ -953,7 +960,7 @@ exports.getPlanSystemsDetails = async function (inventoryIds, chunkSize = 50, re
             result[system.id] = {
                 id: system.id,
                 hostname: system.hostname,
-                ansible_hostname: system.ansible_hostname,
+                ansible_host: system.ansible_hostname,
                 display_name: system.display_name
             };
         });

@@ -70,13 +70,13 @@ describe('getPlanSystemsDetails', function () {
             [system1Id]: {
                 id: system1Id,
                 hostname: 'server1.example.com',
-                ansible_hostname: 'ansible1',
+                ansible_host: 'ansible1',
                 display_name: 'Server 1'
             },
             [system2Id]: {
                 id: system2Id,
                 hostname: 'server2.example.com',
-                ansible_hostname: 'ansible2',
+                ansible_host: 'ansible2',
                 display_name: 'Server 2'
             }
         });
@@ -123,13 +123,13 @@ describe('getPlanSystemsDetails', function () {
             [system1Id]: {
                 id: system1Id,
                 hostname: 'server1.example.com',
-                ansible_hostname: 'ansible1',
+                ansible_host: 'ansible1',
                 display_name: 'Server 1'
             },
             [missingSystemId]: {
                 id: missingSystemId,
                 hostname: 'missing-server.example.com',
-                ansible_hostname: 'missing-ansible',
+                ansible_host: 'missing-ansible',
                 display_name: 'Missing Server'
             }
         });
@@ -145,7 +145,7 @@ describe('getPlanSystemsDetails', function () {
             display_name: 'Missing Server',
             ansible_hostname: 'missing-ansible'
         }], {
-            ignoreDuplicates: true
+            updateOnDuplicate: ['hostname', 'display_name', 'ansible_hostname', 'updated_at']
         }).should.equal(true);
     });
 
@@ -173,7 +173,7 @@ describe('getPlanSystemsDetails', function () {
             [system1Id]: {
                 id: system1Id,
                 hostname: 'server1.example.com',
-                ansible_hostname: 'ansible1',
+                ansible_host: 'ansible1',
                 display_name: 'Server 1'
             }
         });
@@ -194,12 +194,15 @@ describe('getPlanSystemsDetails', function () {
 
         dbSystemsFindAllStub.onFirstCall().resolves([
             { id: system1Id },
-            { id: system2Id },
+            { id: system2Id }
+        ]);
+
+        dbSystemsFindAllStub.onSecondCall().resolves([
             { id: system3Id },
             { id: system4Id }
         ]);
 
-        dbSystemsFindAllStub.onSecondCall().resolves([
+        dbSystemsFindAllStub.onThirdCall().resolves([
             {
                 id: system1Id,
                 hostname: 'server1.example.com',
@@ -214,7 +217,7 @@ describe('getPlanSystemsDetails', function () {
             }
         ]);
 
-        dbSystemsFindAllStub.onThirdCall().resolves([
+        dbSystemsFindAllStub.onCall(3).resolves([
             {
                 id: system3Id,
                 hostname: 'server3.example.com',
@@ -229,42 +232,42 @@ describe('getPlanSystemsDetails', function () {
             }
         ]);
 
-        const result = await queries.getPlanSystemsDetails(inventoryIds, chunkSize);
+        const result = await queries.getPlanSystemsDetails(inventoryIds, false, false, chunkSize);
 
         result.should.deepEqual({
             [system1Id]: {
                 id: system1Id,
                 hostname: 'server1.example.com',
-                ansible_hostname: 'ansible1',
+                ansible_host: 'ansible1',
                 display_name: 'Server 1'
             },
             [system2Id]: {
                 id: system2Id,
                 hostname: 'server2.example.com',
-                ansible_hostname: 'ansible2',
+                ansible_host: 'ansible2',
                 display_name: 'Server 2'
             },
             [system3Id]: {
                 id: system3Id,
                 hostname: 'server3.example.com',
-                ansible_hostname: 'ansible3',
+                ansible_host: 'ansible3',
                 display_name: 'Server 3'
             },
             [system4Id]: {
                 id: system4Id,
                 hostname: 'server4.example.com',
-                ansible_hostname: 'ansible4',
+                ansible_host: 'ansible4',
                 display_name: 'Server 4'
             }
         });
 
-        dbSystemsFindAllStub.should.have.been.calledThrice;
+        dbSystemsFindAllStub.callCount.should.equal(4);
 
-        const secondCall = dbSystemsFindAllStub.getCall(1);
         const thirdCall = dbSystemsFindAllStub.getCall(2);
+        const fourthCall = dbSystemsFindAllStub.getCall(3);
 
-        secondCall.args[0].where.id.should.have.length(2);
         thirdCall.args[0].where.id.should.have.length(2);
+        fourthCall.args[0].where.id.should.have.length(2);
         inventoryGetSystemDetailsBatchStub.should.not.have.been.called;
     });
 
@@ -273,7 +276,10 @@ describe('getPlanSystemsDetails', function () {
         const chunkSize = 2;
 
         dbSystemsFindAllStub.onFirstCall().resolves([
-            { id: system1Id },
+            { id: system1Id }
+        ]);
+
+        dbSystemsFindAllStub.onSecondCall().resolves([
             { id: system3Id }
         ]);
 
@@ -286,7 +292,7 @@ describe('getPlanSystemsDetails', function () {
             }
         });
 
-        dbSystemsFindAllStub.onSecondCall().resolves([
+        dbSystemsFindAllStub.onThirdCall().resolves([
             {
                 id: system1Id,
                 hostname: 'server1.example.com',
@@ -301,7 +307,7 @@ describe('getPlanSystemsDetails', function () {
             }
         ]);
 
-        dbSystemsFindAllStub.onThirdCall().resolves([
+        dbSystemsFindAllStub.onCall(3).resolves([
             {
                 id: system3Id,
                 hostname: 'server3.example.com',
@@ -310,32 +316,32 @@ describe('getPlanSystemsDetails', function () {
             }
         ]);
 
-        const result = await queries.getPlanSystemsDetails(inventoryIds, chunkSize);
+        const result = await queries.getPlanSystemsDetails(inventoryIds, false, false, chunkSize);
 
         result.should.deepEqual({
             [system1Id]: {
                 id: system1Id,
                 hostname: 'server1.example.com',
-                ansible_hostname: 'ansible1',
+                ansible_host: 'ansible1',
                 display_name: 'Server 1'
             },
             [missingSystemId]: {
                 id: missingSystemId,
                 hostname: 'fetched-missing.example.com',
-                ansible_hostname: 'fetched-ansible',
+                ansible_host: 'fetched-ansible',
                 display_name: 'Fetched Missing System'
             },
             [system3Id]: {
                 id: system3Id,
                 hostname: 'server3.example.com',
-                ansible_hostname: 'ansible3',
+                ansible_host: 'ansible3',
                 display_name: 'Server 3'
             }
         });
 
         // Should call inventory service for missing system
         inventoryGetSystemDetailsBatchStub.calledOnceWith([missingSystemId], false, 2, false).should.equal(true);
-        dbSystemsFindAllStub.should.have.been.calledThrice;
+        dbSystemsFindAllStub.callCount.should.equal(4);
 
         // Should bulk create the fetched system
         dbSystemsBulkCreateStub.calledOnceWith([{
@@ -344,7 +350,7 @@ describe('getPlanSystemsDetails', function () {
             display_name: 'Fetched Missing System',
             ansible_hostname: 'fetched-ansible'
         }], {
-            ignoreDuplicates: true
+            updateOnDuplicate: ['hostname', 'display_name', 'ansible_hostname', 'updated_at']
         }).should.equal(true);
     });
 
@@ -369,7 +375,7 @@ describe('getPlanSystemsDetails', function () {
             }
         ]);
 
-        const result = await queries.getPlanSystemsDetails(inventoryIds, 50, true, true);
+        const result = await queries.getPlanSystemsDetails(inventoryIds, true, true);
 
         inventoryGetSystemDetailsBatchStub.calledOnceWith([missingSystemId], true, 2, true).should.equal(true);
         dbSystemsFindAllStub.should.have.been.calledTwice;
@@ -405,7 +411,7 @@ describe('getPlanSystemsDetails', function () {
             [missingSystemId]: {
                 id: missingSystemId,
                 hostname: 'partially-found.example.com',
-                ansible_hostname: 'partially-found-ansible',
+                ansible_host: 'partially-found-ansible',
                 display_name: 'Partially Found System'
             }
         });

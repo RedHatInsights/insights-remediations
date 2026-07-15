@@ -769,40 +769,40 @@ describe('resolveSystems', function () {
         const issues = [{ id: 'test:ping', systems: [system1Id, system2Id] }];
         
         queriesStub.resolves({
-            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_hostname: null, display_name: 'Host 1' },
-            [system2Id]: { id: system2Id, hostname: 'host2.example.com', ansible_hostname: null, display_name: 'Host 2' }
+            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_host: null, display_name: 'Host 1' },
+            [system2Id]: { id: system2Id, hostname: 'host2.example.com', ansible_host: null, display_name: 'Host 2' }
         });
 
         const result = await controller.resolveSystems(issues, true);
 
         result[0].hosts.should.deepEqual(['host1.example.com', 'host2.example.com']);
-        queriesStub.calledOnceWith([system1Id, system2Id], 50, true, true).should.equal(true);
+        queriesStub.calledOnceWith([system1Id, system2Id], true, true).should.equal(true);
     });
 
     test('falls back to Inventory for systems missing from local DB', async () => {
         const issues = [{ id: 'test:ping', systems: [system1Id, system2Id] }];
         
         queriesStub.resolves({
-            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_hostname: null, display_name: 'Host 1' },
-            [system2Id]: { id: system2Id, hostname: 'host2.example.com', ansible_hostname: null, display_name: 'Host 2' }
+            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_host: null, display_name: 'Host 1' },
+            [system2Id]: { id: system2Id, hostname: 'host2.example.com', ansible_host: null, display_name: 'Host 2' }
         });
 
         const result = await controller.resolveSystems(issues, true);
 
         result[0].hosts.should.deepEqual(['host1.example.com', 'host2.example.com']);
-        queriesStub.calledOnceWith([system1Id, system2Id], 50, true, true).should.equal(true);
+        queriesStub.calledOnceWith([system1Id, system2Id], true, true).should.equal(true);
     });
 
     test('fetches from Inventory when systems missing from local DB', async () => {
         const issues = [{ id: 'test:ping', systems: [system1Id] }];
         
         queriesStub.resolves({
-            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_hostname: null, display_name: 'Host 1' }
+            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_host: null, display_name: 'Host 1' }
         });
 
         const result = await controller.resolveSystems(issues, true);
 
-        queriesStub.calledOnceWith([system1Id], 50, true, true).should.equal(true);
+        queriesStub.calledOnceWith([system1Id], true, true).should.equal(true);
         result[0].hosts.should.deepEqual(['host1.example.com']);
     });
 
@@ -821,14 +821,14 @@ describe('resolveSystems', function () {
         const issues = [{ id: 'test:ping', systems: [system1Id, missingSystemId] }];
         
         queriesStub.resolves({
-            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_hostname: null, display_name: 'Host 1' }
+            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_host: null, display_name: 'Host 1' }
         });
 
         const result = await controller.resolveSystems(issues, false);
 
         result[0].hosts.should.deepEqual(['host1.example.com']);
         result[0].systems.should.deepEqual([system1Id, missingSystemId]);
-        queriesStub.calledOnceWith([system1Id, missingSystemId], 50, true, false).should.equal(true);
+        queriesStub.calledOnceWith([system1Id, missingSystemId], false, true).should.equal(true);
     });
 
     test('removes issues with no systems when strict=false', async () => {
@@ -838,7 +838,7 @@ describe('resolveSystems', function () {
         ];
         
         queriesStub.resolves({
-            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_hostname: null, display_name: 'Host 1' }
+            [system1Id]: { id: system1Id, hostname: 'host1.example.com', ansible_host: null, display_name: 'Host 1' }
         });
 
         const result = await controller.resolveSystems(issues, false);
@@ -847,14 +847,14 @@ describe('resolveSystems', function () {
         result[0].id.should.equal('test:reboot');
     });
 
-    test('prefers ansible_hostname over hostname for playbook hosts', async () => {
+    test('prefers ansible_host over hostname for playbook hosts', async () => {
         const issues = [{ id: 'test:ping', systems: [system1Id] }];
 
         queriesStub.resolves({
             [system1Id]: {
                 id: system1Id,
                 hostname: 'host1.example.com',
-                ansible_hostname: 'ansible1.example.com',
+                ansible_host: 'ansible1.example.com',
                 display_name: 'Host 1'
             }
         });
