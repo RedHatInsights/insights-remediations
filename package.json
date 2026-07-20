@@ -91,7 +91,7 @@
       "async": "^3.2.6"
     },
     "os-locale": {
-      "execa": "^9.5.1"
+      "execa": "^10.0.0"
     },
     "cls-hooked": {
       "semver": "^5.7.2"
