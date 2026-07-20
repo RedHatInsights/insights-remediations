@@ -2313,7 +2313,7 @@ describe('remediations', function () {
             newCachedSystem.should.have.property('ansible_hostname');
         });
 
-        test('handles duplicate systems gracefully with ignoreDuplicates', async () => {
+        test('handles duplicate systems gracefully with updateOnDuplicate', async () => {
             const systemId = '56db4b54-6273-48dc-b0be-41eb4dc87c7f';
             
             // Create first remediation with system
