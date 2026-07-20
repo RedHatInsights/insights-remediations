@@ -289,12 +289,12 @@ describe('formatRunHosts and formatRHCHostDetails', function () {
             getPlanSystemsDetailsStub.resolves({
                 [system1Id]: {
                     hostname: 'server1.example.com',
-                    ansible_hostname: 'ansible1',
+                    ansible_host: 'ansible1',
                     display_name: 'Production Server 1'
                 },
                 [system2Id]: {
                     hostname: 'server2.example.com', 
-                    ansible_hostname: 'ansible2',
+                    ansible_host: 'ansible2',
                     display_name: 'Production Server 2'
                 }
             });
@@ -339,7 +339,7 @@ describe('formatRunHosts and formatRHCHostDetails', function () {
             getPlanSystemsDetailsStub.resolves({
                 [system1Id]: {
                     hostname: 'server1.example.com',
-                    ansible_hostname: 'ansible1',
+                    ansible_host: 'ansible1',
                     display_name: null
                 }
             });
@@ -473,7 +473,7 @@ describe('formatRunHosts and formatRHCHostDetails', function () {
             getPlanSystemsDetailsStub.resolves({
                 [system1Id]: {
                     hostname: 'server1.example.com',
-                    ansible_hostname: 'ansible1', 
+                    ansible_host: 'ansible1', 
                     display_name: 'Production Server 1'
                 }
             });
@@ -504,7 +504,7 @@ describe('formatRunHosts and formatRHCHostDetails', function () {
             getPlanSystemsDetailsStub.resolves({
                 [system1Id]: {
                     hostname: 'server1.example.com',
-                    ansible_hostname: 'ansible1',
+                    ansible_host: 'ansible1',
                     display_name: null
                 }
             });
@@ -558,7 +558,7 @@ describe('formatRunHosts and formatRHCHostDetails', function () {
             getPlanSystemsDetailsStub.resolves({
                 [system1Id]: {
                     hostname: 'server1.example.com',
-                    ansible_hostname: 'ansible1',
+                    ansible_host: 'ansible1',
                     display_name: 'Production Server 1'
                 }
             });

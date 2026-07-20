@@ -9,7 +9,6 @@ const USER = ['username', 'first_name', 'last_name'];
 const PLAYBOOK_SUFFIX = 'yml';
 const config = require('../config');
 const {filterIssuesPerExecutor} = require("./fifi");
-const {systemToHost} = require("../generator/generator.controller");
 
 const listLinkBuilder = (path, sort, system) => (limit, page) => {
     const uri = new URI(config.path.base);
