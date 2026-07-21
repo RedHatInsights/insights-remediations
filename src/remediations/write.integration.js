@@ -54,6 +54,21 @@ async function createPlan (plan_name, issues, systems, owner = auth.testWrite) {
     return r1.body.id;
 }
 
+function stubRemediationCache () {
+    const mockRedis = {
+        status: 'ready',
+        del: getSandbox().stub().resolves(1)
+    };
+    getSandbox().stub(config.redis, 'enabled').value(true);
+    getSandbox().stub(cache, 'get').returns(mockRedis);
+    return mockRedis;
+}
+
+function expectRemediationCacheCleared (mockRedis, id) {
+    mockRedis.del.should.have.been.calledOnce;
+    mockRedis.del.args[0][0].should.equal(`remediations|db-cache|remediation|${id}`);
+}
+
 const issues = [
     {id: 'advisor:bond_config_issue|NO_QUOTES'},
     {id: 'advisor:bond_config_issue|EXTRA_WHITESPACE'},
@@ -964,32 +979,132 @@ describe('remediations', function () {
         });
     });
 
+    describe('playbook cache clearing', function () {
+        const issueId = 'advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074';
+        const systemId = '56db4b54-6273-48dc-b0be-41eb4dc87c7f';
+        const systemId2 = 'f5ce853a-c922-46f7-bd82-50286b7d8459';
+
+        async function createCacheTestPlan (name) {
+            // Create before stubbing redis — create fetches Inventory and must use the real cache client
+            return createPlan(name, [{id: issueId, resolution: 'selinux_mitigate'}], [systemId, systemId2]);
+        }
+
+        test('clears cache on PATCH plan', async () => {
+            const id = await createCacheTestPlan('cache-clear-patch-plan');
+            const mockRedis = stubRemediationCache();
+
+            await request
+            .patch(`/v1/remediations/${id}`)
+            .send({name: 'cache-clear-patch-plan-renamed'})
+            .set(auth.testWrite)
+            .expect(200);
+
+            expectRemediationCacheCleared(mockRedis, id);
+        });
+
+        test('clears cache on PATCH issue', async () => {
+            const id = await createCacheTestPlan('cache-clear-patch-issue');
+            const mockRedis = stubRemediationCache();
+
+            await request
+            .patch(`/v1/remediations/${id}/issues/${issueId}`)
+            .send({resolution: 'kernel_update'})
+            .set(auth.testWrite)
+            .expect(200);
+
+            expectRemediationCacheCleared(mockRedis, id);
+        });
+
+        test('clears cache on DELETE plan', async () => {
+            const id = await createCacheTestPlan('cache-clear-delete-plan');
+            const mockRedis = stubRemediationCache();
+
+            await request
+            .delete(`/v1/remediations/${id}`)
+            .set(auth.testWrite)
+            .expect(204);
+
+            expectRemediationCacheCleared(mockRedis, id);
+        });
+
+        test('clears cache on bulk DELETE plans', async () => {
+            const id = await createCacheTestPlan('cache-clear-bulk-delete-plans');
+            const mockRedis = stubRemediationCache();
+
+            await request
+            .delete('/v1/remediations')
+            .send({remediation_ids: [id]})
+            .set(auth.testWrite)
+            .expect(200);
+
+            expectRemediationCacheCleared(mockRedis, id);
+        });
+
+        test('clears cache on DELETE issue', async () => {
+            const id = await createCacheTestPlan('cache-clear-delete-issue');
+            const mockRedis = stubRemediationCache();
+
+            await request
+            .delete(`/v1/remediations/${id}/issues/${issueId}`)
+            .set(auth.testWrite)
+            .expect(204);
+
+            expectRemediationCacheCleared(mockRedis, id);
+        });
+
+        test('clears cache on bulk DELETE issues', async () => {
+            const id = await createCacheTestPlan('cache-clear-bulk-delete-issues');
+            const mockRedis = stubRemediationCache();
+
+            await request
+            .delete(`/v1/remediations/${id}/issues`)
+            .send({issue_ids: [issueId]})
+            .set(auth.testWrite)
+            .expect(200);
+
+            expectRemediationCacheCleared(mockRedis, id);
+        });
+
+        test('clears cache on DELETE issue system', async () => {
+            const id = await createCacheTestPlan('cache-clear-delete-issue-system');
+            const mockRedis = stubRemediationCache();
+
+            await request
+            .delete(`/v1/remediations/${id}/issues/${issueId}/systems/${systemId}`)
+            .set(auth.testWrite)
+            .expect(204);
+
+            expectRemediationCacheCleared(mockRedis, id);
+        });
+
+        test('clears cache on DELETE system', async () => {
+            const id = await createCacheTestPlan('cache-clear-delete-system');
+            const mockRedis = stubRemediationCache();
+
+            await request
+            .delete(`/v1/remediations/${id}/systems/${systemId}`)
+            .set(auth.testWrite)
+            .expect(204);
+
+            expectRemediationCacheCleared(mockRedis, id);
+        });
+
+        test('clears cache on bulk DELETE systems', async () => {
+            const id = await createCacheTestPlan('cache-clear-bulk-delete-systems');
+            const mockRedis = stubRemediationCache();
+
+            await request
+            .delete(`/v1/remediations/${id}/systems`)
+            .send({system_ids: [systemId]})
+            .set(auth.testWrite)
+            .expect(200);
+
+            expectRemediationCacheCleared(mockRedis, id);
+        });
+    });
+
     describe('update', function () {
         describe('remediation', function () {
-            test('clears remediation playbook cache on patch', async () => {
-                const mockRedis = {
-                    status: 'ready',
-                    del: getSandbox().stub().resolves(1)
-                };
-                getSandbox().stub(config.redis, 'enabled').value(true);
-                getSandbox().stub(cache, 'get').returns(mockRedis);
-
-                const {body: created} = await request
-                .post('/v1/remediations')
-                .set(auth.testWrite)
-                .send({name: 'cache-invalidation-plan'})
-                .expect(201);
-
-                await request
-                .patch(`/v1/remediations/${created.id}`)
-                .send({name: 'cache-invalidation-plan-renamed'})
-                .set(auth.testWrite)
-                .expect(200);
-
-                mockRedis.del.should.have.been.calledOnce;
-                mockRedis.del.args[0][0].should.equal(`remediations|db-cache|remediation|${created.id}`);
-            });
-
             test('adding actions to empty remediation', async () => {
                 const url = '/v1/remediations/3c1877a0-bbcd-498a-8349-272129dc0b88';
                 const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f', 'f5ce853a-c922-46f7-bd82-50286b7d8459'];
@@ -2338,7 +2453,7 @@ describe('remediations', function () {
             newCachedSystem.should.have.property('ansible_hostname');
         });
 
-        test('handles duplicate systems gracefully with ignoreDuplicates', async () => {
+        test('handles duplicate systems gracefully with updateOnDuplicate', async () => {
             const systemId = '56db4b54-6273-48dc-b0be-41eb4dc87c7f';
             
             // Create first remediation with system
