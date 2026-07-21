@@ -8,12 +8,24 @@ const config = require('../config');
 const errors = require('../errors');
 const issues = require('../issues');
 const db = require('../db');
+const cache = require('../cache');
 const format = require('./remediations.format');
 const inventory = require('../connectors/inventory');
 const identifiers = require('../util/identifiers');
 const disambiguator = require('../resolutions/disambiguator');
+const log = require('../util/log');
 
 const notFound = res => res.status(404).json();
+
+async function clearRemediationsCache (id) {
+    if (config.redis.enabled) {
+        try {
+            await cache.get().del(`remediations|db-cache|remediation|${id}`);
+        } catch (err) {
+            log.warn(err, 'failed to clear remediations cache');
+        }
+    }
+}
 
 async function validateResolution (id, resolutionId) {
     const identifier = identifiers.parse(id);
@@ -245,12 +257,16 @@ exports.patch = errors.async(async function (req, res) {
         return true;
     });
 
-    // Cache system details after remediation is successfully updated
-    if (result && systemsById) {
-        await storeSystemDetails(systemsById);
-    }
+    if (result) {
+        await clearRemediationsCache(id);
 
-    result && res.status(200).end();
+        // Cache system details after remediation is successfully updated
+        if (systemsById) {
+            await storeSystemDetails(systemsById);
+        }
+
+        res.status(200).end();
+    }
 });
 
 exports.patchIssue = errors.async(async function (req, res) {
@@ -274,6 +290,7 @@ exports.patchIssue = errors.async(async function (req, res) {
     });
 
     if (result) {
+        await clearRemediationsCache(req.params.id);
         return res.status(200).end();
     }
 });
@@ -321,8 +338,9 @@ function findAndDestroy (req, entity, query, res) {
 
             return true;
         }
-    }).then(result => {
+    }).then(async result => {
         if (result) {
+            await clearRemediationsCache(req.params.id);
             return res.status(204).end();
         }
 
@@ -351,7 +369,13 @@ function findAllAndDestroy (req, entity, query, res) {
         }
 
         return 0;
-    })
+    }).then(async count => {
+        if (count > 0) {
+            await clearRemediationsCache(req.params.id);
+        }
+
+        return count;
+    });
 }
 
 exports.remove = errors.async(function (req, res) {
@@ -372,7 +396,8 @@ exports.bulkRemove = errors.async((req, res) => {
     // delete all specified remediations
     return db.remediation.destroy({where: {id: ids, tenant_org_id, created_by}})
 
-    .then(result => {
+    .then(async result => {
+        await P.map(ids, id => clearRemediationsCache(id));
         return res.status(200).json({deleted_count: result});
     });
 });
@@ -405,7 +430,8 @@ exports.bulkRemoveIssues = errors.async(async function (req, res) {
 
         // remove the specified issues.  This will cascade delete any issue_systems as well.
         return db.issue.destroy({where: {issue_id: issue_ids, remediation_id}})
-        .then(count => {
+        .then(async count => {
+            await clearRemediationsCache(remediation_id);
             return res.status(200).json({deleted_count: count});
         });
     });

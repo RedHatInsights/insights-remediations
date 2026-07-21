@@ -8,6 +8,7 @@ const { request, reqId, auth, getSandbox, buildRbacResponse } = require('../test
 const { NON_EXISTENT_SYSTEM } = require('../connectors/inventory/mock');
 const { randomUUID } = require('crypto');
 const db = require('../db');
+const cache = require('../cache');
 
 function testIssue (remediation, id, resolution, systems) {
     const issue = _.find(remediation.issues, {id});
@@ -965,6 +966,30 @@ describe('remediations', function () {
 
     describe('update', function () {
         describe('remediation', function () {
+            test('clears remediation playbook cache on patch', async () => {
+                const mockRedis = {
+                    status: 'ready',
+                    del: getSandbox().stub().resolves(1)
+                };
+                getSandbox().stub(config.redis, 'enabled').value(true);
+                getSandbox().stub(cache, 'get').returns(mockRedis);
+
+                const {body: created} = await request
+                .post('/v1/remediations')
+                .set(auth.testWrite)
+                .send({name: 'cache-invalidation-plan'})
+                .expect(201);
+
+                await request
+                .patch(`/v1/remediations/${created.id}`)
+                .send({name: 'cache-invalidation-plan-renamed'})
+                .set(auth.testWrite)
+                .expect(200);
+
+                mockRedis.del.should.have.been.calledOnce;
+                mockRedis.del.args[0][0].should.equal(`remediations|db-cache|remediation|${created.id}`);
+            });
+
             test('adding actions to empty remediation', async () => {
                 const url = '/v1/remediations/3c1877a0-bbcd-498a-8349-272129dc0b88';
                 const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f', 'f5ce853a-c922-46f7-bd82-50286b7d8459'];
