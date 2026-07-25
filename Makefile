@@ -63,12 +63,25 @@ generate-rpms-in-yaml:
 # Usage: make generate-rpm-lockfile [BASE_IMAGE=<image>]
 # Example: make generate-rpm-lockfile BASE_IMAGE=registry.access.redhat.com/ubi9/ubi-minimal:9.6-1758184547
 #          make generate-rpm-lockfile (uses default BASE_IMAGE)
+# For Dockerfile.ubi-micro (installroot): use generate-rpm-lockfile-bare
 .PHONY: generate-rpm-lockfile-containerized
 generate-rpm-lockfile-containerized: rpms.in.yaml
 	@curl -s https://raw.githubusercontent.com/konflux-ci/rpm-lockfile-prototype/refs/heads/main/Containerfile | \
 	podman build -t localhost/rpm-lockfile-prototype -
 	@container_dir=/work; \
 	podman run --rm -v $${PWD}:$${container_dir}:Z localhost/rpm-lockfile-prototype:latest --outfile=$${container_dir}/rpms.lock.yaml --image $(BASE_IMAGE) $${container_dir}/rpms.in.yaml
+	@if [ ! -f rpms.lock.yaml ]; then \
+		echo "Error: rpms.lock.yaml was not generated"; \
+		exit 1; \
+	fi
+
+# For ubi-micro installroot builds: resolve deps as if nothing is pre-installed
+.PHONY: generate-rpm-lockfile-bare
+generate-rpm-lockfile-bare: rpms.in.yaml
+	@curl -s https://raw.githubusercontent.com/konflux-ci/rpm-lockfile-prototype/refs/heads/main/Containerfile | \
+	podman build -t localhost/rpm-lockfile-prototype -
+	@container_dir=/work; \
+	podman run --rm -v $${PWD}:$${container_dir}:Z localhost/rpm-lockfile-prototype:latest --outfile=$${container_dir}/rpms.lock.yaml --bare $${container_dir}/rpms.in.yaml
 	@if [ ! -f rpms.lock.yaml ]; then \
 		echo "Error: rpms.lock.yaml was not generated"; \
 		exit 1; \

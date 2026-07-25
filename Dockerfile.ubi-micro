@@ -1,0 +1,117 @@
+# Phase 1.5: UBI micro evaluation (RHINENG-28096)
+
+# NOTE: ubi-micro has no package manager so we have to do a multi stage build where 
+# we use ubi-minimal in the first stage so that we can use microdnf from that image to
+# install the packages we need and put those packages in the /mnt/rootfs directory.
+# Then in the next stages that use ubi-micro image, we can copy the packages that we 
+# installed in /mnt/rootfs onto ubi-micro.
+
+# Regenerate lockfile on RHEL:
+#   make generate-rpm-lockfile-containerized BASE_IMAGE=registry.access.redhat.com/ubi9/ubi-minimal:1782191490
+#   (add --bare to the podman run command, or set context.bare in rpms.in.yaml)
+
+ARG UBI_MINIMAL_TAG=1782191490
+ARG UBI_MICRO_TAG=latest
+
+#----------------------- rpm-build -----------------------
+# This stage basically just installs the packages we need and puts them in the /mnt/rootfs directory.
+# Builder-only stage. ubi-minimal has microdnf; ubi-micro does not.
+# We install jq/nodejs/npm into an empty directory (/mnt/rootfs).
+# This stage is never shipped — only /mnt/rootfs is copied.
+
+FROM registry.access.redhat.com/ubi9/ubi-minimal:${UBI_MINIMAL_TAG} AS rpm-build
+
+ARG ROOTFS=/mnt/rootfs
+
+# --installroot installs into ${ROOTFS} instead of the builder filesystem.
+# Extra microdnf flags are required for installroot on UBI9.
+# Produces ~44 RPMs.
+RUN mkdir -p ${ROOTFS}/etc/dnf/modules.d && \
+    cp /etc/os-release ${ROOTFS}/etc/os-release && \
+    printf '[nodejs]\nname=nodejs\nstream=24\nprofiles=\nstate=enabled\n' > ${ROOTFS}/etc/dnf/modules.d/nodejs.module && \
+    microdnf install -y \
+        --installroot=${ROOTFS} \
+        --releasever=9 \
+        --config=/etc/dnf/dnf.conf \
+        --noplugins \
+        --setopt=reposdir=/etc/yum.repos.d \
+        --setopt=varsdir=/etc/dnf/vars \
+        --setopt=cachedir=/var/cache/microdnf-installroot \
+        --setopt=module_platform_id=platform:el9 \
+        --setopt=install_weak_deps=0 \
+        --nodocs \
+        jq nodejs npm && \
+    microdnf clean all && \
+    rm -rf ${ROOTFS}/var/cache/* /var/cache/microdnf-installroot && \
+    echo "default:x:1001:0:default user:/opt/app-root:/sbin/nologin" >> ${ROOTFS}/etc/passwd && \
+    echo "default:x:1001:" >> ${ROOTFS}/etc/group
+
+#----------------------- base -----------------------
+# Start from the ubi-micro image and then copy the packages that we installed in /mnt/rootfs onto ubi-micro.
+# Final image is ubi-micro + our RPMs from rpm-build.
+
+FROM registry.access.redhat.com/ubi9/ubi-micro:${UBI_MICRO_TAG} AS base
+
+COPY --from=rpm-build /mnt/rootfs/ /
+
+ENV APP_ROOT=/opt/app-root
+WORKDIR $APP_ROOT
+RUN mkdir -p $APP_ROOT/.npm/{_logs,_cacache} && chgrp -R 0 $APP_ROOT && chmod -R ug+rwX $APP_ROOT
+
+RUN mkdir -p /licenses
+COPY LICENSE /licenses
+
+LABEL url="https://www.redhat.com"
+LABEL name="iop-remediations" \
+      description="This adds the satellite/iop-remediations-rhel9 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/iop-remediations-rhel9" \
+      summary="A new satellite/iop-remediations-rhel9 container image is now available in the Red Hat container registry."
+LABEL com.redhat.component="iop-remediations" \
+      io.k8s.display-name="IoP Remediations" \
+      io.k8s.description="This adds the satellite/iop-remediations-rhel9 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/iop-remediations-rhel9" \
+      io.openshift.tags="insights satellite iop remediations"
+
+USER 1001
+ENV HOME=$APP_ROOT
+
+#---------------------- build -----------------------
+# Install all dependencies and compile/transpile the app (same as current Dockerfile).
+
+FROM base AS build
+
+COPY ./certs ./certs
+COPY ./db ./db
+COPY ./src ./src
+COPY package.json package-lock.json .npmrc .cleanmodules jest.config.js gulpfile.js .sequelizerc ./
+
+RUN npm ci
+RUN npx clean-modules -y
+
+RUN npm run build
+
+#----------------------- test -----------------------
+# CI/test image: dist output + dev node_modules for jest (same as current Dockerfile).
+
+FROM base AS test
+
+COPY --from=build $APP_ROOT/dist ./
+COPY --from=build $APP_ROOT/test ./
+COPY --from=build $APP_ROOT/node_modules ./node_modules
+
+ENV NODE_ENV=test
+
+CMD [ "sh", "-c", "npx npm run test:ci" ]
+
+#----------------------- dist -----------------------
+# Production image: dist output + production node_modules only (same as current Dockerfile).
+
+FROM base AS dist
+
+COPY --from=build $APP_ROOT/dist ./
+
+RUN npm ci --omit=dev && npm cache clean --force
+RUN npx clean-modules -y
+
+EXPOSE 9002
+ENV NODE_ENV=production
+
+CMD [ "sh", "-c", "NODE_EXTRA_CA_CERTS=$(jq -r .tlsCAPath $ACG_CONFIG /dev/null) node --max-http-header-size=16384 src/app.js" ]

@@ -36,9 +36,10 @@ jobs:
     ## use '--build-arg', those can be define below as well.
 
     with:
-    #   dockerbuild_path: './buildtest'
-      dockerfile_path: './build'
-      dockerfile_name: 'Dockerfile'
+    # UBI micro spike (RHINENG-28096): scan Dockerfile.ubi-micro (revert to ./build + Dockerfile after evaluation)
+      dockerfile_path: '.'
+      dockerfile_name: 'Dockerfile.ubi-micro'
+      app_name: 'Dockerfile.ubi-micro'
     #   base_image_build: true
     #   base_dockerbuild_path: './testbuild.base'
     #   base_dockerfile_path: './test'
