@@ -3,6 +3,7 @@
   "extends": [
     "github>RedHatInsights/konflux-pipelines//renovate/foreman_satellite/renovate.json"
   ],
+  "baseBranchPatterns": ["master", "main", "/^foreman-.*$/", "/^SATELLITE-.*$/"],
   "tekton": {
     "schedule": ["at any time"]
   },
@@ -12,10 +13,53 @@
   "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
-      "description": "Disable minor and patch updates",
-      "matchUpdateTypes": ["minor", "patch"],
-      "matchManagers": ["!tekton", "!dockerfile", "!rpm-lockfile"],
+      "description": "Disable all routine npm version bumps. Dockerfile, rpm-lockfile, and tekton updates are unaffected. The next rule re-enables npm updates that fix known vulnerabilities.",
+      "matchBaseBranches": ["master", "main"],
+      "matchManagers": ["npm"],
       "enabled": false
+    },
+    {
+      "description": "Re-enable npm updates only when Renovate marks them as vulnerability alerts (isVulnerabilityAlert), i.e. [SECURITY] PRs from GitHub/OSV.",
+      "matchBaseBranches": ["master", "main"],
+      "matchManagers": ["npm"],
+      "matchJsonata": ["$exists(isVulnerabilityAlert) and isVulnerabilityAlert = true"],
+      "enabled": true
+    },
+    {
+      "description": "When a Dockerfile base image is bumped, also refresh rpms.lock.yaml in the same PR.",
+      "matchBaseBranches": ["master", "main"],
+      "matchManagers": ["dockerfile"],
+      "groupName": "image-and-rpm-updates",
+      "postUpgradeTasks": {
+        "commands": [
+          "refresh-rpm-lockfiles -f \"$RENOVATE_POST_UPGRADE_COMMAND_DATA_FILE\""
+        ],
+        "fileFilters": [
+          "**/rpms.lock.yaml"
+        ],
+        "executionMode": "branch",
+        "dataFileTemplate": "[{{#each upgrades}}{\"packageFile\": \"{{{packageFile}}}\"}{{#unless @last}},{{/unless}}{{/each}}]"
+      },
+      "schedule": ["at any time"]
+    },
+    {
+      "description": "Disable standalone rpm-lockfile refresh PRs (avoids duplicate lock bumps). Lock refreshes on image bumps use postUpgradeTasks above. The next rule keeps RPM [SECURITY] alerts.",
+      "matchBaseBranches": ["master", "main"],
+      "matchManagers": ["rpm-lockfile"],
+      "matchJsonata": [
+        "$not($exists(isVulnerabilityAlert)) or isVulnerabilityAlert = false"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Still allow standalone rpm-lockfile PRs when they are vulnerability alerts ([SECURITY]).",
+      "matchBaseBranches": ["master", "main"],
+      "matchManagers": ["rpm-lockfile"],
+      "matchJsonata": [
+        "$exists(isVulnerabilityAlert) and isVulnerabilityAlert = true"
+      ],
+      "enabled": true,
+      "schedule": ["at any time"]
     }
   ]
 }
