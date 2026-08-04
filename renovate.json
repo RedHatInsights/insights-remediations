@@ -26,6 +26,19 @@
       "enabled": true
     },
     {
+      "description": "Disable routine GitHub Actions version bumps. The next rule re-enables Action updates that fix known vulnerabilities.",
+      "matchBaseBranches": ["master", "main"],
+      "matchManagers": ["github-actions"],
+      "enabled": false
+    },
+    {
+      "description": "Re-enable GitHub Actions updates only when Renovate marks them as vulnerability alerts (isVulnerabilityAlert), i.e. [SECURITY] PRs.",
+      "matchBaseBranches": ["master", "main"],
+      "matchManagers": ["github-actions"],
+      "matchJsonata": ["$exists(isVulnerabilityAlert) and isVulnerabilityAlert = true"],
+      "enabled": true
+    },
+    {
       "description": "When a Dockerfile base image is bumped, also refresh rpms.lock.yaml in the same PR.",
       "matchBaseBranches": ["master", "main"],
       "matchManagers": ["dockerfile"],
