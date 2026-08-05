@@ -53,6 +53,7 @@
         "executionMode": "branch",
         "dataFileTemplate": "[{{#each upgrades}}{\"packageFile\": \"{{{packageFile}}}\"}{{#unless @last}},{{/unless}}{{/each}}]"
       },
+      "recreateWhen": "always",
       "schedule": ["at any time"]
     },
     {
