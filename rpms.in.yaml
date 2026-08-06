@@ -1,5 +1,7 @@
 packages: [jq, nodejs, npm, shadow-utils]
 contentOrigin:
   repofiles: ["./ubi.repo"]
+context:
+  containerfile: build/Dockerfile
 moduleEnable: ["nodejs:22"]
 arches: [x86_64]
