@@ -1,0 +1,11 @@
+- name: refresh subscription-manager
+  hosts: "@@HOSTS@@"
+  become: true
+  gather_facts: false
+  vars:
+    insights_signature_exclude: /hosts,/vars/insights_signature
+    insights_signature: ""
+  tasks:
+    - name: refresh subscription-manager
+      command: subscription-manager refresh
+      changed_when: false
