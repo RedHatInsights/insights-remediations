@@ -1,1 +1,1 @@
-FROM registry.access.redhat.com/ubi9/ubi-minimal:1785339196 AS base
+FROM registry.access.redhat.com/ubi9/ubi-minimal:1785906706 AS base
