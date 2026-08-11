@@ -91,7 +91,17 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
     const remediation = await queries.get(remediationId, tenantOrgId, username);
 
     if (!remediation) {
-        // 404 if remediation not found
+        // Service accounts cannot execute remediation plans created by other users
+        if (req.type === 'ServiceAccount') {
+            const planExistsInOrg = await queries.checkPlanExistence(remediationId, tenantOrgId, null);
+            // If the plan exists in the org but wasn't created by the service account, return 403
+            if (planExistsInOrg) {
+                throw new errors.Forbidden(
+                    'Service accounts cannot execute remediation plans create by other users.'
+                );
+            }
+        }
+
         return notFound(res);
     }
 
