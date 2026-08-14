@@ -64,7 +64,7 @@ describe('remediations controller.fifi_2 unit tests', function () {
             should(err.getError().code).equal('FORBIDDEN');
             should(err.getError().status).equal(403);
             should(err.getError().details.message).equal(
-                'Service accounts cannot execute remediation plans create by other users.'
+                'Service accounts cannot execute remediation plans created by other users.'
             );
             sinon.assert.notCalled(mockRes.sendStatus);
         });

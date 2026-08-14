@@ -97,7 +97,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
             // If the plan exists in the org but wasn't created by the service account, return 403
             if (planExistsInOrg) {
                 throw new errors.Forbidden(
-                    'Service accounts cannot execute remediation plans create by other users.'
+                    'Service accounts cannot execute remediation plans created by other users.'
                 );
             }
         }

@@ -1350,7 +1350,7 @@ describe('FiFi', function () {
                     body.errors[0].should.have.property('code', 'FORBIDDEN');
                     body.errors[0].should.have.property('title', 'Access forbidden');
                     body.errors[0].details.message.should.equal(
-                        'Service accounts cannot execute remediation plans create by other users.'
+                        'Service accounts cannot execute remediation plans created by other users.'
                     );
                 });
 
