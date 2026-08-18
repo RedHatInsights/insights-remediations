@@ -242,6 +242,12 @@ function Config() {
         plan_retention: {
             retentionDays: parseIntEnv('PLAN_RETENTION_DAYS', 120), // days of inactivity before plan expiration
             warningDays: parseIntEnv('PLAN_WARNING_DAYS', 30) // days before expiration to show warning
+        },
+
+        planLimits: {
+            maxSystems: parseIntEnv('PLAN_MAX_SYSTEMS', 20000),
+            maxIssues: parseIntEnv('PLAN_MAX_ISSUES', 20000),
+            bypassFeatureFlag: env.PLAN_LIMITS_BYPASS_FEATURE_FLAG || 'remediations.plan-limits-bypass'
         }
     };
 
