@@ -56,6 +56,45 @@ describe('patchman impl', function () {
         cache.setex.callCount.should.equal(1);
     });
 
+    test('returns template-managed system IDs', async function () {
+        base.getSandbox().stub(request, 'run').resolves({
+            statusCode: 200,
+            body: {
+                data: [
+                    { id: '68799a02-8be9-11e8-9eb6-529269fb1459', type: 'system' },
+                    { id: '53fbcd90-9c8f-11e8-98d0-529269fb1459', type: 'system' }
+                ]
+            },
+            headers: {}
+        });
+
+        const result = await impl.getTemplateSystemIds([
+            '68799a02-8be9-11e8-9eb6-529269fb1459',
+            '53fbcd90-9c8f-11e8-98d0-529269fb1459',
+            'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
+        ]);
+
+        result.should.be.an.instanceOf(Set);
+        result.size.should.equal(2);
+        result.has('68799a02-8be9-11e8-9eb6-529269fb1459').should.be.true();
+        result.has('53fbcd90-9c8f-11e8-98d0-529269fb1459').should.be.true();
+    });
+
+    test('returns empty Set when no systems are template-managed', async function () {
+        base.getSandbox().stub(request, 'run').resolves({
+            statusCode: 200,
+            body: {
+                data: []
+            },
+            headers: {}
+        });
+
+        const result = await impl.getTemplateSystemIds(['68799a02-8be9-11e8-9eb6-529269fb1459']);
+
+        result.should.be.an.instanceOf(Set);
+        result.size.should.equal(0);
+    });
+
     test('returns null on unknown CVE', async function () {
         const cache = mockCache();
 
