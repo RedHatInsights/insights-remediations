@@ -3,6 +3,7 @@
 const errors = require("../errors");
 const config = require('../config');
 const featureFlags = require('../connectors/featureFlags');
+const identifiers = require('../util/identifiers');
 const queries = require("./remediations.queries");
 const fifi = require("./fifi_2");
 const _ = require("lodash");
@@ -15,9 +16,37 @@ const format = require("./remediations.format_2");
 const notMatching = res => res.sendStatus(412);
 const notFound = res => res.sendStatus(404);
 
+// Matches the action point values used by insights-remediations-frontend
+const ACTION_POINTS_BY_TYPE = {
+    advisor: 20,
+    vulnerabilities: 20,
+    'patch-advisory': 2,
+    'patch-package': 2,
+    ssg: 5
+};
 
-function validatePlanSize(issueCount, systemCount, req) {
-    const { maxSystems, maxIssues, bypassFeatureFlag } = config.planLimits;
+// Sum of each issues's action points (advisor/vulnerabilities: 20, patch: 2, ssg: 5)
+// Examples: 3 Advisor issues → 20 + 20 + 20 = 60
+//           10 Patch issues → 2 × 10 = 20
+//           1 Advisor + 1 Compliance → 20 + 5 = 25
+exports.calculateActionPoints = function (issues) {
+    if (!issues || !Array.isArray(issues)) {
+        return 0;
+    }
+
+    return issues.reduce((total, issue) => {
+        const issueId = issue.issue_id || issue.id;
+        if (!issueId) {
+            return total;
+        }
+
+        const {app} = identifiers.parse(issueId);
+        return total + (ACTION_POINTS_BY_TYPE[app] || 0);
+    }, 0);
+};
+
+exports.validatePlanSize = function (issues, systemCount, req) {
+    const { maxSystems, maxActionPoints, bypassFeatureFlag } = config.planLimits;
 
     if (featureFlags.isEnabled(bypassFeatureFlag, {
         userId: req.user.username,
@@ -29,21 +58,22 @@ function validatePlanSize(issueCount, systemCount, req) {
         return;
     }
 
+    const actionPoints = exports.calculateActionPoints(issues);
     const messages = [];
 
     if (systemCount > maxSystems) {
         messages.push(`plan would contain ${systemCount} systems, exceeding the maximum of ${maxSystems}`);
     }
 
-    if (issueCount > maxIssues) {
-        messages.push(`plan would contain ${issueCount} issues, exceeding the maximum of ${maxIssues}`);
+    if (actionPoints > maxActionPoints) {
+        messages.push(`plan would contain ${actionPoints} action points, exceeding the maximum of ${maxActionPoints}`);
     }
 
     if (messages.length) {
         throw new errors.BadRequest('PLAN_SIZE_LIMIT_EXCEEDED',
             `Remediation plan exceeds size limits: ${messages.join('; ')}`);
     }
-}
+};
 
 
 //-------------------------------------------------------------------------------------
@@ -154,7 +184,7 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
         throw errors.noSystems(remediation);
     }
 
-    validatePlanSize(remediation.issues.length, systemIds.length, req);
+    exports.validatePlanSize(remediation.issues, systemIds.length, req);
 
     //-----------------------------------------------
     // get connection status of referenced systems

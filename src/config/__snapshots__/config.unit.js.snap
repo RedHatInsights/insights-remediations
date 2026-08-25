@@ -132,8 +132,8 @@ exports[`Configuration Verify app-common-js function 1`] = `
   },
   "planLimits": {
     "bypassFeatureFlag": "remediations.plan-limits-bypass",
-    "maxIssues": 20000,
-    "maxSystems": 20000,
+    "maxActionPoints": 1000,
+    "maxSystems": 100,
   },
   "plan_retention": {
     "retentionDays": 120,

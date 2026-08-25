@@ -245,8 +245,8 @@ function Config() {
         },
 
         planLimits: {
-            maxSystems: parseIntEnv('PLAN_MAX_SYSTEMS', 20000),
-            maxIssues: parseIntEnv('PLAN_MAX_ISSUES', 20000),
+            maxSystems: parseIntEnv('PLAN_MAX_SYSTEMS', 100),
+            maxActionPoints: parseIntEnv('PLAN_MAX_ACTION_POINTS', 1000),
             bypassFeatureFlag: env.PLAN_LIMITS_BYPASS_FEATURE_FLAG || 'remediations.plan-limits-bypass'
         }
     };

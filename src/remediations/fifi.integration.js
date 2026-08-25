@@ -1251,7 +1251,7 @@ describe('FiFi', function () {
 
                 beforeEach(function () {
                     base.getSandbox().stub(config.planLimits, 'maxSystems').value(3);
-                    base.getSandbox().stub(config.planLimits, 'maxIssues').value(3);
+                    base.getSandbox().stub(config.planLimits, 'maxActionPoints').value(1000);
                 });
 
                 test('rejects POST playbook_runs when plan exceeds max systems', async () => {
@@ -1261,12 +1261,13 @@ describe('FiFi', function () {
                         .expect(400);
 
                     body.errors[0].code.should.equal('PLAN_SIZE_LIMIT_EXCEEDED');
+                    body.errors[0].title.should.match(/systems/);
                 });
 
-                test('rejects POST playbook_runs when plan exceeds max issues', async () => {
+                test('rejects POST playbook_runs when plan exceeds max action points', async () => {
                     base.getSandbox().restore();
                     base.getSandbox().stub(config.planLimits, 'maxSystems').value(20000);
-                    base.getSandbox().stub(config.planLimits, 'maxIssues').value(0);
+                    base.getSandbox().stub(config.planLimits, 'maxActionPoints').value(0);
 
                     const {body} = await request
                         .post(`/v1/remediations/${largePlanId}/playbook_runs`)
@@ -1274,6 +1275,7 @@ describe('FiFi', function () {
                         .expect(400);
 
                     body.errors[0].code.should.equal('PLAN_SIZE_LIMIT_EXCEEDED');
+                    body.errors[0].title.should.match(/action points/);
                 });
 
                 test('allows execution when bypass feature flag is enabled', async () => {
