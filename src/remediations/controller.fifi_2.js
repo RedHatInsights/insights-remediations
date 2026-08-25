@@ -34,15 +34,16 @@ exports.calculateActionPoints = function (issues) {
         return 0;
     }
 
-    return issues.reduce((total, issue) => {
+    let total = 0;
+    for (const issue of issues) {
         const issueId = issue.issue_id || issue.id;
-        if (!issueId) {
-            return total;
+        if (issueId) {
+            const {app} = identifiers.parse(issueId);
+            total += ACTION_POINTS_BY_TYPE[app] || 0;
         }
+    }
 
-        const {app} = identifiers.parse(issueId);
-        return total + (ACTION_POINTS_BY_TYPE[app] || 0);
-    }, 0);
+    return total;
 };
 
 exports.validatePlanSize = function (issues, systemCount, req) {
