@@ -1,6 +1,9 @@
 'use strict';
 
 const errors = require("../errors");
+const config = require('../config');
+const featureFlags = require('../connectors/featureFlags');
+const identifiers = require('../util/identifiers');
 const queries = require("./remediations.queries");
 const fifi = require("./fifi_2");
 const _ = require("lodash");
@@ -12,6 +15,66 @@ const format = require("./remediations.format_2");
 
 const notMatching = res => res.sendStatus(412);
 const notFound = res => res.sendStatus(404);
+
+// Matches the action point values used by insights-remediations-frontend
+const ACTION_POINTS_BY_TYPE = {
+    advisor: 20,
+    vulnerabilities: 20,
+    'patch-advisory': 2,
+    'patch-package': 2,
+    ssg: 5
+};
+
+// Sum of each issues's action points (advisor/vulnerabilities: 20, patch: 2, ssg: 5)
+// Examples: 3 Advisor issues → 20 + 20 + 20 = 60
+//           10 Patch issues → 2 × 10 = 20
+//           1 Advisor + 1 Compliance → 20 + 5 = 25
+exports.calculateActionPoints = function (issues) {
+    if (!issues || !Array.isArray(issues)) {
+        return 0;
+    }
+
+    let total = 0;
+    for (const issue of issues) {
+        const issueId = issue.issue_id || issue.id;
+        if (issueId) {
+            const {app} = identifiers.parse(issueId);
+            total += ACTION_POINTS_BY_TYPE[app] || 0;
+        }
+    }
+
+    return total;
+};
+
+exports.validatePlanSize = function (issues, systemCount, req) {
+    const { maxSystems, maxActionPoints, bypassFeatureFlag } = config.planLimits;
+
+    if (featureFlags.isEnabled(bypassFeatureFlag, {
+        userId: req.user.username,
+        properties: {
+            tenantOrgId: req.user.tenant_org_id,
+            accountNumber: req.user.account_number
+        }
+    })) {
+        return;
+    }
+
+    const actionPoints = exports.calculateActionPoints(issues);
+    const messages = [];
+
+    if (systemCount > maxSystems) {
+        messages.push(`plan would contain ${systemCount} systems, exceeding the maximum of ${maxSystems}`);
+    }
+
+    if (actionPoints > maxActionPoints) {
+        messages.push(`plan would contain ${actionPoints} action points, exceeding the maximum of ${maxActionPoints}`);
+    }
+
+    if (messages.length) {
+        throw new errors.BadRequest('PLAN_SIZE_LIMIT_EXCEEDED',
+            `Remediation plan exceeds size limits: ${messages.join('; ')}`);
+    }
+};
 
 
 //-------------------------------------------------------------------------------------
@@ -121,6 +184,8 @@ exports.executePlaybookRuns = errors.async(async function (req, res) {
         // no systems
         throw errors.noSystems(remediation);
     }
+
+    exports.validatePlanSize(remediation.issues, systemIds.length, req);
 
     //-----------------------------------------------
     // get connection status of referenced systems
