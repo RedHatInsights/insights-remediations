@@ -168,6 +168,53 @@ describe('remediations controller.read unit tests', function () {
             should(callArgs[1]).equal(expectedUsername); // created_by should be the username
         });
 
+        it('should keep DB name order and not re-sort the page in JS', async () => {
+            // DB collation and JS toLowerCase() disagree on '_' vs letters, so a
+            // post-query JS sort would reshuffle items within a page (RHINENG-27972).
+            mockReq.query = { sort: '-name', limit: 15, offset: 0 };
+            mockReq.identity = {};
+
+            const now = new Date('2018-10-04T08:19:36.641Z');
+            const dbOrder = [
+                { id: '11111111-1111-1111-1111-111111111111', name: 'test_rhel9_remed' },
+                { id: '22222222-2222-2222-2222-222222222222', name: 'test_rhel9_rem' },
+                { id: '33333333-3333-3333-3333-333333333333', name: 'testing123' }
+            ];
+
+            function details (id, name) {
+                return {
+                    id,
+                    name,
+                    created_by: 'tuser@redhat.com',
+                    updated_by: 'tuser@redhat.com',
+                    created_at: now,
+                    updated_at: now,
+                    system_count: 0,
+                    issue_count: 0,
+                    resolved_count: 0,
+                    archived: false,
+                    last_run_at: null,
+                    expires_at: now,
+                    issues: []
+                };
+            }
+
+            sandbox.stub(queries, 'list').resolves({
+                count: dbOrder.map(() => ({ count: 1 })),
+                rows: dbOrder.map(({id}) => ({ id }))
+            });
+            sandbox.stub(queries, 'loadDetails').resolves(
+                dbOrder.map(({id, name}) => details(id, name))
+            );
+
+            await readController.list(mockReq, mockRes, mockNext);
+
+            sinon.assert.calledOnce(mockRes.json);
+            sinon.assert.notCalled(mockNext);
+            const names = mockRes.json.getCall(0).args[0].data.map(r => r.name);
+            should(names).eql(['test_rhel9_remed', 'test_rhel9_rem', 'testing123']);
+        });
+
         it('should pass null to queries.list when user type is ServiceAccount', async () => {
             // Arrange
             mockReq.type = 'ServiceAccount';

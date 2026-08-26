@@ -192,14 +192,7 @@ exports.list = errors.async(async function (req, res) {
     }
 
     trace.event('Fetch remediation details from DB');
-    let remediations = await queries.loadDetails(req.user.tenant_org_id, creator_sa_filter, rows);
-
-    if (column === 'name') {
-        trace.event('Accomodate sort ordering for null names');
-        // TODO: remove null name support?
-        // if sorting by name re-order as db does not order null names (Unnamed playbook) properly
-        remediations = _.orderBy(remediations, [r => (r.name || '').toLowerCase()], [asc ? 'asc' : 'desc']);
-    }
+    const remediations = await queries.loadDetails(req.user.tenant_org_id, creator_sa_filter, rows);
 
     trace.event('Resolve user names and reboot flag');
     await P.all([
