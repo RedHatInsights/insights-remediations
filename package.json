@@ -74,13 +74,13 @@
       "uuid": "^11.1.1"
     },
     "minimatch@3": {
-      "brace-expansion": "1.1.16"
+      "brace-expansion": "1.1.18"
     },
     "minimatch@9": {
       "brace-expansion": "2.1.4"
     },
     "minimatch@10": {
-      "brace-expansion": "5.0.7"
+      "brace-expansion": "5.0.9"
     },
     "ajv": {
       "fast-uri": "3.1.5"
