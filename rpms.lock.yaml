@@ -60,13 +60,13 @@ arches:
     name: libbrotli
     evr: 1.0.9-9.el9_7
     sourcerpm: brotli-1.0.9-9.el9_7.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/o/openssl-3.5.5-6.el9_8.x86_64.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/o/openssl-3.5.8-1.el9_8.x86_64.rpm
     repoid: ubi-9-for-x86_64-baseos-rpms
-    size: 1564334
-    checksum: sha256:1c502507f42674119318b66b111448f618efe2767a55edde5fadddcecb47ac64
+    size: 1569041
+    checksum: sha256:2e0d5017032a48c23d4efa43afbe98d45179365eaec16f38e93c271b7728a67a
     name: openssl
-    evr: 1:3.5.5-6.el9_8
-    sourcerpm: openssl-3.5.5-6.el9_8.src.rpm
+    evr: 1:3.5.8-1.el9_8
+    sourcerpm: openssl-3.5.8-1.el9_8.src.rpm
   source:
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/source/SRPMS/Packages/n/nodejs-22.23.2-1.module+el9.8.0+24709+804d6b5b.src.rpm
     repoid: ubi-9-for-x86_64-appstream-source-rpms
@@ -92,14 +92,14 @@ arches:
     checksum: sha256:abe953ef93fb49db17177190dc0698ab649f18a0bfaef4bb0ef0cd94644d1ec3
     name: jq
     evr: 1.6-19.el9_8.2
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/source/SRPMS/Packages/o/openssl-3.5.5-6.el9_8.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/source/SRPMS/Packages/o/openssl-3.5.8-1.el9_8.src.rpm
     repoid: ubi-9-for-x86_64-baseos-source-rpms
-    size: 53369050
-    checksum: sha256:b79f08d2d04536fdb6801b6ba7da7174942d174dd2b7969316402c737689d735
+    size: 53429735
+    checksum: sha256:393e8694b8161826f67f149cd7dde6b63da96f02efc050fda651d265907f2c20
     name: openssl
-    evr: 1:3.5.5-6.el9_8
+    evr: 1:3.5.8-1.el9_8
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/repodata/a07e0e543d89a62b642fe1fdbfd6b6e9be3a37b9eb46e592df1dbc8cbdd37edf-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/repodata/d0b258565a38c920a2bfd7ed255a28073d581b6bdb9a68e55d42e43d4fd2e850-modules.yaml.gz
     repoid: ubi-9-for-x86_64-appstream-rpms
-    size: 8155
-    checksum: sha256:a07e0e543d89a62b642fe1fdbfd6b6e9be3a37b9eb46e592df1dbc8cbdd37edf
+    size: 8505
+    checksum: sha256:d0b258565a38c920a2bfd7ed255a28073d581b6bdb9a68e55d42e43d4fd2e850
