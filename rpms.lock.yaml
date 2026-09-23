@@ -99,7 +99,7 @@ arches:
     name: openssl
     evr: 1:3.5.8-1.el9_8
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/repodata/d0b258565a38c920a2bfd7ed255a28073d581b6bdb9a68e55d42e43d4fd2e850-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/repodata/160ff8896017c71ee7c98c4f57d6b165fd5f97fcf1a30ec60d5883b347406b85-modules.yaml.gz
     repoid: ubi-9-for-x86_64-appstream-rpms
     size: 8505
-    checksum: sha256:d0b258565a38c920a2bfd7ed255a28073d581b6bdb9a68e55d42e43d4fd2e850
+    checksum: sha256:160ff8896017c71ee7c98c4f57d6b165fd5f97fcf1a30ec60d5883b347406b85
