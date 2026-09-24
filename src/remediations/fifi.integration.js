@@ -1262,6 +1262,125 @@ describe('FiFi', function () {
                 }]);
             });
 
+            describe('service account execute authorization', function () {
+                // Owned by tuser@redhat.com in org 0000000 (same org as auth.serviceAccount)
+                const OTHER_USER_PLAN_ID = 'cbc782e4-e8ae-4807-82ab-505387981d2e';
+                const CONNECTED_SYSTEM_ID = 'b84f4322-a0b8-4fb9-a8dc-8abb9ee16bc0';
+                const otherUserAuth = {
+                    [utils.IDENTITY_HEADER]: utils.createIdentityHeader(
+                        'other-user@redhat.com', 'test', '0000000', false
+                    )
+                };
+
+                let saOwnedPlanId;
+                let saOwnedIssueId;
+
+                beforeAll(async () => {
+                    const rem = await db.remediation.create({
+                        id: randomUUID(),
+                        name: 'service-account-owned-execute-plan',
+                        auto_reboot: true,
+                        account_number: 'test',
+                        tenant_org_id: '0000000',
+                        created_by: 'test-service-account',
+                        updated_by: 'test-service-account'
+                    });
+                    saOwnedPlanId = rem.id;
+
+                    const issue = await db.issue.create({
+                        remediation_id: saOwnedPlanId,
+                        issue_id: 'test:ping'
+                    });
+                    saOwnedIssueId = issue.id;
+
+                    await db.issue_system.create({
+                        remediation_issue_id: saOwnedIssueId,
+                        system_id: CONNECTED_SYSTEM_ID,
+                        resolved: false
+                    });
+                });
+
+                afterAll(async () => {
+                    if (saOwnedPlanId) {
+                        const runs = await db.playbook_runs.findAll({
+                            where: { remediation_id: saOwnedPlanId },
+                            attributes: ['id'],
+                            raw: true
+                        });
+                        const runIds = runs.map(run => run.id);
+                        if (runIds.length > 0) {
+                            await db.dispatcher_runs.destroy({
+                                where: { remediations_run_id: runIds },
+                                force: true
+                            });
+                            await db.playbook_runs.destroy({
+                                where: { id: runIds },
+                                force: true
+                            });
+                        }
+
+                        await db.issue_system.destroy({
+                            where: { remediation_issue_id: saOwnedIssueId },
+                            force: true
+                        });
+                        await db.issue.destroy({
+                            where: { remediation_id: saOwnedPlanId },
+                            force: true
+                        });
+                        await db.remediation.destroy({
+                            where: { id: saOwnedPlanId },
+                            force: true
+                        });
+                    }
+                });
+
+                test('service account can read another user plan but gets 403 on execute', async () => {
+                    await request
+                        .get(`/v1/remediations/${OTHER_USER_PLAN_ID}`)
+                        .set(auth.serviceAccount)
+                        .expect(200);
+
+                    const {body} = await request
+                        .post(`/v1/remediations/${OTHER_USER_PLAN_ID}/playbook_runs`)
+                        .send({ exclude: [] })
+                        .set(auth.serviceAccount)
+                        .expect(403);
+
+                    body.errors[0].should.have.property('status', 403);
+                    body.errors[0].should.have.property('code', 'FORBIDDEN');
+                    body.errors[0].should.have.property('title', 'Access forbidden');
+                    body.errors[0].details.message.should.equal(
+                        'Service accounts cannot execute remediation plans created by other users.'
+                    );
+                });
+
+                test('service account can execute its own plan', async () => {
+                    const {body} = await request
+                        .post(`/v1/remediations/${saOwnedPlanId}/playbook_runs`)
+                        .send({ exclude: [] })
+                        .set(auth.serviceAccount)
+                        .expect(201);
+
+                    body.should.have.property('id');
+                });
+
+                test('service account gets 404 for non-existent plan', async () => {
+                    await request
+                        .post('/v1/remediations/00000000-0000-0000-0000-000000000000/playbook_runs')
+                        .send({ exclude: [] })
+                        .set(auth.serviceAccount)
+                        .expect(404);
+                });
+
+                test('regular user still gets 404 when executing another user plan', async () => {
+                    await request
+                        .post(`/v1/remediations/${OTHER_USER_PLAN_ID}/playbook_runs`)
+                        .send({ exclude: [] })
+                        .set(otherUserAuth)
+                        .expect(404);
+                });
+            });
+
         });
     });
 
