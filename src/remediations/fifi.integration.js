@@ -1246,6 +1246,55 @@ describe('FiFi', function () {
                     'Excluded Executor [722ec903-f4b5-4b1f-9c2f-23fc7b0ba380] not found in list of identified executors');
             });
 
+            describe('plan size limits', function () {
+                const largePlanId = 'dd6a0b1b-5331-4e7b-92ec-9a01806fb181';
+
+                beforeEach(function () {
+                    base.getSandbox().stub(config.planLimits, 'maxSystems').value(3);
+                    base.getSandbox().stub(config.planLimits, 'maxActionPoints').value(1000);
+                });
+
+                test('rejects POST playbook_runs when plan exceeds max systems', async () => {
+                    const {body} = await request
+                        .post(`/v1/remediations/${largePlanId}/playbook_runs`)
+                        .set(auth.fifi)
+                        .expect(400);
+
+                    body.errors[0].code.should.equal('PLAN_SIZE_LIMIT_EXCEEDED');
+                    body.errors[0].title.should.match(/systems/);
+                });
+
+                test('rejects POST playbook_runs when plan exceeds max action points', async () => {
+                    base.getSandbox().restore();
+                    base.getSandbox().stub(config.planLimits, 'maxSystems').value(20000);
+                    base.getSandbox().stub(config.planLimits, 'maxActionPoints').value(0);
+
+                    const {body} = await request
+                        .post(`/v1/remediations/${largePlanId}/playbook_runs`)
+                        .set(auth.fifi)
+                        .expect(400);
+
+                    body.errors[0].code.should.equal('PLAN_SIZE_LIMIT_EXCEEDED');
+                    body.errors[0].title.should.match(/action points/);
+                });
+
+                test('allows execution when bypass feature flag is enabled', async () => {
+                    const featureFlags = require('../connectors/featureFlags');
+                    base.getSandbox().stub(featureFlags, 'isEnabled').callsFake(
+                        flag => flag === config.planLimits.bypassFeatureFlag
+                    );
+                    base.getSandbox().stub(fifi_2, 'generatePlaybookRunId').returns(randomUUID());
+                    base.getSandbox().stub(dispatcher, 'postV2PlaybookRunRequests').resolves([
+                        { code: 200, id: randomUUID() }
+                    ]);
+
+                    await request
+                        .post(`/v1/remediations/${largePlanId}/playbook_runs`)
+                        .set(auth.fifi)
+                        .expect(201);
+                });
+            });
+
             test('cancel playbook when there are Sat-RHC systems running', async () => {
                 const spy = base.getSandbox().spy(dispatcher, 'postPlaybookCancelRequest');
                 await request
