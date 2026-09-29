@@ -83,7 +83,7 @@
       "brace-expansion": "5.0.9"
     },
     "ajv": {
-      "fast-uri": "3.1.6"
+      "fast-uri": "3.1.7"
     },
     "loader-utils": "^3.2.1",
     "tough-cookie": "^4.1.3",
