@@ -855,6 +855,69 @@ describe('remediations', function () {
         });
     });
 
+    describe('list name sort pagination', function () {
+        // Names where JS string order disagrees with typical Postgres collation
+        // (underscore vs letters), so a post-query JS re-sort would shuffle pages.
+        const NAME_PREFIX = 'RHINENG-27972';
+        const NAMES = [
+            `${NAME_PREFIX} testing123`,
+            `${NAME_PREFIX} test_rhel9_remed`,
+            `${NAME_PREFIX} test_rhel9_rem`,
+            `${NAME_PREFIX} test_rhel8`,
+            `${NAME_PREFIX} test_rhel10`,
+            `${NAME_PREFIX} test_remediation`,
+            `${NAME_PREFIX} test_rem_rhel9`,
+            `${NAME_PREFIX} test_rem_rhel10`,
+            `${NAME_PREFIX} test_Pr`,
+            `${NAME_PREFIX} test-patch-ui`
+        ];
+        const createdIds = [];
+
+        beforeAll(async () => {
+            for (const name of NAMES) {
+                const created = await db.remediation.create({
+                    id: randomUUID(),
+                    name,
+                    account_number: 'test',
+                    tenant_org_id: '0000000',
+                    created_by: 'tuser@redhat.com',
+                    updated_by: 'tuser@redhat.com',
+                    auto_reboot: false,
+                    archived: false
+                });
+                createdIds.push(created.id);
+            }
+        });
+
+        afterAll(async () => {
+            if (createdIds.length) {
+                await db.remediation.destroy({ where: { id: createdIds }, force: true });
+            }
+        });
+
+        test('paginated sort=-name pages concatenate to the unpaginated order', async () => {
+            const filter = `filter[name]=${encodeURIComponent(NAME_PREFIX)}`;
+
+            const { body: all } = await request
+                .get(`/v1/remediations?sort=-name&limit=50&${filter}`)
+                .expect(200);
+
+            const unpaginated = _.map(all.data, 'name');
+            unpaginated.should.have.length(NAMES.length);
+
+            const pageSize = 3;
+            const paginated = [];
+            for (let offset = 0; offset < NAMES.length; offset += pageSize) {
+                const { body } = await request
+                    .get(`/v1/remediations?sort=-name&limit=${pageSize}&offset=${offset}&${filter}`)
+                    .expect(200);
+                paginated.push(..._.map(body.data, 'name'));
+            }
+
+            paginated.should.eql(unpaginated);
+        });
+    });
+
     describe('system issues', function () {
         let createdIds = [];
 
