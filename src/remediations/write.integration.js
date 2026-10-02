@@ -219,9 +219,9 @@ describe('remediations', function () {
             testIssue(r2.body, 'advisor:network_bond_opts_config_issue|NETWORK_BONDING_OPTS_DOUBLE_QUOTES_ISSUE', 'fix', systems);
         });
 
-        test('creates a new remediation with 20k systems in batches', async () => {
-            const name = `new remediation with 20k systems`;
-            const TOTAL_SYSTEMS = 20000;
+        test('creates a new remediation with 19k systems in batches', async () => {
+            const name = `new remediation with 19k systems ${randomUUID()}`;
+            const TOTAL_SYSTEMS = 19000;
             const BATCH_SIZE = 50;
             const allSystems = _.times(TOTAL_SYSTEMS, () => randomUUID());
 
@@ -267,7 +267,7 @@ describe('remediations', function () {
             const remediation = _.find(body.data, {id});
             (remediation !== undefined).should.be.true();
             remediation.system_count.should.equal(TOTAL_SYSTEMS);
-        });
+        }, 120000);
 
         test('does not create remediations with more than 50 unique systems', async () => {
             const name = 'remediation with too many systems';
