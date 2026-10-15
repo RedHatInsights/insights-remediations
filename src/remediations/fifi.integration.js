@@ -420,6 +420,17 @@ describe('FiFi', function () {
                 expect(text).toMatchSnapshot();
             });
 
+            test('400 on out-of-range offset playbook_runs?offset=10', async () => {
+                base.getSandbox().stub(dispatcher, 'fetchPlaybookRuns').returns(null);
+                const {body} = await request
+                .get('/v1/remediations/63d92aeb-9351-4216-8d7c-044d171337bc/playbook_runs?offset=10')
+                .set(auth.fifi)
+                .expect(400);
+
+                body.errors[0].code.should.equal('INVALID_OFFSET');
+                body.errors[0].title.should.equal('Requested starting offset 10 out of range: [0, 2]');
+            });
+
             test('sort playbook_runs?sort=-updated_at', async() => {
                 const {body, text} = await request
                 .get('/v1/remediations/249f142c-2ae3-4c3f-b2ec-c8c5881f8561/playbook_runs?sort=-updated_at')
