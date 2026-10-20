@@ -1,11 +1,106 @@
 'use strict';
 
-const sinon = require('sinon');
 const should = require('should');
+const sinon = require('sinon');
 
-const controller = require('./controller.fifi_2');
-const queries = require('./remediations.queries');
+const config = require('../config');
+const featureFlags = require('../connectors/featureFlags');
 const errors = require('../errors');
+const queries = require('./remediations.queries');
+const controller = require('./controller.fifi_2');
+const { calculateActionPoints, validatePlanSize } = controller;
+
+const req = {
+    user: {
+        username: 'tester',
+        tenant_org_id: '123',
+        account_number: '456'
+    }
+};
+
+describe('calculateActionPoints', function () {
+    test('returns 0 for empty or missing issues', () => {
+        calculateActionPoints([]).should.equal(0);
+        calculateActionPoints(null).should.equal(0);
+        calculateActionPoints(undefined).should.equal(0);
+    });
+
+    test('scores issues by type to match the frontend', () => {
+        calculateActionPoints([
+            {issue_id: 'advisor:rule|RULE'},
+            {issue_id: 'vulnerabilities:CVE-2024-1234'},
+            {issue_id: 'patch-advisory:RHBA-2019:4105'},
+            {issue_id: 'patch-package:rpm-4.14.2-37.el8.x86_64'},
+            {issue_id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled'}
+        ]).should.equal(20 + 20 + 2 + 2 + 5);
+    });
+
+    test('uses issue.id when issue_id is absent', () => {
+        calculateActionPoints([{id: 'advisor:rule|RULE'}]).should.equal(20);
+    });
+
+    test('treats test issues as 0 points', () => {
+        calculateActionPoints([{issue_id: 'test:ping'}]).should.equal(0);
+    });
+
+    test('multiplies points by the number of issues of each type', () => {
+        calculateActionPoints([
+            {issue_id: 'advisor:one|ONE'},
+            {issue_id: 'advisor:two|TWO'},
+            {issue_id: 'ssg:rhel8|cis|xccdf_org.ssgproject.content_rule_selinux_policytype'}
+        ]).should.equal(45);
+    });
+});
+
+describe('validatePlanSize', function () {
+    let sandbox;
+
+    beforeEach(() => {
+        sandbox = sinon.createSandbox();
+        sandbox.stub(featureFlags, 'isEnabled').returns(false);
+        sandbox.stub(config.planLimits, 'maxSystems').value(100);
+        sandbox.stub(config.planLimits, 'maxActionPoints').value(1000);
+    });
+
+    afterEach(() => {
+        sandbox.restore();
+    });
+
+    test('allows plans at the system and action-point limits', () => {
+        const issues = Array.from({length: 50}, (_, i) => ({issue_id: `advisor:rule${i}|RULE`}));
+        validatePlanSize(issues, 100, req);
+    });
+
+    test('rejects plans with more than 100 systems', () => {
+        try {
+            validatePlanSize([], 101, req);
+            throw new Error('expected PLAN_SIZE_LIMIT_EXCEEDED');
+        } catch (error) {
+            error.should.be.instanceof(errors.BadRequest);
+            error.error.code.should.equal('PLAN_SIZE_LIMIT_EXCEEDED');
+            error.error.title.should.match(/101 systems/);
+        }
+    });
+
+    test('rejects plans with more than 1000 action points', () => {
+        const issues = Array.from({length: 51}, (_, i) => ({issue_id: `advisor:rule${i}|RULE`}));
+
+        try {
+            validatePlanSize(issues, 1, req);
+            throw new Error('expected PLAN_SIZE_LIMIT_EXCEEDED');
+        } catch (error) {
+            error.should.be.instanceof(errors.BadRequest);
+            error.error.code.should.equal('PLAN_SIZE_LIMIT_EXCEEDED');
+            error.error.title.should.match(/1020 action points/);
+        }
+    });
+
+    test('skips limits when the bypass feature flag is enabled', () => {
+        featureFlags.isEnabled.returns(true);
+        const issues = Array.from({length: 51}, (_, i) => ({issue_id: `advisor:rule${i}|RULE`}));
+        validatePlanSize(issues, 101, req);
+    });
+});
 
 describe('remediations controller.fifi_2 unit tests', function () {
     let sandbox;
