@@ -5,6 +5,10 @@ const Connector = require('../Connector');
 
 /* eslint-disable security/detect-object-injection, max-len */
 
+const TEMPLATE_MANAGED_SYSTEMS = new Set([
+    '32801e58-5765-4a0e-b1a0-1ab226aafeaa'
+]);
+
 const ERRATA = {
     'RHBA-2019:4105': {
         attributes: {
@@ -69,6 +73,11 @@ module.exports = new class extends Connector {
 
     getErratum (id) {
         return P.resolve(ERRATA[id]);
+    }
+
+    getTemplateSystemIds (systemIds) {
+        const result = new Set(systemIds.filter(id => TEMPLATE_MANAGED_SYSTEMS.has(id)));
+        return P.resolve(result);
     }
 
     ping () {
