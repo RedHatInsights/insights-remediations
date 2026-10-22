@@ -80,7 +80,8 @@
     },
     "dottie": "^2.0.7",
     "tmp": "^0.2.6",
-    "qs": ">=6.16.0"
+    "qs": ">=6.16.0",
+    "proxy-addr": "^2.0.8"
   },
   "scripts": {
     "build": "gulp build",
