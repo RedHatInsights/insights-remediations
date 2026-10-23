@@ -62,7 +62,7 @@
   },
   "overrides": {
     "ajv": "^8.18.0",
-    "brace-expansion": "^2.1.4",
+    "brace-expansion": "^2.1.7",
     "fast-uri": "4.1.4",
     "loader-utils": "^3.2.1",
     "tough-cookie": "^4.1.3",
