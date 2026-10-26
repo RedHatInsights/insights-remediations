@@ -428,7 +428,7 @@ describe('FiFi', function () {
                 .expect(400);
 
                 body.errors[0].code.should.equal('INVALID_OFFSET');
-                body.errors[0].title.should.equal('Requested starting offset 10 out of range: [0, 2]');
+                body.errors[0].title.should.equal('Requested starting offset 10 out of range: [0, 1]');
             });
 
             test('sort playbook_runs?sort=-updated_at', async() => {

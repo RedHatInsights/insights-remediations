@@ -188,7 +188,7 @@ exports.list = errors.async(async function (req, res) {
 
     trace.event('Validate offset query parm');
     if (offset >= Math.max(count.length, 1)) {
-        throw errors.invalidOffset(offset, count.length - 1);
+        throw errors.invalidOffset(offset, Math.max(count.length - 1, 0));
     }
 
     trace.event('Fetch remediation details from DB');
@@ -671,7 +671,7 @@ exports.getIssueSystems = errors.async(async function (req, res) {
     remediation.issues[0].systems = await fifi.pagination(remediation.issues[0].systems, total, limit, offset);
 
     if (_.isNull(remediation.issues[0].systems)) {
-        throw errors.invalidOffset(offset, total);
+        throw errors.invalidOffset(offset, total - 1);
     }
 
     res.json(format.issueSystems(remediation.issues[0], total));
@@ -699,7 +699,7 @@ exports.getRemediationSystems = errors.async(async function (req, res) {
     const { count: total, rows } = await queries.getPlanSystems(plan_id, tenant_org_id, creator_sa_filter, column, asc, filter, limit, offset);
 
     if (offset >= Math.max(total, 1)) {
-        throw errors.invalidOffset(offset, total - 1);
+        throw errors.invalidOffset(offset, Math.max(total - 1, 0));
     }
 
     return res.json(format.planSystems(plan_id, rows, total, limit, offset, sort));

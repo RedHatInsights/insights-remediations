@@ -1504,7 +1504,7 @@ describe('remediations', function () {
             .expect(400);
 
             body.errors[0].code.should.eql('INVALID_OFFSET');
-            body.errors[0].title.should.eql('Requested starting offset 1000000000 out of range: [0, 2]');
+            body.errors[0].title.should.eql('Requested starting offset 1000000000 out of range: [0, 1]');
         });
 
         test400(
