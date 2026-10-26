@@ -57,8 +57,9 @@ function errorSerializer (e) {
     const result = _.omit(serialized, ['originalResponse']);
 
     // Preserve HttpError details (includes DependencyError with connector name/impl)
+    // If error is a native Error object, serialize it to preserve message/stack
     if (e.error) {
-        result.error = e.error;
+        result.error = e.error instanceof Error ? errorSerializer(e.error) : e.error;
     }
 
     // Extract useful details from originalResponse without logging the entire buffer
