@@ -70,15 +70,29 @@ function errorSerializer (e) {
             headers: headersSerializer(response.headers)
         };
 
-        // Include a truncated version of the response body for debugging
+        // Include a safe, size-limited version of the response body for debugging
         if (response.body) {
-            const bodyStr = typeof response.body === 'string'
-                ? response.body
-                : JSON.stringify(response.body);
-            const MAX_BODY_LENGTH = 1000;
-            result.response.body = bodyStr.length > MAX_BODY_LENGTH
-                ? bodyStr.substring(0, MAX_BODY_LENGTH) + '... (truncated)'
-                : bodyStr;
+            if (typeof response.body === 'string') {
+                const MAX_BODY_LENGTH = 1000;
+                result.response.body = response.body.length > MAX_BODY_LENGTH
+                    ? response.body.substring(0, MAX_BODY_LENGTH) + '... (truncated)'
+                    : response.body;
+            } else if (typeof response.body === 'object') {
+                // Extract only useful error fields to avoid stringifying huge objects
+                const errorFields = _.pick(response.body, [
+                    'error', 'errors', 'message', 'detail', 'details',
+                    'code', 'status', 'title', 'type', 'reason'
+                ]);
+                try {
+                    const bodyStr = JSON.stringify(errorFields);
+                    const MAX_BODY_LENGTH = 1000;
+                    result.response.body = bodyStr.length > MAX_BODY_LENGTH
+                        ? bodyStr.substring(0, MAX_BODY_LENGTH) + '... (truncated)'
+                        : bodyStr;
+                } catch (e) {
+                    result.response.body = '[Failed to serialize response body]';
+                }
+            }
         }
     }
 
