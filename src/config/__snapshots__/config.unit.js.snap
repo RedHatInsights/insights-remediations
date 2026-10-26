@@ -101,7 +101,7 @@ exports[`Configuration Verify app-common-js function 1`] = `
   "logging": {
     "cloudwatch": {
       "enabled": false,
-      "level": "debug",
+      "level": "fatal",
       "options": {
         "aws_access_key_id": "ACCESS_KEY",
         "aws_region": "EU",
@@ -111,7 +111,7 @@ exports[`Configuration Verify app-common-js function 1`] = `
         "prefix": "remediations-",
       },
     },
-    "level": "error",
+    "level": "fatal",
     "pretty": true,
   },
   "metrics": {
