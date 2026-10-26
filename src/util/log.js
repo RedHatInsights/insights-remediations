@@ -8,6 +8,39 @@ const cls = require('./cls');
 
 const MAX_TRACE_SIZE = 200000; // cloudwatch max = 262144
 
+function optionsSerialized (options) {
+    if (!options) {
+        return options;
+    }
+
+    return _.omit(options, ['ca', 'cert']);
+}
+
+function headersSerializer (headers) {
+    if (!headers) {
+        return headers;
+    }
+
+    // Redact credential and authentication headers from logs (case-insensitive)
+    // Note: x-rh-identity is preserved as it's needed for debugging user/org context
+    const sensitiveHeaders = [
+        'authorization',
+        'x-3scale-proxy-secret-token',
+        'cookie',
+        'set-cookie',
+        'x-api-key'
+    ];
+
+    const result = {};
+    for (const [key, value] of Object.entries(headers)) {
+        const lowerKey = key.toLowerCase();
+        if (!sensitiveHeaders.includes(lowerKey)) {
+            result[key] = value;
+        }
+    }
+    return result;
+}
+
 // Extract useful error details while avoiding logging huge response buffers.
 // For external service errors, this preserves:
 // - Service/connector identification
@@ -72,22 +105,6 @@ function errorSerializer (e) {
     result.cause = errorSerializer(result.cause);
 
     return result;
-}
-
-function optionsSerialized (options) {
-    if (!options) {
-        return options;
-    }
-
-    return _.omit(options, ['ca', 'cert']);
-}
-
-function headersSerializer (headers) {
-    if (!headers) {
-        return headers;
-    }
-
-    return _.omit(headers, ['cookie', 'x-3scale-proxy-secret-token']);
 }
 
 function buildTransport () {
