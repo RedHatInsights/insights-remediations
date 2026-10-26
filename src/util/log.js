@@ -8,13 +8,66 @@ const cls = require('./cls');
 
 const MAX_TRACE_SIZE = 200000; // cloudwatch max = 262144
 
-// avoid writing down the entire response buffer
+// Extract useful error details while avoiding logging huge response buffers.
+// For external service errors, this preserves:
+// - Service/connector identification
+// - HTTP status codes
+// - Request details (URI, method)
+// - Truncated response body for debugging
+// - Full error chain via recursive cause serialization
 function errorSerializer (e) {
     if (!e) {
         return e;
     }
 
-    const result =  _.omit(pino.stdSerializers.err(e), ['originalResponse']);
+    const serialized = pino.stdSerializers.err(e);
+    const result = _.omit(serialized, ['originalResponse']);
+
+    // Preserve HttpError details (includes DependencyError with connector name/impl)
+    if (e.error) {
+        result.error = e.error;
+    }
+
+    // Extract useful details from originalResponse without logging the entire buffer
+    if (e.originalResponse) {
+        const response = e.originalResponse;
+        result.response = {
+            statusCode: response.statusCode,
+            statusMessage: response.statusMessage,
+            headers: headersSerializer(response.headers)
+        };
+
+        // Include a truncated version of the response body for debugging
+        if (response.body) {
+            const bodyStr = typeof response.body === 'string'
+                ? response.body
+                : JSON.stringify(response.body);
+            const MAX_BODY_LENGTH = 1000;
+            result.response.body = bodyStr.length > MAX_BODY_LENGTH
+                ? bodyStr.substring(0, MAX_BODY_LENGTH) + '... (truncated)'
+                : bodyStr;
+        }
+    }
+
+    // Preserve request details from options (URI, method, etc.)
+    if (e.options) {
+        result.request = {
+            uri: e.options.uri,
+            method: e.options.method,
+            headers: headersSerializer(e.options.headers)
+        };
+    }
+
+    // Preserve statusCode if it's a StatusCodeError or similar
+    if (e.statusCode) {
+        result.statusCode = e.statusCode;
+    }
+
+    // Preserve error details from response body (if available)
+    if (e.details) {
+        result.details = e.details;
+    }
+
     result.options = optionsSerialized(result.options);
     result.cause = errorSerializer(result.cause);
 
