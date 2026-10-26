@@ -50,7 +50,27 @@ describe('controller.fifi listPlaybookRuns', function () {
         const err = mockNext.firstCall.args[0];
         should(err).be.instanceOf(errors.BadRequest);
         should(err.getError().code).equal('INVALID_OFFSET');
-        should(err.getError().title).equal('Requested starting offset 10 out of range: [0, 2]');
+        should(err.getError().title).equal('Requested starting offset 10 out of range: [0, 1]');
+        sinon.assert.notCalled(mockRes.send);
+        sinon.assert.notCalled(fifi.resolveUsers);
+    });
+
+    test('throws INVALID_OFFSET with [0, 0] when total is 0', async () => {
+        mockReq.query.offset = 1;
+        sandbox.stub(queries, 'getPlaybookRuns').resolves({
+            toJSON: () => ({ playbook_runs: [] })
+        });
+        sandbox.stub(fifi, 'combineRuns').resolves([]);
+        sandbox.stub(fifi, 'resolveUsers');
+        sandbox.stub(fifi, 'updatePlaybookRunsStatus');
+
+        await controller.listPlaybookRuns(mockReq, mockRes, mockNext).catch(() => {});
+
+        sinon.assert.calledOnce(mockNext);
+        const err = mockNext.firstCall.args[0];
+        should(err).be.instanceOf(errors.BadRequest);
+        should(err.getError().code).equal('INVALID_OFFSET');
+        should(err.getError().title).equal('Requested starting offset 1 out of range: [0, 0]');
         sinon.assert.notCalled(mockRes.send);
         sinon.assert.notCalled(fifi.resolveUsers);
     });
