@@ -671,7 +671,7 @@ exports.getIssueSystems = errors.async(async function (req, res) {
     remediation.issues[0].systems = await fifi.pagination(remediation.issues[0].systems, total, limit, offset);
 
     if (_.isNull(remediation.issues[0].systems)) {
-        throw errors.invalidOffset(offset, total);
+        throw errors.invalidOffset(offset, total - 1);
     }
 
     res.json(format.issueSystems(remediation.issues[0], total));

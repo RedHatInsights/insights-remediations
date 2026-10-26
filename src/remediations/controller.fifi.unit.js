@@ -50,7 +50,7 @@ describe('controller.fifi listPlaybookRuns', function () {
         const err = mockNext.firstCall.args[0];
         should(err).be.instanceOf(errors.BadRequest);
         should(err.getError().code).equal('INVALID_OFFSET');
-        should(err.getError().title).equal('Requested starting offset 10 out of range: [0, 2]');
+        should(err.getError().title).equal('Requested starting offset 10 out of range: [0, 1]');
         sinon.assert.notCalled(mockRes.send);
         sinon.assert.notCalled(fifi.resolveUsers);
     });

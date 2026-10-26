@@ -69,7 +69,7 @@ exports.listPlaybookRuns = errors.async(async function (req, res) {
     remediation.playbook_runs = await fifi.pagination(remediation.playbook_runs, total, limit, offset);
 
     if (_.isNull(remediation.playbook_runs)) {
-        throw errors.invalidOffset(offset, total);
+        throw errors.invalidOffset(offset, total - 1);
     }
 
     remediation = await fifi.resolveUsers(req, remediation);
@@ -157,7 +157,7 @@ exports.getSystems = errors.async(async function (req, res) {
     trace.event('paginate...');
     const total = fifi.getListSize(systems);
     if (offset >= Math.max(total, 1)) {
-        throw errors.invalidOffset(offset, total);
+        throw errors.invalidOffset(offset, total - 1);
     }
 
     systems = fifi.pagination(systems, total, limit, offset);
