@@ -218,8 +218,8 @@ function errorSerializer (e) {
         }
     }
 
-    result.options = optionsSerialized(result.options);
-    result.cause = errorSerializer(result.cause);
+    result.options = optionsSerialized(e.options);
+    result.cause = errorSerializer(e.cause);
 
     return result;
 }
