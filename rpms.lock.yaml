@@ -53,13 +53,13 @@ arches:
     name: jq
     evr: 1.6-19.el9_8.2
     sourcerpm: jq-1.6-19.el9_8.2.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/l/libbrotli-1.0.9-10.el9_8.x86_64.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/l/libbrotli-1.0.9-10.el9_8.1.x86_64.rpm
     repoid: ubi-9-for-x86_64-baseos-rpms
-    size: 326501
-    checksum: sha256:ecf2cda794cb9f68a7f67742ce0aeef4c3480795cce0e9bc8f49634072fd2e07
+    size: 326567
+    checksum: sha256:4ac44eaf3518e46780b8f449fa68f762e4fe8b88d0de7845d7fe8399d829d966
     name: libbrotli
-    evr: 1.0.9-10.el9_8
-    sourcerpm: brotli-1.0.9-10.el9_8.src.rpm
+    evr: 1.0.9-10.el9_8.1
+    sourcerpm: brotli-1.0.9-10.el9_8.1.src.rpm
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/o/openssl-3.5.8-2.el9_8.x86_64.rpm
     repoid: ubi-9-for-x86_64-baseos-rpms
     size: 1570074
@@ -69,7 +69,7 @@ arches:
     sourcerpm: openssl-3.5.8-2.el9_8.src.rpm
   source: []
   module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/repodata/235e83a638c97014ccd6962dd7d046eb7b00ffe493f53ecdc0303e404897dd31-modules.yaml.gz
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/repodata/3ba5b238e7e33858f6ad0490432b7aeb6ae8577bf57ada0b74d8fc300e234688-modules.yaml.gz
     repoid: ubi-9-for-x86_64-appstream-rpms
-    size: 8307
-    checksum: sha256:235e83a638c97014ccd6962dd7d046eb7b00ffe493f53ecdc0303e404897dd31
+    size: 8395
+    checksum: sha256:3ba5b238e7e33858f6ad0490432b7aeb6ae8577bf57ada0b74d8fc300e234688
