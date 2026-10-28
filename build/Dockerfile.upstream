@@ -1,11 +1,16 @@
 #----------------------- base -----------------------
 
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.8-1790074235 AS base
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.8-1793050346 AS base
 
 RUN microdnf module enable -y nodejs:22 && \
     microdnf install -y shadow-utils jq nodejs npm --nodocs && \
     microdnf upgrade -y && \
     microdnf clean all
+
+# Mitigate the eMudhra intermediate CA compromise (RHSB-2026-012) by
+# distrusting the affected root CAs - see https://access.redhat.com/solutions/7149312
+COPY scripts/disable-compromised-ca-certs.sh /tmp/disable-compromised-ca-certs.sh
+RUN /tmp/disable-compromised-ca-certs.sh
 
 ENV APP_ROOT=/opt/app-root
 WORKDIR $APP_ROOT
