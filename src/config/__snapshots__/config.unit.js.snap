@@ -137,8 +137,10 @@ exports[`Configuration Verify app-common-js function 1`] = `
   "platformHostname": "hostname",
   "port": undefined,
   "rbac": {
+    "authenticated": true,
+    "caCert": null,
     "enforce": true,
-    "host": "http://localhost:8080",
+    "host": "https://rbac-service.svc.cluster.local:8443",
     "impl": undefined,
     "insecure": false,
   },
@@ -147,7 +149,9 @@ exports[`Configuration Verify app-common-js function 1`] = `
   },
   "requestTimeout": 10000,
   "sources": {
-    "host": "http://localhost:8080",
+    "authenticated": true,
+    "caCert": null,
+    "host": "https://sources-api-svc.svc.cluster.local:8443",
     "impl": undefined,
   },
   "ssg": {
