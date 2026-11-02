@@ -34,6 +34,8 @@ spec:
     value: .
   - name: prefetch-dev-package-managers
     value: "true"
+  - name: build-source-image
+    value: "true"
   pipelineRef:
     name: docker-build-oci-ta
   taskRunTemplate:
