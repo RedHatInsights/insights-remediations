@@ -14,7 +14,7 @@
     "@project-kessel/kessel-sdk": "3.10.0",
     "app-common-js": "2.2.4",
     "bluebird": "3.7.2",
-    "body-parser": "1.20.6",
+    "body-parser": "1.20.9",
     "clean-modules": "3.1.1",
     "cls-bluebird": "2.1.0",
     "dedent-js": "1.0.1",
@@ -74,16 +74,16 @@
       "uuid": "^11.1.1"
     },
     "minimatch@3": {
-      "brace-expansion": "1.1.18"
+      "brace-expansion": "1.1.21"
     },
     "minimatch@9": {
-      "brace-expansion": "2.1.4"
+      "brace-expansion": "2.1.7"
     },
     "minimatch@10": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "ajv": {
-      "fast-uri": "3.1.7"
+      "fast-uri": "3.1.9"
     },
     "loader-utils": "^3.2.1",
     "tough-cookie": "^4.1.3",
