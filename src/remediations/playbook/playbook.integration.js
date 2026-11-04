@@ -7,6 +7,31 @@ const inventory = require('../../connectors/inventory');
 const rbac = require('../../connectors/rbac');
 const db = require('../../db');
 const P = require('bluebird');
+const identityUtils = require('../../middleware/identity/utils');
+const {MOCK_USERS} = require('../../connectors/users/mock');
+
+const SATELLITE_CN = '81390ad6-ce49-4c8f-aa64-729d374ee65c';
+const PLAYBOOK_SYSTEM = '4bb19a8a-0c07-4ee6-a78c-504dab783cc8';
+const PLAYBOOK_ID = '7d727f9c-7d9e-458d-a128-a9ffae1802ab';
+const FORWARDED_SUBMAN = '49f86dd6-9b43-4db2-8b56-b5637f0b0969';
+
+function satelliteCertAuth () {
+    return {
+        [identityUtils.IDENTITY_HEADER]: identityUtils.createCertIdentityHeader(
+            MOCK_USERS.testReadSingleUser.account_number,
+            MOCK_USERS.testReadSingleUser.tenant_org_id,
+            data => {
+                data.identity.auth_type = 'cert-auth';
+                data.identity.system.cert_type = 'satellite';
+                return data;
+            }
+        )
+    };
+}
+
+function satellitePlaybookUrl () {
+    return `/v1/remediations/${PLAYBOOK_ID}/playbook?hosts=${PLAYBOOK_SYSTEM}`;
+}
 
 describe('playbooks', function () {
     describe('generate', function () {
@@ -392,6 +417,143 @@ describe('playbooks', function () {
             .get('/v1/remediations/7d727f9c-7d9e-458d-a128-a9ffae1802ab/playbook?hosts=non-existent-host')
             .set(auth.cert02)
             .expect(404);
+        });
+
+        describe('satellite X-Forwarded-Identity', function () {
+            test('header absent keeps owner_id authorization', async () => {
+                getSandbox().stub(inventory, 'getSystemProfileBatch').resolves({
+                    [PLAYBOOK_SYSTEM]: {
+                        id: PLAYBOOK_SYSTEM,
+                        system_profile: {
+                            owner_id: 'non-existent'
+                        }
+                    }
+                });
+
+                const {body} = await request
+                .get(satellitePlaybookUrl())
+                .set(satelliteCertAuth())
+                .expect(403);
+
+                body.errors[0].details.message.should.equal(
+                    `Host certificate ${SATELLITE_CN} is unauthorized to access this playbook`
+                );
+            });
+
+            test('header absent keeps missing profile as an internal error', async () => {
+                getSandbox().stub(inventory, 'getSystemProfileBatch').resolves({
+                    [PLAYBOOK_SYSTEM]: {
+                        id: PLAYBOOK_SYSTEM,
+                        system_profile: {}
+                    }
+                });
+
+                await request
+                .get(satellitePlaybookUrl())
+                .set(satelliteCertAuth())
+                .expect(500);
+            });
+
+            test('header absent and an empty inventory response stays 404', async () => {
+                getSandbox().stub(inventory, 'getSystemProfileBatch').resolves({});
+
+                await request
+                .get(satellitePlaybookUrl())
+                .set(satelliteCertAuth())
+                .expect(404);
+            });
+
+            test('valid header is forwarded and a missing profile is unauthorized', async () => {
+                getSandbox().stub(inventory, 'getSystemProfileBatch').callsFake(function () {
+                    const headers = this.getForwardedHeaders();
+                    headers.should.have.size(3);
+                    headers.should.have.property('x-forwarded-identity', FORWARDED_SUBMAN);
+                    headers.should.have.property('x-rh-identity');
+
+                    return {
+                        [PLAYBOOK_SYSTEM]: {
+                            id: PLAYBOOK_SYSTEM,
+                            system_profile: {}
+                        }
+                    };
+                });
+
+                const {body} = await request
+                .get(satellitePlaybookUrl())
+                .set(satelliteCertAuth())
+                .set('X-Forwarded-Identity', FORWARDED_SUBMAN.toUpperCase())
+                .expect(403);
+
+                body.errors[0].status.should.equal(403);
+                body.errors[0].details.message.should.equal(
+                    `Host certificate ${SATELLITE_CN} is unauthorized to access this playbook`
+                );
+            });
+
+            test('valid header and an omitted system is unauthorized', async () => {
+                getSandbox().stub(inventory, 'getSystemProfileBatch').callsFake(function () {
+                    const headers = this.getForwardedHeaders();
+                    headers.should.have.property('x-forwarded-identity', FORWARDED_SUBMAN);
+                    return {};
+                });
+
+                await request
+                .get(satellitePlaybookUrl())
+                .set(satelliteCertAuth())
+                .set('X-Forwarded-Identity', FORWARDED_SUBMAN)
+                .expect(403);
+            });
+
+            test('valid header still allows a matching owner_id', async () => {
+                const original = inventory.getSystemProfileBatch.bind(inventory);
+                getSandbox().stub(inventory, 'getSystemProfileBatch').callsFake(async function (systems) {
+                    const headers = this.getForwardedHeaders();
+                    headers.should.have.size(3);
+                    headers.should.have.property('x-forwarded-identity', FORWARDED_SUBMAN);
+                    return original(systems);
+                });
+
+                await request
+                .get(satellitePlaybookUrl())
+                .set(satelliteCertAuth())
+                .set('X-Forwarded-Identity', `  ${FORWARDED_SUBMAN.toUpperCase()}  `)
+                .expect(200);
+            });
+
+            test('malformed header is rejected before inventory is called', async () => {
+                const profile = getSandbox().spy(inventory, 'getSystemProfileBatch');
+                const details = getSandbox().spy(inventory, 'getSystemDetailsBatch');
+                const info = getSandbox().spy(inventory, 'getSystemInfoBatch');
+
+                const {body} = await request
+                .get(satellitePlaybookUrl())
+                .set(satelliteCertAuth())
+                .set('X-Forwarded-Identity', 'not-a-uuid')
+                .expect(403);
+
+                body.errors[0].details.message.should.equal('Invalid X-Forwarded-Identity header');
+                profile.called.should.be.false();
+                details.called.should.be.false();
+                info.called.should.be.false();
+            });
+
+            test('whitespace-only header is ignored', async () => {
+                const original = inventory.getSystemProfileBatch.bind(inventory);
+                let forwarded;
+                getSandbox().stub(inventory, 'getSystemProfileBatch').callsFake(async function (systems) {
+                    forwarded = this.getForwardedHeaders();
+                    return original(systems);
+                });
+
+                await request
+                .get(satellitePlaybookUrl())
+                .set(satelliteCertAuth())
+                .set('X-Forwarded-Identity', '   ')
+                .expect(200);
+
+                forwarded.should.have.size(2);
+                forwarded.should.not.have.property('x-forwarded-identity');
+            });
         });
 
         test('returns error when playbook contains unknown issues', async () => {

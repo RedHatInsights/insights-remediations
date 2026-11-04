@@ -487,11 +487,23 @@ exports.playbook = errors.async(async function (req, res) {
             const batchProfileInfo = await inventory.getSystemProfileBatch(all_systems);
 
             if (_.isEmpty(batchProfileInfo)) {
+                // Inventory omitted every requested system. With a forwarded host identity
+                // that is an authorization failure; otherwise keep the existing 404.
+                if (req.forwardedIdentity && all_systems.length > 0) {
+                    throw errors.unauthorizedGeneration(req.identity.system.cn);
+                }
+
                 return notFound(res); // Eh, this is really more of an internal error...
             }
 
             all_systems.forEach(system => {
                 if (!_.has(batchProfileInfo, `[${system}].system_profile.owner_id`)) {
+                    // A forwarded identity means Inventory filtered the host out.
+                    // That is unauthorized, not a missing-profile internal error.
+                    if (req.forwardedIdentity) {
+                        throw errors.unauthorizedGeneration(req.identity.system.cn);
+                    }
+
                     throw errors.internal.systemProfileMissing(null, `Missing profile for system: ${system}`);
                 }
 
