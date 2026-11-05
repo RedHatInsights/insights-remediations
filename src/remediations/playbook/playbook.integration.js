@@ -2,6 +2,7 @@
 /*eslint-disable max-len*/
 
 const { request, auth, mockDate, normalizePlaybookVersionForSnapshot, getSandbox, buildRbacResponse } = require('../../test');
+const errors = require('../../errors');
 const generator = require('../../generator/generator.controller.js');
 const inventory = require('../../connectors/inventory');
 const rbac = require('../../connectors/rbac');
@@ -490,6 +491,22 @@ describe('playbooks', function () {
                 );
             });
 
+            test('valid header and an inventory 404 for profiles is unauthorized', async () => {
+                getSandbox().stub(inventory, 'getSystemProfileBatch').rejects(
+                    new errors.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${PLAYBOOK_SYSTEM}"`)
+                );
+
+                const {body} = await request
+                .get(satellitePlaybookUrl())
+                .set(satelliteCertAuth())
+                .set('X-Forwarded-Identity', FORWARDED_SUBMAN)
+                .expect(403);
+
+                body.errors[0].details.message.should.equal(
+                    `Host certificate ${SATELLITE_CN} is unauthorized to access this playbook`
+                );
+            });
+
             test('valid header and an omitted system is unauthorized', async () => {
                 getSandbox().stub(inventory, 'getSystemProfileBatch').callsFake(function () {
                     const headers = this.getForwardedHeaders();
@@ -518,6 +535,41 @@ describe('playbooks', function () {
                 .set(satelliteCertAuth())
                 .set('X-Forwarded-Identity', `  ${FORWARDED_SUBMAN.toUpperCase()}  `)
                 .expect(200);
+            });
+
+            test('sat_org treats a host omitted from details as unauthorized', async () => {
+                getSandbox().stub(inventory, 'getSystemDetailsBatch').resolves({});
+                const profile = getSandbox().stub(inventory, 'getSystemProfileBatch').resolves({});
+
+                const {body} = await request
+                .get(`${satellitePlaybookUrl()}&sat_org=1`)
+                .set(satelliteCertAuth())
+                .set('X-Forwarded-Identity', FORWARDED_SUBMAN)
+                .expect(403);
+
+                body.errors[0].status.should.equal(403);
+                body.errors[0].details.message.should.equal(
+                    `Host certificate ${SATELLITE_CN} is unauthorized to access this playbook`
+                );
+                profile.called.should.be.false();
+            });
+
+            test('sat_org treats an inventory 404 for details as unauthorized', async () => {
+                getSandbox().stub(inventory, 'getSystemDetailsBatch').rejects(
+                    new errors.BadRequest('UNKNOWN_SYSTEM', `Unknown system identifier "${PLAYBOOK_SYSTEM}"`)
+                );
+                const profile = getSandbox().stub(inventory, 'getSystemProfileBatch');
+
+                const {body} = await request
+                .get(`${satellitePlaybookUrl()}&sat_org=1`)
+                .set(satelliteCertAuth())
+                .set('X-Forwarded-Identity', FORWARDED_SUBMAN)
+                .expect(403);
+
+                body.errors[0].details.message.should.equal(
+                    `Host certificate ${SATELLITE_CN} is unauthorized to access this playbook`
+                );
+                profile.called.should.be.false();
             });
 
             test('malformed header is rejected before inventory is called', async () => {
