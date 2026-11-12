@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('fs');
 const _ = require('lodash');
 const P = require('bluebird');
 const URI = require('urijs');
@@ -7,9 +8,14 @@ const assert = require('assert');
 const Connector = require('../Connector');
 const StatusCodeError = require('../StatusCodeError');
 
-const {host, insecure} = require('../../config').sources;
+const {host, insecure, authenticated, caCert: caCertPath} = require('../../config').sources;
+const { getV2BearerToken, applyV2CaCert } = require('../../util/v2Auth');
 
 const metrics = require('../metrics');
+
+// Read V2 CA cert once at module load
+const caCertBuffer = caCertPath // eslint-disable-line security/detect-non-literal-fs-filename
+    ? fs.readFileSync(caCertPath) : null;
 
 module.exports = new class extends Connector {
     constructor () {
@@ -17,6 +23,23 @@ module.exports = new class extends Connector {
         this.sourcesMetrics = metrics.createConnectorMetric(this.getName(), 'getSources');
         this.endpointMetrics = metrics.createConnectorMetric(this.getName(), 'getEndpoints');
         this.rhcConnectionsMetrics = metrics.createConnectorMetric(this.getName(), 'getRHCConnections');
+    }
+
+    /**
+     * Build request options with V2 bearer auth and CA cert at the shared boundary.
+     * @param {object} baseOptions - Base request-promise options.
+     * @returns {Promise<object>} Enhanced options with V2 auth and TLS.
+     */
+    async buildV2RequestOptions (baseOptions) {
+        const headers = { ...baseOptions.headers };
+
+        // V2 authenticated endpoint: attach bearer for cross-cluster gateway auth
+        if (authenticated) {
+            const token = await getV2BearerToken();
+            headers.Authorization = `Bearer ${token}`;
+        }
+
+        return applyV2CaCert({ ...baseOptions, headers }, caCertBuffer);
     }
 
     async findSources (ids) {
@@ -33,13 +56,15 @@ module.exports = new class extends Connector {
             'filter[source_ref][eq][]': ids
         });
 
-        const result = await this.doHttp({
+        const options = await this.buildV2RequestOptions({
             uri: uri.toString(),
             method: 'GET',
             json: true,
             rejectUnauthorized: !insecure,
             headers: this.getForwardedHeaders()
-        }, false, this.sourcesMetrics);
+        });
+
+        const result = await this.doHttp(options, false, this.sourcesMetrics);
 
         assert(result.meta.count <= result.meta.limit);
         const data = _(result.data).keyBy('source_ref').value();
@@ -53,15 +78,17 @@ module.exports = new class extends Connector {
     async getEndpoints (id) {
         const uri = this.buildUri(host, 'sources', 'v2.0', 'sources', String(id), 'endpoints');
 
+        const options = await this.buildV2RequestOptions({
+            uri: uri.toString(),
+            method: 'GET',
+            json: true,
+            rejectUnauthorized: !insecure,
+            headers: this.getForwardedHeaders()
+        });
+
         let result;
         try {
-            result = await this.doHttp({
-                uri: uri.toString(),
-                method: 'GET',
-                json: true,
-                rejectUnauthorized: !insecure,
-                headers: this.getForwardedHeaders()
-            }, false, this.endpointMetrics);
+            result = await this.doHttp(options, false, this.endpointMetrics);
         } catch (e) {
             if (e instanceof StatusCodeError && e.statusCode === 404) {
                 return null;
@@ -92,15 +119,17 @@ module.exports = new class extends Connector {
     async getRHCConnections (id) {
         const uri = this.buildUri(host, 'sources', 'v3.1', 'sources', String(id), 'rhc_connections');
 
+        const options = await this.buildV2RequestOptions({
+            uri: uri.toString(),
+            method: 'GET',
+            json: true,
+            rejectUnauthorized: !insecure,
+            headers: this.getForwardedHeaders()
+        });
+
         let result;
         try {
-            result = await this.doHttp({
-                uri: uri.toString(),
-                method: 'GET',
-                json: true,
-                rejectUnauthorized: !insecure,
-                headers: this.getForwardedHeaders()
-            }, false, this.rhcConnectionsMetrics);
+            result = await this.doHttp(options, false, this.rhcConnectionsMetrics);
         } catch (e) {
             if (e instanceof StatusCodeError && e.statusCode === 404) {
                 return null;
