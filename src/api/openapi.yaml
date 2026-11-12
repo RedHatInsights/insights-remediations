@@ -1713,6 +1713,16 @@ components:
                     nullable: true
                     description: Controls the order in which issues are executed in the generated playbook. Lower numbers execute first. If not specified, issues are ordered by issue_id.
                     example: 1
+                  value_overrides:
+                    type: object
+                    description: >
+                      Map of tailored values to use for an issue in the generated playbook.
+                      Keys are variable names and values are strings. If omitted or empty,
+                      the playbook default values are used.
+                    additionalProperties:
+                      type: string
+                    example:
+                      var_accounts_maximum_age_login_defs: '180'
             systems:
               type: array
               maxItems: 50
