@@ -195,6 +195,27 @@ describe('inventory xjoin', function () {
             headers.should.have.property('x-rh-insights-request-id', 'request-id');
         });
 
+        test('forwards a validated satellite identity', async function () {
+            const cls = require('../../util/cls');
+            cls.getReq().forwardedIdentity = '49F86DD6-9B43-4DB2-8B56-B5637F0B0969';
+            const spy = base.getSandbox().stub(queries, 'runQuery').resolves({
+                status: 200,
+                headers: {},
+                data: {
+                    hosts: {
+                        data: []
+                    }
+                }
+            });
+
+            await xjoin.getSystemProfileBatch(['9dae9304-86a8-4f66-baa3-a1b27dfdd479']);
+            const headers = spy.args[0][2];
+            headers.should.have.size(3);
+            headers.should.have.property('x-forwarded-identity', '49f86dd6-9b43-4db2-8b56-b5637f0b0969');
+            headers.should.have.property('x-rh-identity', 'identity');
+            headers.should.have.property('x-rh-insights-request-id', 'request-id');
+        });
+
         test('obtains system profile details', async function () {
             const http = base.getSandbox().stub(queries, 'runQuery').resolves({
                 status: 200,
