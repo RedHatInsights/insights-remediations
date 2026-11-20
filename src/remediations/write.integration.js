@@ -758,6 +758,105 @@ describe('remediations', function () {
         });
 
 
+        test('accepts optional value_overrides on create issues', async () => {
+            const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f'];
+
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({
+                name: 'Test value_overrides accepted',
+                add: {
+                    issues: [{
+                        id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled',
+                        resolution: 'fix',
+                        systems,
+                        value_overrides: {
+                            var_accounts_maximum_age_login_defs: '180'
+                        }
+                    }]
+                }
+            })
+            .expect(201);
+
+            body.should.have.property('id');
+        });
+
+        test('accepts empty value_overrides object on create issues', async () => {
+            const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f'];
+
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({
+                name: 'Test empty value_overrides',
+                add: {
+                    issues: [{
+                        id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled',
+                        resolution: 'fix',
+                        systems,
+                        value_overrides: {}
+                    }]
+                }
+            })
+            .expect(201);
+
+            body.should.have.property('id');
+        });
+
+        test('400s when value_overrides values are not strings', async () => {
+            const {header} = reqId();
+            const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f'];
+
+            const {body} = await request
+            .post('/v1/remediations')
+            .set(header)
+            .set(auth.testWrite)
+            .send({
+                name: 'Test invalid value_overrides',
+                add: {
+                    issues: [{
+                        id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_autofs_disabled',
+                        resolution: 'fix',
+                        systems,
+                        value_overrides: {
+                            var_accounts_maximum_age_login_defs: 180
+                        }
+                    }]
+                }
+            })
+            .expect(400);
+
+            body.errors[0].code.should.match(/openapi\.requestValidation/);
+        });
+
+        test('accepts value_overrides on PATCH add issues', async () => {
+            const systems = ['56db4b54-6273-48dc-b0be-41eb4dc87c7f'];
+
+            const {body: created} = await request
+            .post('/v1/remediations')
+            .set(auth.testWrite)
+            .send({name: 'Test value_overrides patch'})
+            .expect(201);
+
+            await request
+            .patch(`/v1/remediations/${created.id}`)
+            .set(auth.testWrite)
+            .send({
+                add: {
+                    issues: [{
+                        id: 'ssg:rhel7|standard|xccdf_org.ssgproject.content_rule_service_rsyslog_enabled',
+                        resolution: 'fix',
+                        systems,
+                        value_overrides: {
+                            var_accounts_maximum_age_login_defs: '90'
+                        }
+                    }]
+                }
+            })
+            .expect(200);
+        });
+
         test('400s if unexpected property is provided', async () => {
             const {id, header} = reqId();
 
