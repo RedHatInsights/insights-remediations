@@ -76,6 +76,24 @@
     "hostname": "ff-server.server.example.com",
     "port": 4242
   },
+  "dependencyEndpoints": {
+    "v2": {
+      "rbac": {
+        "service": {
+          "uri": "https://rbac-service.svc.cluster.local:8443",
+          "authenticated": true,
+          "ca_certificate": null
+        }
+      },
+      "sources-api": {
+        "svc": {
+          "uri": "https://sources-api-svc.svc.cluster.local:8443",
+          "authenticated": true,
+          "ca_certificate": null
+        }
+      }
+    }
+  },
   "endpoints": [
     {
       "name": "endpoint1",
