@@ -13,9 +13,9 @@ Run the `generate-repo-file` target to create the `ubi.repo` file, which configu
 make generate-repo-file
 ```
 
-- **Input**: Uses `BASE_IMAGE` (default: `registry.access.redhat.com/ubi9/ubi-minimal:9.6-1752587672`).
+- **Input**: Uses `BASE_IMAGE` (default: `registry.access.redhat.com/ubi10/ubi-minimal:10.3-1795196920`).
 - **Output**: Creates `ubi.repo` with enabled x86_64 repositories.
-- **Optional**: Specify a custom image with `BASE_IMAGE`, e.g., `make generate-repo-file BASE_IMAGE=registry.access.redhat.com/ubi9/ubi:latest`.
+- **Optional**: Specify a custom image with `BASE_IMAGE`, e.g., `make generate-repo-file BASE_IMAGE=registry.access.redhat.com/ubi10/ubi:latest`.
 
 ### Step 2: Generate the `rpms.in.yaml` File
 Run the `generate-rpms-in-yaml` target to extract RPM packages from the `CONTAINERFILE` and create `rpms.in.yaml`.

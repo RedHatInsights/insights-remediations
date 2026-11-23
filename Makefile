@@ -1,27 +1,25 @@
 # Default value for BASE_IMAGE
-BASE_IMAGE ?= registry.access.redhat.com/ubi9/ubi-minimal:9.8-1785906621
+BASE_IMAGE ?= registry.access.redhat.com/ubi10/ubi-minimal:10.3-1795196920
 # Default value for CONTAINERFILE
 CONTAINERFILE ?= Dockerfile
 
-# Define the AWK command based on platform (gawk on macOS, awk elsewhere)
+# Define AWK/SED based on platform (BSD sed on macOS needs an explicit -i '')
 AWK = awk
+SED_INPLACE = sed -i
 ifeq ($(shell uname),Darwin)
 AWK = gawk
+SED_INPLACE = sed -i ''
 endif
 
 .PHONY: generate-repo-file
 generate-repo-file:
-	@if ! grep -q "Red Hat Enterprise Linux release 9" /etc/redhat-release 2>/dev/null; then \
-		echo "Error: This system is not running RHEL 9"; \
-		exit 1; \
-	fi
-	@podman run -it $(BASE_IMAGE) cat /etc/yum.repos.d/ubi.repo > ubi.repo || { echo "Failed to fetch ubi.repo"; exit 1; }
-	@sed -i 's/ubi-9-appstream-source-rpms/ubi-9-for-x86_64-appstream-source-rpms/' ubi.repo
-	@sed -i 's/ubi-9-appstream-rpms/ubi-9-for-x86_64-appstream-rpms/' ubi.repo
-	@sed -i 's/ubi-9-baseos-source-rpms/ubi-9-for-x86_64-baseos-source-rpms/' ubi.repo
-	@sed -i 's/ubi-9-baseos-rpms/ubi-9-for-x86_64-baseos-rpms/' ubi.repo
-	@sed -i 's/\r$$//' ubi.repo
-	@sed -i '/\[.*x86_64.*\]/,/^\[/ s/enabled[[:space:]]*=[[:space:]]*0/enabled = 1/g' ubi.repo
+	@podman run --rm $(BASE_IMAGE) cat /etc/yum.repos.d/ubi.repo > ubi.repo || { echo "Failed to fetch ubi.repo"; exit 1; }
+	@$(SED_INPLACE) 's/ubi-10-appstream-source-rpms/ubi-10-for-x86_64-appstream-source-rpms/' ubi.repo
+	@$(SED_INPLACE) 's/ubi-10-appstream-rpms/ubi-10-for-x86_64-appstream-rpms/' ubi.repo
+	@$(SED_INPLACE) 's/ubi-10-baseos-source-rpms/ubi-10-for-x86_64-baseos-source-rpms/' ubi.repo
+	@$(SED_INPLACE) 's/ubi-10-baseos-rpms/ubi-10-for-x86_64-baseos-rpms/' ubi.repo
+	@$(SED_INPLACE) 's/\r$$//' ubi.repo
+	@$(SED_INPLACE) '/\[.*x86_64.*\]/,/^\[/ s/enabled[[:space:]]*=[[:space:]]*0/enabled = 1/g' ubi.repo
 
 
 # Generate rpms.in.yaml listing RPM packages installed via yum, dnf, or microdnf from CONTAINERFILE
@@ -55,13 +53,12 @@ generate-rpms-in-yaml:
 		echo "packages: [$$(echo "$$packages" | tr '\n' ',' | sed -E 's/,/, /g; s/, $$//')]" > rpms.in.yaml; \
 		echo "contentOrigin:" >> rpms.in.yaml; \
 		echo "  repofiles: [\"./ubi.repo\"]" >> rpms.in.yaml; \
-		echo "moduleEnable: [\"nodejs:22\"]" >> rpms.in.yaml; \
 		echo "arches: [x86_64]" >> rpms.in.yaml; \
 	fi
 
 # Generate rpms.lock.yaml using rpm-lockfile-prototype container
 # Usage: make generate-rpm-lockfile [BASE_IMAGE=<image>]
-# Example: make generate-rpm-lockfile BASE_IMAGE=registry.access.redhat.com/ubi9/ubi-minimal:9.8-1785906621
+# Example: make generate-rpm-lockfile BASE_IMAGE=registry.access.redhat.com/ubi10/ubi-minimal:10.3-1795196920
 #          make generate-rpm-lockfile (uses default BASE_IMAGE)
 .PHONY: generate-rpm-lockfile-containerized
 generate-rpm-lockfile-containerized: rpms.in.yaml
