@@ -1,16 +1,10 @@
 #----------------------- base -----------------------
 
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.9-1795198179 AS base
+FROM registry.access.redhat.com/ubi10/ubi-minimal:10.3-1795196920 AS base
 
-RUN microdnf module enable -y nodejs:22 && \
-    microdnf install -y shadow-utils jq nodejs npm --nodocs && \
+RUN microdnf install -y shadow-utils jq nodejs npm --nodocs && \
     microdnf upgrade -y && \
     microdnf clean all
-
-# Mitigate the eMudhra intermediate CA compromise (RHSB-2026-012) by
-# distrusting the affected root CAs - see https://access.redhat.com/solutions/7149312
-COPY scripts/disable-compromised-ca-certs.sh /tmp/disable-compromised-ca-certs.sh
-RUN /tmp/disable-compromised-ca-certs.sh
 
 ENV APP_ROOT=/opt/app-root
 WORKDIR $APP_ROOT
@@ -22,11 +16,11 @@ COPY LICENSE /licenses
 
 LABEL url="https://www.redhat.com"
 LABEL name="iop-remediations" \
-      description="This adds the satellite/iop-remediations-rhel9 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/iop-remediations-rhel9" \
-      summary="A new satellite/iop-remediations-rhel9 container image is now available in the Red Hat container registry."
+      description="This adds the satellite/iop-remediations-rhel10 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/iop-remediations-rhel10" \
+      summary="A new satellite/iop-remediations-rhel10 container image is now available in the Red Hat container registry."
 LABEL com.redhat.component="iop-remediations" \
       io.k8s.display-name="IoP Remediations" \
-      io.k8s.description="This adds the satellite/iop-remediations-rhel9 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/iop-remediations-rhel9" \
+      io.k8s.description="This adds the satellite/iop-remediations-rhel10 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/iop-remediations-rhel10" \
       io.openshift.tags="insights satellite iop remediations"
 
 USER 1001
