@@ -16,11 +16,11 @@ COPY LICENSE /licenses
 
 LABEL url="https://www.redhat.com"
 LABEL name="iop-remediations" \
-      description="This adds the satellite/iop-remediations-rhel9 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/iop-remediations-rhel9" \
-      summary="A new satellite/iop-remediations-rhel9 container image is now available in the Red Hat container registry."
+      description="This adds the satellite/iop-remediations-rhel10 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/iop-remediations-rhel10" \
+      summary="A new satellite/iop-remediations-rhel10 container image is now available in the Red Hat container registry."
 LABEL com.redhat.component="iop-remediations" \
       io.k8s.display-name="IoP Remediations" \
-      io.k8s.description="This adds the satellite/iop-remediations-rhel9 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/iop-remediations-rhel9" \
+      io.k8s.description="This adds the satellite/iop-remediations-rhel10 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/iop-remediations-rhel10" \
       io.openshift.tags="insights satellite iop remediations"
 
 USER 1001

@@ -2,6 +2,8 @@
 BASE_IMAGE ?= registry.access.redhat.com/ubi10/ubi-minimal:10.3-1795196920
 # Default value for CONTAINERFILE
 CONTAINERFILE ?= Dockerfile
+# Lockfiles and ubi.repo are generated for x86_64; pin Podman so ARM hosts match
+PLATFORM ?= linux/amd64
 
 # Define AWK/SED based on platform (BSD sed on macOS needs an explicit -i '')
 AWK = awk
@@ -13,7 +15,7 @@ endif
 
 .PHONY: generate-repo-file
 generate-repo-file:
-	@podman run --rm $(BASE_IMAGE) cat /etc/yum.repos.d/ubi.repo > ubi.repo || { echo "Failed to fetch ubi.repo"; exit 1; }
+	@podman run --rm --platform $(PLATFORM) $(BASE_IMAGE) cat /etc/yum.repos.d/ubi.repo > ubi.repo || { echo "Failed to fetch ubi.repo"; exit 1; }
 	@$(SED_INPLACE) 's/ubi-10-appstream-source-rpms/ubi-10-for-x86_64-appstream-source-rpms/' ubi.repo
 	@$(SED_INPLACE) 's/ubi-10-appstream-rpms/ubi-10-for-x86_64-appstream-rpms/' ubi.repo
 	@$(SED_INPLACE) 's/ubi-10-baseos-source-rpms/ubi-10-for-x86_64-baseos-source-rpms/' ubi.repo
@@ -63,9 +65,9 @@ generate-rpms-in-yaml:
 .PHONY: generate-rpm-lockfile-containerized
 generate-rpm-lockfile-containerized: rpms.in.yaml
 	@curl -s https://raw.githubusercontent.com/konflux-ci/rpm-lockfile-prototype/refs/heads/main/Containerfile | \
-	podman build -t localhost/rpm-lockfile-prototype -
+	podman build --platform $(PLATFORM) -t localhost/rpm-lockfile-prototype -
 	@container_dir=/work; \
-	podman run --rm -v $${PWD}:$${container_dir}:Z localhost/rpm-lockfile-prototype:latest --outfile=$${container_dir}/rpms.lock.yaml --image $(BASE_IMAGE) $${container_dir}/rpms.in.yaml
+	podman run --rm --platform $(PLATFORM) -v $${PWD}:$${container_dir}:Z localhost/rpm-lockfile-prototype:latest --outfile=$${container_dir}/rpms.lock.yaml --image $(BASE_IMAGE) $${container_dir}/rpms.in.yaml
 	@if [ ! -f rpms.lock.yaml ]; then \
 		echo "Error: rpms.lock.yaml was not generated"; \
 		exit 1; \
