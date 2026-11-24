@@ -410,6 +410,10 @@ exports.bulkPlaybook = errors.async(async function (req, res) {
     return exports.playbook(req, res);
 });
 
+function unknownSystemFiltered (error) {
+    return error instanceof errors.BadRequest && error.error && error.error.code === 'UNKNOWN_SYSTEM';
+}
+
 exports.playbook = errors.async(async function (req, res) {
     trace.enter('controller.read(playbook)');
     const id = req.params.id;
@@ -468,11 +472,30 @@ exports.playbook = errors.async(async function (req, res) {
 
         // remove any systems not in specified satellite organization
         if (sat_org_id) {
-            const batchDetailInfo = await inventory.getSystemDetailsBatch(all_systems);
+            let batchDetailInfo;
+            try {
+                batchDetailInfo = await inventory.getSystemDetailsBatch(all_systems);
+            } catch (e) {
+                // Inventory 404s the batch when a forwarded identity filters a host out.
+                // That is an authorization failure, not an unknown-system 400.
+                if (req.forwardedIdentity && unknownSystemFiltered(e)) {
+                    throw errors.unauthorizedGeneration(req.identity.system.cn);
+                }
+
+                throw e;
+            }
+
             _.forEach(normalizedIssues, issue => {
                 issue.systems = _.filter(issue.systems, system => {
                     // eslint-disable-next-line security/detect-object-injection
-                    const org_id = _.chain(batchDetailInfo[system].facts)
+                    const details = batchDetailInfo[system];
+                    if (!details) {
+                        if (req.forwardedIdentity) {
+                            throw errors.unauthorizedGeneration(req.identity.system.cn);
+                        }
+                    }
+
+                    const org_id = _.chain(details.facts)
                     .find(SATELLITE_NAMESPACE)
                     .get('facts.organization_id')
                     .toString(); //organization_id is an int (boo!)
@@ -484,14 +507,35 @@ exports.playbook = errors.async(async function (req, res) {
 
         // validate system ownership if using certificate authentication
         if (cert_auth) {
-            const batchProfileInfo = await inventory.getSystemProfileBatch(all_systems);
+            let batchProfileInfo;
+            try {
+                batchProfileInfo = await inventory.getSystemProfileBatch(all_systems);
+            } catch (e) {
+                if (req.forwardedIdentity && unknownSystemFiltered(e)) {
+                    throw errors.unauthorizedGeneration(req.identity.system.cn);
+                }
+
+                throw e;
+            }
 
             if (_.isEmpty(batchProfileInfo)) {
+                // Inventory omitted every requested system. With a forwarded host identity
+                // that is an authorization failure; otherwise keep the existing 404.
+                if (req.forwardedIdentity && all_systems.length > 0) {
+                    throw errors.unauthorizedGeneration(req.identity.system.cn);
+                }
+
                 return notFound(res); // Eh, this is really more of an internal error...
             }
 
             all_systems.forEach(system => {
                 if (!_.has(batchProfileInfo, `[${system}].system_profile.owner_id`)) {
+                    // A forwarded identity means Inventory filtered the host out.
+                    // That is unauthorized, not a missing-profile internal error.
+                    if (req.forwardedIdentity) {
+                        throw errors.unauthorizedGeneration(req.identity.system.cn);
+                    }
+
                     throw errors.internal.systemProfileMissing(null, `Missing profile for system: ${system}`);
                 }
 

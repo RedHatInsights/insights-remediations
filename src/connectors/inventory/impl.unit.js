@@ -71,6 +71,15 @@ describe('inventory impl', function () {
 
             spy.calledOnce.should.be.true();
         });
+
+        test('does not cache host info for a forwarded identity', async function () {
+            const cls = require('../../util/cls');
+            cls.getReq().forwardedIdentity = '49f86dd6-9b43-4db2-8b56-b5637f0b0969';
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(inventoryResponse([]));
+
+            await impl.getSystemInfoBatch(['id']);
+            spy.args[0][1].should.equal(false);
+        });
     });
 
     describe('getSystemDetailsBatch', function () {
@@ -90,6 +99,16 @@ describe('inventory impl', function () {
             headers.should.have.size(2);
             headers.should.have.property('x-rh-identity', 'identity');
             headers.should.have.property('x-rh-insights-request-id', 'request-id');
+            spy.args[0][1].should.have.property('key', 'remediations|http-cache|inventory|id');
+        });
+
+        test('does not cache details for a forwarded identity', async function () {
+            const cls = require('../../util/cls');
+            cls.getReq().forwardedIdentity = '49f86dd6-9b43-4db2-8b56-b5637f0b0969';
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(inventoryResponse([]));
+
+            await impl.getSystemDetailsBatch(['id']);
+            spy.args[0][1].should.equal(false);
         });
 
         test('obtains rule info', async function () {
@@ -497,6 +516,21 @@ describe('inventory impl', function () {
             headers.should.have.size(2);
             headers.should.have.property('x-rh-identity', 'identity');
             headers.should.have.property('x-rh-insights-request-id', 'request-id');
+        });
+
+        test('forwards a validated satellite identity', async function () {
+            const cls = require('../../util/cls');
+            cls.getReq().forwardedIdentity = '49F86DD6-9B43-4DB2-8B56-B5637F0B0969';
+            const spy = base.getSandbox().stub(Connector.prototype, 'doHttp').resolves(inventoryResponse([]));
+
+            await impl.getSystemProfileBatch(['id']);
+            const headers = spy.args[0][0].headers;
+            headers.should.have.size(3);
+            headers.should.have.property('x-forwarded-identity', '49f86dd6-9b43-4db2-8b56-b5637f0b0969');
+            headers.should.have.property('x-rh-identity', 'identity');
+            headers.should.have.property('x-rh-insights-request-id', 'request-id');
+            // Authorization must not reuse a profile cached for another subscription manager.
+            spy.args[0][1].should.equal(false);
         });
 
         test('get system profile data', async function () {

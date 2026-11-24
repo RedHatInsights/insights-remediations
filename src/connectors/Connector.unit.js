@@ -8,6 +8,17 @@ const errors = require('../errors');
 const log = require('../util/log');
 const Connector = require('./Connector');
 const { mockRequest } = require('./testUtils');
+const cls = require('../util/cls');
+
+function testConnector () {
+    const TestConnector = class extends Connector {
+        constructor () {
+            super({filename: '/test/connector/generic/impl.js'});
+        }
+    };
+
+    return new TestConnector();
+}
 
 describe('Connector', function () {
 
@@ -69,5 +80,39 @@ describe('Connector', function () {
         // Verify connector name is correct
         expect(connector.getName()).toBe('generic');
         expect(connector.getImpl()).toBe('impl');
+    });
+
+    test('includes canonical x-forwarded-identity when the request has a validated value', function () {
+        mockRequest();
+        cls.getReq().forwardedIdentity = '49F86DD6-9B43-4DB2-8B56-B5637F0B0969';
+
+        const headers = testConnector().getForwardedHeaders();
+        headers.should.have.size(3);
+        headers.should.have.property('x-forwarded-identity', '49f86dd6-9b43-4db2-8b56-b5637f0b0969');
+        headers.should.have.property('x-rh-identity', 'identity');
+        headers.should.have.property('x-rh-insights-request-id', 'request-id');
+    });
+
+    test('does not forward identity headers when identity forwarding is disabled', function () {
+        mockRequest();
+        cls.getReq().forwardedIdentity = '49f86dd6-9b43-4db2-8b56-b5637f0b0969';
+
+        const headers = testConnector().getForwardedHeaders(false);
+        headers.should.have.size(1);
+        headers.should.have.property('x-rh-insights-request-id', 'request-id');
+        headers.should.not.have.property('x-rh-identity');
+        headers.should.not.have.property('x-forwarded-identity');
+    });
+
+    test('does not copy an unvalidated x-forwarded-identity request header', function () {
+        mockRequest({
+            'x-rh-identity': 'identity',
+            'x-rh-insights-request-id': 'request-id',
+            'x-forwarded-identity': '49f86dd6-9b43-4db2-8b56-b5637f0b0969'
+        });
+
+        const headers = testConnector().getForwardedHeaders();
+        headers.should.have.size(2);
+        headers.should.not.have.property('x-forwarded-identity');
     });
 });

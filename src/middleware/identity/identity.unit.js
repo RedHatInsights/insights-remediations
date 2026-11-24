@@ -2,6 +2,8 @@
 
 const { request, auth } = require('../../test');
 const utils = require('./utils');
+const identityMiddleware = require('./impl');
+const errors = require('../../errors');
 
 describe('identity', () => {
     test('fallback', async () => {
@@ -230,5 +232,106 @@ describe('identity', () => {
             username: null,
             account_number: 'diagnosis01'
         });
+    });
+});
+
+describe('satellite X-Forwarded-Identity', () => {
+    const FORWARDED_IDENTITY_HEADER = 'x-forwarded-identity';
+    const CANONICAL = '49f86dd6-9b43-4db2-8b56-b5637f0b0969';
+
+    function satelliteHeader (mutate) {
+        return utils.createCertIdentityHeader('testReadSingle', '4444444', data => {
+            data.identity.system.cert_type = 'satellite';
+            if (mutate) {
+                mutate(data);
+            }
+
+            return data;
+        });
+    }
+
+    function invoke (identityHeader, extraHeaders = {}) {
+        const req = {
+            id: 'test-req',
+            headers: {
+                [utils.IDENTITY_HEADER]: identityHeader,
+                ...extraHeaders
+            }
+        };
+        const next = jest.fn();
+        identityMiddleware(req, {}, next);
+        return {req, next, error: next.mock.calls[0][0]};
+    }
+
+    test('stores a canonical UUID for satellite cert-auth', () => {
+        const {req, next, error} = invoke(satelliteHeader(), {
+            [FORWARDED_IDENTITY_HEADER]: `  ${CANONICAL.toUpperCase()}  `
+        });
+
+        expect(error).toBeUndefined();
+        expect(next).toHaveBeenCalledTimes(1);
+        req.forwardedIdentity.should.equal(CANONICAL);
+    });
+
+    test('accepts satellite cert-auth when auth_type is only at the top level', () => {
+        const header = satelliteHeader(data => {
+            data.identity.auth_type = 'cert-auth';
+            delete data.identity.internal.auth_type;
+        });
+        const {req, error} = invoke(header, {
+            [FORWARDED_IDENTITY_HEADER]: CANONICAL
+        });
+
+        expect(error).toBeUndefined();
+        req.forwardedIdentity.should.equal(CANONICAL);
+    });
+
+    test('treats a missing header as absent', () => {
+        const {req, error} = invoke(satelliteHeader());
+
+        expect(error).toBeUndefined();
+        expect(req.forwardedIdentity).toBeUndefined();
+    });
+
+    test('treats a whitespace-only header as absent', () => {
+        const {req, error} = invoke(satelliteHeader(), {
+            [FORWARDED_IDENTITY_HEADER]: '   '
+        });
+
+        expect(error).toBeUndefined();
+        expect(req.forwardedIdentity).toBeUndefined();
+    });
+
+    test('403s on a malformed header for satellite cert-auth', () => {
+        const {req, error} = invoke(satelliteHeader(), {
+            [FORWARDED_IDENTITY_HEADER]: 'not-a-uuid'
+        });
+
+        expect(error).toBeInstanceOf(errors.Forbidden);
+        error.error.status.should.equal(403);
+        error.error.details.message.should.equal('Invalid X-Forwarded-Identity header');
+        expect(req.forwardedIdentity).toBeUndefined();
+    });
+
+    test('ignores a malformed header for non-satellite system cert-auth', () => {
+        const header = utils.createCertIdentityHeader('diagnosis01', '1234567', data => {
+            data.identity.system.cert_type = 'system';
+            return data;
+        });
+        const {req, error} = invoke(header, {
+            [FORWARDED_IDENTITY_HEADER]: 'not-a-uuid'
+        });
+
+        expect(error).toBeUndefined();
+        expect(req.forwardedIdentity).toBeUndefined();
+    });
+
+    test('ignores a malformed header for user identities', () => {
+        const {req, error} = invoke(utils.createIdentityHeader(), {
+            [FORWARDED_IDENTITY_HEADER]: 'not-a-uuid'
+        });
+
+        expect(error).toBeUndefined();
+        expect(req.forwardedIdentity).toBeUndefined();
     });
 });

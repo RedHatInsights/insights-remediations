@@ -12,6 +12,7 @@ const {Forbidden} = require("../errors");
 const StatusCodeError = require('./StatusCodeError');
 
 const IDENTITY_HEADER = 'x-rh-identity';
+const FORWARDED_IDENTITY_HEADER = 'x-forwarded-identity';
 const REQ_ID_HEADER = 'x-rh-insights-request-id';
 
 module.exports = class Connector {
@@ -92,6 +93,11 @@ module.exports = class Connector {
         if (identity) {
             // eslint-disable-next-line security/detect-object-injection
             assert(forwarded[IDENTITY_HEADER], `identity header not available for outbound ${name} request`);
+
+            // Only the middleware-validated canonical UUID is forwarded.
+            if (req.forwardedIdentity) {
+                forwarded[FORWARDED_IDENTITY_HEADER] = String(req.forwardedIdentity).toLowerCase();
+            }
         }
 
         // eslint-disable-next-line security/detect-object-injection

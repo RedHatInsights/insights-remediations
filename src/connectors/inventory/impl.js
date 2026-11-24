@@ -9,6 +9,7 @@ const config = require('../../config');
 const Connector = require('../Connector');
 const metrics = require('../metrics');
 const log = require('../../util/log');
+const cls = require('../../util/cls');
 const errors = require('../../errors');
 const StatusCodeError = require('../StatusCodeError');
 
@@ -23,6 +24,26 @@ function validateHost (host) {
 function validate (result) {
     _.values(result).forEach(validateHost);
     return result;
+}
+
+// Playbook authorization trusts Inventory to omit hosts that do not match
+// X-Forwarded-Identity. A shared cache entry is keyed only by host id, so a
+// response cached before the subscription-manager association changed would
+// still authorize the previous host until it expired. Skip the cache entirely
+// for these requests: do not read it and do not write a filtered response
+// back into the shared key.
+function inventoryCache (key, refresh) {
+    const req = cls.getReq();
+    if (req && req.forwardedIdentity) {
+        return false;
+    }
+
+    return {
+        key,
+        refresh,
+        revalidationInterval,
+        cacheable: body => body.count > 0 // only cache responses with at least 1 record
+    };
 }
 
 // TODO: this connector could benefit from better caching strategy
@@ -70,12 +91,7 @@ module.exports = new class extends Connector {
                     rejectUnauthorized: !insecure,
                     headers: this.getForwardedHeaders()
                 },
-                {
-                    key: `remediations|http-cache|inventory|${ids.join()}`,
-                    refresh,
-                    revalidationInterval,
-                    cacheable: body => body.count > 0 // only cache responses with at least 1 record
-                },
+                inventoryCache(`remediations|http-cache|inventory|${ids.join()}`, refresh),
                 this.detailsMetrics);
         } catch (e) {
             if (e instanceof errors.Forbidden) {
@@ -162,12 +178,7 @@ module.exports = new class extends Connector {
                 rejectUnauthorized: !insecure,
                 headers: this.getForwardedHeaders()
             },
-            {
-                key: `remediations|http-cache|inventory|${ids.join()}`,
-                refresh,
-                revalidationInterval,
-                cacheable: body => body.count > 0 // only cache responses with at least 1 record
-            },
+            inventoryCache(`remediations|http-cache|inventory|${ids.join()}`, refresh),
             this.detailsMetrics);
         } catch (e) {
             if (e instanceof errors.Forbidden) {
@@ -243,12 +254,7 @@ module.exports = new class extends Connector {
                 rejectUnauthorized: !insecure,
                 headers: this.getForwardedHeaders()
             },
-            {
-                key: `remediations|http-cache|inventory|system_profile|${ids.join()}`,
-                refresh,
-                revalidationInterval,
-                cacheable: body => body.count > 0 // only cache responses with at least 1 record
-            },
+            inventoryCache(`remediations|http-cache|inventory|system_profile|${ids.join()}`, refresh),
             this.profileMetrics);
         } catch (e) {
             if (e instanceof errors.Forbidden) {
