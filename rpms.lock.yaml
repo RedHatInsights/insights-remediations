@@ -4,102 +4,163 @@ lockfileVendor: redhat
 arches:
 - arch: x86_64
   packages:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/n/nodejs-22.23.2-2.module+el9.8.0+24958+80b2ac6e.x86_64.rpm
-    repoid: ubi-9-for-x86_64-appstream-rpms
-    size: 2403164
-    checksum: sha256:30ed0be856712f31dc1fa4bb001eb9684c9ed8cce9fa4c8d7f789fec9a5eece7
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/appstream/os/Packages/l/libuv-1.52.1-1.el10_2.x86_64.rpm
+    repoid: ubi-10-for-x86_64-appstream-rpms
+    size: 278919
+    checksum: sha256:46ff203b97efdfdc81764b7eca1f56b71d26afd16fcf26db5e86afbc0fcaa73d
+    name: libuv
+    evr: 1:1.52.1-1.el10_2
+    sourcerpm: libuv-1.52.1-1.el10_2.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/appstream/os/Packages/n/nodejs-22.23.4-1.el10_2.x86_64.rpm
+    repoid: ubi-10-for-x86_64-appstream-rpms
+    size: 60600
+    checksum: sha256:2a92950846ab9d9e5bfe0a312623db6c7e67283fad9a43cc71f642506210b0fd
     name: nodejs
-    evr: 1:22.23.2-2.module+el9.8.0+24958+80b2ac6e
-    sourcerpm: nodejs-22.23.2-2.module+el9.8.0+24958+80b2ac6e.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/n/nodejs-docs-22.23.2-2.module+el9.8.0+24958+80b2ac6e.noarch.rpm
-    repoid: ubi-9-for-x86_64-appstream-rpms
-    size: 9708175
-    checksum: sha256:0e7b46b64daf326a87e0497ed6f4b449e4a6f32a48927332f2219270d1746a40
+    evr: 1:22.23.4-1.el10_2
+    sourcerpm: nodejs22-22.23.4-1.el10_2.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/appstream/os/Packages/n/nodejs-docs-22.23.4-1.el10_2.noarch.rpm
+    repoid: ubi-10-for-x86_64-appstream-rpms
+    size: 9712011
+    checksum: sha256:d6352be01f456123037e91c49a4d1b69327be6a0272f89584b24e510c33c58c4
     name: nodejs-docs
-    evr: 1:22.23.2-2.module+el9.8.0+24958+80b2ac6e
-    sourcerpm: nodejs-22.23.2-2.module+el9.8.0+24958+80b2ac6e.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/n/nodejs-full-i18n-22.23.2-2.module+el9.8.0+24958+80b2ac6e.x86_64.rpm
-    repoid: ubi-9-for-x86_64-appstream-rpms
-    size: 9308746
-    checksum: sha256:2f7b38331bf01289b764ddde45111741b7ee9e174515d574f47de71844558596
+    evr: 1:22.23.4-1.el10_2
+    sourcerpm: nodejs22-22.23.4-1.el10_2.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/appstream/os/Packages/n/nodejs-full-i18n-22.23.4-1.el10_2.x86_64.rpm
+    repoid: ubi-10-for-x86_64-appstream-rpms
+    size: 9305357
+    checksum: sha256:d48002e8093a5fb302b4d3ee223db3b2cb73acd9b94cb2238ab5a939f5e39f38
     name: nodejs-full-i18n
-    evr: 1:22.23.2-2.module+el9.8.0+24958+80b2ac6e
-    sourcerpm: nodejs-22.23.2-2.module+el9.8.0+24958+80b2ac6e.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/n/nodejs-libs-22.23.2-2.module+el9.8.0+24958+80b2ac6e.x86_64.rpm
-    repoid: ubi-9-for-x86_64-appstream-rpms
-    size: 21559375
-    checksum: sha256:267e302106027cd06d2afc25e395faca807aa2fed67a4b8ef2909227d96da37f
+    evr: 1:22.23.4-1.el10_2
+    sourcerpm: nodejs22-22.23.4-1.el10_2.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/appstream/os/Packages/n/nodejs-libs-22.23.4-1.el10_2.x86_64.rpm
+    repoid: ubi-10-for-x86_64-appstream-rpms
+    size: 20711805
+    checksum: sha256:612e0e12ef23c497acd3e7166843fdbaa5f7e73ad35a7136b2501351f3ab74cf
     name: nodejs-libs
-    evr: 1:22.23.2-2.module+el9.8.0+24958+80b2ac6e
-    sourcerpm: nodejs-22.23.2-2.module+el9.8.0+24958+80b2ac6e.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/n/npm-10.9.8-1.22.23.2.2.module+el9.8.0+24958+80b2ac6e.x86_64.rpm
-    repoid: ubi-9-for-x86_64-appstream-rpms
-    size: 2614847
-    checksum: sha256:7acea4b4ec508706bf4b14659270ae68b53dc82ea515a1ba22c6199badad3276
-    name: npm
-    evr: 1:10.9.8-1.22.23.2.2.module+el9.8.0+24958+80b2ac6e
-    sourcerpm: nodejs-22.23.2-2.module+el9.8.0+24958+80b2ac6e.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/o/oniguruma-6.9.6-1.el9.5.x86_64.rpm
-    repoid: ubi-9-for-x86_64-appstream-rpms
-    size: 226331
-    checksum: sha256:6c884cc2216e5b4699ebd8cde27b39e99532520b367f645ed6cc660d081916dc
-    name: oniguruma
-    evr: 6.9.6-1.el9.5
-    sourcerpm: oniguruma-6.9.6-1.el9.5.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/j/jq-1.6-19.el9_8.2.x86_64.rpm
-    repoid: ubi-9-for-x86_64-baseos-rpms
-    size: 197453
-    checksum: sha256:9793a39a4746a09ba89c3d9ccc70150ac6c878286deee26d7e3aabede4666417
+    evr: 1:22.23.4-1.el10_2
+    sourcerpm: nodejs22-22.23.4-1.el10_2.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/appstream/os/Packages/n/nodejs-npm-10.9.9-1.22.23.4.1.el10_2.x86_64.rpm
+    repoid: ubi-10-for-x86_64-appstream-rpms
+    size: 2631490
+    checksum: sha256:06c515852e48325c49b79e8bfe1b2d4a6e9c185a9424131af3d65f539312d2e8
+    name: nodejs-npm
+    evr: 1:10.9.9-1.22.23.4.1.el10_2
+    sourcerpm: nodejs22-22.23.4-1.el10_2.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/c/c-ares-1.34.6-5.el10_3.2.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 126244
+    checksum: sha256:8b1b03253f24069caad8883345f8addc34250b43979132252569453e014adcc3
+    name: c-ares
+    evr: 1.34.6-5.el10_3.2
+    sourcerpm: c-ares-1.34.6-5.el10_3.2.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/j/jq-1.7.1-13.el10_3.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 212760
+    checksum: sha256:f09b13b7f088244c6f8e3a3b049802522e8ec032a29dc6ba77bd8410273887d8
     name: jq
-    evr: 1.6-19.el9_8.2
-    sourcerpm: jq-1.6-19.el9_8.2.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/l/libbrotli-1.0.9-10.el9_8.x86_64.rpm
-    repoid: ubi-9-for-x86_64-baseos-rpms
-    size: 326501
-    checksum: sha256:ecf2cda794cb9f68a7f67742ce0aeef4c3480795cce0e9bc8f49634072fd2e07
+    evr: 1.7.1-13.el10_3
+    sourcerpm: jq-1.7.1-13.el10_3.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/l/libbrotli-1.1.0-8.el10_2.1.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 359598
+    checksum: sha256:4fcde75854c5395761ea87865f3dcb22bd82df14f338bc6e4d5f7bc3b56f5eea
     name: libbrotli
-    evr: 1.0.9-10.el9_8
-    sourcerpm: brotli-1.0.9-10.el9_8.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/o/openssl-3.5.8-2.el9_8.x86_64.rpm
-    repoid: ubi-9-for-x86_64-baseos-rpms
-    size: 1570074
-    checksum: sha256:4a560a738babd422ff2ba6077da7abfe1b9ce5ef89c056ec5f693334dbebf928
-    name: openssl
-    evr: 1:3.5.8-2.el9_8
-    sourcerpm: openssl-3.5.8-2.el9_8.src.rpm
-  source:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/source/SRPMS/Packages/n/nodejs-22.23.2-2.module+el9.8.0+24958+80b2ac6e.src.rpm
-    repoid: ubi-9-for-x86_64-appstream-source-rpms
-    size: 96975106
-    checksum: sha256:d12130d6a0c44646c9e255b9e4a0ad0a6ed276e6e4650822641a3e728ec213d6
-    name: nodejs
-    evr: 1:22.23.2-2.module+el9.8.0+24958+80b2ac6e
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/source/SRPMS/Packages/o/oniguruma-6.9.6-1.el9.5.src.rpm
-    repoid: ubi-9-for-x86_64-appstream-source-rpms
-    size: 934541
-    checksum: sha256:cba17754ccaffd886995aec7f152aadbc5d9932a2a2cdf1d983291c7b2838404
+    evr: 1.1.0-8.el10_2.1
+    sourcerpm: brotli-1.1.0-8.el10_2.1.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/l/libsemanage-3.11-1.el10.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 131430
+    checksum: sha256:915ce0047ef89e5e6b3f8869b840cd85243e5347260c57b2f0502ff88847559d
+    name: libsemanage
+    evr: 3.11-1.el10
+    sourcerpm: libsemanage-3.11-1.el10.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/l/libxcrypt-4.4.36-10.el10.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 127002
+    checksum: sha256:aaf3d1f7a232c9e583d6c52904c9b640e0dd3de4be80219eab0de3d66601dac4
+    name: libxcrypt
+    evr: 4.4.36-10.el10
+    sourcerpm: libxcrypt-4.4.36-10.el10.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/o/oniguruma-6.9.9-7.el10.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 224700
+    checksum: sha256:d7820e6e436dffd0e75cecd8143de947f19319c38aa67ef7cea672db2ec0a9e2
     name: oniguruma
-    evr: 6.9.6-1.el9.5
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/source/SRPMS/Packages/b/brotli-1.0.9-10.el9_8.src.rpm
-    repoid: ubi-9-for-x86_64-baseos-source-rpms
-    size: 519221
-    checksum: sha256:c833ffbd6c6555543472ef4034a958cf4b8b8dee35b8661b2144ca6fc38908c7
-    name: brotli
-    evr: 1.0.9-10.el9_8
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/source/SRPMS/Packages/j/jq-1.6-19.el9_8.2.src.rpm
-    repoid: ubi-9-for-x86_64-baseos-source-rpms
-    size: 1512470
-    checksum: sha256:abe953ef93fb49db17177190dc0698ab649f18a0bfaef4bb0ef0cd94644d1ec3
-    name: jq
-    evr: 1.6-19.el9_8.2
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/source/SRPMS/Packages/o/openssl-3.5.8-2.el9_8.src.rpm
-    repoid: ubi-9-for-x86_64-baseos-source-rpms
-    size: 53435636
-    checksum: sha256:1e67b59efe228f804c0544a31ab3de0bb4a0c8250d3d5f5fc53a3c7794104795
+    evr: 6.9.9-7.el10
+    sourcerpm: oniguruma-6.9.9-7.el10.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/o/openssl-3.5.9-1.el10_3.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 1340049
+    checksum: sha256:6f8e0e6d780f4bdfbbbabeca48fc356d5a617eae3829117b61e966b66e6e7c1b
     name: openssl
-    evr: 1:3.5.8-2.el9_8
-  module_metadata:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/repodata/235e83a638c97014ccd6962dd7d046eb7b00ffe493f53ecdc0303e404897dd31-modules.yaml.gz
-    repoid: ubi-9-for-x86_64-appstream-rpms
-    size: 8307
-    checksum: sha256:235e83a638c97014ccd6962dd7d046eb7b00ffe493f53ecdc0303e404897dd31
+    evr: 1:3.5.9-1.el10_3
+    sourcerpm: openssl-3.5.9-1.el10_3.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/s/shadow-utils-4.15.0-13.el10.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 1413886
+    checksum: sha256:a3e7f56647fae40a6a5030d6a368148906ed60511754dbebe9427c4bb4f587ee
+    name: shadow-utils
+    evr: 2:4.15.0-13.el10
+    sourcerpm: shadow-utils-4.15.0-13.el10.src.rpm
+  source:
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/appstream/source/SRPMS/Packages/l/libuv-1.52.1-1.el10_2.src.rpm
+    repoid: ubi-10-for-x86_64-appstream-source-rpms
+    size: 1406515
+    checksum: sha256:b78892dbd7a6320c6771c457d9b023900ba27d5b111a9061b9231bcc2b128375
+    name: libuv
+    evr: 1:1.52.1-1.el10_2
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/appstream/source/SRPMS/Packages/n/nodejs22-22.23.4-1.el10_2.src.rpm
+    repoid: ubi-10-for-x86_64-appstream-source-rpms
+    size: 96623909
+    checksum: sha256:0418cae8020ba45ec51cf2350bcdd896ef5b6d2aadfabfb1611d1ddeeb38d14a
+    name: nodejs22
+    evr: 1:22.23.4-1.el10_2
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/source/SRPMS/Packages/b/brotli-1.1.0-8.el10_2.1.src.rpm
+    repoid: ubi-10-for-x86_64-baseos-source-rpms
+    size: 553209
+    checksum: sha256:783891587528f7d5e199e02542370be7554efbb6159cdecd17a2426713748346
+    name: brotli
+    evr: 1.1.0-8.el10_2.1
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/source/SRPMS/Packages/c/c-ares-1.34.6-5.el10_3.2.src.rpm
+    repoid: ubi-10-for-x86_64-baseos-source-rpms
+    size: 1057385
+    checksum: sha256:401bcda72218a4eccc4cc8a268943451a0db97aba3de0231d5959dd7d62e7c67
+    name: c-ares
+    evr: 1.34.6-5.el10_3.2
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/source/SRPMS/Packages/j/jq-1.7.1-13.el10_3.src.rpm
+    repoid: ubi-10-for-x86_64-baseos-source-rpms
+    size: 1354284
+    checksum: sha256:cef922ea803bae1a1c93ea25b2779da18eb065cc8017e73f1d567cc015ee2cfb
+    name: jq
+    evr: 1.7.1-13.el10_3
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/source/SRPMS/Packages/l/libsemanage-3.11-1.el10.src.rpm
+    repoid: ubi-10-for-x86_64-baseos-source-rpms
+    size: 314839
+    checksum: sha256:af266aa0d7eec5a2c2f9408bd3bad043a1c3e88d6874cda223c660a877135bbb
+    name: libsemanage
+    evr: 3.11-1.el10
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/source/SRPMS/Packages/l/libxcrypt-4.4.36-10.el10.src.rpm
+    repoid: ubi-10-for-x86_64-baseos-source-rpms
+    size: 696641
+    checksum: sha256:3eb6dab92ac6918566b6499e71c46af6d70ebe6ca121fe0504aa08ff420c6484
+    name: libxcrypt
+    evr: 4.4.36-10.el10
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/source/SRPMS/Packages/o/oniguruma-6.9.9-7.el10.src.rpm
+    repoid: ubi-10-for-x86_64-baseos-source-rpms
+    size: 979497
+    checksum: sha256:27fcade12515365e7362a233fab1621f4aef6e8c21037cdc6421d5f9f43fa58e
+    name: oniguruma
+    evr: 6.9.9-7.el10
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/source/SRPMS/Packages/o/openssl-3.5.9-1.el10_3.src.rpm
+    repoid: ubi-10-for-x86_64-baseos-source-rpms
+    size: 54111102
+    checksum: sha256:231aac48ecf66f5be2516aae08c808047f29e46494f2402a089cde9765bef421
+    name: openssl
+    evr: 1:3.5.9-1.el10_3
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/source/SRPMS/Packages/s/shadow-utils-4.15.0-13.el10.src.rpm
+    repoid: ubi-10-for-x86_64-baseos-source-rpms
+    size: 1930087
+    checksum: sha256:c38f2f54d05a47bb2c85ff0229ba8d9ed469b2096077b0d433dc48d4bd792bbd
+    name: shadow-utils
+    evr: 2:4.15.0-13.el10
+  module_metadata: []

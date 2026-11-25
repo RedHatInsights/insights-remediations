@@ -7,18 +7,73 @@ const config = require('../config');
 const cls = require('./cls');
 
 const MAX_TRACE_SIZE = 200000; // cloudwatch max = 262144
+const MAX_BODY_LENGTH = 1000;
 
-// avoid writing down the entire response buffer
-function errorSerializer (e) {
-    if (!e) {
-        return e;
+// Safely serialize an object with size/depth bounds to prevent memory exhaustion.
+// Limits array lengths and object depths before stringification.
+function boundedSerialize(obj, maxLength = MAX_BODY_LENGTH, maxDepth = 3, maxArrayLength = 10) {
+    let currentLength = 0;
+
+    function limitStructure(value, depth) {
+        // Stop if we've already generated enough content
+        if (currentLength >= maxLength) {
+            return '[output limit reached]';
+        }
+
+        // Stop at max depth
+        if (depth > maxDepth) {
+            return '[max depth]';
+        }
+
+        // Handle null/undefined
+        if (value === null || value === undefined) {
+            return value;
+        }
+
+        // Handle primitives (string, number, boolean)
+        if (typeof value !== 'object') {
+            return value;
+        }
+
+        // Handle arrays - limit length
+        if (Array.isArray(value)) {
+            if (value.length === 0) {
+                return [];
+            }
+            const limited = value.slice(0, maxArrayLength).map(item => limitStructure(item, depth + 1));
+            if (value.length > maxArrayLength) {
+                limited.push(`[... ${value.length - maxArrayLength} more items]`);
+            }
+            return limited;
+        }
+
+        // Handle objects - recurse on each property
+        const limited = {};
+        let count = 0;
+        const maxProps = 20; // Limit properties per object
+
+        for (const [key, val] of Object.entries(value)) {
+            if (count >= maxProps) {
+                limited['...'] = `${Object.keys(value).length - maxProps} more properties`;
+                break;
+            }
+            limited[key] = limitStructure(val, depth + 1);
+            count++;
+        }
+        return limited;
     }
 
-    const result =  _.omit(pino.stdSerializers.err(e), ['originalResponse']);
-    result.options = optionsSerialized(result.options);
-    result.cause = errorSerializer(result.cause);
+    try {
+        const limited = limitStructure(obj, 0);
+        const str = JSON.stringify(limited);
+        currentLength = str.length;
 
-    return result;
+        return str.length > maxLength
+            ? str.substring(0, maxLength) + '... (truncated)'
+            : str;
+    } catch (e) {
+        return '[Failed to serialize]';
+    }
 }
 
 function optionsSerialized (options) {
@@ -26,7 +81,14 @@ function optionsSerialized (options) {
         return options;
     }
 
-    return _.omit(options, ['ca', 'cert']);
+    const sanitized = _.omit(options, ['ca', 'cert']);
+
+    // Sanitize headers within options to prevent credential leakage
+    if (sanitized.headers) {
+        sanitized.headers = headersSerializer(sanitized.headers);
+    }
+
+    return sanitized;
 }
 
 function headersSerializer (headers) {
@@ -34,7 +96,132 @@ function headersSerializer (headers) {
         return headers;
     }
 
-    return _.omit(headers, ['cookie', 'x-3scale-proxy-secret-token']);
+    // Redact credential and authentication headers from logs (case-insensitive)
+    // Note: x-rh-identity is preserved as it's needed for debugging user/org context
+    const sensitiveHeaders = [
+        'authorization',
+        'x-3scale-proxy-secret-token',
+        'cookie',
+        'set-cookie',
+        'x-api-key',
+        'x-rh-apitoken'
+    ];
+
+    // Pattern-based detection for headers that look like credentials
+    function isSensitiveHeader(key) {
+        const lowerKey = key.toLowerCase();
+
+        // Exact matches
+        if (sensitiveHeaders.includes(lowerKey)) {
+            return true;
+        }
+
+        // Preserve x-rh-identity for debugging
+        if (lowerKey === 'x-rh-identity') {
+            return false;
+        }
+
+        // Pattern matches: anything ending in -token, -key, -secret, -password, -auth
+        if (lowerKey.match(/-(token|key|secret|password|auth)$/)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    const result = {};
+    for (const [key, value] of Object.entries(headers)) {
+        if (!isSensitiveHeader(key)) {
+            result[key] = value;
+        }
+    }
+    return result;
+}
+
+// Extract useful error details while avoiding logging huge response buffers.
+// For external service errors, this preserves:
+// - Service/connector identification
+// - HTTP status codes
+// - Request details (URI, method)
+// - Truncated response body for debugging
+// - Full error chain via recursive cause serialization
+function errorSerializer (e) {
+    if (!e) {
+        return e;
+    }
+
+    const serialized = pino.stdSerializers.err(e);
+    const result = _.omit(serialized, ['originalResponse']);
+
+    // Preserve HttpError details (includes DependencyError with connector name/impl)
+    // If error is a native Error object, serialize it to preserve message/stack
+    if (e.error) {
+        result.error = e.error instanceof Error ? errorSerializer(e.error) : e.error;
+    }
+
+    // Extract useful details from originalResponse without logging the entire buffer
+    if (e.originalResponse) {
+        const response = e.originalResponse;
+        result.response = {
+            statusCode: response.statusCode,
+            statusMessage: response.statusMessage,
+            headers: headersSerializer(response.headers)
+        };
+
+        // Include a safe, size-limited version of the response body for debugging
+        if (response.body) {
+            if (typeof response.body === 'string') {
+                result.response.body = response.body.length > MAX_BODY_LENGTH
+                    ? response.body.substring(0, MAX_BODY_LENGTH) + '... (truncated)'
+                    : response.body;
+            } else if (typeof response.body === 'object') {
+                // Extract only useful error fields with bounded serialization
+                const errorFields = _.pick(response.body, [
+                    'error', 'errors', 'message', 'detail', 'details',
+                    'code', 'status', 'title', 'type', 'reason'
+                ]);
+                result.response.body = boundedSerialize(errorFields);
+            }
+        }
+    }
+
+    // Preserve request details from options (URI, method, etc.)
+    if (e.options) {
+        result.request = {
+            uri: e.options.uri,
+            method: e.options.method,
+            headers: headersSerializer(e.options.headers)
+        };
+    }
+
+    // Preserve statusCode if it's a StatusCodeError or similar
+    if (e.statusCode) {
+        result.statusCode = e.statusCode;
+    }
+
+    // Preserve error details with bounded serialization to prevent memory exhaustion
+    if (e.details) {
+        if (typeof e.details === 'string') {
+            result.details = e.details.length > MAX_BODY_LENGTH
+                ? e.details.substring(0, MAX_BODY_LENGTH) + '... (truncated)'
+                : e.details;
+        } else if (typeof e.details === 'object') {
+            // Serialize with depth/size limits instead of copying directly
+            const serialized = boundedSerialize(e.details);
+            try {
+                result.details = JSON.parse(serialized);
+            } catch (err) {
+                result.details = serialized;
+            }
+        } else {
+            result.details = e.details;
+        }
+    }
+
+    result.options = optionsSerialized(e.options);
+    result.cause = errorSerializer(e.cause);
+
+    return result;
 }
 
 function buildTransport () {
