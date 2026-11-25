@@ -46,6 +46,16 @@ function getHostForApp(dependencyEndpoints, appName, deploymentName, envar) {
     return undefined;
 }
 
+function getV2DependencyEndpoint (loadedConfig, app, deployment) {
+    // eslint-disable-next-line security/detect-object-injection
+    const endpoint = loadedConfig?.dependencyEndpoints?.v2?.[app]?.[deployment];
+    if (endpoint && endpoint.uri) {
+        return endpoint;
+    }
+
+    return undefined;
+}
+
 function Config() {
     const app_config = (acgConfig) ? new (require('app-common-js').Config)() : null;
 
@@ -157,7 +167,9 @@ function Config() {
         rbac: {
             impl: env.RBAC_IMPL,
             insecure: (env.RBAC_INSECURE === 'true') ? true : false,
-            enforce: env.RBAC_ENFORCE === 'false' ? false : true
+            enforce: env.RBAC_ENFORCE === 'false' ? false : true,
+            authenticated: false,
+            caCert: null
         },
 
         kessel: {
@@ -172,7 +184,9 @@ function Config() {
         },
 
         sources: {
-            impl: env.SOURCES_IMPL
+            impl: env.SOURCES_IMPL,
+            authenticated: false,
+            caCert: null
         },
 
         ssg: {
@@ -258,8 +272,28 @@ function Config() {
         config.dispatcher.host = getHostForApp(dependencyEndpoints, 'playbook-dispatcher', 'api', 'PLAYBOOK_DISPATCHER') || env.PLAYBOOK_DISPATCHER_HOST || 'http://playbook-dispatcher-api.playbook-dispatcher-ci.svc.cluster.local:8000';
         config.inventory.host = getHostForApp(dependencyEndpoints, 'host-inventory', 'service', 'INVENTORY') || env.INVENTORY_HOST || 'http://insights-inventory.platform-ci.svc.cluster.local:8080';
         config.patchman.host = getHostForApp(dependencyEndpoints, 'patchman', 'manager', 'PATCHMAN') || env.PATCHMAN_HOST || 'http://localhost:8080';
-        config.rbac.host = getHostForApp(dependencyEndpoints, 'rbac', 'service', 'RBAC') || env.RBAC_HOST || 'http://localhost:8080';
-        config.sources.host = getHostForApp(dependencyEndpoints, 'sources-api', 'svc', 'SOURCES') || env.SOURCES_HOST || 'http://localhost:8080';
+        // RBAC — Clowder V2 dependency endpoint (RHCLOUD-51703)
+        const rbacV2 = getV2DependencyEndpoint(loadedConfig, 'rbac', 'service');
+        if (rbacV2) {
+            config.rbac.host = rbacV2.uri;
+            config.rbac.authenticated = rbacV2.authenticated || false;
+            config.rbac.caCert = rbacV2.ca_certificate || null;
+        } else {
+            console.warn('[clowder-v2] V2 dependency endpoint for rbac/service not found');
+            config.rbac.host = env.RBAC_HOST || 'http://localhost:8080';
+        }
+
+        // Sources — Clowder V2 dependency endpoint (RHCLOUD-51703)
+        const sourcesV2 = getV2DependencyEndpoint(loadedConfig, 'sources-api', 'svc');
+        if (sourcesV2) {
+            config.sources.host = sourcesV2.uri;
+            config.sources.authenticated = sourcesV2.authenticated || false;
+            config.sources.caCert = sourcesV2.ca_certificate || null;
+        } else {
+            console.warn('[clowder-v2] V2 dependency endpoint for sources-api/svc not found');
+            config.sources.host = env.SOURCES_HOST || 'http://localhost:8080';
+        }
+
         config.ssg.host = getHostForApp(privateDepencencyEndpoints, 'compliance-ssg', 'service', 'SSG') || env.SSG_HOST || 'http://localhost:8090';
         config.vmaas.host = getHostForApp(dependencyEndpoints, 'vmaas', 'webapp-go', 'VMAAS') || env.VMAAS_HOST || 'https://console.redhat.com';
         config.vulnerabilities.host = getHostForApp(dependencyEndpoints, 'vulnerability-engine', 'manager-service', 'VULNERABILITIES') || env.VULNERABILITIES_HOST || 'https://access.qa.itop.redhat.com';
